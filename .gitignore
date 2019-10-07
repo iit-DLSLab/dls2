@@ -1,0 +1,5 @@
+bin
+build
+compile_commands.json
+doc/html
+doc/latex
