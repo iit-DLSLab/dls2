@@ -8,6 +8,7 @@ add_executable(
 	application_framework/hyq_app.cpp
 	application_framework/app_layer.cpp
 	application_framework/hardware_layer.cpp
+	application_framework/hyq_app_libraries.cpp
 
 	# Sensor Classes
 	sensors/sensor_base.cpp

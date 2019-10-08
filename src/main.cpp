@@ -54,6 +54,9 @@ int main(int argc, char **argv)
 	sig_action.sa_flags = SA_SIGINFO;
 	sigaction(SIGSEGV, &sig_action, nullptr);
 
+	// Run the app
+	pApp->run();
+
 	// Force segfault TODO remove
 	int *p = nullptr;
 	*p = 1;
@@ -64,6 +67,7 @@ int main(int argc, char **argv)
 // =============================================================================
 void handle_args(int argc, char **argv)
 {
+	// TODO something useful here
 	argc += 1;
 	char *a = argv[0];
 	a = argv[1];

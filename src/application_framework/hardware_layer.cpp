@@ -4,7 +4,7 @@
 // Constructors
 // =============================================================================
 HardwareLayer::HardwareLayer() :
-	sensors({}),
+	sensors(),
 	sensors_mutex()
 { }
 

@@ -12,17 +12,31 @@ class HyQApp
 {
 	using pLayer_t = std::shared_ptr<AppLayer>;
 public:
+	// =========================================================================
+	// Status
+	// =========================================================================
+	/// Enum encapsulating the overall state of the program
 	enum class Status
 	{
-		INITIALISING,
-		RUNNING,
-		LAYER_CRASH,
-		SUCCESS,
-		FATAL_ERROR
+		INITIALISING,	///< The program is being initialised
+		RUNNING,		///< The program is running normally
+		LAYER_CRASH,	///< A layer has crashed in the program
+		SUCCESS,		///< The program has finished execution successfully
+		FATAL_ERROR		///< The program has encountered a fatal error
 	};
 
+	// =========================================================================
+	// Constructors
+	// =========================================================================
 	HyQApp();
 	HyQApp(const std::initializer_list<pLayer_t>&);
+	~HyQApp();
+
+
+	/// Emergency stop function. When this is called, all layers and layer
+	/// components are brought to an emergency stop
+	///
+	/// This function is called when a segfault occurs somewhere in the code
 	void panic();
 
 	Status getStatus();
@@ -36,7 +50,16 @@ public:
 	template <typename layer_t>
 	bool addLayer(std::shared_ptr<layer_t>);
 
+	void run();
+
 private:
+	/// Performs any initialisation required by the libraries used in the
+	/// project
+	void init_libraries();
+
+	/// Properly closes any libraries used in the project
+	void close_libraries();
+
 	void setStatus(Status);
 
 	// BEGIN critical section
