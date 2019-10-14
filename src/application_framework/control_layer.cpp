@@ -1,9 +1,9 @@
-#include "application_framework/program_layer.hpp"
+#include "application_framework/control_layer.hpp"
 #include <iostream> // TODO temp
 // =============================================================================
 // Constructors
 // =============================================================================
-ProgramLayer::ProgramLayer() :
+ControlLayer::ControlLayer() :
 	controllers(),
 	controllers_mutex()
 { }
@@ -11,7 +11,7 @@ ProgramLayer::ProgramLayer() :
 // =============================================================================
 // Interface Override Functions
 // =============================================================================
-ProgramLayer::Status ProgramLayer::run()
+ControlLayer::Status ControlLayer::run()
 {
 	std::cout << "Running program layer" << std::endl;
 	{
@@ -26,7 +26,7 @@ ProgramLayer::Status ProgramLayer::run()
 	return getStatus();
 }
 
-ProgramLayer::Status ProgramLayer::shutdown()
+ControlLayer::Status ControlLayer::shutdown()
 {
 	return getStatus();
 }

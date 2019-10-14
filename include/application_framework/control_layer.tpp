@@ -1,10 +1,10 @@
-#ifndef CONTROLLER_TPP_COCUF9QG
-#define CONTROLLER_TPP_COCUF9QG
+#ifndef CONTROL_LAYER_TPP_COCUF9QG
+#define CONTROL_LAYER_TPP_COCUF9QG
 
 #include <type_traits>
 
 template <typename controller_t>
-void ProgramLayer::addController(std::shared_ptr<controller_t> &pController)
+void ControlLayer::addController(std::shared_ptr<controller_t> &pController)
 {
 	static_assert
 	(
@@ -16,4 +16,4 @@ void ProgramLayer::addController(std::shared_ptr<controller_t> &pController)
 }
 
 
-#endif /* end of include guard: CONTROLLER_TPP_COCUF9QG */
+#endif /* end of include guard: CONTROL_LAYER_TPP_COCUF9QG */

@@ -11,7 +11,7 @@
 
 #include "application_framework/hyq_app.hpp"
 #include "application_framework/hardware_layer.hpp"
-#include "application_framework/program_layer.hpp"
+#include "application_framework/control_layer.hpp"
 
 // TODO temp
 #include "controller/dummy_controller.hpp"
@@ -80,22 +80,22 @@ int main(int argc, char **argv)
 		return 0;
 	}
 
-	const pid_t program_layer_pid = fork();
-	if(program_layer_pid == -1)
+	const pid_t control_layer = fork();
+	if(control_layer == -1)
 	{
 		// TODO fork failed, handle error
 		return -1;
 	}
 
 	// if child process
-	else if (program_layer_pid == 0)
+	else if (control_layer == 0)
 	{
-		std::shared_ptr<ProgramLayer> pProgramLayer = std::make_shared<ProgramLayer>();
+		std::shared_ptr<ControlLayer> pControlLayer = std::make_shared<ControlLayer>();
 		std::shared_ptr<Dog> pDog;
 		std::shared_ptr<DummyController> pDummy_controller =
 			std::make_shared<DummyController>(pDog, "dummy", std::chrono::duration<double>(1));
-		pProgramLayer->addController(pDummy_controller);
-		pApp->addLayer(pProgramLayer);
+		pControlLayer->addController(pDummy_controller);
+		pApp->addLayer(pControlLayer);
 
 		// TODO run should return a status
 		pApp->run();
@@ -120,7 +120,7 @@ int main(int argc, char **argv)
 		{
 			std::cout << "child is hardware layer" << std::endl;
 		}
-		else if(child_pid == program_layer_pid)
+		else if(child_pid == control_layer)
 		{
 			std::cout << "child is program layer" << std::endl;
 		}
@@ -149,7 +149,7 @@ int main(int argc, char **argv)
 		// {
 		// 	case hardware_layer_pid:
 		// 		break;
-		// 	case program_layer_pid:
+		// 	case control_layer:
 		// 		break;
 		// }
 	}

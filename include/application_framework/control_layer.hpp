@@ -1,5 +1,5 @@
-#ifndef PROGRAM_LAYER_HPP_YCHFNYBM
-#define PROGRAM_LAYER_HPP_YCHFNYBM
+#ifndef CONTROL_LAYER_HPP_YCHFNYBM
+#define CONTROL_LAYER_HPP_YCHFNYBM
 
 #include "application_framework/app_layer.hpp"
 #include "controller/controller.hpp"
@@ -8,10 +8,10 @@
 #include <memory>
 #include <mutex>
 
-class ProgramLayer : public AppLayer
+class ControlLayer : public AppLayer
 {
 public:
-	ProgramLayer();
+	ControlLayer();
 
 	// TODO these are not implemented
 	Status run() override;
@@ -27,6 +27,6 @@ private:
 	// END critical section
 };
 
-#include "application_framework/program_layer.tpp"
+#include "application_framework/control_layer.tpp"
 
-#endif /* end of include guard: PROGRAM_LAYER_HPP_YCHFNYBM */
+#endif /* end of include guard: CONTROL_LAYER_HPP_YCHFNYBM */

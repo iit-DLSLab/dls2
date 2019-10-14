@@ -21,7 +21,7 @@ add_executable(
 	application_framework/app_layer.cpp
 	application_framework/hardware_layer.cpp
 	application_framework/hyq_app_libraries.cpp
-	application_framework/program_layer.cpp
+	application_framework/control_layer.cpp
 
 	# Components
 	application_framework/components/app_layer_component.cpp
