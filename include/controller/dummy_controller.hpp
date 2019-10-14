@@ -10,11 +10,17 @@ class DummyController : public Controller
 public:
 	DummyController
 	(
-		const std::shared_ptr<Dog> &dog,
-		const std::string &name,
-		const period_t &period
+		const std::shared_ptr<Dog> &dog
+		// const std::string &name,
+		// const period_t &period
 	) :
-		Controller(dog, name, period)
+		Controller
+		(
+			dog,
+			"dummy_controller",
+			std::chrono::duration<double>(1),
+			SignalReconstructionMethod::ZERO_ORDER_HOLD
+		)
 	{}
 
 	void run(const std::chrono::system_clock::time_point &time) override

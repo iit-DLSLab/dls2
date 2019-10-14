@@ -5,11 +5,14 @@ Controller::Controller
 (
 	const std::shared_ptr<Dog> &dog_,
 	const std::string &name_,
-	const period_t &period_
+	const period_t &period_,
+	const SignalReconstructionMethod &reconst_meth
 ):
 	pDog(dog_),
 	name(name_),
-	period(period_)
+	period(period_),
+	signal_reconstruction_method(reconst_meth),
+	ID(name_)
 { }
 
 AppLayerComponent::Status Controller::run()
@@ -36,4 +39,9 @@ AppLayerComponent::Status Controller::run()
 	}
 	while((status = getStatus()) == Status::RUNNING);
 	return status;
+}
+
+Controller::ID_t Controller::getID() const
+{
+	return this->ID;
 }

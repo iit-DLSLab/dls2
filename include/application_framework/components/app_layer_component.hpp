@@ -21,6 +21,7 @@ public:
 		BREAKING_REALTIME
 	};
 
+	// TODO perhaps add stop, pause?
 	virtual Status run() = 0;
 	virtual Status shutdown() = 0;
 	virtual Status eStop() = 0;

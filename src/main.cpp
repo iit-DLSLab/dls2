@@ -93,7 +93,7 @@ int main(int argc, char **argv)
 		std::shared_ptr<ControlLayer> pControlLayer = std::make_shared<ControlLayer>();
 		std::shared_ptr<Dog> pDog;
 		std::shared_ptr<DummyController> pDummy_controller =
-			std::make_shared<DummyController>(pDog, "dummy", std::chrono::duration<double>(1));
+			std::make_shared<DummyController>(pDog);
 		pControlLayer->addController(pDummy_controller);
 		pApp->addLayer(pControlLayer);
 
@@ -102,6 +102,8 @@ int main(int argc, char **argv)
 		return 0;
 	}
 
+	// Wait for children to finish
+	// Handle crashes in child processes
 	while(true)
 	{
 		int status;
@@ -144,14 +146,6 @@ int main(int argc, char **argv)
 		}
 		std::cout << "======" << std::endl;
 		// Ignoring WIFSTOPPED, WSTOPSIG, WIFCONTINUED
-
-		// switch(child_pid)
-		// {
-		// 	case hardware_layer_pid:
-		// 		break;
-		// 	case control_layer:
-		// 		break;
-		// }
 	}
 
 
