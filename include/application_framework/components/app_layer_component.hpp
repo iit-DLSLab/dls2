@@ -14,7 +14,9 @@ public:
 		FATAL_ERROR,
 		E_STOP,
 		SUCCESS,
-		STOPPED
+		FAIL,
+		STOPPED,
+		BREAKING_REALTIME
 	};
 
 	virtual Status run() = 0;
