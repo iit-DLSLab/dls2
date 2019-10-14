@@ -50,6 +50,7 @@ public:
 	template <typename layer_t>
 	bool addLayer(std::shared_ptr<layer_t>);
 
+	// TODO make this return a status
 	void run();
 
 private:
