@@ -56,5 +56,12 @@ void HyQApp::setStatus(Status s)
 
 void HyQApp::run()
 {
-
+	// TODO start each layer in a different thread controlled by thread pool
+	{
+		std::lock_guard<std::mutex> lock(this->layers_mutex);
+		for(const auto &pLayer : this->layers)
+		{
+			pLayer->run();
+		}
+	}
 }

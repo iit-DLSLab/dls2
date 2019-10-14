@@ -39,6 +39,7 @@ public:
 	/// This function is called when a segfault occurs somewhere in the code
 	void panic();
 
+	/// Returns the current status of the overall application
 	Status getStatus();
 
 	/// Inserts a layer at runtime if such a layer is not yet present
@@ -61,6 +62,7 @@ private:
 	/// Properly closes any libraries used in the project
 	void close_libraries();
 
+	/// Sets the internal status of the overall application
 	void setStatus(Status);
 
 	// BEGIN critical section

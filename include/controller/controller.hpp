@@ -15,24 +15,22 @@ class Dog {};
 
 class Controller : public AppLayerComponent
 {
+protected:
 	typedef std::chrono::duration<double, std::ratio<1, 1'000'000>> period_t;
 public:
-	// TODO add pointer to robot model
+
 	Controller
 	(
-		const std::shared_ptr<Dog> &dog_,
-		const std::string &name_,
-		const period_t &period_
-	) :
-		pDog(dog_),
-		name(name_),
-		period(period_)
-	{ }
+		const std::shared_ptr<Dog> &dog,	///< A pointer to the robot model
+		const std::string &name,			///< The name of the controller
+		const period_t &period				///< The period of the controller
+	);
 
 	virtual ~Controller() = default;
 
 	/// Runs the controller. Calls the virtual function run with the correct
 	/// paramters at each loop
+	/// Function should set state
 	AppLayerComponent::Status run() override;
 
 	// This will be replaced by the shutdown and eStop functions
@@ -43,7 +41,7 @@ protected:
 	/// Function gets called each epoch.
 	///
 	/// @param time The time when this function is called,
-	virtual bool run(const std::chrono::system_clock::time_point &time) = 0;
+	virtual void run(const std::chrono::system_clock::time_point &time) = 0;
 
 	const std::shared_ptr<Dog> pDog;
 	const std::string name;

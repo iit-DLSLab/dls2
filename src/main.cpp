@@ -13,6 +13,9 @@
 #include "application_framework/hardware_layer.hpp"
 #include "application_framework/program_layer.hpp"
 
+// TODO temp
+#include "controller/dummy_controller.hpp"
+
 // =============================================================================
 // Forward Declarations
 // =============================================================================
@@ -69,10 +72,11 @@ int main(int argc, char **argv)
 
 		// TODO run should return a status
 		pApp->run();
-		std::cout << "Ran hardware layer" << std::endl;
-	// Force segfault TODO remove
-	int *p = nullptr;
-	*p = 1;
+
+		// Force segfault TODO remove
+		// int *p = nullptr;
+		// *p = 1;
+
 		return 0;
 	}
 
@@ -87,11 +91,14 @@ int main(int argc, char **argv)
 	else if (program_layer_pid == 0)
 	{
 		std::shared_ptr<ProgramLayer> pProgramLayer = std::make_shared<ProgramLayer>();
+		std::shared_ptr<Dog> pDog;
+		std::shared_ptr<DummyController> pDummy_controller =
+			std::make_shared<DummyController>(pDog, "dummy", std::chrono::duration<double>(1));
+		pProgramLayer->addController(pDummy_controller);
 		pApp->addLayer(pProgramLayer);
 
 		// TODO run should return a status
 		pApp->run();
-		std::cout << "Ran program layer" << std::endl;
 		return 0;
 	}
 

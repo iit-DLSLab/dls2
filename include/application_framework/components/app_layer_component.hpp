@@ -6,10 +6,12 @@
 class AppLayerComponent
 {
 public:
-	virtual ~AppLayerComponent();
+	AppLayerComponent();
+	virtual ~AppLayerComponent() = default;
 
 	enum class Status
 	{
+		UNCONSTRUCTED,
 		RUNNING,
 		FATAL_ERROR,
 		E_STOP,

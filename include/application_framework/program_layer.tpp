@@ -1,0 +1,19 @@
+#ifndef CONTROLLER_TPP_COCUF9QG
+#define CONTROLLER_TPP_COCUF9QG
+
+#include <type_traits>
+
+template <typename controller_t>
+void ProgramLayer::addController(std::shared_ptr<controller_t> &pController)
+{
+	static_assert
+	(
+		std::is_base_of<Controller, controller_t>::value,
+		"Error: controller_t must inherit from Controller"
+	);
+	std::lock_guard<std::mutex> lock(this->components_mutex);
+	this->controllers.push_back(std::static_pointer_cast<Controller>(pController));
+}
+
+
+#endif /* end of include guard: CONTROLLER_TPP_COCUF9QG */

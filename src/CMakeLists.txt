@@ -12,6 +12,8 @@ add_compile_options(
 
 add_executable(
 	dls2
+
+	# Entry point
 	main.cpp
 
 	# Framework Classes
@@ -21,8 +23,14 @@ add_executable(
 	application_framework/hyq_app_libraries.cpp
 	application_framework/program_layer.cpp
 
+	# Components
+	application_framework/components/app_layer_component.cpp
+
 	# Sensor Classes
 	sensors/sensor_base.cpp
+
+	# Controller Interface
+	controller/controller.cpp
 )
 
 target_link_libraries(
