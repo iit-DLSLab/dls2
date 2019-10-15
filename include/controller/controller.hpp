@@ -20,6 +20,10 @@ protected:
 public:
 	using ID_t = std::string;
 
+	// Plugin typedefs
+	typedef Controller *create_t();
+	typedef void destroy_t(Controller*);
+
 	/// How the control layer should interpret the torques from the controller
 	/// when summing the torques between multiple controllers
 	enum class SignalReconstructionMethod
@@ -60,6 +64,8 @@ protected:
 	const period_t period;
 	const SignalReconstructionMethod signal_reconstruction_method;
 	const ID_t ID;
+
+private:
 };
 
 #endif /* end of include guard: CONTROLLER_HPP_RSFU8GQS */

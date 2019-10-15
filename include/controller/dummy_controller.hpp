@@ -13,26 +13,11 @@ public:
 		const std::shared_ptr<Dog> &dog
 		// const std::string &name,
 		// const period_t &period
-	) :
-		Controller
-		(
-			dog,
-			"dummy_controller",
-			std::chrono::duration<double>(1),
-			SignalReconstructionMethod::ZERO_ORDER_HOLD
-		)
-	{}
+	);
 
-	void run(const std::chrono::system_clock::time_point &time) override
-	{
-		static int cnt = 0;
-		std::cout << "Running " << name << " " << std::endl;
-		time.time_since_epoch();
-		if(++cnt == 5)
-		{
-			setStatus(Status::SUCCESS);
-		}
-	}
+	DummyController();
+
+	void run(const std::chrono::system_clock::time_point &time) override;
 
 	Status shutdown() override { return getStatus(); }
 	Status eStop() override { return getStatus(); }

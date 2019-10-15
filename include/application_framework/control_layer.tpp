@@ -2,10 +2,12 @@
 #define CONTROL_LAYER_TPP_COCUF9QG
 
 #include <type_traits>
+#include <iostream> // TODO temp
 
 template <typename controller_t>
 void ControlLayer::addController(std::shared_ptr<controller_t> &pController)
 {
+	std::cout << "adding controller" << std::endl;
 	static_assert
 	(
 		std::is_base_of<Controller, controller_t>::value,
@@ -26,6 +28,5 @@ void ControlLayer::addController(std::shared_ptr<controller_t> &pController)
 				)
 		);
 }
-
 
 #endif /* end of include guard: CONTROL_LAYER_TPP_COCUF9QG */

@@ -80,7 +80,7 @@ int main(int argc, char **argv)
 		change_process_name(argv, "hardware_layer");
 
 		// prctl(PR_SET_NAME, "hardware_layer");
-		while(true);
+// while(true);
 		// Child Process. Hardware process here
 		std::shared_ptr<HardwareLayer> pHardwareLayer = std::make_shared<HardwareLayer>();
 		pApp->addLayer(pHardwareLayer);
@@ -108,9 +108,12 @@ int main(int argc, char **argv)
 		change_process_name(argv, "control_layer");
 		std::shared_ptr<ControlLayer> pControlLayer = std::make_shared<ControlLayer>();
 		std::shared_ptr<Dog> pDog;
-		std::shared_ptr<DummyController> pDummy_controller =
-			std::make_shared<DummyController>(pDog);
-		pControlLayer->addController(pDummy_controller);
+		// std::shared_ptr<DummyController> pDummy_controller =
+		// 	std::make_shared<DummyController>(pDog);
+		// std::shared_ptr<DummyController> pDummy_controller =
+		// 	std::make_shared<DummyController>();
+		// pControlLayer->addController(pDummy_controller);
+		pControlLayer->loadController("./libdummy_controller.so");
 		pControlLayer->activateController("dummy_controller");
 		pApp->addLayer(pControlLayer);
 

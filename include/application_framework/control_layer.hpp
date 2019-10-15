@@ -36,6 +36,12 @@ public:
 	/// See also ControlLayer::activateController
 	bool deactivateController(Controller::ID_t);
 
+	/// Dynamically loads a controller at run time
+	///
+	/// This function throws a std::runtime_error if the controller shared
+	/// object cannot be found
+	void loadController(const std::string &name);
+
 private:
 	// BEGIN critical section
 		std::map<Controller::ID_t, std::shared_ptr<Controller>> controllers;
