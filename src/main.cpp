@@ -5,9 +5,11 @@
 #include <signal.h>
 #include <iostream> // TODO temp
 #include <unistd.h>
+#include <cstring>
 
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/prctl.h>
 
 #include "application_framework/hyq_app.hpp"
 #include "application_framework/hardware_layer.hpp"
@@ -39,6 +41,12 @@ void initialisation_segfault_handler(int signum, siginfo_t *info, void *);
 /// emergency stops and exit the program safely
 void runtime_segfault_handler(int signum, siginfo_t *info, void *);
 
+/// Change the name of a process for ease of monitoring inside of htop, ps etc
+///
+/// Linux only allocates a certain amount of space for the process name. Hence,
+/// this function may truncate the name if it is too long for the alloted space
+void change_process_name(char **argv, const std::string &name);
+
 // =============================================================================
 // Main Logic
 // =============================================================================
@@ -66,6 +74,13 @@ int main(int argc, char **argv)
 	// if child process
 	else if(hardware_layer_pid == 0)
 	{
+		// int argv0size = std::strlen(argv[0]);
+		// std::strncpy(argv[0], "hardware layer", argv0size);
+		// argv[0] = (char*)"hardware layer";
+		change_process_name(argv, "hardware_layer");
+
+		// prctl(PR_SET_NAME, "hardware_layer");
+		while(true);
 		// Child Process. Hardware process here
 		std::shared_ptr<HardwareLayer> pHardwareLayer = std::make_shared<HardwareLayer>();
 		pApp->addLayer(pHardwareLayer);
@@ -90,11 +105,13 @@ int main(int argc, char **argv)
 	// if child process
 	else if (control_layer == 0)
 	{
+		change_process_name(argv, "control_layer");
 		std::shared_ptr<ControlLayer> pControlLayer = std::make_shared<ControlLayer>();
 		std::shared_ptr<Dog> pDog;
 		std::shared_ptr<DummyController> pDummy_controller =
 			std::make_shared<DummyController>(pDog);
 		pControlLayer->addController(pDummy_controller);
+		pControlLayer->activateController("dummy_controller");
 		pApp->addLayer(pControlLayer);
 
 		// TODO run should return a status
@@ -175,6 +192,16 @@ void handle_args(int argc, char **argv)
 	a += 1;
 }
 
+void change_process_name(char **argv, const std::string &name)
+{
+	// change info in /proc/$pid/cmdline
+	int alloted_space = std::strlen(argv[0]);
+	std::strncpy(argv[0], name.c_str(), alloted_space);
+
+	// change info in /proc/$pid/status
+	prctl(PR_SET_NAME, name.c_str());
+}
+
 // -----------------------------------------------------------------------------
 // Signal Handler Functions
 // -----------------------------------------------------------------------------
@@ -196,3 +223,4 @@ void runtime_segfault_handler(int signum, siginfo_t *, void *)
 
 	exit(-1);
 }
+
