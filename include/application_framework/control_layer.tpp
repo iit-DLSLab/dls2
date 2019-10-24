@@ -1,8 +1,13 @@
 #ifndef CONTROL_LAYER_TPP_COCUF9QG
 #define CONTROL_LAYER_TPP_COCUF9QG
 
+#include "application_framework/control_layer.hpp"
+
 #include <type_traits>
 #include <iostream> // TODO temp
+#include <dlfcn.h>
+#include <sstream>
+#include <stdexcept>
 
 template <typename controller_t>
 void ControlLayer::addController(std::shared_ptr<controller_t> &pController)
@@ -28,5 +33,60 @@ void ControlLayer::addController(std::shared_ptr<controller_t> &pController)
 				)
 		);
 }
+
+template <class T>
+std::shared_ptr<T> ControlLayer::loadClass(const std::string &name)
+{
+	// std::cout << name << std::endl;
+	void *T_lib = dlopen(name.c_str(), RTLD_NOW);
+	// void *T_lib = dlopen(name.c_str(), RTLD_LAZY);
+	if(!T_lib)
+	{
+		std::stringstream ss;
+		ss << "Error: could not load object " << name << ": " << dlerror();
+		throw std::runtime_error(ss.str());
+	}
+
+	// clear errors
+	dlerror();
+
+	typename T::create_t *create_T =
+		(typename T::create_t*)dlsym(T_lib, "create");
+
+	if(!create_T)
+	{
+		std::stringstream ss;
+		ss	<< "Error: could not find instantiation code in " << name
+			<< ". Did the module export the class?" << dlerror();
+		throw std::runtime_error(ss.str());
+	}
+
+	// clear errors
+	dlerror();
+
+	typename T::destroy_t *destroy_T =
+		(typename T::destroy_t*)dlsym(T_lib, "destroy");
+
+	if(!destroy_T)
+	{
+		std::stringstream ss;
+		ss	<< "Error: could not find destruction code in " << name
+			<< ". Did the module export the class?" << dlerror();
+		throw std::runtime_error(ss.str());
+	}
+
+	// clear errors
+	dlerror();
+
+	std::shared_ptr<T> pT
+		(
+			create_T(),	// create a pointer to be managed by the shared_ptr
+			destroy_T		// use this as the deleter of the shared_ptr
+		);
+
+	// this->addController(pT);
+	return pT;
+}
+
 
 #endif /* end of include guard: CONTROL_LAYER_TPP_COCUF9QG */
