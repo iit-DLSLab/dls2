@@ -16,6 +16,7 @@ class Dog {};
 class Controller : public AppLayerComponent
 {
 protected:
+	// TODO this is repeated in Gait Generator. Refactor this into one location
 	typedef std::chrono::duration<double, std::ratio<1, 1'000'000>> period_t;
 public:
 	using ID_t = std::string;
@@ -35,7 +36,7 @@ public:
 	Controller
 	(
 		const std::shared_ptr<Dog>&,		///< A pointer to the robot model
-		const std::string&,					///< The name of the controller
+		const ID_t&,						///< The ID of the controller
 		const period_t&,					///< The period of the controller
 		const SignalReconstructionMethod&	///< Signal reconstruction used by this controller
 	);
