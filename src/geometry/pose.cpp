@@ -155,25 +155,25 @@ void Pose::set(const Eigen::Vector3d &vec)
 void Pose::set(const Eigen::Quaterniond &q)
 {
 	std::lock_guard<std::mutex> lock(this->pose_mutex);
-	this->quaternion = q;
+	this->quaternion = q.normalized();
 }
 
 void Pose::set(const Eigen::AngleAxisd &aa)
 {
 	std::lock_guard<std::mutex> lock(this->pose_mutex);
-	this->quaternion = Eigen::Quaterniond(aa);
+	this->quaternion = Eigen::Quaterniond(aa).normalized();
 }
 
 void Pose::set(const Eigen::Vector3d &vec, const Eigen::Quaterniond &q)
 {
 	std::lock_guard<std::mutex> lock(this->pose_mutex);
 	this->position = vec;
-	this->quaternion = q;
+	this->quaternion = q.normalized();
 }
 
 void Pose::set(const Eigen::Vector3d &vec, const Eigen::AngleAxisd &aa)
 {
 	std::lock_guard<std::mutex> lock(this->pose_mutex);
 	this->position = vec;
-	this->quaternion = Eigen::Quaterniond(aa);
+	this->quaternion = Eigen::Quaterniond(aa).normalized();
 }
