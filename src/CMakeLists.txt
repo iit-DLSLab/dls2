@@ -57,6 +57,13 @@ add_library(
 	controller/controller.cpp
 )
 
+# ================================= Geometry ===================================
+add_library(
+	geometry
+	SHARED
+	geometry/pose.cpp
+)
+
 # ==============================================================================
 # Main Executable
 # ==============================================================================
@@ -71,6 +78,8 @@ add_executable(
 
 target_link_libraries(
 	${EXECUTABLE_NAME}
+
+	geometry
 
 	# note that the order of these is important
 	framework

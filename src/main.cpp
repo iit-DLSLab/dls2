@@ -18,6 +18,8 @@
 // TODO temp
 #include "controller/dummy_controller.hpp"
 
+#include "geometry/pose.hpp"
+
 // =============================================================================
 // Forward Declarations
 // =============================================================================
