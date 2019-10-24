@@ -51,23 +51,29 @@ public:
 	transformation_matrix_t toTransformationMatrix() const;
 
 	// ============================== Arithmetic ===============================
-	// Subtraction
+	/// Computes a pose that represents the translation and rotation difference
+	/// from a given pose to this pose
 	Pose &operator-=(const Pose&);
+
+	/// Computes the translation from the given position to this pose. Ignores
+	/// rotations
 	Pose &operator-=(const Eigen::Vector3d&);
+
+	/// Computes the rotation from a given pose to this pose. Ignores
+	/// translations
 	Pose &operator-=(const Eigen::Quaterniond&);
 
+	/// Computes a pose that represents the translation and rotation difference
+	/// from a given pose to this pose
 	Pose operator-(const Pose&) const;
+
+	/// Computes the translation from the given position to this pose. Ignores
+	/// rotations
 	Pose operator-(const Eigen::Vector3d&) const;
+
+	/// Computes the rotation from a given pose to this pose. Ignores
+	/// translations
 	Pose operator-(const Eigen::Quaterniond&) const;
-
-	// Addition
-	// Pose &operator+=(const Pose&);
-	// Pose &operator+=(const Eigen::Vector3d&);
-	// Pose &operator+=(const Eigen::Quaterniond&);
-
-	// Pose operator+(const Pose&) const;
-	// Pose operator+(const Eigen::Vector3d&) const;
-	// Pose operator+(const Eigen::Quaterniond&) const;
 
 	// ================================ setters ================================
 	void set(const Eigen::Vector3d&);
