@@ -14,6 +14,7 @@ class ControlLayer : public AppLayer
 public:
 	ControlLayer();
 
+	// ========================== Interface Overrides ==========================
 	// TODO these are not implemented
 	Status run() override;
 	Status shutdown() override;
@@ -24,7 +25,7 @@ public:
 	/// This call does not start the controller. see
 	/// ControlLayer::activateController
 	template <typename controller_t>
-	void addController(std::shared_ptr<controller_t>&);
+	void addController(const std::shared_ptr<controller_t>&);
 
 	/// Activates a controller
 	///
@@ -45,23 +46,47 @@ public:
 	void loadController(const std::string &name);
 
 	// ============================ Gait Generators ============================
-	// template <typename generator_t>
-	// void addGaitGenerator(std::shared_ptr<generator_t>&);
-	// bool activateGaitGenerator(GaitGenerator::ID_t);
-	// void deactivateGaitGenerators();
-	// void loadGaitGenerator(const std::string &name);
+	/// Adds a gait generator to the control layer
+	///
+	/// This call does not start the gait generator. See
+	/// ControlLayer::activateGaitGenerator
+	template <typename generator_t>
+	void addGaitGenerator(const std::shared_ptr<generator_t>&);
+
+	/// Activates a gait generator
+	///
+	/// This will stop any other running gait generators
+	/// @ret true if the controller exists, false otherwise. See also
+	/// ControlLayer::deactivateGaitGenerators
+	bool activateGaitGenerator(const GaitGenerator::ID_t&);
+
+	/// Deactivates the current gait generator
+	void deactivateGaitGenerators();
+
+	/// Dynamically loads a gait generator at run time
+	///
+	/// This function throws a std::runtime_error if the gait generator shared
+	/// object cannot be found
+	void loadGaitGenerator(const std::string &name);
 
 private:
+	// ================================ Utility ================================
+	/// Dynamically loads a class at run time
+	///
+	/// This function throws a std::runtime_error if the shared object cannot be
+	/// found
 	template <class T>
 	static std::shared_ptr<T> loadClass(const std::string &name);
 
+	// ============================= Data Members ==============================
 	// BEGIN critical section
 		std::map<Controller::ID_t, std::shared_ptr<Controller>> controllers;
 		std::mutex controllers_mutex;
 	// END critical section
 	// BEGIN critical section
-		// std::map<GaitGenerator::ID_t, std::shared_ptr<GaitGenerator>> generators;
-		// std::mutex gait_generators_mutex;
+		std::map<GaitGenerator::ID_t, std::shared_ptr<GaitGenerator>> generators;
+		std::mutex gait_generators_mutex;
+		std::shared_ptr<GaitGenerator> currentActiveGenerator;
 	// END critical section
 };
 

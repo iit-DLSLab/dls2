@@ -60,7 +60,7 @@ protected:
 	/// @param time The time when this function is called,
 	virtual void run(const std::chrono::system_clock::time_point &time) = 0;
 
-	const std::shared_ptr<Dog> pDog;
+	const std::shared_ptr<const Dog> pDog;
 	const std::string name;
 	const period_t period;
 	const SignalReconstructionMethod signal_reconstruction_method;

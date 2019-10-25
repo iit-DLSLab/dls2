@@ -57,6 +57,12 @@ add_library(
 	controller/controller.cpp
 )
 
+add_library(
+	gaitgeneratorinterface
+	SHARED
+	gait_generator/gait_generator.cpp
+)
+
 # ================================= Geometry ===================================
 add_library(
 	geometry
@@ -84,6 +90,7 @@ target_link_libraries(
 	# note that the order of these is important
 	framework
 	controlinterface
+	gaitgeneratorinterface
 )
 
 # Temporary test class for controller plugin interface
@@ -96,9 +103,10 @@ add_library(
 # ==============================================================================
 # Convencience Targets
 # ==============================================================================
+# TODO remove dummy_controller from here
 add_custom_target(
 	run
 	COMMAND ./${EXECUTABLE_NAME}
-	DEPENDS ${EXECUTABLE_NAME}
+	DEPENDS ${EXECUTABLE_NAME} dummy_controller
 	WORKING_DIRECTORY ${EXECUTABLE_OUTPUT_PATH}
 )

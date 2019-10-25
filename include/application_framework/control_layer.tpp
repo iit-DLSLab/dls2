@@ -9,8 +9,11 @@
 #include <sstream>
 #include <stdexcept>
 
+// =============================================================================
+// Controlles
+// =============================================================================
 template <typename controller_t>
-void ControlLayer::addController(std::shared_ptr<controller_t> &pController)
+void ControlLayer::addController(const std::shared_ptr<controller_t> &pController)
 {
 	std::cout << "adding controller" << std::endl;
 	static_assert
@@ -33,7 +36,36 @@ void ControlLayer::addController(std::shared_ptr<controller_t> &pController)
 				)
 		);
 }
+// =============================================================================
+// Gait Generators
+// =============================================================================
+template <typename generator_t>
+void ControlLayer::addGaitGenerator(const std::shared_ptr<generator_t> &pGen)
+{
+	static_assert
+	(
+		std::is_base_of<GaitGenerator, generator_t>::value,
+		"Error: generator_t must inherit from Gait Generator"
+	);
 
+	std::lock_guard<std::mutex> lock(this->gait_generators_mutex);
+	this->generators.insert
+		(
+			std::pair
+				<
+					GaitGenerator::ID_t,
+					std::shared_ptr<GaitGenerator>
+				>
+				(
+					pGen->getID(),
+					std::static_pointer_cast<GaitGenerator>(pGen)
+				)
+		);
+}
+
+// =============================================================================
+// Utility Implementation
+// =============================================================================
 template <class T>
 std::shared_ptr<T> ControlLayer::loadClass(const std::string &name)
 {
@@ -80,11 +112,10 @@ std::shared_ptr<T> ControlLayer::loadClass(const std::string &name)
 
 	std::shared_ptr<T> pT
 		(
-			create_T(),	// create a pointer to be managed by the shared_ptr
+			create_T(),		// create a pointer to be managed by the shared_ptr
 			destroy_T		// use this as the deleter of the shared_ptr
 		);
 
-	// this->addController(pT);
 	return pT;
 }
 

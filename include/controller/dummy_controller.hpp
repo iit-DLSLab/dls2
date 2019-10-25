@@ -19,7 +19,7 @@ public:
 
 	void run(const std::chrono::system_clock::time_point &time) override;
 
-	Status shutdown() override { return getStatus(); }
+	Status stop() override { return getStatus(); }
 	Status eStop() override { return getStatus(); }
 };
 

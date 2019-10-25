@@ -7,7 +7,7 @@
 #include <memory>
 
 class Dog;
-class GaitGenerator : AppLayerComponent
+class GaitGenerator : public AppLayerComponent
 {
 protected:
 	// TODO this is repeated in Controller. Refactor this into one location
@@ -26,10 +26,18 @@ public:
 		const ID_t&,					///< The ID of the gait generator
 		const period_t&					///< The period of the gait generator
 	);
+
 	virtual ~GaitGenerator() = default;
 
+	/// Returns the ID of this gait generator
+	///
+	/// @ret the ID
+	ID_t getID();
+
 protected:
-	std::shared_ptr<const Dog> pRobot;
+	const std::shared_ptr<const Dog> pRobot;	///< A pointer to the robot model
+	const ID_t ID;								///< The ID of this gait generator
+	const period_t period;						///< The period of this gait generator
 };
 
 #endif /* end of include guard: GAIT_GENERATOR_HPP_5MDX0BG2 */
