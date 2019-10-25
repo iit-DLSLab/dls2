@@ -3,6 +3,7 @@
 
 #include "application_framework/components/app_layer_component.hpp"
 #include "geometry/pose.hpp"
+#include "todo.h"
 
 #include <mutex>
 #include <memory>
@@ -12,7 +13,7 @@ class Dog;
 class GaitGenerator : public AppLayerComponent
 {
 protected:
-	// TODO this is repeated in Controller. Refactor this into one location
+	TODO("this is repeated in Controller. Refactor this into one location")
 	typedef std::chrono::duration<double, std::ratio<1, 1'000'000>> period_t;
 
 	/// A structure containing the data streams that make up the signal
@@ -21,7 +22,7 @@ protected:
 	// control layer or controller like this?
 	struct DataOut
 	{
-		// TODO can I use Pose class for velocities and accelerations?
+		TODO("can I use Pose class for velocities and accelerations?")
 		Pose desired_com_pose;			///< The desired pose of the center of mass frame
 		Pose desired_com_velocity;		///< The desired velocity of the center of mass frame
 		Pose desired_com_acceleration;	///< The desired accleration of the center of mass frame
@@ -35,7 +36,7 @@ protected:
 		Eigen::VectorXd desired_joint_acceleration;		///< The desired joint acceleration
 
 		Eigen::VectorXd desired_feed_forward_torque;	///< THe desired feed forard torque
-		// TODO stance feet here
+		TODO("stance feet here")
 	};
 
 public:

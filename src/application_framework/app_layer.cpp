@@ -1,5 +1,6 @@
 #include "application_framework/app_layer.hpp"
-#include <iostream> // TODO temp
+TODO("remove temp iostream include")
+#include <iostream>
 
 // =============================================================================
 // Constructors
@@ -38,7 +39,7 @@ void AppLayer::setStatus(Status s)
 
 AppLayer::Status AppLayer::eStop()
 {
-	std::cout << "Application Layer eStop" << std::endl; // TODO remove
+	std::cout << "Application Layer eStop" << std::endl;
 
 	{
 		std::lock_guard<std::mutex> lock(this->components_mutex);

@@ -7,6 +7,7 @@
 #include <mutex>
 
 #include "application_framework/app_layer.hpp"
+#include "todo.h"
 
 class HyQApp
 {
@@ -51,7 +52,7 @@ public:
 	template <typename layer_t>
 	bool addLayer(std::shared_ptr<layer_t>);
 
-	// TODO make this return a status
+	TODO("make this return a status")
 	void run();
 
 private:

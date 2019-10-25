@@ -1,9 +1,11 @@
 // =============================================================================
 // Includes
 // =============================================================================
+#include "todo.h"
 #include <memory>
 #include <signal.h>
-#include <iostream> // TODO temp
+TODO("remove iostream include")
+#include <iostream>
 #include <unistd.h>
 #include <cstring>
 
@@ -15,11 +17,10 @@
 #include "application_framework/hardware_layer.hpp"
 #include "application_framework/control_layer.hpp"
 
-// TODO temp
+TODO("temporary include")
 #include "controller/dummy_controller.hpp"
 
 #include "geometry/pose.hpp"
-#include "todo.h"
 
 // =============================================================================
 // Forward Declarations
@@ -71,7 +72,7 @@ int main(int argc, char **argv)
 	const pid_t hardware_layer_pid = fork();
 	if(hardware_layer_pid == -1)
 	{
-		// TODO fork failed, handle error
+		TODO("handle error of fork")
 		return -1;
 
 	}
@@ -90,12 +91,8 @@ int main(int argc, char **argv)
 		std::shared_ptr<HardwareLayer> pHardwareLayer = std::make_shared<HardwareLayer>();
 		pApp->addLayer(pHardwareLayer);
 
-		// TODO run should return a status
+		TODO("Run should return a status")
 		pApp->run();
-
-		// Force segfault TODO remove
-		// int *p = nullptr;
-		// *p = 1;
 
 		return 0;
 	}
@@ -103,7 +100,7 @@ int main(int argc, char **argv)
 	const pid_t control_layer = fork();
 	if(control_layer == -1)
 	{
-		// TODO fork failed, handle error
+		TODO("Fork failed, handle error")
 		return -1;
 	}
 
@@ -122,7 +119,7 @@ int main(int argc, char **argv)
 		pControlLayer->activateController("dummy_controller");
 		pApp->addLayer(pControlLayer);
 
-		// TODO run should return a status
+		TODO("Run should return a status")
 		pApp->run();
 		return 0;
 	}
@@ -153,12 +150,12 @@ int main(int argc, char **argv)
 		}
 		if(WIFEXITED(status))
 		{
-			// TODO
 			std::cout << "Child process exited normally with exit status " <<
 				WEXITSTATUS(status) << std::endl;
 		}
 		if(WIFSIGNALED(status))
 		{
+			TODO("Handle case where child process crashed")
 			std::cout << "Child process exited by signal " <<
 				WTERMSIG(status) << std::endl;
 
@@ -180,9 +177,6 @@ int main(int argc, char **argv)
 	// sigaction(SIGSEGV, &sig_action, nullptr);
 
 
-	// Force segfault TODO remove
-	// int *p = nullptr;
-	// *p = 1;
 	std::cout << "closing out" << std::endl;
 
 	return 0;
@@ -193,7 +187,7 @@ int main(int argc, char **argv)
 // =============================================================================
 void handle_args(int argc, char **argv)
 {
-	// TODO something useful here
+	TODO("something useful here")
 	argc += 1;
 	char *a = argv[0];
 	a = argv[1];
@@ -215,7 +209,7 @@ void change_process_name(char **argv, const std::string &name)
 // -----------------------------------------------------------------------------
 void initialisation_segfault_handler(int signum, siginfo_t *, void *)
 {
-	// TODO inspect info
+	TODO("inspect info")
 	if(signum != SIGSEGV) return;
 	std::cout << "Segfault during initialisation" << std::endl;
 
@@ -224,7 +218,7 @@ void initialisation_segfault_handler(int signum, siginfo_t *, void *)
 
 void runtime_segfault_handler(int signum, siginfo_t *, void *)
 {
-	// TODO inspect info
+	TODO("inspect info")
 	if(signum != SIGSEGV) return;
 	std::cout << "Segfault during runtime" << std::endl;
 	pApp->panic();

@@ -2,6 +2,7 @@
 #define APP_LAYER_COMPONENT_HPP_B4KVSXQY
 
 #include <mutex>
+#include "todo.h"
 
 class AppLayerComponent
 {
@@ -21,7 +22,7 @@ public:
 		BREAKING_REALTIME
 	};
 
-	// TODO perhaps add stop, pause?
+	TODO("perhaps add stop, pause functions?")
 	virtual Status run() = 0;
 	//virtual Status shutdown() = 0;
 	virtual Status eStop() = 0;

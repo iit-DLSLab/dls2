@@ -7,16 +7,15 @@
 
 #include "application_framework/components/app_layer_component.hpp"
 
-// TODO temp, remove and insert Dog class in correct place
+TODO("temp, remove and insert Dog class in correct place")
 class Dog {};
 
-// TODO a lot of functions have been removed from Controller. Many of them need
-// to be put into Dog
+TODO("a lot of functions have been removed from Controller. Many of them need to be put into Dog")
 
 class Controller : public AppLayerComponent
 {
 protected:
-	// TODO this is repeated in Gait Generator. Refactor this into one location
+	TODO("this is repeated in Gait Generator. Refactor this into one location")
 	typedef std::chrono::duration<double, std::ratio<1, 1'000'000>> period_t;
 public:
 	using ID_t = std::string;
@@ -27,10 +26,11 @@ public:
 
 	/// How the control layer should interpret the torques from the controller
 	/// when summing the torques between multiple controllers
+	TODO("Implement IMPULSE")
 	enum class SignalReconstructionMethod
 	{
 		ZERO_ORDER_HOLD,
-		// IMPULSE // TODO implement this one
+		// IMPULSE
 	};
 
 	Controller
@@ -49,7 +49,7 @@ public:
 	AppLayerComponent::Status run() override;
 
 	// This will be replaced by the shutdown and eStop functions
-	// /// TODO unknown what this should do
+	TODO("unknown what this should do")
 	// virtual void kill() = 0;
 
 	/// Get the ID of this controller

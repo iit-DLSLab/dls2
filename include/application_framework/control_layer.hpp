@@ -15,7 +15,7 @@ public:
 	ControlLayer();
 
 	// ========================== Interface Overrides ==========================
-	// TODO these are not implemented
+	TODO("These functions are not implemented")
 	Status run() override;
 	Status shutdown() override;
 

@@ -1,5 +1,6 @@
 #include "application_framework/control_layer.hpp"
-#include <iostream> // TODO temp
+TODO("remove temp iostream include")
+#include <iostream>
 // =============================================================================
 // Constructors
 // =============================================================================
@@ -19,17 +20,11 @@ ControlLayer::Status ControlLayer::run()
 	std::cout << "Running program layer" << std::endl;
 	{
 		std::lock_guard<std::mutex> lock(this->components_mutex);
-		// TODO this is wrong, shouldn't automatically run all of the
-		// controllers
-		// for(const auto &el : controllers)
-		// {
-		// 	// el.second->run();
-		// }
 	}
 
-	// TODO spawn realtime thread for managing controllers
+	TODO("spawn realtime thread for managing controllers")
 
-	// TODO spawn nonrealtime thread for user interaction
+	TODO("spawn nonrealtime thread for user interaction")
 	setStatus(Status::RUNNING);
 	while(getStatus() == Status::RUNNING)
 	{
@@ -49,13 +44,13 @@ ControlLayer::Status ControlLayer::run()
 			{
 				if(pair_id_pController.second->getStatus() == Controller::Status::RUNNING)
 				{
-					// TODO send signal here
+					TODO("send signal here")
 					// pair_id_pController.second->pushSignal(signal);
 				}
 			}
 		}
 
-		// TODO sleep at correct frequency here
+		TODO("sleep at correct frequency here")
 	}
 
 	return getStatus();
@@ -90,8 +85,11 @@ bool ControlLayer::deactivateController(const Controller::ID_t &ID)
 
 	if(it == this->controllers.end()) return false;
 
-	// TODO shutdown might need to be called stop or pause or whatever. Maybe
-	// add another virtual function in AppLayerComponent
+	TODO
+	(
+		"shutdown might need to be called stop or pause or whatever. Maybe"
+		"add another virtual function in AppLayerComponent"
+	)
 	it->second->stop();
 	return true;
 }
@@ -100,8 +98,8 @@ void ControlLayer::loadController(const Controller::ID_t &name)
 {
 	std::shared_ptr<Controller> pController = ControlLayer::loadClass<Controller>(name);
 	std::lock_guard<std::mutex> lock(this->controllers_mutex);
-	// TODO define properly what this function does when a controller already
-	// exists
+
+	TODO("Define properly what this function does when a controller already exists")
 	this->addController(pController);
 }
 
@@ -133,7 +131,6 @@ void ControlLayer::loadGaitGenerator(const std::string &name)
 	std::shared_ptr<GaitGenerator> pGaitGenerator =
 		ControlLayer::loadClass<GaitGenerator>(name);
 	std::lock_guard<std::mutex> lock(this->gait_generators_mutex);
-	// TODO define properly what this function does when a controller already
-	// exists
+	TODO("define properly what this function does when a controller already exists")
 	this->addGaitGenerator(pGaitGenerator);
 }

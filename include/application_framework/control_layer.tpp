@@ -4,7 +4,8 @@
 #include "application_framework/control_layer.hpp"
 
 #include <type_traits>
-#include <iostream> // TODO temp
+TODO("remove temporary iostream include")
+#include <iostream>
 #include <dlfcn.h>
 #include <sstream>
 #include <stdexcept>

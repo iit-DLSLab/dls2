@@ -1,5 +1,6 @@
 #include "application_framework/hyq_app.hpp"
-#include <iostream> // TODO temp
+TODO("remove iostream include")
+#include <iostream>
 
 // =============================================================================
 // Constructors
@@ -33,7 +34,7 @@ HyQApp::~HyQApp()
 void HyQApp::panic()
 {
 	std::cout << "Panic" << std::endl;
-	// TODO here set safety
+	TODO("Here set safety")
 
 	std::lock_guard<std::mutex> lock(this->layers_mutex);
 	for(const auto &pLayer : layers)
@@ -56,7 +57,7 @@ void HyQApp::setStatus(Status s)
 
 void HyQApp::run()
 {
-	// TODO start each layer in a different thread controlled by thread pool
+	TODO("start each layer in a different thread controlled by thread pool")
 	{
 		std::lock_guard<std::mutex> lock(this->layers_mutex);
 		for(const auto &pLayer : this->layers)
