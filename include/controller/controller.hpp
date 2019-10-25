@@ -52,6 +52,9 @@ public:
 	// /// TODO unknown what this should do
 	// virtual void kill() = 0;
 
+	/// Get the ID of this controller
+	///
+	/// @ret the ID
 	ID_t getID() const;
 
 protected:

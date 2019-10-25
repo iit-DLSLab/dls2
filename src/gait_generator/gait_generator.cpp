@@ -11,7 +11,9 @@ GaitGenerator::GaitGenerator
 ) :
 	pRobot(pRobot_),
 	ID(ID_),
-	period(period_)
+	period(period_),
+	pData(nullptr),
+	data_mutex()
 { }
 
 // =============================================================================
@@ -21,3 +23,16 @@ GaitGenerator::ID_t GaitGenerator::getID()
 {
 	return this->ID;
 }
+
+void GaitGenerator::publishData(const std::shared_ptr<DataOut> &pIn_data)
+{
+	std::lock_guard<std::mutex> lock(this->data_mutex);
+	this->pData = pIn_data;
+}
+
+std::shared_ptr<GaitGenerator::DataOut> GaitGenerator::readSignal()
+{
+	std::lock_guard<std::mutex> lock(this->data_mutex);
+	return this->pData;
+}
+
