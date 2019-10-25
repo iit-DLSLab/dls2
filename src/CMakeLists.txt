@@ -35,7 +35,7 @@ add_compile_options(
 
 	# Custom defintions
 	-DSOURCE_PATH_SIZE=${SOURCE_PATH_SIZE}
-	-DSHOW_TODOS_AT_COMPILE_TIME
+	# -DSHOW_TODOS_AT_COMPILE_TIME
 )
 
 # ==============================================================================
@@ -102,6 +102,14 @@ target_link_libraries(
 	framework
 	controlinterface
 	gaitgeneratorinterface
+)
+
+# Count TODOs after build
+add_custom_command(
+	TARGET ${EXECUTABLE_NAME}
+	POST_BUILD
+	COMMAND ${CMAKE_SOURCE_DIR}/build_tools/list_todos
+	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
 # Temporary test class for controller plugin interface

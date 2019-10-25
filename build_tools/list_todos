@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# Note that this is inefficient, since it is done twice
+NUM_TODOS=$(grep --include=\*.{c,cc,cpp,h,hpp} --exclude-dir=build_tools -rnw '.' -e "TODO" | sed 's/\s*TODO/ \&TODO/' | column -ts '&' | sed 's/TODO("\(.*\)")/TODO: \1/' | wc -l)
+echo FOUND $NUM_TODOS TODOS
+echo ===========================================================================
+grep --include=\*.{c,cc,cpp,h,hpp} --exclude-dir=build_tools -rnw '.' -e "TODO" | sed 's/\s*TODO/ \&TODO/' | column -ts '&' | sed 's/TODO("\(.*\)")/TODO: \1/'
+

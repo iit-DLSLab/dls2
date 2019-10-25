@@ -85,11 +85,7 @@ bool ControlLayer::deactivateController(const Controller::ID_t &ID)
 
 	if(it == this->controllers.end()) return false;
 
-	TODO
-	(
-		"shutdown might need to be called stop or pause or whatever. Maybe"
-		"add another virtual function in AppLayerComponent"
-	)
+	TODO("shutdown might need to be called stop or pause or whatever. Maybe add another virtual function in AppLayerComponent")
 	it->second->stop();
 	return true;
 }

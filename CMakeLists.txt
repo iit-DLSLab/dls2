@@ -24,3 +24,9 @@ enable_testing()
 add_subdirectory(src)
 add_subdirectory(test)
 add_subdirectory(doc)
+
+add_custom_target(
+	todos
+	COMMAND ${CMAKE_SOURCE_DIR}/build_tools/list_todos
+	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
