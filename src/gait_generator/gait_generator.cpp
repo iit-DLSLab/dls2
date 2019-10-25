@@ -24,13 +24,13 @@ GaitGenerator::ID_t GaitGenerator::getID()
 	return this->ID;
 }
 
-void GaitGenerator::publishData(const std::shared_ptr<DataOut> &pIn_data)
+void GaitGenerator::publishData(const std::shared_ptr<GaitSignal> &pIn_data)
 {
 	std::lock_guard<std::mutex> lock(this->data_mutex);
 	this->pData = pIn_data;
 }
 
-std::shared_ptr<GaitGenerator::DataOut> GaitGenerator::readSignal()
+std::shared_ptr<GaitSignal> GaitGenerator::readSignal()
 {
 	std::lock_guard<std::mutex> lock(this->data_mutex);
 	return this->pData;

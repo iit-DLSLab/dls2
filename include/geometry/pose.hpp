@@ -1,9 +1,12 @@
 #ifndef POSE_H_OKAKMWHG
 #define POSE_H_OKAKMWHG
 
+#include "todo.h"
+
 #include <Eigen/Dense>
 #include <mutex>
 
+TODO("Write test cases to check the math in the Pose class")
 class Pose
 {
 public:

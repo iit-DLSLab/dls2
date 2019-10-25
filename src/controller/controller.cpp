@@ -2,6 +2,9 @@
 #include "controller/controller.hpp"
 #include "todo.h"
 
+// =============================================================================
+// Constructors
+// =============================================================================
 Controller::Controller
 (
 	const std::shared_ptr<Dog> &dog_,
@@ -13,9 +16,14 @@ Controller::Controller
 	name(name_),
 	period(period_),
 	signal_reconstruction_method(reconst_meth),
-	ID(name_)
+	ID(name_),
+	pGait_signal(nullptr),
+	gait_signal_mutex()
 { }
 
+// =============================================================================
+// Interface Override Functions
+// =============================================================================
 AppLayerComponent::Status Controller::run()
 {
 	decltype(getStatus()) status;
@@ -42,7 +50,22 @@ AppLayerComponent::Status Controller::run()
 	return status;
 }
 
+// =============================================================================
+// Implementation
+// =============================================================================
 Controller::ID_t Controller::getID() const
 {
 	return this->ID;
+}
+
+void Controller::pushSignal(const std::shared_ptr<GaitSignal> &pSignal)
+{
+	std::lock_guard<std::mutex> lock(this->gait_signal_mutex);
+	pGait_signal = pSignal;
+}
+
+std::shared_ptr<const GaitSignal> Controller::readGaitSignal() const
+{
+	std::lock_guard<std::mutex> lock(this->gait_signal_mutex);
+	return this->pGait_signal;
 }

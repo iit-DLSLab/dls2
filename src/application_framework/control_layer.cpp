@@ -23,8 +23,8 @@ ControlLayer::Status ControlLayer::run()
 	}
 
 	TODO("spawn realtime thread for managing controllers")
-
 	TODO("spawn nonrealtime thread for user interaction")
+
 	setStatus(Status::RUNNING);
 	while(getStatus() == Status::RUNNING)
 	{

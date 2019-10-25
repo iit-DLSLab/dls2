@@ -6,6 +6,7 @@
 #include <memory>
 
 #include "application_framework/components/app_layer_component.hpp"
+#include "gait_generator/gait_signal.hpp"
 
 TODO("temp, remove and insert Dog class in correct place")
 class Dog {};
@@ -14,6 +15,7 @@ TODO("a lot of functions have been removed from Controller. Many of them need to
 
 class Controller : public AppLayerComponent
 {
+	friend class ControlLayer;
 protected:
 	TODO("this is repeated in Gait Generator. Refactor this into one location")
 	typedef std::chrono::duration<double, std::ratio<1, 1'000'000>> period_t;
@@ -57,11 +59,14 @@ public:
 	/// @ret the ID
 	ID_t getID() const;
 
+
 protected:
 	/// Function gets called each epoch.
 	///
 	/// @param time The time when this function is called,
 	virtual void run(const std::chrono::system_clock::time_point &time) = 0;
+
+	std::shared_ptr<const GaitSignal> readGaitSignal() const;
 
 	const std::shared_ptr<const Dog> pDog;
 	const std::string name;
@@ -70,6 +75,22 @@ protected:
 	const ID_t ID;
 
 private:
+	// BEGIN critical section
+		/// The last reading of the signal from the current active gait generator
+		std::shared_ptr<GaitSignal> pGait_signal;
+		mutable std::mutex gait_signal_mutex;
+	// END critical section
+
+	/// Makes the controller aware of the last known reading from the gait
+	/// generator
+	///
+	/// This function should only be called from the ControlLayer The controller
+	/// does not read the signal from a member in ControlLayer.  Instead, the
+	/// ControlLayer pushes the signal here. This is done since multiple
+	/// controllers can be active at the same time. We want each controller to
+	/// receive the same synchronised signal at the end of the epoch of the gait
+	/// generator.
+	void pushSignal(const std::shared_ptr<GaitSignal>&);
 };
 
 #endif /* end of include guard: CONTROLLER_HPP_RSFU8GQS */
