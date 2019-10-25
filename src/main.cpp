@@ -19,6 +19,7 @@
 #include "controller/dummy_controller.hpp"
 
 #include "geometry/pose.hpp"
+#include "todo.h"
 
 // =============================================================================
 // Forward Declarations
@@ -52,8 +53,10 @@ void change_process_name(char **argv, const std::string &name);
 // =============================================================================
 // Main Logic
 // =============================================================================
+TODO("HELLO")
 int main(int argc, char **argv)
 {
+	TODO("Hello world")
 	// Runtime Configuration
 	handle_args(argc, argv);
 

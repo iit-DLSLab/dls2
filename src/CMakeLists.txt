@@ -18,13 +18,24 @@ set(EXECUTABLE_NAME dls2)
 # Global Compilation Options
 # ==============================================================================
 add_compile_options(
+	# Standards
 	-std=c++17
+
+	# Warnings
 	#	-Wfatal-errors
 	-Wall
 	-Wextra
 	-pedantic
 	-Weffc++
+
+	# Elevate warnings to errors
 	-Werror
+
+	# TODO optimistation options
+
+	# Custom defintions
+	-DSOURCE_PATH_SIZE=${SOURCE_PATH_SIZE}
+	-DSHOW_TODOS_AT_COMPILE_TIME
 )
 
 # ==============================================================================
