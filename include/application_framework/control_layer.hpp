@@ -86,6 +86,7 @@ private:
 	// BEGIN critical section
 		std::map<GaitGenerator::ID_t, std::shared_ptr<GaitGenerator>> generators;
 		std::mutex gait_generators_mutex;
+		// ALWAYS check if this is nullptr
 		std::shared_ptr<GaitGenerator> currentActiveGenerator;
 	// END critical section
 };

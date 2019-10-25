@@ -66,7 +66,12 @@ public:
 	std::shared_ptr<DataOut> readSignal();
 
 protected:
-	void publishData(const std::shared_ptr<DataOut>&);
+	/// sends the signal of this generator to the rest of the architecture
+	///
+	/// @param pData a pointer to the value of the signal at the end of the
+	/// current epoch
+	void publishData(const std::shared_ptr<DataOut> &pData);
+
 	const std::shared_ptr<const Dog> pRobot;	///< A pointer to the robot model
 	const ID_t ID;								///< The ID of this gait generator
 	const period_t period;						///< The period of this gait generator

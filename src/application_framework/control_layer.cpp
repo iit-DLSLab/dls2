@@ -1,8 +1,5 @@
 #include "application_framework/control_layer.hpp"
 #include <iostream> // TODO temp
-// #include <dlfcn.h>
-// #include <stdexcept>
-// #include <sstream>
 // =============================================================================
 // Constructors
 // =============================================================================
@@ -33,6 +30,33 @@ ControlLayer::Status ControlLayer::run()
 	// TODO spawn realtime thread for managing controllers
 
 	// TODO spawn nonrealtime thread for user interaction
+	setStatus(Status::RUNNING);
+	while(getStatus() == Status::RUNNING)
+	{
+		decltype(currentActiveGenerator->readSignal()) signal;
+		{
+			// Read the reference signal from the gait generator
+			std::lock_guard<std::mutex> lock(this->gait_generators_mutex);
+			if(currentActiveGenerator)
+			{
+				signal = currentActiveGenerator->readSignal();
+			}
+		}
+		{
+			// Send the reference signal to all active controllers
+			std::lock_guard<std::mutex> lock(controllers_mutex);
+			for(const auto &pair_id_pController : this->controllers)
+			{
+				if(pair_id_pController.second->getStatus() == Controller::Status::RUNNING)
+				{
+					// TODO send signal here
+					// pair_id_pController.second->pushSignal(signal);
+				}
+			}
+		}
+
+		// TODO sleep at correct frequency here
+	}
 
 	return getStatus();
 }

@@ -33,6 +33,7 @@ public:
 protected:
 	void setStatus(Status);
 
+private:
 	// BEGIN critical section
 		Status status;
 		std::mutex status_mutex;
