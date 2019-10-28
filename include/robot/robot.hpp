@@ -1,6 +1,9 @@
 #ifndef ROBOT_HPP_X9YVSQKM
 #define ROBOT_HPP_X9YVSQKM
 
+TODO("remove references to Dog, replace with Robot")
+class Dog {};
+
 TODO("This class is completely temporary")
 /// Class representing the robot model
 class Robot

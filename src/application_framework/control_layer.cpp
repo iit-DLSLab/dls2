@@ -194,11 +194,15 @@ void ControlLayer::deactivateGaitGenerators()
 
 void ControlLayer::loadGaitGenerator(const std::string &name)
 {
+	DMSG("Start");
 	std::shared_ptr<GaitGenerator> pGaitGenerator =
 		ControlLayer::loadClass<GaitGenerator>(name);
-	std::lock_guard<std::mutex> lock(this->gait_generators_mutex);
+	DMSG("STEP");
+	// std::lock_guard<std::mutex> lock(this->gait_generators_mutex);
+	DMSG("Got lock");
 	TODO("define properly what this function does when a controller already exists")
 	this->addGaitGenerator(pGaitGenerator);
+	DMSG("EXIT");
 }
 
 Eigen::MatrixXd ControlLayer::saturateTorques(const Eigen::MatrixXd &req) const

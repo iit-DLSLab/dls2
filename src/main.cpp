@@ -94,11 +94,13 @@ int main(int argc, char **argv)
 		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(3000));
 		DMSG("user loaded dummy controller");
 		pControlLayer->loadController("./libdummy_controller.so");
+		pControlLayer->loadGaitGenerator("./libdummy_gait_generator.so");
 		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(3000));
 		DMSG("user started dummy controller");
 		pControlLayer->activateController("dummy_controller");
+		pControlLayer->activateGaitGenerator("dummy_gait_generator");
 		DMSG("waiting for contol layer to end");
-		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(3000));
+		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(30000));
 
 		return 0;
 	}

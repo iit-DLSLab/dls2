@@ -97,8 +97,6 @@ add_executable(
 target_link_libraries(
 	${EXECUTABLE_NAME}
 
-	geometry
-
 	# note that the order of these is important
 	framework
 	controlinterface
@@ -118,6 +116,13 @@ add_library(
 	dummy_controller
 	SHARED
 	controller/dummy_controller.cpp
+)
+target_link_libraries(dummy_controller geometry)
+
+add_library(
+	dummy_gait_generator
+	SHARED
+	gait_generator/dummy_gait_generator.cpp
 )
 
 # ==============================================================================

@@ -21,6 +21,10 @@ void DummyController::run(const std::chrono::system_clock::time_point &time)
 {
 	// static int cnt = 0;
 	DMSG("Running " << name << " ");
+	auto pGait_signal = this->readGaitSignal();
+	if(!pGait_signal) DMSG("No gait signal published");
+	else DMSG(pGait_signal->desired_com_pose.toPosition().transpose());
+
 	time.time_since_epoch();
 	// if(++cnt == 5)
 	// {

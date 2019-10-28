@@ -7,17 +7,12 @@
 #include "application_framework/components/app_layer_component.hpp"
 #include "gait_generator/gait_signal.hpp"
 #include "controller/control_signal.hpp"
+#include "robot/robot.hpp"
 
 #include <chrono>
 #include <string>
 #include <memory>
 #include <atomic>
-
-// =============================================================================
-// Forward Declarations
-// =============================================================================
-TODO("temp, remove and insert Dog class in correct place")
-class Dog {};
 
 // =============================================================================
 // Class Interface

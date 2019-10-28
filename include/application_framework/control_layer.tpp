@@ -22,6 +22,8 @@ void ControlLayer::addController(const std::shared_ptr<controller_t> &pControlle
 		"Error: controller_t must inherit from Controller"
 	);
 
+	TODO("this is the wrong mutex")
+	// std::lock_guard<std::mutex> lock(this->components_mutex);
 	std::lock_guard<std::mutex> lock(this->components_mutex);
 	this->controllers.insert
 		(

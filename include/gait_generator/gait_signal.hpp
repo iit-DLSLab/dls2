@@ -10,6 +10,7 @@
 struct GaitSignal
 {
 	TODO("can I use Pose class for velocities and accelerations?")
+	TODO("handle default initialisations here")
 	Pose desired_com_pose;			///< The desired pose of the center of mass frame
 	Pose desired_com_velocity;		///< The desired velocity of the center of mass frame
 	Pose desired_com_acceleration;	///< The desired accleration of the center of mass frame
