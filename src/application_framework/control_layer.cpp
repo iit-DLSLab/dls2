@@ -20,7 +20,7 @@ ControlLayer::ControlLayer() :
 // =============================================================================
 ControlLayer::Status ControlLayer::run()
 {
-	std::cout << "Running program layer" << std::endl;
+	std::cout << "Running control layer" << std::endl;
 	{
 		std::lock_guard<std::mutex> lock(this->components_mutex);
 	}

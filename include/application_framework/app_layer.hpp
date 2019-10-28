@@ -27,6 +27,7 @@ public:
 
 	Status eStop();
 	Status getStatus() const;
+	TODO("Make protected")
 	void setStatus(Status);
 
 	virtual Status run() = 0;

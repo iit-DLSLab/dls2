@@ -19,6 +19,8 @@ TODO("remove iostream include")
 
 TODO("temporary include")
 #include "controller/dummy_controller.hpp"
+TODO("temporary incude")
+#include <thread>
 
 #include "geometry/pose.hpp"
 
@@ -31,20 +33,6 @@ std::shared_ptr<HyQApp> pApp;
 
 void handle_args(int argc, char **argv);
 
-// ============================== Signal Handling ==============================
-struct sigaction sig_action;
-
-/// Handler for segfaults during initialisiation
-///
-/// This handler is called before the application has been fully initialised
-void initialisation_segfault_handler(int signum, siginfo_t *info, void *);
-
-/// Handler for segfaults during application runtime
-///
-/// This handler is called if the application is initialised. It will call all
-/// emergency stops and exit the program safely
-void runtime_segfault_handler(int signum, siginfo_t *info, void *);
-
 /// Change the name of a process for ease of monitoring inside of htop, ps etc
 ///
 /// Linux only allocates a certain amount of space for the process name. Hence,
@@ -54,21 +42,15 @@ void change_process_name(char **argv, const std::string &name);
 // =============================================================================
 // Main Logic
 // =============================================================================
-TODO("HELLO")
 int main(int argc, char **argv)
 {
-	TODO("Hello world")
 	// Runtime Configuration
 	handle_args(argc, argv);
-
-	// Setup Signal Handling
-	// sig_action.sa_sigaction = initialisation_segfault_handler;
-	// sig_action.sa_flags = SA_SIGINFO;
-	// sigaction(SIGSEGV, &sig_action, nullptr);
 
 	// Create application
 	pApp = std::make_shared<HyQApp>();
 
+	// ========================= Start Hardware Layer ==========================
 	const pid_t hardware_layer_pid = fork();
 	if(hardware_layer_pid == -1)
 	{
@@ -76,56 +58,55 @@ int main(int argc, char **argv)
 		return -1;
 
 	}
-
-	// if child process
 	else if(hardware_layer_pid == 0)
 	{
-		// int argv0size = std::strlen(argv[0]);
-		// std::strncpy(argv[0], "hardware layer", argv0size);
-		// argv[0] = (char*)"hardware layer";
-		change_process_name(argv, "hardware_layer");
+		TODO("Don't remove this")
+		// change_process_name(argv, "hardware_layer");
+		// std::shared_ptr<HardwareLayer> pHardwareLayer = std::make_shared<HardwareLayer>();
+		// pApp->addLayer(pHardwareLayer);
 
-		// prctl(PR_SET_NAME, "hardware_layer");
-// while(true);
-		// Child Process. Hardware process here
-		std::shared_ptr<HardwareLayer> pHardwareLayer = std::make_shared<HardwareLayer>();
-		pApp->addLayer(pHardwareLayer);
-
-		TODO("Run should return a status")
-		pApp->run();
+		// TODO("Run should return a status")
+		// pApp->run();
 
 		return 0;
 	}
 
+	// ========================== Start Control Layer ==========================
 	const pid_t control_layer = fork();
 	if(control_layer == -1)
 	{
 		TODO("Fork failed, handle error")
 		return -1;
 	}
-
-	// if child process
 	else if (control_layer == 0)
 	{
 		change_process_name(argv, "control_layer");
 		std::shared_ptr<ControlLayer> pControlLayer = std::make_shared<ControlLayer>();
-		std::shared_ptr<Dog> pDog;
-		// std::shared_ptr<DummyController> pDummy_controller =
-		// 	std::make_shared<DummyController>(pDog);
-		// std::shared_ptr<DummyController> pDummy_controller =
-		// 	std::make_shared<DummyController>();
-		// pControlLayer->addController(pDummy_controller);
-		pControlLayer->loadController("./libdummy_controller.so");
-		pControlLayer->activateController("dummy_controller");
+
 		pApp->addLayer(pControlLayer);
 
+		std::cout << "running control layer" << std::endl;
 		TODO("Run should return a status")
 		pApp->run();
+
+		// ============================== Temporary Thing =======================
+		TODO("This is temporary to simulate user input")
+		std::cout << "waiting for user input" << std::endl;
+		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(3000));
+				std::cout << "user starting dummy controller" << std::endl;
+		pControlLayer->loadController("./libdummy_controller.so");
+		pControlLayer->activateController("dummy_controller");
+
+		std::cout << "waiting for contol layer to end" << std::endl;
+		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(3000));
+				std::cout << "user starting dummy controller" << std::endl;
+		std::cout << "Forcing success of control layer" << std::endl;
+		pControlLayer->setStatus(AppLayer::Status::SUCCESS);
+
 		return 0;
 	}
 
-	// Wait for children to finish
-	// Handle crashes in child processes
+	// ======================== Monitor Child Processes ========================
 	while(true)
 	{
 		int status;
@@ -170,13 +151,6 @@ int main(int argc, char **argv)
 		// Ignoring WIFSTOPPED, WSTOPSIG, WIFCONTINUED
 	}
 
-
-	// Change Signal Handler to safely stop robot
-	// sig_action.sa_sigaction = runtime_segfault_handler;
-	// sig_action.sa_flags = SA_SIGINFO;
-	// sigaction(SIGSEGV, &sig_action, nullptr);
-
-
 	std::cout << "closing out" << std::endl;
 
 	return 0;
@@ -203,26 +177,3 @@ void change_process_name(char **argv, const std::string &name)
 	// change info in /proc/$pid/status
 	prctl(PR_SET_NAME, name.c_str());
 }
-
-// -----------------------------------------------------------------------------
-// Signal Handler Functions
-// -----------------------------------------------------------------------------
-void initialisation_segfault_handler(int signum, siginfo_t *, void *)
-{
-	TODO("inspect info")
-	if(signum != SIGSEGV) return;
-	std::cout << "Segfault during initialisation" << std::endl;
-
-	exit(-1);
-}
-
-void runtime_segfault_handler(int signum, siginfo_t *, void *)
-{
-	TODO("inspect info")
-	if(signum != SIGSEGV) return;
-	std::cout << "Segfault during runtime" << std::endl;
-	pApp->panic();
-
-	exit(-1);
-}
-

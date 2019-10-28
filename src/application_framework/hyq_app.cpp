@@ -7,24 +7,36 @@ TODO("remove iostream include")
 // =============================================================================
 HyQApp::HyQApp() :
 	layers(),
+	layer_threads(),
 	layers_mutex(),
 	status(Status::INITIALISING),
 	status_mutex()
 {
+	this->setStatus(Status::INITIALISING);
 	init_libraries();
 }
 
 HyQApp::HyQApp(const std::initializer_list<pLayer_t> &_layers) :
 	layers(_layers),
+	layer_threads(),
 	layers_mutex(),
 	status(Status::INITIALISING),
 	status_mutex()
 {
+	this->setStatus(Status::INITIALISING);
 	init_libraries();
 }
 
 HyQApp::~HyQApp()
 {
+	{
+		std::lock_guard<std::mutex> lock(this->layers_mutex);
+		for(auto &thread : this->layer_threads)
+		{
+			thread.join();
+		}
+	}
+
 	close_libraries();
 }
 
@@ -57,12 +69,14 @@ void HyQApp::setStatus(Status s)
 
 void HyQApp::run()
 {
-	TODO("start each layer in a different thread controlled by thread pool")
+	// =================== Start each layer in a new thread ====================
 	{
 		std::lock_guard<std::mutex> lock(this->layers_mutex);
 		for(const auto &pLayer : this->layers)
 		{
-			pLayer->run();
+			std::cout << "launch layer thread" << std::endl;
+			this->layer_threads.emplace_back(&AppLayer::run, &(*pLayer));
 		}
 	}
+	this->setStatus(Status::RUNNING);
 }

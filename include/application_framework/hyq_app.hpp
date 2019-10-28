@@ -4,6 +4,7 @@
 #include <vector>
 #include <memory>
 #include <initializer_list>
+#include <thread>
 #include <mutex>
 
 #include "application_framework/app_layer.hpp"
@@ -53,6 +54,10 @@ public:
 	bool addLayer(std::shared_ptr<layer_t>);
 
 	TODO("make this return a status")
+	/// Starts the app
+	///
+	/// Spawns a thread for each layer and calls that layer's run inside the
+	/// thread
 	void run();
 
 private:
@@ -68,6 +73,7 @@ private:
 
 	// BEGIN critical section
 		std::vector<pLayer_t> layers;
+		std::vector<std::thread> layer_threads;
 		std::mutex layers_mutex;
 	// END critical section
 	// BEGIN critical section
