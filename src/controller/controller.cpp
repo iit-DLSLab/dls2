@@ -46,6 +46,7 @@ AppLayerComponent::Status Controller::run()
 
 		// Sleep until the next epoch
 		TODO("use realtime sleep here")
+		TODO("Check realtime here")
 		std::this_thread::sleep_until(next_loop_time);
 	}
 	while((status = getStatus()) == Status::RUNNING);

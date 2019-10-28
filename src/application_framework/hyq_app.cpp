@@ -5,6 +5,7 @@ TODO("remove iostream include")
 // =============================================================================
 // Constructors
 // =============================================================================
+TODO("Make these constructors DRY")
 HyQApp::HyQApp() :
 	layers(),
 	layer_threads(),
@@ -36,7 +37,6 @@ HyQApp::~HyQApp()
 			thread.join();
 		}
 	}
-
 	close_libraries();
 }
 
@@ -69,11 +69,13 @@ void HyQApp::setStatus(Status s)
 
 void HyQApp::run()
 {
-	// =================== Start each layer in a new thread ====================
+	// Start each layer in a new thread
+	// These threads are joined in the destructor
 	{
 		std::lock_guard<std::mutex> lock(this->layers_mutex);
 		for(const auto &pLayer : this->layers)
 		{
+			TODO("Set this thread to realtime thread priority")
 			std::cout << "launch layer thread" << std::endl;
 			this->layer_threads.emplace_back(&AppLayer::run, &(*pLayer));
 		}

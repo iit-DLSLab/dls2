@@ -8,15 +8,17 @@
 #include <map>
 #include <memory>
 #include <mutex>
+#include <thread>
 
 class ControlLayer : public AppLayer
 {
 public:
 	ControlLayer();
+	~ControlLayer();
 
 	// ========================== Interface Overrides ==========================
-	TODO("These functions are not implemented")
 	Status run() override;
+	TODO("This function is not implemented")
 	Status shutdown() override;
 
 	// ============================== Controllers ==============================
@@ -88,10 +90,10 @@ private:
 	// ============================ Communincation =============================
 	void publishDesiredTorques(const Eigen::MatrixXd &) const;
 
-
 	// ============================= Data Members ==============================
 	// BEGIN critical section
 		std::map<Controller::ID_t, std::shared_ptr<Controller>> controllers;
+		std::map<Controller::ID_t, std::thread> active_controller_threads;
 		std::mutex controllers_mutex;
 	// END critical section
 	// BEGIN critical section

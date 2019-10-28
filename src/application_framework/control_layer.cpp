@@ -2,6 +2,7 @@
 TODO("remove temp iostream include")
 #include <iostream>
 #include <Eigen/Dense>
+#include <tuple>
 
 #include "robot/robot.hpp"
 // =============================================================================
@@ -9,11 +10,25 @@ TODO("remove temp iostream include")
 // =============================================================================
 ControlLayer::ControlLayer() :
 	controllers(),
+	active_controller_threads(),
 	controllers_mutex(),
 	generators(),
 	gait_generators_mutex(),
 	currentActiveGenerator(nullptr)
 { }
+
+ControlLayer::~ControlLayer()
+{
+	std::lock_guard<std::mutex> lock(this->controllers_mutex);
+	for(auto it = this->controllers.begin(); it != this->controllers.end(); ++it)
+	{
+		it->second->stop();
+	}
+	for(auto it = this->active_controller_threads.begin(); it != this->active_controller_threads.end(); ++it)
+	{
+		it->second.join();
+	}
+}
 
 // =============================================================================
 // Interface Override Functions
@@ -22,10 +37,10 @@ ControlLayer::Status ControlLayer::run()
 {
 	std::cout << "Running control layer" << std::endl;
 	{
+		TODO("remove this. also from applayer base class")
 		std::lock_guard<std::mutex> lock(this->components_mutex);
 	}
 
-	TODO("spawn realtime thread for managing controllers")
 	TODO("spawn nonrealtime thread for user interaction")
 
 	TODO("Check status of all components in the control layer, take corrective actions if requred")
@@ -50,6 +65,7 @@ ControlLayer::Status ControlLayer::run()
 			for(const auto &pair_id_pController : this->controllers)
 			{
 				TODO("make sure that this check is effective")
+				if(!pair_id_pController.second) continue;
 				if(pair_id_pController.second->getStatus() == Controller::Status::RUNNING)
 				{
 					// send the current signal of the gait generator
@@ -61,7 +77,10 @@ ControlLayer::Status ControlLayer::run()
 
 					// read the last control command and sum it
 					auto pControl_signal = pair_id_pController.second->readSignal();
-					desired_torques += pControl_signal->torques;
+					if(pControl_signal)
+					{
+						desired_torques += pControl_signal->torques;
+					}
 				}
 			}
 		}
@@ -86,26 +105,52 @@ ControlLayer::Status ControlLayer::shutdown()
 // -----------------------------------------------------------------------------
 // Controllers
 // -----------------------------------------------------------------------------
+TODO("std::map already does this check for emplace, maybe for others. Double check and make this more efficient")
 bool ControlLayer::activateController(const Controller::ID_t &ID)
 {
+	// Find the controller in the list of controllers
 	std::lock_guard<std::mutex> lock(this->controllers_mutex);
-	auto it = this->controllers.find(ID);
+	auto controller_it = this->controllers.find(ID);
 
-	if(it == this->controllers.end()) return false;
+	TODO("Inform user that the controller does not exist")
+	if(controller_it == this->controllers.end()) return false;
 
-	it->second->run();
+	// Check that the controller is not already running
+	auto controller_thread_it = this->active_controller_threads.find(ID);
+	TODO("inform the user that the controlelr is already running")
+	if(controller_thread_it != this->active_controller_threads.end()) return false;
+
+	// Start the controller in a new thread
+	std::cout << "about to start new thread for controller" << std::endl;
+	AppLayerComponent::Status (Controller::*run_p)() = &Controller::run;
+	this->active_controller_threads.emplace
+	(
+		std::piecewise_construct,
+		std::forward_as_tuple(ID),
+		std::forward_as_tuple(run_p, &*controller_it->second)
+	);
+
+	std::cout << "finished calling run on controller from control layer" << std::endl;
+	std::cout << "started thread for controller" << std::endl;
 	return true;
 }
 
 bool ControlLayer::deactivateController(const Controller::ID_t &ID)
 {
 	std::lock_guard<std::mutex> lock(this->controllers_mutex);
-	auto it = this->controllers.find(ID);
+	auto controller_it = this->controllers.find(ID);
 
-	if(it == this->controllers.end()) return false;
+	TODO("Inform user that the controller does not exist")
+	if(controller_it == this->controllers.end()) return false;
+
+	// Check whether the controller is not already running
+	auto controller_thread_it = this->active_controller_threads.find(ID);
+	TODO("inform the user that the controller is not running")
+	if(controller_thread_it != this->active_controller_threads.end()) return false;
 
 	TODO("shutdown might need to be called stop or pause or whatever. Maybe add another virtual function in AppLayerComponent")
-	it->second->stop();
+	controller_it->second->stop();
+	controller_thread_it->second.join();
 	return true;
 }
 
