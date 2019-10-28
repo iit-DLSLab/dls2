@@ -51,26 +51,24 @@ int main(int argc, char **argv)
 	pApp = std::make_shared<HyQApp>();
 
 	// ========================= Start Hardware Layer ==========================
-	TODO("Don't remove this")
-	TODO("This was commented out also at the bottom")
-	// const pid_t hardware_layer_pid = fork();
-	// if(hardware_layer_pid == -1)
-	// {
-	// 	TODO("handle error of fork")
-	// 	return -1;
+	const pid_t hardware_layer_pid = fork();
+	if(hardware_layer_pid == -1)
+	{
+		TODO("handle error of fork")
+		return -1;
 
-	// }
-	// else if(hardware_layer_pid == 0)
-	// {
-	// 	change_process_name(argv, "hardware_layer");
-	// 	std::shared_ptr<HardwareLayer> pHardwareLayer = std::make_shared<HardwareLayer>();
-	// 	pApp->addLayer(pHardwareLayer);
+	}
+	else if(hardware_layer_pid == 0)
+	{
+		change_process_name(argv, "hardware_layer");
+		std::shared_ptr<HardwareLayer> pHardwareLayer = std::make_shared<HardwareLayer>();
+		pApp->addLayer(pHardwareLayer);
 
-	// 	TODO("Run should return a status")
-	// 	pApp->run();
+		TODO("Run should return a status")
+		pApp->run();
 
-	// 	return 0;
-	// }
+		return 0;
+	}
 
 	// ========================== Start Control Layer ==========================
 	const pid_t control_layer = fork();
@@ -94,13 +92,16 @@ int main(int argc, char **argv)
 		TODO("This is temporary to simulate user input")
 		std::cout << "waiting for user input" << std::endl;
 		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(3000));
-		std::cout << "user starting dummy controller" << std::endl;
+		std::cout << "user loaded dummy controller" << std::endl;
 		pControlLayer->loadController("./libdummy_controller.so");
+		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(3000));
+		std::cout << "user started dummy controller" << std::endl;
 		pControlLayer->activateController("dummy_controller");
 
 		std::cout << "waiting for contol layer to end" << std::endl;
 		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(3000));
 		std::cout << "Forcing success of control layer" << std::endl;
+		TODO("This is just a quick hack to stop the control layer")
 		pControlLayer->setStatus(AppLayer::Status::SUCCESS);
 
 		return 0;
@@ -121,11 +122,11 @@ int main(int argc, char **argv)
 		}
 
 		std::cout << "child pid: " << child_pid << std::endl;
-		// if(child_pid == hardware_layer_pid)
-		// {
-		// 	std::cout << "child is hardware layer" << std::endl;
-		// }
-		/*else*/ if(child_pid == control_layer)
+		if(child_pid == hardware_layer_pid)
+		{
+			std::cout << "child is hardware layer" << std::endl;
+		}
+		else if(child_pid == control_layer)
 		{
 			std::cout << "child is program layer" << std::endl;
 		}
