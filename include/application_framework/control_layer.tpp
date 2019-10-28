@@ -2,10 +2,9 @@
 #define CONTROL_LAYER_TPP_COCUF9QG
 
 #include "application_framework/control_layer.hpp"
+#include "util/debug/debug.hpp"
 
 #include <type_traits>
-TODO("remove temporary iostream include")
-#include <iostream>
 #include <dlfcn.h>
 #include <sstream>
 #include <stdexcept>
@@ -16,7 +15,7 @@ TODO("remove temporary iostream include")
 template <typename controller_t>
 void ControlLayer::addController(const std::shared_ptr<controller_t> &pController)
 {
-	std::cout << "adding controller" << std::endl;
+	DMSG("adding controller");
 	static_assert
 	(
 		std::is_base_of<Controller, controller_t>::value,

@@ -4,8 +4,6 @@
 #include "todo.h"
 #include <memory>
 #include <signal.h>
-TODO("remove iostream include")
-#include <iostream>
 #include <unistd.h>
 #include <cstring>
 
@@ -16,6 +14,8 @@ TODO("remove iostream include")
 #include "application_framework/hyq_app.hpp"
 #include "application_framework/hardware_layer.hpp"
 #include "application_framework/control_layer.hpp"
+
+#include "util/debug/debug.hpp"
 
 TODO("temporary include")
 #include "controller/dummy_controller.hpp"
@@ -84,25 +84,21 @@ int main(int argc, char **argv)
 
 		pApp->addLayer(pControlLayer);
 
-		std::cout << "running control layer" << std::endl;
+		DMSG("running control layer");
 		TODO("Run should return a status")
 		pApp->run();
 
 		// ============================== Temporary Thing =======================
 		TODO("This is temporary to simulate user input")
-		std::cout << "waiting for user input" << std::endl;
+		DMSG("waiting for user input");
 		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(3000));
-		std::cout << "user loaded dummy controller" << std::endl;
+		DMSG("user loaded dummy controller");
 		pControlLayer->loadController("./libdummy_controller.so");
 		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(3000));
-		std::cout << "user started dummy controller" << std::endl;
+		DMSG("user started dummy controller");
 		pControlLayer->activateController("dummy_controller");
-
-		std::cout << "waiting for contol layer to end" << std::endl;
+		DMSG("waiting for contol layer to end");
 		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(3000));
-		std::cout << "Forcing success of control layer" << std::endl;
-		TODO("This is just a quick hack to stop the control layer")
-		pControlLayer->setStatus(AppLayer::Status::SUCCESS);
 
 		return 0;
 	}
@@ -121,38 +117,36 @@ int main(int argc, char **argv)
 			}
 		}
 
-		std::cout << "child pid: " << child_pid << std::endl;
+		DMSG("Child pid: " << child_pid);
 		if(child_pid == hardware_layer_pid)
 		{
-			std::cout << "child is hardware layer" << std::endl;
+			DMSG("child is hardware layer");
 		}
 		else if(child_pid == control_layer)
 		{
-			std::cout << "child is program layer" << std::endl;
+			DMSG("child is program layer");
 		}
 		if(WIFEXITED(status))
 		{
-			std::cout << "Child process exited normally with exit status " <<
-				WEXITSTATUS(status) << std::endl;
+			DMSG("Child process exited normally with exit status " <<
+				WEXITSTATUS(status));
 		}
 		if(WIFSIGNALED(status))
 		{
 			TODO("Handle case where child process crashed")
-			std::cout << "Child process exited by signal " <<
-				WTERMSIG(status) << std::endl;
+			DMSG("Child process exited by signal " << WTERMSIG(status));
 
 			#ifdef WCOREDUMP
 			if(WCOREDUMP(status)) // not available on all unix implementations
 			{
-				std::cout << "Child process had a core dump" << std::endl;
+				DMSG("Child process had a core dump");
 			}
 			#endif
 		}
-		std::cout << "======" << std::endl;
 		// Ignoring WIFSTOPPED, WSTOPSIG, WIFCONTINUED
 	}
 
-	std::cout << "closing out" << std::endl;
+	DMSG("closing out");
 
 	return 0;
 }

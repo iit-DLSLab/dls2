@@ -1,6 +1,7 @@
 #include <thread>
 #include "controller/controller.hpp"
 #include "todo.h"
+#include "util/debug/debug.hpp"
 
 // =============================================================================
 // Constructors
@@ -20,7 +21,8 @@ Controller::Controller
 	pGait_signal(nullptr),
 	gait_signal_mutex(),
 	pControl_signal(nullptr),
-	pControl_signal_mutex()
+	pControl_signal_mutex(),
+	should_run(false)
 { }
 
 // =============================================================================
@@ -28,8 +30,8 @@ Controller::Controller
 // =============================================================================
 AppLayerComponent::Status Controller::run()
 {
-	decltype(getStatus()) status;
 	setStatus(Status::RUNNING);
+	this->should_run = true;
 	do
 	{
 		// Calculate when the next period needs to start
@@ -49,8 +51,16 @@ AppLayerComponent::Status Controller::run()
 		TODO("Check realtime here")
 		std::this_thread::sleep_until(next_loop_time);
 	}
-	while((status = getStatus()) == Status::RUNNING);
-	return status;
+	while(this->should_run);
+	return this->getStatus();
+}
+
+AppLayerComponent::Status Controller::stop()
+{
+	DMSG("controller stop");
+	this->should_run = false;
+	this->setStatus(Status::STOPPED);
+	return this->getStatus();
 }
 
 // =============================================================================

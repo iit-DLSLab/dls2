@@ -1,9 +1,8 @@
 #include "application_framework/control_layer.hpp"
-TODO("remove temp iostream include")
-#include <iostream>
 #include <Eigen/Dense>
 #include <tuple>
 
+#include "util/debug/debug.hpp"
 #include "robot/robot.hpp"
 // =============================================================================
 // Constructors
@@ -18,24 +17,14 @@ ControlLayer::ControlLayer() :
 { }
 
 ControlLayer::~ControlLayer()
-{
-	std::lock_guard<std::mutex> lock(this->controllers_mutex);
-	for(auto it = this->controllers.begin(); it != this->controllers.end(); ++it)
-	{
-		it->second->stop();
-	}
-	for(auto it = this->active_controller_threads.begin(); it != this->active_controller_threads.end(); ++it)
-	{
-		it->second.join();
-	}
-}
+{ }
 
 // =============================================================================
 // Interface Override Functions
 // =============================================================================
 ControlLayer::Status ControlLayer::run()
 {
-	std::cout << "Running control layer" << std::endl;
+	DMSG("Running control layer");
 	{
 		TODO("remove this. also from applayer base class")
 		std::lock_guard<std::mutex> lock(this->components_mutex);
@@ -96,6 +85,24 @@ ControlLayer::Status ControlLayer::run()
 
 ControlLayer::Status ControlLayer::shutdown()
 {
+	DMSG("shutdown control layer");
+	setStatus(Status::STOP);
+	deactivateGaitGenerators();
+
+	{
+		// Tell each controller to stop
+		std::lock_guard<std::mutex> lock(this->controllers_mutex);
+		for(auto it = this->controllers.begin(); it != this->controllers.end(); ++it)
+		{
+			it->second->stop();
+		}
+
+		// Join each controller's thread
+		for(auto it = this->active_controller_threads.begin(); it != this->active_controller_threads.end(); ++it)
+		{
+			it->second.join();
+		}
+	}
 	return getStatus();
 }
 
@@ -121,7 +128,7 @@ bool ControlLayer::activateController(const Controller::ID_t &ID)
 	if(controller_thread_it != this->active_controller_threads.end()) return false;
 
 	// Start the controller in a new thread
-	std::cout << "about to start new thread for controller" << std::endl;
+	DMSG("about to start new thread for controller");
 	AppLayerComponent::Status (Controller::*run_p)() = &Controller::run;
 	this->active_controller_threads.emplace
 	(
@@ -130,8 +137,7 @@ bool ControlLayer::activateController(const Controller::ID_t &ID)
 		std::forward_as_tuple(run_p, &*controller_it->second)
 	);
 
-	std::cout << "finished calling run on controller from control layer" << std::endl;
-	std::cout << "started thread for controller" << std::endl;
+	DMSG("finished calling run on controller from control layer");
 	return true;
 }
 

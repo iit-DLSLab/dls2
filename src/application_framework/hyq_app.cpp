@@ -1,6 +1,5 @@
 #include "application_framework/hyq_app.hpp"
-TODO("remove iostream include")
-#include <iostream>
+#include "util/debug/debug.hpp"
 
 // =============================================================================
 // Constructors
@@ -32,6 +31,14 @@ HyQApp::~HyQApp()
 {
 	{
 		std::lock_guard<std::mutex> lock(this->layers_mutex);
+
+		// Tell each layer that it needs to stop
+		for(auto &pLayer : this->layers)
+		{
+			pLayer->shutdown();
+		}
+
+		// Join each layer's thread
 		for(auto &thread : this->layer_threads)
 		{
 			thread.join();
@@ -45,7 +52,7 @@ HyQApp::~HyQApp()
 // =============================================================================
 void HyQApp::panic()
 {
-	std::cout << "Panic" << std::endl;
+	DMSG("Panic");
 	TODO("Here set safety")
 
 	std::lock_guard<std::mutex> lock(this->layers_mutex);
@@ -76,7 +83,7 @@ void HyQApp::run()
 		for(const auto &pLayer : this->layers)
 		{
 			TODO("Set this thread to realtime thread priority")
-			std::cout << "launch layer thread" << std::endl;
+			DMSG("launch layer thread");
 			this->layer_threads.emplace_back(&AppLayer::run, &(*pLayer));
 		}
 	}

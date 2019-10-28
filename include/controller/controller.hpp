@@ -11,6 +11,7 @@
 #include <chrono>
 #include <string>
 #include <memory>
+#include <atomic>
 
 // =============================================================================
 // Forward Declarations
@@ -49,6 +50,9 @@ public:
 	/// paramters at each loop
 	/// Function should set state
 	AppLayerComponent::Status run() override;
+
+	/// Stops the thraed running the `run` function
+	Status stop() override;
 
 	// This will be replaced by the shutdown and eStop functions
 	TODO("unknown what this should do")
@@ -107,6 +111,8 @@ private:
 		std::shared_ptr<const ControlSignal> pControl_signal;
 		mutable std::mutex pControl_signal_mutex;
 	// END critical section
+
+	std::atomic_bool should_run;
 };
 
 #endif /* end of include guard: CONTROLLER_HPP_RSFU8GQS */

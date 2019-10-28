@@ -18,7 +18,8 @@ public:
 		RUNNING,
 		FATAL_ERROR,
 		E_STOP,
-		SUCCESS
+		SUCCESS,
+		STOP
 	};
 
 	AppLayer(const std::initializer_list<pComponent_t>&);
@@ -30,6 +31,7 @@ public:
 	TODO("Make protected")
 	void setStatus(Status);
 
+	TODO("These should probably only be accessible from HyQApp")
 	virtual Status run() = 0;
 	virtual Status shutdown() = 0;
 
