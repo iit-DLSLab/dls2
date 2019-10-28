@@ -1,6 +1,9 @@
 #include "application_framework/control_layer.hpp"
 TODO("remove temp iostream include")
 #include <iostream>
+#include <Eigen/Dense>
+
+#include "robot/robot.hpp"
 // =============================================================================
 // Constructors
 // =============================================================================
@@ -25,30 +28,46 @@ ControlLayer::Status ControlLayer::run()
 	TODO("spawn realtime thread for managing controllers")
 	TODO("spawn nonrealtime thread for user interaction")
 
+	TODO("Check status of all components in the control layer, take corrective actions if requred")
 	setStatus(Status::RUNNING);
 	while(getStatus() == Status::RUNNING)
 	{
-		decltype(currentActiveGenerator->readSignal()) signal;
+		// Read the gait signal from the current active gait generator
+		decltype(currentActiveGenerator->readSignal()) pSignal;
 		{
 			// Read the reference signal from the gait generator
 			std::lock_guard<std::mutex> lock(this->gait_generators_mutex);
 			if(currentActiveGenerator)
 			{
-				signal = currentActiveGenerator->readSignal();
+				pSignal = currentActiveGenerator->readSignal();
 			}
 		}
+
+		// Send the reference signal to all active controllers
+		Eigen::MatrixXd desired_torques = Eigen::MatrixXd::Zero(Robot::getDimension(), 1);
 		{
-			// Send the reference signal to all active controllers
 			std::lock_guard<std::mutex> lock(controllers_mutex);
 			for(const auto &pair_id_pController : this->controllers)
 			{
+				TODO("make sure that this check is effective")
 				if(pair_id_pController.second->getStatus() == Controller::Status::RUNNING)
 				{
-					TODO("send signal here")
-					// pair_id_pController.second->pushSignal(signal);
+					// send the current signal of the gait generator
+					if(pSignal)
+					{
+						// Signal may be nullptr on first run of the gait generator
+						pair_id_pController.second->pushSignal(pSignal);
+					}
+
+					// read the last control command and sum it
+					auto pControl_signal = pair_id_pController.second->readSignal();
+					desired_torques += pControl_signal->torques;
 				}
 			}
 		}
+
+		// Send the desired torques to HAL
+		publishDesiredTorques(saturateTorques(desired_torques));
 
 		TODO("sleep at correct frequency here")
 	}
@@ -129,4 +148,16 @@ void ControlLayer::loadGaitGenerator(const std::string &name)
 	std::lock_guard<std::mutex> lock(this->gait_generators_mutex);
 	TODO("define properly what this function does when a controller already exists")
 	this->addGaitGenerator(pGaitGenerator);
+}
+
+Eigen::MatrixXd ControlLayer::saturateTorques(const Eigen::MatrixXd &req) const
+{
+	TODO("This is not implemented yet")
+	TODO("Move this to the robot class")
+	return req;
+}
+
+void ControlLayer::publishDesiredTorques(const Eigen::MatrixXd &) const
+{
+	TODO("This is not yet implemented")
 }

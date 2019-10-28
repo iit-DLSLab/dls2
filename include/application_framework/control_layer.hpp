@@ -78,6 +78,17 @@ private:
 	template <class T>
 	static std::shared_ptr<T> loadClass(const std::string &name);
 
+	TODO("This should be put in the robot class")
+	/// Saturates torques so that they do not exceed safe limits
+	///
+	/// @param req The requested torques
+	/// @ret A saturated version of the torques that do not exceed safe limits
+	Eigen::MatrixXd saturateTorques(const Eigen::MatrixXd &req) const;
+
+	// ============================ Communincation =============================
+	void publishDesiredTorques(const Eigen::MatrixXd &) const;
+
+
 	// ============================= Data Members ==============================
 	// BEGIN critical section
 		std::map<Controller::ID_t, std::shared_ptr<Controller>> controllers;

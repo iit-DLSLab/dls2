@@ -8,7 +8,7 @@ DummyController::DummyController
 		dog,
 		"dummy_controller",
 		std::chrono::duration<double>(1),
-		SignalReconstructionMethod::ZERO_ORDER_HOLD
+		ControlSignal::SignalReconstructionMethod::ZERO_ORDER_HOLD
 	)
 {}
 
