@@ -6,6 +6,7 @@
 /// A struct representing the control signal that is output by a Controller
 struct ControlSignal
 {
+	TODO("Zero this")
 	Eigen::VectorXd torques; ///< The torque vector to the joints
 
 	/// How the control layer should interpret the torques from the controller

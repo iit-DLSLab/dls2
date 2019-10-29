@@ -41,6 +41,18 @@ add_compile_options(
 # ==============================================================================
 # Libraries
 # ==============================================================================
+# ==================================== Debug ===================================
+add_library(
+	debuglib
+	SHARED
+	util/debug/debug.cpp
+)
+# ================================= Geometry ===================================
+add_library(
+	geometry
+	SHARED
+	geometry/pose.cpp
+)
 # ============================ Application Layers ==============================
 add_library(
 	framework
@@ -60,6 +72,7 @@ target_link_libraries(
 	framework
 	pthread
 	dl
+	debuglib
 )
 
 # ============================ Controller Modules ==============================
@@ -68,19 +81,16 @@ add_library(
 	SHARED
 	controller/controller.cpp
 )
+target_link_libraries(controlinterface geometry)
 
 add_library(
 	gaitgeneratorinterface
 	SHARED
 	gait_generator/gait_generator.cpp
+	gait_generator/gait_signal.cpp
 )
+target_link_libraries(gaitgeneratorinterface geometry)
 
-# ================================= Geometry ===================================
-add_library(
-	geometry
-	SHARED
-	geometry/pose.cpp
-)
 
 # ==============================================================================
 # Main Executable
@@ -117,13 +127,14 @@ add_library(
 	SHARED
 	controller/dummy_controller.cpp
 )
-target_link_libraries(dummy_controller geometry)
+# target_link_libraries(dummy_controller geometry)
 
 add_library(
 	dummy_gait_generator
 	SHARED
 	gait_generator/dummy_gait_generator.cpp
 )
+# target_link_libraries(dummy_gait_generator geometry)
 
 # ==============================================================================
 # Convencience Targets
@@ -132,6 +143,6 @@ add_library(
 add_custom_target(
 	run
 	COMMAND ./${EXECUTABLE_NAME}
-	DEPENDS ${EXECUTABLE_NAME} dummy_controller
+	DEPENDS ${EXECUTABLE_NAME} dummy_controller dummy_gait_generator
 	WORKING_DIRECTORY ${EXECUTABLE_OUTPUT_PATH}
 )

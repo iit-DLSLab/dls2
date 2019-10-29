@@ -34,6 +34,7 @@ AppLayerComponent::Status Controller::run()
 	this->should_run = true;
 	do
 	{
+		DMSG("----Control Epoch---");
 		// Calculate when the next period needs to start
 		auto next_loop_time = this->period + std::chrono::system_clock::now();
 

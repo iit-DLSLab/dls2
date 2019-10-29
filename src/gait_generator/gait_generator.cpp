@@ -31,6 +31,7 @@ AppLayerComponent::Status GaitGenerator::run()
 	this->should_run = true;
 	do
 	{
+		DMSG("-+-Gait Epoch-+-");
 		// Calculate when the next period needs to start
 		auto next_loop_time = this->period + std::chrono::system_clock::now();
 

@@ -13,7 +13,8 @@ ControlLayer::ControlLayer() :
 	controllers_mutex(),
 	generators(),
 	gait_generators_mutex(),
-	currentActiveGenerator(nullptr)
+	currentActiveGenerator(nullptr),
+	active_generator_thread()
 { }
 
 ControlLayer::~ControlLayer()
@@ -25,25 +26,28 @@ ControlLayer::~ControlLayer()
 ControlLayer::Status ControlLayer::run()
 {
 	DMSG("Running control layer");
-	{
+	// {
 		TODO("remove this. also from applayer base class")
-		std::lock_guard<std::mutex> lock(this->components_mutex);
-	}
+	// 	std::lock_guard<std::mutex> lock(this->components_mutex);
+	// }
 
 	TODO("spawn nonrealtime thread for user interaction")
 
 	TODO("Check status of all components in the control layer, take corrective actions if requred")
 	setStatus(Status::RUNNING);
+	TODO("correct looping condition")
 	while(getStatus() == Status::RUNNING)
 	{
+		DMSG("==============Control layer loop==========");
 		// Read the gait signal from the current active gait generator
 		decltype(currentActiveGenerator->readSignal()) pSignal;
 		{
 			// Read the reference signal from the gait generator
 			std::lock_guard<std::mutex> lock(this->gait_generators_mutex);
-			if(currentActiveGenerator)
+			if(this->currentActiveGenerator)
 			{
-				pSignal = currentActiveGenerator->readSignal();
+				DMSG("Reading Signal from Gait Generator");
+				pSignal = this->currentActiveGenerator->readSignal();
 			}
 		}
 
@@ -78,7 +82,10 @@ ControlLayer::Status ControlLayer::run()
 		publishDesiredTorques(saturateTorques(desired_torques));
 
 		TODO("sleep at correct frequency here")
+		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(500));
 	}
+
+	DMSG("Fell out of control loop!!!!!!!!!!!!!!!!!!!!!!!!!!");
 
 	return getStatus();
 }
@@ -172,35 +179,45 @@ void ControlLayer::loadController(const Controller::ID_t &name)
 // -----------------------------------------------------------------------------
 // Gait Generators
 // -----------------------------------------------------------------------------
+TODO("this is a bit copy-pasty from the activate controller version")
 bool ControlLayer::activateGaitGenerator(const GaitGenerator::ID_t &ID)
 {
 	std::lock_guard<std::mutex> lock(this->gait_generators_mutex);
+
 	auto it = this->generators.find(ID);
 
 	if(it == this->generators.end()) return false;
 
-	if(currentActiveGenerator)
+	if(this->currentActiveGenerator)
 	{
-		currentActiveGenerator->stop();
+		this->currentActiveGenerator->stop();
+		this->active_generator_thread.join();
+		DMSG("STOPPING PREVIOUS GENERATOR");
 	}
-	it->second->run();
+
+	this->currentActiveGenerator=it->second;
+	AppLayerComponent::Status (GaitGenerator::*run_p)() = &GaitGenerator::run;
+	std::thread t(run_p, &*it->second);
+	this->active_generator_thread.swap(t);
+
 	return true;
 }
 
 void ControlLayer::deactivateGaitGenerators()
 {
-	if(currentActiveGenerator) currentActiveGenerator->stop();
+	if(this->currentActiveGenerator)
+	{
+		this->currentActiveGenerator->stop();
+		this->active_generator_thread.join();
+	}
+	this->currentActiveGenerator = nullptr;
 }
 
 void ControlLayer::loadGaitGenerator(const std::string &name)
 {
-	DMSG("Start");
 	std::shared_ptr<GaitGenerator> pGaitGenerator =
 		ControlLayer::loadClass<GaitGenerator>(name);
-	DMSG("STEP");
-	// std::lock_guard<std::mutex> lock(this->gait_generators_mutex);
-	DMSG("Got lock");
-	TODO("define properly what this function does when a controller already exists")
+	TODO("define properly what this function does when a gait generator already exists")
 	this->addGaitGenerator(pGaitGenerator);
 	DMSG("EXIT");
 }

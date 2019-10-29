@@ -16,7 +16,6 @@ DummyGaitGenerator::DummyGaitGenerator()
 
 void DummyGaitGenerator::run(const std::chrono::system_clock::time_point &time)
 {
-	DMSG("run dummy gait generator");
 	auto pData = std::make_shared<GaitSignal>();
 	publishData(pData);
 	time.time_since_epoch();

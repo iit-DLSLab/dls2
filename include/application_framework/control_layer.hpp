@@ -100,7 +100,9 @@ private:
 		std::map<GaitGenerator::ID_t, std::shared_ptr<GaitGenerator>> generators;
 		std::mutex gait_generators_mutex;
 		// ALWAYS check if this is nullptr
+		TODO("rename with underscores")
 		std::shared_ptr<GaitGenerator> currentActiveGenerator;
+		std::thread active_generator_thread;
 	// END critical section
 };
 
