@@ -86,6 +86,7 @@ int main(int argc, char **argv)
 
 		DMSG("running control layer");
 		TODO("Run should return a status")
+		TODO("Run should be blocking")
 		pApp->run();
 
 		// ============================== Temporary Thing =======================
@@ -102,6 +103,7 @@ int main(int argc, char **argv)
 		DMSG("waiting for contol layer to end");
 		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(30000));
 
+		DMSG("about to fall out of main");
 		return 0;
 	}
 
