@@ -72,14 +72,6 @@ public:
 	void loadGaitGenerator(const std::string &name);
 
 private:
-	// ================================ Utility ================================
-	/// Dynamically loads a class at run time
-	///
-	/// This function throws a std::runtime_error if the shared object cannot be
-	/// found
-	template <class T>
-	static std::shared_ptr<T> loadClass(const std::string &name);
-
 	TODO("This should be put in the robot class")
 	/// Saturates torques so that they do not exceed safe limits
 	///

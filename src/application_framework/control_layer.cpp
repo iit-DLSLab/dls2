@@ -4,6 +4,7 @@
 
 #include "util/debug/debug.hpp"
 #include "robot/robot.hpp"
+#include "util/class_loader.hpp"
 // =============================================================================
 // Constructors
 // =============================================================================
@@ -170,7 +171,7 @@ bool ControlLayer::deactivateController(const Controller::ID_t &ID)
 
 void ControlLayer::loadController(const Controller::ID_t &name)
 {
-	std::shared_ptr<Controller> pController = ControlLayer::loadClass<Controller>(name);
+	std::shared_ptr<Controller> pController = ClassLoader::loadClass<Controller>(name);
 	std::lock_guard<std::mutex> lock(this->controllers_mutex);
 
 	TODO("Define properly what this function does when a controller already exists")
@@ -217,7 +218,7 @@ void ControlLayer::deactivateGaitGenerators()
 void ControlLayer::loadGaitGenerator(const std::string &name)
 {
 	std::shared_ptr<GaitGenerator> pGaitGenerator =
-		ControlLayer::loadClass<GaitGenerator>(name);
+		ClassLoader::loadClass<GaitGenerator>(name);
 	TODO("define properly what this function does when a gait generator already exists")
 	this->addGaitGenerator(pGaitGenerator);
 	DMSG("EXIT");

@@ -5,7 +5,7 @@
 #include "util/debug/debug.hpp"
 
 #include <type_traits>
-#include <dlfcn.h>
+// #include <dlfcn.h>
 #include <sstream>
 #include <stdexcept>
 
@@ -68,58 +68,58 @@ void ControlLayer::addGaitGenerator(const std::shared_ptr<generator_t> &pGen)
 // =============================================================================
 // Utility Implementation
 // =============================================================================
-template <class T>
-std::shared_ptr<T> ControlLayer::loadClass(const std::string &name)
-{
-	// std::cout << name << std::endl;
-	void *T_lib = dlopen(name.c_str(), RTLD_NOW);
-	// void *T_lib = dlopen(name.c_str(), RTLD_LAZY);
-	if(!T_lib)
-	{
-		std::stringstream ss;
-		ss << "Error: could not load object " << name << ": " << dlerror();
-		throw std::runtime_error(ss.str());
-	}
+// template <class T>
+// std::shared_ptr<T> ControlLayer::loadClass(const std::string &name)
+// {
+// 	// std::cout << name << std::endl;
+// 	void *T_lib = dlopen(name.c_str(), RTLD_NOW);
+// 	// void *T_lib = dlopen(name.c_str(), RTLD_LAZY);
+// 	if(!T_lib)
+// 	{
+// 		std::stringstream ss;
+// 		ss << "Error: could not load object " << name << ": " << dlerror();
+// 		throw std::runtime_error(ss.str());
+// 	}
 
-	// clear errors
-	dlerror();
+// 	// clear errors
+// 	dlerror();
 
-	typename T::create_t *create_T =
-		(typename T::create_t*)dlsym(T_lib, "create");
+// 	typename T::create_t *create_T =
+// 		(typename T::create_t*)dlsym(T_lib, "create");
 
-	if(!create_T)
-	{
-		std::stringstream ss;
-		ss	<< "Error: could not find instantiation code in " << name
-			<< ". Did the module export the class?" << dlerror();
-		throw std::runtime_error(ss.str());
-	}
+// 	if(!create_T)
+// 	{
+// 		std::stringstream ss;
+// 		ss	<< "Error: could not find instantiation code in " << name
+// 			<< ". Did the module export the class?" << dlerror();
+// 		throw std::runtime_error(ss.str());
+// 	}
 
-	// clear errors
-	dlerror();
+// 	// clear errors
+// 	dlerror();
 
-	typename T::destroy_t *destroy_T =
-		(typename T::destroy_t*)dlsym(T_lib, "destroy");
+// 	typename T::destroy_t *destroy_T =
+// 		(typename T::destroy_t*)dlsym(T_lib, "destroy");
 
-	if(!destroy_T)
-	{
-		std::stringstream ss;
-		ss	<< "Error: could not find destruction code in " << name
-			<< ". Did the module export the class?" << dlerror();
-		throw std::runtime_error(ss.str());
-	}
+// 	if(!destroy_T)
+// 	{
+// 		std::stringstream ss;
+// 		ss	<< "Error: could not find destruction code in " << name
+// 			<< ". Did the module export the class?" << dlerror();
+// 		throw std::runtime_error(ss.str());
+// 	}
 
-	// clear errors
-	dlerror();
+// 	// clear errors
+// 	dlerror();
 
-	std::shared_ptr<T> pT
-		(
-			create_T(),		// create a pointer to be managed by the shared_ptr
-			destroy_T		// use this as the deleter of the shared_ptr
-		);
+// 	std::shared_ptr<T> pT
+// 		(
+// 			create_T(),		// create a pointer to be managed by the shared_ptr
+// 			destroy_T		// use this as the deleter of the shared_ptr
+// 		);
 
-	return pT;
-}
+// 	return pT;
+// }
 
 
 #endif /* end of include guard: CONTROL_LAYER_TPP_COCUF9QG */
