@@ -2,6 +2,7 @@
 #define CLASS_LOADER_TPP_TDR8ZWLX
 
 #include <dlfcn.h>
+#include <sstream>
 #include "util/class_loader.hpp"
 
 template <class T>

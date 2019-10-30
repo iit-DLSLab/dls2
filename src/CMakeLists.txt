@@ -64,6 +64,7 @@ add_library(
 	application_framework/hardware_layer.cpp
 	application_framework/hyq_app_libraries.cpp
 	application_framework/control_layer.cpp
+	application_framework/estimation_layer.cpp
 
 	# Components
 	application_framework/components/app_layer_component.cpp

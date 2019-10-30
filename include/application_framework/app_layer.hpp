@@ -36,6 +36,7 @@ public:
 	virtual Status shutdown() = 0;
 
 protected:
+	TODO("remove this")
 	// BEGIN critical section
 		mutable std::mutex components_mutex;
 		std::vector<pComponent_t> components;
@@ -48,6 +49,7 @@ private:
 	// END critical section
 
 protected:
+	TODO("remove this")
 	std::function<Status(void)> main;
 };
 

@@ -5,6 +5,13 @@
 class ClassLoader
 {
 public:
+	/// Loads a class from a shared object.
+	///
+	/// The shared object must expose `create` and a `destroy` C functions. The
+	/// shared_ptr will use `create` to instantiate an instance of the class,
+	/// and will use `destroy` as its custom deleter.
+	/// @param name The string name of the shared object containing the class
+	/// @return a shared pointer to the class
 	template <class T>
 	static std::shared_ptr<T> loadClass(const std::string &name);
 };
