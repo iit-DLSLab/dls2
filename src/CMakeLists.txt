@@ -78,6 +78,11 @@ target_link_libraries(
 
 # ============================ Controller Modules ==============================
 add_library(
+	estimatorinterface
+	SHARED
+	estimator/estimator.cpp
+)
+add_library(
 	controlinterface
 	SHARED
 	controller/controller.cpp
@@ -110,6 +115,7 @@ target_link_libraries(
 
 	# note that the order of these is important
 	framework
+	estimatorinterface
 	controlinterface
 	gaitgeneratorinterface
 )

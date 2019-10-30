@@ -2,10 +2,11 @@
 #define ESTIMATION_LAYER_HPP_3QHYDR67
 
 #include <memory>
-#include <vector>
+#include <map>
 #include <mutex>
 #include <atomic>
 #include <string>
+#include <thread>
 
 #include "application_framework/app_layer.hpp"
 #include "estimator/estimator.hpp"
@@ -15,6 +16,8 @@ class EstimationLayer : public AppLayer
 {
 public:
 	EstimationLayer();
+	~EstimationLayer();
+
 	Status run() override;
 	Status shutdown() override;
 
@@ -29,7 +32,8 @@ public:
 
 private:
 	// BEGIN critical section
-		std::vector<std::shared_ptr<Estimator>> estimators;
+		std::map<Estimator::ID_t, std::shared_ptr<Estimator>> estimators;
+		std::map<Estimator::ID_t, std::thread> estimator_threads;
 		std::mutex estimators_mutex;
 	// END critical section
 	std::atomic_bool should_run;

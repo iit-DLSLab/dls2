@@ -14,6 +14,7 @@
 #include "application_framework/hyq_app.hpp"
 #include "application_framework/hardware_layer.hpp"
 #include "application_framework/control_layer.hpp"
+#include "application_framework/estimation_layer.hpp"
 
 #include "util/debug/debug.hpp"
 
@@ -81,8 +82,11 @@ int main(int argc, char **argv)
 	{
 		change_process_name(argv, "control_layer");
 		std::shared_ptr<ControlLayer> pControlLayer = std::make_shared<ControlLayer>();
+		TODO("move this to separate process")
+		std::shared_ptr<EstimationLayer> pEstimationLayer = std::make_shared<EstimationLayer>();
 
 		pApp->addLayer(pControlLayer);
+		pApp->addLayer(pEstimationLayer);
 
 		DMSG("running control layer");
 		TODO("Run should return a status")

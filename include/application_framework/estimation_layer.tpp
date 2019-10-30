@@ -14,7 +14,14 @@ void EstimationLayer::addEstimator(const std::shared_ptr<estimator_t> &pEstimato
 	);
 
 	std::lock_guard<std::mutex> lock(this->estimators_mutex);
-	this->estimators.push_back(pEstimator);
+	this->estimators.insert
+	(
+		std::pair<Estimator::ID_t, std::shared_ptr<Estimator>>
+		(
+			pEstimator->getID(),
+			pEstimator
+		)
+	);
 }
 
 #endif /* end of include guard: ESTIMATION_LAYER_TPP_XGOZ3KJ8 */
