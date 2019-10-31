@@ -26,8 +26,8 @@ public:
 
 	void loadEstimator(const std::string&);
 
+	TODO("These two should probably return bool")
 	void activateEstimator(const Estimator::ID_t&);
-
 	void deactivateEstimator(const Estimator::ID_t);
 
 private:

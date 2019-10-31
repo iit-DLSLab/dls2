@@ -56,9 +56,13 @@ AppLayer::Status EstimationLayer::shutdown()
 // =============================================================================
 // Implementation
 // =============================================================================
-
 void EstimationLayer::loadEstimator(const std::string &name)
 {
 	std::shared_ptr<Estimator> pEstimator = ClassLoader::loadClass<Estimator>(name);
 	this->addEstimator(pEstimator);
 }
+
+// void EstimationLayer::activateEstimator(const Estimator::ID_t &ID)
+// {
+// 	std::lock_guard<std::mutex> lock(this->estimators_mutex);
+// }

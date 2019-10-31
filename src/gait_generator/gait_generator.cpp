@@ -12,55 +12,12 @@ GaitGenerator::GaitGenerator
 	const ID_t &ID_,
 	const period_t &period_
 ) :
+	PeriodicAppLayerComponent(period_),
 	pRobot(pRobot_),
 	ID(ID_),
-	period(period_),
 	pData(nullptr),
-	data_mutex(),
-	should_run(false)
+	data_mutex()
 { }
-
-// =============================================================================
-// Interface Overrides
-// =============================================================================
-TODO("move this into PeriodicAppLayerComponent")
-TODO("this is mostly a copy-paste of the same function in controller. Refactor")
-AppLayerComponent::Status GaitGenerator::run()
-{
-	setStatus(Status::RUNNING);
-	this->should_run = true;
-	do
-	{
-		DMSG("-+-Gait Epoch-+-");
-		// Calculate when the next period needs to start
-		auto next_loop_time = this->period + std::chrono::system_clock::now();
-
-		// Run the controller epoch
-		run(std::chrono::system_clock::now());
-
-		// Check realtime
-		if(std::chrono::system_clock::now() > next_loop_time)
-		{
-			setStatus(Status::BREAKING_REALTIME);
-		}
-
-		// Sleep until the next epoch
-		TODO("use realtime sleep here")
-		TODO("Check realtime here")
-		std::this_thread::sleep_until(next_loop_time);
-	}
-	while(this->should_run);
-	return this->getStatus();
-}
-
-TODO("this is a copy from controller. Refactor")
-AppLayerComponent::Status GaitGenerator::stop()
-{
-	DMSG("gait generator stop");
-	this->should_run = false;
-	this->setStatus(Status::STOPPED);
-	return this->getStatus();
-}
 
 // =============================================================================
 // Implementation

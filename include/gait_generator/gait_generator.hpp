@@ -1,7 +1,7 @@
 #ifndef GAIT_GENERATOR_HPP_5MDX0BG2
 #define GAIT_GENERATOR_HPP_5MDX0BG2
 
-#include "application_framework/components/app_layer_component.hpp"
+#include "application_framework/components/periodic_app_layer_component.hpp"
 #include "gait_generator/gait_signal.hpp"
 #include "todo.h"
 #include "robot/robot.hpp"
@@ -10,7 +10,7 @@
 #include <memory>
 #include <atomic>
 
-class GaitGenerator : public AppLayerComponent
+class GaitGenerator : public PeriodicAppLayerComponent
 {
 protected:
 	TODO("this is repeated in Controller. Refactor this into one location")
@@ -31,17 +31,6 @@ public:
 	);
 
 	virtual ~GaitGenerator() = default;
-
-	TODO("This function is a copy-paste of Controller::run. Refactor")
-	/// Runs the controller. Calls the virtual function run with the correct
-	/// paramters at each loop
-	/// Function should set state
-	AppLayerComponent::Status run() override;
-
-	TODO("The run/stop functions of gait generator are copies of controller.  Refactor")
-	/// Stops the thraed running the `run` function
-	Status stop() override;
-
 	/// Returns the ID of this gait generator
 	///
 	/// @ret the ID
@@ -60,16 +49,9 @@ protected:
 	/// current epoch
 	void publishData(const std::shared_ptr<GaitSignal> &pData);
 
-	TODO("This function is a copy-paste of Controller::run. Refactor")
-	/// Function gets called each epoch.
-	///
-	/// @param time The time when this function is called,
-	virtual void run(const std::chrono::system_clock::time_point &time) = 0;
-
 
 	const std::shared_ptr<const Dog> pRobot;	///< A pointer to the robot model
 	const ID_t ID;								///< The ID of this gait generator
-	const period_t period;						///< The period of this gait generator
 
 private:
 	// BEGIN critical section
@@ -83,8 +65,6 @@ private:
 		std::shared_ptr<GaitSignal> pData;
 		std::mutex data_mutex;
 	// END critical section
-	TODO("this is a copy of controller. Refactor both into common base class")
-	std::atomic_bool should_run;
 };
 
 #endif /* end of include guard: GAIT_GENERATOR_HPP_5MDX0BG2 */
