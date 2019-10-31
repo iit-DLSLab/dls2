@@ -19,6 +19,7 @@ DummyController::DummyController() :
 
 void DummyController::run(const std::chrono::system_clock::time_point &time)
 {
+	DMSG("Dummy Controller-+-");
 	// static int cnt = 0;
 	// DMSG("Running " << name << " ");
 	auto pGait_signal = this->readGaitSignal();
@@ -26,16 +27,11 @@ void DummyController::run(const std::chrono::system_clock::time_point &time)
 	else DLOG(pGait_signal->desired_com_pose.toPosition().transpose());
 
 	time.time_since_epoch();
-	// if(++cnt == 5)
-	// {
-	// 	setStatus(Status::SUCCESS);
-	// }
 }
 
 extern "C" Controller *create()
 {
 	auto p = new DummyController;
-	// return new DummyController(std::make_shared<Dog>());
 	DMSG("I built a dummy controller");
 	return p;
 }

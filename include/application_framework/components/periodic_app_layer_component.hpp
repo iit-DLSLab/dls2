@@ -13,7 +13,8 @@ public:
 public:
 	PeriodicAppLayerComponent(const period_t&);
 
-	virtual Status run() override;
+	Status run() override;
+	Status stop() override;
 	virtual void run(const std::chrono::system_clock::time_point&) = 0;
 
 private:

@@ -37,3 +37,10 @@ AppLayerComponent::Status PeriodicAppLayerComponent::run()
 
 	return this->getStatus();
 }
+
+AppLayerComponent::Status PeriodicAppLayerComponent::stop()
+{
+	this->should_run = false;
+	this->setStatus(Status::STOPPED);
+	return this->getStatus();
+}

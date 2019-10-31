@@ -13,9 +13,9 @@ Controller::Controller
 	const period_t &period_,
 	const ControlSignal::SignalReconstructionMethod &reconst_meth
 ):
+	PeriodicAppLayerComponent(period_),
 	pDog(dog_),
 	name(name_),
-	period(period_),
 	signal_reconstruction_method(reconst_meth),
 	ID(name_),
 	pGait_signal(nullptr),
@@ -24,46 +24,6 @@ Controller::Controller
 	pControl_signal_mutex(),
 	should_run(false)
 { }
-
-// =============================================================================
-// Interface Override Functions
-// =============================================================================
-AppLayerComponent::Status Controller::run()
-{
-	setStatus(Status::RUNNING);
-	this->should_run = true;
-	do
-	{
-		DMSG("----Control Epoch---");
-		// Calculate when the next period needs to start
-		auto next_loop_time = this->period + std::chrono::system_clock::now();
-
-		// Run the controller epoch
-		run(std::chrono::system_clock::now());
-
-		// Check realtime
-		if(std::chrono::system_clock::now() > next_loop_time)
-		{
-			setStatus(Status::BREAKING_REALTIME);
-		}
-
-		// Sleep until the next epoch
-		TODO("use realtime sleep here")
-		TODO("Check realtime here")
-		std::this_thread::sleep_until(next_loop_time);
-	}
-	while(this->should_run);
-	return this->getStatus();
-}
-
-AppLayerComponent::Status Controller::stop()
-{
-	DMSG("controller stop");
-	this->should_run = false;
-	this->setStatus(Status::STOPPED);
-	return this->getStatus();
-}
-
 // =============================================================================
 // Implementation
 // =============================================================================
