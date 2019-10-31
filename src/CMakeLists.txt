@@ -68,6 +68,7 @@ add_library(
 
 	# Components
 	application_framework/components/app_layer_component.cpp
+	application_framework/components/periodic_app_layer_component.cpp
 )
 target_link_libraries(
 	framework
