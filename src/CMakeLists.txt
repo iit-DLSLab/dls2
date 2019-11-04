@@ -38,9 +38,52 @@ add_compile_options(
 	# -DSHOW_TODOS_AT_COMPILE_TIME
 )
 
+
+# ==============================================================================
+# Forward declaration of main executable
+# ==============================================================================
+add_executable(${EXECUTABLE_NAME} main.cpp)
+
+# ==============================================================================
+# Message Generation
+# ==============================================================================
+
+set(MESSAGE_SOURCES "")
+macro(add_message msg)
+	add_custom_command(
+		OUTPUT
+			${CMAKE_SOURCE_DIR}/gen/msg/${msg}.cxx
+			${CMAKE_SOURCE_DIR}/gen/msg/${msg}.h
+			${CMAKE_SOURCE_DIR}/gen/msg/${msg}PubSubTypes.cxx
+			${CMAKE_SOURCE_DIR}/gen/msg/${msg}PubSubTypes.h
+		COMMAND
+			fastrtpsgen -replace ${CMAKE_SOURCE_DIR}/msg/${msg}.idl -d ${CMAKE_SOURCE_DIR}/gen/msg
+		COMMENT
+			"Generating message files for ${msg}.idl"
+		DEPENDS
+			${CMAKE_SOURCE_DIR}/msg/${msg}.idl
+	)
+	list(APPEND MESSAGE_SOURCES ${CMAKE_SOURCE_DIR}/gen/msg/${msg}.cxx)
+	list(APPEND MESSAGE_SOURCES ${CMAKE_SOURCE_DIR}/gen/msg/${msg}PubSubTypes.cxx)
+endmacro()
+
+add_message(hello_world)
+
 # ==============================================================================
 # Libraries
 # ==============================================================================
+# ================================== messages ==================================
+add_library(
+	messaging
+	SHARED
+	${MESSAGE_SOURCES}
+)
+target_compile_options(
+	messaging
+	PUBLIC
+	-w # Suppress all warnings, this library's code is auto-generated
+)
+
 # ==================================== Debug ===================================
 add_library(
 	debuglib
@@ -102,10 +145,14 @@ target_link_libraries(gaitgeneratorinterface geometry)
 # ==============================================================================
 # Main Executable
 # ==============================================================================
-add_executable(
+target_sources(
 	${EXECUTABLE_NAME}
 
-	main.cpp
+	PUBLIC
+
+	# current version of cmake does not allow to specify target with no sources
+	# initialy, hence this line added earlier and not here
+	# main.cpp
 
 	# Sensor Classes
 	sensors/sensor_base.cpp
@@ -115,6 +162,7 @@ target_link_libraries(
 	${EXECUTABLE_NAME}
 
 	# note that the order of these is important
+	messaging
 	framework
 	estimatorinterface
 	controlinterface

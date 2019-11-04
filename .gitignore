@@ -4,3 +4,4 @@ compile_commands.json
 doc/html
 doc/latex
 doc/man
+gen/
