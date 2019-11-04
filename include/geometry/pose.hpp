@@ -6,6 +6,9 @@
 #include <Eigen/Dense>
 #include <mutex>
 
+// fastrtps
+#include "msg/pose.h"
+
 TODO("Write test cases to check the math in the Pose class")
 class Pose
 {
@@ -39,6 +42,15 @@ public:
 
 	/// Copy Constructor
 	Pose(const Pose&);
+
+	// ============================= FastRTPS util =============================
+	/// Converting constructor
+	TODO("read up if this should be reference or const or whatever")
+	Pose(PoseMsg);
+
+	/// Conversion to PoseMsg
+	TODO("this has not been tested yet")
+	operator PoseMsg() const;
 
 	// ============================== Conversions ==============================
 	/// Returns the position of the pose

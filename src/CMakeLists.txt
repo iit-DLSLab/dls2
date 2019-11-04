@@ -52,22 +52,26 @@ set(MESSAGE_SOURCES "")
 macro(add_message msg)
 	add_custom_command(
 		OUTPUT
-			${CMAKE_SOURCE_DIR}/gen/msg/${msg}.cxx
-			${CMAKE_SOURCE_DIR}/gen/msg/${msg}.h
-			${CMAKE_SOURCE_DIR}/gen/msg/${msg}PubSubTypes.cxx
-			${CMAKE_SOURCE_DIR}/gen/msg/${msg}PubSubTypes.h
+			${CMAKE_SOURCE_DIR}/gen/include/msg/${msg}.cxx
+			${CMAKE_SOURCE_DIR}/gen/include/msg/${msg}.h
+			${CMAKE_SOURCE_DIR}/gen/include/msg/${msg}PubSubTypes.cxx
+			${CMAKE_SOURCE_DIR}/gen/include/msg/${msg}PubSubTypes.h
 		COMMAND
-			fastrtpsgen -replace ${CMAKE_SOURCE_DIR}/msg/${msg}.idl -d ${CMAKE_SOURCE_DIR}/gen/msg
+			[ -d ${CMAKE_SOURCE_DIR}/gen/include/msg ] || mkdir --parents ${CMAKE_SOURCE_DIR}/gen/include/msg
+		COMMAND
+			fastrtpsgen -replace ${CMAKE_SOURCE_DIR}/msg/${msg}.idl -d ${CMAKE_SOURCE_DIR}/gen/include/msg
 		COMMENT
 			"Generating message files for ${msg}.idl"
 		DEPENDS
 			${CMAKE_SOURCE_DIR}/msg/${msg}.idl
 	)
-	list(APPEND MESSAGE_SOURCES ${CMAKE_SOURCE_DIR}/gen/msg/${msg}.cxx)
-	list(APPEND MESSAGE_SOURCES ${CMAKE_SOURCE_DIR}/gen/msg/${msg}PubSubTypes.cxx)
+	list(APPEND MESSAGE_SOURCES ${CMAKE_SOURCE_DIR}/gen/include/msg/${msg}.cxx)
+	list(APPEND MESSAGE_SOURCES ${CMAKE_SOURCE_DIR}/gen/include/msg/${msg}PubSubTypes.cxx)
 endmacro()
 
 add_message(hello_world)
+add_message(pose)
+add_message(gait_signal)
 
 # ==============================================================================
 # Libraries
@@ -83,6 +87,11 @@ target_compile_options(
 	PUBLIC
 	-w # Suppress all warnings, this library's code is auto-generated
 )
+include_directories(
+	SYSTEM
+	${CMAKE_SOURCE_DIR}/gen/include
+)
+add_custom_target(messagelib DEPENDS ${MESSAGE_SOURCES})
 
 # ==================================== Debug ===================================
 add_library(
@@ -115,6 +124,7 @@ add_library(
 )
 target_link_libraries(
 	framework
+	messaging
 	pthread
 	dl
 	debuglib
@@ -158,11 +168,16 @@ target_sources(
 	sensors/sensor_base.cpp
 )
 
+add_dependencies(${EXECUTABLE_NAME} messagelib)
+
 target_link_libraries(
 	${EXECUTABLE_NAME}
 
+	# fastrtps
+	fastcdr
+	fastrtps
+
 	# note that the order of these is important
-	messaging
 	framework
 	estimatorinterface
 	controlinterface

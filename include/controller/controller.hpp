@@ -14,6 +14,12 @@
 #include <memory>
 #include <atomic>
 
+// fastrtps
+#include <fastrtps/fastrtps_fwd.h>
+#include <fastrtps/subscriber/SubscriberListener.h>
+#include <fastrtps/subscriber/SampleInfo.h>
+#include "msg/hello_worldPubSubTypes.h"
+
 // =============================================================================
 // Class Interface
 // =============================================================================
@@ -21,6 +27,7 @@ TODO("a lot of functions have been removed from Controller. Many of them need to
 class Controller : public PeriodicAppLayerComponent
 {
 	friend class ControlLayer;
+	friend class SubListener;
 public:
 	using ID_t = std::string;
 
@@ -96,6 +103,21 @@ private:
 	// END critical section
 
 	std::atomic_bool should_run;
+
+	// =============================== FastRTPS ================================
+	std::shared_ptr<eprosima::fastrtps::Participant> pParticipant;
+	std::shared_ptr<eprosima::fastrtps::Subscriber> pSubscriber;
+	class SubListener : public eprosima::fastrtps::SubscriberListener
+	{
+	public:
+		SubListener(const Controller * const);
+		~SubListener() = default;
+		void onNewDataMessage(eprosima::fastrtps::Subscriber*) override;
+	private:
+		const std::shared_ptr<const Controller> pOwner;
+		eprosima::fastrtps::SampleInfo_t info;
+	} listener;
+	HelloWorldMsgPubSubType rtps_type;
 };
 
 #endif /* end of include guard: CONTROLLER_HPP_RSFU8GQS */

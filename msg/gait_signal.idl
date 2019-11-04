@@ -1,0 +1,21 @@
+#include "pose.idl"
+struct GaitSignalMsg
+{
+	// TODO remove this msg
+	string msg;
+
+	PoseMsg desired_com_pose;
+	PoseMsg desired_com_velocity;
+	PoseMsg desired_com_acceleration;
+
+	PoseMsg desired_base_pose;
+	PoseMsg desired_base_velocity;
+	PoseMsg desired_base_acceleration;
+
+	sequence<double> desired_joint_state;
+	sequence<double> desired_joint_velocity;
+	sequence<double> desired_joint_acceleration;
+
+	sequence<double> desired_feed_forward_torque;
+	// TODO stance feet here
+};

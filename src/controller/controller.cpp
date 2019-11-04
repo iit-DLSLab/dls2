@@ -3,6 +3,13 @@
 #include "todo.h"
 #include "util/debug/debug.hpp"
 
+// fastrtps
+#include <fastrtps/participant/Participant.h>
+#include <fastrtps/attributes/ParticipantAttributes.h>
+#include <fastrtps/subscriber/Subscriber.h>
+#include <fastrtps/attributes/SubscriberAttributes.h>
+#include <fastrtps/Domain.h>
+
 // =============================================================================
 // Constructors
 // =============================================================================
@@ -22,8 +29,47 @@ Controller::Controller
 	gait_signal_mutex(),
 	pControl_signal(nullptr),
 	pControl_signal_mutex(),
-	should_run(false)
-{ }
+	should_run(false),
+	pParticipant(nullptr),
+	pSubscriber(nullptr),
+	listener(this),
+	rtps_type()
+{
+	// configure fastrtps subscription
+	eprosima::fastrtps::ParticipantAttributes participant_attr;
+	participant_attr.rtps.setName("controller_subscriber");
+	pParticipant.reset
+	(
+		eprosima::fastrtps::Domain::createParticipant(participant_attr),
+		eprosima::fastrtps::Domain::removeParticipant
+	);
+
+	TODO("Check for nullptr on failure of above")
+
+	// Register
+	eprosima::fastrtps::Domain::registerType
+	(
+		pParticipant.get(),
+		static_cast<eprosima::fastrtps::TopicDataType*>(&rtps_type)
+	);
+
+	// Create Subscriber
+	eprosima::fastrtps::SubscriberAttributes sub_attr;
+	sub_attr.topic.topicKind = eprosima::fastrtps::rtps::NO_KEY;
+	sub_attr.topic.topicDataType = rtps_type.getName();
+	sub_attr.topic.topicName = "HelloWorldPubSubTopic";
+	pSubscriber.reset
+	(
+		eprosima::fastrtps::Domain::createSubscriber
+		(
+			pParticipant.get(),
+			sub_attr,
+			static_cast<eprosima::fastrtps::SubscriberListener*>(&listener)
+		),
+		eprosima::fastrtps::Domain::removeSubscriber
+	);
+}
+
 // =============================================================================
 // Implementation
 // =============================================================================
@@ -54,4 +100,22 @@ const std::shared_ptr<const ControlSignal> Controller::readSignal() const
 {
 	std::lock_guard<std::mutex> lock(this->pControl_signal_mutex);
 	return this->pControl_signal;
+}
+
+// =============================================================================
+// FastRTPS
+// =============================================================================
+Controller::SubListener::SubListener(const Controller * const p) :
+	pOwner(p),
+	info()
+{ }
+
+void Controller::SubListener::onNewDataMessage(eprosima::fastrtps::Subscriber *pSub)
+{
+	std::shared_ptr<HelloWorldMsg> st = std::make_shared<HelloWorldMsg>();
+	if(pSub->takeNextData(&*st, &info))
+	{
+		TODO("DO CHECKS HERE")
+		std::lock_guard<std::mutex> lock(pOwner->gait_signal_mutex);
+	}
 }

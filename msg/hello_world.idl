@@ -1,5 +1,4 @@
-struct HelloWorld
+struct HelloWorldMsg
 {
 	string msg;
-	string msg2;
 };

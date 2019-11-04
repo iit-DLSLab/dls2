@@ -42,6 +42,27 @@ Pose::Pose(const Pose &rhs) : Pose()
 }
 
 // =============================================================================
+// FastRTPS Util
+// =============================================================================
+Pose::Pose(PoseMsg msg) :
+	pose_mutex(),
+	position(msg.position().data()),
+	quaternion(msg.quaternion().data())
+{ }
+
+Pose::operator PoseMsg() const
+{
+	PoseMsg p;
+
+	TODO("DO NOT use hardcoded paths like this. Figure out how to access underlying data and send straight into std::array")
+	std::lock_guard<std::mutex> lock(this->pose_mutex);
+	p.position(std::array<double, 3>{this->position(0), this->position(1), this->position(2)});
+	p.quaternion(std::array<double, 4>{this->quaternion.x(), this->quaternion.y(), this->quaternion.z(), this->quaternion.z()});
+
+	return p;
+}
+
+// =============================================================================
 // Conversions
 // =============================================================================
 Eigen::Vector3d Pose::toPosition() const
