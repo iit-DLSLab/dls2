@@ -104,6 +104,9 @@ int main(int argc, char **argv)
 		DMSG("user started dummy controller");
 		pControlLayer->activateController("dummy_controller");
 		pControlLayer->activateGaitGenerator("dummy_gait_generator");
+		pEstimationLayer->loadEstimator("./libdummy_estimator.so");
+		pEstimationLayer->activateEstimator("Dummy Estimator");
+
 		DMSG("waiting for contol layer to end");
 		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(30000));
 

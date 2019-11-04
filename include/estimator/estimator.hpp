@@ -4,25 +4,24 @@
 #include "todo.h"
 #include <string>
 
-#include "application_framework/components/app_layer_component.hpp"
+#include "application_framework/components/periodic_app_layer_component.hpp"
 
 TODO("Document this class")
-class Estimator : public AppLayerComponent
+class Estimator : public PeriodicAppLayerComponent
 {
 public:
 	using ID_t = std::string;
-	Estimator(const ID_t&);
+	Estimator
+	(
+		const ID_t&,		///< The ID of this estimator
+		const period_t&		///< The period of this estimator
+	);
 	virtual ~Estimator() = default;
 
 	typedef Estimator *create_t();
 	typedef void destroy_t(Estimator*);
 
 	ID_t getID() const;
-
-	TODO("probably temps? Need to make periodic app layer component")
-	Status run() override;
-	Status eStop() override;
-	Status stop() override;
 
 private:
 	const ID_t ID;

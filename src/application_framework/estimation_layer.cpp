@@ -62,7 +62,24 @@ void EstimationLayer::loadEstimator(const std::string &name)
 	this->addEstimator(pEstimator);
 }
 
-// void EstimationLayer::activateEstimator(const Estimator::ID_t &ID)
-// {
-// 	std::lock_guard<std::mutex> lock(this->estimators_mutex);
-// }
+TODO("This is copied more or less in all the layers")
+bool EstimationLayer::activateEstimator(const Estimator::ID_t &ID)
+{
+	std::lock_guard<std::mutex> lock(this->estimators_mutex);
+
+	auto estimator_it = this->estimators.find(ID);
+
+	if(estimator_it == this->estimators.end()) return false;
+
+	TODO("check whether estimator is already active or not")
+
+	AppLayerComponent::Status (Estimator::*run_p)() = &Estimator::run;
+	this->estimator_threads.emplace
+	(
+		std::piecewise_construct,
+		std::forward_as_tuple(ID),
+		std::forward_as_tuple(run_p, &*estimator_it->second)
+	);
+
+	return true;
+}

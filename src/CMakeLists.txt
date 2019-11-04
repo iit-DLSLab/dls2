@@ -142,6 +142,11 @@ add_library(
 	SHARED
 	gait_generator/dummy_gait_generator.cpp
 )
+add_library(
+	dummy_estimator
+	SHARED
+	estimator/dummy_estimator.cpp
+)
 # target_link_libraries(dummy_gait_generator geometry)
 
 # ==============================================================================
@@ -151,6 +156,6 @@ add_library(
 add_custom_target(
 	run
 	COMMAND ./${EXECUTABLE_NAME}
-	DEPENDS ${EXECUTABLE_NAME} dummy_controller dummy_gait_generator
+	DEPENDS ${EXECUTABLE_NAME} dummy_controller dummy_gait_generator dummy_estimator
 	WORKING_DIRECTORY ${EXECUTABLE_OUTPUT_PATH}
 )
