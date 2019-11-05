@@ -114,19 +114,21 @@ const std::shared_ptr<const ControlSignal> Controller::readSignal() const
 // =============================================================================
 // FastRTPS
 // =============================================================================
-Controller::SubListener::SubListener(std::shared_ptr<const Controller> p) :
+Controller::SubListener::SubListener(std::shared_ptr<Controller> p) :
 	pOwner(p),
 	info()
 { }
 
 void Controller::SubListener::onNewDataMessage(eprosima::fastrtps::Subscriber *pSub)
 {
-	// std::shared_ptr<HelloWorldMsg> st = std::make_shared<HelloWorldMsg>();
 	DMSG("================GOT A MESSAGE===============");
-	std::shared_ptr<HelloWorld> st = std::make_shared<HelloWorld>();
-	if(pSub->takeNextData(&*st, &info))
+	GaitSignalMsg st;
+	// std::shared_ptr<HelloWorld> st = std::make_shared<HelloWorld>();
+	if(pSub->takeNextData(&st, &info))
 	{
-		DLOG(st->msg());
+		// DLOG(st.desired_com_pose()).toPosition().transpose());
 		std::lock_guard<std::mutex> lock(pOwner->gait_signal_mutex);
+		pOwner->pGait_signal = std::make_shared<const GaitSignal>(st);
+		DLOG(pOwner->pGait_signal->desired_com_pose.toPosition().transpose());
 	}
 }

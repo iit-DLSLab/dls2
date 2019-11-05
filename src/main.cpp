@@ -111,7 +111,7 @@ int main(int argc, char **argv)
 
 		DMSG("waiting for contol layer to end");
 		// std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(30000));
-		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(3000));
+		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(30000));
 
 		DMSG("about to fall out of main");
 		return 0;

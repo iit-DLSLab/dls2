@@ -66,6 +66,9 @@ public:
 	transformation_matrix_t toTransformationMatrix() const;
 
 	// ============================== Arithmetic ===============================
+	/// Assignement overload
+	Pose &operator=(const Pose &rhs);
+
 	/// Computes a pose that represents the translation and rotation difference
 	/// from a given pose to this pose
 	Pose &operator-=(const Pose&);

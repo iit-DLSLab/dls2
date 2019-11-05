@@ -18,6 +18,7 @@
 #include <fastrtps/fastrtps_fwd.h>
 #include <fastrtps/subscriber/SubscriberListener.h>
 #include <fastrtps/subscriber/SampleInfo.h>
+#include "msg/gait_signalPubSubTypes.h"
 #include "msg/hello_worldPubSubTypes.h"
 
 // =============================================================================
@@ -92,7 +93,7 @@ private:
 
 	// BEGIN critical section
 		/// The last reading of the signal from the current active gait generator
-		std::shared_ptr<GaitSignal> pGait_signal;
+		std::shared_ptr<const GaitSignal> pGait_signal;
 		mutable std::mutex gait_signal_mutex;
 	// END critical section
 
@@ -111,15 +112,15 @@ private:
 	{
 	public:
 		// SubListener(const Controller * const);
-		SubListener(std::shared_ptr<const Controller>);
+		SubListener(std::shared_ptr<Controller>);
 		~SubListener() = default;
 		void onNewDataMessage(eprosima::fastrtps::Subscriber*) override;
 	private:
-		const std::shared_ptr<const Controller> pOwner;
+		const std::shared_ptr<Controller> pOwner;
 		eprosima::fastrtps::SampleInfo_t info;
 	} listener;
-	// HelloWorldMsgPubSubType rtps_type;
-	HelloWorldPubSubType rtps_type;
+	GaitSignalMsgPubSubType rtps_type;
+	// HelloWorldPubSubType rtps_type;
 };
 
 #endif /* end of include guard: CONTROLLER_HPP_RSFU8GQS */

@@ -73,19 +73,25 @@ GaitGenerator::ID_t GaitGenerator::getID()
 {
 	return this->ID;
 }
-
-void GaitGenerator::publishData(const std::shared_ptr<GaitSignal> &pIn_data)
+void GaitGenerator::publishData(const GaitSignal &signal)
 {
-	{
-		std::lock_guard<std::mutex> lock(this->data_mutex);
-		this->pData = pIn_data;
-	}
-
-	// HelloWorld st;
-	// st.msg("Hello from fastrtps");
-	// pPublisher->write(&st);
-
+	GaitSignalMsg p = signal;
+	pPublisher->write(&p);
 }
+
+// TODO("Make one that doesn't take pointer")
+// [[deprecated]]
+// void GaitGenerator::publishData(const std::shared_ptr<GaitSignal> &pIn_data)
+// {
+// 	DMSG("CALLING DEPRECATED FUNCTION");
+// 	// {
+// 	// 	std::lock_guard<std::mutex> lock(this->data_mutex);
+// 	// 	this->pData = pIn_data;
+// 	// }
+
+// 	GaitSignalMsg p = *pIn_data;
+// 	// pPublisher->write(&p);
+// }
 
 std::shared_ptr<GaitSignal> GaitGenerator::readSignal()
 {

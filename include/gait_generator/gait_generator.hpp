@@ -15,6 +15,7 @@
 // fastrtps
 #include <fastrtps/fastrtps_fwd.h>
 #include <fastrtps/publisher/PublisherListener.h>
+#include "msg/gait_signalPubSubTypes.h"
 #include "msg/hello_worldPubSubTypes.h"
 
 // =============================================================================
@@ -53,6 +54,9 @@ public:
 	std::shared_ptr<GaitSignal> readSignal();
 
 protected:
+	void publishData(const GaitSignal &);
+
+	TODO("remove this overload")
 	/// sends the signal of this generator to the rest of the architecture
 	///
 	/// @param pData a pointer to the value of the signal at the end of the
@@ -84,7 +88,8 @@ private:
 		PubListener() = default;
 		~PubListener() = default;
 	} listener;
-	HelloWorldPubSubType rtps_type;
+	GaitSignalMsgPubSubType rtps_type;
+	// HelloWorldPubSubType rtps_type;
 };
 
 #endif /* end of include guard: GAIT_GENERATOR_HPP_5MDX0BG2 */

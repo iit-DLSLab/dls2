@@ -112,6 +112,17 @@ Pose::transformation_matrix_t Pose::toTransformationMatrix() const
 // =============================================================================
 // Arithmetic
 // =============================================================================
+Pose &Pose::operator=(const Pose &rhs)
+{
+	std::lock_guard<std::mutex> lock(this->pose_mutex);
+	{
+		std::lock_guard<std::mutex> lock(rhs.pose_mutex);
+		this->position = rhs.position;
+		this->quaternion = rhs.quaternion;
+	}
+	return *this;
+}
+
 // ================================ Subtraction ================================
 Pose &Pose::operator-=(const Pose &rhs)
 {
