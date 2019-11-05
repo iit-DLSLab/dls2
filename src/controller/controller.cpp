@@ -32,16 +32,24 @@ Controller::Controller
 	should_run(false),
 	pParticipant(nullptr),
 	pSubscriber(nullptr),
-	listener(this),
+	listener
+	(
+		std::shared_ptr<Controller>
+		(
+			this,
+			[](Controller*){} // do not use the shared pointer to delete the object
+		)
+	),
 	rtps_type()
 {
 	// configure fastrtps subscription
 	eprosima::fastrtps::ParticipantAttributes participant_attr;
-	participant_attr.rtps.setName("controller_subscriber");
+	participant_attr.rtps.setName("Participant_subscriber");
+	TODO("not cleaning the participant because it's generating a library error")
 	pParticipant.reset
 	(
 		eprosima::fastrtps::Domain::createParticipant(participant_attr),
-		eprosima::fastrtps::Domain::removeParticipant
+		[](eprosima::fastrtps::Participant*){}
 	);
 
 	TODO("Check for nullptr on failure of above")
@@ -58,6 +66,7 @@ Controller::Controller
 	sub_attr.topic.topicKind = eprosima::fastrtps::rtps::NO_KEY;
 	sub_attr.topic.topicDataType = rtps_type.getName();
 	sub_attr.topic.topicName = "HelloWorldPubSubTopic";
+	TODO("not cleaning the subscriber because it's generating a library error")
 	pSubscriber.reset
 	(
 		eprosima::fastrtps::Domain::createSubscriber
@@ -66,7 +75,7 @@ Controller::Controller
 			sub_attr,
 			static_cast<eprosima::fastrtps::SubscriberListener*>(&listener)
 		),
-		eprosima::fastrtps::Domain::removeSubscriber
+		[](eprosima::fastrtps::Subscriber*){}
 	);
 }
 
@@ -105,17 +114,19 @@ const std::shared_ptr<const ControlSignal> Controller::readSignal() const
 // =============================================================================
 // FastRTPS
 // =============================================================================
-Controller::SubListener::SubListener(const Controller * const p) :
+Controller::SubListener::SubListener(std::shared_ptr<const Controller> p) :
 	pOwner(p),
 	info()
 { }
 
 void Controller::SubListener::onNewDataMessage(eprosima::fastrtps::Subscriber *pSub)
 {
-	std::shared_ptr<HelloWorldMsg> st = std::make_shared<HelloWorldMsg>();
+	// std::shared_ptr<HelloWorldMsg> st = std::make_shared<HelloWorldMsg>();
+	DMSG("================GOT A MESSAGE===============");
+	std::shared_ptr<HelloWorld> st = std::make_shared<HelloWorld>();
 	if(pSub->takeNextData(&*st, &info))
 	{
-		TODO("DO CHECKS HERE")
+		DLOG(st->msg());
 		std::lock_guard<std::mutex> lock(pOwner->gait_signal_mutex);
 	}
 }

@@ -1,6 +1,8 @@
 #ifndef GAIT_GENERATOR_HPP_5MDX0BG2
 #define GAIT_GENERATOR_HPP_5MDX0BG2
-
+// =============================================================================
+// Includes
+// =============================================================================
 #include "application_framework/components/periodic_app_layer_component.hpp"
 #include "gait_generator/gait_signal.hpp"
 #include "todo.h"
@@ -10,6 +12,14 @@
 #include <memory>
 #include <atomic>
 
+// fastrtps
+#include <fastrtps/fastrtps_fwd.h>
+#include <fastrtps/publisher/PublisherListener.h>
+#include "msg/hello_worldPubSubTypes.h"
+
+// =============================================================================
+// Class Interface
+// =============================================================================
 class GaitGenerator : public PeriodicAppLayerComponent
 {
 protected:
@@ -49,7 +59,6 @@ protected:
 	/// current epoch
 	void publishData(const std::shared_ptr<GaitSignal> &pData);
 
-
 	const std::shared_ptr<const Dog> pRobot;	///< A pointer to the robot model
 	const ID_t ID;								///< The ID of this gait generator
 
@@ -65,6 +74,17 @@ private:
 		std::shared_ptr<GaitSignal> pData;
 		std::mutex data_mutex;
 	// END critical section
+
+	// =============================== FastRTPS ================================
+	std::shared_ptr<eprosima::fastrtps::Participant> pParticipant;
+	std::shared_ptr<eprosima::fastrtps::Publisher> pPublisher;
+	class PubListener : public eprosima::fastrtps::PublisherListener
+	{
+	public:
+		PubListener() = default;
+		~PubListener() = default;
+	} listener;
+	HelloWorldPubSubType rtps_type;
 };
 
 #endif /* end of include guard: GAIT_GENERATOR_HPP_5MDX0BG2 */

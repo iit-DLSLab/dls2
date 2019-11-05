@@ -110,14 +110,16 @@ private:
 	class SubListener : public eprosima::fastrtps::SubscriberListener
 	{
 	public:
-		SubListener(const Controller * const);
+		// SubListener(const Controller * const);
+		SubListener(std::shared_ptr<const Controller>);
 		~SubListener() = default;
 		void onNewDataMessage(eprosima::fastrtps::Subscriber*) override;
 	private:
 		const std::shared_ptr<const Controller> pOwner;
 		eprosima::fastrtps::SampleInfo_t info;
 	} listener;
-	HelloWorldMsgPubSubType rtps_type;
+	// HelloWorldMsgPubSubType rtps_type;
+	HelloWorldPubSubType rtps_type;
 };
 
 #endif /* end of include guard: CONTROLLER_HPP_RSFU8GQS */

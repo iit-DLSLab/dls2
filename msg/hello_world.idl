@@ -1,4 +1,4 @@
-struct HelloWorldMsg
+struct HelloWorld
 {
 	string msg;
 };

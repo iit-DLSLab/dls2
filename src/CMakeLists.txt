@@ -193,6 +193,7 @@ add_library(
 	SHARED
 	controller/dummy_controller.cpp
 )
+add_dependencies(dummy_controller messagelib)
 # target_link_libraries(dummy_controller geometry)
 
 add_library(
@@ -200,6 +201,8 @@ add_library(
 	SHARED
 	gait_generator/dummy_gait_generator.cpp
 )
+add_dependencies(dummy_gait_generator messagelib)
+
 add_library(
 	dummy_estimator
 	SHARED

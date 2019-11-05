@@ -83,10 +83,10 @@ int main(int argc, char **argv)
 		change_process_name(argv, "control_layer");
 		std::shared_ptr<ControlLayer> pControlLayer = std::make_shared<ControlLayer>();
 		TODO("move this to separate process")
-		std::shared_ptr<EstimationLayer> pEstimationLayer = std::make_shared<EstimationLayer>();
+		// std::shared_ptr<EstimationLayer> pEstimationLayer = std::make_shared<EstimationLayer>();
 
 		pApp->addLayer(pControlLayer);
-		pApp->addLayer(pEstimationLayer);
+		// pApp->addLayer(pEstimationLayer);
 
 		DMSG("running control layer");
 		TODO("Run should return a status")
@@ -96,19 +96,22 @@ int main(int argc, char **argv)
 		// ============================== Temporary Thing =======================
 		TODO("This is temporary to simulate user input")
 		DMSG("waiting for user input");
-		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(3000));
+		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
+		// std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(3000));
 		DMSG("user loaded dummy controller");
 		pControlLayer->loadController("./libdummy_controller.so");
 		pControlLayer->loadGaitGenerator("./libdummy_gait_generator.so");
-		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(3000));
+		// std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(3000));
+		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
 		DMSG("user started dummy controller");
 		pControlLayer->activateController("dummy_controller");
 		pControlLayer->activateGaitGenerator("dummy_gait_generator");
-		pEstimationLayer->loadEstimator("./libdummy_estimator.so");
-		pEstimationLayer->activateEstimator("Dummy Estimator");
+		// pEstimationLayer->loadEstimator("./libdummy_estimator.so");
+		// pEstimationLayer->activateEstimator("Dummy Estimator");
 
 		DMSG("waiting for contol layer to end");
-		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(30000));
+		// std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(30000));
+		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(3000));
 
 		DMSG("about to fall out of main");
 		return 0;

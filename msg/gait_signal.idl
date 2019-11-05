@@ -17,5 +17,6 @@ struct GaitSignalMsg
 	sequence<double> desired_joint_acceleration;
 
 	sequence<double> desired_feed_forward_torque;
-	// TODO stance feet here
+
+	sequence<boolean> stance_feet;
 };
