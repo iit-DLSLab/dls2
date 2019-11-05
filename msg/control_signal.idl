@@ -1,0 +1,5 @@
+struct ControlSignalMsg
+{
+	sequence<double> torques;
+	unsigned long long signal_reconstruction_method;
+};

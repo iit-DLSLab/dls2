@@ -50,7 +50,8 @@ GaitGenerator::GaitGenerator
 	eprosima::fastrtps::PublisherAttributes pub_attr;
 	pub_attr.topic.topicKind = eprosima::fastrtps::rtps::NO_KEY;
 	pub_attr.topic.topicDataType = rtps_type.getName();
-	pub_attr.topic.topicName = "HelloWorldPubSubTopic";
+	TODO("Change the name here");
+	pub_attr.topic.topicName = "GaitSignal";
 
 	TODO("not cleaning the publisher because it's generating a library error")
 	pPublisher.reset

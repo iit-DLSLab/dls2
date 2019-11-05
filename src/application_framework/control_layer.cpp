@@ -5,6 +5,16 @@
 #include "util/debug/debug.hpp"
 #include "robot/robot.hpp"
 #include "util/class_loader.hpp"
+
+// eprosima
+#include <fastrtps/participant/Participant.h>
+#include <fastrtps/attributes/ParticipantAttributes.h>
+#include <fastrtps/subscriber/Subscriber.h>
+#include <fastrtps/attributes/SubscriberAttributes.h>
+#include <fastrtps/Domain.h>
+#include "msg/control_signalPubSubTypes.h"
+
+
 // =============================================================================
 // Constructors
 // =============================================================================
@@ -146,6 +156,17 @@ bool ControlLayer::activateController(const Controller::ID_t &ID)
 		std::forward_as_tuple(run_p, &*controller_it->second)
 	);
 
+	// start the controller subscriber
+	{
+		std::lock_guard<std::mutex> lock(this->control_subscribers_mutex);
+		this->control_subscribers.emplace
+		(
+			std::piecewise_construct,
+			std::forward_as_tuple(ID),
+			std::forward_as_tuple(ID)
+		);
+	}
+
 	DMSG("finished calling run on controller from control layer");
 	return true;
 }
@@ -166,6 +187,12 @@ bool ControlLayer::deactivateController(const Controller::ID_t &ID)
 	TODO("shutdown might need to be called stop or pause or whatever. Maybe add another virtual function in AppLayerComponent")
 	controller_it->second->stop();
 	controller_thread_it->second.join();
+
+	// stop the controller subscriber
+	{
+		std::lock_guard<std::mutex> lock(this->control_subscribers_mutex);
+		this->control_subscribers.erase(ID);
+	}
 	return true;
 }
 
@@ -234,4 +261,74 @@ Eigen::MatrixXd ControlLayer::saturateTorques(const Eigen::MatrixXd &req) const
 void ControlLayer::publishDesiredTorques(const Eigen::MatrixXd &) const
 {
 	TODO("This is not yet implemented")
+}
+
+// =============================================================================
+// FastRTPS
+// =============================================================================
+// ControlSignalMsgPubSubType ControlLayer::ControlSubListener::rtps_type;
+HelloWorldPubSubType ControlLayer::ControlSubListener::rtps_type;
+
+ControlLayer::ControlSubListener::ControlSubListener(const Controller::ID_t &id):
+	control_signal(nullptr),
+	control_signal_mutex(),
+	pParticipant(nullptr),
+	pSubscriber(nullptr)
+{
+	eprosima::fastrtps::ParticipantAttributes participant_attr;
+	participant_attr.rtps.setName("Participant_subscriber");
+
+	TODO("figure out how to remove participant properly")
+	pParticipant.reset
+	(
+		eprosima::fastrtps::Domain::createParticipant(participant_attr),
+		[](eprosima::fastrtps::Participant*){}
+	);
+	eprosima::fastrtps::Domain::registerType
+	(
+		pParticipant.get(),
+		static_cast<eprosima::fastrtps::TopicDataType*>(&rtps_type)
+	);
+
+	eprosima::fastrtps::SubscriberAttributes sub_attr;
+	sub_attr.topic.topicKind = eprosima::fastrtps::rtps::NO_KEY;
+	sub_attr.topic.topicDataType = rtps_type.getName();
+
+	TODO("do this better")
+	// build topic name
+	sub_attr.topic.topicName = "HelloWorldPubSubTopic";
+	// sub_attr.topic.topicName = id;
+	TODO("figure out how to remove this subscriber")
+	pSubscriber.reset
+	(
+		eprosima::fastrtps::Domain::createSubscriber
+		(
+			pParticipant.get(),
+			sub_attr,
+			static_cast<eprosima::fastrtps::SubscriberListener*>(this)
+		),
+		[](eprosima::fastrtps::Subscriber*){}
+	);
+
+	DMSG("#$%^&^%$%^&^%$%^&%$# CREATED A SUBSCRIBER I HOPE #$%^&^%$%^&^%$%^&%$#");
+}
+
+std::shared_ptr<ControlSignal>
+	ControlLayer::ControlSubListener::getLastPublishedControlSignal()
+{
+	std::lock_guard<std::mutex> lock(this->control_signal_mutex);
+	return this->control_signal;
+}
+
+void ControlLayer::ControlSubListener::onNewDataMessage
+(
+	eprosima::fastrtps::Subscriber *sub
+)
+{
+	DMSG("#$%^&^%$%^&^%$%^&%$# GOT A MESSAGE #$%^&^%$%^&^%$%^&%$#");
+
+	TODO("this is wrong, temporary code")
+	std::shared_ptr<ControlSignal> p = std::make_shared<ControlSignal>();
+	std::lock_guard<std::mutex> lock(this->control_signal_mutex);
+	control_signal = p;
 }

@@ -71,6 +71,7 @@ endmacro()
 add_message(hello_world)
 add_message(pose)
 add_message(gait_signal)
+add_message(control_signal)
 
 # ==============================================================================
 # Libraries

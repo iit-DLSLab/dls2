@@ -65,7 +65,8 @@ Controller::Controller
 	eprosima::fastrtps::SubscriberAttributes sub_attr;
 	sub_attr.topic.topicKind = eprosima::fastrtps::rtps::NO_KEY;
 	sub_attr.topic.topicDataType = rtps_type.getName();
-	sub_attr.topic.topicName = "HelloWorldPubSubTopic";
+	TODO("Change the name here");
+	sub_attr.topic.topicName = "GaitSignal";
 	TODO("not cleaning the subscriber because it's generating a library error")
 	pSubscriber.reset
 	(

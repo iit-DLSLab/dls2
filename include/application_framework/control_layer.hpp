@@ -1,6 +1,9 @@
 #ifndef CONTROL_LAYER_HPP_YCHFNYBM
 #define CONTROL_LAYER_HPP_YCHFNYBM
 
+// =============================================================================
+// Includes
+// =============================================================================
 #include "application_framework/app_layer.hpp"
 #include "controller/controller.hpp"
 #include "gait_generator/gait_generator.hpp"
@@ -9,6 +12,13 @@
 #include <memory>
 #include <mutex>
 #include <thread>
+
+// eprosima
+#include <fastrtps/fastrtps_fwd.h>
+#include <fastrtps/subscriber/SubscriberListener.h>
+#include <fastrtps/subscriber/SampleInfo.h>
+#include "msg/control_signalPubSubTypes.h"
+#include "msg/hello_worldPubSubTypes.h"
 
 class ControlLayer : public AppLayer
 {
@@ -79,6 +89,32 @@ private:
 	/// @ret A saturated version of the torques that do not exceed safe limits
 	Eigen::MatrixXd saturateTorques(const Eigen::MatrixXd &req) const;
 
+	class ControlSubListener : public eprosima::fastrtps::SubscriberListener
+	{
+	public:
+		ControlSubListener(const Controller::ID_t&);
+		~ControlSubListener() = default;
+
+		// Disallow move and copy
+		// This is because pSubscriber gets the address `this`. If this object
+		// is moved into ControlLayer's control_subscribers, pSubscriber would
+		// then point to invalid memory
+		ControlSubListener(const ControlSubListener&&) = delete;
+		ControlSubListener(const ControlSubListener&) = delete;
+
+		std::shared_ptr<ControlSignal> getLastPublishedControlSignal();
+		void onNewDataMessage(eprosima::fastrtps::Subscriber *sub) override;
+	private:
+		// BEGIN critical section
+			std::shared_ptr<ControlSignal> control_signal;
+			std::mutex control_signal_mutex;
+		// END critical section
+
+		std::shared_ptr<eprosima::fastrtps::Participant> pParticipant;
+		std::shared_ptr<eprosima::fastrtps::Subscriber> pSubscriber;
+		// static ControlSignalMsgPubSubType rtps_type;
+		static HelloWorldPubSubType rtps_type;
+	};
 	// ============================ Communincation =============================
 	void publishDesiredTorques(const Eigen::MatrixXd &) const;
 
@@ -87,6 +123,10 @@ private:
 		std::map<Controller::ID_t, std::shared_ptr<Controller>> controllers;
 		std::map<Controller::ID_t, std::thread> active_controller_threads;
 		std::mutex controllers_mutex;
+		// BEGIN critical section
+			std::map<Controller::ID_t, ControlSubListener> control_subscribers;
+			std::mutex control_subscribers_mutex;
+		// END critical section
 	// END critical section
 	// BEGIN critical section
 		std::map<GaitGenerator::ID_t, std::shared_ptr<GaitGenerator>> generators;
