@@ -1,4 +1,5 @@
 #include "geometry/pose.hpp"
+#include <algorithm>
 
 // =============================================================================
 // Constructors
@@ -52,14 +53,24 @@ Pose::Pose(PoseMsg msg) :
 
 Pose::operator PoseMsg() const
 {
-	PoseMsg p;
+	PoseMsg msg;
+	std::array<double, 3> position_component;
+	std::array<double, 4> quaternion_component;
 
-	TODO("DO NOT use hardcoded paths like this. Figure out how to access underlying data and send straight into std::array")
-	std::lock_guard<std::mutex> lock(this->pose_mutex);
-	p.position(std::array<double, 3>{this->position(0), this->position(1), this->position(2)});
-	p.quaternion(std::array<double, 4>{this->quaternion.x(), this->quaternion.y(), this->quaternion.z(), this->quaternion.z()});
+	{
+		std::lock_guard<std::mutex> lock(this->pose_mutex);
 
-	return p;
+		const double *p = this->position.data();
+		std::copy(p, p + 3, position_component.begin());
+
+		p = this->quaternion.coeffs().data();
+		std::copy(p, p + 4, quaternion_component.begin());
+	}
+
+	msg.position(position_component);
+	msg.quaternion(quaternion_component);
+
+	return msg;
 }
 
 // =============================================================================

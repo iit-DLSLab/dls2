@@ -1,5 +1,9 @@
 # Target to invoke to build tests
 add_custom_target(tests)
+add_compile_options(
+	# Standards
+	-std=c++17
+)
 
 function(create_test NAME SRC LINK)
 	# Output directory of executable should mirror their location in source tree
@@ -24,3 +28,5 @@ function(create_test NAME SRC LINK)
 		WORKING_DIRECTORY ${EXECUTABLE_OUTPUT_PATH}
 	)
 endfunction()
+
+add_subdirectory(geometry)

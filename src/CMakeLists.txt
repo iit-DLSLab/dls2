@@ -38,7 +38,6 @@ add_compile_options(
 	# -DSHOW_TODOS_AT_COMPILE_TIME
 )
 
-
 # ==============================================================================
 # Forward declaration of main executable
 # ==============================================================================
@@ -86,10 +85,6 @@ target_compile_options(
 	messaging
 	PUBLIC
 	-w # Suppress all warnings, this library's code is auto-generated
-)
-include_directories(
-	SYSTEM
-	${CMAKE_SOURCE_DIR}/gen/include
 )
 add_custom_target(messagelib DEPENDS ${MESSAGE_SOURCES})
 
@@ -210,6 +205,7 @@ add_library(
 	SHARED
 	estimator/dummy_estimator.cpp
 )
+add_dependencies(dummy_estimator messagelib)
 # target_link_libraries(dummy_gait_generator geometry)
 
 # ==============================================================================

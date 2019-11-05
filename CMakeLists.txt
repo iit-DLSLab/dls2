@@ -9,7 +9,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(EIGEN_DIR /usr/include/eigen3)
 string(LENGTH "{CMAKE_SOURCE_DIR}/" SOURCE_PATH_SIZE)
 
-
 include_directories(
 	${CMAKE_SOURCE_DIR}/include
 	${CMAKE_SOURCE_DIR}/build_tools/include
@@ -17,6 +16,10 @@ include_directories(
 include_directories(
 	SYSTEM
 	${EIGEN_DIR}
+)
+include_directories(
+	SYSTEM
+	${CMAKE_SOURCE_DIR}/gen/include
 )
 
 enable_testing()
