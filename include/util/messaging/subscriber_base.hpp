@@ -1,6 +1,7 @@
 #ifndef SUBSCRIBER_BASE_HPP_XPACOJJI
 #define SUBSCRIBER_BASE_HPP_XPACOJJI
 
+#include <memory>
 #include <fastrtps/fastrtps_fwd.h>
 #include <fastrtps/subscriber/SubscriberListener.h>
 #include <fastrtps/subscriber/SampleInfo.h>

@@ -8,6 +8,7 @@
 #include <fastrtps/subscriber/Subscriber.h>
 #include <fastrtps/attributes/SubscriberAttributes.h>
 #include <fastrtps/Domain.h>
+#include <fastrtps/TopicDataType.h>
 
 template <class PubSub_t>
 PubSub_t SubscriberBase<PubSub_t>::rtps_type;

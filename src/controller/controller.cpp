@@ -2,14 +2,6 @@
 #include "controller/controller.hpp"
 #include "todo.h"
 #include "util/debug/debug.hpp"
-
-// fastrtps
-#include <fastrtps/participant/Participant.h>
-#include <fastrtps/attributes/ParticipantAttributes.h>
-#include <fastrtps/subscriber/Subscriber.h>
-#include <fastrtps/attributes/SubscriberAttributes.h>
-#include <fastrtps/Domain.h>
-
 // =============================================================================
 // Constructors
 // =============================================================================
@@ -30,8 +22,6 @@ Controller::Controller
 	pControl_signal(nullptr),
 	pControl_signal_mutex(),
 	should_run(false),
-	pParticipant(nullptr),
-	pSubscriber(nullptr),
 	listener
 	(
 		std::shared_ptr<Controller>
@@ -39,46 +29,8 @@ Controller::Controller
 			this,
 			[](Controller*){} // do not use the shared pointer to delete the object
 		)
-	),
-	rtps_type()
-{
-	// configure fastrtps subscription
-	eprosima::fastrtps::ParticipantAttributes participant_attr;
-	participant_attr.rtps.setName("Participant_subscriber");
-	TODO("not cleaning the participant because it's generating a library error")
-	pParticipant.reset
-	(
-		eprosima::fastrtps::Domain::createParticipant(participant_attr),
-		[](eprosima::fastrtps::Participant*){}
-	);
-
-	TODO("Check for nullptr on failure of above")
-
-	// Register
-	eprosima::fastrtps::Domain::registerType
-	(
-		pParticipant.get(),
-		static_cast<eprosima::fastrtps::TopicDataType*>(&rtps_type)
-	);
-
-	// Create Subscriber
-	eprosima::fastrtps::SubscriberAttributes sub_attr;
-	sub_attr.topic.topicKind = eprosima::fastrtps::rtps::NO_KEY;
-	sub_attr.topic.topicDataType = rtps_type.getName();
-	TODO("Change the name here");
-	sub_attr.topic.topicName = "GaitSignal";
-	TODO("not cleaning the subscriber because it's generating a library error")
-	pSubscriber.reset
-	(
-		eprosima::fastrtps::Domain::createSubscriber
-		(
-			pParticipant.get(),
-			sub_attr,
-			static_cast<eprosima::fastrtps::SubscriberListener*>(&listener)
-		),
-		[](eprosima::fastrtps::Subscriber*){}
-	);
-}
+	)
+{ }
 
 // =============================================================================
 // Implementation
@@ -116,6 +68,7 @@ const std::shared_ptr<const ControlSignal> Controller::readSignal() const
 // FastRTPS
 // =============================================================================
 Controller::SubListener::SubListener(std::shared_ptr<Controller> p) :
+	SubscriberBase<GaitSignalMsgPubSubType>("GaitSignal"),
 	pOwner(p),
 	info()
 { }
@@ -124,10 +77,8 @@ void Controller::SubListener::onNewDataMessage(eprosima::fastrtps::Subscriber *p
 {
 	DMSG("================GOT A MESSAGE===============");
 	GaitSignalMsg st;
-	// std::shared_ptr<HelloWorld> st = std::make_shared<HelloWorld>();
 	if(pSub->takeNextData(&st, &info))
 	{
-		// DLOG(st.desired_com_pose()).toPosition().transpose());
 		std::lock_guard<std::mutex> lock(pOwner->gait_signal_mutex);
 		pOwner->pGait_signal = std::make_shared<const GaitSignal>(st);
 		DLOG(pOwner->pGait_signal->desired_com_pose.toPosition().transpose());

@@ -8,18 +8,13 @@
 #include "gait_generator/gait_signal.hpp"
 #include "controller/control_signal.hpp"
 #include "robot/robot.hpp"
+#include "util/messaging/subscriber_base.hpp"
+#include "msg/gait_signalPubSubTypes.h"
 
 #include <chrono>
 #include <string>
 #include <memory>
 #include <atomic>
-
-// fastrtps
-#include <fastrtps/fastrtps_fwd.h>
-#include <fastrtps/subscriber/SubscriberListener.h>
-#include <fastrtps/subscriber/SampleInfo.h>
-#include "msg/gait_signalPubSubTypes.h"
-#include "msg/hello_worldPubSubTypes.h"
 
 // =============================================================================
 // Class Interface
@@ -106,12 +101,9 @@ private:
 	std::atomic_bool should_run;
 
 	// =============================== FastRTPS ================================
-	std::shared_ptr<eprosima::fastrtps::Participant> pParticipant;
-	std::shared_ptr<eprosima::fastrtps::Subscriber> pSubscriber;
-	class SubListener : public eprosima::fastrtps::SubscriberListener
+	class SubListener : public SubscriberBase<GaitSignalMsgPubSubType>
 	{
 	public:
-		// SubListener(const Controller * const);
 		SubListener(std::shared_ptr<Controller>);
 		~SubListener() = default;
 		void onNewDataMessage(eprosima::fastrtps::Subscriber*) override;
@@ -119,8 +111,6 @@ private:
 		const std::shared_ptr<Controller> pOwner;
 		eprosima::fastrtps::SampleInfo_t info;
 	} listener;
-	GaitSignalMsgPubSubType rtps_type;
-	// HelloWorldPubSubType rtps_type;
 };
 
 #endif /* end of include guard: CONTROLLER_HPP_RSFU8GQS */
