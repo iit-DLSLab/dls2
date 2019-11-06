@@ -2,6 +2,8 @@
 #include "controller/controller.hpp"
 #include "todo.h"
 #include "util/debug/debug.hpp"
+#include "topics/gait_signal.hpp"
+#include "topics/control_signal_base.hpp"
 // =============================================================================
 // Constructors
 // =============================================================================
@@ -30,7 +32,7 @@ Controller::Controller
 			[](Controller*){} // do not use the shared pointer to delete the object
 		)
 	),
-	control_signal_topic(std::string("control_signal_") + name_),
+	control_signal_topic(std::string(topics::control_signal_base) + name_),
 	publisher(control_signal_topic)
 { }
 
@@ -91,7 +93,7 @@ std::string Controller::getControlSignalTopic() const
 // FastRTPS
 // =============================================================================
 Controller::SubListener::SubListener(std::shared_ptr<Controller> p) :
-	SubscriberBase<GaitSignalMsgPubSubType>("GaitSignal"),
+	SubscriberBase<GaitSignalMsgPubSubType>(topics::gait_signal),
 	pOwner(p),
 	info()
 { }

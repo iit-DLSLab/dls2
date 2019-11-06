@@ -6,6 +6,7 @@
 #include "robot/robot.hpp"
 #include "util/class_loader.hpp"
 #include "msg/control_signalPubSubTypes.h"
+#include "topics/desired_torques.hpp"
 
 
 // =============================================================================
@@ -18,7 +19,7 @@ ControlLayer::ControlLayer() :
 	gait_generators_mutex(),
 	currentActiveGenerator(nullptr),
 	active_generator_thread(),
-	publisher("desired_torques")
+	publisher(topics::desired_torques)
 { }
 
 ControlLayer::~ControlLayer()

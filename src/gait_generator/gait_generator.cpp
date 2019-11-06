@@ -1,7 +1,9 @@
 #include "gait_generator/gait_generator.hpp"
+#include "util/debug/debug.hpp"
+#include "topics/gait_signal.hpp"
+
 #include <chrono>
 #include <thread>
-#include "util/debug/debug.hpp"
 
 // =============================================================================
 // Constructors
@@ -17,7 +19,7 @@ GaitGenerator::GaitGenerator
 	ID(ID_),
 	pData(nullptr),
 	data_mutex(),
-	publisher("GaitSignal")
+	publisher(topics::gait_signal)
 { }
 
 // =============================================================================
