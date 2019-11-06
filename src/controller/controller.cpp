@@ -29,7 +29,9 @@ Controller::Controller
 			this,
 			[](Controller*){} // do not use the shared pointer to delete the object
 		)
-	)
+	),
+	control_signal_topic(std::string("control_signal_") + name_),
+	publisher(control_signal_topic)
 { }
 
 // =============================================================================
@@ -40,10 +42,13 @@ Controller::ID_t Controller::getID() const
 	return this->ID;
 }
 
+TODO("Remove this function")
 void Controller::pushSignal(const std::shared_ptr<GaitSignal> &pSignal)
 {
-	std::lock_guard<std::mutex> lock(this->gait_signal_mutex);
-	pGait_signal = pSignal;
+	DMSG("WARNING USAGE OF DEPRECATED FUNCTION");
+	pSignal->desired_com_pose;
+	// std::lock_guard<std::mutex> lock(this->gait_signal_mutex);
+	// pGait_signal = pSignal;
 }
 
 std::shared_ptr<const GaitSignal> Controller::readGaitSignal() const
@@ -52,16 +57,34 @@ std::shared_ptr<const GaitSignal> Controller::readGaitSignal() const
 	return this->pGait_signal;
 }
 
-void Controller::publishSignal(const std::shared_ptr<const ControlSignal> &p)
+void Controller::publishSignal(const ControlSignal &msg)
 {
-	std::lock_guard<std::mutex> lock(this->pControl_signal_mutex);
-	this->pControl_signal = p;
+	DMSG("!!!!SENDING CONTROL SIGNAL TO FRAMEWORK!!!!!");
+	ControlSignalMsg p = msg;
+	publisher.publish(p);
 }
 
+TODO("Remove this function")
+void Controller::publishSignal(const std::shared_ptr<const ControlSignal> &p)
+{
+	DMSG("Warning -- using deprecated function");
+	p->torques;
+	// std::lock_guard<std::mutex> lock(this->pControl_signal_mutex);
+	// this->pControl_signal = p;
+}
+
+TODO("Remove this function")
 const std::shared_ptr<const ControlSignal> Controller::readSignal() const
 {
-	std::lock_guard<std::mutex> lock(this->pControl_signal_mutex);
-	return this->pControl_signal;
+	DMSG("WARNING USAGE OF DEPRECATED FUNCTION");
+	// std::lock_guard<std::mutex> lock(this->pControl_signal_mutex);
+	// return this->pControl_signal;
+	return nullptr;
+}
+
+std::string Controller::getControlSignalTopic() const
+{
+	return this->control_signal_topic;
 }
 
 // =============================================================================

@@ -9,7 +9,9 @@
 #include "controller/control_signal.hpp"
 #include "robot/robot.hpp"
 #include "util/messaging/subscriber_base.hpp"
+#include "util/messaging/publisher_base.hpp"
 #include "msg/gait_signalPubSubTypes.h"
+#include "msg/control_signalPubSubTypes.h"
 
 #include <chrono>
 #include <string>
@@ -56,6 +58,10 @@ public:
 	/// @ret a shared pointer to ControlSignal
 	const std::shared_ptr<const ControlSignal> readSignal() const;
 
+	/// Returns the name of the topic where this controller is publishing its
+	/// control signal
+	std::string getControlSignalTopic() const;
+
 protected:
 	///// Function gets called each epoch.
 	/////
@@ -68,6 +74,7 @@ protected:
 
 	/// Sends the control command to the rest of the architecture
 	void publishSignal(const std::shared_ptr<const ControlSignal>&);
+	void publishSignal(const ControlSignal&);
 
 	const std::shared_ptr<const Dog> pDog;
 	const std::string name;
@@ -111,6 +118,9 @@ private:
 		const std::shared_ptr<Controller> pOwner;
 		eprosima::fastrtps::SampleInfo_t info;
 	} listener;
+
+	const std::string control_signal_topic;
+	PublisherBase<ControlSignalMsgPubSubType> publisher;
 };
 
 #endif /* end of include guard: CONTROLLER_HPP_RSFU8GQS */

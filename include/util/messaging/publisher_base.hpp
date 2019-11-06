@@ -12,7 +12,7 @@ public:
 	PublisherBase(const std::string &topic);
 	virtual ~PublisherBase() = default;
 
-	void publish(typename PubSub_t::type &msg);
+	void publish(typename PubSub_t::type &msg) const;
 
 private:
 	std::shared_ptr<eprosima::fastrtps::Participant> pParticipant;

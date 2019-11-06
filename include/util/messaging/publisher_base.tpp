@@ -10,6 +10,8 @@
 #include <fastrtps/Domain.h>
 #include <fastrtps/TopicDataType.h>
 
+#include "util/debug/debug.hpp"
+
 template <class PubSub_t>
 PubSub_t PublisherBase<PubSub_t>::rtps_type;
 
@@ -57,7 +59,7 @@ PublisherBase<PubSub_t>::PublisherBase(const std::string &topic) :
 }
 
 template<class PubSub_t>
-void PublisherBase<PubSub_t>::publish(typename PubSub_t::type &msg)
+void PublisherBase<PubSub_t>::publish(typename PubSub_t::type &msg) const
 {
 	pPublisher->write(&msg);
 }

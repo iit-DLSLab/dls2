@@ -33,8 +33,12 @@ void GaitGenerator::publishData(const GaitSignal &signal)
 	publisher.publish(p);
 }
 
+TODO("remove this function")
 std::shared_ptr<GaitSignal> GaitGenerator::readSignal()
 {
-	std::lock_guard<std::mutex> lock(this->data_mutex);
-	return this->pData;
+	// std::lock_guard<std::mutex> lock(this->data_mutex);
+	// return this->pData;
+
+	DMSG("Warning: using deprecated function");
+	return nullptr;
 }

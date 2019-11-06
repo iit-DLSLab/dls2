@@ -18,7 +18,8 @@ ControlLayer::ControlLayer() :
 	generators(),
 	gait_generators_mutex(),
 	currentActiveGenerator(nullptr),
-	active_generator_thread()
+	active_generator_thread(),
+	publisher("desired_torques")
 { }
 
 ControlLayer::~ControlLayer()
@@ -43,17 +44,6 @@ ControlLayer::Status ControlLayer::run()
 	while(getStatus() == Status::RUNNING)
 	{
 		DMSG("==============Control layer loop==========");
-		// Read the gait signal from the current active gait generator
-		decltype(currentActiveGenerator->readSignal()) pSignal;
-		{
-			// Read the reference signal from the gait generator
-			std::lock_guard<std::mutex> lock(this->gait_generators_mutex);
-			if(this->currentActiveGenerator)
-			{
-				DMSG("Reading Signal from Gait Generator");
-				pSignal = this->currentActiveGenerator->readSignal();
-			}
-		}
 
 		// Send the reference signal to all active controllers
 		Eigen::MatrixXd desired_torques = Eigen::MatrixXd::Zero(Robot::getDimension(), 1);
@@ -65,19 +55,19 @@ ControlLayer::Status ControlLayer::run()
 				if(!pair_id_pController.second) continue;
 				if(pair_id_pController.second->getStatus() == Controller::Status::RUNNING)
 				{
-					// send the current signal of the gait generator
-					if(pSignal)
+					// find the subscriber -- when refactoring, this extra map
+					// will disappear
+					std::lock_guard<std::mutex> lock(this->control_subscribers_mutex);
+					auto it = this->control_subscribers.find(pair_id_pController.second->getID());
+					if(it != this->control_subscribers.end())
 					{
-						// Signal may be nullptr on first run of the gait generator
-						pair_id_pController.second->pushSignal(pSignal);
-					}
-
-					// read the last control command and sum it
-					auto pControl_signal = pair_id_pController.second->readSignal();
-					if(pControl_signal)
-					{
-						TODO("handle Impulse here")
-						desired_torques += pControl_signal->torques;
+						// read the last control command and sum it
+						auto pControl_signal = it->second.getLastPublishedControlSignal();
+						if(pControl_signal)
+						{
+							TODO("handle Impulse here")
+							desired_torques += pControl_signal->torques;
+						}
 					}
 				}
 			}
@@ -156,7 +146,8 @@ bool ControlLayer::activateController(const Controller::ID_t &ID)
 		(
 			std::piecewise_construct,
 			std::forward_as_tuple(ID),
-			std::forward_as_tuple(ID)
+			// std::forward_as_tuple("HelloWorldPubSubTopic")
+			std::forward_as_tuple(controller_it->second->getControlSignalTopic())
 		);
 	}
 
@@ -251,16 +242,21 @@ Eigen::MatrixXd ControlLayer::saturateTorques(const Eigen::MatrixXd &req) const
 	return req;
 }
 
-void ControlLayer::publishDesiredTorques(const Eigen::MatrixXd &) const
+void ControlLayer::publishDesiredTorques(const Eigen::VectorXd &torques) const
 {
-	TODO("This is not yet implemented")
+
+	DesiredTorquesMsg msg;
+	msg.desired_torques().resize(torques.size());
+	Eigen::VectorXd::Map(&msg.desired_torques()[0], torques.size()) = torques;
+	publisher.publish(msg);
 }
 
 // =============================================================================
 // FastRTPS
 // =============================================================================
-ControlLayer::ControlSubListener::ControlSubListener(const Controller::ID_t &id):
-	SubscriberBase<HelloWorldPubSubType>("HelloWorldPubSubTopic"),
+ControlLayer::ControlSubListener::ControlSubListener(const std::string &topic):
+	SubscriberBase<ControlSignalMsgPubSubType>(topic),
+	// SubscriberBase<HelloWorldPubSubType>(topic),
 	control_signal(nullptr),
 	control_signal_mutex()
 { }
@@ -277,10 +273,15 @@ void ControlLayer::ControlSubListener::onNewDataMessage
 	eprosima::fastrtps::Subscriber *sub
 )
 {
-	DMSG("#$%^&^%$%^&^%$%^&%$# GOT A MESSAGE #$%^&^%$%^&^%$%^&%$#");
-
-	TODO("this is wrong, temporary code")
-	std::shared_ptr<ControlSignal> p = std::make_shared<ControlSignal>();
-	std::lock_guard<std::mutex> lock(this->control_signal_mutex);
-	control_signal = p;
+	ControlSignalMsg msg;
+	if(sub->takeNextData((void*)&msg, &info))
+	{
+		if(info.sampleKind == eprosima::fastrtps::rtps::ALIVE)
+		{
+			std::shared_ptr<ControlSignal> p = std::make_shared<ControlSignal>(msg);
+			std::lock_guard<std::mutex> lock(this->control_signal_mutex);
+			this->control_signal = p;
+		}
+		DMSG("@%&!#@%*#@!^#(! GOT A MESSAGE @!*#^!@^#*!");
+	}
 }

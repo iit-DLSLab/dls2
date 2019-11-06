@@ -26,6 +26,9 @@ void DummyController::run(const std::chrono::system_clock::time_point &time)
 	if(!pGait_signal) DMSG("No gait signal published");
 	else DLOG(pGait_signal->desired_com_pose.toPosition().transpose());
 
+	ControlSignal s;
+	publishSignal(s);
+
 	time.time_since_epoch();
 }
 

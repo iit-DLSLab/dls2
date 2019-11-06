@@ -72,6 +72,7 @@ add_message(hello_world)
 add_message(pose)
 add_message(gait_signal)
 add_message(control_signal)
+add_message(desired_torques)
 
 # ==============================================================================
 # Libraries
@@ -136,6 +137,7 @@ add_library(
 	controlinterface
 	SHARED
 	controller/controller.cpp
+	controller/control_signal.cpp
 )
 target_link_libraries(controlinterface geometry)
 

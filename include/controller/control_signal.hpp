@@ -2,8 +2,11 @@
 #define CONTROL_SIGNAL_HPP_QCFRROHM
 
 #include <Eigen/Dense>
+#include "msg/control_signalPubSubTypes.h"
+#include "todo.h"
 
 /// A struct representing the control signal that is output by a Controller
+TODO("Should this be made thread safe?")
 struct ControlSignal
 {
 	TODO("Zero this")
@@ -16,7 +19,13 @@ struct ControlSignal
 	{
 		ZERO_ORDER_HOLD,
 		// IMPULSE
-	} signal_reconstruction_method = SignalReconstructionMethod::ZERO_ORDER_HOLD;
+	} signal_reconstruction_method;
+
+	// =============================== Fastrtps ================================
+	TODO("Figure out if this should be const or reference or whatever")
+	ControlSignal();
+	ControlSignal(ControlSignalMsg);
+	operator ControlSignalMsg() const;
 };
 
 #endif /* end of include guard: CONTROL_SIGNAL_HPP_QCFRROHM */

@@ -1,0 +1,4 @@
+struct DesiredTorquesMsg
+{
+	sequence<double> desired_torques;
+};

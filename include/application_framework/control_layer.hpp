@@ -14,7 +14,9 @@
 #include <thread>
 
 #include "util/messaging/subscriber_base.hpp"
+#include "util/messaging/publisher_base.hpp"
 #include "msg/control_signalPubSubTypes.h"
+#include "msg/desired_torquesPubSubTypes.h"
 #include "msg/hello_worldPubSubTypes.h"
 
 class ControlLayer : public AppLayer
@@ -86,10 +88,12 @@ private:
 	/// @ret A saturated version of the torques that do not exceed safe limits
 	Eigen::MatrixXd saturateTorques(const Eigen::MatrixXd &req) const;
 
-	class ControlSubListener : public SubscriberBase<HelloWorldPubSubType>
+	/// Helper class that subscribes to a given controller's control signal
+	class ControlSubListener : public SubscriberBase<ControlSignalMsgPubSubType>
+	// class ControlSubListener : public SubscriberBase<HelloWorldPubSubType>
 	{
 	public:
-		ControlSubListener(const Controller::ID_t&);
+		ControlSubListener(const std::string &topic);
 		~ControlSubListener() = default;
 
 		// Disallow move and copy
@@ -106,12 +110,14 @@ private:
 			std::shared_ptr<ControlSignal> control_signal;
 			std::mutex control_signal_mutex;
 		// END critical section
+		eprosima::fastrtps::SampleInfo_t info;
 	};
 	// ============================ Communincation =============================
-	void publishDesiredTorques(const Eigen::MatrixXd &) const;
+	void publishDesiredTorques(const Eigen::VectorXd &) const;
 
 	// ============================= Data Members ==============================
 	// BEGIN critical section
+		TODO("all of these maps should be merged into one map, which maps to a struct containing all the value types")
 		std::map<Controller::ID_t, std::shared_ptr<Controller>> controllers;
 		std::map<Controller::ID_t, std::thread> active_controller_threads;
 		std::mutex controllers_mutex;
@@ -128,6 +134,7 @@ private:
 		std::shared_ptr<GaitGenerator> currentActiveGenerator;
 		std::thread active_generator_thread;
 	// END critical section
+	PublisherBase<DesiredTorquesMsgPubSubType> publisher;
 };
 
 #include "application_framework/control_layer.tpp"
