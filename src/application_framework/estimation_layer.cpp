@@ -38,8 +38,6 @@ AppLayer::Status EstimationLayer::run()
 {
 	while(this->should_run)
 	{
-		DMSG("_____ESTIMATION LAYER_____");
-
 		TODO("Watchdog over estimators here")
 		TODO("proper sleep here")
 		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(300));

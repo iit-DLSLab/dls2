@@ -17,7 +17,6 @@ DummyGaitGenerator::DummyGaitGenerator()
 
 void DummyGaitGenerator::run(const std::chrono::system_clock::time_point &time)
 {
-	// auto pData = std::make_shared<GaitSignal>();
 	GaitSignal data;
 
 	Eigen::Vector3d com_position; com_position << 10, 2, 33;
@@ -30,13 +29,10 @@ void DummyGaitGenerator::run(const std::chrono::system_clock::time_point &time)
 extern "C" GaitGenerator *create()
 {
 	auto p = new DummyGaitGenerator;
-	// return new DummyController(std::make_shared<Dog>());
-	DMSG("I built a dummy gait generator");
 	return p;
 }
 
 extern "C" void destroy(GaitGenerator *p)
 {
 	delete p;
-	DMSG("I deleted a dummy gait generator");
 }

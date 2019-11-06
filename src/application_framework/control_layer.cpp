@@ -38,13 +38,10 @@ ControlLayer::Status ControlLayer::run()
 	TODO("correct looping condition")
 	while(getStatus() == Status::RUNNING)
 	{
-		DMSG("==============Control layer loop==========");
 		// Read the control signals
 		Eigen::VectorXd desired_torques = Eigen::VectorXd::Zero(Robot::getDimension());
 		{
-			DMSG("ABOUT TO GRAB MUTEX");
 			std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
-			DMSG("GOT MUTEX");
 			for(const auto &pair : this->controllers_b)
 			{
 				if(!pair.second.pController) continue;
@@ -67,14 +64,11 @@ ControlLayer::Status ControlLayer::run()
 		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(500));
 	}
 
-	DMSG("Fell out of control loop!!!!!!!!!!!!!!!!!!!!!!!!!!");
-
 	return getStatus();
 }
 
 ControlLayer::Status ControlLayer::shutdown()
 {
-	DMSG("shutdown control layer");
 	setStatus(Status::STOP);
 	deactivateGaitGenerators();
 
@@ -100,7 +94,6 @@ ControlLayer::Status ControlLayer::shutdown()
 TODO("std::map already does this check for emplace, maybe for others. Double check and make this more efficient")
 bool ControlLayer::activateController(const Controller::ID_t &ID)
 {
-	DMSG("ACTIVATE CONTROLLER");
 	std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
 
 	// find the controller in the list of controllers
@@ -113,20 +106,17 @@ bool ControlLayer::activateController(const Controller::ID_t &ID)
 	if(pair_it->second.pExecution_thread) return false;
 
 	// Start the controller in a new thread
-	DMSG("about to start new thread for controller");
 	AppLayerComponent::Status (Controller::*run_p)() = &Controller::run;
 	pair_it->second.pExecution_thread = std::make_shared<std::thread>(run_p, pair_it->second.pController.get());
 
 	// start the subscriber
 	pair_it->second.pSubscriber = std::make_shared<ControlSubListener>(pair_it->second.pController->getControlSignalTopic());
 
-	DMSG("finished calling run on controller from control layer");
 	return true;
 }
 
 bool ControlLayer::deactivateController(const Controller::ID_t &ID)
 {
-	DMSG("DEACTIVATE CONTROLLER");
 	std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
 	auto pair_it = this->controllers_b.find(ID);
 
@@ -148,7 +138,6 @@ bool ControlLayer::deactivateController(const Controller::ID_t &ID)
 
 void ControlLayer::loadController(const Controller::ID_t &name)
 {
-	DMSG("LOAD CONTROLLER");
 	std::shared_ptr<Controller> pController = ClassLoader::loadClass<Controller>(name);
 	// std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
 
@@ -172,7 +161,6 @@ bool ControlLayer::activateGaitGenerator(const GaitGenerator::ID_t &ID)
 	{
 		this->currentActiveGenerator->stop();
 		this->active_generator_thread.join();
-		DMSG("STOPPING PREVIOUS GENERATOR");
 	}
 
 	this->currentActiveGenerator=it->second;
@@ -199,7 +187,6 @@ void ControlLayer::loadGaitGenerator(const std::string &name)
 		ClassLoader::loadClass<GaitGenerator>(name);
 	TODO("define properly what this function does when a gait generator already exists")
 	this->addGaitGenerator(pGaitGenerator);
-	DMSG("EXIT");
 }
 
 Eigen::MatrixXd ControlLayer::saturateTorques(const Eigen::MatrixXd &req) const
@@ -249,6 +236,5 @@ void ControlLayer::ControlSubListener::onNewDataMessage
 			std::lock_guard<std::mutex> lock(this->control_signal_mutex);
 			this->control_signal = p;
 		}
-		DMSG("@%&!#@%*#@!^#(! GOT A MESSAGE @!*#^!@^#*!");
 	}
 }

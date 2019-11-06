@@ -52,7 +52,6 @@ HyQApp::~HyQApp()
 // =============================================================================
 void HyQApp::panic()
 {
-	DMSG("Panic");
 	TODO("Here set safety")
 
 	std::lock_guard<std::mutex> lock(this->layers_mutex);
@@ -83,7 +82,6 @@ void HyQApp::run()
 		for(const auto &pLayer : this->layers)
 		{
 			TODO("Set this thread to realtime thread priority")
-			DMSG("launch layer thread");
 			this->layer_threads.emplace_back(&AppLayer::run, &(*pLayer));
 		}
 	}

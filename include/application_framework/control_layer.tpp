@@ -17,7 +17,6 @@
 template <typename controller_t>
 void ControlLayer::addController(const std::shared_ptr<controller_t> &pController)
 {
-	DMSG("ADDING CONTROLLER");
 	static_assert
 	(
 		std::is_base_of<Controller, controller_t>::value,

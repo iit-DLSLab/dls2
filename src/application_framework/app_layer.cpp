@@ -38,7 +38,6 @@ void AppLayer::setStatus(Status s)
 
 AppLayer::Status AppLayer::eStop()
 {
-	DMSG("Application layer eStop");
 	{
 		std::lock_guard<std::mutex> lock(this->components_mutex);
 		for(const auto pComponent : this->components)

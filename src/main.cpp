@@ -88,32 +88,26 @@ int main(int argc, char **argv)
 		pApp->addLayer(pControlLayer);
 		// pApp->addLayer(pEstimationLayer);
 
-		DMSG("running control layer");
 		TODO("Run should return a status")
 		TODO("Run should be blocking")
 		pApp->run();
 
 		// ============================== Temporary Thing =======================
 		TODO("This is temporary to simulate user input")
-		DMSG("waiting for user input");
 		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
 		// std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(3000));
-		DMSG("user loaded dummy controller");
 		pControlLayer->loadController("./libdummy_controller.so");
 		pControlLayer->loadGaitGenerator("./libdummy_gait_generator.so");
 		// std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(3000));
 		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
-		DMSG("user started dummy controller");
 		pControlLayer->activateController("dummy_controller");
 		pControlLayer->activateGaitGenerator("dummy_gait_generator");
 		// pEstimationLayer->loadEstimator("./libdummy_estimator.so");
 		// pEstimationLayer->activateEstimator("Dummy Estimator");
 
-		DMSG("waiting for contol layer to end");
 		// std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(30000));
 		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(30000));
 
-		DMSG("about to fall out of main");
 		return 0;
 	}
 

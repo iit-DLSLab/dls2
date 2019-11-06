@@ -19,12 +19,7 @@ DummyController::DummyController() :
 
 void DummyController::run(const std::chrono::system_clock::time_point &time)
 {
-	DMSG("Dummy Controller-+-");
-	// static int cnt = 0;
-	// DMSG("Running " << name << " ");
 	auto pGait_signal = this->readGaitSignal();
-	if(!pGait_signal) DMSG("No gait signal published");
-	else DLOG(pGait_signal->desired_com_pose.toPosition().transpose());
 
 	ControlSignal s;
 	publishSignal(s);
@@ -35,12 +30,10 @@ void DummyController::run(const std::chrono::system_clock::time_point &time)
 extern "C" Controller *create()
 {
 	auto p = new DummyController;
-	DMSG("I built a dummy controller");
 	return p;
 }
 
 extern "C" void destroy(Controller *p)
 {
 	delete p;
-	DMSG("I deleted a dummy controller");
 }
