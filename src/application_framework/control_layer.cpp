@@ -5,13 +5,6 @@
 #include "util/debug/debug.hpp"
 #include "robot/robot.hpp"
 #include "util/class_loader.hpp"
-
-// eprosima
-#include <fastrtps/participant/Participant.h>
-#include <fastrtps/attributes/ParticipantAttributes.h>
-#include <fastrtps/subscriber/Subscriber.h>
-#include <fastrtps/attributes/SubscriberAttributes.h>
-#include <fastrtps/Domain.h>
 #include "msg/control_signalPubSubTypes.h"
 
 
@@ -266,52 +259,11 @@ void ControlLayer::publishDesiredTorques(const Eigen::MatrixXd &) const
 // =============================================================================
 // FastRTPS
 // =============================================================================
-// ControlSignalMsgPubSubType ControlLayer::ControlSubListener::rtps_type;
-HelloWorldPubSubType ControlLayer::ControlSubListener::rtps_type;
-
 ControlLayer::ControlSubListener::ControlSubListener(const Controller::ID_t &id):
+	SubscriberBase<HelloWorldPubSubType>("HelloWorldPubSubTopic"),
 	control_signal(nullptr),
-	control_signal_mutex(),
-	pParticipant(nullptr),
-	pSubscriber(nullptr)
-{
-	eprosima::fastrtps::ParticipantAttributes participant_attr;
-	participant_attr.rtps.setName("Participant_subscriber");
-
-	TODO("figure out how to remove participant properly")
-	pParticipant.reset
-	(
-		eprosima::fastrtps::Domain::createParticipant(participant_attr),
-		[](eprosima::fastrtps::Participant*){}
-	);
-	eprosima::fastrtps::Domain::registerType
-	(
-		pParticipant.get(),
-		static_cast<eprosima::fastrtps::TopicDataType*>(&rtps_type)
-	);
-
-	eprosima::fastrtps::SubscriberAttributes sub_attr;
-	sub_attr.topic.topicKind = eprosima::fastrtps::rtps::NO_KEY;
-	sub_attr.topic.topicDataType = rtps_type.getName();
-
-	TODO("do this better")
-	// build topic name
-	sub_attr.topic.topicName = "HelloWorldPubSubTopic";
-	// sub_attr.topic.topicName = id;
-	TODO("figure out how to remove this subscriber")
-	pSubscriber.reset
-	(
-		eprosima::fastrtps::Domain::createSubscriber
-		(
-			pParticipant.get(),
-			sub_attr,
-			static_cast<eprosima::fastrtps::SubscriberListener*>(this)
-		),
-		[](eprosima::fastrtps::Subscriber*){}
-	);
-
-	DMSG("#$%^&^%$%^&^%$%^&%$# CREATED A SUBSCRIBER I HOPE #$%^&^%$%^&^%$%^&%$#");
-}
+	control_signal_mutex()
+{ }
 
 std::shared_ptr<ControlSignal>
 	ControlLayer::ControlSubListener::getLastPublishedControlSignal()

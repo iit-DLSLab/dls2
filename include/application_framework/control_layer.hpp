@@ -13,10 +13,7 @@
 #include <mutex>
 #include <thread>
 
-// eprosima
-#include <fastrtps/fastrtps_fwd.h>
-#include <fastrtps/subscriber/SubscriberListener.h>
-#include <fastrtps/subscriber/SampleInfo.h>
+#include "util/messaging/subscriber_base.hpp"
 #include "msg/control_signalPubSubTypes.h"
 #include "msg/hello_worldPubSubTypes.h"
 
@@ -89,7 +86,7 @@ private:
 	/// @ret A saturated version of the torques that do not exceed safe limits
 	Eigen::MatrixXd saturateTorques(const Eigen::MatrixXd &req) const;
 
-	class ControlSubListener : public eprosima::fastrtps::SubscriberListener
+	class ControlSubListener : public SubscriberBase<HelloWorldPubSubType>
 	{
 	public:
 		ControlSubListener(const Controller::ID_t&);
@@ -109,11 +106,6 @@ private:
 			std::shared_ptr<ControlSignal> control_signal;
 			std::mutex control_signal_mutex;
 		// END critical section
-
-		std::shared_ptr<eprosima::fastrtps::Participant> pParticipant;
-		std::shared_ptr<eprosima::fastrtps::Subscriber> pSubscriber;
-		// static ControlSignalMsgPubSubType rtps_type;
-		static HelloWorldPubSubType rtps_type;
 	};
 	// ============================ Communincation =============================
 	void publishDesiredTorques(const Eigen::MatrixXd &) const;
