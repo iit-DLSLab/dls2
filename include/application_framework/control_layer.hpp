@@ -19,6 +19,9 @@
 #include "msg/desired_torquesPubSubTypes.h"
 #include "msg/hello_worldPubSubTypes.h"
 
+// =============================================================================
+// Class Interface
+// =============================================================================
 class ControlLayer : public AppLayer
 {
 public:
@@ -117,14 +120,16 @@ private:
 
 	// ============================= Data Members ==============================
 	// BEGIN critical section
-		TODO("all of these maps should be merged into one map, which maps to a struct containing all the value types")
-		std::map<Controller::ID_t, std::shared_ptr<Controller>> controllers;
-		std::map<Controller::ID_t, std::thread> active_controller_threads;
-		std::mutex controllers_mutex;
-		// BEGIN critical section
-			std::map<Controller::ID_t, ControlSubListener> control_subscribers;
-			std::mutex control_subscribers_mutex;
-		// END critical section
+		/// Helper struct for collecting controllers, their thread handles, and
+		/// subscribers to a controller's control signal
+		struct ControllerData
+		{
+			std::shared_ptr<Controller> pController;
+			std::shared_ptr<std::thread> pExecution_thread;
+			std::shared_ptr<ControlSubListener> pSubscriber;
+		};
+		std::map<Controller::ID_t, ControllerData> controllers_b;
+		std::mutex controllers_mutex_b;
 	// END critical section
 	// BEGIN critical section
 		std::map<GaitGenerator::ID_t, std::shared_ptr<GaitGenerator>> generators;

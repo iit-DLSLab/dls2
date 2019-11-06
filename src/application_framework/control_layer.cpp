@@ -12,9 +12,8 @@
 // Constructors
 // =============================================================================
 ControlLayer::ControlLayer() :
-	controllers(),
-	active_controller_threads(),
-	controllers_mutex(),
+	controllers_b(),
+	controllers_mutex_b(),
 	generators(),
 	gait_generators_mutex(),
 	currentActiveGenerator(nullptr),
@@ -30,11 +29,6 @@ ControlLayer::~ControlLayer()
 // =============================================================================
 ControlLayer::Status ControlLayer::run()
 {
-	DMSG("Running control layer");
-	// {
-		TODO("remove this. also from applayer base class")
-	// 	std::lock_guard<std::mutex> lock(this->components_mutex);
-	// }
 
 	TODO("spawn nonrealtime thread for user interaction")
 
@@ -44,30 +38,22 @@ ControlLayer::Status ControlLayer::run()
 	while(getStatus() == Status::RUNNING)
 	{
 		DMSG("==============Control layer loop==========");
-
-		// Send the reference signal to all active controllers
-		Eigen::MatrixXd desired_torques = Eigen::MatrixXd::Zero(Robot::getDimension(), 1);
+		// Read the control signals
+		Eigen::VectorXd desired_torques = Eigen::VectorXd::Zero(Robot::getDimension());
 		{
-			std::lock_guard<std::mutex> lock(controllers_mutex);
-			for(const auto &pair_id_pController : this->controllers)
+			DMSG("ABOUT TO GRAB MUTEX");
+			std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
+			DMSG("GOT MUTEX");
+			for(const auto &pair : this->controllers_b)
 			{
-				TODO("make sure that this check is effective")
-				if(!pair_id_pController.second) continue;
-				if(pair_id_pController.second->getStatus() == Controller::Status::RUNNING)
+				if(!pair.second.pController) continue;
+				if(pair.second.pController->getStatus() == Controller::Status::RUNNING)
 				{
-					// find the subscriber -- when refactoring, this extra map
-					// will disappear
-					std::lock_guard<std::mutex> lock(this->control_subscribers_mutex);
-					auto it = this->control_subscribers.find(pair_id_pController.second->getID());
-					if(it != this->control_subscribers.end())
+					if(!pair.second.pSubscriber) continue;
+					auto pControl_signal = pair.second.pSubscriber->getLastPublishedControlSignal();
+					if(pControl_signal)
 					{
-						// read the last control command and sum it
-						auto pControl_signal = it->second.getLastPublishedControlSignal();
-						if(pControl_signal)
-						{
-							TODO("handle Impulse here")
-							desired_torques += pControl_signal->torques;
-						}
+						desired_torques += pControl_signal->torques;
 					}
 				}
 			}
@@ -93,18 +79,14 @@ ControlLayer::Status ControlLayer::shutdown()
 
 	{
 		// Tell each controller to stop
-		std::lock_guard<std::mutex> lock(this->controllers_mutex);
-		for(auto it = this->controllers.begin(); it != this->controllers.end(); ++it)
+		std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
+		for(auto &pair : this->controllers_b)
 		{
-			it->second->stop();
-		}
-
-		// Join each controller's thread
-		for(auto it = this->active_controller_threads.begin(); it != this->active_controller_threads.end(); ++it)
-		{
-			it->second.join();
+			pair.second.pController->stop();
+			if(pair.second.pExecution_thread) pair.second.pExecution_thread->join();
 		}
 	}
+
 	return getStatus();
 }
 
@@ -117,39 +99,25 @@ ControlLayer::Status ControlLayer::shutdown()
 TODO("std::map already does this check for emplace, maybe for others. Double check and make this more efficient")
 bool ControlLayer::activateController(const Controller::ID_t &ID)
 {
-	// Find the controller in the list of controllers
-	std::lock_guard<std::mutex> lock(this->controllers_mutex);
-	auto controller_it = this->controllers.find(ID);
+	DMSG("ACTIVATE CONTROLLER");
+	std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
 
-	TODO("Inform user that the controller does not exist")
-	if(controller_it == this->controllers.end()) return false;
+	// find the controller in the list of controllers
+	auto pair_it = this->controllers_b.find(ID);
+	TODO("Inform the user that the controller does not exist")
+	if(pair_it == this->controllers_b.end()) return false;
 
-	// Check that the controller is not already running
-	auto controller_thread_it = this->active_controller_threads.find(ID);
+	// check that the controller is not already running
 	TODO("inform the user that the controlelr is already running")
-	if(controller_thread_it != this->active_controller_threads.end()) return false;
+	if(pair_it->second.pExecution_thread) return false;
 
 	// Start the controller in a new thread
 	DMSG("about to start new thread for controller");
 	AppLayerComponent::Status (Controller::*run_p)() = &Controller::run;
-	this->active_controller_threads.emplace
-	(
-		std::piecewise_construct,
-		std::forward_as_tuple(ID),
-		std::forward_as_tuple(run_p, &*controller_it->second)
-	);
+	pair_it->second.pExecution_thread = std::make_shared<std::thread>(run_p, pair_it->second.pController.get());
 
-	// start the controller subscriber
-	{
-		std::lock_guard<std::mutex> lock(this->control_subscribers_mutex);
-		this->control_subscribers.emplace
-		(
-			std::piecewise_construct,
-			std::forward_as_tuple(ID),
-			// std::forward_as_tuple("HelloWorldPubSubTopic")
-			std::forward_as_tuple(controller_it->second->getControlSignalTopic())
-		);
-	}
+	// start the subscriber
+	pair_it->second.pSubscriber = std::make_shared<ControlSubListener>(pair_it->second.pController->getControlSignalTopic());
 
 	DMSG("finished calling run on controller from control layer");
 	return true;
@@ -157,33 +125,31 @@ bool ControlLayer::activateController(const Controller::ID_t &ID)
 
 bool ControlLayer::deactivateController(const Controller::ID_t &ID)
 {
-	std::lock_guard<std::mutex> lock(this->controllers_mutex);
-	auto controller_it = this->controllers.find(ID);
+	DMSG("DEACTIVATE CONTROLLER");
+	std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
+	auto pair_it = this->controllers_b.find(ID);
 
 	TODO("Inform user that the controller does not exist")
-	if(controller_it == this->controllers.end()) return false;
+	if(pair_it == this->controllers_b.end()) return false;
 
-	// Check whether the controller is not already running
-	auto controller_thread_it = this->active_controller_threads.find(ID);
+	// check whether the controller is not already running
 	TODO("inform the user that the controller is not running")
-	if(controller_thread_it != this->active_controller_threads.end()) return false;
+	if(pair_it->second.pExecution_thread == nullptr) return false;
 
 	TODO("shutdown might need to be called stop or pause or whatever. Maybe add another virtual function in AppLayerComponent")
-	controller_it->second->stop();
-	controller_thread_it->second.join();
+	pair_it->second.pController->stop();
+	pair_it->second.pExecution_thread->join();
+	pair_it->second.pExecution_thread = nullptr;
+	pair_it->second.pSubscriber = nullptr;
 
-	// stop the controller subscriber
-	{
-		std::lock_guard<std::mutex> lock(this->control_subscribers_mutex);
-		this->control_subscribers.erase(ID);
-	}
 	return true;
 }
 
 void ControlLayer::loadController(const Controller::ID_t &name)
 {
+	DMSG("LOAD CONTROLLER");
 	std::shared_ptr<Controller> pController = ClassLoader::loadClass<Controller>(name);
-	std::lock_guard<std::mutex> lock(this->controllers_mutex);
+	// std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
 
 	TODO("Define properly what this function does when a controller already exists")
 	this->addController(pController);

@@ -1,11 +1,13 @@
 #ifndef CONTROL_LAYER_TPP_COCUF9QG
 #define CONTROL_LAYER_TPP_COCUF9QG
 
+// =============================================================================
+// Includes
+// =============================================================================
 #include "application_framework/control_layer.hpp"
 #include "util/debug/debug.hpp"
 
 #include <type_traits>
-// #include <dlfcn.h>
 #include <sstream>
 #include <stdexcept>
 
@@ -15,26 +17,29 @@
 template <typename controller_t>
 void ControlLayer::addController(const std::shared_ptr<controller_t> &pController)
 {
-	DMSG("adding controller");
+	DMSG("ADDING CONTROLLER");
 	static_assert
 	(
 		std::is_base_of<Controller, controller_t>::value,
 		"Error: controller_t must inherit from Controller"
 	);
 
-	TODO("this is the wrong mutex")
-	// std::lock_guard<std::mutex> lock(this->components_mutex);
-	std::lock_guard<std::mutex> lock(this->components_mutex);
-	this->controllers.insert
+	std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
+	this->controllers_b.insert
 		(
 			std::pair
 				<
 					Controller::ID_t,
-					std::shared_ptr<Controller>
+					ControllerData
 				>
 				(
 					pController->getID(),
-					std::static_pointer_cast<Controller>(pController)
+					ControllerData
+					{
+						.pController = std::static_pointer_cast<Controller>(pController),
+						.pExecution_thread = nullptr,
+						.pSubscriber = nullptr
+					}
 				)
 		);
 }
