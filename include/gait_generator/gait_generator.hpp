@@ -12,11 +12,8 @@
 #include <memory>
 #include <atomic>
 
-// fastrtps
-#include <fastrtps/fastrtps_fwd.h>
-#include <fastrtps/publisher/PublisherListener.h>
+#include "util/messaging/publisher_base.hpp"
 #include "msg/gait_signalPubSubTypes.h"
-#include "msg/hello_worldPubSubTypes.h"
 
 // =============================================================================
 // Class Interface
@@ -79,17 +76,7 @@ private:
 		std::mutex data_mutex;
 	// END critical section
 
-	// =============================== FastRTPS ================================
-	std::shared_ptr<eprosima::fastrtps::Participant> pParticipant;
-	std::shared_ptr<eprosima::fastrtps::Publisher> pPublisher;
-	class PubListener : public eprosima::fastrtps::PublisherListener
-	{
-	public:
-		PubListener() = default;
-		~PubListener() = default;
-	} listener;
-	GaitSignalMsgPubSubType rtps_type;
-	// HelloWorldPubSubType rtps_type;
+	PublisherBase<GaitSignalMsgPubSubType> publisher;
 };
 
 #endif /* end of include guard: GAIT_GENERATOR_HPP_5MDX0BG2 */
