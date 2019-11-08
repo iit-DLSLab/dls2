@@ -14,34 +14,34 @@
 // =============================================================================
 // Controlles
 // =============================================================================
-template <typename controller_t>
-void ControlLayer::addController(const std::shared_ptr<controller_t> &pController)
-{
-	static_assert
-	(
-		std::is_base_of<Controller, controller_t>::value,
-		"Error: controller_t must inherit from Controller"
-	);
+// template <typename controller_t>
+// void ControlLayer::addController(const std::shared_ptr<controller_t> &pController)
+// {
+// 	static_assert
+// 	(
+// 		std::is_base_of<Controller, controller_t>::value,
+// 		"Error: controller_t must inherit from Controller"
+// 	);
 
-	std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
-	this->controllers_b.insert
-		(
-			std::pair
-				<
-					Controller::ID_t,
-					ControllerData
-				>
-				(
-					pController->getID(),
-					ControllerData
-					{
-						.pController = std::static_pointer_cast<Controller>(pController),
-						.pExecution_thread = nullptr,
-						.pSubscriber = nullptr
-					}
-				)
-		);
-}
+// 	std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
+// 	this->controllers_b.insert
+// 		(
+// 			std::pair
+// 				<
+// 					Controller::ID_t,
+// 					ControllerData
+// 				>
+// 				(
+// 					pController->getID(),
+// 					ControllerData
+// 					{
+// 						.pController = std::static_pointer_cast<Controller>(pController),
+// 						.pExecution_thread = nullptr,
+// 						.pSubscriber = nullptr
+// 					}
+// 				)
+// 		);
+// }
 // =============================================================================
 // Gait Generators
 // =============================================================================

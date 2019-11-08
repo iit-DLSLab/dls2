@@ -2,6 +2,10 @@
 #include <Eigen/Dense>
 #include <tuple>
 
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
 #include "util/debug/debug.hpp"
 #include "robot/robot.hpp"
 #include "util/class_loader.hpp"
@@ -19,11 +23,28 @@ ControlLayer::ControlLayer() :
 	gait_generators_mutex(),
 	currentActiveGenerator(nullptr),
 	active_generator_thread(),
-	publisher(topics::desired_torques)
+	publisher(topics::desired_torques),
+	num_children(0),
+	num_children_cv(),
+	num_children_mutex(),
+	should_quit(false),
+	wait_on_controllers_thread
+	(
+		&ControlLayer::waitOnChildControllers,
+		this
+	)
 { }
 
 ControlLayer::~ControlLayer()
-{ }
+{
+	DMSG("Destructor");
+
+	this->should_quit = true;
+	this->num_children_cv.notify_one();
+	DMSG("notified");
+	this->wait_on_controllers_thread.join();
+	DMSG("joined");
+}
 
 // =============================================================================
 // Interface Override Functions
@@ -44,16 +65,17 @@ ControlLayer::Status ControlLayer::run()
 			std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
 			for(const auto &pair : this->controllers_b)
 			{
-				if(!pair.second.pController) continue;
-				if(pair.second.pController->getStatus() == Controller::Status::RUNNING)
+				// if(!pair.second.pController) continue;
+				// if(pair.second.pController->getStatus() == Controller::Status::RUNNING)
+				// {
+				if(!pair.second.pSubscriber) continue;
+				auto pControl_signal = pair.second.pSubscriber->getLastPublishedControlSignal();
+				if(pControl_signal)
 				{
-					if(!pair.second.pSubscriber) continue;
-					auto pControl_signal = pair.second.pSubscriber->getLastPublishedControlSignal();
-					if(pControl_signal)
-					{
-						desired_torques += pControl_signal->torques;
-					}
+					DMSG("got a control signal");
+					desired_torques += pControl_signal->torques;
 				}
+				// }
 			}
 		}
 
@@ -72,14 +94,14 @@ ControlLayer::Status ControlLayer::shutdown()
 	setStatus(Status::STOP);
 	deactivateGaitGenerators();
 
+	// Stop all controllers
+	std::unique_lock<std::mutex> lock(this->controllers_mutex_b);
+	while(controllers_b.size() != 0)
 	{
-		// Tell each controller to stop
-		std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
-		for(auto &pair : this->controllers_b)
-		{
-			pair.second.pController->stop();
-			if(pair.second.pExecution_thread) pair.second.pExecution_thread->join();
-		}
+		Controller::ID_t ID = controllers_b.begin()->second.ID;
+		lock.unlock(); // TODO fix this
+		deactivateController(ID);
+		lock.lock();
 	}
 
 	return getStatus();
@@ -94,55 +116,106 @@ ControlLayer::Status ControlLayer::shutdown()
 TODO("std::map already does this check for emplace, maybe for others. Double check and make this more efficient")
 bool ControlLayer::activateController(const Controller::ID_t &ID)
 {
-	std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
+	{
+		std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
 
-	// find the controller in the list of controllers
-	auto pair_it = this->controllers_b.find(ID);
-	TODO("Inform the user that the controller does not exist")
-	if(pair_it == this->controllers_b.end()) return false;
+		// find the controller in the list of controllers
+		auto pair_it = this->controllers_b.find(ID);
+		TODO("Inform the user that the controller already exists")
+		if(pair_it != this->controllers_b.end()) return false;
 
-	// check that the controller is not already running
-	TODO("inform the user that the controlelr is already running")
-	if(pair_it->second.pExecution_thread) return false;
+		pid_t controller_pid;
+		if((controller_pid = fork()) == 0)
+		{
+			execl("controller_process", ID.c_str(), ID.c_str(), (char *)NULL);
+			TODO("handle errors");
+			_exit(0);
+		}
 
-	// Start the controller in a new thread
-	AppLayerComponent::Status (Controller::*run_p)() = &Controller::run;
-	pair_it->second.pExecution_thread = std::make_shared<std::thread>(run_p, pair_it->second.pController.get());
+		// TODO add subscriber
+		ControllerData data;
+		data.controller_pid = controller_pid;
+		data.ID = ID;
+		data.pSubscriber =
+			std::make_shared<ControlSubListener>
+			(
+				TODO("This should be done by a static function in Controller")
+				std::string("control_signal_") + ID
+			);
 
-	// start the subscriber
-	pair_it->second.pSubscriber = std::make_shared<ControlSubListener>(pair_it->second.pController->getControlSignalTopic());
+		DMSG("emplace");
+		this->controllers_b.emplace
+		(
+			std::pair<Controller::ID_t, ControllerData>
+			(
+				ID,
+				data
+			)
+		);
+		DMSG("Done emplace");
+	}
+
+	{
+		std::lock_guard<std::mutex> lock(this->num_children_mutex);
+		++(this->num_children);
+		this->num_children_cv.notify_one();
+	}
 
 	return true;
+	// std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
+
+	// // find the controller in the list of controllers
+	// auto pair_it = this->controllers_b.find(ID);
+	// TODO("Inform the user that the controller does not exist")
+	// if(pair_it == this->controllers_b.end()) return false;
+
+	// // check that the controller is not already running
+	// TODO("inform the user that the controlelr is already running")
+	// if(pair_it->second.pExecution_thread) return false;
+
+	// // Start the controller in a new thread
+	// AppLayerComponent::Status (Controller::*run_p)() = &Controller::run;
+	// pair_it->second.pExecution_thread = std::make_shared<std::thread>(run_p, pair_it->second.pController.get());
+
+	// // start the subscriber
+	// pair_it->second.pSubscriber = std::make_shared<ControlSubListener>(pair_it->second.pController->getControlSignalTopic());
+
+	// return true;
 }
 
 bool ControlLayer::deactivateController(const Controller::ID_t &ID)
 {
+	DMSG("entered");
 	std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
+	DMSG("got lock");
 	auto pair_it = this->controllers_b.find(ID);
 
 	TODO("Inform user that the controller does not exist")
 	if(pair_it == this->controllers_b.end()) return false;
 
-	// check whether the controller is not already running
-	TODO("inform the user that the controller is not running")
-	if(pair_it->second.pExecution_thread == nullptr) return false;
+	// tell the process to stop -- waitOnChildControllers will
+	// wait on it and join it as required
+	DMSG("killing");
+	kill(pair_it->second.controller_pid, SIGTERM);
 
-	TODO("shutdown might need to be called stop or pause or whatever. Maybe add another virtual function in AppLayerComponent")
-	pair_it->second.pController->stop();
-	pair_it->second.pExecution_thread->join();
-	pair_it->second.pExecution_thread = nullptr;
-	pair_it->second.pSubscriber = nullptr;
+	// TODO wait until process is joined
+
+	// remove the process data
+	DMSG("removing");
+	this->controllers_b.erase(pair_it);
 
 	return true;
 }
 
+TODO("remove this function")
 void ControlLayer::loadController(const Controller::ID_t &name)
 {
-	std::shared_ptr<Controller> pController = ClassLoader::loadClass<Controller>(name);
-	// std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
+	DMSG("Deprecated function call does nothing");
+	// std::shared_ptr<Controller> pController = ClassLoader::loadClass<Controller>(name);
+	// // std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
 
-	TODO("Define properly what this function does when a controller already exists")
-	this->addController(pController);
+	// TODO("Define properly what this function does when a controller already exists")
+	// this->addController(pController);
 }
 
 // -----------------------------------------------------------------------------
@@ -237,4 +310,44 @@ void ControlLayer::ControlSubListener::onNewDataMessage
 			this->control_signal = p;
 		}
 	}
+}
+
+// =============================================================================
+// Fork
+// =============================================================================
+void ControlLayer::waitOnChildControllers()
+{
+	while(!this->should_quit)
+	{
+		DMSG("Loop");
+		// wait for children to be added or time to quit
+		std::unique_lock<std::mutex> lock(this->num_children_mutex);
+		this->num_children_cv.wait
+		(
+			lock,
+			[&]
+			{
+				return this->should_quit || this->num_children > 0;
+			}
+		);
+		DMSG("Cond var woke");
+
+		// join all children
+		pid_t child_pid;
+		do
+		{
+			int status;
+			TODO("Handle errors, relaunching etc")
+
+			child_pid = wait(&status);
+			if(child_pid != -1)
+			{
+				--(this->num_children);
+			}
+			DMSG("child " << child_pid << " exited");
+
+		}while( (child_pid != -1) && errno != ECHILD); // while there are child processes
+		DMSG("No more children");
+	}
+	DMSG("EXIT");
 }

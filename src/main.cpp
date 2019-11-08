@@ -106,7 +106,7 @@ int main(int argc, char **argv)
 		// pEstimationLayer->activateEstimator("Dummy Estimator");
 
 		// std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(30000));
-		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(30000));
+		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(9000));
 
 		return 0;
 	}

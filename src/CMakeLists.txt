@@ -12,7 +12,7 @@
 # ==============================================================================
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/bin")
 set(LIBRARY_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/bin")
-set(EXECUTABLE_NAME dls2)
+set(EXECUTABLE_NAME dynamic_legged_systems_framework)
 
 # ==============================================================================
 # Global Compilation Options
@@ -213,6 +213,25 @@ add_library(
 )
 add_dependencies(dummy_estimator messagelib)
 # target_link_libraries(dummy_gait_generator geometry)
+
+# ==============================================================================
+# Child Processes
+# ==============================================================================
+add_executable(
+	controller_process
+
+	${CMAKE_SOURCE_DIR}/src/child_process/controller/controller_process.cpp
+)
+target_link_libraries(
+	controller_process
+	fastcdr
+	fastrtps
+	dl
+	framework
+	controlinterface
+	gaitgeneratorinterface
+	estimatorinterface
+)
 
 # ==============================================================================
 # Convencience Targets

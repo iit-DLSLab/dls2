@@ -38,8 +38,8 @@ public:
 	///
 	/// This call does not start the controller. see
 	/// ControlLayer::activateController
-	template <typename controller_t>
-	void addController(const std::shared_ptr<controller_t>&);
+	// template <typename controller_t>
+	// void addController(const std::shared_ptr<controller_t>&);
 
 	/// Activates a controller
 	///
@@ -124,9 +124,9 @@ private:
 		/// subscribers to a controller's control signal
 		struct ControllerData
 		{
-			std::shared_ptr<Controller> pController;
-			std::shared_ptr<std::thread> pExecution_thread;
+			pid_t controller_pid;
 			std::shared_ptr<ControlSubListener> pSubscriber;
+			Controller::ID_t ID;
 		};
 		std::map<Controller::ID_t, ControllerData> controllers_b;
 		std::mutex controllers_mutex_b;
@@ -134,12 +134,21 @@ private:
 	// BEGIN critical section
 		std::map<GaitGenerator::ID_t, std::shared_ptr<GaitGenerator>> generators;
 		std::mutex gait_generators_mutex;
-		// ALWAYS check if this is nullptr
 		TODO("rename with underscores")
 		std::shared_ptr<GaitGenerator> currentActiveGenerator;
 		std::thread active_generator_thread;
 	// END critical section
 	PublisherBase<DesiredTorquesMsgPubSubType> publisher;
+
+	// BEGING critical section
+		size_t num_children;
+		std::condition_variable num_children_cv;
+		std::mutex num_children_mutex;
+	// END critical section
+	std::atomic_bool should_quit;
+	std::thread wait_on_controllers_thread;
+
+	void waitOnChildControllers();
 };
 
 #include "application_framework/control_layer.tpp"
