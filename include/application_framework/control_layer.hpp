@@ -84,6 +84,7 @@ public:
 	void loadGaitGenerator(const std::string &name);
 
 private:
+
 	TODO("This should be put in the robot class")
 	/// Saturates torques so that they do not exceed safe limits
 	///
@@ -128,7 +129,7 @@ private:
 			std::shared_ptr<ControlSubListener> pSubscriber;
 			Controller::ID_t ID;
 		};
-		std::map<Controller::ID_t, ControllerData> controllers_b;
+		std::map<Controller::ID_t, std::shared_ptr<ControllerData>> controllers_b;
 		std::mutex controllers_mutex_b;
 	// END critical section
 	// BEGIN critical section
@@ -141,14 +142,19 @@ private:
 	PublisherBase<DesiredTorquesMsgPubSubType> publisher;
 
 	// BEGING critical section
-		size_t num_children;
-		std::condition_variable num_children_cv;
-		std::mutex num_children_mutex;
+		// size_t num_children;
+		// std::condition_variable num_children_cv;
+		// std::mutex num_children_mutex;
 	// END critical section
 	std::atomic_bool should_quit;
-	std::thread wait_on_controllers_thread;
 
-	void waitOnChildControllers();
+	// BEGIN critical section
+		std::vector<std::thread> wait_on_controller_threads;
+		std::mutex wait_on_controller_threads_mutex;
+	// END critical section
+
+	void waitOnChildController(std::shared_ptr<ControllerData>);
+	void deactivateController(std::shared_ptr<ControllerData> pData);
 };
 
 #include "application_framework/control_layer.tpp"
