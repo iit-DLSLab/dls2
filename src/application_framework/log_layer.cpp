@@ -1,20 +1,38 @@
 #ifndef LOG_LAYER_CPP_DLJLOFSG
 #define LOG_LAYER_CPP_DLJLOFSG
 
-#include "util/log/log.hpp"
+#include "application_framework/log_layer.hpp"
 
-template <enum LogLevel>
-log::impl::cout<LogLevel> operator<< (log::impl::cout<log::impl::LogLevel> log&, const std::string &s)
+LogLayer::LogLayer() :
+	should_quit(false),
+	should_quit_cv(),
+	should_quit_mutex()
+{ }
+
+LogLayer::Status LogLayer::run()
 {
-	log.ss << s;
-	return log;
+	// TODO start subscribers
+
+	std::unique_lock<std::mutex> lock(this->should_quit_mutex);
+	this->should_quit_cv.wait
+	(
+		lock,
+		[&]{return this->should_quit;}
+	);
+
+	// TODO stop subscribers
+
+	return this->getStatus();
 }
 
-
-friend template <enum LogLevel>
-void operator<< (log::impl::cout<log::impl::LogLevel> log&, const log::endl&)
+LogLayer::Status LogLayer::shutdown()
 {
-	std::cout << log.ss.str();
-}
+	{
+		std::lock_guard<std::mutex> lock(this->should_quit_mutex);
+		this->should_quit = true;
+	}
+	this->should_quit_cv.notify_one();
 
+	return this->getStatus();
+}
 #endif /* end of include guard: LOG_LAYER_CPP_DLJLOFSG */

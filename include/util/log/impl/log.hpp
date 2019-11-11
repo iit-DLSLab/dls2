@@ -2,6 +2,8 @@
 #define LOG_HPP_8TZQXSVU
 
 #include "util/log/log.hpp"
+#include "util/messaging/publisher_base.hpp"
+#include "msg/stringmsgPubSubTypes.h"
 
 namespace logging
 {
@@ -97,10 +99,20 @@ namespace logging
 			///
 			/// This is used by LogInput
 			static void log(const std::string&);
+
+			/// Publisher that writes out the log
+			///
+			static const std::string topic;
+
+			/// Topic where this stream is published
+			///
+			// pointer because fastrtps doesn't like a static member for some
+			// reason
+			static std::shared_ptr<PublisherBase<StringMsgPubSubType>> pPublisher;
 		};
 
 	} // namespace impl
-}
+} // namespace logging
 
 #include "util/log/log.tpp"
 

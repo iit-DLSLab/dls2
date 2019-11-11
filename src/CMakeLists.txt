@@ -73,11 +73,25 @@ add_message(pose)
 add_message(gait_signal)
 add_message(control_signal)
 add_message(desired_torques)
-add_message(string)
+add_message(stringmsg)
 
 # ==============================================================================
 # Libraries
 # ==============================================================================
+
+# =================================== Logging ==================================
+add_library(
+	logging
+	SHARED
+	${CMAKE_SOURCE_DIR}/src/util/log/log.cpp
+)
+
+target_link_libraries(
+	logging
+
+	fastcdr
+	fastrtps
+)
 # ================================== messages ==================================
 add_library(
 	messaging
@@ -115,6 +129,7 @@ add_library(
 	application_framework/hyq_app_libraries.cpp
 	application_framework/control_layer.cpp
 	application_framework/estimation_layer.cpp
+	application_framework/log_layer.cpp
 
 	# Components
 	application_framework/components/app_layer_component.cpp
@@ -122,6 +137,7 @@ add_library(
 )
 target_link_libraries(
 	framework
+	logging
 	messaging
 	pthread
 	dl

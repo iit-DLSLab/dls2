@@ -11,6 +11,7 @@
 #include "util/class_loader.hpp"
 #include "msg/control_signalPubSubTypes.h"
 #include "topics/desired_torques.hpp"
+#include "util/log/log.hpp"
 
 // =============================================================================
 // Constructors
@@ -54,6 +55,8 @@ ControlLayer::Status ControlLayer::run()
 	TODO("correct looping condition")
 	while(getStatus() == Status::RUNNING)
 	{
+		logging::cdbg << "Control Layer loop" << logging::endl;
+
 		DMSG("CL loop");
 		// Read the control signals
 		Eigen::VectorXd desired_torques = Eigen::VectorXd::Zero(Robot::getDimension());

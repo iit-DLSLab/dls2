@@ -11,6 +11,7 @@
 #include <fastrtps/TopicDataType.h>
 
 #include "util/debug/debug.hpp"
+#include "todo.h"
 
 template <class PubSub_t>
 PubSub_t PublisherBase<PubSub_t>::rtps_type;
