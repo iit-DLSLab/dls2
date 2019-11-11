@@ -20,8 +20,17 @@ int main(int argc, char **argv)
 		exit(EXIT_FAILURE);
 	}
 
-	pController =
-		ClassLoader::loadClass<Controller>(std::string("./lib") + argv[1] + ".so");
+	try
+	{
+		pController =
+			ClassLoader::loadClass<Controller>(std::string("./lib") + argv[1] + ".so");
+	}
+	catch(const std::exception&)
+	{
+		TODO("Inform user that file not found");
+		DMSG("Controller " << argv[1] << " not found");
+		exit((int)Controller::Status::FATAL_ERROR);
+	}
 
 	std::signal(SIGTERM, signal_handler);
 	DMSG("CONTROLLER LOADED IN CHILD PROCESS");

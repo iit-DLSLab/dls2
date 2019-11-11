@@ -33,10 +33,10 @@ HyQApp::~HyQApp()
 		std::lock_guard<std::mutex> lock(this->layers_mutex);
 
 		// Tell each layer that it needs to stop
-		for(auto &pLayer : this->layers)
-		{
-			pLayer->shutdown();
-		}
+		// for(auto &pLayer : this->layers)
+		// {
+		// 	pLayer->shutdown();
+		// }
 
 		// Join each layer's thread
 		for(auto &thread : this->layer_threads)
