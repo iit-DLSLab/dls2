@@ -15,6 +15,7 @@
 #include "application_framework/hardware_layer.hpp"
 #include "application_framework/control_layer.hpp"
 #include "application_framework/estimation_layer.hpp"
+#include "application_framework/log_layer.hpp"
 
 #include "util/debug/debug.hpp"
 
@@ -24,6 +25,8 @@ TODO("temporary incude")
 #include <thread>
 
 #include "geometry/pose.hpp"
+
+#include "util/log/log.hpp"
 
 // =============================================================================
 // Forward Declarations
@@ -66,6 +69,23 @@ int main(int argc, char **argv)
 		pApp->addLayer(pHardwareLayer);
 
 		TODO("Run should return a status")
+		pApp->run();
+		while(true);
+
+		return 0;
+	}
+	// =============================== Log Layer ===============================
+	const pid_t log_layer_pid = fork();
+	if(log_layer_pid == -1)
+	{
+		TODO("Handle error on fork")
+		return -1;
+	}
+	else if(log_layer_pid == 0)
+	{
+		change_process_name(argv, "log_layer");
+		std::shared_ptr<LogLayer> pLogLayer = std::make_shared<LogLayer>();
+		pApp->addLayer(pLogLayer);
 		pApp->run();
 
 		return 0;
@@ -110,8 +130,20 @@ int main(int argc, char **argv)
 
 		return 0;
 	}
-
 	// ======================== Monitor Child Processes ========================
+	logging::cout << "hello world" << logging::endl;
+	logging::cout << "hello world" << logging::endl;
+	logging::cout << "hello world" << logging::endl;
+	logging::cout << "hello world" << logging::endl;
+	logging::cout << "hello world" << logging::endl;
+	logging::cout << "hello world" << logging::endl;
+	logging::cout << "hello world" << logging::endl;
+	logging::cout << "hello world" << logging::endl;
+	logging::cout << "hello world" << logging::endl;
+	logging::cout << "hello world" << logging::endl;
+	logging::cout << "hello world" << logging::endl;
+	logging::cout << "hello world" << logging::endl;
+	logging::cout << "hello world" << logging::endl;
 	while(true)
 	{
 		int status;
@@ -126,13 +158,17 @@ int main(int argc, char **argv)
 		}
 
 		DMSG("Child pid: " << child_pid);
-		if(child_pid == hardware_layer_pid)
+		// if(child_pid == hardware_layer_pid)
+		// {
+		// 	DMSG("child is hardware layer");
+		// }
+		// else if(child_pid == control_layer)
+		// {
+		// 	DMSG("child is program layer");
+		// }
+		/*else*/ if(child_pid == log_layer_pid)
 		{
-			DMSG("child is hardware layer");
-		}
-		else if(child_pid == control_layer)
-		{
-			DMSG("child is program layer");
+			DMSG("child is log layer");
 		}
 		if(WIFEXITED(status))
 		{
