@@ -149,6 +149,40 @@ add_library(
 )
 target_link_libraries(gaitgeneratorinterface geometry)
 
+# ==============================================================================
+# Child Processes
+# ==============================================================================
+add_executable(
+	controller_process
+
+	${CMAKE_SOURCE_DIR}/src/child_process/controller/controller_process.cpp
+)
+target_link_libraries(
+	controller_process
+	fastcdr
+	fastrtps
+	dl
+	framework
+	controlinterface
+	gaitgeneratorinterface
+	estimatorinterface
+)
+
+add_executable(
+	gait_generator_process
+
+	${CMAKE_SOURCE_DIR}/src/child_process/gait_generator/gait_generator_process.cpp
+)
+target_link_libraries(
+	gait_generator_process
+	fastcdr
+	fastrtps
+	dl
+	framework
+	controlinterface
+	gaitgeneratorinterface
+	estimatorinterface
+)
 
 # ==============================================================================
 # Main Executable
@@ -166,7 +200,7 @@ target_sources(
 	sensors/sensor_base.cpp
 )
 
-add_dependencies(${EXECUTABLE_NAME} messagelib)
+add_dependencies(${EXECUTABLE_NAME} messagelib controller_process gait_generator_process)
 
 target_link_libraries(
 	${EXECUTABLE_NAME}
@@ -213,25 +247,6 @@ add_library(
 )
 add_dependencies(dummy_estimator messagelib)
 # target_link_libraries(dummy_gait_generator geometry)
-
-# ==============================================================================
-# Child Processes
-# ==============================================================================
-add_executable(
-	controller_process
-
-	${CMAKE_SOURCE_DIR}/src/child_process/controller/controller_process.cpp
-)
-target_link_libraries(
-	controller_process
-	fastcdr
-	fastrtps
-	dl
-	framework
-	controlinterface
-	gaitgeneratorinterface
-	estimatorinterface
-)
 
 # ==============================================================================
 # Convencience Targets

@@ -5,38 +5,38 @@
 #include <csignal>
 
 #include "util/class_loader.hpp"
-#include "controller/controller.hpp"
+#include "gait_generator/gait_generator.hpp"
 #include "util/debug/debug.hpp"
 
-std::shared_ptr<Controller> pController;
+std::shared_ptr<GaitGenerator> pGaitGenerator;
 void signal_handler(int signal);
 
 int main(int argc, char **argv)
 {
 	if(argc != 2)
 	{
-		std::cerr << "Usage: " << argv[0] << " <controller_name>" << std::endl;
+		std::cerr << "Usage: " << argv[0] << " <gait_generator_name>" << std::endl;
 		std::cerr << "argc: " << argc << std::endl;
 		exit(EXIT_FAILURE);
 	}
 
 	try
 	{
-		pController =
-			ClassLoader::loadClass<Controller>(std::string("./lib") + argv[1] + ".so");
+		pGaitGenerator =
+			ClassLoader::loadClass<GaitGenerator>(std::string("./lib") + argv[1] + ".so");
 	}
 	catch(const std::exception&)
 	{
 		TODO("Inform user that file not found");
-		DMSG("Controller " << argv[1] << " not found");
-		exit((int)Controller::Status::FATAL_ERROR);
+		DMSG("GaitGenerator " << argv[1] << " not found");
+		exit((int)GaitGenerator::Status::FATAL_ERROR);
 	}
 
 	std::signal(SIGTERM, signal_handler);
-	DMSG("CONTROLLER LOADED IN CHILD PROCESS");
-	pController->run();
+	DMSG("GaitGenerator LOADED IN CHILD PROCESS");
+	pGaitGenerator->run();
 
-	return static_cast<int>(pController->getStatus());
+	return static_cast<int>(pGaitGenerator->getStatus());
 }
 
 void signal_handler(int signal)
@@ -44,29 +44,28 @@ void signal_handler(int signal)
 	if(signal == SIGTERM)
 	{
 		DMSG("SIGTERM DEBOUNCE");
-		pController->stop();
-		exit(static_cast<int>(pController->getStatus()));
+		pGaitGenerator->stop();
+		exit(static_cast<int>(pGaitGenerator->getStatus()));
 	}
 }
 
 // If this class isn't delcared, the linker will link the whole class away, then
 // the call to loadClass will fail
-class VoidController : public Controller
+class VoidGaitGenerator : public GaitGenerator
 {
 public:
-	VoidController
+	VoidGaitGenerator
 	(
 	) :
-		Controller
+		GaitGenerator
 		(
 			nullptr,
 			"dummy_controller",
-			std::chrono::duration<double>(1),
-			ControlSignal::SignalReconstructionMethod::ZERO_ORDER_HOLD
+			std::chrono::duration<double>(1)
 		)
 	{ }
 
-	~VoidController() = default;
+	~VoidGaitGenerator() = default;
 
 	void run(const std::chrono::system_clock::time_point &time)override
 	{
@@ -74,4 +73,4 @@ public:
 	};
 
 	Status eStop() override { return getStatus(); }
-}voidController;
+}voidGaitGenerator;

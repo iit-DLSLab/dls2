@@ -64,8 +64,8 @@ public:
 	///
 	/// This call does not start the gait generator. See
 	/// ControlLayer::activateGaitGenerator
-	template <typename generator_t>
-	void addGaitGenerator(const std::shared_ptr<generator_t>&);
+	// template <typename generator_t>
+	// void addGaitGenerator(const std::shared_ptr<generator_t>&);
 
 	/// Activates a gait generator
 	///
@@ -133,11 +133,13 @@ private:
 		std::mutex controllers_mutex_b;
 	// END critical section
 	// BEGIN critical section
-		std::map<GaitGenerator::ID_t, std::shared_ptr<GaitGenerator>> generators;
+		struct GaitGeneratorData
+		{
+			pid_t gait_generator_pid;
+			// std::shared_ptr<std::thread> pGait_generator_wait_thread;
+		};
+		std::shared_ptr<GaitGeneratorData> pGait_generator_data;
 		std::mutex gait_generators_mutex;
-		TODO("rename with underscores")
-		std::shared_ptr<GaitGenerator> currentActiveGenerator;
-		std::thread active_generator_thread;
 	// END critical section
 	PublisherBase<DesiredTorquesMsgPubSubType> publisher;
 
@@ -154,6 +156,7 @@ private:
 	// END critical section
 
 	void waitOnChildController(std::shared_ptr<ControllerData>);
+	void waitOnChildGaitGenerator(std::shared_ptr<GaitGeneratorData>);
 	void deactivateController(std::shared_ptr<ControllerData> pData);
 };
 

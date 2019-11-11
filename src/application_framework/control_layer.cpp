@@ -18,10 +18,11 @@
 ControlLayer::ControlLayer() :
 	controllers_b(),
 	controllers_mutex_b(),
-	generators(),
+	// generators(),
+	// gait_generators_mutex(),
+	// currentActiveGenerator(nullptr),
+	pGait_generator_data(nullptr),
 	gait_generators_mutex(),
-	currentActiveGenerator(nullptr),
-	active_generator_thread(),
 	publisher(topics::desired_torques),
 	// num_children(0),
 	// num_children_cv(),
@@ -165,12 +166,6 @@ bool ControlLayer::activateController(const Controller::ID_t &ID)
 		DMSG("Done emplace");
 	}
 
-	// {
-	// 	std::lock_guard<std::mutex> lock(this->num_children_mutex);
-	// 	++(this->num_children);
-	// 	this->num_children_cv.notify_one();
-	// }
-
 	{
 		std::lock_guard<std::mutex> lock(this->wait_on_controller_threads_mutex);
 		this->wait_on_controller_threads.emplace_back
@@ -182,25 +177,6 @@ bool ControlLayer::activateController(const Controller::ID_t &ID)
 	}
 
 	return true;
-	// std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
-
-	// // find the controller in the list of controllers
-	// auto pair_it = this->controllers_b.find(ID);
-	// TODO("Inform the user that the controller does not exist")
-	// if(pair_it == this->controllers_b.end()) return false;
-
-	// // check that the controller is not already running
-	// TODO("inform the user that the controlelr is already running")
-	// if(pair_it->second.pExecution_thread) return false;
-
-	// // Start the controller in a new thread
-	// AppLayerComponent::Status (Controller::*run_p)() = &Controller::run;
-	// pair_it->second.pExecution_thread = std::make_shared<std::thread>(run_p, pair_it->second.pController.get());
-
-	// // start the subscriber
-	// pair_it->second.pSubscriber = std::make_shared<ControlSubListener>(pair_it->second.pController->getControlSignalTopic());
-
-	// return true;
 }
 
 void ControlLayer::deactivateController(std::shared_ptr<ControllerData> pData)
@@ -220,12 +196,6 @@ bool ControlLayer::deactivateController(const Controller::ID_t &ID)
 	// wait on it and join it as required
 	kill(pair_it->second->controller_pid, SIGTERM);
 
-	// TODO wait until process is joined
-
-	// remove the process data
-	// DMSG("removing");
-	// this->controllers_b.erase(pair_it);
-
 	return true;
 }
 
@@ -233,55 +203,58 @@ TODO("remove this function")
 void ControlLayer::loadController(const Controller::ID_t &name)
 {
 	DMSG("Deprecated function call does nothing");
-	// std::shared_ptr<Controller> pController = ClassLoader::loadClass<Controller>(name);
-	// // std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
-
-	// TODO("Define properly what this function does when a controller already exists")
-	// this->addController(pController);
 }
 
 // -----------------------------------------------------------------------------
 // Gait Generators
 // -----------------------------------------------------------------------------
-TODO("this is a bit copy-pasty from the activate controller version")
 bool ControlLayer::activateGaitGenerator(const GaitGenerator::ID_t &ID)
 {
+	DMSG("ACTIVATE GAIT GENERATOR ENTER");
 	std::lock_guard<std::mutex> lock(this->gait_generators_mutex);
 
-	auto it = this->generators.find(ID);
-
-	if(it == this->generators.end()) return false;
-
-	if(this->currentActiveGenerator)
+	// if a gait generator is already running
+	if(this->pGait_generator_data && this->pGait_generator_data->gait_generator_pid != 0)
 	{
-		this->currentActiveGenerator->stop();
-		this->active_generator_thread.join();
+		DMSG("IN IF");
+		TODO("Inform the user that a gait generator is already running")
+		return false;
+	}
+	DMSG("NOT iF");
+	// launch a gait generator and register it with the architecture
+	this->pGait_generator_data = std::make_shared<GaitGeneratorData>();
+	this->pGait_generator_data->gait_generator_pid = fork();
+	if(this->pGait_generator_data->gait_generator_pid == 0)
+	{
+		TODO("error checking")
+		execl("gait_generator_process", ID.c_str(), ID.c_str(), (char *)NULL);
 	}
 
-	this->currentActiveGenerator=it->second;
-	AppLayerComponent::Status (GaitGenerator::*run_p)() = &GaitGenerator::run;
-	std::thread t(run_p, &*it->second);
-	this->active_generator_thread.swap(t);
+	// start the wait thread -- it will remove the gait generator data when done
+	std::thread t(&ControlLayer::waitOnChildGaitGenerator, this, this->pGait_generator_data);
+	t.detach();
 
 	return true;
 }
 
 void ControlLayer::deactivateGaitGenerators()
 {
-	if(this->currentActiveGenerator)
+	DMSG("DEACTIVATE GAIT GENERATOR ENTER");
+	std::lock_guard<std::mutex> lock(this->gait_generators_mutex);
+	if(this->pGait_generator_data || this->pGait_generator_data->gait_generator_pid != 0)
 	{
-		this->currentActiveGenerator->stop();
-		this->active_generator_thread.join();
+		kill(this->pGait_generator_data->gait_generator_pid, SIGTERM);
 	}
-	this->currentActiveGenerator = nullptr;
 }
 
+TODO("remove this function")
 void ControlLayer::loadGaitGenerator(const std::string &name)
 {
-	std::shared_ptr<GaitGenerator> pGaitGenerator =
-		ClassLoader::loadClass<GaitGenerator>(name);
-	TODO("define properly what this function does when a gait generator already exists")
-	this->addGaitGenerator(pGaitGenerator);
+	DMSG("Deprecated function call does nothing");
+	// std::shared_ptr<GaitGenerator> pGaitGenerator =
+	// 	ClassLoader::loadClass<GaitGenerator>(name);
+	// TODO("define properly what this function does when a gait generator already exists")
+	// this->addGaitGenerator(pGaitGenerator);
 }
 
 Eigen::MatrixXd ControlLayer::saturateTorques(const Eigen::MatrixXd &req) const
@@ -355,4 +328,15 @@ void ControlLayer::waitOnChildController(std::shared_ptr<ControllerData> pData)
 		}
 	}
 	DMSG("wait thread exit");
+}
+
+void ControlLayer::waitOnChildGaitGenerator(std::shared_ptr<GaitGeneratorData> pData)
+{
+	DMSG("WAIT ON CHILD GAIT ENTER");
+	int status;
+	pid_t child_pid = waitpid(pData->gait_generator_pid, &status, 0);
+	{
+		std::lock_guard<std::mutex> lock(this->gait_generators_mutex);
+		pGait_generator_data = nullptr;
+	}
 }

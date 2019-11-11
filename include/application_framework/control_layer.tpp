@@ -45,28 +45,28 @@
 // =============================================================================
 // Gait Generators
 // =============================================================================
-template <typename generator_t>
-void ControlLayer::addGaitGenerator(const std::shared_ptr<generator_t> &pGen)
-{
-	static_assert
-	(
-		std::is_base_of<GaitGenerator, generator_t>::value,
-		"Error: generator_t must inherit from Gait Generator"
-	);
+// template <typename generator_t>
+// void ControlLayer::addGaitGenerator(const std::shared_ptr<generator_t> &pGen)
+// {
+// 	static_assert
+// 	(
+// 		std::is_base_of<GaitGenerator, generator_t>::value,
+// 		"Error: generator_t must inherit from Gait Generator"
+// 	);
 
-	std::lock_guard<std::mutex> lock(this->gait_generators_mutex);
-	this->generators.insert
-		(
-			std::pair
-				<
-					GaitGenerator::ID_t,
-					std::shared_ptr<GaitGenerator>
-				>
-				(
-					pGen->getID(),
-					std::static_pointer_cast<GaitGenerator>(pGen)
-				)
-		);
-}
+// 	std::lock_guard<std::mutex> lock(this->gait_generators_mutex);
+// 	this->generators.insert
+// 		(
+// 			std::pair
+// 				<
+// 					GaitGenerator::ID_t,
+// 					std::shared_ptr<GaitGenerator>
+// 				>
+// 				(
+// 					pGen->getID(),
+// 					std::static_pointer_cast<GaitGenerator>(pGen)
+// 				)
+// 		);
+// }
 
 #endif /* end of include guard: CONTROL_LAYER_TPP_COCUF9QG */
