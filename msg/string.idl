@@ -1,0 +1,4 @@
+struct StringMsg
+{
+	string str;
+};

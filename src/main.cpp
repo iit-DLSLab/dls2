@@ -25,6 +25,8 @@ TODO("temporary incude")
 
 #include "geometry/pose.hpp"
 
+#include "util/log/log.hpp"
+
 // =============================================================================
 // Forward Declarations
 // =============================================================================
@@ -45,6 +47,14 @@ void change_process_name(char **argv, const std::string &name);
 // =============================================================================
 int main(int argc, char **argv)
 {
+
+	while(true)
+	{
+		// std::string s = "hello";
+		// logging::cdbg << std::string("hello ") << std::string(" world ") << logging::endl;
+		logging::cdbg << "hello " << " world " << logging::endl;
+		// logging::cdbg << s;
+	}
 	// Runtime Configuration
 	handle_args(argc, argv);
 

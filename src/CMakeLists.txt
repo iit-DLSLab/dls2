@@ -73,6 +73,7 @@ add_message(pose)
 add_message(gait_signal)
 add_message(control_signal)
 add_message(desired_torques)
+add_message(string)
 
 # ==============================================================================
 # Libraries
