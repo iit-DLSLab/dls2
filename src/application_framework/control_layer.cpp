@@ -29,7 +29,8 @@ ControlLayer::ControlLayer() :
 	// num_children_cv(),
 	// num_children_mutex(),
 	should_quit(false),
-	wait_on_controller_threads()
+	wait_on_controller_threads(),
+	wait_on_controller_threads_mutex()
 { }
 
 ControlLayer::~ControlLayer()
@@ -206,6 +207,7 @@ TODO("remove this function")
 void ControlLayer::loadController(const Controller::ID_t &name)
 {
 	DMSG("Deprecated function call does nothing");
+	name.c_str();
 }
 
 // -----------------------------------------------------------------------------
@@ -254,6 +256,7 @@ TODO("remove this function")
 void ControlLayer::loadGaitGenerator(const std::string &name)
 {
 	DMSG("Deprecated function call does nothing");
+	name.c_str();
 	// std::shared_ptr<GaitGenerator> pGaitGenerator =
 	// 	ClassLoader::loadClass<GaitGenerator>(name);
 	// TODO("define properly what this function does when a gait generator already exists")
@@ -281,9 +284,9 @@ void ControlLayer::publishDesiredTorques(const Eigen::VectorXd &torques) const
 // =============================================================================
 ControlLayer::ControlSubListener::ControlSubListener(const std::string &topic):
 	SubscriberBase<ControlSignalMsgPubSubType>(topic),
-	// SubscriberBase<HelloWorldPubSubType>(topic),
 	control_signal(nullptr),
-	control_signal_mutex()
+	control_signal_mutex(),
+	info()
 { }
 
 std::shared_ptr<ControlSignal>
@@ -338,6 +341,7 @@ void ControlLayer::waitOnChildGaitGenerator(std::shared_ptr<GaitGeneratorData> p
 	DMSG("WAIT ON CHILD GAIT ENTER");
 	int status;
 	pid_t child_pid = waitpid(pData->gait_generator_pid, &status, 0);
+	DMSG("child gait generator " << child_pid << " exited");
 	{
 		std::lock_guard<std::mutex> lock(this->gait_generators_mutex);
 		pGait_generator_data = nullptr;

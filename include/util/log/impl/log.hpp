@@ -71,7 +71,7 @@ namespace logging
 			/// Private constructor
 			///
 			/// This class can only be instantiated using LogStream
-			LogInput() = default;
+			LogInput();
 
 			/// The log written so far
 			///

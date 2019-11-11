@@ -4,6 +4,11 @@
 #include "application_framework/log_layer.hpp"
 
 LogLayer::LogLayer() :
+	debug_listener(),
+	info_listener(),
+	warn_listener(),
+	error_listener(),
+	fatal_listener(),
 	should_quit(false),
 	should_quit_cv(),
 	should_quit_mutex()

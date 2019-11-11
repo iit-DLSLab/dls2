@@ -18,6 +18,11 @@ namespace logging
 	namespace impl
 	{
 		template <LogLevel loglevel>
+		LogInput<loglevel>::LogInput():
+			ss()
+		{ }
+
+		template <LogLevel loglevel>
 		LogInput<loglevel> &LogInput<loglevel>::operator<<(const std::string &s)
 		{
 			this->ss << s;

@@ -125,6 +125,11 @@ private:
 		/// subscribers to a controller's control signal
 		struct ControllerData
 		{
+			ControllerData() :
+				controller_pid(0),
+				pSubscriber(nullptr),
+				ID()
+			{ }
 			pid_t controller_pid;
 			std::shared_ptr<ControlSubListener> pSubscriber;
 			Controller::ID_t ID;

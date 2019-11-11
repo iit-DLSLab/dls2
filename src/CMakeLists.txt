@@ -100,7 +100,7 @@ add_library(
 )
 target_compile_options(
 	messaging
-	PUBLIC
+	PRIVATE
 	-w # Suppress all warnings, this library's code is auto-generated
 )
 add_custom_target(messagelib DEPENDS ${MESSAGE_SOURCES})

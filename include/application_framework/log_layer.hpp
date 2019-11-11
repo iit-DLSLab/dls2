@@ -30,7 +30,8 @@ private:
 	{
 	public:
 		DebugListener() :
-			SubscriberBase<StringMsgPubSubType>(topics::debug_log_stream)
+			SubscriberBase<StringMsgPubSubType>(topics::debug_log_stream),
+			info()
 		{ }
 
 		void onNewDataMessage(eprosima::fastrtps::Subscriber *sub) override
@@ -51,7 +52,8 @@ private:
 	{
 	public:
 		InfoListener() :
-			SubscriberBase<StringMsgPubSubType>(topics::info_log_stream)
+			SubscriberBase<StringMsgPubSubType>(topics::info_log_stream),
+			info()
 		{ }
 
 		void onNewDataMessage(eprosima::fastrtps::Subscriber *sub) override
@@ -72,7 +74,8 @@ private:
 	{
 	public:
 		WarnListener() :
-			SubscriberBase<StringMsgPubSubType>(topics::warn_log_stream)
+			SubscriberBase<StringMsgPubSubType>(topics::warn_log_stream),
+			info()
 		{ }
 
 		void onNewDataMessage(eprosima::fastrtps::Subscriber *sub) override
@@ -93,7 +96,8 @@ private:
 	{
 	public:
 		ErrorListener() :
-			SubscriberBase<StringMsgPubSubType>(topics::error_log_stream)
+			SubscriberBase<StringMsgPubSubType>(topics::error_log_stream),
+			info()
 		{ }
 
 		void onNewDataMessage(eprosima::fastrtps::Subscriber *sub) override
@@ -114,7 +118,8 @@ private:
 	{
 	public:
 		FatalListener() :
-			SubscriberBase<StringMsgPubSubType>(topics::fatal_log_stream)
+			SubscriberBase<StringMsgPubSubType>(topics::fatal_log_stream),
+			info()
 		{ }
 
 		void onNewDataMessage(eprosima::fastrtps::Subscriber *sub) override
