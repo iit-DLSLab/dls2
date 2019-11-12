@@ -46,6 +46,14 @@ add_executable(${EXECUTABLE_NAME} main.cpp)
 list(APPEND PROJECT_TARGETS ${EXECUTABLE_NAME})
 
 # ==============================================================================
+# Header Export
+# ==============================================================================
+set(EXPORT_HEADERS "")
+macro(export_header header)
+	list(APPEND EXPORT_HEADERS header)
+endmacro()
+
+# ==============================================================================
 # Message Generation
 # ==============================================================================
 set(MESSAGE_SOURCES "")
@@ -293,9 +301,23 @@ add_custom_target(
 	WORKING_DIRECTORY ${EXECUTABLE_OUTPUT_PATH}
 )
 
-install(TARGETS ${PROJECT_TARGETS}
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
-	RUNTIME DESTINATION bin
-)
-
+if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
+	install(TARGETS ${PROJECT_TARGETS}
+		LIBRARY DESTINATION lib
+		ARCHIVE DESTINATION lib
+		RUNTIME DESTINATION bin
+		PUBLIC_HEADER DESTINATION dls/include
+	)
+	install(
+		DIRECTORY
+			${CMAKE_SOURCE_DIR}/include/
+			${CMAKE_SOURCE_DIR}/build_tools/include/
+			${CMAKE_SOURCE_DIR}/gen/include/
+		DESTINATION
+			dls
+		FILES_MATCHING
+			PATTERN "*.h"
+			PATTERN "*.hpp"
+			PATTERN "*.tpp"
+	)
+endif()
