@@ -82,51 +82,51 @@ add_message(stringmsg)
 
 # =================================== Logging ==================================
 add_library(
-	logging
+	dls_logging
 	SHARED
 	${CMAKE_SOURCE_DIR}/src/util/log/log.cpp
 )
 
 target_link_libraries(
-	logging
+	dls_logging
 
 	fastcdr
 	fastrtps
 )
-list(APPEND PROJECT_TARGETS logging)
+list(APPEND PROJECT_TARGETS dls_logging)
 # ================================== messages ==================================
 add_library(
-	messaging
+	dls_messaging
 	SHARED
 	${MESSAGE_SOURCES}
 )
 target_compile_options(
-	messaging
+	dls_messaging
 	PRIVATE
 	-w # Suppress all warnings, this library's code is auto-generated
 )
-list(APPEND PROJECT_TARGETS messaging)
+list(APPEND PROJECT_TARGETS dls_messaging)
 add_custom_target(messagelib DEPENDS ${MESSAGE_SOURCES})
 
 # ==================================== Debug ===================================
 add_library(
-	debuglib
+	dls_debug
 	SHARED
 	util/debug/debug.cpp
 )
-list(APPEND PROJECT_TARGETS debuglib)
+list(APPEND PROJECT_TARGETS dls_debug)
 
 # ================================= Geometry ===================================
 add_library(
-	geometry
+	dls_geometry
 	SHARED
 	geometry/pose.cpp
 )
-add_dependencies(geometry messaging)
-list(APPEND PROJECT_TARGETS geometry)
+add_dependencies(dls_geometry dls_messaging)
+list(APPEND PROJECT_TARGETS dls_geometry)
 # ============================ Application Layers ==============================
 add_library(
-	framework
+	dls_framework
 
 	SHARED
 	# Framework Classes
@@ -143,75 +143,75 @@ add_library(
 	application_framework/components/periodic_app_layer_component.cpp
 )
 target_link_libraries(
-	framework
-	logging
-	messaging
+	dls_framework
+	dls_logging
+	dls_messaging
 	pthread
 	dl
-	debuglib
+	dls_debug
 )
-list(APPEND PROJECT_TARGETS framework)
+list(APPEND PROJECT_TARGETS dls_framework)
 # ============================ Controller Modules ==============================
 add_library(
-	estimatorinterface
+	dls_estimatorinterface
 	SHARED
 	estimator/estimator.cpp
 )
-list(APPEND PROJECT_TARGETS estimatorinterface)
+list(APPEND PROJECT_TARGETS dls_estimatorinterface)
 add_library(
-	controlinterface
+	dls_controlinterface
 	SHARED
 	controller/controller.cpp
 	controller/control_signal.cpp
 )
-list(APPEND PROJECT_TARGETS controlinterface)
-target_link_libraries(controlinterface geometry)
+list(APPEND PROJECT_TARGETS dls_controlinterface)
+target_link_libraries(dls_controlinterface dls_geometry)
 
 add_library(
-	gaitgeneratorinterface
+	dls_gaitgeneratorinterface
 	SHARED
 	gait_generator/gait_generator.cpp
 	gait_generator/gait_signal.cpp
 )
-list(APPEND PROJECT_TARGETS gaitgeneratorinterface)
-target_link_libraries(gaitgeneratorinterface geometry)
+list(APPEND PROJECT_TARGETS dls_gaitgeneratorinterface)
+target_link_libraries(dls_gaitgeneratorinterface dls_geometry)
 
 # ==============================================================================
 # Child Processes
 # ==============================================================================
 add_executable(
-	controller_process
+	dls_controller_process
 
 	${CMAKE_SOURCE_DIR}/src/child_process/controller/controller_process.cpp
 )
 target_link_libraries(
-	controller_process
+	dls_controller_process
 	fastcdr
 	fastrtps
 	dl
-	framework
-	controlinterface
-	gaitgeneratorinterface
-	estimatorinterface
+	dls_framework
+	dls_controlinterface
+	dls_gaitgeneratorinterface
+	dls_estimatorinterface
 )
-list(APPEND PROJECT_TARGETS controller_process)
+list(APPEND PROJECT_TARGETS dls_controller_process)
 
 add_executable(
-	gait_generator_process
+	dls_gait_generator_process
 
 	${CMAKE_SOURCE_DIR}/src/child_process/gait_generator/gait_generator_process.cpp
 )
 target_link_libraries(
-	gait_generator_process
+	dls_gait_generator_process
 	fastcdr
 	fastrtps
 	dl
-	framework
-	controlinterface
-	gaitgeneratorinterface
-	estimatorinterface
+	dls_framework
+	dls_controlinterface
+	dls_gaitgeneratorinterface
+	dls_estimatorinterface
 )
-list(APPEND PROJECT_TARGETS gait_generator_process)
+list(APPEND PROJECT_TARGETS dls_gait_generator_process)
 
 # ==============================================================================
 # Main Executable
@@ -229,7 +229,7 @@ target_sources(
 	sensors/sensor_base.cpp
 )
 
-add_dependencies(${EXECUTABLE_NAME} messagelib controller_process gait_generator_process)
+add_dependencies(${EXECUTABLE_NAME} messagelib dls_controller_process dls_gait_generator_process)
 
 target_link_libraries(
 	${EXECUTABLE_NAME}
@@ -239,10 +239,10 @@ target_link_libraries(
 	fastrtps
 
 	# note that the order of these is important
-	framework
-	estimatorinterface
-	controlinterface
-	gaitgeneratorinterface
+	dls_framework
+	dls_estimatorinterface
+	dls_controlinterface
+	dls_gaitgeneratorinterface
 )
 
 # Count TODOs after build
@@ -263,7 +263,7 @@ add_library(
 )
 add_dependencies(dls_dummy_controller messagelib)
 list(APPEND PROJECT_TARGETS dls_dummy_controller)
-# target_link_libraries(dummy_controller geometry)
+# target_link_libraries(dummy_controller dls_geometry)
 
 add_library(
 	dls_dummy_gait_generator
@@ -280,7 +280,7 @@ add_library(
 )
 add_dependencies(dls_dummy_estimator messagelib)
 list(APPEND PROJECT_TARGETS dls_dummy_estimator)
-# target_link_libraries(dummy_gait_generator geometry)
+# target_link_libraries(dummy_gait_generator dls_geometry)
 
 # ==============================================================================
 # Convencience Targets

@@ -139,7 +139,7 @@ bool ControlLayer::activateController(const Controller::ID_t &ID)
 
 		if((controller_pid = fork()) == 0)
 		{
-			execl(CHILD_PROCESS_PATH "controller_process", ID.c_str(), ID.c_str(), (char *)NULL);
+			execl(CHILD_PROCESS_PATH "dls_controller_process", ID.c_str(), ID.c_str(), (char *)NULL);
 			logging::cfatal << "Controller process failed to launch" << logging::endl;
 			DMSG(strerror(errno));
 			TODO("handle errors");
@@ -224,7 +224,7 @@ bool ControlLayer::activateGaitGenerator(const GaitGenerator::ID_t &ID)
 	if(this->pGait_generator_data->gait_generator_pid == 0)
 	{
 		TODO("error checking")
-		execl(CHILD_PROCESS_PATH "gait_generator_process", ID.c_str(), ID.c_str(), (char *)NULL);
+		execl(CHILD_PROCESS_PATH "dls_gait_generator_process", ID.c_str(), ID.c_str(), (char *)NULL);
 		logging::cfatal << "Failed to launch gait generator" << logging::endl;
 		DMSG(strerror(errno));
 	}
