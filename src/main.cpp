@@ -116,12 +116,12 @@ int main(int argc, char **argv)
 		TODO("This is temporary to simulate user input")
 		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
 		// std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(3000));
-		pControlLayer->loadController("./libdummy_controller.so");
-		pControlLayer->loadGaitGenerator("./libdummy_gait_generator.so");
+		// pControlLayer->loadController("./libdummy_controller.so");
+		// pControlLayer->loadGaitGenerator("./libdummy_gait_generator.so");
 		// std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(3000));
 		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
-		pControlLayer->activateController("dummy_controller");
-		pControlLayer->activateGaitGenerator("dummy_gait_generator");
+		pControlLayer->activateController("dls_dummy_controller");
+		pControlLayer->activateGaitGenerator("dls_dummy_gait_generator");
 		// pEstimationLayer->loadEstimator("./libdummy_estimator.so");
 		// pEstimationLayer->activateEstimator("Dummy Estimator");
 

@@ -23,7 +23,7 @@ int main(int argc, char **argv)
 	try
 	{
 		pController =
-			ClassLoader::loadClass<Controller>(std::string("./lib") + argv[1] + ".so");
+			ClassLoader::loadClass<Controller>(std::string("lib") + argv[1] + ".so");
 	}
 	catch(const std::exception&)
 	{

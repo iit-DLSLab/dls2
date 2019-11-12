@@ -23,7 +23,7 @@ int main(int argc, char **argv)
 	try
 	{
 		pGaitGenerator =
-			ClassLoader::loadClass<GaitGenerator>(std::string("./lib") + argv[1] + ".so");
+			ClassLoader::loadClass<GaitGenerator>(std::string("lib") + argv[1] + ".so");
 	}
 	catch(const std::exception&)
 	{

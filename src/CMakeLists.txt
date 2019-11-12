@@ -14,6 +14,7 @@ set(EXECUTABLE_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/bin")
 set(LIBRARY_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/bin")
 set(EXECUTABLE_NAME dynamic_legged_systems_framework)
 
+set(PROJECT_TARGETS "")
 # ==============================================================================
 # Global Compilation Options
 # ==============================================================================
@@ -42,6 +43,7 @@ add_compile_options(
 # Forward declaration of main executable
 # ==============================================================================
 add_executable(${EXECUTABLE_NAME} main.cpp)
+list(APPEND PROJECT_TARGETS ${EXECUTABLE_NAME})
 
 # ==============================================================================
 # Message Generation
@@ -92,6 +94,7 @@ target_link_libraries(
 	fastcdr
 	fastrtps
 )
+list(APPEND PROJECT_TARGETS logging)
 # ================================== messages ==================================
 add_library(
 	messaging
@@ -103,6 +106,7 @@ target_compile_options(
 	PRIVATE
 	-w # Suppress all warnings, this library's code is auto-generated
 )
+list(APPEND PROJECT_TARGETS messaging)
 add_custom_target(messagelib DEPENDS ${MESSAGE_SOURCES})
 
 # ==================================== Debug ===================================
@@ -111,12 +115,15 @@ add_library(
 	SHARED
 	util/debug/debug.cpp
 )
+list(APPEND PROJECT_TARGETS debuglib)
+
 # ================================= Geometry ===================================
 add_library(
 	geometry
 	SHARED
 	geometry/pose.cpp
 )
+list(APPEND PROJECT_TARGETS geometry)
 # ============================ Application Layers ==============================
 add_library(
 	framework
@@ -143,19 +150,21 @@ target_link_libraries(
 	dl
 	debuglib
 )
-
+list(APPEND PROJECT_TARGETS framework)
 # ============================ Controller Modules ==============================
 add_library(
 	estimatorinterface
 	SHARED
 	estimator/estimator.cpp
 )
+list(APPEND PROJECT_TARGETS estimatorinterface)
 add_library(
 	controlinterface
 	SHARED
 	controller/controller.cpp
 	controller/control_signal.cpp
 )
+list(APPEND PROJECT_TARGETS controlinterface)
 target_link_libraries(controlinterface geometry)
 
 add_library(
@@ -164,6 +173,7 @@ add_library(
 	gait_generator/gait_generator.cpp
 	gait_generator/gait_signal.cpp
 )
+list(APPEND PROJECT_TARGETS gaitgeneratorinterface)
 target_link_libraries(gaitgeneratorinterface geometry)
 
 # ==============================================================================
@@ -184,6 +194,7 @@ target_link_libraries(
 	gaitgeneratorinterface
 	estimatorinterface
 )
+list(APPEND PROJECT_TARGETS controller_process)
 
 add_executable(
 	gait_generator_process
@@ -200,6 +211,7 @@ target_link_libraries(
 	gaitgeneratorinterface
 	estimatorinterface
 )
+list(APPEND PROJECT_TARGETS gait_generator_process)
 
 # ==============================================================================
 # Main Executable
@@ -243,26 +255,29 @@ add_custom_command(
 
 # Temporary test class for controller plugin interface
 add_library(
-	dummy_controller
+	dls_dummy_controller
 	SHARED
 	controller/dummy_controller.cpp
 )
-add_dependencies(dummy_controller messagelib)
+add_dependencies(dls_dummy_controller messagelib)
+list(APPEND PROJECT_TARGETS dls_dummy_controller)
 # target_link_libraries(dummy_controller geometry)
 
 add_library(
-	dummy_gait_generator
+	dls_dummy_gait_generator
 	SHARED
 	gait_generator/dummy_gait_generator.cpp
 )
-add_dependencies(dummy_gait_generator messagelib)
+add_dependencies(dls_dummy_gait_generator messagelib)
+list(APPEND PROJECT_TARGETS dls_dummy_gait_generator)
 
 add_library(
-	dummy_estimator
+	dls_dummy_estimator
 	SHARED
 	estimator/dummy_estimator.cpp
 )
-add_dependencies(dummy_estimator messagelib)
+add_dependencies(dls_dummy_estimator messagelib)
+list(APPEND PROJECT_TARGETS dls_dummy_estimator)
 # target_link_libraries(dummy_gait_generator geometry)
 
 # ==============================================================================
@@ -272,6 +287,13 @@ add_dependencies(dummy_estimator messagelib)
 add_custom_target(
 	run
 	COMMAND ./${EXECUTABLE_NAME}
-	DEPENDS ${EXECUTABLE_NAME} dummy_controller dummy_gait_generator dummy_estimator
+	DEPENDS ${EXECUTABLE_NAME} dls_dummy_controller dls_dummy_gait_generator dls_dummy_estimator
 	WORKING_DIRECTORY ${EXECUTABLE_OUTPUT_PATH}
 )
+
+install(TARGETS ${PROJECT_TARGETS}
+	LIBRARY DESTINATION lib
+	ARCHIVE DESTINATION lib
+	RUNTIME DESTINATION bin
+)
+
