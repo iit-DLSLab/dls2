@@ -12,6 +12,7 @@
 #include "msg/control_signalPubSubTypes.h"
 #include "topics/desired_torques.hpp"
 #include "util/log/log.hpp"
+#include "path_prefixes/path_prefixes.hpp"
 
 #include <string.h>
 #include <errno.h>
@@ -147,7 +148,7 @@ bool ControlLayer::activateController(const Controller::ID_t &ID)
 
 		if((controller_pid = fork()) == 0)
 		{
-			execl("/usr/bin/controller_process", ID.c_str(), ID.c_str(), (char *)NULL);
+			execl(CHILD_PROCES_PATH "controller_process", ID.c_str(), ID.c_str(), (char *)NULL);
 			DMSG("CONTROLLER PROCESS FAILED TO LAUNCH");
 			DMSG(strerror(errno));
 			DMSG("PREMATURE CONTROLLER FORK EXIT");
@@ -238,7 +239,7 @@ bool ControlLayer::activateGaitGenerator(const GaitGenerator::ID_t &ID)
 	if(this->pGait_generator_data->gait_generator_pid == 0)
 	{
 		TODO("error checking")
-		execl("/usr/bin/gait_generator_process", ID.c_str(), ID.c_str(), (char *)NULL);
+		execl(CHILD_PROCES_PATH "gait_generator_process", ID.c_str(), ID.c_str(), (char *)NULL);
 		DMSG(strerror(errno));
 		DMSG("GAIT GENERATOR PROCESS FAILED TO LAUNCH");
 		DMSG("PREMATURE GENERATOR FORK EXIT");

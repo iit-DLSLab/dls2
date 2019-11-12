@@ -7,6 +7,7 @@
 #include "util/class_loader.hpp"
 #include "gait_generator/gait_generator.hpp"
 #include "util/debug/debug.hpp"
+#include "path_prefixes/path_prefixes.hpp"
 
 std::shared_ptr<GaitGenerator> pGaitGenerator;
 void signal_handler(int signal);
@@ -23,7 +24,7 @@ int main(int argc, char **argv)
 	try
 	{
 		pGaitGenerator =
-			ClassLoader::loadClass<GaitGenerator>(std::string("lib") + argv[1] + ".so");
+			ClassLoader::loadClass<GaitGenerator>(std::string(LIBRARY_PROCESS_PATH "lib") + argv[1] + ".so");
 	}
 	catch(const std::exception&)
 	{

@@ -8,6 +8,8 @@
 #include "controller/controller.hpp"
 #include "util/debug/debug.hpp"
 
+#include "path_prefixes/path_prefixes.hpp"
+
 std::shared_ptr<Controller> pController;
 void signal_handler(int signal);
 
@@ -23,7 +25,7 @@ int main(int argc, char **argv)
 	try
 	{
 		pController =
-			ClassLoader::loadClass<Controller>(std::string("lib") + argv[1] + ".so");
+			ClassLoader::loadClass<Controller>(std::string(LIBRARY_PROCESS_PATH "lib") + argv[1] + ".so");
 	}
 	catch(const std::exception&)
 	{
