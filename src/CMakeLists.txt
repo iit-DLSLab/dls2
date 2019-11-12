@@ -122,6 +122,7 @@ add_library(
 	SHARED
 	geometry/pose.cpp
 )
+add_dependencies(geometry messaging)
 list(APPEND PROJECT_TARGETS geometry)
 # ============================ Application Layers ==============================
 add_library(
