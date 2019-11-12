@@ -245,12 +245,14 @@ target_link_libraries(
 )
 
 # Count TODOs after build
-add_custom_command(
-	TARGET ${EXECUTABLE_NAME}
-	POST_BUILD
-	COMMAND ${CMAKE_SOURCE_DIR}/build_tools/list_todos
-	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-)
+if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+	add_custom_command(
+		TARGET ${EXECUTABLE_NAME}
+		POST_BUILD
+		COMMAND ${CMAKE_SOURCE_DIR}/build_tools/list_todos
+		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+	)
+endif()
 
 # Temporary test class for controller plugin interface
 add_library(

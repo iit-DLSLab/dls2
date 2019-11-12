@@ -1,5 +1,7 @@
 #include "controller/dummy_controller.hpp"
 #include "util/debug/debug.hpp"
+#include "util/log/log.hpp"
+
 DummyController::DummyController
 (
 	const std::shared_ptr<Dog> &dog
@@ -19,6 +21,7 @@ DummyController::DummyController() :
 
 void DummyController::run(const std::chrono::system_clock::time_point &time)
 {
+	logging::clog << "Dummy Controller Epoch" << logging::endl;
 	auto pGait_signal = this->readGaitSignal();
 
 	ControlSignal s;

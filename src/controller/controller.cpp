@@ -77,6 +77,5 @@ void Controller::SubListener::onNewDataMessage(eprosima::fastrtps::Subscriber *p
 	{
 		std::lock_guard<std::mutex> lock(pOwner->gait_signal_mutex);
 		pOwner->pGait_signal = std::make_shared<const GaitSignal>(st);
-		DLOG(pOwner->pGait_signal->desired_com_pose.toPosition().transpose());
 	}
 }

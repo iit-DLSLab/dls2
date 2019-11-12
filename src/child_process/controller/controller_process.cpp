@@ -3,10 +3,12 @@
 #include <memory>
 #include <string>
 #include <csignal>
+#include <sstream>
 
 #include "util/class_loader.hpp"
 #include "controller/controller.hpp"
 #include "util/debug/debug.hpp"
+#include "util/log/log.hpp"
 
 #include "path_prefixes/path_prefixes.hpp"
 
@@ -29,13 +31,12 @@ int main(int argc, char **argv)
 	}
 	catch(const std::exception&)
 	{
-		TODO("Inform user that file not found");
-		DMSG("Controller not found");
+		logging::cfatal << "Controller not found" << logging::endl;
 		exit((int)Controller::Status::FATAL_ERROR);
 	}
 
 	std::signal(SIGTERM, signal_handler);
-	DMSG("CONTROLLER LOADED IN CHILD PROCESS");
+	logging::clog << "controller loaded" << logging::endl;
 	pController->run();
 
 	return static_cast<int>(pController->getStatus());
@@ -45,7 +46,11 @@ void signal_handler(int signal)
 {
 	if(signal == SIGTERM)
 	{
-		DMSG("SIGTERM DEBOUNCE");
+		std::stringstream ss;
+		ss << pController->getID();
+		ss << " received kill request";
+		logging::clog << ss.str() << logging::endl;
+
 		pController->stop();
 		exit(static_cast<int>(pController->getStatus()));
 	}

@@ -18,6 +18,7 @@
 #include "application_framework/log_layer.hpp"
 
 #include "util/debug/debug.hpp"
+#include "util/log/log.hpp"
 
 TODO("temporary include")
 #include "controller/dummy_controller.hpp"
@@ -131,19 +132,6 @@ int main(int argc, char **argv)
 		return 0;
 	}
 	// ======================== Monitor Child Processes ========================
-	logging::cout << "hello world" << logging::endl;
-	logging::cout << "hello world" << logging::endl;
-	logging::cout << "hello world" << logging::endl;
-	logging::cout << "hello world" << logging::endl;
-	logging::cout << "hello world" << logging::endl;
-	logging::cout << "hello world" << logging::endl;
-	logging::cout << "hello world" << logging::endl;
-	logging::cout << "hello world" << logging::endl;
-	logging::cout << "hello world" << logging::endl;
-	logging::cout << "hello world" << logging::endl;
-	logging::cout << "hello world" << logging::endl;
-	logging::cout << "hello world" << logging::endl;
-	logging::cout << "hello world" << logging::endl;
 	while(true)
 	{
 		int status;
@@ -157,44 +145,38 @@ int main(int argc, char **argv)
 			}
 		}
 
-		// DMSG("Child pid: " << child_pid);
-		DMSG("Child exited");
-		DMSG(child_pid);
-		// if(child_pid == hardware_layer_pid)
-		// {
-		// 	DMSG("child is hardware layer");
-		// }
-		// else if(child_pid == control_layer)
-		// {
-		// 	DMSG("child is program layer");
-		// }
-		/*else*/ if(child_pid == log_layer_pid)
+		if(child_pid == hardware_layer_pid)
 		{
-			DMSG("child is log layer");
+			logging::clog << "Hardware layer exited" << logging::endl;
+		}
+		else if(child_pid == control_layer)
+		{
+			logging::clog << "Control layer exited" << logging::endl;
+		}
+		else if(child_pid == log_layer_pid)
+		{
+			logging::clog << "log layer exited" << logging::endl;
 		}
 		if(WIFEXITED(status))
 		{
-			DMSG("Child process exited normally with exit status");
+			logging::clog << "Child exited normally with exit status" << logging::endl;
 			DMSG(WEXITSTATUS(status));
 		}
 		if(WIFSIGNALED(status))
 		{
 			TODO("Handle case where child process crashed")
-			DMSG("Child process exited by signal");
+			logging::clog << "Child exited by signal" << logging::endl;
 			DMSG(WTERMSIG(status));
 
 			#ifdef WCOREDUMP
 			if(WCOREDUMP(status)) // not available on all unix implementations
 			{
-				DMSG("Child process had a core dump");
+				logging::cfatal << "Child had a core dump" << logging::endl;
 			}
 			#endif
 		}
 		// Ignoring WIFSTOPPED, WSTOPSIG, WIFCONTINUED
 	}
-
-	DMSG("closing out");
-
 	return 0;
 }
 

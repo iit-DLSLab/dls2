@@ -3,11 +3,13 @@
 #include <memory>
 #include <string>
 #include <csignal>
+#include <sstream>
 
 #include "util/class_loader.hpp"
 #include "gait_generator/gait_generator.hpp"
 #include "util/debug/debug.hpp"
 #include "path_prefixes/path_prefixes.hpp"
+#include "util/log/log.hpp"
 
 std::shared_ptr<GaitGenerator> pGaitGenerator;
 void signal_handler(int signal);
@@ -28,13 +30,12 @@ int main(int argc, char **argv)
 	}
 	catch(const std::exception&)
 	{
-		TODO("Inform user that file not found");
-		DMSG("Gait generator not found");
+		logging::cfatal << "Gait generator not found" << logging::endl;
 		exit((int)GaitGenerator::Status::FATAL_ERROR);
 	}
 
 	std::signal(SIGTERM, signal_handler);
-	DMSG("GaitGenerator LOADED IN CHILD PROCESS");
+	logging::clog << "Gait generator loaded" << logging::endl;
 	pGaitGenerator->run();
 
 	return static_cast<int>(pGaitGenerator->getStatus());
@@ -44,7 +45,11 @@ void signal_handler(int signal)
 {
 	if(signal == SIGTERM)
 	{
-		DMSG("SIGTERM DEBOUNCE");
+		std::stringstream ss;
+		ss << pGaitGenerator->getID();
+		ss << " received kill request";
+		logging::clog << ss.str() << logging::endl;
+
 		pGaitGenerator->stop();
 		exit(static_cast<int>(pGaitGenerator->getStatus()));
 	}

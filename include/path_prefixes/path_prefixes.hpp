@@ -1,3 +1,6 @@
+#ifndef PATH_PREFIXES_HPP_NVDZRRGM
+#define PATH_PREFIXES_HPP_NVDZRRGM
+
 // path prefix for child process executables
 #ifndef NDEBUG
 	// if debug, look in current directory
@@ -15,3 +18,5 @@
 	// if release, look in standard locations
 	#define LIBRARY_PROCESS_PATH ""
 #endif
+
+#endif /* end of include guard: PATH_PREFIXES_HPP_NVDZRRGM */

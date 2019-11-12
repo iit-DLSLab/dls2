@@ -1,6 +1,7 @@
 #include "gait_generator/dummy_gait_generator.hpp"
 #include "util/debug/debug.hpp"
 #include "geometry/pose.hpp"
+#include "util/log/log.hpp"
 
 DummyGaitGenerator::DummyGaitGenerator(const std::shared_ptr<Dog> &pDog) :
 	GaitGenerator
@@ -17,10 +18,10 @@ DummyGaitGenerator::DummyGaitGenerator()
 
 void DummyGaitGenerator::run(const std::chrono::system_clock::time_point &time)
 {
+	logging::clog << "Dummy Gait Generator Epoch" << logging::endl;
 	GaitSignal data;
 
 	Eigen::Vector3d com_position; com_position << 10, 2, 33;
-	DLOG(com_position);
 	data.desired_com_pose = Pose(com_position);
 
 	publishData(data);

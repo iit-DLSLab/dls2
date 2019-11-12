@@ -8,7 +8,7 @@ add_compile_options(
 function(create_test NAME SRC LINK)
 	# Output directory of executable should mirror their location in source tree
 	string(REGEX MATCH "/[^/]*$" PATH ${CMAKE_CURRENT_SOURCE_DIR})
-	set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/${BUILD_PREFIX}/bin/test${PATH}/ PARENT_SCOPE)
+	set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/bin/${BUILD_PREFIX}/test${PATH}/ PARENT_SCOPE)
 	message("building test ${NAME} at ${EXECUTABLE_OUTPUT_PATH}")
 
 	# create the executable

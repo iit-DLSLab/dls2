@@ -39,8 +39,6 @@ ControlLayer::ControlLayer() :
 
 ControlLayer::~ControlLayer()
 {
-	DMSG("Destructor");
-
 	// this->should_quit = true;
 	// this->num_children_cv.notify_one();
 	// DMSG("notified");
@@ -62,25 +60,18 @@ ControlLayer::Status ControlLayer::run()
 	while(getStatus() == Status::RUNNING)
 	{
 		logging::cdbg << "Control Layer loop" << logging::endl;
-
-		DMSG("CL loop");
 		// Read the control signals
 		Eigen::VectorXd desired_torques = Eigen::VectorXd::Zero(Robot::getDimension());
 		{
 			std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
 			for(const auto &pair : this->controllers_b)
 			{
-				// if(!pair.second.pController) continue;
-				// if(pair.second.pController->getStatus() == Controller::Status::RUNNING)
-				// {
 				if(!pair.second->pSubscriber) continue;
 				auto pControl_signal = pair.second->pSubscriber->getLastPublishedControlSignal();
 				if(pControl_signal)
 				{
-					DMSG("got a control signal");
 					desired_torques += pControl_signal->torques;
 				}
-				// }
 			}
 		}
 
@@ -149,9 +140,8 @@ bool ControlLayer::activateController(const Controller::ID_t &ID)
 		if((controller_pid = fork()) == 0)
 		{
 			execl(CHILD_PROCESS_PATH "controller_process", ID.c_str(), ID.c_str(), (char *)NULL);
-			DMSG("CONTROLLER PROCESS FAILED TO LAUNCH");
+			logging::cfatal << "Controller process failed to launch" << logging::endl;
 			DMSG(strerror(errno));
-			DMSG("PREMATURE CONTROLLER FORK EXIT");
 			TODO("handle errors");
 			_exit(0);
 		}
@@ -165,7 +155,6 @@ bool ControlLayer::activateController(const Controller::ID_t &ID)
 				std::string("control_signal_") + ID
 			);
 
-		DMSG("emplace");
 		this->controllers_b.emplace
 		(
 			std::pair<Controller::ID_t, std::shared_ptr<ControllerData>>
@@ -174,7 +163,6 @@ bool ControlLayer::activateController(const Controller::ID_t &ID)
 				pData
 			)
 		);
-		DMSG("Done emplace");
 	}
 
 	{
@@ -222,17 +210,14 @@ void ControlLayer::loadController(const Controller::ID_t &name)
 // -----------------------------------------------------------------------------
 bool ControlLayer::activateGaitGenerator(const GaitGenerator::ID_t &ID)
 {
-	DMSG("ACTIVATE GAIT GENERATOR ENTER");
 	std::lock_guard<std::mutex> lock(this->gait_generators_mutex);
 
 	// if a gait generator is already running
 	if(this->pGait_generator_data && this->pGait_generator_data->gait_generator_pid != 0)
 	{
-		DMSG("IN IF");
-		TODO("Inform the user that a gait generator is already running")
+		logging::cout << "A gait generator is already running" << logging::endl;
 		return false;
 	}
-	DMSG("NOT iF");
 	// launch a gait generator and register it with the architecture
 	this->pGait_generator_data = std::make_shared<GaitGeneratorData>();
 	this->pGait_generator_data->gait_generator_pid = fork();
@@ -240,9 +225,8 @@ bool ControlLayer::activateGaitGenerator(const GaitGenerator::ID_t &ID)
 	{
 		TODO("error checking")
 		execl(CHILD_PROCESS_PATH "gait_generator_process", ID.c_str(), ID.c_str(), (char *)NULL);
+		logging::cfatal << "Failed to launch gait generator" << logging::endl;
 		DMSG(strerror(errno));
-		DMSG("GAIT GENERATOR PROCESS FAILED TO LAUNCH");
-		DMSG("PREMATURE GENERATOR FORK EXIT");
 	}
 
 	// start the wait thread -- it will remove the gait generator data when done
@@ -254,7 +238,6 @@ bool ControlLayer::activateGaitGenerator(const GaitGenerator::ID_t &ID)
 
 void ControlLayer::deactivateGaitGenerators()
 {
-	DMSG("DEACTIVATE GAIT GENERATOR ENTER");
 	std::lock_guard<std::mutex> lock(this->gait_generators_mutex);
 	if(this->pGait_generator_data || this->pGait_generator_data->gait_generator_pid != 0)
 	{
@@ -328,7 +311,6 @@ void ControlLayer::ControlSubListener::onNewDataMessage
 // =============================================================================
 void ControlLayer::waitOnChildController(std::shared_ptr<ControllerData> pData)
 {
-	DMSG("wait Thread launched");
 	int status;
 
 	TODO("Handle errors, relaunching etc")
@@ -339,16 +321,13 @@ void ControlLayer::waitOnChildController(std::shared_ptr<ControllerData> pData)
 		auto it = this->controllers_b.find(pData->ID);
 		if(it != this->controllers_b.end())
 		{
-			DMSG("remove controller data");
 			this->controllers_b.erase(it);
 		}
 	}
-	DMSG("wait thread exit");
 }
 
 void ControlLayer::waitOnChildGaitGenerator(std::shared_ptr<GaitGeneratorData> pData)
 {
-	DMSG("WAIT ON CHILD GAIT ENTER");
 	int status;
 	/*pid_t child_pid =*/ waitpid(pData->gait_generator_pid, &status, 0);
 	// DMSG("child gait generator " << child_pid << " exited");
