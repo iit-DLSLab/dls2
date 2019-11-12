@@ -29,7 +29,7 @@ int main(int argc, char **argv)
 	catch(const std::exception&)
 	{
 		TODO("Inform user that file not found");
-		DMSG("GaitGenerator " << argv[1] << " not found");
+		DMSG("Gait generator not found");
 		exit((int)GaitGenerator::Status::FATAL_ERROR);
 	}
 

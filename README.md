@@ -1,0 +1,41 @@
+Introduction
+================================================================================
+
+This project contains the main dls framework,
+
+Building
+================================================================================
+
+Development
+--------------------------------------------------------------------------------
+
+Build the debug project using:
+
+	$ mkdir Debug
+	$ cd Debug
+	$ cmake ..
+	$ make
+
+Tests can be performed with:
+
+	$ make tests
+	$ make test
+
+Documentation can be generated with:
+
+	$ make doc
+
+A convenience run target is available:
+
+	$ make run
+
+Release
+--------------------------------------------------------------------------------
+
+A release debian package can be generated using:
+
+	$ mkdir Release
+	$ cd Release
+	$ cmake -DCMAKE_BUILD_TYPE=Release ..
+	$ make
+	$ cpack

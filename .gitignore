@@ -5,3 +5,5 @@ doc/html
 doc/latex
 doc/man
 gen/
+Debug/
+Release/

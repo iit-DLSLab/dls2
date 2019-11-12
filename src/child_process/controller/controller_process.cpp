@@ -30,7 +30,7 @@ int main(int argc, char **argv)
 	catch(const std::exception&)
 	{
 		TODO("Inform user that file not found");
-		DMSG("Controller " << argv[1] << " not found");
+		DMSG("Controller not found");
 		exit((int)Controller::Status::FATAL_ERROR);
 	}
 

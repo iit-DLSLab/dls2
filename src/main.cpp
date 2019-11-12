@@ -157,7 +157,9 @@ int main(int argc, char **argv)
 			}
 		}
 
-		DMSG("Child pid: " << child_pid);
+		// DMSG("Child pid: " << child_pid);
+		DMSG("Child exited");
+		DMSG(child_pid);
 		// if(child_pid == hardware_layer_pid)
 		// {
 		// 	DMSG("child is hardware layer");
@@ -172,13 +174,14 @@ int main(int argc, char **argv)
 		}
 		if(WIFEXITED(status))
 		{
-			DMSG("Child process exited normally with exit status " <<
-				WEXITSTATUS(status));
+			DMSG("Child process exited normally with exit status");
+			DMSG(WEXITSTATUS(status));
 		}
 		if(WIFSIGNALED(status))
 		{
 			TODO("Handle case where child process crashed")
-			DMSG("Child process exited by signal " << WTERMSIG(status));
+			DMSG("Child process exited by signal");
+			DMSG(WTERMSIG(status));
 
 			#ifdef WCOREDUMP
 			if(WCOREDUMP(status)) // not available on all unix implementations

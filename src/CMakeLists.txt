@@ -10,8 +10,8 @@
 # ==============================================================================
 # Output Directories and CMake Variables
 # ==============================================================================
-set(EXECUTABLE_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/bin")
-set(LIBRARY_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/bin")
+set(EXECUTABLE_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/bin/${BUILD_PREFIX}")
+set(LIBRARY_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/bin/${BUILD_PREFIX}")
 set(EXECUTABLE_NAME dynamic_legged_systems_framework)
 
 set(PROJECT_TARGETS "")
@@ -48,7 +48,6 @@ list(APPEND PROJECT_TARGETS ${EXECUTABLE_NAME})
 # ==============================================================================
 # Message Generation
 # ==============================================================================
-
 set(MESSAGE_SOURCES "")
 macro(add_message msg)
 	add_custom_command(
