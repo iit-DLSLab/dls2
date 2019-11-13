@@ -49,6 +49,9 @@ void change_process_name(char **argv, const std::string &name);
 // =============================================================================
 int main(int argc, char **argv)
 {
+	#ifndef NDEBUG
+		std::cout << "Debug build" << std::endl;
+	#endif
 	// Runtime Configuration
 	handle_args(argc, argv);
 

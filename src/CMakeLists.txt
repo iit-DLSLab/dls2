@@ -314,7 +314,7 @@ if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
 			${CMAKE_SOURCE_DIR}/build_tools/include/
 			${CMAKE_SOURCE_DIR}/gen/include/
 		DESTINATION
-			dls
+			include/dls
 		FILES_MATCHING
 			PATTERN "*.h"
 			PATTERN "*.hpp"

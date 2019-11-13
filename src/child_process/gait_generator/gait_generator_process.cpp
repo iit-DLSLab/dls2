@@ -23,15 +23,23 @@ int main(int argc, char **argv)
 		exit(EXIT_FAILURE);
 	}
 
-	try
+	try // this is a quick hack to first check local directory for library
 	{
 		pGaitGenerator =
-			ClassLoader::loadClass<GaitGenerator>(std::string(LIBRARY_PROCESS_PATH "lib") + argv[1] + ".so");
+			ClassLoader::loadClass<GaitGenerator>(std::string(LIBRARY_PROCESS_PATH "./lib") + argv[1] + ".so");
 	}
 	catch(const std::exception&)
 	{
-		logging::cfatal << "Gait generator not found" << logging::endl;
-		exit((int)GaitGenerator::Status::FATAL_ERROR);
+		try
+		{
+			pGaitGenerator =
+				ClassLoader::loadClass<GaitGenerator>(std::string(LIBRARY_PROCESS_PATH "lib") + argv[1] + ".so");
+		}
+		catch(const std::exception&)
+		{
+			logging::cfatal << "Gait generator not found" << logging::endl;
+			exit((int)GaitGenerator::Status::FATAL_ERROR);
+		}
 	}
 
 	std::signal(SIGTERM, signal_handler);

@@ -24,15 +24,23 @@ int main(int argc, char **argv)
 		exit(EXIT_FAILURE);
 	}
 
-	try
+	try // this is a quick hack to first check local directory for library
 	{
 		pController =
-			ClassLoader::loadClass<Controller>(std::string(LIBRARY_PROCESS_PATH "lib") + argv[1] + ".so");
+			ClassLoader::loadClass<Controller>(std::string(LIBRARY_PROCESS_PATH "./lib") + argv[1] + ".so");
 	}
 	catch(const std::exception&)
 	{
-		logging::cfatal << "Controller not found" << logging::endl;
-		exit((int)Controller::Status::FATAL_ERROR);
+		try
+		{
+			pController =
+				ClassLoader::loadClass<Controller>(std::string(LIBRARY_PROCESS_PATH "lib") + argv[1] + ".so");
+		}
+		catch(const std::exception&)
+		{
+			logging::cfatal << "Controller not found" << logging::endl;
+			exit((int)Controller::Status::FATAL_ERROR);
+		}
 	}
 
 	std::signal(SIGTERM, signal_handler);
