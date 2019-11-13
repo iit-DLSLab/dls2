@@ -32,11 +32,15 @@ DummyController::DummyController
 		std::chrono::duration<double>(1),
 		ControlSignal::SignalReconstructionMethod::ZERO_ORDER_HOLD
 	)
-{ }
+{
+	logging::clog << "dummy controller launched" << logging::endl;
+}
 
 DummyController::DummyController() :
 	DummyController(std::make_shared<Dog>())
-{ }
+{
+	logging::clog << "dummy controller destroyed" << logging::endl;
+}
 
 void DummyController::run(const std::chrono::system_clock::time_point &time)
 {

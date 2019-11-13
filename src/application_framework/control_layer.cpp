@@ -53,7 +53,13 @@ ControlLayer::ControlLayer() :
 	// num_children_mutex(),
 	should_quit(false),
 	wait_on_controller_threads(),
-	wait_on_controller_threads_mutex()
+	wait_on_controller_threads_mutex(),
+
+	TODO("These are temporary until a proper console is developed")
+	activate_gait_generator_listener(topics::activate_gait_generator, *this),
+	deactivate_gait_generator_listener(topics::deactivate_gait_generator, *this),
+	activate_controller_listener(topics::activate_controller, *this),
+	deactivate_controller_listener(topics::deactivate_controller, *this)
 { }
 
 ControlLayer::~ControlLayer()
@@ -78,7 +84,6 @@ ControlLayer::Status ControlLayer::run()
 	TODO("correct looping condition")
 	while(getStatus() == Status::RUNNING)
 	{
-		logging::cdbg << "Control Layer loop" << logging::endl;
 		// Read the control signals
 		Eigen::VectorXd desired_torques = Eigen::VectorXd::Zero(Robot::getDimension());
 		{

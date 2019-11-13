@@ -35,6 +35,7 @@
 #include "application_framework/control_layer.hpp"
 #include "application_framework/estimation_layer.hpp"
 #include "application_framework/log_layer.hpp"
+#include "application_framework/console_layer.hpp"
 
 #include "util/debug/debug.hpp"
 #include "util/log/log.hpp"
@@ -114,6 +115,23 @@ int main(int argc, char **argv)
 		return 0;
 	}
 
+	// ============================= Console Layer =============================
+	const pid_t console_layer_pid = fork();
+	if(console_layer_pid == -1)
+	{
+		TODO("HANDE ERROR ON FORK")
+		return -1;
+	}
+	else if(console_layer_pid == 0)
+	{
+		change_process_name(argv, "console_layer");
+		std::shared_ptr<ConsoleLayer> pConsoleLayer = std::make_shared<ConsoleLayer>();
+		pApp->addLayer(pConsoleLayer);
+		pApp->run();
+
+		return 0;
+	}
+
 	// ========================== Start Control Layer ==========================
 	const pid_t control_layer = fork();
 	if(control_layer == -1)
@@ -136,20 +154,20 @@ int main(int argc, char **argv)
 		pApp->run();
 
 		// ============================== Temporary Thing =======================
-		TODO("This is temporary to simulate user input")
-		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
-		// std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(3000));
-		// pControlLayer->loadController("./libdummy_controller.so");
-		// pControlLayer->loadGaitGenerator("./libdummy_gait_generator.so");
-		// std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(3000));
-		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
-		pControlLayer->activateController("dls_dummy_controller");
-		pControlLayer->activateGaitGenerator("dls_dummy_gait_generator");
-		// pEstimationLayer->loadEstimator("./libdummy_estimator.so");
-		// pEstimationLayer->activateEstimator("Dummy Estimator");
+		// TODO("This is temporary to simulate user input")
+		// std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
+		// // std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(3000));
+		// // pControlLayer->loadController("./libdummy_controller.so");
+		// // pControlLayer->loadGaitGenerator("./libdummy_gait_generator.so");
+		// // std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(3000));
+		// std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
+		// pControlLayer->activateController("dls_dummy_controller");
+		// pControlLayer->activateGaitGenerator("dls_dummy_gait_generator");
+		// // pEstimationLayer->loadEstimator("./libdummy_estimator.so");
+		// // pEstimationLayer->activateEstimator("Dummy Estimator");
 
-		// std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(30000));
-		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(9000));
+		// // std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(30000));
+		// std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(9000));
 
 		return 0;
 	}
@@ -178,6 +196,10 @@ int main(int argc, char **argv)
 		else if(child_pid == log_layer_pid)
 		{
 			logging::clog << "log layer exited" << logging::endl;
+		}
+		else if(child_pid == console_layer_pid)
+		{
+			logging::clog << "console layer exited" << logging::endl;
 		}
 		if(WIFEXITED(status))
 		{

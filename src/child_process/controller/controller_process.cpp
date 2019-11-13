@@ -28,6 +28,7 @@
 #include "controller/controller.hpp"
 #include "util/debug/debug.hpp"
 #include "util/log/log.hpp"
+#include "util/debug/debug.hpp"
 
 #include "path_prefixes/path_prefixes.hpp"
 
@@ -57,6 +58,7 @@ int main(int argc, char **argv)
 		}
 		catch(const std::exception&)
 		{
+			DMSG("ADFSLFSDJLSDJFLSJFD");
 			logging::cfatal << "Controller not found" << logging::endl;
 			exit((int)Controller::Status::FATAL_ERROR);
 		}

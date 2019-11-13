@@ -29,6 +29,7 @@
 #include "util/debug/debug.hpp"
 #include "path_prefixes/path_prefixes.hpp"
 #include "util/log/log.hpp"
+#include "util/debug/debug.hpp"
 
 std::shared_ptr<GaitGenerator> pGaitGenerator;
 void signal_handler(int signal);
@@ -56,6 +57,7 @@ int main(int argc, char **argv)
 		}
 		catch(const std::exception&)
 		{
+			DMSG("ADFSLFSDJLSDJFLSJFD");
 			logging::cfatal << "Gait generator not found" << logging::endl;
 			exit((int)GaitGenerator::Status::FATAL_ERROR);
 		}

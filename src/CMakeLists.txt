@@ -143,6 +143,7 @@ add_library(
 	application_framework/hardware_layer.cpp
 	application_framework/hyq_app_libraries.cpp
 	application_framework/control_layer.cpp
+	application_framework/console_layer.cpp
 	application_framework/estimation_layer.cpp
 	application_framework/log_layer.cpp
 
