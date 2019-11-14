@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>dls2_to_roscontrol</name>
+  <version>0.0.1</version>
+  <description>A</description>
+	<license>a</license>
+  <maintainer email="a@a.com">A</maintainer>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <depend>roscpp</depend>
+  <depend>controller_interface</depend>
+  <depend>hardware_interface</depend>
+
+  <!-- The export tag contains other, unspecified, tags -->
+  <export>
+    <controller_interface plugin="${prefix}/dls2_to_roscontrol_plugin.xml"/>
+  </export>
+</package>
