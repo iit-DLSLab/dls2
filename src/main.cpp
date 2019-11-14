@@ -71,6 +71,8 @@ int main(int argc, char **argv)
 {
 	#ifndef NDEBUG
 		std::cout << "Debug build" << std::endl;
+		std::cout << "Version: " << PROJECT_MAJOR << "."
+			<< PROJECT_MINOR << "." << PROJECT_PATCH << std::endl;
 	#endif
 	// Runtime Configuration
 	handle_args(argc, argv);

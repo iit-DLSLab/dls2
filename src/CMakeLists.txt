@@ -37,6 +37,9 @@ add_compile_options(
 	# Custom defintions
 	-DSOURCE_PATH_SIZE=${SOURCE_PATH_SIZE}
 	# -DSHOW_TODOS_AT_COMPILE_TIME
+	-DPROJECT_MAJOR=${MAJOR}
+	-DPROJECT_MINOR=${MINOR}
+	-DPROJECT_PATCH=${PATCH}
 )
 
 # ==============================================================================
