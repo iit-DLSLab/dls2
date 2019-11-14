@@ -60,7 +60,8 @@ add_custom_target(
 	doc
 	DEPENDS
 		"${CMAKE_SOURCE_DIR}/doc/html/index.html"
-		"${CMAKE_SOURCE_DIR}/doc/latex/refman.pdf"
+		# Switch off pdf generation
+		#"${CMAKE_SOURCE_DIR}/doc/latex/refman.pdf"
 		"${CMAKE_SOURCE_DIR}/doc/man" "${CMAKE_SOURCE_DIR}/.Doxyfile"
 	WORKING_DIRECTORY
 		"${CMAKE_SOURCE_DIR}"
