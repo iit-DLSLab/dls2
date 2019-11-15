@@ -86,6 +86,9 @@ add_message(gait_signal)
 add_message(control_signal)
 add_message(desired_torques)
 add_message(stringmsg)
+add_message(joint_state)
+add_message(imu)
+add_message(vec3)
 
 # ==============================================================================
 # Roscontrol Tranlsation Block
