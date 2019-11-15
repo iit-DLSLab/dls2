@@ -7,11 +7,13 @@ find_package(catkin REQUIRED
 	roscpp
 	controller_interface
 	hardware_interface
+	dls_hardware_interface
+	dls_controller
 	)
 
 catkin_package(
   INCLUDE_DIRS include 
- CATKIN_DEPENDS roscpp controller_interface hardware_interface
+ CATKIN_DEPENDS roscpp controller_interface hardware_interface dls_hardware_interface dls_controller
   DEPENDS
 )
 
@@ -27,12 +29,11 @@ install(TARGETS ${PROJECT_NAME}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
   )
 
-install(FILES dls_supervisor_plugin.xml
-DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})  
+install(FILES dls_supervisor_plugin.xml DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})  
 
-install(DIRECTORY launch/
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
-  PATTERN ".svn" EXCLUDE)
+install(DIRECTORY launch/ DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch)
+
+install(DIRECTORY config/ DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/config)
 
 
 if (CATKIN_ENABLE_TESTING)
