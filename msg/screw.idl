@@ -17,15 +17,8 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-#ifndef BODY_ACCELERATION_HPP_C7L56H8W
-#define BODY_ACCELERATION_HPP_C7L56H8W
-
-namespace topics
+struct ScrewMsg
 {
-	namespace low_level_estimation
-	{
-		constexpr auto body_acceleration = "low_level_estimation/body_acceleration";
-	}
-}
-
-#endif /* end of include guard: BODY_ACCELERATION_HPP_C7L56H8W */
+	double linear[3];
+	double angular[3];
+};

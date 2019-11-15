@@ -17,15 +17,13 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-#ifndef BODY_POSE_HPP_R1RBDBDZ
-#define BODY_POSE_HPP_R1RBDBDZ
-
-namespace topics
+#include "joint_state.idl"
+#include "pose.idl"
+#include "screw.idl"
+struct BlindStateMsg
 {
-	namespace low_level_estimation
-	{
-		constexpr auto body_pose = "low_level_estimation/body_pose";
-	}
-}
-
-#endif /* end of include guard: BODY_POSE_HPP_R1RBDBDZ */
+	JointStateMsg joint_state;
+	PoseMsg body_pose;
+	ScrewMsg body_velocity;
+	ScrewMsg body_acceleration;
+};

@@ -17,15 +17,16 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-#ifndef JOINT_STATE_HPP_OCQAWZJG
-#define JOINT_STATE_HPP_OCQAWZJG
+#ifndef BLIND_STATE_HPP_VREU5PR4
+#define BLIND_STATE_HPP_VREU5PR4
 
 namespace topics
 {
 	namespace low_level_estimation
 	{
-		constexpr auto joint_state = "low_level_estimation/joint_state";
+		constexpr auto blind_state = "low_level_estimation/blind_state";
 	}
 }
 
-#endif /* end of include guard: JOINT_STATE_HPP_OCQAWZJG */
+
+#endif /* end of include guard: BLIND_STATE_HPP_VREU5PR4 */

@@ -89,6 +89,8 @@ add_message(stringmsg)
 add_message(joint_state)
 add_message(imu)
 add_message(vec3)
+add_message(screw)
+add_message(blind_state)
 
 # ==============================================================================
 # Roscontrol Tranlsation Block
