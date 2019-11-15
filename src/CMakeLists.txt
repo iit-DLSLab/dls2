@@ -88,6 +88,24 @@ add_message(desired_torques)
 add_message(stringmsg)
 
 # ==============================================================================
+# Roscontrol Tranlsation Block
+# ==============================================================================
+set(CATKIN_WORKSPACE ${CMAKE_SOURCE_DIR}/catkin_ws)
+add_custom_target(dls2_to_roscontrol
+	COMMAND catkin_make
+	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/catkin_ws
+	COMMENT "Building dls2_to_roscontrol subproject"
+)
+
+set_property(
+	DIRECTORY
+		${CMAKE_SOURCE_DIR}
+	PROPERTY ADDITIONAL_MAKE_CLEAN_FILES
+		${CATKIN_WORKSPACE}/build
+		${CATKIN_WORKSPACE}/devel
+)
+
+# ==============================================================================
 # Libraries
 # ==============================================================================
 
@@ -241,7 +259,7 @@ target_sources(
 	sensors/sensor_base.cpp
 )
 
-add_dependencies(${EXECUTABLE_NAME} messagelib dls_controller_process dls_gait_generator_process)
+add_dependencies(${EXECUTABLE_NAME} messagelib dls_controller_process dls_gait_generator_process dls2_to_roscontrol)
 
 target_link_libraries(
 	${EXECUTABLE_NAME}
@@ -294,7 +312,7 @@ add_dependencies(dls_dummy_estimator messagelib)
 list(APPEND PROJECT_TARGETS dls_dummy_estimator)
 # target_link_libraries(dummy_gait_generator dls_geometry)
 
-# ==============================================================================
+# =============================================================================
 # Convencience Targets
 # ==============================================================================
 # TODO remove dummy_controller from here
