@@ -24,6 +24,7 @@
 #include <fastrtps/fastrtps_fwd.h>
 #include <fastrtps/subscriber/SubscriberListener.h>
 #include <fastrtps/subscriber/SampleInfo.h>
+#include <fastrtps/participant/Participant.h>
 
 template <class PubSub_t>
 class SubscriberBase : public eprosima::fastrtps::SubscriberListener

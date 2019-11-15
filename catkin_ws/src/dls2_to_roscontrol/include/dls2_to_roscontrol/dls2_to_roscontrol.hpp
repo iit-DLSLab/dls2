@@ -7,6 +7,13 @@
 #include <controller_interface/controller.h>
 #include <pluginlib/class_list_macros.h>
 
+// fastrtps
+#include "todo.h"
+#include "util/messaging/subscriber_base.hpp"
+#include "msg/desired_torquesPubSubTypes.h"
+#include <mutex>
+#include <memory>
+
 namespace dls2_to_roscontrol {
 
 class Dls2ToRoscontrol : public controller_interface::Controller<hardware_interface::JointCommandAdvInterface>
@@ -19,6 +26,21 @@ public:
 	void update(const ros::Time& time, const ros::Duration& period);
 private:
 	std::vector<hardware_interface::JointCommandAdvHandle> joint_commands_;
+
+	class ControlMsgListener : public SubscriberBase<DesiredTorquesMsgPubSubType>
+	{
+	public:
+		ControlMsgListener();
+		std::shared_ptr<DesiredTorquesMsg> getSignal();
+
+	private:
+		void onNewDataMessage(eprosima::fastrtps::Subscriber *sub) override;
+		eprosima::fastrtps::SampleInfo_t info;
+		// BEGIN Critical section
+			std::shared_ptr<DesiredTorquesMsg> pMsg;
+			std::mutex msg_mutex;
+		// END Critical section
+	} control_signal_listener;
 };
 
 PLUGINLIB_DECLARE_CLASS(dls2_ros_control, Dls2ToRoscontrol, dls2_to_roscontrol::Dls2ToRoscontrol, controller_interface::ControllerBase);

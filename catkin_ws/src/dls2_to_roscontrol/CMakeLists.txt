@@ -1,6 +1,18 @@
 cmake_minimum_required(VERSION 3.5.1)
 project(dls2_to_roscontrol)
 
+# This is a hack until the catkin_ws can be properly integrated with the rest of
+# the project
+set(ROOT_PROJECT_DIRECTORY "${CMAKE_SOURCE_DIR}/../..")
+include_directories(
+	${ROOT_PROJECT_DIRECTORY}/include
+	${ROOT_PROJECT_DIRECTORY}/build_tools/include
+)
+include_directories(
+	SYSTEM
+	${ROOT_PROJECT_DIRECTORY}/gen/include
+)
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 
 find_package(catkin REQUIRED

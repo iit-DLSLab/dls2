@@ -1,5 +1,8 @@
 #include "dls2_to_roscontrol/dls2_to_roscontrol.hpp"
 
+// fastrtps
+#include "topics/desired_torques.hpp"
+
 namespace dls2_to_roscontrol {
 
 Dls2ToRoscontrol::Dls2ToRoscontrol()
@@ -25,15 +28,47 @@ bool Dls2ToRoscontrol::init(hardware_interface::JointCommandAdvInterface *pJoint
 
 void Dls2ToRoscontrol::update(const ros::Time &time, const ros::Duration &period)
 {
-	for (auto jc : joint_commands_)
+	if(auto pMsg = this->control_signal_listener.getSignal())
 	{
-		jc.setCommand(0,0,0);
-		jc.setCommandGains(1,1,1);
+		// message received from framework
+		// for (auto jc : joint_commands_)
+		std::vector<double> vec = pMsg->desired_torques();
+		for(auto el : vec)
+		{
+			std::cout << el << " " << std::endl;
+		}
+		std::cout << std::endl;
+
+		for(size_t i = 0; i != 12; ++i)
+		{
+			joint_commands_.setCommand(0,0,vec[i]);
+			joint_commands_.setCommandGains(1,1,1);
+		}
 	}
 }
 
 void Dls2ToRoscontrol::starting(const ros::Time &time) { }
 void Dls2ToRoscontrol::stopping(const ros::Time &time) { }
 
-} //namespace dls2_to_roscontrol
+// =============================================================================
+// Fastrtps
+// =============================================================================
 
+Dls2ToRoscontrol::ControlMsgListener::ControlMsgListener() :
+	SubscriberBase<DesiredTorquesMsgPubSubType>(topics::desired_torques),
+	pMsg(new DesiredTorquesMsg)
+{ }
+
+void Dls2ToRoscontrol::ControlMsgListener::onNewDataMessage(eprosima::fastrtps::Subscriber *sub)
+{
+	std::lock_guard<std::mutex> lock(this->msg_mutex);
+	sub->takeNextData((void*)this->pMsg.get(), &info);
+}
+
+std::shared_ptr<DesiredTorquesMsg> Dls2ToRoscontrol::ControlMsgListener::getSignal()
+{
+	std::lock_guard<std::mutex> lock(this->msg_mutex);
+	return this->pMsg;
+}
+
+} //namespace dls2_to_roscontrol
