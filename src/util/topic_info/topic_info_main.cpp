@@ -22,10 +22,19 @@
 #include "util/topic_info/topic_info.hpp"
 #include <signal.h>
 
-int main()
+int main(int argc, char **argv)
 {
+	std::string name;
+	if(argc > 1)
+	{
+		name = argv[1];
+	}
+	else
+	{
+		name = "dummy_controller";
+	}
 	// listen to topics and print
-	TopicInfo info;
+	TopicInfo info(name);
 
 	// wait until killed by user
 	sigset_t sigset;

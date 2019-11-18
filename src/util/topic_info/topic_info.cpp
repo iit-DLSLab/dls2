@@ -23,14 +23,17 @@
 
 #include "topics/gait_signal.hpp"
 #include "topics/low_level_estimation/blind_state.hpp"
+#include "topics/control_signal_base.hpp"
+#include "controller/control_signal.hpp"
 
 #include <algorithm>
 // =============================================================================
 // Constructors
 // =============================================================================
-TopicInfo::TopicInfo() :
+TopicInfo::TopicInfo(const std::string &controller_topic) :
 	blind_state_sub(),
-	gait_signal_sub()
+	gait_signal_sub(),
+	control_signal_sub(controller_topic)
 { }
 
 // =============================================================================
@@ -148,50 +151,80 @@ void TopicInfo::GaitSignalSub::onNewDataMessage
 		if(info.sampleKind == eprosima::fastrtps::rtps::ALIVE)
 		{
 				// ========================= CoM Pose ==========================
-				std::cout << "=========" << std::endl;
-				std::cout << "Desired com pose\n";
-					std::cout << "\tPosition ";
-						std::for_each
-							(
-								msg.desired_com_pose().position().cbegin(),
-								msg.desired_com_pose().position().cend(),
-								[](double d){std::cout << d << " ";}
-							);
-					std::cout << "\n";
-					std::cout << "\tQuaternion ";
-						std::for_each
-							(
-								msg.desired_com_pose().quaternion().cbegin(),
-								msg.desired_com_pose().quaternion().cend(),
-								[](double d){std::cout << d << " ";}
-							);
-					std::cout << "\n";
+				// std::cout << "=========" << std::endl;
+				// std::cout << "Desired com pose\n";
+				// 	std::cout << "\tPosition ";
+				// 		std::for_each
+				// 			(
+				// 				msg.desired_com_pose().position().cbegin(),
+				// 				msg.desired_com_pose().position().cend(),
+				// 				[](double d){std::cout << d << " ";}
+				// 			);
+				// 	std::cout << "\n";
+				// 	std::cout << "\tQuaternion ";
+				// 		std::for_each
+				// 			(
+				// 				msg.desired_com_pose().quaternion().cbegin(),
+				// 				msg.desired_com_pose().quaternion().cend(),
+				// 				[](double d){std::cout << d << " ";}
+				// 			);
+				// 	std::cout << "\n";
 
-				// ========================= Base Pose =========================
-				std::cout << "Desired base pose\n";
-					std::cout << "\tPosition ";
-						std::for_each
-							(
-								msg.desired_base_pose().position().cbegin(),
-								msg.desired_base_pose().position().cend(),
-								[](double d){std::cout << d << " ";}
-							);
-					std::cout << "\n";
-					std::cout << "\tQuaternion ";
-						std::for_each
-							(
-								msg.desired_base_pose().quaternion().cbegin(),
-								msg.desired_base_pose().quaternion().cend(),
-								[](double d){std::cout << d << " ";}
-							);
-					std::cout << "\n";
-				std::cout << "=========" << std::endl;
+				// // ========================= Base Pose =========================
+				// std::cout << "Desired base pose\n";
+				// 	std::cout << "\tPosition ";
+				// 		std::for_each
+				// 			(
+				// 				msg.desired_base_pose().position().cbegin(),
+				// 				msg.desired_base_pose().position().cend(),
+				// 				[](double d){std::cout << d << " ";}
+				// 			);
+				// 	std::cout << "\n";
+				// 	std::cout << "\tQuaternion ";
+				// 		std::for_each
+				// 			(
+				// 				msg.desired_base_pose().quaternion().cbegin(),
+				// 				msg.desired_base_pose().quaternion().cend(),
+				// 				[](double d){std::cout << d << " ";}
+				// 			);
+				// 	std::cout << "\n";
 
+				// ================== Desired Joint Position ===================
+				std::cout << "Desired Joint Position\n\t";
+						std::for_each
+							(
+								msg.desired_joint_state().cbegin(),
+								msg.desired_joint_state().cend(),
+								[](double d){std::cout << d << " ";}
+							);
+						std::cout << "\n";
+				std::cout << "=========" << std::endl;
 		}
 	}
 }
 
-// TopicInfo::ControlSignalSub::ControlSignalSub() :
-// 	SubscriberBase<ControlSignalMsgPubSubType>(topics::control_signal)
-// { }
+// -----------------------------------------------------------------------------
+// Control Signal
+// -----------------------------------------------------------------------------
 
+TopicInfo::ControlSignalSub::ControlSignalSub(const std::string &controller_name) :
+	SubscriberBase<ControlSignalMsgPubSubType>(topics::control_signal_base + controller_name),
+	info()
+{ }
+
+
+void TopicInfo::ControlSignalSub::onNewDataMessage
+(
+	eprosima::fastrtps::Subscriber *sub
+)
+{
+	ControlSignalMsg msg;
+	if(sub->takeNextData((void*)&msg, &info))
+	{
+		if(info.sampleKind == eprosima::fastrtps::rtps::ALIVE)
+		{
+			ControlSignal s(msg);
+			std::cout << "Desired torques: " <<  s.torques.transpose() << std::endl;
+		}
+	}
+}

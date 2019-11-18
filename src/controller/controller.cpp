@@ -51,6 +51,8 @@ Controller::Controller
 			[](Controller*){} // do not use the shared pointer to delete the object
 		)
 	),
+	// TODO the topic name should be defined by a static member function
+	// accessible to anyone
 	control_signal_topic(std::string(topics::control_signal_base) + name_),
 	publisher(control_signal_topic)
 { }

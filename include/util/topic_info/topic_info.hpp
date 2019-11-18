@@ -31,7 +31,7 @@
 class TopicInfo
 {
 public:
-	TopicInfo();
+	TopicInfo(const std::string &controller = "dls_dummy_controller");
 
 private:
 	class BlindStateSub : public SubscriberBase<BlindStateMsgPubSubType>
@@ -52,13 +52,14 @@ private:
 		eprosima::fastrtps::SampleInfo_t info;
 	}gait_signal_sub;
 
-// 	class ControLsignalSub : public SubscriberBase<ControlSignalMsgPubSubType>
-// 	{
-// 		ControLsignalSub();
-// 	private:
-// 		void onNewDataMessage(eprosima::fastrtps::Subscriber *sub) override;
-// 		eprosima::fastrtps::SampleInfo_t info;
-// 	}control_signal_sub;
+	class ControlSignalSub : public SubscriberBase<ControlSignalMsgPubSubType>
+	{
+	public:
+		ControlSignalSub(const std::string&);
+	private:
+		void onNewDataMessage(eprosima::fastrtps::Subscriber *sub) override;
+		eprosima::fastrtps::SampleInfo_t info;
+	}control_signal_sub;
 };
 
 #endif /* end of include guard: TOPIC_INFO_HPP_SVMAPUJA */

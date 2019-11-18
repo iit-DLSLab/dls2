@@ -183,6 +183,8 @@ add_library(
 	dls_controlinterface
 	SHARED
 	controller/controller.cpp
+
+	# TODO this should be moved to the messaging library
 	controller/control_signal.cpp
 )
 list(APPEND PROJECT_TARGETS dls_controlinterface)
@@ -192,6 +194,7 @@ add_library(
 	dls_gaitgeneratorinterface
 	SHARED
 	gait_generator/gait_generator.cpp
+	# TODO this should be moved to the messaging library
 	gait_generator/gait_signal.cpp
 )
 list(APPEND PROJECT_TARGETS dls_gaitgeneratorinterface)
@@ -335,11 +338,23 @@ list(APPEND PROJECT_TARGETS dls_dummy_estimator)
 add_executable(topic_info
 	${CMAKE_SOURCE_DIR}/src/util/topic_info/topic_info.cpp
 	${CMAKE_SOURCE_DIR}/src/util/topic_info/topic_info_main.cpp
+
+	# TODO this should be put into the dls_messaging library and just linked
+	# into this executable. It should NOT be recompiled here, it should only be
+	# compiled in the library
+	${CMAKE_SOURCE_DIR}/src/controller/control_signal.cpp
 )
 target_link_libraries(topic_info
 	fastcdr
 	fastrtps
 	dls_messaging
+
+	# TODO this should be removed when the gait signal and contro lsignal
+	# wrappers are moved to the messaging library
+	# dls_gaitgeneratorinterface
+	# dls_controlinterface
+	# dls_estimatorinterface
+	# dls_framework
 )
 
 # ==============================================================================
