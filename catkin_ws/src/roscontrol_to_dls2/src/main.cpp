@@ -44,7 +44,7 @@ void callback
 (
 	const sensor_msgs::JointState &joint_states,
 	const geometry_msgs::PoseWithCovarianceStamped &pose,
-	const sensor_msgs::Imu &imu,
+	// const sensor_msgs::Imu &imu,
 	const nav_msgs::Odometry &ground_truth
 );
 
@@ -63,8 +63,8 @@ int main(int argc, char** argv)
 	message_filters::Subscriber<geometry_msgs::PoseWithCovarianceStamped>
 		pose_sub(node_handle, "/hyq/pose", 1);
 
-	message_filters::Subscriber<sensor_msgs::Imu>
-		imu_sub(node_handle, "/hyq/imu", 1);
+	// message_filters::Subscriber<sensor_msgs::Imu>
+	// 	imu_sub(node_handle, "/hyq/imu", 1);
 
 	message_filters::Subscriber<nav_msgs::Odometry>
 		ground_truth_sub(node_handle, "/hyq/ground_truth", 1);
@@ -74,14 +74,14 @@ int main(int argc, char** argv)
 		<
 			sensor_msgs::JointState,
 			geometry_msgs::PoseWithCovarianceStamped,
-			sensor_msgs::Imu,
+			// sensor_msgs::Imu,
 			nav_msgs::Odometry
 		>
 		sync
 		(
 			joint_state_sub,
 			pose_sub,
-			imu_sub,
+			// imu_sub,
 			ground_truth_sub,
 			10
 		);
@@ -97,10 +97,11 @@ void callback
 (
 	const sensor_msgs::JointState &joint_states,
 	const geometry_msgs::PoseWithCovarianceStamped &pose,
-	const sensor_msgs::Imu &imu,
+	// const sensor_msgs::Imu &imu,
 	const nav_msgs::Odometry &ground_truth
 )
 {
+	std::cout << "callback hit" << std::endl;
 	BlindStateMsg blind_state_msg;
 	JointStateMsg joint_state_msg;
 
