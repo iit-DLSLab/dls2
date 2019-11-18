@@ -41,9 +41,9 @@ void Dls2ToRoscontrol::update(const ros::Time &time, const ros::Duration &period
 {
 	//READ
 	JointStateMsg joint_state_msg;
-	joint_state_msg.position.resize(12);
-	joint_state_msg.velocity.resize(12);
-	joint_state_msg.effort.resize(12);
+	joint_state_msg.position().resize(12);
+	joint_state_msg.velocity().resize(12);
+	joint_state_msg.effort().resize(12);
 
 	for(size_t i = 0; i != 12; ++i)
 	{
