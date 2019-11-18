@@ -111,10 +111,14 @@ target_link_libraries(
 )
 list(APPEND PROJECT_TARGETS dls_logging)
 # ================================== messages ==================================
-add_library(
-	dls_messaging
+add_library(dls_messaging
 	SHARED
+
+	# fastrtps
 	${MESSAGE_SOURCES}
+
+	# generic wrappers
+	${CMAKE_SOURCE_DIR}/src/msg_wrappers/screw.cpp
 )
 target_compile_options(
 	dls_messaging

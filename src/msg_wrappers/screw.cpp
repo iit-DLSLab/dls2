@@ -17,26 +17,58 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-#include "pose.idl"
-#include "screw.idl"
-struct GaitSignalMsg
+#include "msg_wrappers/screw.hpp"
+
+// =============================================================================
+// Constructors
+// =============================================================================
+Screw::Screw():
+	eigen_vec()
+{ }
+
+Screw::Screw(const ScrewMsg &msg)
 {
-	// TODO remove this msg
-	string msg;
+	this->eigen_vec <<
 
-	PoseMsg desired_com_pose;
-	ScrewMsg desired_com_velocity;
-	ScrewMsg desired_com_acceleration;
+		msg.linear()[0],
+		msg.linear()[1],
+		msg.linear()[2],
 
-	PoseMsg desired_base_pose;
-	ScrewMsg desired_base_velocity;
-	ScrewMsg desired_base_acceleration;
+		msg.angular()[0],
+		msg.angular()[1],
+		msg.angular()[2];
+}
 
-	sequence<double> desired_joint_state;
-	sequence<double> desired_joint_velocity;
-	sequence<double> desired_joint_acceleration;
+// =============================================================================
+// Conversions
+// =============================================================================
+Screw::operator ScrewMsg() const
+{
+	ScrewMsg msg;
+	msg.linear()[0] = this->eigen_vec(0);
+	msg.linear()[1] = this->eigen_vec(1);
+	msg.linear()[2] = this->eigen_vec(2);
+	msg.angular()[0] = this->eigen_vec(3);
+	msg.angular()[1] = this->eigen_vec(4);
+	msg.angular()[2] = this->eigen_vec(5);
+	return msg;
+}
 
-	sequence<double> desired_feed_forward_torque;
 
-	sequence<boolean> stance_feet;
-};
+// =============================================================================
+// Implementation
+// =============================================================================
+void Screw::setLinear(const Eigen::Vector3d &vec)
+{
+	this->eigen_vec.block<3, 1>(0, 0) = vec;
+}
+
+void Screw::setAngular(const Eigen::Vector3d &vec)
+{
+	this->eigen_vec.block<3, 1>(3, 0) = vec;
+}
+
+Eigen::Matrix<double, 6, 1> &Screw::data()
+{
+	return this->eigen_vec;
+}
