@@ -1,8 +1,8 @@
 #ifndef ROSCONTROL_TO_DLS2_HPP_X8TSOKXU
 #define ROSCONTROL_TO_DLS2_HPP_X8TSOKXU
 
-#include "util/messaging/publisher_base.hpp"
-#include "msg/blind_state.h"
+//#include "util/messaging/publisher_base.hpp"
+//#include "msg/blind_state.h"
 
 namespace roscontrol_to_dls2
 {
@@ -12,7 +12,7 @@ namespace roscontrol_to_dls2
 		RoscontrolToDls2();
 
 	private:
-		PublisherBase<BlindStateMsgPubSubType> state_pub;
+		//PublisherBase<BlindStateMsgPubSubType> state_pub;
 	};
 }
 
