@@ -93,24 +93,6 @@ add_message(screw)
 add_message(blind_state)
 
 # ==============================================================================
-# Roscontrol Tranlsation Block
-# ==============================================================================
-set(CATKIN_WORKSPACE ${CMAKE_SOURCE_DIR}/catkin_ws)
-add_custom_target(dls2_to_roscontrol
-	COMMAND catkin_make
-	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/catkin_ws
-	COMMENT "Building dls2_to_roscontrol subproject"
-)
-
-set_property(
-	DIRECTORY
-		${CMAKE_SOURCE_DIR}
-	PROPERTY ADDITIONAL_MAKE_CLEAN_FILES
-		${CATKIN_WORKSPACE}/build
-		${CATKIN_WORKSPACE}/devel
-)
-
-# ==============================================================================
 # Libraries
 # ==============================================================================
 
@@ -247,6 +229,25 @@ target_link_libraries(
 	dls_estimatorinterface
 )
 list(APPEND PROJECT_TARGETS dls_gait_generator_process)
+# ==============================================================================
+# Roscontrol Tranlsation Block
+# ==============================================================================
+set(CATKIN_WORKSPACE ${CMAKE_SOURCE_DIR}/catkin_ws)
+add_custom_target(dls2_to_roscontrol
+	COMMAND catkin_make
+	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/catkin_ws
+	COMMENT "Building dls2_to_roscontrol subproject"
+)
+
+set_property(
+	DIRECTORY
+		${CMAKE_SOURCE_DIR}
+	PROPERTY ADDITIONAL_MAKE_CLEAN_FILES
+		${CATKIN_WORKSPACE}/build
+		${CATKIN_WORKSPACE}/devel
+)
+add_dependencies(dls2_to_roscontrol dls_framework dls_messaging)
+
 
 # ==============================================================================
 # Main Executable
