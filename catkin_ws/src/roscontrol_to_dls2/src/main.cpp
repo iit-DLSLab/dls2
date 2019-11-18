@@ -19,7 +19,8 @@
 *******************************************************************************/
 // Ros subscription
 #include <message_filters/subscriber.h>
-#include <message_filters/time_synchronizer.h>
+// #include <message_filters/time_synchronizer.h>
+#include <message_filters/sync_policies/approximate_time.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <sensor_msgs/JointState.h>
 #include <sensor_msgs/Imu.h>
@@ -43,10 +44,18 @@ std::shared_ptr<PublisherBase<BlindStateMsgPubSubType>>
 void callback
 (
 	const sensor_msgs::JointState &joint_states,
-	const geometry_msgs::PoseWithCovarianceStamped &pose,
+	// const geometry_msgs::PoseWithCovarianceStamped &pose,
 	// const sensor_msgs::Imu &imu,
 	const nav_msgs::Odometry &ground_truth
 );
+
+typedef message_filters::sync_policies::ApproximateTime
+<
+	sensor_msgs::JointState,
+	// geometry_msgs::PoseWithCovarianceStamped,
+	// sensor_msgs::Imu,
+	nav_msgs::Odometry
+> policy;
 
 int main(int argc, char** argv)
 {
@@ -60,8 +69,8 @@ int main(int argc, char** argv)
 	message_filters::Subscriber<sensor_msgs::JointState>
 		joint_state_sub(node_handle, "/hyq/joint_states", 1);
 
-	message_filters::Subscriber<geometry_msgs::PoseWithCovarianceStamped>
-		pose_sub(node_handle, "/hyq/pose", 1);
+	// message_filters::Subscriber<geometry_msgs::PoseWithCovarianceStamped>
+	// 	pose_sub(node_handle, "/hyq/pose", 1);
 
 	// message_filters::Subscriber<sensor_msgs::Imu>
 	// 	imu_sub(node_handle, "/hyq/imu", 1);
@@ -70,21 +79,22 @@ int main(int argc, char** argv)
 		ground_truth_sub(node_handle, "/hyq/ground_truth", 1);
 
 
-	message_filters::TimeSynchronizer
-		<
-			sensor_msgs::JointState,
-			geometry_msgs::PoseWithCovarianceStamped,
-			// sensor_msgs::Imu,
-			nav_msgs::Odometry
-		>
-		sync
-		(
-			joint_state_sub,
-			pose_sub,
-			// imu_sub,
-			ground_truth_sub,
-			10
-		);
+	message_filters::Synchronizer<policy> sync(policy(10), joint_state_sub, ground_truth_sub);
+	// message_filters::sync_policies::ApproximateTime
+	// 	<
+	// 		sensor_msgs::JointState,
+	// 		// geometry_msgs::PoseWithCovarianceStamped,
+	// 		// sensor_msgs::Imu,
+	// 		nav_msgs::Odometry
+	// 	>
+	// 	sync
+	// 	(
+	// 		joint_state_sub,
+	// 		// pose_sub,
+	// 		// imu_sub,
+	// 		ground_truth_sub,
+	// 		10
+	// 	);
 
 	sync.registerCallback(callback);
 
@@ -96,7 +106,7 @@ int main(int argc, char** argv)
 void callback
 (
 	const sensor_msgs::JointState &joint_states,
-	const geometry_msgs::PoseWithCovarianceStamped &pose,
+	// const geometry_msgs::PoseWithCovarianceStamped &pose,
 	// const sensor_msgs::Imu &imu,
 	const nav_msgs::Odometry &ground_truth
 )
@@ -111,23 +121,23 @@ void callback
 	joint_state_msg.effort(joint_states.effort);
 	blind_state_msg.joint_state(joint_state_msg);
 
-	// Fill the body pose
-	// pose.pose.pose because ros is poorly designed
-	Eigen::Vector3d position;
-	position << pose.pose.pose.position.x,
-				pose.pose.pose.position.y,
-				pose.pose.pose.position.z;
+	// // Fill the body pose
+	// // pose.pose.pose because ros is poorly designed
+	// Eigen::Vector3d position;
+	// position << pose.pose.pose.position.x,
+	// 			pose.pose.pose.position.y,
+	// 			pose.pose.pose.position.z;
 
-	Eigen::Quaterniond quat
-		(
-			pose.pose.pose.orientation.w,
-			pose.pose.pose.orientation.x,
-			pose.pose.pose.orientation.y,
-			pose.pose.pose.orientation.z
-		);
+	// Eigen::Quaterniond quat
+	// 	(
+	// 		pose.pose.pose.orientation.w,
+	// 		pose.pose.pose.orientation.x,
+	// 		pose.pose.pose.orientation.y,
+	// 		pose.pose.pose.orientation.z
+	// 	);
 
-	Pose p(position, quat);
-	blind_state_msg.body_pose(p);
+	// Pose p(position, quat);
+	// blind_state_msg.body_pose(p);
 
 	// Fill the body velocity
 	blind_state_msg.body_velocity().linear(
