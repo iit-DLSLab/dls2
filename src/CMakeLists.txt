@@ -310,6 +310,14 @@ add_dependencies(dls_dummy_gait_generator messagelib)
 list(APPEND PROJECT_TARGETS dls_dummy_gait_generator)
 
 add_library(
+	dls_prep_gait_generator
+	SHARED
+	gait_generator/prep_gait_generator.cpp
+)
+add_dependencies(dls_prep_gait_generator messagelib)
+list(APPEND PROJECT_TARGETS dls_prep_gait_generator)
+
+add_library(
 	dls_dummy_estimator
 	SHARED
 	estimator/dummy_estimator.cpp
