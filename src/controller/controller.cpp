@@ -22,7 +22,10 @@
 #include "todo.h"
 #include "util/debug/debug.hpp"
 #include "topics/gait_signal.hpp"
+#include "fastrtps_wrappers/blind_state_signal.hpp"
 #include "topics/control_signal_base.hpp"
+#include "topics/low_level_estimation/blind_state.hpp"
+
 // =============================================================================
 // Constructors
 // =============================================================================
@@ -41,18 +44,12 @@ Controller::Controller
 	pGait_signal(nullptr),
 	gait_signal_mutex(),
 	pControl_signal(nullptr),
-	pControl_signal_mutex(),
+	control_signal_mutex(),
+	pBlind_state_signal(nullptr),
+	blind_state_signal_mutex(),
 	should_run(false),
-	listener
-	(
-		std::shared_ptr<Controller>
-		(
-			this,
-			[](Controller*){} // do not use the shared pointer to delete the object
-		)
-	),
-	// TODO the topic name should be defined by a static member function
-	// accessible to anyone
+	gait_listener(std::shared_ptr<Controller>(this,[](Controller*){})),
+	blind_state_listener(std::shared_ptr<Controller>(this,[](Controller*){})),
 	control_signal_topic(std::string(topics::control_signal_base) + name_),
 	publisher(control_signal_topic)
 { }
@@ -71,6 +68,12 @@ std::shared_ptr<const GaitSignal> Controller::readGaitSignal() const
 	return this->pGait_signal;
 }
 
+std::shared_ptr<const BlindStateSignal> Controller::readBlindStateSignal() const
+{
+	std::lock_guard<std::mutex> lock(this->blind_state_signal_mutex);
+	return this->pBlind_state_signal;
+}
+
 void Controller::publishSignal(const ControlSignal &msg)
 {
 	ControlSignalMsg p = msg;
@@ -85,18 +88,34 @@ std::string Controller::getControlSignalTopic() const
 // =============================================================================
 // FastRTPS
 // =============================================================================
-Controller::SubListener::SubListener(std::shared_ptr<Controller> p) :
+Controller::GaitListener::GaitListener(std::shared_ptr<Controller> p) :
 	SubscriberBase<GaitSignalMsgPubSubType>(topics::gait_signal),
 	pOwner(p),
 	info()
 { }
 
-void Controller::SubListener::onNewDataMessage(eprosima::fastrtps::Subscriber *pSub)
+void Controller::GaitListener::onNewDataMessage(eprosima::fastrtps::Subscriber *pSub)
 {
 	GaitSignalMsg st;
 	if(pSub->takeNextData(&st, &info))
 	{
 		std::lock_guard<std::mutex> lock(pOwner->gait_signal_mutex);
 		pOwner->pGait_signal = std::make_shared<const GaitSignal>(st);
+	}
+}
+
+Controller::BlindStateListener::BlindStateListener(std::shared_ptr<Controller> p) :
+	SubscriberBase<BlindStateMsgPubSubType>(topics::low_level_estimation::blind_state),
+	pOwner(p),
+	info()
+{ }
+
+void Controller::BlindStateListener::onNewDataMessage(eprosima::fastrtps::Subscriber *pSub)
+{
+	BlindStateMsg bs;
+	if(pSub->takeNextData(&bs, &info))
+	{
+		std::lock_guard<std::mutex> lock(pOwner->blind_state_signal_mutex);
+		pOwner->pBlind_state_signal = std::make_shared<const BlindStateSignal>(bs);
 	}
 }

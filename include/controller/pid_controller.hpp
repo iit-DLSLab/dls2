@@ -17,49 +17,29 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-#include "gait_generator/prep_gait_generator.hpp"
-#include "util/debug/debug.hpp"
-#include "geometry/pose.hpp"
-#include "util/log/log.hpp"
+#ifndef PID_CONTROLLER_HPP_YGHMJHQN
+#define PID_CONTROLLER_HPP_YGHMJHQN
 
-PrepGaitGenerator::PrepGaitGenerator(const std::shared_ptr<Dog> &pDog) : GaitGenerator
+#include "controller/controller.hpp"
+#include <iostream>
+
+TODO("This is a dummy class. Remove it, its cpp file, as well as its entry in the CMakeLists file")
+class PidController : public Controller
+{
+public:
+	PidController
 	(
-		pDog,
-		"prep_gait_generator",
-		std::chrono::duration<double>(1)
-	)
-{
-	logging::clog << "prep gait generator launched" << logging::endl;
-}
+		const std::shared_ptr<Dog> &dog
+		// const std::string &name,
+		// const period_t &period
+	);
 
-PrepGaitGenerator::PrepGaitGenerator() : PrepGaitGenerator(std::make_shared<Dog>())
-{
-	logging::clog << "prep gait generator destroyed" << logging::endl;
-}
+	PidController();
 
-void PrepGaitGenerator::run(const std::chrono::system_clock::time_point &time)
-{
-	logging::clog << "Prep Gait Generator Epoch" << logging::endl;
-	GaitSignal data;
+	void run(const std::chrono::system_clock::time_point &time) override;
 
-	Eigen::VectorXd q; q << -0.2, 0.7, -1.4, -0.2, 0.7, -1.4, -0.2, -0.7, 1.4, -0.2, -0.7, 1.4;
-	Eigen::VectorXd qd;	qd << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
-	Eigen::VectorXd qdd; qdd << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
-	data.desired_joint_position = q;
-	data.desired_joint_velocity = qd;
-	data.desired_joint_acceleration = qdd;
+	// Status stop() override { return getStatus(); }
+	Status eStop() override { return getStatus(); }
+};
 
-	publishData(data);
-	time.time_since_epoch();
-}
-
-extern "C" GaitGenerator *create()
-{
-	auto p = new PrepGaitGenerator;
-	return p;
-}
-
-extern "C" void destroy(GaitGenerator *p)
-{
-	delete p;
-}
+#endif /* end of include guard: PID_CONTROLLER_HPP_YGHMJHQN */

@@ -47,7 +47,7 @@ struct GaitSignal
 	Screw desired_base_velocity;		///< The desired velocity of the base frame
 	Screw desired_base_acceleration;	///< The desired acceleration of the base frame
 
-	Eigen::VectorXd desired_joint_state;			///< The desired joint state
+	Eigen::VectorXd desired_joint_position;			///< The desired joint position
 	Eigen::VectorXd desired_joint_velocity;			///< The desired joint velocity
 	Eigen::VectorXd desired_joint_acceleration;		///< The desired joint acceleration
 

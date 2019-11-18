@@ -36,7 +36,7 @@ GaitSignal::GaitSignal() :
     desired_base_velocity(),
     desired_base_acceleration(),
 
-    desired_joint_state(),
+    desired_joint_position(),
     desired_joint_velocity(),
     desired_joint_acceleration(),
 
@@ -45,8 +45,8 @@ GaitSignal::GaitSignal() :
     TODO("Robot is unimplemented")
     int joint_space_dimension = Robot::getJointSpaceDimension();
 
-    desired_joint_state.resize(joint_space_dimension, 1);
-	desired_joint_state   =   Eigen::MatrixXd::Zero(joint_space_dimension,	 1);
+    desired_joint_position.resize(joint_space_dimension, 1);
+	desired_joint_position   =   Eigen::MatrixXd::Zero(joint_space_dimension,	 1);
 
     desired_joint_velocity.resize(joint_space_dimension, 1);
 	desired_joint_velocity	=  Eigen::MatrixXd::Zero(joint_space_dimension,  1);
@@ -74,7 +74,7 @@ GaitSignal::GaitSignal(GaitSignalMsg msg) :
     desired_base_velocity(msg.desired_base_velocity()),
     desired_base_acceleration(msg.desired_base_acceleration()),
 
-    desired_joint_state
+    desired_joint_position
     (
         Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>
         (
@@ -123,7 +123,7 @@ GaitSignal::operator GaitSignalMsg() const
     TODO("Robot is unimplemented")
     int joint_space_dimension = Robot::getJointSpaceDimension();
 
-    const double *p = this->desired_joint_state.data();
+    const double *p = this->desired_joint_position.data();
 	std::vector<double> desired_joint_state_temp;
 	desired_joint_state_temp.resize(joint_space_dimension);
 	std::copy(p, p + joint_space_dimension, desired_joint_state_temp.begin());

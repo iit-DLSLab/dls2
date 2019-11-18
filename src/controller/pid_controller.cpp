@@ -17,49 +17,51 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-#include "gait_generator/prep_gait_generator.hpp"
+#include "controller/pid_controller.hpp"
 #include "util/debug/debug.hpp"
-#include "geometry/pose.hpp"
 #include "util/log/log.hpp"
 
-PrepGaitGenerator::PrepGaitGenerator(const std::shared_ptr<Dog> &pDog) : GaitGenerator
+PidController::PidController (const std::shared_ptr<Dog> &dog) : Controller
 	(
-		pDog,
-		"prep_gait_generator",
-		std::chrono::duration<double>(1)
+		dog,
+		"pid_controller",
+		std::chrono::duration<double>(1),
+		ControlSignal::SignalReconstructionMethod::ZERO_ORDER_HOLD
 	)
 {
-	logging::clog << "prep gait generator launched" << logging::endl;
+	logging::clog << "pid controller launched" << logging::endl;
 }
 
-PrepGaitGenerator::PrepGaitGenerator() : PrepGaitGenerator(std::make_shared<Dog>())
+PidController::PidController() : PidController(std::make_shared<Dog>())
 {
-	logging::clog << "prep gait generator destroyed" << logging::endl;
+	logging::clog << "pid controller destroyed" << logging::endl;
 }
 
-void PrepGaitGenerator::run(const std::chrono::system_clock::time_point &time)
+void PidController::run(const std::chrono::system_clock::time_point &time)
 {
-	logging::clog << "Prep Gait Generator Epoch" << logging::endl;
-	GaitSignal data;
+	logging::clog << "PID Controller Epoch" << logging::endl;
+	auto pGait_signal = this->readGaitSignal();
+	auto pBlind_state_signal = this->readBlindStateSignal();
+	
+	double kp = 300.0;
+	//double ki = 0.0;
+	double kd = 10.0;
+	
+	Eigen::VectorXd tau = kp*(pGait_signal->desired_joint_position-pBlind_state_signal->joint_position) + kd*(pGait_signal->desired_joint_velocity-pBlind_state_signal->joint_velocity);
+	ControlSignal s;
+	s.torques=tau;
+	publishSignal(s);
 
-	Eigen::VectorXd q; q << -0.2, 0.7, -1.4, -0.2, 0.7, -1.4, -0.2, -0.7, 1.4, -0.2, -0.7, 1.4;
-	Eigen::VectorXd qd;	qd << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
-	Eigen::VectorXd qdd; qdd << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
-	data.desired_joint_position = q;
-	data.desired_joint_velocity = qd;
-	data.desired_joint_acceleration = qdd;
-
-	publishData(data);
 	time.time_since_epoch();
 }
 
-extern "C" GaitGenerator *create()
+extern "C" Controller *create()
 {
-	auto p = new PrepGaitGenerator;
+	auto p = new PidController;
 	return p;
 }
 
-extern "C" void destroy(GaitGenerator *p)
+extern "C" void destroy(Controller *p)
 {
 	delete p;
 }
