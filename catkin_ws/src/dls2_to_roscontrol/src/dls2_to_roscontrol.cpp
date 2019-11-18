@@ -3,6 +3,8 @@
 // fastrtps
 #include "topics/desired_torques.hpp"
 
+// TODO remove all ROS_ERROR for new logging
+
 namespace dls2_to_roscontrol {
 
 Dls2ToRoscontrol::Dls2ToRoscontrol()
@@ -21,29 +23,54 @@ bool Dls2ToRoscontrol::init(hardware_interface::JointCommandAdvInterface *pJoint
 	char joint_names[12][13] = {"lf_haa_joint","lf_hfe_joint","lf_kfe_joint","rf_haa_joint","rf_hfe_joint","rf_kfe_joint","lh_haa_joint","lh_hfe_joint","lh_kfe_joint","rh_haa_joint","rh_hfe_joint","rh_kfe_joint"};
 	for (int i = 0; i < num_joints; i++)
 	{
-		joint_commands_.push_back(pJoint_command_adv_interface->getHandle(joint_names[i]));
+		try {
+			joint_commands_.push_back(pJoint_command_adv_interface->getHandle(joint_names[i]));
+		} catch (hardware_interface::HardwareInterfaceException ex)
+		{
+			ROS_ERROR_STREAM("ERROR: " << joint_names[i] << " does not exist.");	
+		} catch (...)
+		{
+			ROS_ERROR("UNKOWN ERROR");
+		}
+		
 	}
 	return true;
 }
 
 void Dls2ToRoscontrol::update(const ros::Time &time, const ros::Duration &period)
 {
+	//READ
+	for(size_t i = 0; i != 12; ++i)
+	{
+		std::cout << "i=" << i << ":\n";
+		std::cout << "q=" << joint_commands_[i].getPosition() << "\n";
+		std::cout << "qdot=" << joint_commands_[i].getVelocity() << "\n";
+		std::cout << "qddot=" << joint_commands_[i].getEffort() << "\n";
+	}
+	
+	//WRITE
 	if(auto pMsg = this->control_signal_listener.getSignal())
 	{
 		// message received from framework
 		// for (auto jc : joint_commands_)
 		std::vector<double> vec = pMsg->desired_torques();
-		for(auto el : vec)
+		if (vec.size()!=12)
 		{
-			std::cout << el << " " << std::endl;
+			std::cout << "Desired torque vector size error (" << vec.size() << ").  Writing 0 torque" << std::endl;
+			for(size_t i = 0; i != 12; ++i)
+			{
+				joint_commands_[i].setCommand(0,0,0);
+				joint_commands_[i].setCommandGains(1,1,1);
+			}
 		}
-		std::cout << std::endl;
-
-		for(size_t i = 0; i != 12; ++i)
+		else
 		{
-			joint_commands_.setCommand(0,0,vec[i]);
-			joint_commands_.setCommandGains(1,1,1);
-		}
+			for(size_t i = 0; i != 12; ++i)
+			{
+				joint_commands_[i].setCommand(0,0,vec[i]);
+				joint_commands_[i].setCommandGains(1,1,1);
+			}
+		} 
 	}
 }
 

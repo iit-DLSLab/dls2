@@ -43,7 +43,8 @@ private:
 	} control_signal_listener;
 };
 
-PLUGINLIB_DECLARE_CLASS(dls2_ros_control, Dls2ToRoscontrol, dls2_to_roscontrol::Dls2ToRoscontrol, controller_interface::ControllerBase);
+//PLUGINLIB_DECLARE_CLASS(dls2_to_roscontrol, Dls2ToRoscontrol, dls2_to_roscontrol::Dls2ToRoscontrol, controller_interface::ControllerBase);
+PLUGINLIB_EXPORT_CLASS(dls2_to_roscontrol::Dls2ToRoscontrol, controller_interface::ControllerBase)
 
 } //namespace dls2_to_roscontrol
 

@@ -29,11 +29,12 @@ catkin_package(
   DEPENDS
 )
 
-include_directories(${PROJECT_SOURCE_DIR}/include SYSTEM ${catkin_INCLUDE_DIRS})
+include_directories(${PROJECT_SOURCE_DIR}/include SYSTEM ${catkin_INCLUDE_DIRS} ${ROOT_PROJECT_DIRECTORY}/gen/include)
+link_directories(${ROOT_PROJECT_DIRECTORY}/bin/debug/)
 
 add_library(${PROJECT_NAME} src/dls2_to_roscontrol.cpp)
 
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} fastrtps fastcdr dls_framework dls_messaging)
 
 install(TARGETS ${PROJECT_NAME}
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
@@ -41,7 +42,7 @@ install(TARGETS ${PROJECT_NAME}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
   )
 
-install(FILES dls_supervisor_plugin.xml DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})  
+install(FILES dls2_to_roscontrol_plugin.xml DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})  
 
 install(DIRECTORY launch/ DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch)
 

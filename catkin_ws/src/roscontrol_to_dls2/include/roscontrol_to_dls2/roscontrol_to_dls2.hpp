@@ -20,6 +20,7 @@
 #ifndef ROSCONTROL_TO_DLS2_HPP_X8TSOKXU
 #define ROSCONTROL_TO_DLS2_HPP_X8TSOKXU
 
+<<<<<<< HEAD
 // Ros subscription
 #include <message_filters/subscriber.h>
 #include <message_filters/time_synchronizer.h>
@@ -51,5 +52,21 @@ private:
 };
 
 } // namespace roscontrol_to_dls2
+=======
+//#include "util/messaging/publisher_base.hpp"
+//#include "msg/blind_state.h"
+
+namespace roscontrol_to_dls2
+{
+	class RoscontrolToDls2
+	{
+	public:
+		RoscontrolToDls2();
+
+	private:
+		//PublisherBase<BlindStateMsgPubSubType> state_pub;
+	};
+}
+>>>>>>> 8dbd1c57921f616aaf1ab47727de16fd5748311c
 
 #endif /* end of include guard: ROSCONTROL_TO_DLS2_HPP_X8TSOKXU */
