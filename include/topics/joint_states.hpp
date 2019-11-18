@@ -17,39 +17,12 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-#ifndef ROSCONTROL_TO_DLS2_HPP_X8TSOKXU
-#define ROSCONTROL_TO_DLS2_HPP_X8TSOKXU
+#ifndef JOINT_STATES_HPP_SDXZW7IR
+#define JOINT_STATES_HPP_SDXZW7IR
 
-// Ros subscription
-#include <message_filters/subscriber.h>
-#include <message_filters/time_synchronizer.h>
-#include <geometry_msgs/Pose.h>
-#include <geometry_msgs/Twist.h>
-#include <sensor_msgs/JointState.h>
-
-// Fastrtps publishing
-#include "util/messaging/publisher_base.hpp"
-#include "msg/blind_statePubSubTypes.h"
-
-namespace roscontrol_to_dls2
+namespace topics
 {
+	constexpr auto joint_states = "joint_states";
+}
 
-class RoscontrolToDls2
-{
-public:
-	RoscontrolToDls2();
-
-private:
-	ros::NodeHandle ros_node;
-	PublisherBase<BlindStateMsgPubSubType> state_pub;
-
-	message_filters::Subscriber<JointState> joint_state_sub;
-	message_filters::Subscriber<Pose> pose_sub;
-	message_filters::Subscriber<Twist> velocity_sub;
-	message_filters::Subscriber<Twist> acceleration_sub;
-
-};
-
-} // namespace roscontrol_to_dls2
-
-#endif /* end of include guard: ROSCONTROL_TO_DLS2_HPP_X8TSOKXU */
+#endif /* end of include guard: JOINT_STATES_HPP_SDXZW7IR */

@@ -10,7 +10,9 @@
 // fastrtps
 #include "todo.h"
 #include "util/messaging/subscriber_base.hpp"
+#include "util/messaging/publisher_base.hpp"
 #include "msg/desired_torquesPubSubTypes.h"
+#include "msg/joint_statePubSubTypes.h"
 #include <mutex>
 #include <memory>
 
@@ -41,6 +43,8 @@ private:
 			std::mutex msg_mutex;
 		// END Critical section
 	} control_signal_listener;
+
+	PublisherBase<JointStateMsgPubSubType> joint_state_pub_;
 };
 
 //PLUGINLIB_DECLARE_CLASS(dls2_to_roscontrol, Dls2ToRoscontrol, dls2_to_roscontrol::Dls2ToRoscontrol, controller_interface::ControllerBase);
