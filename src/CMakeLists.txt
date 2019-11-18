@@ -248,7 +248,6 @@ set_property(
 )
 add_dependencies(dls2_to_roscontrol dls_framework dls_messaging)
 
-
 # ==============================================================================
 # Main Executable
 # ==============================================================================
@@ -318,7 +317,20 @@ add_dependencies(dls_dummy_estimator messagelib)
 list(APPEND PROJECT_TARGETS dls_dummy_estimator)
 # target_link_libraries(dummy_gait_generator dls_geometry)
 
-# =============================================================================
+# ==============================================================================
+# Tools
+# ==============================================================================
+add_executable(topic_info
+	${CMAKE_SOURCE_DIR}/src/util/topic_info/topic_info.cpp
+	${CMAKE_SOURCE_DIR}/src/util/topic_info/topic_info_main.cpp
+)
+target_link_libraries(topic_info
+	fastcdr
+	fastrtps
+	dls_messaging
+)
+
+# ==============================================================================
 # Convencience Targets
 # ==============================================================================
 # TODO remove dummy_controller from here
