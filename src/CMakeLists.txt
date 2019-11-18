@@ -272,7 +272,14 @@ target_sources(
 	sensors/sensor_base.cpp
 )
 
-add_dependencies(${EXECUTABLE_NAME} messagelib dls_controller_process dls_gait_generator_process dls2_to_roscontrol)
+add_dependencies(${EXECUTABLE_NAME}
+	messagelib
+	dls_controller_process
+	dls_gait_generator_process
+	dls2_to_roscontrol
+	dls_pid_controller
+	dls_prep_gait_generator
+)
 
 target_link_libraries(
 	${EXECUTABLE_NAME}
@@ -365,6 +372,7 @@ target_link_libraries(topic_info
 	# dls_estimatorinterface
 	# dls_framework
 )
+
 
 # ==============================================================================
 # Convencience Targets

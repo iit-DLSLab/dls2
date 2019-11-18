@@ -30,6 +30,7 @@ PrepGaitGenerator::PrepGaitGenerator(const std::shared_ptr<Dog> &pDog) : GaitGen
 	)
 {
 	logging::clog << "prep gait generator launched" << logging::endl;
+	std::cout << "CONSTRUCT PREP" << std::endl;
 }
 
 PrepGaitGenerator::PrepGaitGenerator() : PrepGaitGenerator(std::make_shared<Dog>())
@@ -42,9 +43,9 @@ void PrepGaitGenerator::run(const std::chrono::system_clock::time_point &time)
 	logging::clog << "Prep Gait Generator Epoch" << logging::endl;
 	GaitSignal data;
 
-	Eigen::VectorXd q; q << -0.2, 0.7, -1.4, -0.2, 0.7, -1.4, -0.2, -0.7, 1.4, -0.2, -0.7, 1.4;
-	Eigen::VectorXd qd;	qd << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
-	Eigen::VectorXd qdd; qdd << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
+	Eigen::VectorXd q; q.resize(12); q << -0.2, 0.7, -1.4, -0.2, 0.7, -1.4, -0.2, -0.7, 1.4, -0.2, -0.7, 1.4;
+	Eigen::VectorXd qd;	qd.resize(12); qd << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
+	Eigen::VectorXd qdd; qdd.resize(12);qdd << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
 	data.desired_joint_position = q;
 	data.desired_joint_velocity = qd;
 	data.desired_joint_acceleration = qdd;
