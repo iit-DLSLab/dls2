@@ -31,6 +31,8 @@ public:
 	PrepGaitGenerator(const std::shared_ptr<Dog> &pDog);
 	void run(const std::chrono::system_clock::time_point&);
 	AppLayerComponent::Status eStop() override {return getStatus();}
+private:
+	GaitSignal data;
 };
 
 
