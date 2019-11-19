@@ -24,7 +24,7 @@ ControlSignal::ControlSignal() :
 { }
 
 ControlSignal::ControlSignal(ControlSignalMsg msg) :
-	torques(Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(msg.torques().data(), msg.torques().size())),
+	torques(Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(msg.torques().data(), 12)),
 	signal_reconstruction_method((SignalReconstructionMethod)msg.signal_reconstruction_method())
 { }
 
@@ -32,8 +32,8 @@ ControlSignal::operator ControlSignalMsg() const
 {
 	ControlSignalMsg msg;
 
-	msg.torques().resize(this->torques.size());
-	Eigen::VectorXd::Map(&msg.torques()[0], this->torques.size()) = this->torques;
+	msg.torques().resize(12);
+	Eigen::VectorXd::Map(&msg.torques()[0], 12) = this->torques;
 
 	msg.signal_reconstruction_method((uint64_t)this->signal_reconstruction_method);
 

@@ -5,13 +5,15 @@
 #include <hardware_interface/robot_hw.h>
 #include <dls_hardware_interface/joint_command_adv_interface.h>
 #include <controller_interface/controller.h>
+#include <controller/control_signal.hpp>
 #include <pluginlib/class_list_macros.h>
 
 // fastrtps
 #include "todo.h"
 #include "util/messaging/subscriber_base.hpp"
 #include "util/messaging/publisher_base.hpp"
-#include "msg/desired_torquesPubSubTypes.h"
+//#include "msg/desired_torquesPubSubTypes.h"
+#include "msg/control_signalPubSubTypes.h"
 #include "msg/joint_statePubSubTypes.h"
 #include <mutex>
 #include <memory>
@@ -29,17 +31,17 @@ public:
 private:
 	std::vector<hardware_interface::JointCommandAdvHandle> joint_commands_;
 
-	class ControlMsgListener : public SubscriberBase<DesiredTorquesMsgPubSubType>
+	class ControlMsgListener : public SubscriberBase<ControlSignalMsgPubSubType>
 	{
 	public:
 		ControlMsgListener();
-		std::shared_ptr<DesiredTorquesMsg> getSignal();
+		std::shared_ptr<ControlSignalMsg> getSignal();
 
 	private:
 		void onNewDataMessage(eprosima::fastrtps::Subscriber *sub) override;
 		eprosima::fastrtps::SampleInfo_t info;
 		// BEGIN Critical section
-			std::shared_ptr<DesiredTorquesMsg> pMsg;
+			std::shared_ptr<ControlSignalMsg> pMsg;
 			std::mutex msg_mutex;
 		// END Critical section
 	} control_signal_listener;

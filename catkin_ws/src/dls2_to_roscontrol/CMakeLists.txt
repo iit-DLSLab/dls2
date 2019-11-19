@@ -30,11 +30,11 @@ catkin_package(
 )
 
 include_directories(${PROJECT_SOURCE_DIR}/include SYSTEM ${catkin_INCLUDE_DIRS} ${ROOT_PROJECT_DIRECTORY}/gen/include)
-link_directories(${ROOT_PROJECT_DIRECTORY}/bin/debug/)
+link_directories(BEFORE ${ROOT_PROJECT_DIRECTORY}/bin/debug)
 
 add_library(${PROJECT_NAME} src/dls2_to_roscontrol.cpp)
 
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} fastrtps fastcdr dls_framework dls_messaging)
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} fastrtps fastcdr dls_messaging) #dynamic_legged_systems_framework 
 
 install(TARGETS ${PROJECT_NAME}
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}

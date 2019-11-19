@@ -25,7 +25,7 @@ PidController::PidController (const std::shared_ptr<Dog> &dog) : Controller
 	(
 		dog,
 		"pid_controller",
-		std::chrono::duration<double>(1),
+		std::chrono::milliseconds(4),
 		ControlSignal::SignalReconstructionMethod::ZERO_ORDER_HOLD
 	)
 {
@@ -45,18 +45,27 @@ void PidController::run(const std::chrono::system_clock::time_point &time)
 
 	if(pBlind_state_signal && pGait_signal)
 	{
+		
+		Eigen::Matrix<double,1,12> kp; kp << 300,300,200,300,300,200,300,300,200,300,300,200;
+		Eigen::Matrix<double,1,12> kd; kd << 10,10,6,10,10,6,10,10,6,10,10,6;		
+		Eigen::VectorXd tau = pGait_signal->desired_joint_position;
 
-		double kp = 300.0;
-		//double ki = 0.0;
-		double kd = 10.0;
-
-		Eigen::VectorXd tau = kp*(pGait_signal->desired_joint_position-pBlind_state_signal->joint_position) + kd*(pGait_signal->desired_joint_velocity-pBlind_state_signal->joint_velocity);
+		// TODO VERY IMPORTANT - Middle legs are swapped
+		for (int i=0;i<3;i++)
+		{
+			tau[i] = kp[i]*(pGait_signal->desired_joint_position[i]-pBlind_state_signal->joint_position[i]) + kd[i]*(pGait_signal->desired_joint_velocity[i]-pBlind_state_signal->joint_velocity[i]);
+			tau[i+3] = kp[i+3]*(pGait_signal->desired_joint_position[i+3]-pBlind_state_signal->joint_position[i+6]) + kd[i+3]*(pGait_signal->desired_joint_velocity[i+3]-pBlind_state_signal->joint_velocity[i+6]);
+			tau[i+6] = kp[i+6]*(pGait_signal->desired_joint_position[i+6]-pBlind_state_signal->joint_position[i+3]) + kd[i+6]*(pGait_signal->desired_joint_velocity[i+6]-pBlind_state_signal->joint_velocity[i+3]);
+			tau[i+9] = kp[i+9]*(pGait_signal->desired_joint_position[i+9]-pBlind_state_signal->joint_position[i+9]) + kd[i+9]*(pGait_signal->desired_joint_velocity[i+9]-pBlind_state_signal->joint_velocity[i+9]);
+		}
+		
 		ControlSignal s;
-		s.torques=tau;
+		s.torques.resize(12);
+		s.torques << tau;
 		publishSignal(s);
-
 		time.time_since_epoch();
 	}
+
 }
 
 extern "C" Controller *create()

@@ -1,8 +1,10 @@
 #include "dls2_to_roscontrol/dls2_to_roscontrol.hpp"
 
 // fastrtps
-#include "topics/desired_torques.hpp"
+//#include "topics/desired_torques.hpp"
+#include "topics/control_signal_base.hpp"
 #include "topics/joint_states.hpp"
+#include "controller/control_signal.hpp"
 
 // TODO remove all ROS_ERROR for new logging
 
@@ -57,25 +59,36 @@ void Dls2ToRoscontrol::update(const ros::Time &time, const ros::Duration &period
 	//WRITE
 	if(auto pMsg = this->control_signal_listener.getSignal())
 	{
+		ControlSignal s; // *pMsg
 		// message received from framework
 		// for (auto jc : joint_commands_)
-		std::vector<double> vec = pMsg->desired_torques();
-		if (vec.size()!=12)
+		//std::vector<double> vec = pMsg->desired_torques();
+		
+		if (pMsg->torques().size()!=12)
 		{
-			std::cout << "Desired torque vector size error (" << vec.size() << ").  Writing 0 torque" << std::endl;
+			std::cout << "Desired torque vector size error (" << pMsg->torques().size() << ").  Writing 0 torque" << std::endl;
 			for(size_t i = 0; i != 12; ++i)
 			{
-				joint_commands_[i].setCommand(0,0,0);
-				joint_commands_[i].setCommandGains(1,1,1);
+				joint_commands_[i].setCommandEffort(0.0);
 			}
 		}
 		else
 		{
 			for(size_t i = 0; i != 12; ++i)
 			{
-				joint_commands_[i].setCommand(0,0,vec[i]);
-				joint_commands_[i].setCommandGains(1,1,1);
+				joint_commands_[i].setCommandPosition(0.0);
+				joint_commands_[i].setCommandVelocity(0.0);
+				joint_commands_[i].setCommandEffort(pMsg->torques()[i]);
+				joint_commands_[i].setCommandGains(0.0,0.0,0.0);
 			}
+		}
+	}
+	else
+	{
+		std::cout << "No Control signal. Writing 0 torque." << std::endl;
+		for(size_t i = 0; i != 12; ++i)
+		{
+			joint_commands_[i].setCommandEffort(0.0);
 		}
 	}
 }
@@ -88,8 +101,8 @@ void Dls2ToRoscontrol::stopping(const ros::Time &time) { }
 // =============================================================================
 
 Dls2ToRoscontrol::ControlMsgListener::ControlMsgListener() :
-	SubscriberBase<DesiredTorquesMsgPubSubType>(topics::desired_torques),
-	pMsg(new DesiredTorquesMsg)
+	SubscriberBase<ControlSignalMsgPubSubType>("control_signal_pid_controller"),
+	pMsg(new ControlSignalMsg)
 { }
 
 void Dls2ToRoscontrol::ControlMsgListener::onNewDataMessage(eprosima::fastrtps::Subscriber *sub)
@@ -98,7 +111,7 @@ void Dls2ToRoscontrol::ControlMsgListener::onNewDataMessage(eprosima::fastrtps::
 	sub->takeNextData((void*)this->pMsg.get(), &info);
 }
 
-std::shared_ptr<DesiredTorquesMsg> Dls2ToRoscontrol::ControlMsgListener::getSignal()
+std::shared_ptr<ControlSignalMsg> Dls2ToRoscontrol::ControlMsgListener::getSignal()
 {
 	std::lock_guard<std::mutex> lock(this->msg_mutex);
 	return this->pMsg;
