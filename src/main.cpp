@@ -56,7 +56,7 @@ TODO("temporary incude")
 /// Pointer to application
 std::shared_ptr<HyQApp> pApp;
 
-void handle_args(int argc, char **argv);
+bool handle_args(int argc, char **argv);
 
 /// Change the name of a process for ease of monitoring inside of htop, ps etc
 ///
@@ -75,7 +75,7 @@ int main(int argc, char **argv)
 			<< PROJECT_MINOR << "." << PROJECT_PATCH << std::endl;
 	#endif
 	// Runtime Configuration
-	handle_args(argc, argv);
+	bool only_start_log = handle_args(argc, argv);
 
 	// Create application
 	pApp = std::make_shared<HyQApp>();
@@ -95,7 +95,7 @@ int main(int argc, char **argv)
 		pApp->addLayer(pHardwareLayer);
 
 		TODO("Run should return a status")
-		pApp->run();
+		if (!only_start_log) pApp->run();
 		while(true);
 
 		return 0;
@@ -112,7 +112,7 @@ int main(int argc, char **argv)
 		change_process_name(argv, "log_layer");
 		std::shared_ptr<LogLayer> pLogLayer = std::make_shared<LogLayer>();
 		pApp->addLayer(pLogLayer);
-		pApp->run();
+		if (only_start_log) pApp->run();
 
 		return 0;
 	}
@@ -129,7 +129,7 @@ int main(int argc, char **argv)
 		change_process_name(argv, "console_layer");
 		std::shared_ptr<ConsoleLayer> pConsoleLayer = std::make_shared<ConsoleLayer>();
 		pApp->addLayer(pConsoleLayer);
-		pApp->run();
+		if (!only_start_log) pApp->run();
 
 		return 0;
 	}
@@ -153,7 +153,7 @@ int main(int argc, char **argv)
 
 		TODO("Run should return a status")
 		TODO("Run should be blocking")
-		pApp->run();
+		if (!only_start_log) pApp->run();
 
 		// ============================== Temporary Thing =======================
 		// TODO("This is temporary to simulate user input")
@@ -229,14 +229,21 @@ int main(int argc, char **argv)
 // =============================================================================
 // Helper Functions
 // =============================================================================
-void handle_args(int argc, char **argv)
+bool handle_args(int argc, char **argv)
 {
 	TODO("something useful here")
-	argc += 1;
-	char *a = argv[0];
-	a = argv[1];
-	a += 1;
+	if (argc==2)
+	{
+		if (strncmp (argv[1],"-l",2) == 0)
+		{
+			return true;
+		}
+	}
+	return false;
 }
+
+
+
 
 void change_process_name(char **argv, const std::string &name)
 {
