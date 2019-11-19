@@ -26,7 +26,7 @@ PrepGaitGenerator::PrepGaitGenerator(const std::shared_ptr<Dog> &pDog) : GaitGen
 	(
 		pDog,
 		"prep_gait_generator",
-		std::chrono::milliseconds(4)
+		std::chrono::milliseconds(1)
 	)
 {
 	logging::clog << "prep gait generator launched" << logging::endl;

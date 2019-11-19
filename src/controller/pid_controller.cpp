@@ -25,7 +25,7 @@ PidController::PidController (const std::shared_ptr<Dog> &dog) : Controller
 	(
 		dog,
 		"pid_controller",
-		std::chrono::milliseconds(4),
+		std::chrono::milliseconds(1),
 		ControlSignal::SignalReconstructionMethod::ZERO_ORDER_HOLD
 	)
 {
