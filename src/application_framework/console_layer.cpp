@@ -49,7 +49,11 @@ ConsoleLayer *pInstance = nullptr;
 // =============================================================================
 char *console_completion(const char *text, int state);
 
-PublisherBase<StringMsgPubSubType> activate_controller_pub(topics::activate_controller);
+// TODO these should not be hardcoded
+std::shared_ptr<PublisherBase<StringMsgPubSubType>> pActivate_controller_pub;
+std::shared_ptr<PublisherBase<StringMsgPubSubType>> pDeactivate_controller_pub;
+std::shared_ptr<PublisherBase<StringMsgPubSubType>> pActivate_gait_generator_pub;
+std::shared_ptr<PublisherBase<StringMsgPubSubType>> pDeactivate_gait_generator_pub;
 
 // =============================================================================
 // Constructors
@@ -59,6 +63,24 @@ ConsoleLayer::ConsoleLayer() :
 	commands()
 {
 	pInstance = this;
+
+	// TODO remove these
+	pActivate_controller_pub = std::make_shared<PublisherBase<StringMsgPubSubType>>
+		(
+			topics::activate_controller
+		);
+	pDeactivate_controller_pub = std::make_shared<PublisherBase<StringMsgPubSubType>>
+		(
+			topics::deactivate_controller
+		);
+	pActivate_gait_generator_pub = std::make_shared<PublisherBase<StringMsgPubSubType>>
+		(
+			topics::activate_gait_generator
+		);
+	pDeactivate_gait_generator_pub = std::make_shared<PublisherBase<StringMsgPubSubType>>
+		(
+			topics::deactivate_gait_generator
+		);
 
 	// TODO expose process name here for readline
 	rl_readline_name = "DLS2_READLINE";
@@ -72,15 +94,15 @@ ConsoleLayer::ConsoleLayer() :
 		Command
 		(
 			"activateController",
+			// TODO lambda is currently copied everywhere, but this will
+			// diseappear when everything is made more flexible
 			[](const std::vector<std::string> &vec)
 			{
-				std::cout << "Called function" << std::endl;
 				StringMsg msg;
 				if(vec.size() > 0)
 				{
-					std::cout << "arg is '" << vec[0] << "'" << std::endl;
 					msg.msg(vec[0]);
-					activate_controller_pub.publish(msg);
+					pActivate_controller_pub->publish(msg);
 				}
 			},
 			"activates the controller"
@@ -92,9 +114,14 @@ ConsoleLayer::ConsoleLayer() :
 		Command
 		(
 			"deactivateController",
-			[](const std::vector<std::string>&)
+			[](const std::vector<std::string> &vec)
 			{
-				std::cout << "Called function" << std::endl;
+				StringMsg msg;
+				if(vec.size() > 0)
+				{
+					msg.msg(vec[0]);
+					pDeactivate_controller_pub->publish(msg);
+				}
 			},
 			"deactivates the controller"
 		)
@@ -105,9 +132,14 @@ ConsoleLayer::ConsoleLayer() :
 		Command
 		(
 			"activateGaitGenerator",
-			[](const std::vector<std::string>&)
+			[](const std::vector<std::string> &vec)
 			{
-				std::cout << "Called function" << std::endl;
+				StringMsg msg;
+				if(vec.size() > 0)
+				{
+					msg.msg(vec[0]);
+					pActivate_gait_generator_pub->publish(msg);
+				}
 			},
 			"deactivates the controller"
 		)
@@ -118,9 +150,10 @@ ConsoleLayer::ConsoleLayer() :
 		Command
 		(
 			"deactivateGaitGenerator",
-			[](const std::vector<std::string>&)
+			[](const std::vector<std::string> &)
 			{
-				std::cout << "Called function" << std::endl;
+				StringMsg msg;
+				pDeactivate_gait_generator_pub->publish(msg);
 			},
 			"deactivates the controller"
 		)
