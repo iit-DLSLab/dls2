@@ -140,14 +140,14 @@ void callback
 	// blind_state_msg.body_pose(p);
 
 	// Fill the body velocity
-	blind_state_msg.body_velocity().linear(
+	blind_state_msg.body_velocity_world().linear(
 			{
 				ground_truth.twist.twist.linear.x,
 				ground_truth.twist.twist.linear.y,
 				ground_truth.twist.twist.linear.z
 			}
 		);
-	blind_state_msg.body_velocity().angular(
+	blind_state_msg.body_velocity_world().angular(
 			{
 				ground_truth.twist.twist.angular.x,
 				ground_truth.twist.twist.angular.y,
@@ -157,14 +157,14 @@ void callback
 
 	// Fill the body acceleration
 	// TODO this is currently zero
-	blind_state_msg.body_acceleration().linear(
+	blind_state_msg.body_acceleration_world().linear(
 			{
 				0,
 				0,
 				0
 			}
 		);
-	blind_state_msg.body_acceleration().angular(
+	blind_state_msg.body_acceleration_world().angular(
 			{
 				0,
 				0,

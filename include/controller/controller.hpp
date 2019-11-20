@@ -26,7 +26,7 @@
 #include "application_framework/components/periodic_app_layer_component.hpp"
 #include "gait_generator/gait_signal.hpp"
 #include "controller/control_signal.hpp"
-#include "fastrtps_wrappers/blind_state_signal.hpp"
+#include "fastrtps_wrappers/blind_state.hpp"
 #include "robot/robot.hpp"
 #include "util/messaging/subscriber_base.hpp"
 #include "util/messaging/publisher_base.hpp"
@@ -88,7 +88,7 @@ protected:
 	/// generator
 	std::shared_ptr<const GaitSignal> readGaitSignal() const;
 	
-	std::shared_ptr<const BlindStateSignal> readBlindStateSignal() const;
+	std::shared_ptr<const BlindState> readBlindStateSignal() const;
 
 	/// Sends the control command to the rest of the architecture
 	void publishSignal(const ControlSignal&);
@@ -112,8 +112,8 @@ private:
 	// END critical section
 		
 	// BEGIN critical section
-	std::shared_ptr<const BlindStateSignal> pBlind_state_signal;
-	mutable std::mutex blind_state_signal_mutex;
+		std::shared_ptr<const BlindState> pBlind_state_signal;
+		mutable std::mutex blind_state_signal_mutex;
 	// END crital section
 
 	std::atomic_bool should_run;

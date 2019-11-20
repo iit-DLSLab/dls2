@@ -29,17 +29,17 @@
 #include "msg_wrappers/joint_state.hpp"
 #include "msg_wrappers/screw.hpp"
 
-struct BlindStateSignal
+struct BlindState
 {
-	BlindStateSignal();
+	BlindState();
 	// TODO should this be by const reference?
-	BlindStateSignal(BlindStateMsg);
+	BlindState(BlindStateMsg);
 	operator BlindStateMsg() const;
 
 	JointState joint_state;
-	Pose body_pose;
-	Screw body_velocity;
-	Screw body_acceleration;
+	Pose body_pose_world;
+	Screw body_velocity_world;
+	Screw body_acceleration_world;
 };
 
 #endif /* end of include guard: BLIND_STATE_SIGNAL_HPP */

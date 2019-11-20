@@ -205,7 +205,7 @@ add_library(
 
 	# TODO this should be moved to the messaging library
 	controller/control_signal.cpp
-	fastrtps_wrappers/blind_state_signal.cpp
+	fastrtps_wrappers/blind_state.cpp
 )
 list(APPEND PROJECT_TARGETS dls_controlinterface)
 target_link_libraries(dls_controlinterface dls_geometry)

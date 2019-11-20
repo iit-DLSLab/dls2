@@ -23,7 +23,7 @@
 struct BlindStateMsg
 {
 	JointStateMsg joint_state;
-	PoseMsg body_pose;
-	ScrewMsg body_velocity;
-	ScrewMsg body_acceleration;
+	PoseMsg body_pose_world;
+	ScrewMsg body_velocity_world;
+	ScrewMsg body_acceleration_world;
 };

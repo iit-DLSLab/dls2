@@ -90,16 +90,16 @@ void TopicInfo::BlindStateSub::onNewDataMessage
 					std::cout << "\tPosition";
 						std::for_each
 							(
-								msg.body_pose().position().cbegin(),
-								msg.body_pose().position().cend(),
+								msg.body_pose_world().position().cbegin(),
+								msg.body_pose_world().position().cend(),
 								[](double d){std::cout << d << " ";}
 							);
 					std::cout << "\n";
 					std::cout << "\tQuaternion";
 						std::for_each
 							(
-								msg.body_pose().quaternion().cbegin(),
-								msg.body_pose().quaternion().cend(),
+								msg.body_pose_world().quaternion().cbegin(),
+								msg.body_pose_world().quaternion().cend(),
 								[](double d){std::cout << d << " ";}
 							);
 
@@ -108,8 +108,8 @@ void TopicInfo::BlindStateSub::onNewDataMessage
 					std::cout << "\tLinear: ";
 						std::for_each
 							(
-								msg.body_velocity().linear().cbegin(),
-								msg.body_velocity().angular().cend(),
+								msg.body_velocity_world().linear().cbegin(),
+								msg.body_velocity_world().angular().cend(),
 								[](double d){std::cout << d << " ";}
 							);
 					std::cout << "\n";
@@ -119,8 +119,8 @@ void TopicInfo::BlindStateSub::onNewDataMessage
 					std::cout << "\tLinear: ";
 						std::for_each
 							(
-								msg.body_acceleration().linear().cbegin(),
-								msg.body_acceleration().angular().cend(),
+								msg.body_acceleration_world().linear().cbegin(),
+								msg.body_acceleration_world().angular().cend(),
 								[](double d){std::cout << d << " ";}
 							);
 					std::cout << "\n";

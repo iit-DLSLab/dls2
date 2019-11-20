@@ -17,16 +17,16 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-#include "fastrtps_wrappers/blind_state_signal.hpp"
+#include "fastrtps_wrappers/blind_state.hpp"
 
 // =============================================================================
 // Constructors
 // =============================================================================
-BlindStateSignal::BlindStateSignal() :
+BlindState::BlindState() :
 	joint_state(),
-	body_pose(),
-	body_velocity(),
-	body_acceleration()
+	body_pose_world(),
+	body_velocity_world(),
+	body_acceleration_world()
 {
 	// TODO do not hardcode size here
 	joint_state.position.resize(12);
@@ -40,23 +40,23 @@ BlindStateSignal::BlindStateSignal() :
 // -----------------------------------------------------------------------------
 // Converting Constructor
 // -----------------------------------------------------------------------------
-BlindStateSignal::BlindStateSignal(BlindStateMsg msg) :
+BlindState::BlindState(BlindStateMsg msg) :
 	joint_state(msg.joint_state()),
-	body_pose(msg.body_pose()),
-	body_velocity(msg.body_velocity()),
-	body_acceleration(msg.body_acceleration())
+	body_pose_world(msg.body_pose_world()),
+	body_velocity_world(msg.body_velocity_world()),
+	body_acceleration_world(msg.body_acceleration_world())
 { }
 
 // -----------------------------------------------------------------------------
 // Type Casting
 // -----------------------------------------------------------------------------
-BlindStateSignal::operator BlindStateMsg() const
+BlindState::operator BlindStateMsg() const
 {
     BlindStateMsg msg;
 	msg.joint_state(this->joint_state);
-	msg.body_pose(this->body_pose);
-	msg.body_velocity(this->body_velocity);
-	msg.body_acceleration(this->body_acceleration);
+	msg.body_pose_world(this->body_pose_world);
+	msg.body_velocity_world(this->body_velocity_world);
+	msg.body_acceleration_world(this->body_acceleration_world);
 
     return msg;
 }
