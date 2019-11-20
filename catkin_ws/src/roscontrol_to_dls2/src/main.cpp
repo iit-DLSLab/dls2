@@ -121,23 +121,23 @@ void callback
 	joint_state_msg.effort(joint_states.effort);
 	blind_state_msg.joint_state(joint_state_msg);
 
-	// // Fill the body pose
-	// // pose.pose.pose because ros is poorly designed
-	// Eigen::Vector3d position;
-	// position << pose.pose.pose.position.x,
-	// 			pose.pose.pose.position.y,
-	// 			pose.pose.pose.position.z;
+	// Fill the body pose
+	// pose.pose because ros is poorly designed
+	Eigen::Vector3d position;
+	position << ground_truth.pose.pose.position.x,
+				ground_truth.pose.pose.position.y,
+				ground_truth.pose.pose.position.z;
 
-	// Eigen::Quaterniond quat
-	// 	(
-	// 		pose.pose.pose.orientation.w,
-	// 		pose.pose.pose.orientation.x,
-	// 		pose.pose.pose.orientation.y,
-	// 		pose.pose.pose.orientation.z
-	// 	);
+	Eigen::Quaterniond quat
+		(
+			ground_truth.pose.pose.orientation.w,
+			ground_truth.pose.pose.orientation.x,
+			ground_truth.pose.pose.orientation.y,
+			ground_truth.pose.pose.orientation.z
+		);
 
-	// Pose p(position, quat);
-	// blind_state_msg.body_pose(p);
+	Pose p(position, quat);
+	blind_state_msg.body_pose_world(p);
 
 	// Fill the body velocity
 	blind_state_msg.body_velocity_world().linear(
