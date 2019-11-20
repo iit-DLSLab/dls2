@@ -30,3 +30,4 @@ function(create_test NAME SRC LINK)
 endfunction()
 
 add_subdirectory(geometry)
+add_subdirectory(msg_wrappers)

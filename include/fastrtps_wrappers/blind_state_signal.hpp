@@ -1,21 +1,45 @@
+/*******************************************************************************
+*                                                       ,----,                 *
+*                                                     .'   .' \                *
+*                                                   ,----,'    |               *
+*               ________  ___       ________        |    :  .  ;               *
+*              |\   ___ \|\  \     |\   ____\       ;    |.'  /                *
+*              \ \  \_|\ \ \  \    \ \  \___|_      `----'/  ;                 *
+*               \ \  \ \\ \ \  \    \ \_____  \       /  ;  /                  *
+*                \ \  \_\\ \ \  \____\|____|\  \     ;  /  /-,                 *
+*                 \ \_______\ \_______\____\_\  \   /  /  /.`|                 *
+*                  \|_______|\|_______|\_________\./__;      :                 *
+*                                     \|_________||   :    .'                  *
+*                                                 ;   | .'                     *
+*                                                 `---'                        *
+********************************************************************************
+* Author:            Hendrik de Bruin                                          *
+* Maintainer:        Hendrik de Bruin                                          *
+* author email:      hendrik.debruin@iit.it                                    *
+*******************************************************************************/
 #ifndef BLIND_STATE_SIGNAL_HPP
 #define BLIND_STATE_SIGNAL_HPP
+
+//TODO move this file out of fastrtps_wrappers and into msg_wrappres
 
 #include "geometry/pose.hpp"
 #include "todo.h"
 #include <Eigen/Dense>
 #include "msg/blind_state.h"
+#include "msg_wrappers/joint_state.hpp"
+#include "msg_wrappers/screw.hpp"
 
 struct BlindStateSignal
 {
 	BlindStateSignal();
+	// TODO should this be by const reference?
 	BlindStateSignal(BlindStateMsg);
 	operator BlindStateMsg() const;
 
-	Eigen::VectorXd joint_position;			///< The joint position
-	Eigen::VectorXd joint_velocity;			///< The joint velocity
-	Eigen::VectorXd joint_effort;			///< The joint effort
-
+	JointState joint_state;
+	Pose body_pose;
+	Screw body_velocity;
+	Screw body_acceleration;
 };
 
 #endif /* end of include guard: BLIND_STATE_SIGNAL_HPP */

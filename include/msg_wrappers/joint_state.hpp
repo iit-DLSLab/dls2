@@ -17,28 +17,22 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-#include "controller/control_signal.hpp"
-ControlSignal::ControlSignal() :
-	torques(),
-	signal_reconstruction_method(SignalReconstructionMethod::ZERO_ORDER_HOLD)
-{ }
+#ifndef JOINT_STATE_HPP_MYSDEPUT
+#define JOINT_STATE_HPP_MYSDEPUT
 
-ControlSignal::ControlSignal(ControlSignalMsg msg) :
-	// TODO this 12 should not be hardcoded
-	torques(Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(msg.torques().data(), 12)),
-	signal_reconstruction_method((SignalReconstructionMethod)msg.signal_reconstruction_method())
-{ }
+#include <Eigen/Dense>
 
-ControlSignal::operator ControlSignalMsg() const
+#include "msg/joint_statePubSubTypes.h"
+
+struct JointState
 {
-	// TODO do not assign this here, do not resize this here
-	ControlSignalMsg msg;
+	JointState();
+	JointState(JointStateMsg&);
+	operator JointStateMsg() const;
 
-	// TODO this 12 should not be hardcoded
-	msg.torques().resize(12);
-	Eigen::VectorXd::Map(&msg.torques()[0], 12) = this->torques;
+	Eigen::VectorXd position;
+	Eigen::VectorXd velocity;
+	Eigen::VectorXd effort;
+};
 
-	msg.signal_reconstruction_method((uint64_t)this->signal_reconstruction_method);
-
-	return msg;
-}
+#endif /* end of include guard: JOINT_STATE_HPP_MYSDEPUT */

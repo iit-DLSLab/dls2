@@ -72,3 +72,13 @@ Eigen::Matrix<double, 6, 1> &Screw::data()
 {
 	return this->eigen_vec;
 }
+
+Eigen::Vector3d Screw::getLinear() const
+{
+	return this->eigen_vec.block<3, 1>(0, 0);
+}
+
+Eigen::Vector3d Screw::getAngular() const
+{
+	return this->eigen_vec.block<3, 1>(3, 0);
+}

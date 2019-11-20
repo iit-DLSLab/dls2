@@ -127,6 +127,7 @@ add_library(dls_messaging
 
 	# generic wrappers
 	${CMAKE_SOURCE_DIR}/src/msg_wrappers/screw.cpp
+	${CMAKE_SOURCE_DIR}/src/msg_wrappers/joint_state.cpp
 	${CMAKE_SOURCE_DIR}/src/controller/control_signal.cpp
 )
 target_compile_options(

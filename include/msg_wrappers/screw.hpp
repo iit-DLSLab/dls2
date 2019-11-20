@@ -50,6 +50,14 @@ public:
 	///
 	void setAngular(const Eigen::Vector3d&);
 
+	/// Returns the linear component of the screw
+	///
+	Eigen::Vector3d getLinear() const;
+
+	/// Returns the angular component of the screw
+	///
+	Eigen::Vector3d getAngular() const;
+
 	/// Returns a reference to the internal representation of the screw
 	///
 	/// Note that this is a returned reference. Do not use this reference after
