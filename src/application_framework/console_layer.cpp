@@ -118,7 +118,11 @@ ConsoleLayer::ConsoleLayer() :
 					pActivate_controller_pub->publish(msg);
 				}
 			},
-			"activates the controller"
+			"activates the controller",
+			{
+				"Hello",
+				"Bye"
+			}
 		)
 	);
 
@@ -254,19 +258,49 @@ void ConsoleLayer::addCommand(const Command &c)
 // =============================================================================
 // Readline
 // =============================================================================
+// This namespace contains global variables that should only be used by
+// readline.
+//
+// Readline does not provide for passing userdata, therefore it is not possible
+// to get around using some global structures
+namespace readline_globals
+{
+	std::map<std::string, ConsoleLayer::Command>::iterator current_command;
+}
+
 // -----------------------------------------------------------------------------
 // Completion chooser
 // -----------------------------------------------------------------------------
 char **console_completion(const char *text, int start, int /*end*/)
 {
 	char **matches = nullptr;
+
 	if(start == 0)
 	{
 		matches = rl_completion_matches(text, command_completion);
 	}
 	else
 	{
-		matches = rl_completion_matches(text, arg_completion);
+		// Find the command name from the entire command line
+		std::stringstream ss(rl_line_buffer);
+		std::string command_name;
+		ss >> command_name;
+
+		// Find the command structure associated with the command name
+		//
+		// It may not exist if garbage was typed into the command line
+		{
+			std::lock_guard<std::mutex> lock(pInstance->commands_mutex);
+
+			auto command_it = pInstance->commands.find(command_name);
+			readline_globals::current_command = command_it;
+			if(command_it != pInstance->commands.end())
+			{
+				// executing arg_completion under held commands_mutex
+				matches = rl_completion_matches(text, arg_completion);
+			}
+		}
+
 	}
 
 	return matches;
@@ -300,6 +334,8 @@ char *command_completion(const char *text, int state)
 			const char *match_candidate = it->second.command_name.c_str();
 			++it;
 
+			// TODO move this into a function, since it is copied in the other
+			// completers
 			if(strncmp(match_candidate, text, string_length) == 0)
 			{
 				char *ret_str = static_cast<char *>
@@ -325,23 +361,34 @@ char *command_completion(const char *text, int state)
 // -----------------------------------------------------------------------------
 // Argument Completion
 // -----------------------------------------------------------------------------
+// executed under held commands_mutex
 char *arg_completion(const char * text, int state)
 {
 	static std::vector<std::string> files;
-	// static decltype(files.cbegin()) it;
 	static size_t index;
 
 	if(state == 0)
 	{
-		// it = files.cbegin();
 		index = 0;
 		files.clear();
+
+		// fill the default completions
+		for
+		(
+			const auto &el :
+			readline_globals::current_command->second.default_completions
+		)
+		{
+			files.push_back(el);
+		}
+
+
+		// fill libraries in the current path
 		std::filesystem::directory_iterator dir_it
 			(
 				std::filesystem::current_path()
 			);
 
-		// TODO add support for locating installed libs
 		for(auto &file : dir_it)
 		{
 			std::string filename(file.path().filename());
