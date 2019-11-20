@@ -242,7 +242,7 @@ private:
 			SubscriberBase<StringMsgPubSubType>(topic),
 			owner(owner_),
 			info()
-	{ }
+		{ }
 	private:
 		void onNewDataMessage(eprosima::fastrtps::Subscriber *sub) override
 		{

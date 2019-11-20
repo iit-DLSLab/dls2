@@ -91,6 +91,7 @@ add_message(imu)
 add_message(vec3)
 add_message(screw)
 add_message(blind_state)
+add_message(console_command)
 
 # ==============================================================================
 # Libraries
@@ -110,6 +111,13 @@ target_link_libraries(
 	fastrtps
 )
 list(APPEND PROJECT_TARGETS dls_logging)
+
+# ==================================== util ====================================
+# add_library(dls_string_util
+# 	SHARED
+# 	${CMAKE_SOURCE_DIR}/src/util/string/string.cpp
+# )
+# list(APPEND PROJECT_TARGETS string_util)
 # ================================== messages ==================================
 add_library(dls_messaging
 	SHARED
@@ -163,14 +171,23 @@ add_library(
 	# Components
 	application_framework/components/app_layer_component.cpp
 	application_framework/components/periodic_app_layer_component.cpp
+
+	# TODO remove this and instead link to the library
+	util/string/string.cpp
 )
-target_link_libraries(
-	dls_framework
-	dls_logging
-	dls_messaging
-	pthread
-	dl
-	dls_debug
+target_link_libraries(dls_framework
+	PRIVATE
+		readline # for console_layer
+		fastcdr
+		fastrtps
+
+	PUBLIC # TODO fix this
+	#dls_string_util TODO link to this library and remove the source above
+		dls_logging
+		dls_messaging
+		pthread
+		dl
+		dls_debug
 )
 list(APPEND PROJECT_TARGETS dls_framework)
 # ============================ Controller Modules ==============================
@@ -227,12 +244,11 @@ add_executable(
 
 	${CMAKE_SOURCE_DIR}/src/child_process/gait_generator/gait_generator_process.cpp
 )
-target_link_libraries(
-	dls_gait_generator_process
+target_link_libraries(dls_gait_generator_process
+	dls_framework
 	fastcdr
 	fastrtps
 	dl
-	dls_framework
 	dls_controlinterface
 	dls_gaitgeneratorinterface
 	dls_estimatorinterface

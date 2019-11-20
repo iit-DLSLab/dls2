@@ -18,76 +18,302 @@
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
 #include "application_framework/console_layer.hpp"
-#include <iostream>
+#include <readline/readline.h>
+#include <readline/history.h>
+#include <cstring>
 #include <sstream>
+// #include "util/string/string.hpp"
 
+#include "util/messaging/publisher_base.hpp"
+
+//TODO these topics should be removed and instead generated dynamically
+#include "msg/stringmsgPubSubTypes.h"
 #include "topics/activate_controller.hpp"
 #include "topics/deactivate_controller.hpp"
 #include "topics/activate_gait_generator.hpp"
 #include "topics/deactivate_gait_generator.hpp"
+
+// TODO move these two to the library
+std::string trim(const std::string&);
+std::string &trim_inplace(std::string *const);
+// =============================================================================
+// Globals
+// =============================================================================
+// Indirection to access class methods as C functions
+// This will only work if there is only one console object in the process, which
+// will always be the case
+ConsoleLayer *pInstance = nullptr;
+
+// =============================================================================
+// Foreward Declarations
+// =============================================================================
+char *console_completion(const char *text, int state);
+
+// TODO these should not be hardcoded
+std::shared_ptr<PublisherBase<StringMsgPubSubType>> pActivate_controller_pub;
+std::shared_ptr<PublisherBase<StringMsgPubSubType>> pDeactivate_controller_pub;
+std::shared_ptr<PublisherBase<StringMsgPubSubType>> pActivate_gait_generator_pub;
+std::shared_ptr<PublisherBase<StringMsgPubSubType>> pDeactivate_gait_generator_pub;
+
 // =============================================================================
 // Constructors
 // =============================================================================
 ConsoleLayer::ConsoleLayer() :
-	pub_activate_controller(topics::activate_controller),
-	pub_deactivate_controller(topics::deactivate_controller),
-	pub_activate_gait_generator(topics::activate_gait_generator),
-	pub_deactivate_gait_generator(topics::deactivate_gait_generator)
+	commands_mutex(),
+	commands()
 {
+	pInstance = this;
 
+	// TODO remove these
+	pActivate_controller_pub = std::make_shared<PublisherBase<StringMsgPubSubType>>
+		(
+			topics::activate_controller
+		);
+	pDeactivate_controller_pub = std::make_shared<PublisherBase<StringMsgPubSubType>>
+		(
+			topics::deactivate_controller
+		);
+	pActivate_gait_generator_pub = std::make_shared<PublisherBase<StringMsgPubSubType>>
+		(
+			topics::activate_gait_generator
+		);
+	pDeactivate_gait_generator_pub = std::make_shared<PublisherBase<StringMsgPubSubType>>
+		(
+			topics::deactivate_gait_generator
+		);
+
+	// TODO expose process name here for readline
+	rl_readline_name = "DLS2_READLINE";
+
+	// rl_attempted_completion_function = console_completion;
+	rl_completion_entry_function = console_completion;
+
+	// populate commands
+	addCommand
+	(
+		Command
+		(
+			"activateController",
+			// TODO lambda is currently copied everywhere, but this will
+			// diseappear when everything is made more flexible
+			[](const std::vector<std::string> &vec)
+			{
+				StringMsg msg;
+				if(vec.size() > 0)
+				{
+					msg.msg(vec[0]);
+					pActivate_controller_pub->publish(msg);
+				}
+			},
+			"activates the controller"
+		)
+	);
+
+	addCommand
+	(
+		Command
+		(
+			"deactivateController",
+			[](const std::vector<std::string> &vec)
+			{
+				StringMsg msg;
+				if(vec.size() > 0)
+				{
+					msg.msg(vec[0]);
+					pDeactivate_controller_pub->publish(msg);
+				}
+			},
+			"deactivates the controller"
+		)
+	);
+
+	addCommand
+	(
+		Command
+		(
+			"activateGaitGenerator",
+			[](const std::vector<std::string> &vec)
+			{
+				StringMsg msg;
+				if(vec.size() > 0)
+				{
+					msg.msg(vec[0]);
+					pActivate_gait_generator_pub->publish(msg);
+				}
+			},
+			"deactivates the controller"
+		)
+	);
+
+	addCommand
+	(
+		Command
+		(
+			"deactivateGaitGenerator",
+			[](const std::vector<std::string> &)
+			{
+				StringMsg msg;
+				pDeactivate_gait_generator_pub->publish(msg);
+			},
+			"deactivates the controller"
+		)
+	);
 }
 
 // =============================================================================
-// Interface Override Functions
+// Interface Override
 // =============================================================================
 ConsoleLayer::Status ConsoleLayer::run()
 {
-
-	std::string str;
-
-	while(std::getline(std::cin, str))
+	while(true)
 	{
-		std::stringstream ss(str);
+		// This calls malloc behind the scenes. Needs to be freed manually
+		char *line = readline(this->build_prompt().c_str());
 
-		std::string command;
-		ss >> command;
+		if(line) // might be nullptr if EOF was sent
+		{
+			// Convert to cpp line for ease of use
+			std::string input(line);
+			trim_inplace(&input);
 
-		std::string arg;
-		ss >> arg;
+			if(*input.c_str())
+			{
+				// add_history(line);
+				add_history(input.c_str());
 
-		// std::cout << "Command: '" << command <<
-		// 	"'\nArg: '" << arg << "'\n" << std::endl;
+				// Parse the arguments
+				std::istringstream iss(input);
+				std::vector<std::string> input_split
+					(
+						std::istream_iterator<std::string>{iss},
+						std::istream_iterator<std::string>()
+					);
 
-		StringMsg msg; msg.msg(arg);
-		if(command == "activateController")
-		{
-			pub_activate_controller.publish(msg);
+				std::vector<std::string> args
+					(
+						input_split.begin() + 1, input_split.end()
+					);
 
-		}
-		else if(command == "deactivateController")
-		{
-			pub_deactivate_controller.publish(msg);
-		}
-		else if(command == "activateGaitGenerator")
-		{
-			pub_activate_gait_generator.publish(msg);
-		}
-		else if(command == "deactivateGaitGenerator")
-		{
-			pub_deactivate_gait_generator.publish(msg);
-		}
-		else
-		{
-			std::cerr << "Command '" << command << "' not recognized" << std::endl;
+				// Execute the commands
+				{
+					std::lock_guard<std::mutex> lock(this->commands_mutex);
+
+					auto it = pInstance->commands.find(input_split[0]);
+					if(it != pInstance->commands.end())
+					{
+						it->second.function(args);
+					}
+				}
+			}
+			free(line);
 		}
 	}
-	std::cout << "console EXIT" << std::endl;
 
 	return getStatus();
 }
 
 ConsoleLayer::Status ConsoleLayer::shutdown()
 {
-
 	return getStatus();
+}
+
+// =============================================================================
+// Implementaton
+// =============================================================================
+std::string ConsoleLayer::build_prompt()
+{
+	return "> ";
+}
+
+void ConsoleLayer::addCommand(const Command &c)
+{
+	std::lock_guard<std::mutex> lock(this->commands_mutex);
+	this->commands.insert
+	(
+		std::pair<std::string, Command>
+		(
+			c.command_name,
+			c
+		)
+	);
+}
+
+// =============================================================================
+// Readline
+// =============================================================================
+char *console_completion(const char *text, int state)
+{
+	static decltype(pInstance->commands.cbegin()) it;
+	static int string_length;
+
+	// Safety check is not currently needed, but putting it now for future
+	// robustness
+	if(pInstance)
+	{
+		// if first time this completer is being run
+		if(state == 0)
+		{
+			// Not using lock_guard, since lock must persist across all calls to
+			// this generator
+			pInstance->commands_mutex.lock();
+			it = pInstance->commands.begin();
+			string_length = std::strlen(text);
+		}
+
+		while(it != pInstance->commands.cend())
+		{
+			const char *match_candidate = it->second.command_name.c_str();
+			++it;
+
+			if(strncmp(match_candidate, text, string_length) == 0)
+			{
+				char *ret_str = static_cast<char *>
+				(
+					// malloc is required by readline
+					// readline will free the string
+					malloc
+					(
+						strlen(match_candidate) + 1
+					)
+				);
+				strcpy(ret_str, match_candidate);
+				return ret_str;
+			}
+		}
+
+		pInstance->commands_mutex.unlock();
+	}
+
+	return nullptr;
+}
+
+// =============================================================================
+// Helper Class
+// =============================================================================
+ConsoleLayer::Command::Command
+(
+	const std::string &command_name_,
+	const std::function<void(const std::vector<std::string>&)> &function_,
+	const std::string &docstring_,
+	const std::vector<std::string> &default_completions_
+) :
+	command_name(command_name_),
+	function(function_),
+	docstring(docstring_),
+	default_completions(default_completions_)
+{}
+
+std::string trim(const std::string &s)
+{
+	std::string ret(s);
+	trim_inplace(&ret);
+	return ret;
+}
+
+std::string &trim_inplace(std::string *const s)
+{
+	s->erase(0, s->find_first_not_of(" \t\n\r\f\v"));
+	s->erase(s->find_last_not_of(" \t\n\r\f\v") + 1);
+
+	return *s;
 }
