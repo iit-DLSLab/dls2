@@ -42,6 +42,7 @@ class ConsoleLayer : public AppLayer
 	// Console completion is handled by readline, which is a C-library.
 	// Therefore, need to declare this as a friend
 	friend char *console_completion(const char *text, int state);
+	friend char *command_completion(const char *text, int state);
 
 public:
 	struct Command

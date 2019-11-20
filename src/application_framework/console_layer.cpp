@@ -22,6 +22,7 @@
 #include <readline/history.h>
 #include <cstring>
 #include <sstream>
+#include <filesystem>
 // #include "util/string/string.hpp"
 
 #include "util/messaging/publisher_base.hpp"
@@ -47,7 +48,12 @@ ConsoleLayer *pInstance = nullptr;
 // =============================================================================
 // Foreward Declarations
 // =============================================================================
-char *console_completion(const char *text, int state);
+char **console_completion(const char *text, int start, int /*end*/);
+// char *console_completion(const char *text, int state);
+char *command_completion(const char *text, int state);
+char *arg_completion(const char *text, int state);
+
+// char *dummy(const char
 
 // TODO these should not be hardcoded
 std::shared_ptr<PublisherBase<StringMsgPubSubType>> pActivate_controller_pub;
@@ -85,8 +91,15 @@ ConsoleLayer::ConsoleLayer() :
 	// TODO expose process name here for readline
 	rl_readline_name = "DLS2_READLINE";
 
-	// rl_attempted_completion_function = console_completion;
-	rl_completion_entry_function = console_completion;
+	rl_attempted_completion_function = console_completion;
+
+	// Turn off the default file matching completion
+	//
+	// rl_completion_entry_function is NULL by default, but if it is null, then
+	// readline will call rl_filename_completion_function by default.
+	// We cannot simply use rl_completion_entry_function, since we need the more
+	// flexible rl_attempted_completion_function
+	rl_completion_entry_function = [](const char *, int)->char*{return nullptr;};
 
 	// populate commands
 	addCommand
@@ -241,7 +254,28 @@ void ConsoleLayer::addCommand(const Command &c)
 // =============================================================================
 // Readline
 // =============================================================================
-char *console_completion(const char *text, int state)
+// -----------------------------------------------------------------------------
+// Completion chooser
+// -----------------------------------------------------------------------------
+char **console_completion(const char *text, int start, int /*end*/)
+{
+	char **matches = nullptr;
+	if(start == 0)
+	{
+		matches = rl_completion_matches(text, command_completion);
+	}
+	else
+	{
+		matches = rl_completion_matches(text, arg_completion);
+	}
+
+	return matches;
+}
+
+// -----------------------------------------------------------------------------
+// Command Completion
+// -----------------------------------------------------------------------------
+char *command_completion(const char *text, int state)
 {
 	static decltype(pInstance->commands.cbegin()) it;
 	static int string_length;
@@ -260,6 +294,7 @@ char *console_completion(const char *text, int state)
 			string_length = std::strlen(text);
 		}
 
+		// Do command completion
 		while(it != pInstance->commands.cend())
 		{
 			const char *match_candidate = it->second.command_name.c_str();
@@ -287,6 +322,66 @@ char *console_completion(const char *text, int state)
 	return nullptr;
 }
 
+// -----------------------------------------------------------------------------
+// Argument Completion
+// -----------------------------------------------------------------------------
+char *arg_completion(const char * text, int state)
+{
+	static std::vector<std::string> files;
+	// static decltype(files.cbegin()) it;
+	static size_t index;
+
+	if(state == 0)
+	{
+		// it = files.cbegin();
+		index = 0;
+		files.clear();
+		std::filesystem::directory_iterator dir_it
+			(
+				std::filesystem::current_path()
+			);
+
+		// TODO add support for locating installed libs
+		for(auto &file : dir_it)
+		{
+			std::string filename(file.path().filename());
+			if
+			(
+				filename.find_first_of("lib") == 0 &&
+				filename.find_last_of(".so") == filename.size() - 1
+			)
+			{
+				files.push_back
+				(
+					// strip "lib" and ".so" from file
+					filename.substr(3, filename.size() - 6)
+				);
+			}
+		}
+	}
+
+	while(index != files.size())
+	{
+		auto match_candidate = const_cast<char *>(files[index].c_str());
+		++index;
+		if(strncmp(match_candidate, text, std::strlen(text)) == 0)
+		{
+			char *ret_str = static_cast<char *>
+			(
+				// malloc is required by readline
+				// readline will free the string
+				malloc
+				(
+					strlen(match_candidate) + 1
+				)
+			);
+			strcpy(ret_str, match_candidate);
+			return ret_str;
+		}
+	}
+
+	return nullptr;
+}
 // =============================================================================
 // Helper Class
 // =============================================================================
@@ -317,3 +412,4 @@ std::string &trim_inplace(std::string *const s)
 
 	return *s;
 }
+
