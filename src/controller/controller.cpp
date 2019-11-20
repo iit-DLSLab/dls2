@@ -100,6 +100,7 @@ void Controller::GaitListener::onNewDataMessage(eprosima::fastrtps::Subscriber *
 	if(pSub->takeNextData(&st, &info))
 	{
 		std::lock_guard<std::mutex> lock(pOwner->gait_signal_mutex);
+		// TODO do not reassign memory, just reset it
 		pOwner->pGait_signal = std::make_shared<const GaitSignal>(st);
 	}
 }
@@ -116,6 +117,7 @@ void Controller::BlindStateListener::onNewDataMessage(eprosima::fastrtps::Subscr
 	if(pSub->takeNextData(&bs, &info))
 	{
 		std::lock_guard<std::mutex> lock(pOwner->blind_state_signal_mutex);
+		// TODO do not reassign memory, just reset it
 		pOwner->pBlind_state_signal = std::make_shared<const BlindStateSignal>(bs);
 	}
 }
