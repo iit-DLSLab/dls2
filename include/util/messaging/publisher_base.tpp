@@ -28,6 +28,7 @@
 #include <fastrtps/attributes/PublisherAttributes.h>
 #include <fastrtps/Domain.h>
 #include <fastrtps/TopicDataType.h>
+#include <fastrtps/transport/UDPv4TransportDescriptor.h>
 
 #include "util/debug/debug.hpp"
 #include "todo.h"
@@ -43,6 +44,12 @@ PublisherBase<PubSub_t>::PublisherBase(const std::string &topic) :
 	// Create participant
 	eprosima::fastrtps::ParticipantAttributes participant_attr;
 	participant_attr.rtps.setName("Participant_publisher");
+	
+	auto custom_transport = std::make_shared<eprosima::fastrtps::rtps::UDPv4TransportDescriptor>();
+	custom_transport->interfaceWhiteList.emplace_back("127.0.0.1");
+	participant_attr.rtps.useBuiltinTransports = false;
+	participant_attr.rtps.userTransports.push_back(custom_transport);
+	
 	TODO("not cleaning the participant because it's generating a library error")
 	pParticipant.reset
 	(

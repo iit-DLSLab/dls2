@@ -28,6 +28,7 @@
 #include <fastrtps/attributes/SubscriberAttributes.h>
 #include <fastrtps/Domain.h>
 #include <fastrtps/TopicDataType.h>
+#include <fastrtps/transport/UDPv4TransportDescriptor.h>
 
 template <class PubSub_t>
 PubSub_t SubscriberBase<PubSub_t>::rtps_type;
@@ -40,6 +41,11 @@ SubscriberBase<PubSub_t>::SubscriberBase(const std::string &topic) :
 	eprosima::fastrtps::ParticipantAttributes participant_attr;
 	participant_attr.rtps.setName("Participant_subscriber");
 
+	auto custom_transport = std::make_shared<eprosima::fastrtps::rtps::UDPv4TransportDescriptor>();
+	custom_transport->interfaceWhiteList.emplace_back("127.0.0.1");
+	participant_attr.rtps.useBuiltinTransports = false;
+	participant_attr.rtps.userTransports.push_back(custom_transport);
+	
 	TODO("figure out how to remove participant properly")
 	pParticipant.reset
 	(
