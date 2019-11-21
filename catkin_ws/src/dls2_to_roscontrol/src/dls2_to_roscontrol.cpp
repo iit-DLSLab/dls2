@@ -14,11 +14,11 @@ Dls2ToRoscontrol::Dls2ToRoscontrol() :
 	joint_state_pub_(topics::joint_states)
 { }
 
-bool Dls2ToRoscontrol::init(hardware_interface::JointCommandAdvInterface *pJoint_command_adv_interface, ros::NodeHandle &root_nh, ros::NodeHandle &controller_nh)
+bool Dls2ToRoscontrol::init(hardware_interface::EffortJointInterface *pEffort_joint_interface, ros::NodeHandle &root_nh, ros::NodeHandle &controller_nh)
 {
-	if (!pJoint_command_adv_interface)
+	if (!pEffort_joint_interface)
 	{
-		ROS_ERROR("JointCommandAdvInterface is a null pointer");
+		ROS_ERROR("EffortJointInterface is a null pointer");
 		return false;
 	}
 	int num_joints=12;
@@ -26,7 +26,7 @@ bool Dls2ToRoscontrol::init(hardware_interface::JointCommandAdvInterface *pJoint
 	for (int i = 0; i < num_joints; i++)
 	{
 		try {
-			joint_commands_.push_back(pJoint_command_adv_interface->getHandle(joint_names[i]));
+			joint_commands_.push_back(pEffort_joint_interface->getHandle(joint_names[i]));
 		} catch (hardware_interface::HardwareInterfaceException ex)
 		{
 			ROS_ERROR_STREAM("ERROR: " << joint_names[i] << " does not exist.");
@@ -69,17 +69,14 @@ void Dls2ToRoscontrol::update(const ros::Time &time, const ros::Duration &period
 			std::cout << "Desired torque vector size error (" << pMsg->torques().size() << ").  Writing 0 torque" << std::endl;
 			for(size_t i = 0; i != 12; ++i)
 			{
-				joint_commands_[i].setCommandEffort(0.0);
+				joint_commands_[i].setCommand(0.0);
 			}
 		}
 		else
 		{
 			for(size_t i = 0; i != 12; ++i)
 			{
-				joint_commands_[i].setCommandPosition(0.0);
-				joint_commands_[i].setCommandVelocity(0.0);
-				joint_commands_[i].setCommandEffort(pMsg->torques()[i]);
-				joint_commands_[i].setCommandGains(0.0,0.0,0.0);
+				joint_commands_[i].setCommand(pMsg->torques()[i]);
 			}
 		}
 	}
@@ -88,7 +85,7 @@ void Dls2ToRoscontrol::update(const ros::Time &time, const ros::Duration &period
 		std::cout << "No Control signal. Writing 0 torque." << std::endl;
 		for(size_t i = 0; i != 12; ++i)
 		{
-			joint_commands_[i].setCommandEffort(0.0);
+			joint_commands_[i].setCommand(0.0);
 		}
 	}
 }

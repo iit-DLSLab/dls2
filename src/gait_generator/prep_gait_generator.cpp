@@ -25,12 +25,14 @@
 PrepGaitGenerator::PrepGaitGenerator(const std::shared_ptr<Dog> &pDog) : GaitGenerator(pDog, "prep_gait_generator", std::chrono::milliseconds(1)), data()
 {
 	logging::clog << "prep gait generator launched" << logging::endl;
-	data.desired_joint_position.resize(12);
-	data.desired_joint_velocity.resize(12);
-	data.desired_joint_acceleration.resize(12);
-	data.desired_joint_position << -0.2, 0.7, -1.4, -0.2, 0.7, -1.4, -0.2, -0.7, 1.4, -0.2, -0.7, 1.4;
-	data.desired_joint_velocity << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
-	data.desired_joint_acceleration << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
+	data.desired_joint_state.position.resize(12);
+	data.desired_joint_state.velocity.resize(12);
+	//data.desired_joint_state.acceleration.resize(12); // TODO this field causes a segfault!!!
+	data.desired_joint_state.effort.resize(12);
+	data.desired_joint_state.position << -0.2, 0.7, -1.4, -0.2, 0.7, -1.4, -0.2, -0.7, 1.4, -0.2, -0.7, 1.4;
+	data.desired_joint_state.velocity << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
+	//data.desired_joint_state.acceleration << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
+	data.desired_joint_state.effort << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
 }
 
 PrepGaitGenerator::PrepGaitGenerator() : PrepGaitGenerator(std::make_shared<Dog>())
@@ -40,7 +42,7 @@ PrepGaitGenerator::PrepGaitGenerator() : PrepGaitGenerator(std::make_shared<Dog>
 
 void PrepGaitGenerator::run(const std::chrono::system_clock::time_point &time)
 {
-	//logging::clog << "Prep Gait Generator Epoch" << logging::endl;
+	logging::clog << "Prep Gait Generator Epoch" << logging::endl;
 	publishData(data);
 	time.time_since_epoch();
 }

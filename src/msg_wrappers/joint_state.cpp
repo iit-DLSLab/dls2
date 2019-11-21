@@ -29,7 +29,7 @@ JointState::JointState() :
 	effort()
 {
     TODO("Robot is unimplemented")
-    int joint_space_dimension = Robot::getJointSpaceDimension();
+    /*int joint_space_dimension = Robot::getJointSpaceDimension();
 
     position.resize(joint_space_dimension, 1);
 	position   =   Eigen::MatrixXd::Zero(joint_space_dimension, 1);
@@ -41,7 +41,7 @@ JointState::JointState() :
     acceleration = Eigen::MatrixXd::Zero(joint_space_dimension, 1);
 
     effort.resize(joint_space_dimension, 1);
-    effort = Eigen::MatrixXd::Zero(joint_space_dimension, 1);
+    effort = Eigen::MatrixXd::Zero(joint_space_dimension, 1);*/
 }
 
 JointState::JointState(JointStateMsg &msg) :

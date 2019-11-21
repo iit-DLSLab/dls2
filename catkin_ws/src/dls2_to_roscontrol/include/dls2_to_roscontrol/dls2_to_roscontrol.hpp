@@ -3,7 +3,7 @@
 
 #include <ros/node_handle.h>
 #include <hardware_interface/robot_hw.h>
-#include <dls_hardware_interface/joint_command_adv_interface.h>
+#include <hardware_interface/joint_command_interface.h>
 #include <controller_interface/controller.h>
 #include <controller/control_signal.hpp>
 #include <pluginlib/class_list_macros.h>
@@ -20,16 +20,16 @@
 
 namespace dls2_to_roscontrol {
 
-class Dls2ToRoscontrol : public controller_interface::Controller<hardware_interface::JointCommandAdvInterface>
+class Dls2ToRoscontrol : public controller_interface::Controller<hardware_interface::EffortJointInterface>
 {
 public:
 	Dls2ToRoscontrol();
-	bool init(hardware_interface::JointCommandAdvInterface* hw, ros::NodeHandle& root_nh, ros::NodeHandle& controller_nh);
+	bool init(hardware_interface::EffortJointInterface* hw, ros::NodeHandle& root_nh, ros::NodeHandle& controller_nh);
 	void starting(const ros::Time &time);
 	void stopping(const ros::Time &time);
 	void update(const ros::Time& time, const ros::Duration& period);
 private:
-	std::vector<hardware_interface::JointCommandAdvHandle> joint_commands_;
+	std::vector<hardware_interface::JointHandle> joint_commands_;
 
 	class ControlMsgListener : public SubscriberBase<ControlSignalMsgPubSubType>
 	{

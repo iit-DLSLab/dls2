@@ -24,7 +24,7 @@
 
 #include <iostream>
 #include <iomanip>
-#include <ctime>
+#include <sys/time.h>
 
 #include "topics/debug_log_stream.hpp"
 #include "topics/error_log_stream.hpp"
@@ -63,10 +63,10 @@ namespace logging
 			logging::impl::LogInput<loglevel> input;
 
 			// log the time
-			auto t = std::time(nullptr);
-			auto tm = *std::localtime(&t);
-			input.ss << std::put_time(&tm, "%d/%m/%Y %H:%M:%S");
-			input.ss << ": ";
+			struct timeval time;
+			gettimeofday(&time, nullptr);
+			uint64_t ms = time.tv_sec*1000+time.tv_usec/1000;
+			input.ss << ms << ": ";
 
 			// record the message
 			input.ss << s;
