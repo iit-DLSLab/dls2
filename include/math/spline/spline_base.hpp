@@ -17,51 +17,23 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-#include "controller/dummy_controller.hpp"
-#include "util/debug/debug.hpp"
-#include "util/log/log.hpp"
+#ifndef SPLINE_BASE_HPP_ERGQ2YJO
+#define SPLINE_BASE_HPP_ERGQ2YJO
 
-DummyController::DummyController
-(
-	const std::shared_ptr<Dog> &dog
-) :
-	Controller
-	(
-		dog,
-		"dummy_controller",
-		std::chrono::duration<double>(1),
-		ControlSignal::SignalReconstructionMethod::ZERO_ORDER_HOLD
-	)
+namespace dls
 {
-	logging::clog << "dummy controller launched" << logging::endl;
-}
 
-DummyController::DummyController() :
-	DummyController(std::make_shared<Dog>())
+template <typename T, typename index_t = double>
+class SplineBase
 {
-	logging::clog << "dummy controller destroyed" << logging::endl;
-}
+public:
+	SplineBase(index_t max_index = 0, index_t min_index = 0);
+	virtual T eval(index_t t) = 0;
 
-void DummyController::run(const std::chrono::system_clock::time_point &time)
-{
-	logging::clog << "Dummy Controller Epoch" << logging::endl;
-	auto pGait_signal = this->readGaitSignal();
+	const index_t max_index;
+	const index_t min_index;
+};
 
-	ControlSignal s;
-	s.torques.resize(12);
+} // namespace dls
 
-	publishSignal(s);
-
-	time.time_since_epoch();
-}
-
-extern "C" Controller *create()
-{
-	auto p = new DummyController;
-	return p;
-}
-
-extern "C" void destroy(Controller *p)
-{
-	delete p;
-}
+#endif /* end of include guard: SPLINE_BASE_HPP_ERGQ2YJO */
