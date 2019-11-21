@@ -32,6 +32,7 @@ struct JointState
 
 	Eigen::VectorXd position;
 	Eigen::VectorXd velocity;
+	Eigen::VectorXd acceleration;
 	Eigen::VectorXd effort;
 };
 

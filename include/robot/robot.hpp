@@ -20,6 +20,8 @@
 #ifndef ROBOT_HPP_X9YVSQKM
 #define ROBOT_HPP_X9YVSQKM
 
+#include "todo.h"
+
 TODO("remove references to Dog, replace with Robot")
 class Dog {};
 

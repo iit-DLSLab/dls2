@@ -37,9 +37,9 @@ struct BlindState
 	operator BlindStateMsg() const;
 
 	JointState joint_state;
-	Pose body_pose_world;
-	Screw body_velocity_world;
-	Screw body_acceleration_world;
+	Pose base_pose_world;
+	Screw base_velocity_world;
+	Screw base_acceleration_world;
 };
 
 #endif /* end of include guard: BLIND_STATE_SIGNAL_HPP */

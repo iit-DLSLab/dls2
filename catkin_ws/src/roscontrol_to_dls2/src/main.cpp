@@ -121,7 +121,7 @@ void callback
 	joint_state_msg.effort(joint_states.effort);
 	blind_state_msg.joint_state(joint_state_msg);
 
-	// Fill the body pose
+	// Fill the base pose
 	// pose.pose because ros is poorly designed
 	Eigen::Vector3d position;
 	position << ground_truth.pose.pose.position.x,
@@ -137,17 +137,17 @@ void callback
 		);
 
 	Pose p(position, quat);
-	blind_state_msg.body_pose_world(p);
+	blind_state_msg.base_pose_world(p);
 
-	// Fill the body velocity
-	blind_state_msg.body_velocity_world().linear(
+	// Fill the base velocity
+	blind_state_msg.base_velocity_world().linear(
 			{
 				ground_truth.twist.twist.linear.x,
 				ground_truth.twist.twist.linear.y,
 				ground_truth.twist.twist.linear.z
 			}
 		);
-	blind_state_msg.body_velocity_world().angular(
+	blind_state_msg.base_velocity_world().angular(
 			{
 				ground_truth.twist.twist.angular.x,
 				ground_truth.twist.twist.angular.y,
@@ -155,16 +155,16 @@ void callback
 			}
 		);
 
-	// Fill the body acceleration
+	// Fill the base acceleration
 	// TODO this is currently zero
-	blind_state_msg.body_acceleration_world().linear(
+	blind_state_msg.base_acceleration_world().linear(
 			{
 				0,
 				0,
 				0
 			}
 		);
-	blind_state_msg.body_acceleration_world().angular(
+	blind_state_msg.base_acceleration_world().angular(
 			{
 				0,
 				0,

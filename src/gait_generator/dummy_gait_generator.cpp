@@ -45,7 +45,7 @@ void DummyGaitGenerator::run(const std::chrono::system_clock::time_point &time)
 	GaitSignal data;
 
 	Eigen::Vector3d com_position; com_position << 10, 2, 33;
-	data.desired_com_pose = Pose(com_position);
+	data.desired_com_pose_world = Pose(com_position);
 
 	publishData(data);
 	time.time_since_epoch();

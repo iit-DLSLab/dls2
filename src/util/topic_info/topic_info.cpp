@@ -90,16 +90,16 @@ void TopicInfo::BlindStateSub::onNewDataMessage
 					std::cout << "\tPosition";
 						std::for_each
 							(
-								msg.body_pose_world().position().cbegin(),
-								msg.body_pose_world().position().cend(),
+								msg.base_pose_world().position().cbegin(),
+								msg.base_pose_world().position().cend(),
 								[](double d){std::cout << d << " ";}
 							);
 					std::cout << "\n";
 					std::cout << "\tQuaternion";
 						std::for_each
 							(
-								msg.body_pose_world().quaternion().cbegin(),
-								msg.body_pose_world().quaternion().cend(),
+								msg.base_pose_world().quaternion().cbegin(),
+								msg.base_pose_world().quaternion().cend(),
 								[](double d){std::cout << d << " ";}
 							);
 
@@ -108,8 +108,8 @@ void TopicInfo::BlindStateSub::onNewDataMessage
 					std::cout << "\tLinear: ";
 						std::for_each
 							(
-								msg.body_velocity_world().linear().cbegin(),
-								msg.body_velocity_world().angular().cend(),
+								msg.base_velocity_world().linear().cbegin(),
+								msg.base_velocity_world().angular().cend(),
 								[](double d){std::cout << d << " ";}
 							);
 					std::cout << "\n";
@@ -119,8 +119,8 @@ void TopicInfo::BlindStateSub::onNewDataMessage
 					std::cout << "\tLinear: ";
 						std::for_each
 							(
-								msg.body_acceleration_world().linear().cbegin(),
-								msg.body_acceleration_world().angular().cend(),
+								msg.base_acceleration_world().linear().cbegin(),
+								msg.base_acceleration_world().angular().cend(),
 								[](double d){std::cout << d << " ";}
 							);
 					std::cout << "\n";
@@ -193,8 +193,8 @@ void TopicInfo::GaitSignalSub::onNewDataMessage
 				std::cout << "Desired Joint Position\n\t";
 						std::for_each
 							(
-								msg.desired_joint_state().cbegin(),
-								msg.desired_joint_state().cend(),
+								msg.desired_joint_state().position().begin(),
+								msg.desired_joint_state().position().end(),
 								[](double d){std::cout << d << " ";}
 							);
 						std::cout << "\n";

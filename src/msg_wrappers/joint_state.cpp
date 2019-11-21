@@ -21,16 +21,33 @@
 #define JOINT_STATE_CPP_8TOBMLEP
 
 #include "msg_wrappers/joint_state.hpp"
+#include "robot/robot.hpp"
 
 JointState::JointState() :
 	position(),
 	velocity(),
 	effort()
-{ }
+{
+    TODO("Robot is unimplemented")
+    int joint_space_dimension = Robot::getJointSpaceDimension();
+
+    position.resize(joint_space_dimension, 1);
+	position   =   Eigen::MatrixXd::Zero(joint_space_dimension, 1);
+
+    velocity.resize(joint_space_dimension, 1);
+	velocity	=  Eigen::MatrixXd::Zero(joint_space_dimension,  1);
+
+    acceleration.resize(joint_space_dimension, 1);
+    acceleration = Eigen::MatrixXd::Zero(joint_space_dimension, 1);
+
+    effort.resize(joint_space_dimension, 1);
+    effort = Eigen::MatrixXd::Zero(joint_space_dimension, 1);
+}
 
 JointState::JointState(JointStateMsg &msg) :
 	position(Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(msg.position().data(), msg.position().size())),
 	velocity(Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(msg.velocity().data(), msg.velocity().size())),
+	acceleration(Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(msg.acceleration().data(), msg.acceleration().size())),
 	effort(Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(msg.effort().data(), msg.effort().size()))
 { }
 
@@ -45,6 +62,7 @@ JointState::operator JointStateMsg() const
 
 	Eigen::VectorXd::Map(&msg.position()[0], this->position.size()) = this->position;
 	Eigen::VectorXd::Map(&msg.velocity()[0], this->velocity.size()) = this->velocity;
+	Eigen::VectorXd::Map(&msg.acceleration()[0], this->acceleration.size()) = this->acceleration;
 	Eigen::VectorXd::Map(&msg.effort()[0], this->effort.size()) = this->effort;
 
 	return msg;

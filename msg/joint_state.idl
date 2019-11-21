@@ -19,7 +19,8 @@
 *******************************************************************************/
 struct JointStateMsg
 {
-	sequence<double> position;	// rad
-	sequence<double> velocity;	// rad/s
-	sequence<double> effort;	// Nm
+	sequence<double> position;		// rad
+	sequence<double> velocity;		// rad/s
+	sequence<double> acceleration;	// rad/s^2
+	sequence<double> effort;		// Nm
 };

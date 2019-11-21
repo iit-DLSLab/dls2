@@ -19,24 +19,21 @@
 *******************************************************************************/
 #include "pose.idl"
 #include "screw.idl"
+#include "joint_state.idl"
 struct GaitSignalMsg
 {
 	// TODO remove this msg
 	string msg;
 
-	PoseMsg desired_com_pose;
-	ScrewMsg desired_com_velocity;
-	ScrewMsg desired_com_acceleration;
+	PoseMsg desired_com_pose_world;
+	ScrewMsg desired_com_velocity_world;
+	ScrewMsg desired_com_acceleration_world;
 
-	PoseMsg desired_base_pose;
-	ScrewMsg desired_base_velocity;
-	ScrewMsg desired_base_acceleration;
+	PoseMsg desired_base_pose_world;
+	ScrewMsg desired_base_velocity_world;
+	ScrewMsg desired_base_acceleration_world;
 
-	sequence<double> desired_joint_state;
-	sequence<double> desired_joint_velocity;
-	sequence<double> desired_joint_acceleration;
-
-	sequence<double> desired_feed_forward_torque;
+	JointStateMsg desired_joint_state;
 
 	sequence<boolean> stance_feet;
 };
