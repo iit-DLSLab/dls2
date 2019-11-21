@@ -22,7 +22,12 @@
 #include <readline/history.h>
 #include <cstring>
 #include <sstream>
-#include <filesystem>
+
+// TODO when we are using a proper modern compiler, use the filesystem library
+// #include <filesystem>
+// TODO when we are using a proper modern compiler, remove this header
+#include <dirent.h>
+
 // #include "util/string/string.hpp"
 
 #include "util/messaging/publisher_base.hpp"
@@ -413,28 +418,60 @@ char *arg_completion(const char * text, int state)
 		// }
 
 
+		// TODO use this code when we are using a proper C++17 compiler
 		// fill libraries in the current path
-		std::filesystem::directory_iterator dir_it
-			(
-				std::filesystem::current_path()
-			);
+		// std::filesystem::directory_iterator dir_it
+		// 	(
+		// 		std::filesystem::current_path()
+		// 	);
 
-		for(auto &file : dir_it)
+		// for(auto &file : dir_it)
+		// {
+		// 	std::string filename(file.path().filename());
+		// 	if
+		// 	(
+		// 		filename.find_first_of("lib") == 0 &&
+		// 		filename.find_last_of(".so") == filename.size() - 1
+		// 	)
+		// 	{
+		// 		files.push_back
+		// 		(
+		// 			// strip "lib" and ".so" from file
+		// 			filename.substr(3, filename.size() - 6)
+		// 		);
+		// 	}
+		// ADD UP TO HERE WHEN USING A PROPER C++17 COMPILER
+
+		// TODO remove this code when we are using a proper C++17 compiler
+		DIR *dp = nullptr;
+		struct dirent *ep = nullptr;
+		dp = opendir("./");
+		if(dp != nullptr)
 		{
-			std::string filename(file.path().filename());
-			if
-			(
-				filename.find_first_of("lib") == 0 &&
-				filename.find_last_of(".so") == filename.size() - 1
-			)
+			while( (ep = readdir(dp)) )
 			{
-				files.push_back
+				std::string filename = ep->d_name;
+				if(filename == "." || filename == "..")
+				{
+					continue;
+				}
+				if
 				(
-					// strip "lib" and ".so" from file
-					filename.substr(3, filename.size() - 6)
-				);
+					filename.find_first_of("lib") == 0 &&
+					filename.find_last_of(".so") == filename.size() - 1
+				)
+				{
+					files.push_back
+					(
+						// strip "lib" and ".so" from file
+						filename.substr(3, filename.size() - 6)
+					);
+				}
 			}
+			(void)closedir(dp);
 		}
+		// REMOVE UP TO HERE WHEN USING A PROPER C++17 compiler
+
 	}
 
 	while(index != files.size())
