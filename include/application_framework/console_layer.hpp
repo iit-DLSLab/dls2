@@ -37,6 +37,8 @@
 // =============================================================================
 // Class Interface
 // =============================================================================
+/// A console interface into the framework
+///
 class ConsoleLayer : public AppLayer
 {
 	// Console completion is handled by readline, which is a C-library.
@@ -46,36 +48,64 @@ class ConsoleLayer : public AppLayer
 	friend char *arg_completion(const char * text, int state);
 
 public:
+	/// Utility class for collecting a console command
+	///
 	struct Command
 	{
+		/// Constructor
+		///
 		Command
 		(
 			const std::string &command_name,
 			const std::function<void(const std::vector<std::string>&)> &function,
-			const std::string &docstring,
-			const std::vector<std::string> &default_completions = {}
+			const std::string &docstring
+			// const std::vector<std::string> &default_completions = {}
 		);
 
+		/// The command name in the console
+		///
 		std::string                                    command_name;
+
+		/// The function that is called when the command is input
+		///
 		std::function<void(std::vector<std::string>)>  function;
+
+		/// The documentation string of the command
+		///
+		/// This is displayed when calling the `help` command in the console
 		std::string                                    docstring;
-		std::vector<std::string>                       default_completions;
+		// std::vector<std::string>                       default_completions;
 	};
 
+	/// Default Constructor
+	///
 	ConsoleLayer();
 	~ConsoleLayer() = default;
 
+	/// Run the console
+	///
+	/// This is a blocking call that enters an infinite loop
 	Status run() override;
+
+	/// Stop the console
+	///
+	/// Will cause `run` to stop running
 	Status shutdown() override;
 
+	/// Adds a command to the console
+	///
 	void addCommand(const Command&);
 
 private:
+	/// Generates the console prompt
+	///
+	/// This is currently just a stub function, but it can be expanded apon in
+	/// future
 	std::string build_prompt();
 
 	// Begin critical section
-		std::mutex commands_mutex;
-		std::map<std::string, Command> commands;
+		std::mutex commands_mutex; ///< Mutex protecting the console commands
+		std::map<std::string, Command> commands; ///< The commands registered with the console
 	// End critical section
 };
 

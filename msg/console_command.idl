@@ -20,6 +20,7 @@
 // TODO this is a temporary construct that needs to be made dynamic
 struct ConsoleCommandMsg
 {
-	string command;
-	sequence<string> args;
+	string command_name;
+	string docstring;
+	sequence<string> default_completions;
 };

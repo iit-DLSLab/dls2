@@ -33,33 +33,31 @@
 #include "topics/deactivate_controller.hpp"
 #include "topics/activate_gait_generator.hpp"
 #include "topics/deactivate_gait_generator.hpp"
+#include "util/debug/debug.hpp"
 
 // TODO move these two to the library
 std::string trim(const std::string&);
 std::string &trim_inplace(std::string *const);
 // =============================================================================
-// Globals
+// Local Globals
 // =============================================================================
 // Indirection to access class methods as C functions
 // This will only work if there is only one console object in the process, which
 // will always be the case
 ConsoleLayer *pInstance = nullptr;
 
-// =============================================================================
-// Foreward Declarations
-// =============================================================================
-char **console_completion(const char *text, int start, int /*end*/);
-// char *console_completion(const char *text, int state);
-char *command_completion(const char *text, int state);
-char *arg_completion(const char *text, int state);
-
-// char *dummy(const char
-
 // TODO these should not be hardcoded
 std::shared_ptr<PublisherBase<StringMsgPubSubType>> pActivate_controller_pub;
 std::shared_ptr<PublisherBase<StringMsgPubSubType>> pDeactivate_controller_pub;
 std::shared_ptr<PublisherBase<StringMsgPubSubType>> pActivate_gait_generator_pub;
 std::shared_ptr<PublisherBase<StringMsgPubSubType>> pDeactivate_gait_generator_pub;
+
+// =============================================================================
+// Foreward Declarations
+// =============================================================================
+char **console_completion(const char *text, int start, int /*end*/);
+char *command_completion(const char *text, int state);
+char *arg_completion(const char *text, int state);
 
 // =============================================================================
 // Constructors
@@ -118,11 +116,7 @@ ConsoleLayer::ConsoleLayer() :
 					pActivate_controller_pub->publish(msg);
 				}
 			},
-			"activates the controller",
-			{
-				"Hello",
-				"Bye"
-			}
+			"activates the controller"
 		)
 	);
 
@@ -175,6 +169,35 @@ ConsoleLayer::ConsoleLayer() :
 			"deactivates the controller"
 		)
 	);
+
+	addCommand
+	(
+		Command
+		(
+			"help",
+			[&](const std::vector<std::string> &vec)
+			{
+				if(vec.size() == 0)
+				{
+					std::cout << "usage: help arg [arg...]" << std::endl;
+				}
+				else
+				{
+					// std::lock_guard<std::mutex> lock(this->commands_mutex);
+					for(const auto &arg : vec)
+					{
+						auto it = commands.find(arg);
+						if(it == commands.end())
+						{
+							continue;
+						}
+						std::cout << arg << ": " << it->second.docstring << std::endl;
+					}
+				}
+			},
+			"Prints docstrings of its arguments"
+		)
+	);
 }
 
 // =============================================================================
@@ -220,9 +243,18 @@ ConsoleLayer::Status ConsoleLayer::run()
 					{
 						it->second.function(args);
 					}
+					else
+					{
+						std::cerr << "Command '" << input_split[0]
+							<< "' not found" << std::endl;
+					}
 				}
 			}
 			free(line);
+		}
+		else // if EOF received
+		{
+			std::cout << std::endl;
 		}
 	}
 
@@ -258,15 +290,15 @@ void ConsoleLayer::addCommand(const Command &c)
 // =============================================================================
 // Readline
 // =============================================================================
-// This namespace contains global variables that should only be used by
-// readline.
-//
-// Readline does not provide for passing userdata, therefore it is not possible
-// to get around using some global structures
-namespace readline_globals
-{
-	std::map<std::string, ConsoleLayer::Command>::iterator current_command;
-}
+//// This namespace contains global variables that should only be used by
+//// readline.
+////
+//// Readline does not provide for passing userdata, therefore it is not possible
+//// to get around using some global structures
+//namespace readline_globals
+//{
+//	std::map<std::string, ConsoleLayer::Command>::iterator current_command;
+//}
 
 // -----------------------------------------------------------------------------
 // Completion chooser
@@ -290,13 +322,12 @@ char **console_completion(const char *text, int start, int /*end*/)
 		//
 		// It may not exist if garbage was typed into the command line
 		{
-			std::lock_guard<std::mutex> lock(pInstance->commands_mutex);
+			// std::lock_guard<std::mutex> lock(pInstance->commands_mutex);
 
 			auto command_it = pInstance->commands.find(command_name);
-			readline_globals::current_command = command_it;
+			// readline_globals::current_command = command_it;
 			if(command_it != pInstance->commands.end())
 			{
-				// executing arg_completion under held commands_mutex
 				matches = rl_completion_matches(text, arg_completion);
 			}
 		}
@@ -361,7 +392,6 @@ char *command_completion(const char *text, int state)
 // -----------------------------------------------------------------------------
 // Argument Completion
 // -----------------------------------------------------------------------------
-// executed under held commands_mutex
 char *arg_completion(const char * text, int state)
 {
 	static std::vector<std::string> files;
@@ -373,14 +403,14 @@ char *arg_completion(const char * text, int state)
 		files.clear();
 
 		// fill the default completions
-		for
-		(
-			const auto &el :
-			readline_globals::current_command->second.default_completions
-		)
-		{
-			files.push_back(el);
-		}
+		// for
+		// (
+		// 	const auto &el :
+		// 	readline_globals::current_command->second.default_completions
+		// )
+		// {
+		// 	files.push_back(el);
+		// }
 
 
 		// fill libraries in the current path
@@ -436,13 +466,13 @@ ConsoleLayer::Command::Command
 (
 	const std::string &command_name_,
 	const std::function<void(const std::vector<std::string>&)> &function_,
-	const std::string &docstring_,
-	const std::vector<std::string> &default_completions_
+	const std::string &docstring_
+	// const std::vector<std::string> &default_completions_
 ) :
 	command_name(command_name_),
 	function(function_),
-	docstring(docstring_),
-	default_completions(default_completions_)
+	docstring(docstring_)
+	// default_completions(default_completions_)
 {}
 
 std::string trim(const std::string &s)
