@@ -59,6 +59,7 @@ JointState::operator JointStateMsg() const
 
 	msg.position().resize(this->position.size());
 	msg.velocity().resize(this->velocity.size());
+	msg.acceleration().resize(this->acceleration.size());
 	msg.effort().resize(this->effort.size());
 
 	Eigen::VectorXd::Map(&msg.position()[0], this->position.size()) = this->position;
