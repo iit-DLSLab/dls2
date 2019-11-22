@@ -32,7 +32,8 @@
 
 #include "path_prefixes/path_prefixes.hpp"
 
-std::shared_ptr<dls::Controller> pController;
+using namespace dls;
+std::shared_ptr<Controller> pController;
 void signal_handler(int signal);
 
 int main(int argc, char **argv)
@@ -47,25 +48,25 @@ int main(int argc, char **argv)
 	try // this is a quick hack to first check local directory for library
 	{
 		pController =
-			dls::ClassLoader::loadClass<dls::Controller>(std::string(LIBRARY_PROCESS_PATH "./lib") + argv[1] + ".so");
+			ClassLoader::loadClass<Controller>(std::string(LIBRARY_PROCESS_PATH "./lib") + argv[1] + ".so");
 	}
 	catch(const std::exception&)
 	{
 		try
 		{
 			pController =
-				dls::ClassLoader::loadClass<dls::Controller>(std::string(LIBRARY_PROCESS_PATH "lib") + argv[1] + ".so");
+				ClassLoader::loadClass<Controller>(std::string(LIBRARY_PROCESS_PATH "lib") + argv[1] + ".so");
 		}
 		catch(const std::exception&)
 		{
 			DMSG("ADFSLFSDJLSDJFLSJFD");
-			dls::logging::cfatal << "Controller not found" << dls::logging::endl;
-			exit((int)dls::Controller::Status::FATAL_ERROR);
+			logging::cfatal << "Controller not found" << logging::endl;
+			exit((int)Controller::Status::FATAL_ERROR);
 		}
 	}
 
 	std::signal(SIGTERM, signal_handler);
-	dls::logging::clog << "controller loaded" << dls::logging::endl;
+	logging::clog << "controller loaded" << logging::endl;
 	pController->run();
 
 	return static_cast<int>(pController->getStatus());
@@ -78,7 +79,7 @@ void signal_handler(int signal)
 		std::stringstream ss;
 		ss << pController->getID();
 		ss << " received kill request";
-		dls::logging::clog << ss.str() << dls::logging::endl;
+		logging::clog << ss.str() << logging::endl;
 
 		pController->stop();
 		exit(static_cast<int>(pController->getStatus()));
@@ -87,7 +88,7 @@ void signal_handler(int signal)
 
 // If this class isn't delcared, the linker will link the whole class away, then
 // the call to loadClass will fail
-class VoidController : public dls::Controller
+class VoidController : public Controller
 {
 public:
 	VoidController
@@ -98,7 +99,7 @@ public:
 			nullptr,
 			"dummy_controller",
 			std::chrono::duration<double>(1),
-			dls::ControlSignal::SignalReconstructionMethod::ZERO_ORDER_HOLD
+			ControlSignal::SignalReconstructionMethod::ZERO_ORDER_HOLD
 		)
 	{ }
 

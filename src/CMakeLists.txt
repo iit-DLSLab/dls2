@@ -295,8 +295,8 @@ add_dependencies(${EXECUTABLE_NAME}
 	dls_controller_process
 	dls_gait_generator_process
 	dls2_to_roscontrol
-	dls_pid_controller
-	dls_prep_gait_generator
+	# dls_pid_controller
+	# dls_prep_gait_generator
 )
 
 target_link_libraries(
@@ -333,13 +333,13 @@ add_dependencies(dls_dummy_controller messagelib)
 list(APPEND PROJECT_TARGETS dls_dummy_controller)
 # target_link_libraries(dummy_controller dls_geometry)
 
-add_library(
-	dls_pid_controller
-	SHARED
-	controller/pid_controller.cpp
-)
-add_dependencies(dls_pid_controller messagelib)
-list(APPEND PROJECT_TARGETS dls_pid_controller)
+# add_library(
+# 	dls_pid_controller
+# 	SHARED
+# 	controller/pid_controller.cpp
+# )
+# add_dependencies(dls_pid_controller messagelib)
+# list(APPEND PROJECT_TARGETS dls_pid_controller)
 
 add_library(
 	dls_dummy_gait_generator
@@ -349,13 +349,13 @@ add_library(
 add_dependencies(dls_dummy_gait_generator messagelib)
 list(APPEND PROJECT_TARGETS dls_dummy_gait_generator)
 
-add_library(
-	dls_prep_gait_generator
-	SHARED
-	gait_generator/prep_gait_generator.cpp
-)
-add_dependencies(dls_prep_gait_generator messagelib)
-list(APPEND PROJECT_TARGETS dls_prep_gait_generator)
+# add_library(
+# 	dls_prep_gait_generator
+# 	SHARED
+# 	gait_generator/prep_gait_generator.cpp
+# )
+# add_dependencies(dls_prep_gait_generator messagelib)
+# list(APPEND PROJECT_TARGETS dls_prep_gait_generator)
 
 add_library(
 	dls_dummy_estimator
@@ -369,27 +369,27 @@ list(APPEND PROJECT_TARGETS dls_dummy_estimator)
 # ==============================================================================
 # Tools
 # ==============================================================================
-add_executable(topic_info
-	${CMAKE_SOURCE_DIR}/src/util/topic_info/topic_info.cpp
-	${CMAKE_SOURCE_DIR}/src/util/topic_info/topic_info_main.cpp
+# add_executable(topic_info
+# 	${CMAKE_SOURCE_DIR}/src/util/topic_info/topic_info.cpp
+# 	${CMAKE_SOURCE_DIR}/src/util/topic_info/topic_info_main.cpp
 
-	# TODO this should be put into the dls_messaging library and just linked
-	# into this executable. It should NOT be recompiled here, it should only be
-	# compiled in the library
-	${CMAKE_SOURCE_DIR}/src/controller/control_signal.cpp
-)
-target_link_libraries(topic_info
-	fastcdr
-	fastrtps
-	dls_messaging
+# 	# TODO this should be put into the dls_messaging library and just linked
+# 	# into this executable. It should NOT be recompiled here, it should only be
+# 	# compiled in the library
+# 	${CMAKE_SOURCE_DIR}/src/controller/control_signal.cpp
+# )
+# target_link_libraries(topic_info
+# 	fastcdr
+# 	fastrtps
+# 	dls_messaging
 
-	# TODO this should be removed when the gait signal and contro lsignal
-	# wrappers are moved to the messaging library
-	# dls_gaitgeneratorinterface
-	# dls_controlinterface
-	# dls_estimatorinterface
-	# dls_framework
-)
+# 	# TODO this should be removed when the gait signal and contro lsignal
+# 	# wrappers are moved to the messaging library
+# 	# dls_gaitgeneratorinterface
+# 	# dls_controlinterface
+# 	# dls_estimatorinterface
+# 	# dls_framework
+# )
 
 
 # ==============================================================================

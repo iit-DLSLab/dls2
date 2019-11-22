@@ -19,10 +19,12 @@
 *******************************************************************************/
 #include "application_framework/components/app_layer_component.hpp"
 
+using namespace dls;
+
 // =============================================================================
 // Constructors
 // =============================================================================
-dls::AppLayerComponent::AppLayerComponent() :
+AppLayerComponent::AppLayerComponent() :
 	status(Status::UNCONSTRUCTED),
 	status_mutex()
 { }
@@ -30,13 +32,13 @@ dls::AppLayerComponent::AppLayerComponent() :
 // =============================================================================
 // Class Implementation
 // =============================================================================
-dls::AppLayerComponent::Status dls::AppLayerComponent::getStatus()
+AppLayerComponent::Status AppLayerComponent::getStatus()
 {
 	std::lock_guard<std::mutex> lock(this->status_mutex);
 	return this->status;
 }
 
-void dls::AppLayerComponent::setStatus(Status s)
+void AppLayerComponent::setStatus(Status s)
 {
 	this->status = s;
 }

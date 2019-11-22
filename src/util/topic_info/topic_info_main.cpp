@@ -22,6 +22,7 @@
 #include "util/topic_info/topic_info.hpp"
 #include <signal.h>
 
+using namespace dls;
 int main(int argc, char **argv)
 {
 	std::string name;
@@ -34,7 +35,7 @@ int main(int argc, char **argv)
 		name = "dummy_controller";
 	}
 	// listen to topics and print
-	dls::TopicInfo info(name);
+	TopicInfo info(name);
 
 	// wait until killed by user
 	sigset_t sigset;

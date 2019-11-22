@@ -40,23 +40,6 @@
 #include "topics/deactivate_gait_generator.hpp"
 #include "util/debug/debug.hpp"
 
-// TODO move these two to the library
-std::string trim(const std::string&);
-std::string &trim_inplace(std::string *const);
-// =============================================================================
-// Local Globals
-// =============================================================================
-// Indirection to access class methods as C functions
-// This will only work if there is only one console object in the process, which
-// will always be the case
-dls::ConsoleLayer *pInstance = nullptr;
-
-// TODO these should not be hardcoded
-std::shared_ptr<dls::PublisherBase<StringMsgPubSubType>> pActivate_controller_pub;
-std::shared_ptr<dls::PublisherBase<StringMsgPubSubType>> pDeactivate_controller_pub;
-std::shared_ptr<dls::PublisherBase<StringMsgPubSubType>> pActivate_gait_generator_pub;
-std::shared_ptr<dls::PublisherBase<StringMsgPubSubType>> pDeactivate_gait_generator_pub;
-
 // =============================================================================
 // Foreward Declarations
 // =============================================================================
@@ -68,9 +51,32 @@ namespace dls
 }
 
 // =============================================================================
+// Using Declarations
+// =============================================================================
+using namespace dls;
+
+// TODO move these two to the library
+std::string trim(const std::string&);
+std::string &trim_inplace(std::string *const);
+// =============================================================================
+// Local Globals
+// =============================================================================
+// Indirection to access class methods as C functions
+// This will only work if there is only one console object in the process, which
+// will always be the case
+ConsoleLayer *pInstance = nullptr;
+
+// TODO these should not be hardcoded
+std::shared_ptr<PublisherBase<StringMsgPubSubType>> pActivate_controller_pub;
+std::shared_ptr<PublisherBase<StringMsgPubSubType>> pDeactivate_controller_pub;
+std::shared_ptr<PublisherBase<StringMsgPubSubType>> pActivate_gait_generator_pub;
+std::shared_ptr<PublisherBase<StringMsgPubSubType>> pDeactivate_gait_generator_pub;
+
+
+// =============================================================================
 // Constructors
 // =============================================================================
-dls::ConsoleLayer::ConsoleLayer() :
+ConsoleLayer::ConsoleLayer() :
 	commands_mutex(),
 	commands()
 {
@@ -211,7 +217,7 @@ dls::ConsoleLayer::ConsoleLayer() :
 // =============================================================================
 // Interface Override
 // =============================================================================
-dls::ConsoleLayer::Status dls::ConsoleLayer::run()
+ConsoleLayer::Status ConsoleLayer::run()
 {
 	while(true)
 	{
@@ -269,7 +275,7 @@ dls::ConsoleLayer::Status dls::ConsoleLayer::run()
 	return getStatus();
 }
 
-dls::ConsoleLayer::Status dls::ConsoleLayer::shutdown()
+ConsoleLayer::Status ConsoleLayer::shutdown()
 {
 	return getStatus();
 }
@@ -277,12 +283,12 @@ dls::ConsoleLayer::Status dls::ConsoleLayer::shutdown()
 // =============================================================================
 // Implementaton
 // =============================================================================
-std::string dls::ConsoleLayer::build_prompt()
+std::string ConsoleLayer::build_prompt()
 {
 	return "> ";
 }
 
-void dls::ConsoleLayer::addCommand(const Command &c)
+void ConsoleLayer::addCommand(const Command &c)
 {
 	std::lock_guard<std::mutex> lock(this->commands_mutex);
 	this->commands.insert
@@ -502,7 +508,7 @@ char *dls::arg_completion(const char * text, int state)
 // =============================================================================
 // Helper Class
 // =============================================================================
-dls::ConsoleLayer::Command::Command
+ConsoleLayer::Command::Command
 (
 	const std::string &command_name_,
 	const std::function<void(const std::vector<std::string>&)> &function_,

@@ -23,13 +23,14 @@
 #include "geometry/pose.hpp"
 
 TODO("Use a proper testing framework")
+using namespace dls;
 int main(int argc, char *argv[])
 {
 	Eigen::Vector3d pos;
 	pos << 20, 21, 22;
 	Eigen::Quaterniond quat(10, 11, 12, 13);
 
-	dls::Pose p(pos, quat);
+	Pose p(pos, quat);
 
 	PoseMsg pm = p;
 
@@ -64,7 +65,7 @@ int main(int argc, char *argv[])
 // =============================================================================
 // Test conversion back to pose
 // =============================================================================
-	dls::Pose p2(pm);
+	Pose p2(pm);
 	std::cout << "Pose-pose position comparison" << std::endl;
 	for(int i = 0; i != 3; ++i)
 	{

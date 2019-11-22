@@ -20,20 +20,21 @@
 #include "estimator/dummy_estimator.hpp"
 #include "util/debug/debug.hpp"
 
-dls::DummyEstimator::DummyEstimator() :
+using namespace dls;
+DummyEstimator::DummyEstimator() :
 	Estimator("Dummy Estimator", std::chrono::duration<double>(1))
 { }
 
-void dls::DummyEstimator::run(const std::chrono::system_clock::time_point&)
+void DummyEstimator::run(const std::chrono::system_clock::time_point&)
 { }
 
-extern "C" dls::Estimator *create()
+extern "C" Estimator *create()
 {
-	auto p = new dls::DummyEstimator;
+	auto p = new DummyEstimator;
 	return p;
 }
 
-extern "C" void destroy(dls::Estimator *p)
+extern "C" void destroy(Estimator *p)
 {
 	delete p;
 }

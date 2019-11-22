@@ -1,9 +1,10 @@
 #include "msg_wrappers/screw.hpp"
 #include <iostream>
 
+using namespace dls;
 int main()
 {
-	dls::Screw s;
+	Screw s;
 	Eigen::Vector3d lin; lin << 0, 1, 2;
 	Eigen::Vector3d ang; ang << 3, 4, 5;
 	s.setLinear(lin);

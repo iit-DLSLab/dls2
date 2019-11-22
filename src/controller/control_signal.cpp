@@ -19,18 +19,19 @@
 *******************************************************************************/
 #include "controller/control_signal.hpp"
 
-dls::ControlSignal::ControlSignal() :
+using namespace dls;
+ControlSignal::ControlSignal() :
 	torques(),
 	signal_reconstruction_method(SignalReconstructionMethod::ZERO_ORDER_HOLD)
 { }
 
-dls::ControlSignal::ControlSignal(ControlSignalMsg msg) :
+ControlSignal::ControlSignal(ControlSignalMsg msg) :
 	// TODO this 12 should not be hardcoded
 	torques(Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(msg.torques().data(), 12)),
 	signal_reconstruction_method((SignalReconstructionMethod)msg.signal_reconstruction_method())
 { }
 
-dls::ControlSignal::operator ControlSignalMsg() const
+ControlSignal::operator ControlSignalMsg() const
 {
 	// TODO do not assign this here, do not resize this here
 	ControlSignalMsg msg;

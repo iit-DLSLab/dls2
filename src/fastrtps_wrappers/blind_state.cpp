@@ -19,10 +19,11 @@
 *******************************************************************************/
 #include "fastrtps_wrappers/blind_state.hpp"
 
+using namespace dls;
 // =============================================================================
 // Constructors
 // =============================================================================
-dls::BlindState::BlindState() :
+BlindState::BlindState() :
 	joint_state(),
 	body_pose_world(),
 	body_velocity_world(),
@@ -40,7 +41,7 @@ dls::BlindState::BlindState() :
 // -----------------------------------------------------------------------------
 // Converting Constructor
 // -----------------------------------------------------------------------------
-dls::BlindState::BlindState(BlindStateMsg msg) :
+BlindState::BlindState(BlindStateMsg msg) :
 	joint_state(msg.joint_state()),
 	body_pose_world(msg.body_pose_world()),
 	body_velocity_world(msg.body_velocity_world()),
@@ -50,7 +51,7 @@ dls::BlindState::BlindState(BlindStateMsg msg) :
 // -----------------------------------------------------------------------------
 // Type Casting
 // -----------------------------------------------------------------------------
-dls::BlindState::operator BlindStateMsg() const
+BlindState::operator BlindStateMsg() const
 {
     BlindStateMsg msg;
 	msg.joint_state(this->joint_state);

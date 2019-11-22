@@ -23,10 +23,11 @@
 #include "gait_generator/gait_signal.hpp"
 #include "robot/robot.hpp"
 
+using namespace dls;
 // =============================================================================
 // Constructors
 // =============================================================================
-dls::GaitSignal::GaitSignal() :
+GaitSignal::GaitSignal() :
 
     desired_com_pose(),
     desired_com_velocity(),
@@ -65,7 +66,7 @@ dls::GaitSignal::GaitSignal() :
 // Converting Constructor
 // -----------------------------------------------------------------------------
 TODO("stance feet")
-dls::GaitSignal::GaitSignal(GaitSignalMsg msg) :
+GaitSignal::GaitSignal(GaitSignalMsg msg) :
     desired_com_pose(msg.desired_com_pose()),
     desired_com_velocity(msg.desired_com_velocity()),
     desired_com_acceleration(msg.desired_com_velocity()),
@@ -108,7 +109,7 @@ dls::GaitSignal::GaitSignal(GaitSignalMsg msg) :
 // -----------------------------------------------------------------------------
 // Type Casting
 // -----------------------------------------------------------------------------
-dls::GaitSignal::operator GaitSignalMsg() const
+GaitSignal::operator GaitSignalMsg() const
 {
     GaitSignalMsg msg;
 

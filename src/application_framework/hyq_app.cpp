@@ -20,11 +20,12 @@
 #include "application_framework/hyq_app.hpp"
 #include "util/debug/debug.hpp"
 
+using namespace dls;
 // =============================================================================
 // Constructors
 // =============================================================================
 TODO("Make these constructors DRY")
-dls::HyQApp::HyQApp() :
+HyQApp::HyQApp() :
 	layers(),
 	layer_threads(),
 	layers_mutex(),
@@ -35,7 +36,7 @@ dls::HyQApp::HyQApp() :
 	init_libraries();
 }
 
-dls::HyQApp::HyQApp(const std::initializer_list<pLayer_t> &_layers) :
+HyQApp::HyQApp(const std::initializer_list<pLayer_t> &_layers) :
 	layers(_layers),
 	layer_threads(),
 	layers_mutex(),
@@ -46,7 +47,7 @@ dls::HyQApp::HyQApp(const std::initializer_list<pLayer_t> &_layers) :
 	init_libraries();
 }
 
-dls::HyQApp::~HyQApp()
+HyQApp::~HyQApp()
 {
 	{
 		std::lock_guard<std::mutex> lock(this->layers_mutex);
@@ -69,7 +70,7 @@ dls::HyQApp::~HyQApp()
 // =============================================================================
 // Member Functions
 // =============================================================================
-void dls::HyQApp::panic()
+void HyQApp::panic()
 {
 	TODO("Here set safety")
 
@@ -80,19 +81,19 @@ void dls::HyQApp::panic()
 	}
 }
 
-dls::HyQApp::Status dls::HyQApp::getStatus()
+HyQApp::Status HyQApp::getStatus()
 {
 	std::lock_guard<std::mutex> lock(this->status_mutex);
 	return this->status;
 }
 
-void dls::HyQApp::setStatus(Status s)
+void HyQApp::setStatus(Status s)
 {
 	std::lock_guard<std::mutex> lock(this->status_mutex);
 	this->status = s;
 }
 
-void dls::HyQApp::run()
+void HyQApp::run()
 {
 	// Start each layer in a new thread
 	// These threads are joined in the destructor

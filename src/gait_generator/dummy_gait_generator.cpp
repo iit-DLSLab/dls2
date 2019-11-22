@@ -22,7 +22,8 @@
 #include "geometry/pose.hpp"
 #include "util/log/log.hpp"
 
-dls::DummyGaitGenerator::DummyGaitGenerator(const std::shared_ptr<Dog> &pDog) :
+using namespace dls;
+DummyGaitGenerator::DummyGaitGenerator(const std::shared_ptr<Dog> &pDog) :
 	GaitGenerator
 	(
 		pDog,
@@ -33,13 +34,13 @@ dls::DummyGaitGenerator::DummyGaitGenerator(const std::shared_ptr<Dog> &pDog) :
 	logging::clog << "dummy gait generator launched" << logging::endl;
 }
 
-dls::DummyGaitGenerator::DummyGaitGenerator()
+DummyGaitGenerator::DummyGaitGenerator()
 	: DummyGaitGenerator(std::make_shared<Dog>())
 {
 	logging::clog << "dummy gait generator destroyed" << logging::endl;
 }
 
-void dls::DummyGaitGenerator::run(const std::chrono::system_clock::time_point &time)
+void DummyGaitGenerator::run(const std::chrono::system_clock::time_point &time)
 {
 	logging::clog << "Dummy Gait Generator Epoch" << logging::endl;
 	GaitSignal data;
@@ -51,13 +52,13 @@ void dls::DummyGaitGenerator::run(const std::chrono::system_clock::time_point &t
 	time.time_since_epoch();
 }
 
-extern "C" dls::GaitGenerator *create()
+extern "C" GaitGenerator *create()
 {
-	auto p = new dls::DummyGaitGenerator;
+	auto p = new DummyGaitGenerator;
 	return p;
 }
 
-extern "C" void destroy(dls::GaitGenerator *p)
+extern "C" void destroy(GaitGenerator *p)
 {
 	delete p;
 }

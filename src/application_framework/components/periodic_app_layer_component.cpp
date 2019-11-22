@@ -20,10 +20,11 @@
 #include <thread>
 #include "application_framework/components/periodic_app_layer_component.hpp"
 
+using namespace dls;
 // =============================================================================
 // Constructors
 // =============================================================================
-dls::PeriodicAppLayerComponent::PeriodicAppLayerComponent(const period_t &inPeriod) :
+PeriodicAppLayerComponent::PeriodicAppLayerComponent(const period_t &inPeriod) :
 	period(inPeriod),
 	should_run(false)
 { }
@@ -31,7 +32,7 @@ dls::PeriodicAppLayerComponent::PeriodicAppLayerComponent(const period_t &inPeri
 // =============================================================================
 // Interface Override Functions
 // =============================================================================
-dls::AppLayerComponent::Status dls::PeriodicAppLayerComponent::run()
+AppLayerComponent::Status PeriodicAppLayerComponent::run()
 {
 	setStatus(Status::RUNNING);
 	this->should_run = true;
@@ -57,7 +58,7 @@ dls::AppLayerComponent::Status dls::PeriodicAppLayerComponent::run()
 	return this->getStatus();
 }
 
-dls::AppLayerComponent::Status dls::PeriodicAppLayerComponent::stop()
+AppLayerComponent::Status PeriodicAppLayerComponent::stop()
 {
 	this->should_run = false;
 	this->setStatus(Status::STOPPED);

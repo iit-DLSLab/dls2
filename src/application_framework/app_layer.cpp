@@ -24,7 +24,7 @@ using namespace dls;
 // =============================================================================
 // Constructors
 // =============================================================================
-dls::AppLayer::AppLayer() :
+AppLayer::AppLayer() :
 	components_mutex(),
 	components({}),
 	status_mutex(),
@@ -32,7 +32,7 @@ dls::AppLayer::AppLayer() :
 	main(0)
 { }
 
-dls::AppLayer::AppLayer(const std::initializer_list<pComponent_t> &_components) :
+AppLayer::AppLayer(const std::initializer_list<pComponent_t> &_components) :
 	components_mutex(),
 	components(_components),
 	status_mutex(),
@@ -43,19 +43,19 @@ dls::AppLayer::AppLayer(const std::initializer_list<pComponent_t> &_components) 
 // =============================================================================
 // Member Functions
 // =============================================================================
-dls::AppLayer::Status dls::AppLayer::getStatus() const
+AppLayer::Status AppLayer::getStatus() const
 {
 	std::lock_guard<std::mutex> lock(this->status_mutex);
 	return this->status;
 }
 
-void dls::AppLayer::setStatus(Status s)
+void AppLayer::setStatus(Status s)
 {
 	std::lock_guard<std::mutex> lock(this->status_mutex);
 	this->status = s;
 }
 
-dls::AppLayer::Status dls::AppLayer::eStop()
+AppLayer::Status AppLayer::eStop()
 {
 	{
 		std::lock_guard<std::mutex> lock(this->components_mutex);

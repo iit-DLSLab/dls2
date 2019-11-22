@@ -19,15 +19,16 @@
 *******************************************************************************/
 #include "application_framework/hardware_layer.hpp"
 
+using namespace dls;
 // =============================================================================
 // Constructors
 // =============================================================================
-dls::HardwareLayer::HardwareLayer() :
+HardwareLayer::HardwareLayer() :
 	sensors(),
 	sensors_mutex()
 { }
 
-dls::HardwareLayer::HardwareLayer
+HardwareLayer::HardwareLayer
 (
 	std::initializer_list<std::shared_ptr<SensorBase>> _sensors
 ) :
@@ -38,23 +39,23 @@ dls::HardwareLayer::HardwareLayer
 // =============================================================================
 // Member Functions
 // =============================================================================
-dls::HardwareLayer::Status dls::HardwareLayer::run()
+HardwareLayer::Status HardwareLayer::run()
 {
 	return getStatus();
 }
 
-dls::HardwareLayer::Status dls::HardwareLayer::shutdown()
+HardwareLayer::Status HardwareLayer::shutdown()
 {
 	return getStatus();
 }
 
-void dls::HardwareLayer::addSensor(std::shared_ptr<SensorBase> pSensor)
+void HardwareLayer::addSensor(std::shared_ptr<SensorBase> pSensor)
 {
 	std::lock_guard<std::mutex> lock(this->sensors_mutex);
 	this->sensors.push_back(pSensor);
 }
 
-void dls::HardwareLayer::addSensor
+void HardwareLayer::addSensor
 (
 	std::initializer_list<std::shared_ptr<SensorBase>> in_sensors
 )

@@ -22,19 +22,20 @@
 
 #include "msg_wrappers/joint_state.hpp"
 
-dls::JointState::JointState() :
+using namespace dls;
+JointState::JointState() :
 	position(),
 	velocity(),
 	effort()
 { }
 
-dls::JointState::JointState(JointStateMsg &msg) :
+JointState::JointState(JointStateMsg &msg) :
 	position(Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(msg.position().data(), msg.position().size())),
 	velocity(Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(msg.velocity().data(), msg.velocity().size())),
 	effort(Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(msg.effort().data(), msg.effort().size()))
 { }
 
-dls::JointState::operator JointStateMsg() const
+JointState::operator JointStateMsg() const
 {
 	// TODO do not assign this here, do not resize this here
 	JointStateMsg msg;

@@ -29,7 +29,8 @@
 // =============================================================================
 // Constructors
 // =============================================================================
-dls::Controller::Controller
+using namespace dls;
+Controller::Controller
 (
 	const std::shared_ptr<Dog> &dog_,
 	const std::string &name_,
@@ -57,30 +58,30 @@ dls::Controller::Controller
 // =============================================================================
 // Implementation
 // =============================================================================
-dls::Controller::ID_t dls::Controller::getID() const
+Controller::ID_t Controller::getID() const
 {
 	return this->ID;
 }
 
-std::shared_ptr<const dls::GaitSignal> dls::Controller::readGaitSignal() const
+std::shared_ptr<const GaitSignal> Controller::readGaitSignal() const
 {
 	std::lock_guard<std::mutex> lock(this->gait_signal_mutex);
 	return this->pGait_signal;
 }
 
-std::shared_ptr<const dls::BlindState> dls::Controller::readBlindStateSignal() const
+std::shared_ptr<const BlindState> Controller::readBlindStateSignal() const
 {
 	std::lock_guard<std::mutex> lock(this->blind_state_signal_mutex);
 	return this->pBlind_state_signal;
 }
 
-void dls::Controller::publishSignal(const dls::ControlSignal &msg)
+void Controller::publishSignal(const ControlSignal &msg)
 {
 	ControlSignalMsg p = msg;
 	publisher.publish(p);
 }
 
-std::string dls::Controller::getControlSignalTopic() const
+std::string Controller::getControlSignalTopic() const
 {
 	return this->control_signal_topic;
 }
@@ -88,13 +89,13 @@ std::string dls::Controller::getControlSignalTopic() const
 // =============================================================================
 // FastRTPS
 // =============================================================================
-dls::Controller::GaitListener::GaitListener(std::shared_ptr<Controller> p) :
+Controller::GaitListener::GaitListener(std::shared_ptr<Controller> p) :
 	SubscriberBase<GaitSignalMsgPubSubType>(topics::gait_signal),
 	pOwner(p),
 	info()
 { }
 
-void dls::Controller::GaitListener::onNewDataMessage(eprosima::fastrtps::Subscriber *pSub)
+void Controller::GaitListener::onNewDataMessage(eprosima::fastrtps::Subscriber *pSub)
 {
 	GaitSignalMsg st;
 	if(pSub->takeNextData(&st, &info))
@@ -105,13 +106,13 @@ void dls::Controller::GaitListener::onNewDataMessage(eprosima::fastrtps::Subscri
 	}
 }
 
-dls::Controller::BlindStateListener::BlindStateListener(std::shared_ptr<Controller> p) :
+Controller::BlindStateListener::BlindStateListener(std::shared_ptr<Controller> p) :
 	SubscriberBase<BlindStateMsgPubSubType>(topics::low_level_estimation::blind_state),
 	pOwner(p),
 	info()
 { }
 
-void dls::Controller::BlindStateListener::onNewDataMessage(eprosima::fastrtps::Subscriber *pSub)
+void Controller::BlindStateListener::onNewDataMessage(eprosima::fastrtps::Subscriber *pSub)
 {
 	BlindStateMsg bs;
 	if(pSub->takeNextData(&bs, &info))

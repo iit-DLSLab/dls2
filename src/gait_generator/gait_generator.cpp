@@ -24,10 +24,11 @@
 #include <chrono>
 #include <thread>
 
+using namespace dls;
 // =============================================================================
 // Constructors
 // =============================================================================
-dls::GaitGenerator::GaitGenerator
+GaitGenerator::GaitGenerator
 (
 	const std::shared_ptr<Dog> &pRobot_,
 	const ID_t &ID_,
@@ -44,11 +45,11 @@ dls::GaitGenerator::GaitGenerator
 // =============================================================================
 // Implementation
 // =============================================================================
-dls::GaitGenerator::ID_t dls::GaitGenerator::getID()
+GaitGenerator::ID_t GaitGenerator::getID()
 {
 	return this->ID;
 }
-void dls::GaitGenerator::publishData(const dls::GaitSignal &signal)
+void GaitGenerator::publishData(const GaitSignal &signal)
 {
 	GaitSignalMsg p = signal;
 	publisher.publish(p);

@@ -19,10 +19,11 @@
 *******************************************************************************/
 #include "sensors/sensor_base.hpp"
 
+using namespace dls;
 // =============================================================================
 // Constructors
 // =============================================================================
-dls::SensorBase::SensorBase(Criticality c) :
+SensorBase::SensorBase(Criticality c) :
 	criticality(c),
 	status(Status::UNINITIALISED),
 	status_mutex()
@@ -31,18 +32,18 @@ dls::SensorBase::SensorBase(Criticality c) :
 // =============================================================================
 // Member Functions
 // =============================================================================
-dls::SensorBase::Criticality dls::SensorBase::getCriticality() const
+SensorBase::Criticality SensorBase::getCriticality() const
 {
 	return this->criticality;
 }
 
-dls::SensorBase::Status dls::SensorBase::getStatus() const
+SensorBase::Status SensorBase::getStatus() const
 {
 	std::lock_guard<std::mutex> lock(this->status_mutex);
 	return this->status;
 }
 
-void dls::SensorBase::setStatus(Status s)
+void SensorBase::setStatus(Status s)
 {
 	std::lock_guard<std::mutex> lock(this->status_mutex);
 	this->status = s;
