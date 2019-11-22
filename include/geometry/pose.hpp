@@ -116,6 +116,20 @@ public:
 	/// pose.
 	Eigen::AngleAxisd toAngleAxis() const;
 
+	/// Returns a vector of Roll Pith Yaw angles (in ZYX) convention representing the orientation of the pose
+	///
+	/// This returns a copy of the position. This call is thread-safe, but makes
+	/// no guarantees that another thread will not change the original pose.
+	Eigen::Vector3d toRpy() const;
+
+	/// Returns an Matrix representation of the orientation of the pose.
+	/// The matrix maps vectors from the fixed frame to the rotated frame.
+	///
+	/// This returns a copy of the orientation. This call is thread-safe, but
+	/// makes no guarantees that another thread will not change the original
+	/// pose.
+	Eigen::Matrix3d toRotationMatrix() const;
+
 	/// Returns a transformation matrix representation of the current pose
 	///
 	/// This returns a copy of the position. This call is thread-safe, but makes

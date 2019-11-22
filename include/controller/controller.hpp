@@ -90,7 +90,7 @@ protected:
 	/// generator
 	std::shared_ptr<const GaitSignal> readGaitSignal() const;
 	
-	std::shared_ptr<const BlindState> readBlindStateSignal() const;
+	std::shared_ptr<BlindState> readBlindStateSignal() const;
 
 	/// Sends the control command to the rest of the architecture
 	void publishSignal(const ControlSignal&);
@@ -114,7 +114,7 @@ private:
 	// END critical section
 		
 	// BEGIN critical section
-		std::shared_ptr<const BlindState> pBlind_state_signal;
+		std::shared_ptr<BlindState> pBlind_state_signal;
 		mutable std::mutex blind_state_signal_mutex;
 	// END crital section
 

@@ -69,7 +69,7 @@ std::shared_ptr<const GaitSignal> Controller::readGaitSignal() const
 	return this->pGait_signal;
 }
 
-std::shared_ptr<const BlindState> Controller::readBlindStateSignal() const
+std::shared_ptr<BlindState> Controller::readBlindStateSignal() const
 {
 	std::lock_guard<std::mutex> lock(this->blind_state_signal_mutex);
 	return this->pBlind_state_signal;
@@ -119,6 +119,6 @@ void Controller::BlindStateListener::onNewDataMessage(eprosima::fastrtps::Subscr
 	{
 		std::lock_guard<std::mutex> lock(pOwner->blind_state_signal_mutex);
 		// TODO do not reassign memory, just reset it
-		pOwner->pBlind_state_signal = std::make_shared<const BlindState>(bs);
+		pOwner->pBlind_state_signal = std::make_shared<BlindState>(bs);
 	}
 }
