@@ -1,10 +1,11 @@
 #include "trunk_controller.hpp"
 #include <iit/commons/geometry/algebra.h>
-#include <iit/locomotionutils/computeJacobians.h>
+#include <iit/commons/geometry/rotations.h>
+#include "computeJacobians.h"
 #include <iit/rbd/rbd.h>
-//#include <iit/robots/hyq/default_parameters_getter.h>
+#include <iit/robots/hyq/default_parameters_getter.h>
 
-#include <iit/locomotionutils/parameters_getter.h>
+//#include <iit/locomotionutils/parameters_getter.h>
 
 using namespace Eigen;
 using namespace iit::rbd;
@@ -82,8 +83,10 @@ TrunkController::TrunkController() :
 
 
     //robot_params_.reset(new iit::dog::UrdfParamsGetter(robot_model));
-    robot_params_.reset(new iit::HyQ::TestParamsGetter());
-
+    //robot_params_.reset(new iit::HyQ::TestParamsGetter());
+	
+	
+	robot_params_.reset(new iit::HyQ::DefaultParamsGetter());
 
     hyq_jacobians_.reset(new iit::HyQ::Jacobians(*robot_params_));
     hyq_hom_transforms_.reset(new iit::HyQ::HomogeneousTransforms(*robot_params_));
@@ -1105,5 +1108,16 @@ iit::dog::JointState TrunkController::getLegWeightTorques(const Eigen::Matrix3d 
 
 }
 
+
+extern "C" dls::Controller *create()
+{
+	auto p = new TrunkController;
+	return p;
+}
+
+extern "C" void destroy(dls::Controller *p)
+{
+	delete p;
+}
 
 

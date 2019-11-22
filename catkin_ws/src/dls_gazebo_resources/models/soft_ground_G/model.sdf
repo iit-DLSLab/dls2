@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<sdf version="1.2">
+  <model name="soft_ground_G">
+    <static>true</static>
+    <link name="link">
+      <collision name="collision">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.5 5 1</size>
+          </box>
+        </geometry>
+        
+        <surface>
+          <!-- <bounce>
+            <restitution_coefficient>0.01</restitution_coefficient>
+            <threshold>5.0</threshold>
+          </bounce> -->
+          <friction>
+            <ode>
+              <mu>1</mu>
+              <mu2>1</mu2>
+            </ode>
+          </friction>
+          <contact>
+            <ode>
+        <kp>8000.0</kp>  <kd>400.0</kd>  <!-- gain set 1 -->
+        <!-- <kp>1000.0</kp>  <kd>500.0</kd>  --> <!-- gain set 2 -->
+          <!--    <kp>3500.0</kp>  <kd>1000.0</kd>  -->    <!-- kd = 0.3 kp --> <!-- gain set 3 -->
+            </ode>
+          </contact>
+        </surface>
+
+      </collision>
+      <visual name="visual_1">
+	<transparency>0.3</transparency>
+        <pose>0 0 0 0 0 0</pose>
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <box>
+            <size>1.5 5 1</size>
+          </box>
+        </geometry>
+        <material>
+	  <lighting>true</lighting>
+          <script>
+            <uri>model://soft_ground_G/materials/scripts</uri>
+            <uri>model://soft_ground_G/materials/textures</uri>
+            <name>vrc/mudG</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+  </model>cc
+</sdf>

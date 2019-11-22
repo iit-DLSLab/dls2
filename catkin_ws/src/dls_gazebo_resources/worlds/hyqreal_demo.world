@@ -1,0 +1,120 @@
+<!-- HyQReal Simulation Scenario:
+The scenario consists of five main tasks:
+Task1: Climbing up and down stairs (Michele)
+Task2: Crossing a pipe (Michele)
+Task3: Rough terrain trot (Victor)
+Task4: Foothold correction over terrain with gaps (Victor)
+Task5: Self righting (Andreea, no model needed)-->
+<?xml version="1.0" ?>
+<sdf version="1.4">
+<!-- standard world configurations -->
+  <world name="default">
+    <physics type='ode'>
+      <gravity>0 0 -9.81</gravity>
+      <!-- max step size has to be a multiple of the desired task rate-->
+      <max_step_size>0.001</max_step_size> 
+      <real_time_factor>1</real_time_factor>
+    </physics>
+    <!-- A global light source -->
+    <include>
+      <uri>model://sun</uri>
+    </include>
+    <!-- A ground plane -->
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+
+    <include>
+      <name>asphalt_plane</name>
+      <uri>model://asphalt_plane</uri>
+      <!-- side pipe-->
+      <pose>0 0 -0.05 0 0 0</pose>
+    </include>
+
+<!-- Task 1-->    
+    <include>
+      <name>pipe</name>
+      <uri>model://pipe</uri>
+      <!-- side pipe-->
+      <pose>-2.0 -0.42 0.1 0 0 0</pose>
+    </include>
+<!-- End of Task 1, leave clearance -->  
+
+<!-- Task 2-->    
+    <!-- first stair starts at 0.8-->
+    
+    <include>
+      <name>asphalt_pallet</name>
+      <uri>model://asphalt_pallet</uri>
+      <pose>1.9 -1.0 0.09 0 0 0</pose>
+    </include>
+    
+    <include>
+      <name>asphalt_pallet</name>
+      <uri>model://asphalt_pallet</uri>
+      <pose>2.28 -1.0 0.23 0 0 0 </pose>
+    </include>
+    
+    <include>
+      <name>asphalt_pallet</name>
+      <uri>model://asphalt_pallet</uri>
+      <pose>2.76 -1.0 0.37 0 0 0 </pose>
+    </include>  
+
+    <include>
+      <name>asphalt_pallet</name>
+      <uri>model://asphalt_pallet</uri>
+      <pose>3.24 -1.0 0.37 0 0 0 </pose>
+    </include>  
+
+  
+    <!-- second stair starts at 2.72-->
+  
+    <include>
+      <name>asphalt_pallet</name>
+      <uri>model://asphalt_pallet</uri>
+      <pose>3.72 -1.0 0.23 0 0 0</pose>
+    </include>
+    
+    <include>
+      <name>asphalt_pallet</name>
+      <uri>model://asphalt_pallet</uri>
+      <pose>4.2 -1.0 0.09 0 0 0 </pose>
+    </include>
+<!-- End of Task 2, leave 1.32m clearance -->  
+     
+
+<!-- Task 3-->   
+  <!-- Using Maya Terrain: a rough terrain that is scaled down 
+       to fit the world-->
+<!--	<include>-->
+<!--		<uri>model://maya_terrain_resized</uri>-->
+<!--		<name>stairs</name>-->
+<!--		<pose>9.5 -1.5 0.1 1.57 0 -1.57</pose>-->
+<!--	</include>-->
+	<include>
+		<uri>model://cobblestones_1</uri>
+		<name>cobble_1</name>
+		<pose>9.5 -0.5 -0.045 0 0 0</pose>
+	</include>
+	<include>
+		<uri>model://cobblestones_1</uri>
+		<name>cobble_2</name>
+		<pose>9.5 0.7 -0.045 0 0 0</pose>
+	</include>
+	<include>
+		<uri>model://cobblestones_1</uri>
+		<name>cobble_3</name>
+		<pose>9.5 1.7 -0.045 0 0 0</pose>
+	</include>
+
+
+
+<!-- End of Task 3, leave clearance --> 
+
+<!-- TO DO -->
+<!-- Task 3 -->
+<!-- End of Task 3 -->
+  </world>
+</sdf>

@@ -50,7 +50,8 @@
 
     <depend>roscpp</depend>
     <depend>std_msgs</depend>
-    <depend>locomotion_utils</depend>
+	<depend>iit_commons2</depend>
+	<depend>hyq_commons2</depend>
 
 <depend>rostest</depend>
 

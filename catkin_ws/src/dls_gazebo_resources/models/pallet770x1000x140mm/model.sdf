@@ -1,0 +1,30 @@
+<?xml version="1.0" ?>
+<sdf version="1.4">
+	<model name="pallet770x1000x140mm">
+		<static>true</static>
+		<link name="link">
+			<pose>0 0 0.06 0 0 0</pose>
+			<collision name="collision">
+				<geometry>
+					<mesh>
+						<uri>model://pallet770x1000x140mm/mesh/pallet.dae</uri>
+						<!-- original size = 1.016 x 0.090678 x 0.090678 m -->
+						<!-- final size = 0.77 x 1 x 0.14 m -->
+						<scale>0.758 11.028 1.5439</scale>
+					</mesh>
+				</geometry>
+                        </collision>
+			<visual name="visual">
+				<geometry>
+					<mesh>
+						<uri>model://pallet770x1000x140mm/mesh/pallet.dae</uri>
+						<!-- original size = 1.016 x 0.090678 x 0.090678 m -->
+						<!-- final size = 0.77 x 1 x 0.14 m -->
+						<scale>0.758 11.028 1.5439</scale>
+					</mesh>
+				</geometry>
+			</visual>
+		</link>
+	</model>
+</sdf>
+

@@ -5,9 +5,6 @@
 
 #include <iit/commons/dog/kin_dyn_params.h>
 #include <iit/commons/dog/robot_limits.h>
-
-
-//dog
 #include <iit/commons/dog/forward_kinematics.h>
 #include <iit/commons/dog/inverse_kinematics.h>
 #include <iit/commons/dog/transforms.h>
@@ -15,12 +12,11 @@
 #include <iit/commons/dog/feet_jacobians.h>
 #include <iit/commons/dog/jsim.h>
 #include <iit/commons/dog/inertia_properties.h>
-#include <iit/commons/planning/planning.h>
-#include <iit/locomotionutils/computeJacobians.h>
-#include <iit/rbd/rbd.h>
 #include <iit/commons/dog/shin_jacobians.h>
 #include <iit/commons/dog/robot_limits.h>
 #include <iit/commons/dog/feet_contact_forces.h>
+#include <iit/commons/planning/planning.h>
+#include <iit/rbd/rbd.h>
 
 //robot dependent:hyq
 #include <iit/robots/hyq/forward_kinematics.h>
@@ -34,17 +30,16 @@
 #include <iit/robots/hyq/robot_limits.h>
 #include <iit/robots/hyq/feet_contact_forces.h>
 
-//Lib locomotionutils
-#include <iit/commons/control/VirtualModel.hpp>
-#include <iit/locomotionutils/wholeBodyOptimization.h>
-#include <iit/locomotionutils/wholeBodyOptimizationStatic.h>
+#include "VirtualModel.hpp"
+#include "wholeBodyOptimization.h"
+#include "wholeBodyOptimizationStatic.h"
 
 // TODO robot model class
 
 #include <ros/node_handle.h>
 #include <urdf/model.h>
 //Urdf Parameter Getter
-#include <dls_supervisor/urdf_params_getter.h>
+//#include <dls_supervisor/urdf_params_getter.h>
 
 
 enum class OptimizationType {WHOLE_BODY_STATIC = 0,

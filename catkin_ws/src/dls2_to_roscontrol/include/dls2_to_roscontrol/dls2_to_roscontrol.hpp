@@ -31,7 +31,7 @@ public:
 private:
 	std::vector<hardware_interface::JointHandle> joint_commands_;
 
-	class ControlMsgListener : public SubscriberBase<ControlSignalMsgPubSubType>
+	class ControlMsgListener : public dls::SubscriberBase<ControlSignalMsgPubSubType>
 	{
 	public:
 		ControlMsgListener();
@@ -46,7 +46,7 @@ private:
 		// END Critical section
 	} control_signal_listener;
 
-	PublisherBase<JointStateMsgPubSubType> joint_state_pub_;
+	dls::PublisherBase<JointStateMsgPubSubType> joint_state_pub_;
 };
 
 //PLUGINLIB_DECLARE_CLASS(dls2_to_roscontrol, Dls2ToRoscontrol, dls2_to_roscontrol::Dls2ToRoscontrol, controller_interface::ControllerBase);

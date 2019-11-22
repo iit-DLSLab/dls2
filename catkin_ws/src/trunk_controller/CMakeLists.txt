@@ -3,7 +3,7 @@ project(dls_trunk_controller)
 
 
 find_package(catkin REQUIRED
-    locomotion_utils roscpp rospy std_msgs)
+	iit_commons2 roscpp rospy std_msgs hyq_commons2)
 # Locate GTest
 find_package(GTest REQUIRED)
 include_directories(${GTEST_INCLUDE_DIRS})
@@ -26,6 +26,7 @@ include_directories(
         ${catkin_INCLUDE_DIRS}
 )
 
+set(LIBRARY_OUTPUT_PATH ${ROOT_PROJECT_DIRECTORY}/bin/debug)
 
 link_directories(BEFORE ${ROOT_PROJECT_DIRECTORY}/bin/debug)
 message(WARNING "linking to debug build of libraries")
@@ -37,7 +38,7 @@ message(WARNING "linking to debug build of libraries")
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ${PROJECT_NAME}
-  CATKIN_DEPENDS roscpp locomotion_utils
+  CATKIN_DEPENDS roscpp iit_commons2 hyq_commons2
   DEPENDS
 )
 
@@ -130,12 +131,12 @@ catkin_package(
 ## LIBRARIES: libraries you create in this project that dependent projects also need
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
-catkin_package(
+#catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES roscontrol_to_dls2
 #  CATKIN_DEPENDS roscpp std_msgs
 #  DEPENDS system_lib
-)
+#)
 
 ###########
 ## Build ##
@@ -155,7 +156,12 @@ include_directories(
 # )
 add_library(${PROJECT_NAME}
         src/trunk_controller.cpp
+		src/VirtualModel.cpp
+		src/computeJacobians.cpp
+		src/wholeBodyOptimization.cpp
+		src/wholeBodyOptimizationStatic.cpp
 )
+
 
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES}
     fastrtps
@@ -248,7 +254,7 @@ target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES}
 
 
 if (CATKIN_ENABLE_TESTING)
-	find_package(catkin REQUIRED COMPONENTS urdf rostest hyq_commons)
+	find_package(catkin REQUIRED COMPONENTS urdf rostest hyq_commons2)
 	include_directories(include ${catkin_INCLUDE_DIRS} )
 	message(STATUS "  Building tests for robot HyQ")
 	catkin_add_gtest(trunk_controller_test tests/test.cpp)

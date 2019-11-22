@@ -1,0 +1,27 @@
+<?xml version="1.0" ?>
+<sdf version="1.4">
+	<model name="pallet_benchmark">
+		<static>true</static>
+		<link name="link">
+			<pose>0 0 0.06 0 0 -1.5708</pose>
+			<collision name="collision">
+				<geometry>
+					<mesh>
+						<uri>model://pallet_benchmark/mesh/pallet.dae</uri>
+						<scale>0.787 13.50 1.6197</scale>
+					</mesh>
+				</geometry>
+
+			</collision>
+			<visual name="visual">
+				<geometry>
+					<mesh>
+						<uri>model://pallet_benchmark/mesh/pallet.dae</uri>
+						<scale>0.787 13.50 1.6197</scale>
+					</mesh>
+				</geometry>
+			</visual>
+		</link>
+	</model>
+</sdf>
+

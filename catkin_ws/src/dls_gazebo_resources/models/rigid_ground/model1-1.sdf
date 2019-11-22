@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<sdf version="1.1">
+  <model name="mud_box_soft">
+    <static>true</static>
+    <link name="link">
+      <collision name="collision">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>10 4 2</size>
+          </box>
+        </geometry>
+        
+        <surface>
+          <bounce>
+            <restitution_coefficient>0.01</restitution_coefficient>
+            <threshold>5.0</threshold>
+          </bounce>
+          <friction>
+            <ode>
+              <mu>10</mu>
+              <mu2>10</mu2>
+            </ode>
+          </friction>
+          <contact>
+            <ode>
+              <soft_cfm>0.001</soft_cfm>
+              <kp>10.0</kp>
+              <kd>1.0</kd>
+            </ode>
+          </contact>
+        </surface>
+
+      </collision>
+      <visual name="visual_1">
+        <pose>0 0 0 0 0 0</pose>
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <box>
+            <size>10 4 2</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://mud_box_soft/materials/scripts</uri>
+            <uri>model://mud_box_soft/materials/textures</uri>
+            <name>vrc/mud</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+  </model>cc
+</sdf>

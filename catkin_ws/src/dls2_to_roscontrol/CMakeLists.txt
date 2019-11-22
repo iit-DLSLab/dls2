@@ -19,13 +19,12 @@ find_package(catkin REQUIRED
 	roscpp
 	controller_interface
 	hardware_interface
-	dls_hardware_interface
-	dls_controller
+	dls2_hardware_interface
 	)
 
 catkin_package(
   INCLUDE_DIRS include 
- CATKIN_DEPENDS roscpp controller_interface hardware_interface dls_hardware_interface dls_controller
+ CATKIN_DEPENDS roscpp controller_interface hardware_interface dls2_hardware_interface
   DEPENDS
 )
 

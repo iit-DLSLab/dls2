@@ -38,7 +38,17 @@ bool DlsRobotHwSim::initSim(
 	joint_state_msg_.velocity.resize(n_dof_);
 	joint_state_msg_.effort.resize(n_dof_);
 	joint_state_msg_.header.frame_id = "joint";
-
+	odometry_msg_.child_frame_id = "base";
+	for (int i=0;i<36;i++)
+	{
+		odometry_msg_.pose.covariance[i]=0.0;
+		odometry_msg_.twist.covariance[i]=0.0;
+	}
+	for (int i=1;i<6;i++)
+	{
+		odometry_msg_.pose.covariance[i*7]=1.0;
+		odometry_msg_.pose.covariance[i*7]=1.0;
+	}
 
 	// Initialize values
 	for (unsigned int j=0; j < n_dof_; j++) {
@@ -75,7 +85,7 @@ bool DlsRobotHwSim::initSim(
 		}
 		else
 		{
-			ROS_ERROR_STREAM(joint_name_[j] << " does not have an associated hardware interface.");	
+			//ROS_ERROR_STREAM(joint_name_[j] << " does not have an associated hardware interface.");	
 		}
 		
 		// Debug
@@ -154,6 +164,21 @@ void DlsRobotHwSim::fillJointStateMsg(ros::Time time)
 void DlsRobotHwSim::fillOdometryMsg(ros::Time time)
 {
 	odometry_msg_.header.stamp = time;
+	odometry_msg_.pose.pose.position.x = sim_model_->GetWorldPose().pos.x;
+	odometry_msg_.pose.pose.position.y = sim_model_->GetWorldPose().pos.y;
+	odometry_msg_.pose.pose.position.z = sim_model_->GetWorldPose().pos.z;
+	odometry_msg_.pose.pose.orientation.w = sim_model_->GetWorldPose().rot.w;
+	odometry_msg_.pose.pose.orientation.x = sim_model_->GetWorldPose().rot.x;
+	odometry_msg_.pose.pose.orientation.y = sim_model_->GetWorldPose().rot.y;
+	odometry_msg_.pose.pose.orientation.z = sim_model_->GetWorldPose().rot.z;
+	//odometry_msg_.pose.covariance left at I
+	odometry_msg_.twist.twist.linear.x = sim_model_->GetWorldLinearVel().x;
+	odometry_msg_.twist.twist.linear.y = sim_model_->GetWorldLinearVel().y;
+	odometry_msg_.twist.twist.linear.z = sim_model_->GetWorldLinearVel().z;
+	odometry_msg_.twist.twist.angular.x = sim_model_->GetWorldAngularVel().x;
+	odometry_msg_.twist.twist.angular.y = sim_model_->GetWorldAngularVel().y;
+	odometry_msg_.twist.twist.angular.z = sim_model_->GetWorldAngularVel().z;
+	//odometry_msg_.twist.covariance left at I
 }
 
 void DlsRobotHwSim::fillJointStateMsgAndPublish(ros::Time time)

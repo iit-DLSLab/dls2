@@ -13,7 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   gazebo_ros
   gazebo_ros_control
   realtime_tools
-  dls_msgs
+  dls2_msgs
   urdf)
 
 # Depend on system install of Gazebo 

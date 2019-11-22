@@ -1,0 +1,25 @@
+<package  format="2">
+  <name>hyq_description2</name>
+  <version>0.0.1</version>
+  <description>
+	This package contains the description (mechanical, kinematic, visual,
+  etc.) of the HyQ robot. The files in this package are parsed and used by
+  a variety of other components. Most users will not interact directly
+  with this package.
+  </description>
+  <maintainer email="a@iit.it">a</maintainer>
+
+  <license>Apache License 2.0</license>
+
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>convex_decomposition</depend>
+  <depend>ivcon</depend>
+
+  <depend>xacro</depend>
+  <depend>sensors_description</depend>
+
+  <depend>gtest</depend>
+  <depend>urdfdom</depend>
+</package>

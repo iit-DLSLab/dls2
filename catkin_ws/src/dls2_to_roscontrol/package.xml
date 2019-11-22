@@ -10,8 +10,8 @@
   <depend>roscpp</depend>
   <depend>controller_interface</depend>
   <depend>hardware_interface</depend>
-  <depend>dls_hardware_interface</depend>
-  <depend>dls_controller</depend>
+  <depend>dls2_hardware_interface</depend>
+
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

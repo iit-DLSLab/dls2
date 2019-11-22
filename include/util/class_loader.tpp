@@ -20,6 +20,7 @@
 #ifndef CLASS_LOADER_TPP_TDR8ZWLX
 #define CLASS_LOADER_TPP_TDR8ZWLX
 
+#include <iostream>
 #include <dlfcn.h>
 #include <sstream>
 #include "util/class_loader.hpp"
@@ -30,12 +31,13 @@ template <class T>
 std::shared_ptr<T> ClassLoader::loadClass(const std::string &name)
 {
 	// std::cout << name << std::endl;
-	void *T_lib = dlopen(name.c_str(), RTLD_NOW);
-	// void *T_lib = dlopen(name.c_str(), RTLD_LAZY);
+	//void *T_lib = dlopen(name.c_str(), RTLD_NOW);
+	 void *T_lib = dlopen(name.c_str(), RTLD_LAZY);
 	if(!T_lib)
 	{
 		std::stringstream ss;
 		ss << "Error: could not load object " << name << ": " << dlerror();
+		std::cout << ss.str() << std::endl;
 		throw std::runtime_error(ss.str());
 	}
 
@@ -50,6 +52,7 @@ std::shared_ptr<T> ClassLoader::loadClass(const std::string &name)
 		std::stringstream ss;
 		ss	<< "Error: could not find instantiation code in " << name
 			<< ". Did the module export the class?" << dlerror();
+		std::cout << ss.str() << std::endl;		
 		throw std::runtime_error(ss.str());
 	}
 
@@ -64,6 +67,7 @@ std::shared_ptr<T> ClassLoader::loadClass(const std::string &name)
 		std::stringstream ss;
 		ss	<< "Error: could not find destruction code in " << name
 			<< ". Did the module export the class?" << dlerror();
+		std::cout << ss.str() << std::endl;		
 		throw std::runtime_error(ss.str());
 	}
 

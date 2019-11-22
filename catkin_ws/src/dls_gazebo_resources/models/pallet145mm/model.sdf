@@ -1,0 +1,27 @@
+<?xml version="1.0" ?>
+<sdf version="1.4">
+	<model name="pallet145mm">
+		<static>true</static>
+		<link name="link">
+			<pose>0 0 0.06 0 0 0</pose>
+			<collision name="collision">
+				<geometry>
+					<mesh>
+						<uri>model://pallet145mm/mesh/pallet.dae</uri>
+						<scale>0.787 16 1.647</scale>
+					</mesh>
+				</geometry>
+
+			</collision>
+			<visual name="visual">
+				<geometry>
+					<mesh>
+						<uri>model://pallet145mm/mesh/pallet.dae</uri>
+						<scale>0.787 16 1.647</scale>
+					</mesh>
+				</geometry>
+			</visual>
+		</link>
+	</model>
+</sdf>
+

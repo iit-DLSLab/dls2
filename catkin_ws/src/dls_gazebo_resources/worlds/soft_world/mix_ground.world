@@ -1,0 +1,52 @@
+<?xml version="1.0" ?>
+<sdf version="1.2">
+  <world name="default">
+
+    <physics type='ode'>
+      <gravity>0 0 -9.81</gravity>
+      <!-- max step size has to be a multiple of the desired task rate-->
+      <max_step_size>0.001</max_step_size> 
+      <real_time_factor>1</real_time_factor>
+    </physics>
+
+    <!-- A global light source -->
+    <include>
+      <uri>model://sun</uri>
+    </include>
+
+    <!-- A ground plane -->
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+    <include>
+      <name>soft ground Rigid</name>
+      <uri>model://soft_ground_Rigid</uri>
+      <pose>0.3 0 0 0 0 0</pose>
+    </include>
+
+    <include>
+      <name>soft ground R</name>
+      <uri>model://soft_ground_R</uri>
+      <pose>1.6 0 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>soft ground G</name>
+      <uri>model://soft_ground_G</uri>
+      <pose>3.0 0 0 0 0 0</pose>
+    </include>
+
+    <include>
+      <name>soft ground B</name>
+      <uri>model://soft_ground_B</uri>
+      <pose>4.4 0 0 0 0 0</pose>
+    </include>
+
+    <include>
+      <name>soft ground Rigid</name>
+      <uri>model://soft_ground_Rigid</uri>
+      <pose>5.8 0 0 0 0 0</pose>
+    </include>
+
+  </world>
+</sdf>

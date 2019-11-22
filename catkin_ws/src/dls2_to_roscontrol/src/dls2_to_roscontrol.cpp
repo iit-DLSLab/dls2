@@ -11,7 +11,7 @@
 namespace dls2_to_roscontrol {
 
 Dls2ToRoscontrol::Dls2ToRoscontrol() :
-	joint_state_pub_(topics::joint_states)
+	joint_state_pub_(dls::topics::joint_states)
 { }
 
 bool Dls2ToRoscontrol::init(hardware_interface::EffortJointInterface *pEffort_joint_interface, ros::NodeHandle &root_nh, ros::NodeHandle &controller_nh)
@@ -59,7 +59,7 @@ void Dls2ToRoscontrol::update(const ros::Time &time, const ros::Duration &period
 	//WRITE
 	if(auto pMsg = this->control_signal_listener.getSignal())
 	{
-		ControlSignal s; // *pMsg
+		dls::ControlSignal s; // *pMsg
 		// message received from framework
 		// for (auto jc : joint_commands_)
 		//std::vector<double> vec = pMsg->desired_torques();
