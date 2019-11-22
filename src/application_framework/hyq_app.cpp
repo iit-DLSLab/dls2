@@ -20,6 +20,7 @@
 #include "application_framework/hyq_app.hpp"
 #include "util/debug/debug.hpp"
 
+using namespace dls;
 // =============================================================================
 // Constructors
 // =============================================================================

@@ -29,6 +29,8 @@
 #include "msg_wrappers/joint_state.hpp"
 #include "msg_wrappers/screw.hpp"
 
+namespace dls
+{
 struct BlindState
 {
 	BlindState();
@@ -41,5 +43,6 @@ struct BlindState
 	Screw base_velocity_world;
 	Screw base_acceleration_world;
 };
+} // end namespace dls
 
 #endif /* end of include guard: BLIND_STATE_SIGNAL_HPP */

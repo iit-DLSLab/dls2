@@ -19,6 +19,7 @@
 *******************************************************************************/
 #include "application_framework/hyq_app.hpp"
 
+using namespace dls;
 void HyQApp::init_libraries()
 {
 

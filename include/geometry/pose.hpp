@@ -33,6 +33,8 @@
 
 TODO("Write test cases to check the math in the Pose class")
 
+namespace dls
+{
 // =============================================================================
 // Class Interface
 // =============================================================================
@@ -192,6 +194,6 @@ private:
 		Eigen::Quaternion<double> quaternion;
 	// END critical section
 };
-
+} // end namespace dls
 
 #endif /* end of include guard: POSE_H_OKAKMWHG */

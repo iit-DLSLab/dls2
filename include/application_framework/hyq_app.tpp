@@ -20,6 +20,10 @@
 #ifndef HYQ_APP_TPP_LJR4CEH3
 #define HYQ_APP_TPP_LJR4CEH3
 
+#include "application_framework/hyq_app.hpp"
+
+namespace dls
+{
 template <typename layer_t>
 bool HyQApp::addLayer(std::shared_ptr<layer_t> pLayer)
 {
@@ -45,5 +49,6 @@ bool HyQApp::addLayer(std::shared_ptr<layer_t> pLayer)
 	this->layers.push_back(pLayer);
 	return true;
 }
+} // end namespace dls;
 
 #endif /* end of include guard: HYQ_APP_TPP_LJR4CEH3 */

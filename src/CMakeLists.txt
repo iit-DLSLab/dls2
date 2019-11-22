@@ -295,8 +295,8 @@ add_dependencies(${EXECUTABLE_NAME}
 	dls_controller_process
 	dls_gait_generator_process
 	dls2_to_roscontrol
-	dls_pid_controller
-	dls_prep_gait_generator
+	# dls_pid_controller
+	# dls_prep_gait_generator
 )
 
 target_link_libraries(

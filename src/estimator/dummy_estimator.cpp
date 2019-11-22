@@ -20,6 +20,7 @@
 #include "estimator/dummy_estimator.hpp"
 #include "util/debug/debug.hpp"
 
+using namespace dls;
 DummyEstimator::DummyEstimator() :
 	Estimator("Dummy Estimator", std::chrono::duration<double>(1))
 { }

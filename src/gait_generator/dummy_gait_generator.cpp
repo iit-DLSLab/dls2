@@ -22,6 +22,7 @@
 #include "geometry/pose.hpp"
 #include "util/log/log.hpp"
 
+using namespace dls;
 DummyGaitGenerator::DummyGaitGenerator(const std::shared_ptr<Dog> &pDog) :
 	GaitGenerator
 	(

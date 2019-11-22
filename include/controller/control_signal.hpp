@@ -25,6 +25,8 @@
 #include "todo.h"
 
 /// A struct representing the control signal that is output by a Controller
+namespace dls
+{
 TODO("Should this be made thread safe?")
 struct ControlSignal
 {
@@ -46,5 +48,5 @@ struct ControlSignal
 	ControlSignal(ControlSignalMsg);
 	operator ControlSignalMsg() const;
 };
-
+} // end namespace dls
 #endif /* end of include guard: CONTROL_SIGNAL_HPP_QCFRROHM */

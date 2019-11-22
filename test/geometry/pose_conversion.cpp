@@ -23,6 +23,7 @@
 #include "geometry/pose.hpp"
 
 TODO("Use a proper testing framework")
+using namespace dls;
 int main(int argc, char *argv[])
 {
 	Eigen::Vector3d pos;

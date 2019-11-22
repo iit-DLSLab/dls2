@@ -21,6 +21,7 @@
 #include "util/debug/debug.hpp"
 #include "util/log/log.hpp"
 
+using namespace dls;
 DummyController::DummyController
 (
 	const std::shared_ptr<Dog> &dog
@@ -48,6 +49,8 @@ void DummyController::run(const std::chrono::system_clock::time_point &time)
 	auto pGait_signal = this->readGaitSignal();
 
 	ControlSignal s;
+	s.torques.resize(12);
+
 	publishSignal(s);
 
 	time.time_since_epoch();

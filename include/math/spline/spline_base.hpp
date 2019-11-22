@@ -17,62 +17,23 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-#ifndef APP_LAYER_HPP_H7JRIVPM
-#define APP_LAYER_HPP_H7JRIVPM
-
-#include <functional>
-#include <memory>
-#include <vector>
-#include <mutex>
-
-#include "application_framework/components/app_layer_component.hpp"
+#ifndef SPLINE_BASE_HPP_ERGQ2YJO
+#define SPLINE_BASE_HPP_ERGQ2YJO
 
 namespace dls
 {
-class AppLayer
+
+template <typename T, typename index_t = double>
+class SplineBase
 {
 public:
-	using pComponent_t = std::shared_ptr<AppLayerComponent>;
-	enum class Status
-	{
-		INITIALISING,
-		RUNNING,
-		FATAL_ERROR,
-		E_STOP,
-		SUCCESS,
-		STOP
-	};
+	SplineBase(index_t max_index = 0, index_t min_index = 0);
+	virtual T eval(index_t t) = 0;
 
-	AppLayer(const std::initializer_list<pComponent_t>&);
-	AppLayer();
-	virtual ~AppLayer() = default;
-
-	Status eStop();
-	Status getStatus() const;
-	TODO("Make protected")
-	void setStatus(Status);
-
-	TODO("These should probably only be accessible from HyQApp")
-	virtual Status run() = 0;
-	virtual Status shutdown() = 0;
-
-protected:
-	TODO("remove this")
-	// BEGIN critical section
-		mutable std::mutex components_mutex;
-		std::vector<pComponent_t> components;
-	// END critical section
-
-private:
-	// BEGIN critical section
-		mutable std::mutex status_mutex;
-		Status status;
-	// END critical section
-
-protected:
-	TODO("remove this")
-	std::function<Status(void)> main;
+	const index_t max_index;
+	const index_t min_index;
 };
-} // end namespace dls
 
-#endif /* end of include guard: APP_LAYER_HPP_H7JRIVPM */
+} // namespace dls
+
+#endif /* end of include guard: SPLINE_BASE_HPP_ERGQ2YJO */

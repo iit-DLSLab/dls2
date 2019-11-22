@@ -23,6 +23,7 @@
 #include "msg_wrappers/joint_state.hpp"
 #include "robot/robot.hpp"
 
+using namespace dls;
 JointState::JointState() :
 	position(),
 	velocity(),

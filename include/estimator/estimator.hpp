@@ -25,6 +25,8 @@
 
 #include "application_framework/components/periodic_app_layer_component.hpp"
 
+namespace dls
+{
 TODO("Document this class")
 class Estimator : public PeriodicAppLayerComponent
 {
@@ -45,6 +47,6 @@ public:
 private:
 	const ID_t ID;
 };
-
+} // end namespace dls
 
 #endif /* end of include guard: ESTIMATOR_HPP_I8Z0QRSO */

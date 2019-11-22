@@ -22,6 +22,8 @@
 
 #include "todo.h"
 
+namespace dls
+{
 TODO("remove references to Dog, replace with Robot")
 class Dog {};
 
@@ -38,5 +40,5 @@ public:
 	static int getDimension(){return Robot::dimension;}
 	static int getJointSpaceDimension(){return Robot::dimension;}
 };
-
+} // end namespace dls
 #endif /* end of include guard: ROBOT_HPP_X9YVSQKM */

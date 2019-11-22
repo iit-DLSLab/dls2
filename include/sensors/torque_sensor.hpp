@@ -22,9 +22,12 @@
 
 #include "sensors/sensor_base.hpp"
 
+namespace dls
+{
 class TorqueSensore : public virtual SensorBase
 {
 
 };
+} // end namespace dls
 
 #endif /* end of include guard: TORQUE_SENSOR_HPP_KHV7IKBR */

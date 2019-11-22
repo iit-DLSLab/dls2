@@ -20,11 +20,11 @@
 #include "application_framework/app_layer.hpp"
 #include "util/debug/debug.hpp"
 
+using namespace dls;
 // =============================================================================
 // Constructors
 // =============================================================================
-AppLayer::AppLayer()
-	:
+AppLayer::AppLayer() :
 	components_mutex(),
 	components({}),
 	status_mutex(),
@@ -32,8 +32,8 @@ AppLayer::AppLayer()
 	main(0)
 { }
 
-AppLayer::AppLayer(const std::initializer_list<pComponent_t> &_components)
-	: components_mutex(),
+AppLayer::AppLayer(const std::initializer_list<pComponent_t> &_components) :
+	components_mutex(),
 	components(_components),
 	status_mutex(),
 	status(Status::INITIALISING),

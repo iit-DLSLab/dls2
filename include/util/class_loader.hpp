@@ -20,7 +20,11 @@
 #ifndef CLASS_LOADER_HPP_S3OYPT1Z
 #define CLASS_LOADER_HPP_S3OYPT1Z
 
+#include <memory>
+
 /// Utility class that simplifies loading shared objects into classes
+namespace dls
+{
 class ClassLoader
 {
 public:
@@ -34,6 +38,7 @@ public:
 	template <class T>
 	static std::shared_ptr<T> loadClass(const std::string &name);
 };
+} // end namespace dls
 
 #include "util/class_loader.tpp"
 

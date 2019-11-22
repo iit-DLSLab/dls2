@@ -23,6 +23,8 @@
 #include "controller/controller.hpp"
 #include <iostream>
 
+namespace dls
+{
 TODO("This is a dummy class. Remove it, its cpp file, as well as its entry in the CMakeLists file")
 class PidController : public Controller
 {
@@ -41,5 +43,5 @@ public:
 	// Status stop() override { return getStatus(); }
 	Status eStop() override { return getStatus(); }
 };
-
+} // end namespace dls
 #endif /* end of include guard: PID_CONTROLLER_HPP_YGHMJHQN */

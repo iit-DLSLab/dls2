@@ -24,6 +24,8 @@
 #include <iostream>
 
 TODO("This is a dummy class. Remove it, its cpp file, as well as its entry in the CMakeLists file")
+namespace dls
+{
 class DummyController : public Controller
 {
 public:
@@ -41,5 +43,6 @@ public:
 	// Status stop() override { return getStatus(); }
 	Status eStop() override { return getStatus(); }
 };
+} // end namespace dls
 
 #endif /* end of include guard: DUMMY_CONTROLLER_HPP_YGHMJHQN */

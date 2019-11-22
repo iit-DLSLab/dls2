@@ -1,6 +1,7 @@
 #include "msg_wrappers/screw.hpp"
 #include <iostream>
 
+using namespace dls;
 int main()
 {
 	Screw s;

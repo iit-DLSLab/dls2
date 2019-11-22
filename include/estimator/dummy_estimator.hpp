@@ -22,6 +22,8 @@
 
 #include "estimator/estimator.hpp"
 
+namespace dls
+{
 class DummyEstimator : public Estimator
 {
 public:
@@ -32,5 +34,5 @@ public:
 
 private:
 };
-
+} // end namespace dls
 #endif /* end of include guard: DUMMY_ESTIMATOR_HPP_7RAUGQJD */

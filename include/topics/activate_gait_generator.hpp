@@ -22,9 +22,12 @@
 
 // TODO this is a temporary topic until a proper console can be generated
 
-namespace topics
+namespace dls
 {
-	constexpr auto activate_gait_generator = "console_activate_gait_generator";
+	namespace topics
+	{
+		constexpr auto activate_gait_generator = "console_activate_gait_generator";
+	}
 }
 
 #endif /* end of include guard: ACTIVATE_GAIT_GENERATOR_HPP_AXQBHCZG */

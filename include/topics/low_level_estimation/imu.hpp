@@ -20,11 +20,14 @@
 #ifndef IMU_HPP_XUWJYZLA
 #define IMU_HPP_XUWJYZLA
 
-namespace topics
+namespace dls
 {
-	namespace low_level_estimation
+	namespace topics
 	{
-		constexpr auto imu = "low_level_estimation/imu";
+		namespace low_level_estimation
+		{
+			constexpr auto imu = "low_level_estimation/imu";
+		}
 	}
 }
 

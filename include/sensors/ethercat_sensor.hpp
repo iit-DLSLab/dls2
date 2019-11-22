@@ -22,9 +22,12 @@
 
 #include "sensors/sensor_base.hpp"
 
+namespace dls
+{
 class EtherCatSensor : public virtual SensorBase
 {
 
 };
+} // end namespace dls
 
 #endif /* end of include guard: ETHERCAT_SENSOR_HPP_HR41XF8J */

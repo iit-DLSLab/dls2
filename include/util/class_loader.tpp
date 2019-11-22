@@ -24,6 +24,8 @@
 #include <sstream>
 #include "util/class_loader.hpp"
 
+namespace dls
+{
 template <class T>
 std::shared_ptr<T> ClassLoader::loadClass(const std::string &name)
 {
@@ -76,5 +78,6 @@ std::shared_ptr<T> ClassLoader::loadClass(const std::string &name)
 
 	return pT;
 }
+} // end namespace dls
 
 #endif /* end of include guard: CLASS_LOADER_TPP_TDR8ZWLX */

@@ -37,6 +37,7 @@
 // project
 #include "geometry/pose.hpp"
 
+using namespace dls;
 // needs to be a pointer, else it crashes at launch
 std::shared_ptr<PublisherBase<BlindStateMsgPubSubType>>
 	pState_pub;

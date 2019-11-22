@@ -43,6 +43,8 @@
 // Class Interface
 // =============================================================================
 TODO("a lot of functions have been removed from Controller. Many of them need to be put into Dog")
+namespace dls
+{
 class Controller : public PeriodicAppLayerComponent
 {
 	friend class ControlLayer;
@@ -146,5 +148,6 @@ private:
 	const std::string control_signal_topic;
 	PublisherBase<ControlSignalMsgPubSubType> publisher;
 };
+} // end namespace dls
 
 #endif /* end of include guard: CONTROLLER_HPP_RSFU8GQS */

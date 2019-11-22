@@ -20,9 +20,13 @@
 #ifndef JOINT_STATES_HPP_SDXZW7IR
 #define JOINT_STATES_HPP_SDXZW7IR
 
-namespace topics
+
+namespace dls
 {
-	constexpr auto joint_states = "joint_states";
+	namespace topics
+	{
+		constexpr auto joint_states = "joint_states";
+	}
 }
 
 #endif /* end of include guard: JOINT_STATES_HPP_SDXZW7IR */

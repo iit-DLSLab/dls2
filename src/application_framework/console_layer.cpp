@@ -40,6 +40,21 @@
 #include "topics/deactivate_gait_generator.hpp"
 #include "util/debug/debug.hpp"
 
+// =============================================================================
+// Foreward Declarations
+// =============================================================================
+namespace dls
+{
+	char **console_completion(const char *text, int start, int /*end*/);
+	char *command_completion(const char *text, int state);
+	char *arg_completion(const char *text, int state);
+}
+
+// =============================================================================
+// Using Declarations
+// =============================================================================
+using namespace dls;
+
 // TODO move these two to the library
 std::string trim(const std::string&);
 std::string &trim_inplace(std::string *const);
@@ -57,12 +72,6 @@ std::shared_ptr<PublisherBase<StringMsgPubSubType>> pDeactivate_controller_pub;
 std::shared_ptr<PublisherBase<StringMsgPubSubType>> pActivate_gait_generator_pub;
 std::shared_ptr<PublisherBase<StringMsgPubSubType>> pDeactivate_gait_generator_pub;
 
-// =============================================================================
-// Foreward Declarations
-// =============================================================================
-char **console_completion(const char *text, int start, int /*end*/);
-char *command_completion(const char *text, int state);
-char *arg_completion(const char *text, int state);
 
 // =============================================================================
 // Constructors
@@ -308,7 +317,7 @@ void ConsoleLayer::addCommand(const Command &c)
 // -----------------------------------------------------------------------------
 // Completion chooser
 // -----------------------------------------------------------------------------
-char **console_completion(const char *text, int start, int /*end*/)
+char **dls::console_completion(const char *text, int start, int /*end*/)
 {
 	char **matches = nullptr;
 
@@ -345,7 +354,7 @@ char **console_completion(const char *text, int start, int /*end*/)
 // -----------------------------------------------------------------------------
 // Command Completion
 // -----------------------------------------------------------------------------
-char *command_completion(const char *text, int state)
+char *dls::command_completion(const char *text, int state)
 {
 	static decltype(pInstance->commands.cbegin()) it;
 	static int string_length;
@@ -397,7 +406,7 @@ char *command_completion(const char *text, int state)
 // -----------------------------------------------------------------------------
 // Argument Completion
 // -----------------------------------------------------------------------------
-char *arg_completion(const char * text, int state)
+char *dls::arg_completion(const char * text, int state)
 {
 	static std::vector<std::string> files;
 	static size_t index;

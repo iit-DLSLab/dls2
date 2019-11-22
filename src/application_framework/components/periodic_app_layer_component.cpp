@@ -20,6 +20,7 @@
 #include <thread>
 #include "application_framework/components/periodic_app_layer_component.hpp"
 
+using namespace dls;
 // =============================================================================
 // Constructors
 // =============================================================================

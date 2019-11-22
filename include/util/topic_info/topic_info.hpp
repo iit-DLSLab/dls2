@@ -28,6 +28,8 @@
 #include "msg/gait_signalPubSubTypes.h"
 #include "msg/control_signalPubSubTypes.h"
 
+namespace dls
+{
 class TopicInfo
 {
 public:
@@ -61,5 +63,6 @@ private:
 		eprosima::fastrtps::SampleInfo_t info;
 	}control_signal_sub;
 };
+} // end namespace dls
 
 #endif /* end of include guard: TOPIC_INFO_HPP_SVMAPUJA */

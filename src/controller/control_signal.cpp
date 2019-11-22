@@ -18,6 +18,8 @@
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
 #include "controller/control_signal.hpp"
+
+using namespace dls;
 ControlSignal::ControlSignal() :
 	torques(),
 	signal_reconstruction_method(SignalReconstructionMethod::ZERO_ORDER_HOLD)

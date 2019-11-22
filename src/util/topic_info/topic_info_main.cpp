@@ -22,6 +22,7 @@
 #include "util/topic_info/topic_info.hpp"
 #include <signal.h>
 
+using namespace dls;
 int main(int argc, char **argv)
 {
 	std::string name;

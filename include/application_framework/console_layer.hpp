@@ -37,15 +37,17 @@
 // =============================================================================
 // Class Interface
 // =============================================================================
+namespace dls
+{
 /// A console interface into the framework
 ///
 class ConsoleLayer : public AppLayer
 {
 	// Console completion is handled by readline, which is a C-library.
 	// Therefore, need to declare this as a friend
-	friend char *command_completion(const char *text, int state);
-	friend char **console_completion(const char *text, int start, int end);
-	friend char *arg_completion(const char * text, int state);
+	friend char *dls::command_completion(const char *text, int state);
+	friend char **dls::console_completion(const char *text, int start, int end);
+	friend char *dls::arg_completion(const char * text, int state);
 
 public:
 	/// Utility class for collecting a console command
@@ -108,5 +110,6 @@ private:
 		std::map<std::string, Command> commands; ///< The commands registered with the console
 	// End critical section
 };
+} // end namespace dls
 
 #endif /* end of include guard: CONSOLE_LAYER_HPP_BXNRZS8Q */

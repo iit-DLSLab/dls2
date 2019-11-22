@@ -22,6 +22,8 @@
 
 #include <mutex>
 
+namespace dls
+{
 class SensorBase
 {
 public:
@@ -58,5 +60,6 @@ private:
 		mutable std::mutex status_mutex;
 	// END critical section
 };
+} // end namespace dls
 
 #endif /* end of include guard: SENSOR_BASE_HPP_XOP20IWP */

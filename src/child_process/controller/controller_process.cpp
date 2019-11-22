@@ -32,6 +32,7 @@
 
 #include "path_prefixes/path_prefixes.hpp"
 
+using namespace dls;
 std::shared_ptr<Controller> pController;
 void signal_handler(int signal);
 

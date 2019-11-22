@@ -22,6 +22,7 @@
 
 #include "application_framework/log_layer.hpp"
 
+using namespace dls;
 LogLayer::LogLayer() :
 	debug_listener(),
 	info_listener(),

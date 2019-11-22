@@ -31,6 +31,7 @@
 #include "util/log/log.hpp"
 #include "util/debug/debug.hpp"
 
+using namespace dls;
 std::shared_ptr<GaitGenerator> pGaitGenerator;
 void signal_handler(int signal);
 

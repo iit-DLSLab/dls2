@@ -37,6 +37,8 @@
 // =============================================================================
 // Class Interface
 // =============================================================================
+namespace dls
+{
 class GaitGenerator : public PeriodicAppLayerComponent
 {
 protected:
@@ -91,5 +93,6 @@ private:
 
 	PublisherBase<GaitSignalMsgPubSubType> publisher;
 };
+} // end namespace dls
 
 #endif /* end of include guard: GAIT_GENERATOR_HPP_5MDX0BG2 */

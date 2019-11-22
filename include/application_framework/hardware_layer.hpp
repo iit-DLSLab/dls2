@@ -27,6 +27,8 @@
 #include "application_framework/app_layer.hpp"
 #include "sensors/sensor_base.hpp"
 
+namespace dls
+{
 class HardwareLayer : public AppLayer
 {
 public:
@@ -45,5 +47,6 @@ private:
 		std::mutex sensors_mutex;
 	// END critical section
 };
+} // end namespace dls
 
 #endif /* end of include guard: HARDWARE_LAYER_HPP_64INVL3T */

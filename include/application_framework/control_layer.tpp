@@ -30,6 +30,8 @@
 #include <sstream>
 #include <stdexcept>
 
+namespace dls
+{
 // =============================================================================
 // Controlles
 // =============================================================================
@@ -87,5 +89,6 @@
 // 				)
 // 		);
 // }
+} // end namespace dls
 
 #endif /* end of include guard: CONTROL_LAYER_TPP_COCUF9QG */

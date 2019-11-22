@@ -23,6 +23,7 @@
 #include "gait_generator/gait_signal.hpp"
 #include "robot/robot.hpp"
 
+using namespace dls;
 // =============================================================================
 // Constructors
 // =============================================================================
