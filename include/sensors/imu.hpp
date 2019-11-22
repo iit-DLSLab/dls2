@@ -22,9 +22,12 @@
 
 #include <sensors/sensor_base.hpp>
 
+namespace dls
+{
 class IMU : public virtual SensorBase
 {
 
 };
+} // end namespace dls
 
 #endif /* end of include guard: IMU_HPP_VCMJO1JK */

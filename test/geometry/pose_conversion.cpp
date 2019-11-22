@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
 	pos << 20, 21, 22;
 	Eigen::Quaterniond quat(10, 11, 12, 13);
 
-	Pose p(pos, quat);
+	dls::Pose p(pos, quat);
 
 	PoseMsg pm = p;
 
@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
 // =============================================================================
 // Test conversion back to pose
 // =============================================================================
-	Pose p2(pm);
+	dls::Pose p2(pm);
 	std::cout << "Pose-pose position comparison" << std::endl;
 	for(int i = 0; i != 3; ++i)
 	{

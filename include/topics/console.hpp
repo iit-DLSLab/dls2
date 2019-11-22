@@ -20,9 +20,12 @@
 #ifndef CONSOLE_HPP_KLF6FTBW
 #define CONSOLE_HPP_KLF6FTBW
 
-namespace topics
+namespace dls
 {
-	constexpr auto console = "console";
+	namespace topics
+	{
+		constexpr auto console = "console";
+	}
 }
 
 #endif /* end of include guard: CONSOLE_HPP_KLF6FTBW */

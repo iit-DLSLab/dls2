@@ -26,19 +26,22 @@
 #include <fastrtps/subscriber/SampleInfo.h>
 #include <fastrtps/participant/Participant.h>
 
-template <class PubSub_t>
-class SubscriberBase : public eprosima::fastrtps::SubscriberListener
+namespace dls
 {
-public:
-	SubscriberBase(const std::string &topic);
-	virtual ~SubscriberBase() = default;
+	template <class PubSub_t>
+	class SubscriberBase : public eprosima::fastrtps::SubscriberListener
+	{
+	public:
+		SubscriberBase(const std::string &topic);
+		virtual ~SubscriberBase() = default;
 
-private:
-	std::shared_ptr<eprosima::fastrtps::Participant> pParticipant;
-	std::shared_ptr<eprosima::fastrtps::Subscriber> pSubscriber;
+	private:
+		std::shared_ptr<eprosima::fastrtps::Participant> pParticipant;
+		std::shared_ptr<eprosima::fastrtps::Subscriber> pSubscriber;
 
-	static PubSub_t rtps_type;
-};
+		static PubSub_t rtps_type;
+	};
+}
 
 #include "util/messaging/subscriber_base.tpp"
 

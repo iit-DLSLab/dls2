@@ -29,17 +29,20 @@
 
 #define __FILENAME__ (__FILE__ + SOURCE_PATH_SIZE)
 
-namespace debug
+namespace dls
 {
-	namespace impl
+	namespace debug
 	{
-		extern std::mutex cout_mutex;
+		namespace impl
+		{
+			extern std::mutex cout_mutex;
+		}
 	}
-}
+} // end namespace dls
 
 #ifndef NDEBUG
-#define DMSG(x) do{std::lock_guard<std::mutex> lock(debug::impl::cout_mutex); std::cout << __FILENAME__ << ": " << __PRETTY_FUNCTION__ << " " << x << std::endl;}while(0)
-#define DLOG(x) do{std::lock_guard<std::mutex> lock(debug::impl::cout_mutex); std::cout << __FILENAME__ << ": " << __PRETTY_FUNCTION__ << " " << #x << ": " << x << std::endl;}while(0)
+#define DMSG(x) do{std::lock_guard<std::mutex> lock(dls::debug::impl::cout_mutex); std::cout << __FILENAME__ << ": " << __PRETTY_FUNCTION__ << " " << x << std::endl;}while(0)
+#define DLOG(x) do{std::lock_guard<std::mutex> lock(dls::debug::impl::cout_mutex); std::cout << __FILENAME__ << ": " << __PRETTY_FUNCTION__ << " " << #x << ": " << x << std::endl;}while(0)
 #else
 #define DMSG(x) do{(void)sizeof(x);}while(0)
 #define DLOG(x) do{(void)sizeof(x);}while(0)

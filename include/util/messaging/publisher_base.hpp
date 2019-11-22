@@ -24,21 +24,24 @@
 #include <fastrtps/fastrtps_fwd.h>
 #include <fastrtps/publisher/PublisherListener.h>
 
-template <class PubSub_t>
-class PublisherBase : public eprosima::fastrtps::PublisherListener
+namespace dls
 {
-public:
-	PublisherBase(const std::string &topic);
-	virtual ~PublisherBase() = default;
+	template <class PubSub_t>
+	class PublisherBase : public eprosima::fastrtps::PublisherListener
+	{
+	public:
+		PublisherBase(const std::string &topic);
+		virtual ~PublisherBase() = default;
 
-	void publish(typename PubSub_t::type &msg) const;
+		void publish(typename PubSub_t::type &msg) const;
 
-private:
-	std::shared_ptr<eprosima::fastrtps::Participant> pParticipant;
-	std::shared_ptr<eprosima::fastrtps::Publisher> pPublisher;
+	private:
+		std::shared_ptr<eprosima::fastrtps::Participant> pParticipant;
+		std::shared_ptr<eprosima::fastrtps::Publisher> pPublisher;
 
-	static PubSub_t rtps_type;
-};
+		static PubSub_t rtps_type;
+	};
+} // end namespace dls
 
 #include "util/messaging/publisher_base.tpp"
 

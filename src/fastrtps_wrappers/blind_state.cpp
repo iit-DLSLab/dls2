@@ -22,7 +22,7 @@
 // =============================================================================
 // Constructors
 // =============================================================================
-BlindState::BlindState() :
+dls::BlindState::BlindState() :
 	joint_state(),
 	body_pose_world(),
 	body_velocity_world(),
@@ -40,7 +40,7 @@ BlindState::BlindState() :
 // -----------------------------------------------------------------------------
 // Converting Constructor
 // -----------------------------------------------------------------------------
-BlindState::BlindState(BlindStateMsg msg) :
+dls::BlindState::BlindState(BlindStateMsg msg) :
 	joint_state(msg.joint_state()),
 	body_pose_world(msg.body_pose_world()),
 	body_velocity_world(msg.body_velocity_world()),
@@ -50,7 +50,7 @@ BlindState::BlindState(BlindStateMsg msg) :
 // -----------------------------------------------------------------------------
 // Type Casting
 // -----------------------------------------------------------------------------
-BlindState::operator BlindStateMsg() const
+dls::BlindState::operator BlindStateMsg() const
 {
     BlindStateMsg msg;
 	msg.joint_state(this->joint_state);

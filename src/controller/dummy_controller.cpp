@@ -21,7 +21,7 @@
 #include "util/debug/debug.hpp"
 #include "util/log/log.hpp"
 
-DummyController::DummyController
+dls::DummyController::DummyController
 (
 	const std::shared_ptr<Dog> &dog
 ) :
@@ -36,13 +36,13 @@ DummyController::DummyController
 	logging::clog << "dummy controller launched" << logging::endl;
 }
 
-DummyController::DummyController() :
+dls::DummyController::DummyController() :
 	DummyController(std::make_shared<Dog>())
 {
 	logging::clog << "dummy controller destroyed" << logging::endl;
 }
 
-void DummyController::run(const std::chrono::system_clock::time_point &time)
+void dls::DummyController::run(const std::chrono::system_clock::time_point &time)
 {
 	logging::clog << "Dummy Controller Epoch" << logging::endl;
 	auto pGait_signal = this->readGaitSignal();
@@ -55,13 +55,13 @@ void DummyController::run(const std::chrono::system_clock::time_point &time)
 	time.time_since_epoch();
 }
 
-extern "C" Controller *create()
+extern "C" dls::Controller *create()
 {
-	auto p = new DummyController;
+	auto p = new dls::DummyController;
 	return p;
 }
 
-extern "C" void destroy(Controller *p)
+extern "C" void destroy(dls::Controller *p)
 {
 	delete p;
 }

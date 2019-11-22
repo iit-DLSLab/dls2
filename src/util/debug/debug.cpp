@@ -19,10 +19,13 @@
 *******************************************************************************/
 #include "util/debug/debug.hpp"
 
-namespace debug
+namespace dls
 {
-	namespace impl
+	namespace debug
 	{
-		std::mutex cout_mutex;
+		namespace impl
+		{
+			std::mutex cout_mutex;
+		}
 	}
 }

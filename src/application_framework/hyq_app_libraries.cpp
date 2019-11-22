@@ -19,12 +19,12 @@
 *******************************************************************************/
 #include "application_framework/hyq_app.hpp"
 
-void HyQApp::init_libraries()
+void dls::HyQApp::init_libraries()
 {
 
 }
 
-void HyQApp::close_libraries()
+void dls::HyQApp::close_libraries()
 {
 
 }

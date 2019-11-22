@@ -27,7 +27,7 @@
 // =============================================================================
 // Constructors
 // =============================================================================
-GaitGenerator::GaitGenerator
+dls::GaitGenerator::GaitGenerator
 (
 	const std::shared_ptr<Dog> &pRobot_,
 	const ID_t &ID_,
@@ -44,11 +44,11 @@ GaitGenerator::GaitGenerator
 // =============================================================================
 // Implementation
 // =============================================================================
-GaitGenerator::ID_t GaitGenerator::getID()
+dls::GaitGenerator::ID_t dls::GaitGenerator::getID()
 {
 	return this->ID;
 }
-void GaitGenerator::publishData(const GaitSignal &signal)
+void dls::GaitGenerator::publishData(const dls::GaitSignal &signal)
 {
 	GaitSignalMsg p = signal;
 	publisher.publish(p);

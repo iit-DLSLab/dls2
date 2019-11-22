@@ -22,9 +22,13 @@
 
 // TODO this is a temporary topic until a proper console can be generated
 
-namespace topics
+
+namespace dls
 {
-	constexpr auto deactivate_controller = "console_deactivate_controller";
+	namespace topics
+	{
+		constexpr auto deactivate_controller = "console_deactivate_controller";
+	}
 }
 
 #endif /* end of include guard: DEACTIVATE_CONTROLLER_HPP_RPZP5OBQ */

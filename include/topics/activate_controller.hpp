@@ -22,8 +22,11 @@
 
 // TODO this is a temporary topic until a proper console can be generated
 
-namespace topics
+namespace dls
 {
-	constexpr auto activate_controller = "console_activate_controller";
+	namespace topics
+	{
+		constexpr auto activate_controller = "console_activate_controller";
+	}
 }
 #endif /* end of include guard: ACTIVATE_CONTROLLER_HPP_NVV5KWTE */

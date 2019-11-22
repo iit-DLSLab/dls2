@@ -28,6 +28,8 @@
 ///
 /// A screw is encapsulated as a 6x1 vector. The first 3 components are linear,
 /// the final 3 components are angular
+namespace dls
+{
 class Screw
 {
 public:
@@ -70,5 +72,5 @@ private:
 	///
 	Eigen::Matrix<double, 6, 1> eigen_vec;
 };
-
+} // end namespace dls
 #endif /* end of include guard: SCREW_HPP_O9FQ1FIE */

@@ -22,7 +22,7 @@
 // =============================================================================
 // Constructors
 // =============================================================================
-AppLayerComponent::AppLayerComponent() :
+dls::AppLayerComponent::AppLayerComponent() :
 	status(Status::UNCONSTRUCTED),
 	status_mutex()
 { }
@@ -30,13 +30,13 @@ AppLayerComponent::AppLayerComponent() :
 // =============================================================================
 // Class Implementation
 // =============================================================================
-AppLayerComponent::Status AppLayerComponent::getStatus()
+dls::AppLayerComponent::Status dls::AppLayerComponent::getStatus()
 {
 	std::lock_guard<std::mutex> lock(this->status_mutex);
 	return this->status;
 }
 
-void AppLayerComponent::setStatus(Status s)
+void dls::AppLayerComponent::setStatus(Status s)
 {
 	this->status = s;
 }

@@ -22,9 +22,13 @@
 
 // TODO this is a temporary topic until a proper console can be generated
 
-namespace topics
+
+namespace dls
 {
-	constexpr auto deactivate_gait_generator = "console_deactivate_gait_generator";
+	namespace topics
+	{
+		constexpr auto deactivate_gait_generator = "console_deactivate_gait_generator";
+	}
 }
 
 #endif /* end of include guard: DEACTIVATE_GAIT_GENERATOR_HPP_EGSHBXLV */

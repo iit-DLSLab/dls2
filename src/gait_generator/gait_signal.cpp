@@ -26,7 +26,7 @@
 // =============================================================================
 // Constructors
 // =============================================================================
-GaitSignal::GaitSignal() :
+dls::GaitSignal::GaitSignal() :
 
     desired_com_pose(),
     desired_com_velocity(),
@@ -65,7 +65,7 @@ GaitSignal::GaitSignal() :
 // Converting Constructor
 // -----------------------------------------------------------------------------
 TODO("stance feet")
-GaitSignal::GaitSignal(GaitSignalMsg msg) :
+dls::GaitSignal::GaitSignal(GaitSignalMsg msg) :
     desired_com_pose(msg.desired_com_pose()),
     desired_com_velocity(msg.desired_com_velocity()),
     desired_com_acceleration(msg.desired_com_velocity()),
@@ -108,7 +108,7 @@ GaitSignal::GaitSignal(GaitSignalMsg msg) :
 // -----------------------------------------------------------------------------
 // Type Casting
 // -----------------------------------------------------------------------------
-GaitSignal::operator GaitSignalMsg() const
+dls::GaitSignal::operator GaitSignalMsg() const
 {
     GaitSignalMsg msg;
 

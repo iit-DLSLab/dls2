@@ -54,7 +54,7 @@ TODO("temporary incude")
 // =============================================================================
 
 /// Pointer to application
-std::shared_ptr<HyQApp> pApp;
+std::shared_ptr<dls::HyQApp> pApp;
 
 bool handle_args(int argc, char **argv);
 
@@ -78,7 +78,7 @@ int main(int argc, char **argv)
 	bool only_start_log = handle_args(argc, argv);
 
 	// Create application
-	pApp = std::make_shared<HyQApp>();
+	pApp = std::make_shared<dls::HyQApp>();
 
 	// ========================= Start Hardware Layer ==========================
 	const pid_t hardware_layer_pid = fork();
@@ -91,7 +91,7 @@ int main(int argc, char **argv)
 	else if(hardware_layer_pid == 0)
 	{
 		change_process_name(argv, "hardware_layer");
-		std::shared_ptr<HardwareLayer> pHardwareLayer = std::make_shared<HardwareLayer>();
+		std::shared_ptr<dls::HardwareLayer> pHardwareLayer = std::make_shared<dls::HardwareLayer>();
 		pApp->addLayer(pHardwareLayer);
 
 		TODO("Run should return a status")
@@ -110,7 +110,7 @@ int main(int argc, char **argv)
 	else if(log_layer_pid == 0)
 	{
 		change_process_name(argv, "log_layer");
-		std::shared_ptr<LogLayer> pLogLayer = std::make_shared<LogLayer>();
+		std::shared_ptr<dls::LogLayer> pLogLayer = std::make_shared<dls::LogLayer>();
 		pApp->addLayer(pLogLayer);
 		if (only_start_log) pApp->run();
 
@@ -127,7 +127,7 @@ int main(int argc, char **argv)
 	else if(console_layer_pid == 0)
 	{
 		change_process_name(argv, "console_layer");
-		std::shared_ptr<ConsoleLayer> pConsoleLayer = std::make_shared<ConsoleLayer>();
+		std::shared_ptr<dls::ConsoleLayer> pConsoleLayer = std::make_shared<dls::ConsoleLayer>();
 		pApp->addLayer(pConsoleLayer);
 		if (!only_start_log) pApp->run();
 
@@ -144,7 +144,7 @@ int main(int argc, char **argv)
 	else if (control_layer == 0)
 	{
 		change_process_name(argv, "control_layer");
-		std::shared_ptr<ControlLayer> pControlLayer = std::make_shared<ControlLayer>();
+		std::shared_ptr<dls::ControlLayer> pControlLayer = std::make_shared<dls::ControlLayer>();
 		TODO("move this to separate process")
 		// std::shared_ptr<EstimationLayer> pEstimationLayer = std::make_shared<EstimationLayer>();
 
@@ -189,35 +189,35 @@ int main(int argc, char **argv)
 
 		if(child_pid == hardware_layer_pid)
 		{
-			logging::clog << "Hardware layer exited" << logging::endl;
+			dls::logging::clog << "Hardware layer exited" << dls::logging::endl;
 		}
 		else if(child_pid == control_layer)
 		{
-			logging::clog << "Control layer exited" << logging::endl;
+			dls::logging::clog << "Control layer exited" << dls::logging::endl;
 		}
 		else if(child_pid == log_layer_pid)
 		{
-			logging::clog << "log layer exited" << logging::endl;
+			dls::logging::clog << "log layer exited" << dls::logging::endl;
 		}
 		else if(child_pid == console_layer_pid)
 		{
-			logging::clog << "console layer exited" << logging::endl;
+			dls::logging::clog << "console layer exited" << dls::logging::endl;
 		}
 		if(WIFEXITED(status))
 		{
-			logging::clog << "Child exited normally with exit status" << logging::endl;
+			dls::logging::clog << "Child exited normally with exit status" << dls::logging::endl;
 			DMSG(WEXITSTATUS(status));
 		}
 		if(WIFSIGNALED(status))
 		{
 			TODO("Handle case where child process crashed")
-			logging::clog << "Child exited by signal" << logging::endl;
+			dls::logging::clog << "Child exited by signal" << dls::logging::endl;
 			DMSG(WTERMSIG(status));
 
 			#ifdef WCOREDUMP
 			if(WCOREDUMP(status)) // not available on all unix implementations
 			{
-				logging::cfatal << "Child had a core dump" << logging::endl;
+				dls::logging::cfatal << "Child had a core dump" << dls::logging::endl;
 			}
 			#endif
 		}

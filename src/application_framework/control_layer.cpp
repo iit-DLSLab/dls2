@@ -39,7 +39,7 @@
 // =============================================================================
 // Constructors
 // =============================================================================
-ControlLayer::ControlLayer() :
+dls::ControlLayer::ControlLayer() :
 	controllers_b(),
 	controllers_mutex_b(),
 	// generators(),
@@ -62,7 +62,7 @@ ControlLayer::ControlLayer() :
 	deactivate_controller_listener(topics::deactivate_controller, *this)
 { }
 
-ControlLayer::~ControlLayer()
+dls::ControlLayer::~ControlLayer()
 {
 	// this->should_quit = true;
 	// this->num_children_cv.notify_one();
@@ -74,7 +74,7 @@ ControlLayer::~ControlLayer()
 // =============================================================================
 // Interface Override Functions
 // =============================================================================
-ControlLayer::Status ControlLayer::run()
+dls::ControlLayer::Status dls::ControlLayer::run()
 {
 
 	TODO("spawn nonrealtime thread for user interaction")
@@ -109,7 +109,7 @@ ControlLayer::Status ControlLayer::run()
 	return getStatus();
 }
 
-ControlLayer::Status ControlLayer::shutdown()
+dls::ControlLayer::Status dls::ControlLayer::shutdown()
 {
 	setStatus(Status::STOP);
 	deactivateGaitGenerators();
@@ -149,7 +149,7 @@ ControlLayer::Status ControlLayer::shutdown()
 // Controllers
 // -----------------------------------------------------------------------------
 TODO("std::map already does this check for emplace, maybe for others. Double check and make this more efficient")
-bool ControlLayer::activateController(const Controller::ID_t &ID)
+bool dls::ControlLayer::activateController(const Controller::ID_t &ID)
 {
 	pid_t controller_pid;
 	auto pData = std::make_shared<ControllerData>();
@@ -202,12 +202,12 @@ bool ControlLayer::activateController(const Controller::ID_t &ID)
 	return true;
 }
 
-void ControlLayer::deactivateController(std::shared_ptr<ControllerData> pData)
+void dls::ControlLayer::deactivateController(std::shared_ptr<ControllerData> pData)
 {
 	kill(pData->controller_pid, SIGTERM);
 }
 
-bool ControlLayer::deactivateController(const Controller::ID_t &ID)
+bool dls::ControlLayer::deactivateController(const Controller::ID_t &ID)
 {
 	std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
 	auto pair_it = this->controllers_b.find(ID);
@@ -223,7 +223,7 @@ bool ControlLayer::deactivateController(const Controller::ID_t &ID)
 }
 
 TODO("remove this function")
-void ControlLayer::loadController(const Controller::ID_t &name)
+void dls::ControlLayer::loadController(const Controller::ID_t &name)
 {
 	DMSG("Deprecated function call does nothing");
 	name.c_str();
@@ -232,7 +232,7 @@ void ControlLayer::loadController(const Controller::ID_t &name)
 // -----------------------------------------------------------------------------
 // Gait Generators
 // -----------------------------------------------------------------------------
-bool ControlLayer::activateGaitGenerator(const GaitGenerator::ID_t &ID)
+bool dls::ControlLayer::activateGaitGenerator(const GaitGenerator::ID_t &ID)
 {
 	std::lock_guard<std::mutex> lock(this->gait_generators_mutex);
 
@@ -260,7 +260,7 @@ bool ControlLayer::activateGaitGenerator(const GaitGenerator::ID_t &ID)
 	return true;
 }
 
-void ControlLayer::deactivateGaitGenerators()
+void dls::ControlLayer::deactivateGaitGenerators()
 {
 	std::lock_guard<std::mutex> lock(this->gait_generators_mutex);
 	if(this->pGait_generator_data || this->pGait_generator_data->gait_generator_pid != 0)
@@ -270,7 +270,7 @@ void ControlLayer::deactivateGaitGenerators()
 }
 
 TODO("remove this function")
-void ControlLayer::loadGaitGenerator(const std::string &name)
+void dls::ControlLayer::loadGaitGenerator(const std::string &name)
 {
 	DMSG("Deprecated function call does nothing");
 	name.c_str();
@@ -280,14 +280,14 @@ void ControlLayer::loadGaitGenerator(const std::string &name)
 	// this->addGaitGenerator(pGaitGenerator);
 }
 
-Eigen::MatrixXd ControlLayer::saturateTorques(const Eigen::MatrixXd &req) const
+Eigen::MatrixXd dls::ControlLayer::saturateTorques(const Eigen::MatrixXd &req) const
 {
 	TODO("This is not implemented yet")
 	TODO("Move this to the robot class")
 	return req;
 }
 
-void ControlLayer::publishDesiredTorques(const Eigen::VectorXd &torques) const
+void dls::ControlLayer::publishDesiredTorques(const Eigen::VectorXd &torques) const
 {
 
 	DesiredTorquesMsg msg;
@@ -299,21 +299,21 @@ void ControlLayer::publishDesiredTorques(const Eigen::VectorXd &torques) const
 // =============================================================================
 // FastRTPS
 // =============================================================================
-ControlLayer::ControlSubListener::ControlSubListener(const std::string &topic):
+dls::ControlLayer::ControlSubListener::ControlSubListener(const std::string &topic):
 	SubscriberBase<ControlSignalMsgPubSubType>(topic),
 	control_signal(nullptr),
 	control_signal_mutex(),
 	info()
 { }
 
-std::shared_ptr<ControlSignal>
-	ControlLayer::ControlSubListener::getLastPublishedControlSignal()
+std::shared_ptr<dls::ControlSignal>
+	dls::ControlLayer::ControlSubListener::getLastPublishedControlSignal()
 {
 	std::lock_guard<std::mutex> lock(this->control_signal_mutex);
 	return this->control_signal;
 }
 
-void ControlLayer::ControlSubListener::onNewDataMessage
+void dls::ControlLayer::ControlSubListener::onNewDataMessage
 (
 	eprosima::fastrtps::Subscriber *sub
 )
@@ -333,7 +333,7 @@ void ControlLayer::ControlSubListener::onNewDataMessage
 // =============================================================================
 // Fork
 // =============================================================================
-void ControlLayer::waitOnChildController(std::shared_ptr<ControllerData> pData)
+void dls::ControlLayer::waitOnChildController(std::shared_ptr<ControllerData> pData)
 {
 	int status;
 
@@ -358,7 +358,7 @@ void ControlLayer::waitOnChildController(std::shared_ptr<ControllerData> pData)
 	}
 }
 
-void ControlLayer::waitOnChildGaitGenerator(std::shared_ptr<GaitGeneratorData> pData)
+void dls::ControlLayer::waitOnChildGaitGenerator(std::shared_ptr<GaitGeneratorData> pData)
 {
 	int status;
 	/*pid_t child_pid =*/ waitpid(pData->gait_generator_pid, &status, 0);

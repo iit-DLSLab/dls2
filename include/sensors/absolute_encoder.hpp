@@ -22,9 +22,12 @@
 
 #include "sensors/sensor_base.hpp"
 
+namespace dls
+{
 class AbsoluteEncoder : public virtual SensorBase
 {
 
 };
+} // end namespace dls
 
 #endif /* end of include guard: ABSOLUTE_ENCODER_HPP_1BWEDTQJ */

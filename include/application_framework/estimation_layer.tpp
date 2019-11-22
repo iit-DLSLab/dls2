@@ -23,6 +23,8 @@
 // Include for benefit of IDEs, not necessary
 #include "application_framework/estimation_layer.hpp"
 
+namespace dls
+{
 template <typename estimator_t>
 void EstimationLayer::addEstimator(const std::shared_ptr<estimator_t> &pEstimator)
 {
@@ -42,5 +44,6 @@ void EstimationLayer::addEstimator(const std::shared_ptr<estimator_t> &pEstimato
 		)
 	);
 }
+} // end namespace dls
 
 #endif /* end of include guard: ESTIMATION_LAYER_TPP_XGOZ3KJ8 */

@@ -23,6 +23,8 @@
 #include <mutex>
 #include "todo.h"
 
+namespace dls
+{
 class AppLayerComponent
 {
 public:
@@ -59,5 +61,6 @@ private:
 		std::mutex status_mutex;
 	// END critical section
 };
+} // end namespace dls
 
 #endif /* end of include guard: APP_LAYER_COMPONENT_HPP_B4KVSXQY */

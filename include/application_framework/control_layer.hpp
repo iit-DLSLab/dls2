@@ -49,6 +49,8 @@ TODO("REMOVE THESE INCLUDES WHEN A BETTER CONSOLE IS MADE")
 // =============================================================================
 // Class Interface
 // =============================================================================
+namespace dls
+{
 class ControlLayer : public AppLayer
 {
 public:
@@ -279,6 +281,7 @@ private:
 	} deactivate_controller_listener;
 
 };
+} // end namespace dls
 
 #include "application_framework/control_layer.tpp"
 

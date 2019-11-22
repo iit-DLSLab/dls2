@@ -20,11 +20,11 @@
 #include "application_framework/app_layer.hpp"
 #include "util/debug/debug.hpp"
 
+using namespace dls;
 // =============================================================================
 // Constructors
 // =============================================================================
-AppLayer::AppLayer()
-	:
+dls::AppLayer::AppLayer() :
 	components_mutex(),
 	components({}),
 	status_mutex(),
@@ -32,8 +32,8 @@ AppLayer::AppLayer()
 	main(0)
 { }
 
-AppLayer::AppLayer(const std::initializer_list<pComponent_t> &_components)
-	: components_mutex(),
+dls::AppLayer::AppLayer(const std::initializer_list<pComponent_t> &_components) :
+	components_mutex(),
 	components(_components),
 	status_mutex(),
 	status(Status::INITIALISING),
@@ -43,19 +43,19 @@ AppLayer::AppLayer(const std::initializer_list<pComponent_t> &_components)
 // =============================================================================
 // Member Functions
 // =============================================================================
-AppLayer::Status AppLayer::getStatus() const
+dls::AppLayer::Status dls::AppLayer::getStatus() const
 {
 	std::lock_guard<std::mutex> lock(this->status_mutex);
 	return this->status;
 }
 
-void AppLayer::setStatus(Status s)
+void dls::AppLayer::setStatus(Status s)
 {
 	std::lock_guard<std::mutex> lock(this->status_mutex);
 	this->status = s;
 }
 
-AppLayer::Status AppLayer::eStop()
+dls::AppLayer::Status dls::AppLayer::eStop()
 {
 	{
 		std::lock_guard<std::mutex> lock(this->components_mutex);

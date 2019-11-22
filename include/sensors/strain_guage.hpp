@@ -22,9 +22,12 @@
 
 #include <sensors/sensor_base.hpp>
 
+namespace dls
+{
 class StrainGuage : public virtual SensorBase
 {
 
 };
+} // end namespace dls
 
 #endif /* end of include guard: STRAIN_GUAGE_HPP_6RMP5JWM */

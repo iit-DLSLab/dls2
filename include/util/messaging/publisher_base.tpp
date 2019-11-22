@@ -33,62 +33,65 @@
 #include "util/debug/debug.hpp"
 #include "todo.h"
 
-template <class PubSub_t>
-PubSub_t PublisherBase<PubSub_t>::rtps_type;
-
-template <class PubSub_t>
-PublisherBase<PubSub_t>::PublisherBase(const std::string &topic) :
-	pParticipant(nullptr),
-	pPublisher(nullptr)
+namespace dls
 {
-	// Create participant
-	eprosima::fastrtps::ParticipantAttributes participant_attr;
-	participant_attr.rtps.setName("Participant_publisher");
-	
-	auto custom_transport = std::make_shared<eprosima::fastrtps::rtps::UDPv4TransportDescriptor>();
-	custom_transport->interfaceWhiteList.emplace_back("127.0.0.1");
-	participant_attr.rtps.useBuiltinTransports = false;
-	participant_attr.rtps.userTransports.push_back(custom_transport);
-	
-	TODO("not cleaning the participant because it's generating a library error")
-	pParticipant.reset
-	(
-		eprosima::fastrtps::Domain::createParticipant(participant_attr),
-		[](eprosima::fastrtps::Participant*){}
-	);
-	TODO("Check for null pointer above")
+	template <class PubSub_t>
+	PubSub_t PublisherBase<PubSub_t>::rtps_type;
 
-	// register
-	eprosima::fastrtps::Domain::registerType
-	(
-		pParticipant.get(), static_cast<eprosima::fastrtps::TopicDataType*>(&rtps_type)
-	);
+	template <class PubSub_t>
+	PublisherBase<PubSub_t>::PublisherBase(const std::string &topic) :
+		pParticipant(nullptr),
+		pPublisher(nullptr)
+	{
+		// Create participant
+		eprosima::fastrtps::ParticipantAttributes participant_attr;
+		participant_attr.rtps.setName("Participant_publisher");
 
-	// Create publisher
-	eprosima::fastrtps::PublisherAttributes pub_attr;
-	pub_attr.topic.topicKind = eprosima::fastrtps::rtps::NO_KEY;
-	pub_attr.topic.topicDataType = rtps_type.getName();
-	TODO("Change the name here");
-	pub_attr.topic.topicName = topic;
+		auto custom_transport = std::make_shared<eprosima::fastrtps::rtps::UDPv4TransportDescriptor>();
+		custom_transport->interfaceWhiteList.emplace_back("127.0.0.1");
+		participant_attr.rtps.useBuiltinTransports = false;
+		participant_attr.rtps.userTransports.push_back(custom_transport);
 
-	TODO("not cleaning the publisher because it's generating a library error")
-	pPublisher.reset
-	(
-		eprosima::fastrtps::Domain::createPublisher
+		TODO("not cleaning the participant because it's generating a library error")
+		pParticipant.reset
 		(
-			pParticipant.get(),
-			pub_attr,
-			this
-		),
-		[](eprosima::fastrtps::Publisher*){}
-	);
-	TODO("Check nullptr above")
-}
+			eprosima::fastrtps::Domain::createParticipant(participant_attr),
+			[](eprosima::fastrtps::Participant*){}
+		);
+		TODO("Check for null pointer above")
 
-template<class PubSub_t>
-void PublisherBase<PubSub_t>::publish(typename PubSub_t::type &msg) const
-{
-	pPublisher->write(&msg);
-}
+		// register
+		eprosima::fastrtps::Domain::registerType
+		(
+			pParticipant.get(), static_cast<eprosima::fastrtps::TopicDataType*>(&rtps_type)
+		);
+
+		// Create publisher
+		eprosima::fastrtps::PublisherAttributes pub_attr;
+		pub_attr.topic.topicKind = eprosima::fastrtps::rtps::NO_KEY;
+		pub_attr.topic.topicDataType = rtps_type.getName();
+		TODO("Change the name here");
+		pub_attr.topic.topicName = topic;
+
+		TODO("not cleaning the publisher because it's generating a library error")
+		pPublisher.reset
+		(
+			eprosima::fastrtps::Domain::createPublisher
+			(
+				pParticipant.get(),
+				pub_attr,
+				this
+			),
+			[](eprosima::fastrtps::Publisher*){}
+		);
+		TODO("Check nullptr above")
+	}
+
+	template<class PubSub_t>
+	void PublisherBase<PubSub_t>::publish(typename PubSub_t::type &msg) const
+	{
+		pPublisher->write(&msg);
+	}
+} // end namespace dls
 
 #endif /* end of include guard: PUBLISHER_BASE_TPP_I5UWXWN8 */

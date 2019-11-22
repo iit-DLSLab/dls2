@@ -29,6 +29,8 @@
 #include "application_framework/app_layer.hpp"
 #include "todo.h"
 
+namespace dls
+{
 class HyQApp
 {
 	using pLayer_t = std::shared_ptr<AppLayer>;
@@ -100,6 +102,7 @@ private:
 		std::mutex status_mutex;
 	// END critical section
 };
+} // end namespace dls
 
 #include "application_framework/hyq_app.tpp"
 

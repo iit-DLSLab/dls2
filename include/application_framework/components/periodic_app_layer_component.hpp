@@ -25,6 +25,8 @@
 #include <chrono>
 #include <atomic>
 
+namespace dls
+{
 class PeriodicAppLayerComponent : public AppLayerComponent
 {
 public:
@@ -40,5 +42,6 @@ private:
 	const period_t period;
 	std::atomic_bool should_run;
 };
+} // end namespace dls
 
 #endif /* end of include guard: PERIODIC_APP_LAYER_COMPONENT_HPP_RY9LWBZG */

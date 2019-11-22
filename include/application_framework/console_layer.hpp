@@ -37,6 +37,8 @@
 // =============================================================================
 // Class Interface
 // =============================================================================
+namespace dls
+{
 /// A console interface into the framework
 ///
 class ConsoleLayer : public AppLayer
@@ -108,5 +110,6 @@ private:
 		std::map<std::string, Command> commands; ///< The commands registered with the console
 	// End critical section
 };
+} // end namespace dls
 
 #endif /* end of include guard: CONSOLE_LAYER_HPP_BXNRZS8Q */

@@ -25,12 +25,14 @@
 #include "topics/low_level_estimation/blind_state.hpp"
 #include "topics/control_signal_base.hpp"
 #include "controller/control_signal.hpp"
+#include <iostream>
+#include <string>
 
 #include <algorithm>
 // =============================================================================
 // Constructors
 // =============================================================================
-TopicInfo::TopicInfo(const std::string &controller_topic) :
+dls::TopicInfo::TopicInfo(const std::string &controller_topic) :
 	blind_state_sub(),
 	gait_signal_sub(),
 	control_signal_sub(controller_topic)
@@ -42,12 +44,12 @@ TopicInfo::TopicInfo(const std::string &controller_topic) :
 // -----------------------------------------------------------------------------
 // Blind State
 // -----------------------------------------------------------------------------
-TopicInfo::BlindStateSub::BlindStateSub() :
+dls::TopicInfo::BlindStateSub::BlindStateSub() :
 	SubscriberBase<BlindStateMsgPubSubType>(topics::low_level_estimation::blind_state),
 	info()
 { }
 
-void TopicInfo::BlindStateSub::onNewDataMessage
+void dls::TopicInfo::BlindStateSub::onNewDataMessage
 (
 	eprosima::fastrtps::Subscriber *sub
 )
@@ -135,12 +137,12 @@ void TopicInfo::BlindStateSub::onNewDataMessage
 // -----------------------------------------------------------------------------
 // Gait Signal
 // -----------------------------------------------------------------------------
-TopicInfo::GaitSignalSub::GaitSignalSub() :
+dls::TopicInfo::GaitSignalSub::GaitSignalSub() :
 	SubscriberBase<GaitSignalMsgPubSubType>(topics::gait_signal),
 	info()
 { }
 
-void TopicInfo::GaitSignalSub::onNewDataMessage
+void dls::TopicInfo::GaitSignalSub::onNewDataMessage
 (
 	eprosima::fastrtps::Subscriber *sub
 )
@@ -207,13 +209,13 @@ void TopicInfo::GaitSignalSub::onNewDataMessage
 // Control Signal
 // -----------------------------------------------------------------------------
 
-TopicInfo::ControlSignalSub::ControlSignalSub(const std::string &controller_name) :
+dls::TopicInfo::ControlSignalSub::ControlSignalSub(const std::string &controller_name) :
 	SubscriberBase<ControlSignalMsgPubSubType>(topics::control_signal_base + controller_name),
 	info()
 { }
 
 
-void TopicInfo::ControlSignalSub::onNewDataMessage
+void dls::TopicInfo::ControlSignalSub::onNewDataMessage
 (
 	eprosima::fastrtps::Subscriber *sub
 )

@@ -22,7 +22,7 @@
 
 #include "application_framework/log_layer.hpp"
 
-LogLayer::LogLayer() :
+dls::LogLayer::LogLayer() :
 	debug_listener(),
 	info_listener(),
 	warn_listener(),
@@ -33,7 +33,7 @@ LogLayer::LogLayer() :
 	should_quit_mutex()
 { }
 
-LogLayer::Status LogLayer::run()
+dls::LogLayer::Status dls::LogLayer::run()
 {
 	// TODO start subscribers
 
@@ -49,7 +49,7 @@ LogLayer::Status LogLayer::run()
 	return this->getStatus();
 }
 
-LogLayer::Status LogLayer::shutdown()
+dls::LogLayer::Status dls::LogLayer::shutdown()
 {
 	{
 		std::lock_guard<std::mutex> lock(this->should_quit_mutex);

@@ -28,14 +28,14 @@ TODO("temp includes")
 // =============================================================================
 // Constructors
 // =============================================================================
-EstimationLayer::EstimationLayer() :
+dls::EstimationLayer::EstimationLayer() :
 	estimators(),
 	estimator_threads(),
 	estimators_mutex(),
 	should_run(true)
 { }
 
-EstimationLayer::~EstimationLayer()
+dls::EstimationLayer::~EstimationLayer()
 {
 	std::lock_guard<std::mutex> lock(this->estimators_mutex);
 
@@ -53,7 +53,7 @@ EstimationLayer::~EstimationLayer()
 // =============================================================================
 // Interface Override Functions
 // =============================================================================
-AppLayer::Status EstimationLayer::run()
+dls::AppLayer::Status dls::EstimationLayer::run()
 {
 	while(this->should_run)
 	{
@@ -64,7 +64,7 @@ AppLayer::Status EstimationLayer::run()
 	return getStatus();
 }
 
-AppLayer::Status EstimationLayer::shutdown()
+dls::AppLayer::Status dls::EstimationLayer::shutdown()
 {
 	this->should_run = false;
 	return getStatus();
@@ -73,14 +73,14 @@ AppLayer::Status EstimationLayer::shutdown()
 // =============================================================================
 // Implementation
 // =============================================================================
-void EstimationLayer::loadEstimator(const std::string &name)
+void dls::EstimationLayer::loadEstimator(const std::string &name)
 {
 	std::shared_ptr<Estimator> pEstimator = ClassLoader::loadClass<Estimator>(name);
 	this->addEstimator(pEstimator);
 }
 
 TODO("This is copied more or less in all the layers")
-bool EstimationLayer::activateEstimator(const Estimator::ID_t &ID)
+bool dls::EstimationLayer::activateEstimator(const Estimator::ID_t &ID)
 {
 	std::lock_guard<std::mutex> lock(this->estimators_mutex);
 

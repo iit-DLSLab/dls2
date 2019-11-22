@@ -22,9 +22,12 @@
 
 #include "sensors/sensor_base.hpp"
 
+namespace dls
+{
 class GpioSensor : public virtual SensorBase
 {
 
 };
+} // end namespace dls
 
 #endif /* end of include guard: GPIO_SENSOR_HPP_SVIDY5FG */

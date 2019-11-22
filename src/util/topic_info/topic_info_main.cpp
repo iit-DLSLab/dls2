@@ -34,7 +34,7 @@ int main(int argc, char **argv)
 		name = "dummy_controller";
 	}
 	// listen to topics and print
-	TopicInfo info(name);
+	dls::TopicInfo info(name);
 
 	// wait until killed by user
 	sigset_t sigset;

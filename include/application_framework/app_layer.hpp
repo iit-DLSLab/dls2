@@ -27,6 +27,8 @@
 
 #include "application_framework/components/app_layer_component.hpp"
 
+namespace dls
+{
 class AppLayer
 {
 public:
@@ -71,5 +73,6 @@ protected:
 	TODO("remove this")
 	std::function<Status(void)> main;
 };
+} // end namespace dls
 
 #endif /* end of include guard: APP_LAYER_HPP_H7JRIVPM */

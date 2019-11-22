@@ -18,18 +18,19 @@
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
 #include "controller/control_signal.hpp"
-ControlSignal::ControlSignal() :
+
+dls::ControlSignal::ControlSignal() :
 	torques(),
 	signal_reconstruction_method(SignalReconstructionMethod::ZERO_ORDER_HOLD)
 { }
 
-ControlSignal::ControlSignal(ControlSignalMsg msg) :
+dls::ControlSignal::ControlSignal(ControlSignalMsg msg) :
 	// TODO this 12 should not be hardcoded
 	torques(Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(msg.torques().data(), 12)),
 	signal_reconstruction_method((SignalReconstructionMethod)msg.signal_reconstruction_method())
 { }
 
-ControlSignal::operator ControlSignalMsg() const
+dls::ControlSignal::operator ControlSignalMsg() const
 {
 	// TODO do not assign this here, do not resize this here
 	ControlSignalMsg msg;

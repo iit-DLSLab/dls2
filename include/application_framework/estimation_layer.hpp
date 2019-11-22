@@ -30,6 +30,8 @@
 #include "application_framework/app_layer.hpp"
 #include "estimator/estimator.hpp"
 
+namespace dls
+{
 TODO("Document this class")
 class EstimationLayer : public AppLayer
 {
@@ -57,6 +59,7 @@ private:
 	// END critical section
 	std::atomic_bool should_run;
 };
+} // end namespace dls
 
 #include "application_framework/estimation_layer.tpp"
 

@@ -23,38 +23,38 @@
 // =============================================================================
 // Constructors
 // =============================================================================
-Pose::Pose() :
+dls::Pose::Pose() :
 	pose_mutex(),
 	position(Eigen::Vector3d::Zero()),
 	quaternion(Eigen::Quaternion<double>::Identity())
 { }
 
-Pose::Pose(const Eigen::Vector3d &vec) :
+dls::Pose::Pose(const Eigen::Vector3d &vec) :
 	pose_mutex(),
 	position(vec),
 	quaternion(Eigen::Quaternion<double>::Identity())
 { }
 
-Pose::Pose(const Eigen::AngleAxisd &aa) :
+dls::Pose::Pose(const Eigen::AngleAxisd &aa) :
 	pose_mutex(),
 	position(Eigen::Vector3d::Zero()),
 	quaternion(aa)
 { }
 
-Pose::Pose(const Eigen::Vector3d &vec, const Eigen::Quaterniond &q) :
+dls::Pose::Pose(const Eigen::Vector3d &vec, const Eigen::Quaterniond &q) :
 	pose_mutex(),
 	position(vec),
 	quaternion(q)
 { }
 
-Pose::Pose(const Eigen::Vector3d &vec, const Eigen::AngleAxisd &aa) :
+dls::Pose::Pose(const Eigen::Vector3d &vec, const Eigen::AngleAxisd &aa) :
 	pose_mutex(),
 	position(vec),
 	quaternion(aa)
 { }
 
 // Copy Constructor
-Pose::Pose(const Pose &rhs) : Pose()
+dls::Pose::Pose(const Pose &rhs) : Pose()
 {
 	std::lock_guard<std::mutex> lock(rhs.pose_mutex);
 	this->position = rhs.position;
@@ -64,13 +64,13 @@ Pose::Pose(const Pose &rhs) : Pose()
 // =============================================================================
 // FastRTPS Util
 // =============================================================================
-Pose::Pose(PoseMsg msg) :
+dls::Pose::Pose(PoseMsg msg) :
 	pose_mutex(),
 	position(msg.position().data()),
 	quaternion(msg.quaternion().data())
 { }
 
-Pose::operator PoseMsg() const
+dls::Pose::operator PoseMsg() const
 {
 	PoseMsg msg;
 	std::array<double, 3> position_component;
@@ -95,25 +95,25 @@ Pose::operator PoseMsg() const
 // =============================================================================
 // Conversions
 // =============================================================================
-Eigen::Vector3d Pose::toPosition() const
+Eigen::Vector3d dls::Pose::toPosition() const
 {
 	std::lock_guard<std::mutex> lock(this->pose_mutex);
 	return this->position;
 }
 
-Eigen::Quaterniond Pose::toQuaternion() const
+Eigen::Quaterniond dls::Pose::toQuaternion() const
 {
 	std::lock_guard<std::mutex> lock(this->pose_mutex);
 	return this->quaternion;
 }
 
-Eigen::AngleAxisd Pose::toAngleAxis() const
+Eigen::AngleAxisd dls::Pose::toAngleAxis() const
 {
 	std::lock_guard<std::mutex> lock(this->pose_mutex);
 	return Eigen::AngleAxisd(this->quaternion);
 }
 
-Pose::transformation_matrix_t Pose::toTransformationMatrix() const
+dls::Pose::transformation_matrix_t dls::Pose::toTransformationMatrix() const
 {
 	Eigen::Matrix4d T;
 	{
@@ -131,7 +131,7 @@ Pose::transformation_matrix_t Pose::toTransformationMatrix() const
 // =============================================================================
 // Arithmetic
 // =============================================================================
-Pose &Pose::operator=(const Pose &rhs)
+dls::Pose &dls::Pose::operator=(const Pose &rhs)
 {
 	std::lock_guard<std::mutex> lock(this->pose_mutex);
 	{
@@ -143,7 +143,7 @@ Pose &Pose::operator=(const Pose &rhs)
 }
 
 // ================================ Subtraction ================================
-Pose &Pose::operator-=(const Pose &rhs)
+dls::Pose &dls::Pose::operator-=(const Pose &rhs)
 {
 	std::lock_guard<std::mutex> lock(this->pose_mutex);
 	{
@@ -156,7 +156,7 @@ Pose &Pose::operator-=(const Pose &rhs)
 	return *this;
 }
 
-Pose &Pose::operator-=(const Eigen::Vector3d &rhs)
+dls::Pose &dls::Pose::operator-=(const Eigen::Vector3d &rhs)
 {
 	std::lock_guard<std::mutex> lock(this->pose_mutex);
 	{
@@ -165,7 +165,7 @@ Pose &Pose::operator-=(const Eigen::Vector3d &rhs)
 	return *this;
 }
 
-Pose &Pose::operator-=(const Eigen::Quaterniond &rhs)
+dls::Pose &dls::Pose::operator-=(const Eigen::Quaterniond &rhs)
 {
 	std::lock_guard<std::mutex> lock(this->pose_mutex);
 	{
@@ -174,19 +174,19 @@ Pose &Pose::operator-=(const Eigen::Quaterniond &rhs)
 	return *this;
 }
 
-Pose Pose::operator-(const Pose &rhs) const
+dls::Pose dls::Pose::operator-(const Pose &rhs) const
 {
 	Pose p(*this);
 	return p -= rhs;
 }
 
-Pose Pose::operator-(const Eigen::Vector3d &rhs) const
+dls::Pose dls::Pose::operator-(const Eigen::Vector3d &rhs) const
 {
 	Pose p(*this);
 	return p -= rhs;
 }
 
-Pose Pose::operator-(const Eigen::Quaterniond &rhs) const
+dls::Pose dls::Pose::operator-(const Eigen::Quaterniond &rhs) const
 {
 	Pose p(*this);
 	return p -= rhs;
@@ -208,32 +208,32 @@ Pose Pose::operator-(const Eigen::Quaterniond &rhs) const
 // =============================================================================
 // Setters
 // =============================================================================
-void Pose::set(const Eigen::Vector3d &vec)
+void dls::Pose::set(const Eigen::Vector3d &vec)
 {
 	std::lock_guard<std::mutex> lock(this->pose_mutex);
 	this->position = vec;
 }
 
-void Pose::set(const Eigen::Quaterniond &q)
+void dls::Pose::set(const Eigen::Quaterniond &q)
 {
 	std::lock_guard<std::mutex> lock(this->pose_mutex);
 	this->quaternion = q.normalized();
 }
 
-void Pose::set(const Eigen::AngleAxisd &aa)
+void dls::Pose::set(const Eigen::AngleAxisd &aa)
 {
 	std::lock_guard<std::mutex> lock(this->pose_mutex);
 	this->quaternion = Eigen::Quaterniond(aa).normalized();
 }
 
-void Pose::set(const Eigen::Vector3d &vec, const Eigen::Quaterniond &q)
+void dls::Pose::set(const Eigen::Vector3d &vec, const Eigen::Quaterniond &q)
 {
 	std::lock_guard<std::mutex> lock(this->pose_mutex);
 	this->position = vec;
 	this->quaternion = q.normalized();
 }
 
-void Pose::set(const Eigen::Vector3d &vec, const Eigen::AngleAxisd &aa)
+void dls::Pose::set(const Eigen::Vector3d &vec, const Eigen::AngleAxisd &aa)
 {
 	std::lock_guard<std::mutex> lock(this->pose_mutex);
 	this->position = vec;

@@ -22,7 +22,7 @@
 // =============================================================================
 // Constructors
 // =============================================================================
-Estimator::Estimator(const ID_t &inID, const period_t &period) :
+dls::Estimator::Estimator(const ID_t &inID, const period_t &period) :
 	PeriodicAppLayerComponent(period),
 	ID(inID)
 { }
@@ -51,7 +51,7 @@ Estimator::Estimator(const ID_t &inID, const period_t &period) :
 // =============================================================================
 // Implementation
 // =============================================================================
-Estimator::ID_t Estimator::getID() const
+dls::Estimator::ID_t dls::Estimator::getID() const
 {
 	return this->ID;
 }

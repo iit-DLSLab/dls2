@@ -23,7 +23,7 @@
 // =============================================================================
 // Constructors
 // =============================================================================
-PeriodicAppLayerComponent::PeriodicAppLayerComponent(const period_t &inPeriod) :
+dls::PeriodicAppLayerComponent::PeriodicAppLayerComponent(const period_t &inPeriod) :
 	period(inPeriod),
 	should_run(false)
 { }
@@ -31,7 +31,7 @@ PeriodicAppLayerComponent::PeriodicAppLayerComponent(const period_t &inPeriod) :
 // =============================================================================
 // Interface Override Functions
 // =============================================================================
-AppLayerComponent::Status PeriodicAppLayerComponent::run()
+dls::AppLayerComponent::Status dls::PeriodicAppLayerComponent::run()
 {
 	setStatus(Status::RUNNING);
 	this->should_run = true;
@@ -57,7 +57,7 @@ AppLayerComponent::Status PeriodicAppLayerComponent::run()
 	return this->getStatus();
 }
 
-AppLayerComponent::Status PeriodicAppLayerComponent::stop()
+dls::AppLayerComponent::Status dls::PeriodicAppLayerComponent::stop()
 {
 	this->should_run = false;
 	this->setStatus(Status::STOPPED);

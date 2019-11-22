@@ -49,25 +49,28 @@ std::string &trim_inplace(std::string *const);
 // Indirection to access class methods as C functions
 // This will only work if there is only one console object in the process, which
 // will always be the case
-ConsoleLayer *pInstance = nullptr;
+dls::ConsoleLayer *pInstance = nullptr;
 
 // TODO these should not be hardcoded
-std::shared_ptr<PublisherBase<StringMsgPubSubType>> pActivate_controller_pub;
-std::shared_ptr<PublisherBase<StringMsgPubSubType>> pDeactivate_controller_pub;
-std::shared_ptr<PublisherBase<StringMsgPubSubType>> pActivate_gait_generator_pub;
-std::shared_ptr<PublisherBase<StringMsgPubSubType>> pDeactivate_gait_generator_pub;
+std::shared_ptr<dls::PublisherBase<StringMsgPubSubType>> pActivate_controller_pub;
+std::shared_ptr<dls::PublisherBase<StringMsgPubSubType>> pDeactivate_controller_pub;
+std::shared_ptr<dls::PublisherBase<StringMsgPubSubType>> pActivate_gait_generator_pub;
+std::shared_ptr<dls::PublisherBase<StringMsgPubSubType>> pDeactivate_gait_generator_pub;
 
 // =============================================================================
 // Foreward Declarations
 // =============================================================================
-char **console_completion(const char *text, int start, int /*end*/);
-char *command_completion(const char *text, int state);
-char *arg_completion(const char *text, int state);
+namespace dls
+{
+	char **console_completion(const char *text, int start, int /*end*/);
+	char *command_completion(const char *text, int state);
+	char *arg_completion(const char *text, int state);
+}
 
 // =============================================================================
 // Constructors
 // =============================================================================
-ConsoleLayer::ConsoleLayer() :
+dls::ConsoleLayer::ConsoleLayer() :
 	commands_mutex(),
 	commands()
 {
@@ -208,7 +211,7 @@ ConsoleLayer::ConsoleLayer() :
 // =============================================================================
 // Interface Override
 // =============================================================================
-ConsoleLayer::Status ConsoleLayer::run()
+dls::ConsoleLayer::Status dls::ConsoleLayer::run()
 {
 	while(true)
 	{
@@ -266,7 +269,7 @@ ConsoleLayer::Status ConsoleLayer::run()
 	return getStatus();
 }
 
-ConsoleLayer::Status ConsoleLayer::shutdown()
+dls::ConsoleLayer::Status dls::ConsoleLayer::shutdown()
 {
 	return getStatus();
 }
@@ -274,12 +277,12 @@ ConsoleLayer::Status ConsoleLayer::shutdown()
 // =============================================================================
 // Implementaton
 // =============================================================================
-std::string ConsoleLayer::build_prompt()
+std::string dls::ConsoleLayer::build_prompt()
 {
 	return "> ";
 }
 
-void ConsoleLayer::addCommand(const Command &c)
+void dls::ConsoleLayer::addCommand(const Command &c)
 {
 	std::lock_guard<std::mutex> lock(this->commands_mutex);
 	this->commands.insert
@@ -308,7 +311,7 @@ void ConsoleLayer::addCommand(const Command &c)
 // -----------------------------------------------------------------------------
 // Completion chooser
 // -----------------------------------------------------------------------------
-char **console_completion(const char *text, int start, int /*end*/)
+char **dls::console_completion(const char *text, int start, int /*end*/)
 {
 	char **matches = nullptr;
 
@@ -345,7 +348,7 @@ char **console_completion(const char *text, int start, int /*end*/)
 // -----------------------------------------------------------------------------
 // Command Completion
 // -----------------------------------------------------------------------------
-char *command_completion(const char *text, int state)
+char *dls::command_completion(const char *text, int state)
 {
 	static decltype(pInstance->commands.cbegin()) it;
 	static int string_length;
@@ -397,7 +400,7 @@ char *command_completion(const char *text, int state)
 // -----------------------------------------------------------------------------
 // Argument Completion
 // -----------------------------------------------------------------------------
-char *arg_completion(const char * text, int state)
+char *dls::arg_completion(const char * text, int state)
 {
 	static std::vector<std::string> files;
 	static size_t index;
@@ -499,7 +502,7 @@ char *arg_completion(const char * text, int state)
 // =============================================================================
 // Helper Class
 // =============================================================================
-ConsoleLayer::Command::Command
+dls::ConsoleLayer::Command::Command
 (
 	const std::string &command_name_,
 	const std::function<void(const std::vector<std::string>&)> &function_,

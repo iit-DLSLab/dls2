@@ -22,12 +22,12 @@
 // =============================================================================
 // Constructors
 // =============================================================================
-HardwareLayer::HardwareLayer() :
+dls::HardwareLayer::HardwareLayer() :
 	sensors(),
 	sensors_mutex()
 { }
 
-HardwareLayer::HardwareLayer
+dls::HardwareLayer::HardwareLayer
 (
 	std::initializer_list<std::shared_ptr<SensorBase>> _sensors
 ) :
@@ -38,23 +38,23 @@ HardwareLayer::HardwareLayer
 // =============================================================================
 // Member Functions
 // =============================================================================
-HardwareLayer::Status HardwareLayer::run()
+dls::HardwareLayer::Status dls::HardwareLayer::run()
 {
 	return getStatus();
 }
 
-HardwareLayer::Status HardwareLayer::shutdown()
+dls::HardwareLayer::Status dls::HardwareLayer::shutdown()
 {
 	return getStatus();
 }
 
-void HardwareLayer::addSensor(std::shared_ptr<SensorBase> pSensor)
+void dls::HardwareLayer::addSensor(std::shared_ptr<SensorBase> pSensor)
 {
 	std::lock_guard<std::mutex> lock(this->sensors_mutex);
 	this->sensors.push_back(pSensor);
 }
 
-void HardwareLayer::addSensor
+void dls::HardwareLayer::addSensor
 (
 	std::initializer_list<std::shared_ptr<SensorBase>> in_sensors
 )

@@ -22,9 +22,12 @@
 
 #include "sensors/sensor_base.hpp"
 
+namespace dls
+{
 class UsbSensor : public virtual SensorBase
 {
 
 };
+} // end namespace dls
 
 #endif /* end of include guard: USB_SENSOR_HPP_93E8MFXL */

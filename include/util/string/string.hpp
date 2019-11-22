@@ -17,11 +17,13 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-//#ifndef STRING_HPP_0VVJHEXH
-//#define STRING_HPP_0VVJHEXH
+#ifndef STRING_HPP_0VVJHEXH
+#define STRING_HPP_0VVJHEXH
 
 //#include <string>
 
+namespace dls
+{
 ///// Namespace collecting string utility functions
 /////
 //namespace string_utils
@@ -38,5 +40,5 @@
 //	/// will have been changed
 //	std::string &trim(std::string *const);
 //}
-
-//#endif /* end of include guard: STRING_HPP_0VVJHEXH */
+} // end namespace dls
+#endif /* end of include guard: STRING_HPP_0VVJHEXH */

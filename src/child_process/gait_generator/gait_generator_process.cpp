@@ -31,7 +31,7 @@
 #include "util/log/log.hpp"
 #include "util/debug/debug.hpp"
 
-std::shared_ptr<GaitGenerator> pGaitGenerator;
+std::shared_ptr<dls::GaitGenerator> pGaitGenerator;
 void signal_handler(int signal);
 
 int main(int argc, char **argv)
@@ -46,25 +46,25 @@ int main(int argc, char **argv)
 	try // this is a quick hack to first check local directory for library
 	{
 		pGaitGenerator =
-			ClassLoader::loadClass<GaitGenerator>(std::string(LIBRARY_PROCESS_PATH "./lib") + argv[1] + ".so");
+			dls::ClassLoader::loadClass<dls::GaitGenerator>(std::string(LIBRARY_PROCESS_PATH "./lib") + argv[1] + ".so");
 	}
 	catch(const std::exception&)
 	{
 		try
 		{
 			pGaitGenerator =
-				ClassLoader::loadClass<GaitGenerator>(std::string(LIBRARY_PROCESS_PATH "lib") + argv[1] + ".so");
+				dls::ClassLoader::loadClass<dls::GaitGenerator>(std::string(LIBRARY_PROCESS_PATH "lib") + argv[1] + ".so");
 		}
 		catch(const std::exception&)
 		{
 			DMSG("ADFSLFSDJLSDJFLSJFD");
-			logging::cfatal << "Gait generator not found" << logging::endl;
-			exit((int)GaitGenerator::Status::FATAL_ERROR);
+			dls::logging::cfatal << "Gait generator not found" << dls::logging::endl;
+			exit((int)dls::GaitGenerator::Status::FATAL_ERROR);
 		}
 	}
 
 	std::signal(SIGTERM, signal_handler);
-	logging::clog << "Gait generator loaded" << logging::endl;
+	dls::logging::clog << "Gait generator loaded" << dls::logging::endl;
 	pGaitGenerator->run();
 
 	return static_cast<int>(pGaitGenerator->getStatus());
@@ -77,7 +77,7 @@ void signal_handler(int signal)
 		std::stringstream ss;
 		ss << pGaitGenerator->getID();
 		ss << " received kill request";
-		logging::clog << ss.str() << logging::endl;
+		dls::logging::clog << ss.str() << dls::logging::endl;
 
 		pGaitGenerator->stop();
 		exit(static_cast<int>(pGaitGenerator->getStatus()));
@@ -86,7 +86,7 @@ void signal_handler(int signal)
 
 // If this class isn't delcared, the linker will link the whole class away, then
 // the call to loadClass will fail
-class VoidGaitGenerator : public GaitGenerator
+class VoidGaitGenerator : public dls::GaitGenerator
 {
 public:
 	VoidGaitGenerator

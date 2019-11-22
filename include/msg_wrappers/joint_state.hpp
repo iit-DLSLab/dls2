@@ -24,6 +24,8 @@
 
 #include "msg/joint_statePubSubTypes.h"
 
+namespace dls
+{
 struct JointState
 {
 	JointState();
@@ -34,5 +36,5 @@ struct JointState
 	Eigen::VectorXd velocity;
 	Eigen::VectorXd effort;
 };
-
+} // end namespace dls
 #endif /* end of include guard: JOINT_STATE_HPP_MYSDEPUT */

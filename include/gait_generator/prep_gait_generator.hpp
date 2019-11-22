@@ -24,6 +24,8 @@
 #include "util/debug/debug.hpp"
 
 TODO("this is a temporary class. Remove this file, the cpp file, and the CMake entry")
+namespace dls
+{
 class PrepGaitGenerator : public GaitGenerator
 {
 public:
@@ -34,6 +36,6 @@ public:
 private:
 	GaitSignal data;
 };
-
+} // end namespace dls
 
 #endif /* end of include guard: PREP_GAIT_GENERATOR_HPP_BVC8KPN1 */

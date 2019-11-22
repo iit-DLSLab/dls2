@@ -22,9 +22,12 @@
 
 #include <sensors/sensor_base.hpp>
 
+namespace dls
+{
 class RelativeEncoder : public virtual SensorBase
 {
 
 };
+} // end namespace dls
 
 #endif /* end of include guard: RELATIVE_ENCODER_HPP_GHO4JWAA */

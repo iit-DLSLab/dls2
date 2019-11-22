@@ -36,6 +36,8 @@
 
 /// THIS class is in a very hackish copy-paste state at the moment. It will be
 /// made better
+namespace dls
+{
 class LogLayer : public AppLayer
 {
 public:
@@ -162,5 +164,6 @@ private:
 		std::mutex               should_quit_mutex;
 	// END critical section
 };
+} // end namespace dls
 
 #endif /* end of include guard: LOG_LAYER_HPP_IAHZ5BZG */

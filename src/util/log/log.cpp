@@ -18,6 +18,8 @@
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
 #include "util/log/log.hpp"
+namespace dls
+{
 namespace logging
 {
 	impl::LogStream<impl::LogLevel::DEBUG>            cdbg;
@@ -44,4 +46,5 @@ namespace logging
 		template<> const std::string LogStream<LogLevel::FATAL>::topic(topics::fatal_log_stream);
 		template<> std::shared_ptr<PublisherBase<StringMsgPubSubType>> LogStream<LogLevel::FATAL>::pPublisher = nullptr;
 	}
+}
 }
