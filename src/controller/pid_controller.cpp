@@ -21,6 +21,9 @@
 #include "util/debug/debug.hpp"
 #include "util/log/log.hpp"
 
+namespace dls
+{
+
 PidController::PidController (const std::shared_ptr<Dog> &dog) : Controller
 	(
 		dog,
@@ -80,3 +83,5 @@ extern "C" void destroy(Controller *p)
 {
 	delete p;
 }
+
+} //namespace dls

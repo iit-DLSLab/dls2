@@ -104,7 +104,7 @@ ControlLayer::Status ControlLayer::run()
 		publishDesiredTorques(saturateTorques(desired_torques));
 
 		TODO("sleep at correct frequency here")
-		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(500));
+		std::this_thread::sleep_for(std::chrono::duration<double, std::micro>(100));
 	}
 
 	return getStatus();

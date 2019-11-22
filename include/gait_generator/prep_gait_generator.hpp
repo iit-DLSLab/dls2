@@ -23,7 +23,6 @@
 #include "gait_generator/gait_generator.hpp"
 #include "util/debug/debug.hpp"
 
-TODO("this is a temporary class. Remove this file, the cpp file, and the CMake entry")
 namespace dls
 {
 class PrepGaitGenerator : public GaitGenerator
