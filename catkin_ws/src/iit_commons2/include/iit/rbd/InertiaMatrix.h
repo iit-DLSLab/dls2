@@ -240,35 +240,35 @@ inline void InertiaMatrixDense::set(
 }
 
 
-template<typename OtherDerived>
-inline InertiaMatrixDense& InertiaMatrixDense::operator=
-        (const MatrixBase<OtherDerived>& other)
-{
-    // Here we silently assume that 'other' is also an inertia...
-    //   Type safety would suggest to prevent the assignment of anything but
-    // another inertia, but that would prevent, for example, the assignment
-    // of matrix expressions. We also do not want to perform any check, for
-    // performance reasons (remember this library is meant primarily to support
-    // code generation, not to be a robust API for user applications).
-    block33(AX,AX) = other.block<3,3>(AX,AX);
-    data(AX,LY) = data(LY,AX) = - ( data(AY,LX) = data(LX,AY) = other(LX,AY) );
-    data(AZ,LX) = data(LX,AZ) = - ( data(AX,LZ) = data(LZ,AX) = other(LZ,AX) );
-    data(AY,LZ) = data(LZ,AY) = - ( data(AZ,LY) = data(LY,AZ) = other(LY,AZ) );
-    data(LX,LX) = data(LY,LY) = data(LZ,LZ) = other(LX,LX);
-    return *this;
-}
+// template<typename OtherDerived>
+// inline InertiaMatrixDense& InertiaMatrixDense::operator=
+//         (const MatrixBase<OtherDerived>& other)
+// {
+//     // Here we silently assume that 'other' is also an inertia...
+//     //   Type safety would suggest to prevent the assignment of anything but
+//     // another inertia, but that would prevent, for example, the assignment
+//     // of matrix expressions. We also do not want to perform any check, for
+//     // performance reasons (remember this library is meant primarily to support
+//     // code generation, not to be a robust API for user applications).
+//     block33(AX,AX) = other.block<3,3>(AX,AX);
+//     data(AX,LY) = data(LY,AX) = - ( data(AY,LX) = data(LX,AY) = other(LX,AY) );
+//     data(AZ,LX) = data(LX,AZ) = - ( data(AX,LZ) = data(LZ,AX) = other(LZ,AX) );
+//     data(AY,LZ) = data(LZ,AY) = - ( data(AZ,LY) = data(LY,AZ) = other(LY,AZ) );
+//     data(LX,LX) = data(LY,LY) = data(LZ,LZ) = other(LX,LX);
+//     return *this;
+// }
 
-template<typename OtherDerived>
-inline InertiaMatrixDense& InertiaMatrixDense::operator+=
-        (const MatrixBase<OtherDerived>& other)
-{
-    block33(AX,AX) += other.block<3,3>(AX,AX);
-    data(AX,LY) = data(LY,AX) = - ( data(AY,LX) = (data(LX,AY) += other(LX,AY)) );
-    data(AZ,LX) = data(LX,AZ) = - ( data(AX,LZ) = (data(LZ,AX) += other(LZ,AX)) );
-    data(AY,LZ) = data(LZ,AY) = - ( data(AZ,LY) = (data(LY,AZ) += other(LY,AZ)) );
-    data(LX,LX) = data(LY,LY) = (data(LZ,LZ) += other(LX,LX));
-    return *this;
-}
+// template<typename OtherDerived>
+// inline InertiaMatrixDense& InertiaMatrixDense::operator+=
+//         (const MatrixBase<OtherDerived>& other)
+// {
+//     block33(AX,AX) += other.block<3,3>(AX,AX);
+//     data(AX,LY) = data(LY,AX) = - ( data(AY,LX) = (data(LX,AY) += other(LX,AY)) );
+//     data(AZ,LX) = data(LX,AZ) = - ( data(AX,LZ) = (data(LZ,AX) += other(LZ,AX)) );
+//     data(AY,LZ) = data(LZ,AY) = - ( data(AZ,LY) = (data(LY,AZ) += other(LY,AZ)) );
+//     data(LX,LX) = data(LY,LY) = (data(LZ,LZ) += other(LX,LX));
+//     return *this;
+// }
 
 
 inline void InertiaMatrixDense::setTheFixedZeros()

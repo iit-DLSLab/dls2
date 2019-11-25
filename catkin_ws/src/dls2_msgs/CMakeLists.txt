@@ -19,17 +19,20 @@ add_message_files(
 	SensorsCombined.msg
 )
 
-add_service_files(
-	FILES
-	)
+# add_service_files(
+# 	FILES
+# 	)
 
- add_action_files(
-	DIRECTORY action
-	FILES
-	)
+#  add_action_files(
+# 	DIRECTORY action
+# 	FILES
+# 	)
 
-    include_directories(include ${catkin_INCLUDE_DIRS})
-    
+include_directories(
+	include
+	${catkin_INCLUDE_DIRS}
+)
+
 
 generate_messages(
    DEPENDENCIES
@@ -38,7 +41,13 @@ generate_messages(
    actionlib_msgs
    )
 
-catkin_package(INCLUDE_DIRS include ${catkin_INCLUDE_DIRS} CATKIN_DEPENDS message_runtime)
+catkin_package(
+INCLUDE_DIRS
+#include
+${catkin_INCLUDE_DIRS}
+CATKIN_DEPENDS
+message_runtime
+)
 
 include_directories(include ${catkin_INCLUDE_DIRS})
 

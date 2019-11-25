@@ -35,6 +35,7 @@ include_directories(
 include_directories(
 	SYSTEM
 	${EIGEN_DIR}
+	${CMAKE_SOURCE_DIR}/3rd_party/iit_commons/include
 )
 include_directories(
 	SYSTEM
