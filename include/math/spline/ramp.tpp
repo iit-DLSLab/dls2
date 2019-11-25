@@ -17,40 +17,48 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-#ifndef SPLINE_BASE_HPP_ERGQ2YJO
-#define SPLINE_BASE_HPP_ERGQ2YJO
+#ifndef RAMP_TPP_RPS6XN7J
+#define RAMP_TPP_RPS6XN7J
+
+#include "math/spline/ramp.hpp"
 
 namespace dls
 {
 namespace spline
 {
+template <typename domain_t>
+Ramp<domain_t>::Ramp
+(
+	const domain_t &min_domain_,
+	const domain_t &max_domain_,
+	const domain_t &min_range_,
+	const domain_t &max_range_
+):
+	SplineBase<domain_t>(min_domain_, max_domain_),
+	min_range(min_range_),
+	max_range(max_range_)
+{ }
 
-/// Spline base class
-///
-/// A spline maps \f$ [\texttt{MIN_DOMAIN}, \texttt{MAX_DOMAIN}] \mapsto [0, 1]
-/// \f$. The domains \f$ (-\infty, \texttt{MIN_DOMAIN}) \f$ and \f$
-/// (\texttt{MAX_DOMAIN}, \infty) \f$ are undefined
-template <typename domain_t = double>
-class SplineBase
+template <typename domain_t>
+domain_t Ramp<domain_t>::eval(domain_t t)
 {
-public:
-	// SplineBase(const domain_t &min_domain = 0, const domain_t &max_domain = 1);
-	// TODO move the constructor to the tpp file
-	SplineBase(const domain_t &min_domain = 0, const domain_t &max_domain = 1) :
-		max_domain(max_domain),
-		min_domain(min_domain)
-	{ }
+	if(t <= this->min_domain) return this->min_domain;
+	if(t >= this->max_domain) return this->max_domain;
 
-	virtual ~SplineBase() = default;
-	virtual domain_t eval(domain_t t) = 0;
-
-protected:
-	const domain_t max_domain;
-	const domain_t min_domain;
-};
-} // namespace spline
+	// return (t - this->min_domain)/(this->max_domain - this->min_domain);
+	return
+		(
+			(this->max_range - this->min_range)
+			/
+			(this->max_domain - this->min_domain)
+		)
+		*
+		(
+			t - this->min_domain
+		)
+		+ this->min_range;
+}
+} // namepsace spline
 } // namespace dls
 
-#include "math/spline/spline_base.tpp"
-
-#endif /* end of include guard: SPLINE_BASE_HPP_ERGQ2YJO */
+#endif /* end of include guard: IDENTITY_SPLINE_TPP_OICD8WMA */

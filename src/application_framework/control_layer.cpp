@@ -56,6 +56,19 @@ ControlLayer::ControlLayer() :
 	wait_on_controller_threads(),
 	wait_on_controller_threads_mutex(),
 
+	// TODO these 2s should only be put once, and they should be made dynamic
+	pDefault_spline_in
+	(
+		// ramp for two seconds from 0 to 1
+		std::make_shared<spline::Ramp<double>> (0, 2, 0, 1)
+	),
+	pDefault_spline_out
+	(
+		// ramp for two seconds from 1 to 0
+		std::make_shared<spline::Ramp<double>> (0, 2, 1, 0)
+	),
+	default_duration_seconds(2),
+
 	TODO("These are temporary until a proper console is developed")
 	activate_gait_generator_listener(topics::activate_gait_generator, *this),
 	deactivate_gait_generator_listener(topics::deactivate_gait_generator, *this),
@@ -92,10 +105,12 @@ ControlLayer::Status ControlLayer::run()
 			for(const auto &pair : this->controllers_b)
 			{
 				if(!pair.second->pSubscriber) continue;
+
 				auto pControl_signal = pair.second->pSubscriber->getLastPublishedControlSignal();
 				if(pControl_signal)
 				{
-					desired_torques += pControl_signal->torques;
+					desired_torques +=
+						pair.second->premultiplier*pControl_signal->torques;
 				}
 			}
 		}
@@ -104,6 +119,7 @@ ControlLayer::Status ControlLayer::run()
 		publishDesiredTorques(saturateTorques(desired_torques));
 
 		TODO("sleep at correct frequency here")
+		// std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(500));
 		std::this_thread::sleep_for(std::chrono::duration<double, std::micro>(100));
 	}
 
@@ -153,17 +169,28 @@ TODO("std::map already does this check for emplace, maybe for others. Double che
 bool ControlLayer::activateController(const Controller::ID_t &ID)
 {
 	pid_t controller_pid;
-	auto pData = std::make_shared<ControllerData>();
+	auto pData = std::make_shared<ControllerData>
+	(
+		this->pDefault_spline_in,
+		this->pDefault_spline_out,
+		default_duration_seconds,
+		default_duration_seconds
+	);
+	decltype(this->controllers_b.find(ID)) pair_it;
 	{
 		std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
 
 		// find the controller in the list of controllers
-		auto pair_it = this->controllers_b.find(ID);
+		pair_it = this->controllers_b.find(ID);
 		TODO("Inform the user that the controller already exists")
 		if(pair_it != this->controllers_b.end()) return false;
 
 		if((controller_pid = fork()) == 0)
 		{
+			// launch the controller
+			//
+			// since its premultiplier is initially set to zero, this will have
+			// no effect on the robot until the spline in is run later
 			execl(CHILD_PROCESS_PATH "dls_controller_process", ID.c_str(), ID.c_str(), (char *)NULL);
 			logging::cfatal << "Controller process failed to launch" << logging::endl;
 			DMSG(strerror(errno));
@@ -200,25 +227,67 @@ bool ControlLayer::activateController(const Controller::ID_t &ID)
 		);
 	}
 
+	// spline in the controller
+	//
+	// TODO this is copied from the spline out code. Refactor so that it is not
+	// repeated
+	if(pData->pSpline_in)
+	{
+		auto start_time = std::chrono::system_clock::now();
+		auto end_time = start_time + pData->spline_in_duration;
+		auto now = start_time;
+
+		while(now < end_time)
+		{
+			double running_time =
+				(pData->spline_in_duration - std::chrono::duration<double>(end_time - now)).count();
+
+			pData->premultiplier = pData->pSpline_in->eval(running_time);
+			now = std::chrono::system_clock::now();
+
+		}
+	}
+
 	return true;
 }
 
 void ControlLayer::deactivateController(std::shared_ptr<ControllerData> pData)
 {
+	// spline down the controller
+	if(pData->pSpline_out)
+	{
+		auto start_time = std::chrono::system_clock::now();
+		auto end_time = start_time + pData->spline_out_duration;
+		auto now = start_time;
+
+		while(now < end_time)
+		{
+
+			double running_time =
+				(pData->spline_out_duration - std::chrono::duration<double>(end_time - now)).count();
+
+			pData->premultiplier = pData->pSpline_out->eval(running_time);
+			now = std::chrono::system_clock::now();
+		}
+	}
+
+	// tell the process to stop -- waitOnChildControllers will
+	// wait on it and join it as required
 	kill(pData->controller_pid, SIGTERM);
 }
 
 bool ControlLayer::deactivateController(const Controller::ID_t &ID)
 {
-	std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
-	auto pair_it = this->controllers_b.find(ID);
+	decltype(this->controllers_b.find(ID)) pair_it;
+	{
+		std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
+		pair_it = this->controllers_b.find(ID);
 
-	TODO("Inform user that the controller does not exist")
-	if(pair_it == this->controllers_b.end()) return false;
+		TODO("Inform user that the controller does not exist")
+		if(pair_it == this->controllers_b.end()) return false;
+	}
 
-	// tell the process to stop -- waitOnChildControllers will
-	// wait on it and join it as required
-	kill(pair_it->second->controller_pid, SIGTERM);
+	this->deactivateController(pair_it->second);
 
 	return true;
 }
@@ -334,6 +403,7 @@ void ControlLayer::ControlSubListener::onNewDataMessage
 // =============================================================================
 // Fork
 // =============================================================================
+// TODO spline out controller here too if necessary
 void ControlLayer::waitOnChildController(std::shared_ptr<ControllerData> pData)
 {
 	int status;
@@ -377,3 +447,23 @@ void ControlLayer::waitOnChildGaitGenerator(std::shared_ptr<GaitGeneratorData> p
 		pGait_generator_data = nullptr;
 	}
 }
+
+// =============================================================================
+// Helper Classes
+// =============================================================================
+ControlLayer::ControllerData::ControllerData
+(
+	std::shared_ptr<spline::SplineBase<double>> spline_in_,
+	std::shared_ptr<spline::SplineBase<double>> spline_out_,
+	const std::chrono::duration<double> &duration_in,
+	const std::chrono::duration<double> &duration_out
+) :
+	controller_pid(0),
+	pSubscriber(nullptr),
+	ID(),
+	premultiplier(0),
+	spline_in_duration(duration_in),
+	spline_out_duration(duration_out),
+	pSpline_in(spline_in_),
+	pSpline_out(spline_out_)
+{ }

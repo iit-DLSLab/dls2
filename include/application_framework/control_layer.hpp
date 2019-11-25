@@ -37,6 +37,7 @@
 #include "msg/control_signalPubSubTypes.h"
 #include "msg/desired_torquesPubSubTypes.h"
 #include "msg/hello_worldPubSubTypes.h"
+#include "math/spline/ramp.hpp"
 
 // temporary console includes
 TODO("REMOVE THESE INCLUDES WHEN A BETTER CONSOLE IS MADE")
@@ -154,14 +155,22 @@ private:
 		/// subscribers to a controller's control signal
 		struct ControllerData
 		{
-			ControllerData() :
-				controller_pid(0),
-				pSubscriber(nullptr),
-				ID()
-			{ }
-			pid_t controller_pid;
-			std::shared_ptr<ControlSubListener> pSubscriber;
-			Controller::ID_t ID;
+			ControllerData
+			(
+				std::shared_ptr<spline::SplineBase<double>> pSpline_in,
+				std::shared_ptr<spline::SplineBase<double>> pSpline_out,
+				const std::chrono::duration<double> &duration_in,
+				const std::chrono::duration<double> &duration_out
+			);
+
+			/*const*/ pid_t controller_pid;
+			/*const*/ std::shared_ptr<ControlSubListener> pSubscriber;
+			/*const*/ Controller::ID_t ID;
+			std::atomic<double> premultiplier; ///< Spline value to premutilply the torque signal
+			const std::chrono::duration<double> spline_in_duration;
+			const std::chrono::duration<double> spline_out_duration;
+			const std::shared_ptr<spline::SplineBase<double>> pSpline_in;
+			const std::shared_ptr<spline::SplineBase<double>> pSpline_out;
 		};
 		std::map<Controller::ID_t, std::shared_ptr<ControllerData>> controllers_b;
 		std::mutex controllers_mutex_b;
@@ -188,6 +197,18 @@ private:
 		std::vector<std::thread> wait_on_controller_threads;
 		std::mutex wait_on_controller_threads_mutex;
 	// END critical section
+
+	/// Default controller spline-in
+	///
+	std::shared_ptr<spline::Ramp<double>> pDefault_spline_in;
+
+	/// Default controller spline-out
+	///
+	std::shared_ptr<spline::Ramp<double>> pDefault_spline_out;
+
+	/// Default spline duration
+	///
+	std::chrono::seconds default_duration_seconds;
 
 	void waitOnChildController(std::shared_ptr<ControllerData>);
 	void waitOnChildGaitGenerator(std::shared_ptr<GaitGeneratorData>);

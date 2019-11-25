@@ -17,40 +17,49 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-#ifndef SPLINE_BASE_HPP_ERGQ2YJO
-#define SPLINE_BASE_HPP_ERGQ2YJO
+#ifndef RAMP_HPP_WOXJEKFS
+#define RAMP_HPP_WOXJEKFS
 
+#include "math/spline/spline_base.hpp"
 namespace dls
 {
 namespace spline
 {
 
-/// Spline base class
+/// Simple ramp function
 ///
-/// A spline maps \f$ [\texttt{MIN_DOMAIN}, \texttt{MAX_DOMAIN}] \mapsto [0, 1]
-/// \f$. The domains \f$ (-\infty, \texttt{MIN_DOMAIN}) \f$ and \f$
-/// (\texttt{MAX_DOMAIN}, \infty) \f$ are undefined
+// The ramp is clamped like this:
+//          ______
+//         /
+//        /
+// ______/
 template <typename domain_t = double>
-class SplineBase
+class Ramp : public SplineBase<domain_t>
 {
 public:
-	// SplineBase(const domain_t &min_domain = 0, const domain_t &max_domain = 1);
-	// TODO move the constructor to the tpp file
-	SplineBase(const domain_t &min_domain = 0, const domain_t &max_domain = 1) :
-		max_domain(max_domain),
-		min_domain(min_domain)
-	{ }
+	Ramp
+	(
+		const domain_t &min_domain = 0,
+		const domain_t &max_domain = 1,
+		const domain_t &min_range = 0,
+		const domain_t &max_range = 1
+	);
 
-	virtual ~SplineBase() = default;
-	virtual domain_t eval(domain_t t) = 0;
+	/// Evaluate the ramp
+	///
+	/// @param t the point in the domain to evaluate this ramp.
+	/// If `t` is outside of the domain, the ramp will be clamped at its minimum
+	/// or maximum value
+	virtual domain_t eval(domain_t t) override;
 
-protected:
-	const domain_t max_domain;
-	const domain_t min_domain;
+private:
+	domain_t min_range;
+	domain_t max_range;
 };
+
 } // namespace spline
 } // namespace dls
 
-#include "math/spline/spline_base.tpp"
+#include "math/spline/ramp.tpp"
 
-#endif /* end of include guard: SPLINE_BASE_HPP_ERGQ2YJO */
+#endif /* end of include guard: IDENTITY_SPLINE_HPP_ZETKQVB4 */
