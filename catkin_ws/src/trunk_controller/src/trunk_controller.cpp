@@ -3,8 +3,8 @@
 #include <iit/commons/geometry/rotations.h>
 #include "computeJacobians.h"
 #include <iit/rbd/rbd.h>
-#include <iit/robots/hyq/default_parameters_getter.h>
-
+//#include <iit/robots/hyq/default_parameters_getter.h>
+#include <parameters_getter.h>
 //#include <iit/locomotionutils/parameters_getter.h>
 
 using namespace Eigen;
@@ -16,8 +16,8 @@ TrunkController::TrunkController() :
     Controller
     (
         std::make_shared<dls::Dog>(),
-        "trunk_controller",
-        std::chrono::duration<double>(dt_),
+"dls_trunk_controller",
+std::chrono::duration<double>(dt_),
         dls::ControlSignal::SignalReconstructionMethod::ZERO_ORDER_HOLD
         ),
 
@@ -38,10 +38,10 @@ TrunkController::TrunkController() :
     Kd_posture_(rbd::Vector6D::Zero()),
     wrench_error_(rbd::ForceVector::Zero()),
     use_internal_virtual_model_(false),
-    leg_torque_weights_(Eigen::Vector3d(1, 5 , 0.2))
+leg_torque_weights_(Eigen::Vector3d(1, 5 , 0.2)),
+first_time_(true)
 
 {
-
 
     std::cout << "Initializing DLS trunkcontroller" << std::endl;
 
@@ -83,10 +83,10 @@ TrunkController::TrunkController() :
 
 
     //robot_params_.reset(new iit::dog::UrdfParamsGetter(robot_model));
-    //robot_params_.reset(new iit::HyQ::TestParamsGetter());
+    robot_params_.reset(new iit::HyQ::TestParamsGetter());
 	
 	
-	robot_params_.reset(new iit::HyQ::DefaultParamsGetter());
+    //robot_params_.reset(new iit::HyQ::DefaultParamsGetter());
 
     hyq_jacobians_.reset(new iit::HyQ::Jacobians(*robot_params_));
     hyq_hom_transforms_.reset(new iit::HyQ::HomogeneousTransforms(*robot_params_));
@@ -112,6 +112,20 @@ TrunkController::TrunkController() :
 
     //additional trunk controller config (necessary anyway to switch bw controllers)
     TrunkControllerParams config;
+
+
+    config.attractorType = AttractorType::WRENCH;
+    config.damping_only = true;
+    config.is_base_controlled = false;
+    config.is_height_controlled = false;
+
+    config.min_goal = MinGoal::NORMALS;
+    config.opt_type = OptimizationType::WHOLE_BODY_STATIC;
+    config.use_friction_constraints = true;
+    config.use_torque_constraints = false;
+    config.use_joint_constraints = false;
+
+
     init(config);
 
     useInternalVirtualModel(false);
@@ -144,65 +158,96 @@ void TrunkController::run(const std::chrono::system_clock::time_point &time)
     //add some desired wrench
     //setFFWDTrunkWrench(wrench);
     iit::dog::LegBoolMap stance_legs(true);
-    setStanceLegs(stance_legs);
 
     iit::rbd::Vector6D baseTwist, comTwist;
     Eigen::Matrix3d b_R_w = Eigen::Matrix3d::Identity();
     iit::dog::JointState q_curr, qd_curr, des_q, des_qd;
-    iit::planning::Point3d  actual_base;
-    iit::planning::Point3d  actual_CoM;
-    iit::planning::Point3d  actual_orient;
+	iit::planning::Point3d  actual_base, actual_CoM, desired_com_pos, desired_base_pos;
 
     // TODO move this memory assignment
     auto pBlind_state_signal = this->readBlindStateSignal();
     if(!pBlind_state_signal)
     {
+        std::cout << "return early -- blind" << std::endl;
         return;
     }
-    // TODO move this memory assignment
-    auto pGait_signal = this->readGaitSignal();
-    if(!pGait_signal)
-    {
-        return;
-    }
+
 
     //extract variables
     q_curr = pBlind_state_signal->joint_state.position;
     qd_curr = pBlind_state_signal->joint_state.velocity;
-    des_q = pGait_signal->desired_joint_state.position;
-    des_qd = pGait_signal->desired_joint_state.velocity;
+
 
     //orientation
-    actual_orient.x = pBlind_state_signal->base_pose_world.toRpy();
-    b_R_w = commons::rpyToRot(actual_orient.x);
-    actual_orient.xd = b_R_w * pBlind_state_signal->base_velocity_world.getAngular(); //virtualModel.cpp wants in the base frame...
+	actual_angular_state_.x = pBlind_state_signal->base_pose_world.toRpy();
+	b_R_w = commons::rpyToRot(actual_angular_state_.x);
+	actual_angular_state_.xd = b_R_w * pBlind_state_signal->base_velocity_world.getAngular(); //virtualModel.cpp wants in the base frame...
 
     //base
     actual_base.x = pBlind_state_signal->base_pose_world.toPosition();
     actual_base.xd = pBlind_state_signal->base_velocity_world.getLinear();
 
     //com
-    actual_CoM.x = iit::dog::getCoMFromBase(q_curr, actual_orient.x,actual_base.x, *inertia_props_);
+	actual_CoM.x = iit::dog::getCoMFromBase(q_curr, actual_angular_state_.x,actual_base.x, *inertia_props_);
     //compute actual com velocity in WF
     Vector6D body_velocity_base;
     body_velocity_base= dog::motionVectorTransform(Vector3d::Zero(),b_R_w) * pBlind_state_signal->base_velocity_world.data();
     comTwist = iit::dog::getWholeBodyCOMVelFB(body_velocity_base, b_R_w.transpose(),  q_curr, qd_curr, *inertia_props_, *hom_transforms_);
     actual_CoM.xd = rbd::linearPart(comTwist);
 
+	if (isBaseControlled())
+	{
+	 actual_linear_state_ = actual_base;
+	} else{
+	 actual_linear_state_ = actual_CoM;
+	}
     //TODO
     //Eigen::Vector3d offCoM =  inertiaProps_->getWholeBodyCOM(q_curr);
     //actual_CoM_height = actual_base_height + (terr_R_w * R.transpose()*offCoM)(rbd::Z);
     //actual_CoM_heightd = (terr_R_w*actual_CoM.xd)(rbd::Z);
 
+	// TODO move this memory assignment
+	auto pGait_signal = this->readGaitSignal();
+	if(!pGait_signal )
+	{
+	   if (first_time_)
+	   {
+		//set To actual
+		des_q = q_curr;
+		des_qd = qd_curr;
+		des_linear_state_ = actual_linear_state_;
+		des_angular_state_ = actual_angular_state_;
+		first_time_ = false;
+	   }
+	} else {
+
+	   des_q = pGait_signal->desired_joint_state.position;
+	   des_qd = pGait_signal->desired_joint_state.velocity;
+
+
+	   if (isBaseControlled())
+	   {
+		  desired_base_pos.x = pGait_signal->desired_base_pose_world.toPosition();
+		  desired_base_pos.xd = pGait_signal->desired_base_velocity_world.getLinear();
+		  des_linear_state_ = desired_base_pos;
+
+	   } else{
+		  desired_com_pos.x = pGait_signal->desired_com_pose_world.toPosition();
+		  desired_com_pos.xd = pGait_signal->desired_com_velocity_world.getLinear();
+		  des_linear_state_ = desired_com_pos;
+	   }
+	   des_angular_state_.x = pGait_signal->desired_base_pose_world.toRpy();
+	   des_angular_state_.xd = pGait_signal->desired_base_velocity_world.getAngular();
+	}
+
     iit::dog::JointState trunk_ctrl_tau(iit::dog::JointState::Zero());
 
-    if (isBaseControlled())
-    {
-        actual_linear_state_ = actual_base;
-    } else{
-        actual_linear_state_ = actual_CoM;
-    }
 
+//    std::cout << "actual_linear_state_x" <<actual_linear_state_.x.transpose() <<std::endl;
+
+//    std::cout << "actual_linear_state_xd" <<actual_linear_state_.xd.transpose() <<std::endl;
+
+//    std::cout << "actual_linear_state_xdd" <<actual_linear_state_.xdd.transpose() <<std::endl;
     //TODO
     //	if(params_.is_height_controlled){
     //		actual_height_ = ;
@@ -212,6 +257,7 @@ void TrunkController::run(const std::chrono::system_clock::time_point &time)
     //TODO handle shin collision
     iit::dog::LegDataMap<Eigen::Vector3d> contactPos(Eigen::Vector3d::Zero());
     iit::dog::LegDataMap<iit::dog::FootJac> contactJacs;
+
 
     //TODO fill in shin_contact_position_ from gazebo
     for (int leg = iit::dog::LF; leg<=iit::dog::RH; leg++)
@@ -231,13 +277,33 @@ void TrunkController::run(const std::chrono::system_clock::time_point &time)
         des_swing_foot_state_[iit::dog::LegID(leg)].xd = feet_jacobians_->getFootJacobian(des_q, iit::dog::LegID(leg)) * dog::getLegJointState(iit::dog::LegID(leg), des_qd);
     }
 
+
+//    std::cout << "b_R_w" <<b_R_w <<std::endl;
+//    std::cout << "baseTwist" <<baseTwist <<std::endl;
+//    std::cout << "q_curr" <<q_curr <<std::endl;
+//    std::cout << "contactPos" <<contactPos <<std::endl;
+//    std::cout << "contactJacs" <<contactJacs <<std::endl;
+
+	if (params_.is_height_controlled) {
+	 std::cout << "WARNING: desired height not set!" << std::endl;
+	 std::cout <<  "Using the default value of ";
+	 std::cout << params_.default_des_height << " meters." << std::endl;
+	 //TODO
+	 des_height_ =  params_.default_des_height;
+	}
+
+
+	setStanceLegs(stance_legs);
+
+
     getJointTorques(b_R_w, baseTwist, q_curr, qd_curr, contactPos,  contactJacs, trunk_ctrl_tau);
 
 
-
-    // TODO real time memory allocation
+	// TODO real time memory allocation
     dls::ControlSignal control_signal;
-    control_signal.torques = trunk_ctrl_tau;
+	control_signal.torques.resize(12);
+	control_signal.torques << trunk_ctrl_tau;
+	//std::cout<<trunk_ctrl_tau.transpose()<<std::endl;
     publishSignal(control_signal);
 
     //      // Plot desired forces (blue) / and actual forces (green)
@@ -296,7 +362,7 @@ void TrunkController::run(const std::chrono::system_clock::time_point &time)
 TrunkController::Status TrunkController::eStop()
 {
 
-
+    std::cout<<"deactivating TrunkController"<<std::endl;
 
 
     return getStatus();
@@ -327,16 +393,7 @@ void TrunkController::init(const TrunkControllerParams& config)
 
     vmodel_.setWrenchErrorThreshold(params_.wrench_error_threshold);
 
-    //if you call the init again when the trunk controller was switched off
-    //you don't want it keeps memory of the previous wrenches
-    if (!is_on_)
-    {
-        //any previous wrench is reset
-        des_wrench_.setZero();
-        des_ffwd_wrench_.setZero();
-        des_vm_wrench_.setZero();
-        gravity_wrench_.setZero();
-    }
+
 
 }
 
@@ -396,26 +453,6 @@ void TrunkController::setSwingLegGains(Vector3d & Kp_swing, Vector3d & Kd_swing)
     }
 }
 
-void TrunkController::setTarget(const planning::Point3d & des_linear_state,
-                                const planning::Point3d & des_angular_state)
-{
-    if (params_.is_height_controlled) {
-        std::cout << "WARNING: desired height not set!" << std::endl;
-        std::cout <<  "Using the default value of ";
-        std::cout << params_.default_des_height << " meters." << std::endl;
-    }
-
-    setTarget(des_linear_state, des_angular_state, params_.default_des_height);
-}
-
-void TrunkController::setTarget(const planning::Point3d & des_pos,
-                                const planning::Point3d & des_orient,
-                                const double & des_height)
-{
-    this->des_linear_state_ = des_pos;
-    this->des_angular_state_ = des_orient;
-    this->des_height_ = des_height;
-}
 
 void TrunkController::getTarget(planning::Point3d & des_pos,
                                 planning::Point3d & des_orient)
@@ -867,12 +904,6 @@ void TrunkController::getJointTorques(const Eigen::Matrix3d & R,
     gravity_wrench_ = rbd::ForceVector::Zero();
     Vector3d offCoM = Vector3d::Zero();
 
-    if (!is_on_)
-    {
-        ffwd_torques_ = dog::JointState::Zero();
-        jointTorques = dog::JointState::Zero();
-        return;
-    }
 
     if (!params_.is_base_controlled)
     {

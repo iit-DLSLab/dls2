@@ -252,31 +252,6 @@ public:
 
     void useInternalStanceComputation(const bool& use_internal_stance_comp);
 
-    /**
-     * @brief setTarget sets the desired position and velocity of the base
-     * (or CoM).
-     * @param des_linear_state a planning::Point3d instance describing the linear
-     * position and velocity of the base (or CoM). The acceleration should not
-     * be used. The target point (base or CoM) should be selected with
-     * setBaseControl(). If the TrunkController is set to perform height
-     * control, a default for the height is used.
-     * @param des_angular_state same as above, but angular
-     * @sa setBaseControl()
-     */
-    void setTarget(const iit::planning::Point3d & des_linear_state,
-                   const iit::planning::Point3d & des_angular_state);
-
-    /**
-     * @brief overload of setTarget() with the desired height specified
-     * @param des_linear_state
-     * @param des_angular_state
-     * @param des_height
-     * @sa setTarget()
-     */
-    void setTarget(const iit::planning::Point3d & des_linear_state,
-                   const iit::planning::Point3d & des_angular_state,
-                   const double & des_height);
-
 
     void getTarget(iit::planning::Point3d & des_pos,
                    iit::planning::Point3d & des_orient);
@@ -449,12 +424,7 @@ public:
                          const iit::dog::LegDataMap<Eigen::Vector3d> & footPos_in,
                          const iit::dog::LegDataMap<iit::dog::FootJac> & JFoot_in,
                          iit::dog::JointState & jointTorques);
-    inline bool isOn(){
-       return is_on_;
-    }
-    inline void setOn(bool flag){
-       is_on_ = flag;
-    }
+
     inline iit::dog::JointState probeJointTorques(){
         return ffwd_torques_;
     }
@@ -620,6 +590,7 @@ private:
     Eigen::Matrix3d terrain_R_world_;
     double des_height_;
 
+
     iit::dog::LegDataMap<iit::planning::Point3d> des_swing_foot_state_;
 
     //outputs
@@ -642,7 +613,7 @@ private:
     TrunkControllerParams params_;
     bool use_internal_virtual_model_;
 
-
+	bool first_time_;
 
 };
 
