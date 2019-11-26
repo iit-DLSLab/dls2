@@ -1,4 +1,4 @@
-float64[] position
-float64[] velocity
-float64[] acceleration
-float64[] effort
+float64[12] position
+float64[12] velocity
+float64[12] acceleration
+float64[12] effort

@@ -21,6 +21,7 @@ bool DlsRobotHwSim::initSim(
 	
 	joint_state_pub_ = model_nh.advertise<sensor_msgs::JointState>("joint_states", 1);
 	odometry_pub_ = model_nh.advertise<nav_msgs::Odometry>("ground_truth",1);
+	blind_state_pub_ = model_nh.advertise<dls2_msgs::BlindState>("blind_state",1);
 
 	// Resize vectors to our DOF
 	n_dof_ = transmissions.size();
@@ -39,6 +40,8 @@ bool DlsRobotHwSim::initSim(
 	joint_state_msg_.effort.resize(n_dof_);
 	joint_state_msg_.header.frame_id = "joint";
 	odometry_msg_.child_frame_id = "base";
+	blind_state_msg_.header.frame_id = "base";
+	
 	for (int i=0;i<36;i++)
 	{
 		odometry_msg_.pose.covariance[i]=0.0;
@@ -181,17 +184,67 @@ void DlsRobotHwSim::fillOdometryMsg(ros::Time time)
 	//odometry_msg_.twist.covariance left at I
 }
 
+void DlsRobotHwSim::fillBlindStateMsg(ros::Time time)
+{
+	blind_state_msg_.header.stamp = time;
+	for (int i=0;i<n_dof_;i++)
+	{
+		blind_state_msg_.joint_state.position[i] = joint_position_[i];
+		blind_state_msg_.joint_state.velocity[i] = joint_velocity_[i];
+		blind_state_msg_.joint_state.acceleration[i] = 0; // TODO
+		blind_state_msg_.joint_state.effort[i] = joint_effort_[i];
+	}	
+	
+	blind_state_msg_.base_pose_world.position[0] = sim_model_->GetWorldPose().pos.x;
+	blind_state_msg_.base_pose_world.position[1] = sim_model_->GetWorldPose().pos.y;
+	blind_state_msg_.base_pose_world.position[2] = sim_model_->GetWorldPose().pos.z;
+	blind_state_msg_.base_pose_world.quaternion[0] = sim_model_->GetWorldPose().rot.w;
+	blind_state_msg_.base_pose_world.quaternion[1] = sim_model_->GetWorldPose().rot.x;
+	blind_state_msg_.base_pose_world.quaternion[2] = sim_model_->GetWorldPose().rot.y;
+	blind_state_msg_.base_pose_world.quaternion[3] = sim_model_->GetWorldPose().rot.z;
+	
+	blind_state_msg_.base_velocity_world.linear[0] = sim_model_->GetWorldLinearVel().x;
+	blind_state_msg_.base_velocity_world.linear[1] = sim_model_->GetWorldLinearVel().y;
+	blind_state_msg_.base_velocity_world.linear[2] = sim_model_->GetWorldLinearVel().z;
+	blind_state_msg_.base_velocity_world.angular[0] = sim_model_->GetWorldAngularVel().x;
+	blind_state_msg_.base_velocity_world.angular[1] = sim_model_->GetWorldAngularVel().y;
+	blind_state_msg_.base_velocity_world.angular[2] = sim_model_->GetWorldAngularVel().z;
+	
+	blind_state_msg_.base_acceleration_world.linear[0] = sim_model_->GetWorldLinearAccel().x; 
+	blind_state_msg_.base_acceleration_world.linear[1] = sim_model_->GetWorldLinearAccel().y;
+	blind_state_msg_.base_acceleration_world.linear[2] = sim_model_->GetWorldLinearAccel().z;
+	blind_state_msg_.base_acceleration_world.angular[0] = sim_model_->GetWorldLinearAccel().x;
+	blind_state_msg_.base_acceleration_world.angular[1] = sim_model_->GetWorldLinearAccel().y;
+	blind_state_msg_.base_acceleration_world.angular[2] = sim_model_->GetWorldLinearAccel().z;
+}
+
 void DlsRobotHwSim::fillJointStateMsgAndPublish(ros::Time time)
 {
-	fillJointStateMsg(time);
-	joint_state_pub_.publish(joint_state_msg_);
+	if (joint_state_pub_.getNumSubscribers()>0)
+	{
+		fillJointStateMsg(time);
+		joint_state_pub_.publish(joint_state_msg_);
+	}
 }
 
 void DlsRobotHwSim::fillOdometryMsgAndPublish(ros::Time time)
 {
-	fillOdometryMsg(time);
-	odometry_pub_.publish(odometry_msg_);
+	if (odometry_pub_.getNumSubscribers()>0)
+	{
+		fillOdometryMsg(time);
+		odometry_pub_.publish(odometry_msg_);
+	}
 }
+
+void DlsRobotHwSim::fillBlindStateMsgAndPublish(ros::Time time)
+{
+	if (blind_state_pub_.getNumSubscribers()>0)
+	{
+		fillBlindStateMsg(time);
+		blind_state_pub_.publish(blind_state_msg_);
+	}
+}
+
 
 void DlsRobotHwSim::readSim(ros::Time time, ros::Duration period)
 {
@@ -209,6 +262,7 @@ void DlsRobotHwSim::readSim(ros::Time time, ros::Duration period)
 	}
 	fillJointStateMsgAndPublish(t);
 	fillOdometryMsgAndPublish(t);
+	fillBlindStateMsgAndPublish(t);
 
 /*
 	//Ground truth:

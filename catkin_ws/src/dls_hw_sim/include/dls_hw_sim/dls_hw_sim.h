@@ -24,6 +24,7 @@
 #include <hardware_interface/imu_sensor_interface.h>
 #include <hardware_interface/joint_state_interface.h>
 #include <dls2_hardware_interface/dls2_robot_hw.h>
+#include <dls2_msgs/BlindState.h>
 #include <sensor_msgs/JointState.h>
 #include <nav_msgs/Odometry.h>
 
@@ -83,12 +84,16 @@ private:
 
 	ros::Publisher joint_state_pub_;
 	ros::Publisher odometry_pub_;
+	ros::Publisher blind_state_pub_;
 	sensor_msgs::JointState joint_state_msg_;
 	nav_msgs::Odometry odometry_msg_;
+	dls2_msgs::BlindState blind_state_msg_;
 	void fillJointStateMsg(ros::Time time);
 	void fillOdometryMsg(ros::Time time);
+	void fillBlindStateMsg(ros::Time time);
 	void fillJointStateMsgAndPublish(ros::Time time);
 	void fillOdometryMsgAndPublish(ros::Time time);
+	void fillBlindStateMsgAndPublish(ros::Time time);
 
 	
   unsigned int n_dof_;
