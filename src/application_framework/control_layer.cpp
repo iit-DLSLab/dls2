@@ -203,9 +203,10 @@ bool ControlLayer::activateController(const Controller::ID_t &ID)
 		pData->pSubscriber =
 			std::make_shared<ControlSubListener>
 			(
-				TODO("This should be done by a static function in Controller")
+				// TODO("This should be done by a static function in Controller")
 				std::string("control_signal_") + ID
 			);
+		std::cout << "Control layer is listening for controller on: '" << std::string("control_signal_") + ID << "'" << std::endl;
 
 		this->controllers_b.emplace
 		(

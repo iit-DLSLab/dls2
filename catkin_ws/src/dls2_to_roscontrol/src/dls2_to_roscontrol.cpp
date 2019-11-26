@@ -8,6 +8,8 @@
 
 // TODO remove all ROS_ERROR for new logging
 
+#include "topics/desired_torques.hpp"
+
 namespace dls2_to_roscontrol {
 
 Dls2ToRoscontrol::Dls2ToRoscontrol() :
@@ -59,14 +61,14 @@ void Dls2ToRoscontrol::update(const ros::Time &time, const ros::Duration &period
 	//WRITE
 	if(auto pMsg = this->control_signal_listener.getSignal())
 	{
-		dls::ControlSignal s; // *pMsg
+		// dls::ControlSignal s; // *pMsg
 		// message received from framework
 		// for (auto jc : joint_commands_)
 		//std::vector<double> vec = pMsg->desired_torques();
 		
-		if (pMsg->torques().size()!=12)
+		if (pMsg->desired_torques().size()!=12)
 		{
-			std::cout << "Desired torque vector size error (" << pMsg->torques().size() << ").  Writing 0 torque" << std::endl;
+			std::cout << "Desired torque vector size error (" << pMsg->desired_torques().size() << ").  Writing 0 torque" << std::endl;
 			for(size_t i = 0; i != 12; ++i)
 			{
 				joint_commands_[i].setCommand(0.0);
@@ -76,7 +78,7 @@ void Dls2ToRoscontrol::update(const ros::Time &time, const ros::Duration &period
 		{
 			for(size_t i = 0; i != 12; ++i)
 			{
-				joint_commands_[i].setCommand(pMsg->torques()[i]);
+				joint_commands_[i].setCommand(pMsg->desired_torques()[i]);
 			}
 		}
 	}
@@ -98,17 +100,25 @@ void Dls2ToRoscontrol::stopping(const ros::Time &time) { }
 // =============================================================================
 
 Dls2ToRoscontrol::ControlMsgListener::ControlMsgListener() :
-	SubscriberBase<ControlSignalMsgPubSubType>("control_signal_pid_controller"),
-	pMsg(new ControlSignalMsg)
+	// SubscriberBase<ControlSignalMsgPubSubType>("control_signal_dls_pid_controller"),
+	// pMsg(new ControlSignalMsg)
+	SubscriberBase<DesiredTorquesMsgPubSubType>(dls::topics::desired_torques),
+	pMsg(new DesiredTorquesMsg)
 { }
 
 void Dls2ToRoscontrol::ControlMsgListener::onNewDataMessage(eprosima::fastrtps::Subscriber *sub)
 {
 	std::lock_guard<std::mutex> lock(this->msg_mutex);
 	sub->takeNextData((void*)this->pMsg.get(), &info);
+	std::cout << "got signal: ";
+	for(const auto &el : this->pMsg->desired_torques())
+	{
+		std::cout << el << " " << std::endl;
+	}
+	std::cout << std::endl;
 }
 
-std::shared_ptr<ControlSignalMsg> Dls2ToRoscontrol::ControlMsgListener::getSignal()
+std::shared_ptr<DesiredTorquesMsg> Dls2ToRoscontrol::ControlMsgListener::getSignal()
 {
 	std::lock_guard<std::mutex> lock(this->msg_mutex);
 	return this->pMsg;

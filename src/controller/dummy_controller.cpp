@@ -29,7 +29,7 @@ DummyController::DummyController
 	Controller
 	(
 		dog,
-		"dummy_controller",
+		"dls_dummy_controller",
 		std::chrono::duration<double>(1),
 		ControlSignal::SignalReconstructionMethod::ZERO_ORDER_HOLD
 	)

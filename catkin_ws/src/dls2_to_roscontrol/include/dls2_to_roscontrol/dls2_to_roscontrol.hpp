@@ -13,7 +13,8 @@
 #include "util/messaging/subscriber_base.hpp"
 #include "util/messaging/publisher_base.hpp"
 //#include "msg/desired_torquesPubSubTypes.h"
-#include "msg/control_signalPubSubTypes.h"
+// #include "msg/control_signalPubSubTypes.h"
+#include "msg/desired_torquesPubSubTypes.h"
 #include "msg/joint_statePubSubTypes.h"
 #include <mutex>
 #include <memory>
@@ -31,17 +32,17 @@ public:
 private:
 	std::vector<hardware_interface::JointHandle> joint_commands_;
 
-	class ControlMsgListener : public dls::SubscriberBase<ControlSignalMsgPubSubType>
+	class ControlMsgListener : public dls::SubscriberBase<DesiredTorquesMsgPubSubType>
 	{
 	public:
 		ControlMsgListener();
-		std::shared_ptr<ControlSignalMsg> getSignal();
+		std::shared_ptr<DesiredTorquesMsg> getSignal();
 
 	private:
 		void onNewDataMessage(eprosima::fastrtps::Subscriber *sub) override;
 		eprosima::fastrtps::SampleInfo_t info;
 		// BEGIN Critical section
-			std::shared_ptr<ControlSignalMsg> pMsg;
+			std::shared_ptr<DesiredTorquesMsg> pMsg;
 			std::mutex msg_mutex;
 		// END Critical section
 	} control_signal_listener;
