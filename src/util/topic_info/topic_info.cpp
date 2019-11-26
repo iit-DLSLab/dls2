@@ -20,214 +20,161 @@
 // TODO this is a tool that needs to be made into a separate project and made
 // more sophisticated
 #include "util/topic_info/topic_info.hpp"
+#include <fastrtps/attributes/ParticipantAttributes.h>
+#include <fastrtps/Domain.h>
+#include <fastrtps/attributes/ParticipantAttributes.h>
+#include <fastrtps/Domain.h>
+#include <fastrtps/transport/UDPv4TransportDescriptor.h>
 
-#include "topics/gait_signal.hpp"
-#include "topics/low_level_estimation/blind_state.hpp"
-#include "topics/control_signal_base.hpp"
-#include "controller/control_signal.hpp"
-#include <iostream>
-#include <string>
-
-#include <algorithm>
 using namespace dls;
-// =============================================================================
-// Constructors
-// =============================================================================
-TopicInfo::TopicInfo(const std::string &controller_topic) :
-	blind_state_sub(),
-	gait_signal_sub(),
-	control_signal_sub(controller_topic)
-{ }
 
-// =============================================================================
-// Subscribers
-// =============================================================================
-// -----------------------------------------------------------------------------
-// Blind State
-// -----------------------------------------------------------------------------
-TopicInfo::BlindStateSub::BlindStateSub() :
-	SubscriberBase<BlindStateMsgPubSubType>(topics::low_level_estimation::blind_state),
-	info()
-{ }
+TopicInfo::TopicInfo() :
+	topics_publishers_mutex(),
+	writer_info(),
+	topics_subscribers_mutex(),
+	reader_info()
+{
 
-void TopicInfo::BlindStateSub::onNewDataMessage
+	eprosima::fastrtps::ParticipantAttributes participant_attr;
+	participant_attr.rtps.setName("Participant_publisher");
+	auto custom_transport = std::make_shared<eprosima::fastrtps::rtps::UDPv4TransportDescriptor>();
+	custom_transport->interfaceWhiteList.emplace_back("127.0.0.1");
+	participant_attr.rtps.useBuiltinTransports = false;
+	participant_attr.rtps.userTransports.push_back(custom_transport);
+
+	eprosima::fastrtps::Domain::createParticipant(participant_attr, this);
+}
+
+void TopicInfo::onSubscriberDiscovery
 (
-	eprosima::fastrtps::Subscriber *sub
+	eprosima::fastrtps::Participant *participant,
+	eprosima::fastrtps::rtps::ReaderDiscoveryInfo &&info
 )
 {
-	BlindStateMsg msg;
-	if(sub->takeNextData((void*)&msg, &info))
+	(void)participant;
+	switch(info.status)
 	{
-		if(info.sampleKind == eprosima::fastrtps::rtps::ALIVE)
-		{
-			std::cout << "=========" << std::endl;
-			std::cout << "Blind state\n";
-				// ======================== Joint state ========================
-				std::cout << "\tJoint position: ";
-					std::for_each
-						(
-							msg.joint_state().position().cbegin(),
-							msg.joint_state().position().cend(),
-							[](double d){std::cout << d << " ";}
-						);
-					std::cout << "\n"
-					<< "\tJoint velocity: ";
-					std::for_each
-						(
-							msg.joint_state().velocity().cbegin(),
-							msg.joint_state().velocity().cend(),
-							[](double d){std::cout << d << " ";}
-						);
-					std::cout << "\n"
-					<< "\tJoint effort: ";
-					std::for_each
-						(
-							msg.joint_state().effort().cbegin(),
-							msg.joint_state().effort().cend(),
-							[](double d){std::cout << d << " ";}
-						);
-					std::cout << "\n";
+		case eprosima::fastrtps::rtps::ReaderDiscoveryInfo::DISCOVERED_READER:
+			{
+				std::lock_guard<std::mutex> lock(this->topics_subscribers_mutex);
+				this->reader_info.insert
+				(
+					std::pair<std::string, eprosima::fastrtps::rtps::ReaderDiscoveryInfo>
+					(
+						std::string(info.info.topicName()),
+						info
+					)
+				);
+			}
+			break;
+		case eprosima::fastrtps::rtps::ReaderDiscoveryInfo::CHANGED_QOS_READER:
+			break;
+		case eprosima::fastrtps::rtps::ReaderDiscoveryInfo::REMOVED_READER:
+			{
+				std::lock_guard<std::mutex> lock(this->topics_subscribers_mutex);
 
-				// ========================= Body Pose =========================
-				std::cout << "Body Pose\n";
-					std::cout << "\tPosition";
-						std::for_each
-							(
-								msg.base_pose_world().position().cbegin(),
-								msg.base_pose_world().position().cend(),
-								[](double d){std::cout << d << " ";}
-							);
-					std::cout << "\n";
-					std::cout << "\tQuaternion";
-						std::for_each
-							(
-								msg.base_pose_world().quaternion().cbegin(),
-								msg.base_pose_world().quaternion().cend(),
-								[](double d){std::cout << d << " ";}
-							);
+				// erase only a signle element in the multimap
+				auto it = this->reader_info.find(std::string(info.info.topicName()));
+				if(it != this->reader_info.end())
+				{
+					this->reader_info.erase(it);
+				}
+			}
+			break;
 
-				// ========================= Velocity ==========================
-				std::cout << "Body velocity\n";
-					std::cout << "\tLinear: ";
-						std::for_each
-							(
-								msg.base_velocity_world().linear().cbegin(),
-								msg.base_velocity_world().angular().cend(),
-								[](double d){std::cout << d << " ";}
-							);
-					std::cout << "\n";
+	}
+}
+void TopicInfo::onPublisherDiscovery
+(
+	eprosima::fastrtps::Participant *participant,
+	eprosima::fastrtps::rtps::WriterDiscoveryInfo &&info
+)
+{
+	(void)participant;
+	switch(info.status)
+	{
+		case eprosima::fastrtps::rtps::WriterDiscoveryInfo::DISCOVERED_WRITER:
+			{
+				std::lock_guard<std::mutex> lock(this->topics_publishers_mutex);
+				this->writer_info.insert
+				(
+					std::pair<std::string, eprosima::fastrtps::rtps::WriterDiscoveryInfo>
+					(
+						std::string(info.info.topicName()),
+						info
+					)
+				);
+			}
+			break;
+		case eprosima::fastrtps::rtps::WriterDiscoveryInfo::CHANGED_QOS_WRITER:
+			break;
+		case eprosima::fastrtps::rtps::WriterDiscoveryInfo::REMOVED_WRITER:
+			{
+				std::lock_guard<std::mutex> lock(this->topics_publishers_mutex);
 
-				// ======================= Acceleration ========================
-				std::cout << "Body acceleration\n";
-					std::cout << "\tLinear: ";
-						std::for_each
-							(
-								msg.base_acceleration_world().linear().cbegin(),
-								msg.base_acceleration_world().angular().cend(),
-								[](double d){std::cout << d << " ";}
-							);
-					std::cout << "\n";
-				std::cout << "=========" << std::endl;
-
-
-			std::cout << std::endl;
-		}
+				// erase only a single element in the multimap
+				auto it = this->writer_info.find(std::string(info.info.topicName()));
+				if(it != this->writer_info.end())
+				{
+					this->writer_info.erase(it);
+				}
+			}
+			break;
 	}
 }
 
-// -----------------------------------------------------------------------------
-// Gait Signal
-// -----------------------------------------------------------------------------
-TopicInfo::GaitSignalSub::GaitSignalSub() :
-	SubscriberBase<GaitSignalMsgPubSubType>(topics::gait_signal),
-	info()
-{ }
-
-void TopicInfo::GaitSignalSub::onNewDataMessage
-(
-	eprosima::fastrtps::Subscriber *sub
-)
+std::string TopicInfo::getTopicType(const std::string &topic)
 {
-	GaitSignalMsg msg;
-	if(sub->takeNextData((void*)&msg, &info))
 	{
-		if(info.sampleKind == eprosima::fastrtps::rtps::ALIVE)
+		auto it = this->writer_info.find(topic);
+		if(it != this->writer_info.end())
 		{
-				// ========================= CoM Pose ==========================
-				// std::cout << "=========" << std::endl;
-				// std::cout << "Desired com pose\n";
-				// 	std::cout << "\tPosition ";
-				// 		std::for_each
-				// 			(
-				// 				msg.desired_com_pose().position().cbegin(),
-				// 				msg.desired_com_pose().position().cend(),
-				// 				[](double d){std::cout << d << " ";}
-				// 			);
-				// 	std::cout << "\n";
-				// 	std::cout << "\tQuaternion ";
-				// 		std::for_each
-				// 			(
-				// 				msg.desired_com_pose().quaternion().cbegin(),
-				// 				msg.desired_com_pose().quaternion().cend(),
-				// 				[](double d){std::cout << d << " ";}
-				// 			);
-				// 	std::cout << "\n";
-
-				// // ========================= Base Pose =========================
-				// std::cout << "Desired base pose\n";
-				// 	std::cout << "\tPosition ";
-				// 		std::for_each
-				// 			(
-				// 				msg.desired_base_pose().position().cbegin(),
-				// 				msg.desired_base_pose().position().cend(),
-				// 				[](double d){std::cout << d << " ";}
-				// 			);
-				// 	std::cout << "\n";
-				// 	std::cout << "\tQuaternion ";
-				// 		std::for_each
-				// 			(
-				// 				msg.desired_base_pose().quaternion().cbegin(),
-				// 				msg.desired_base_pose().quaternion().cend(),
-				// 				[](double d){std::cout << d << " ";}
-				// 			);
-				// 	std::cout << "\n";
-
-				// ================== Desired Joint Position ===================
-				std::cout << "Desired Joint Position\n\t";
-						std::for_each
-							(
-								msg.desired_joint_state().position().begin(),
-								msg.desired_joint_state().position().end(),
-								[](double d){std::cout << d << " ";}
-							);
-						std::cout << "\n";
-				std::cout << "=========" << std::endl;
+			return std::string(it->second.info.typeName());
 		}
 	}
+	{
+		auto it = this->reader_info.find(topic);
+		if(it != this->reader_info.end())
+		{
+			return std::string(it->second.info.typeName());
+		}
+	}
+
+	return std::string("topic: ") + topic + " not found";
 }
 
-// -----------------------------------------------------------------------------
-// Control Signal
-// -----------------------------------------------------------------------------
-
-TopicInfo::ControlSignalSub::ControlSignalSub(const std::string &controller_name) :
-	SubscriberBase<ControlSignalMsgPubSubType>(topics::control_signal_base + controller_name),
-	info()
-{ }
-
-
-void TopicInfo::ControlSignalSub::onNewDataMessage
-(
-	eprosima::fastrtps::Subscriber *sub
-)
+std::ostream &operator<<(std::ostream &os, const TopicInfo &list)
 {
-	ControlSignalMsg msg;
-	if(sub->takeNextData((void*)&msg, &info))
+	std::lock_guard<std::mutex> lock1(list.topics_publishers_mutex);
+	std::lock_guard<std::mutex> lock2(list.topics_subscribers_mutex);
+
+	if(list.writer_info.size() > 0)
 	{
-		if(info.sampleKind == eprosima::fastrtps::rtps::ALIVE)
+		os << "Publishers Found on Topics:\n";
+		for(const auto el: list.writer_info)
 		{
-			ControlSignal s(msg);
-			std::cout << "Desired torques: " <<  s.torques.transpose() << std::endl;
+			os << "\t" << el.first << "\n";
 		}
+	}
+
+	if(list.reader_info.size() > 0)
+	{
+		os << "Subscribers Found on Topics:\n";
+		for(const auto el: list.reader_info)
+		{
+			os << "\t" << el.first << "\n";
+		}
+	}
+
+	return os;
+}
+
+void TopicInfo::echo(const std::string &topic)
+{
+	std::lock_guard<std::mutex> lock(this->topics_publishers_mutex);
+	auto it = this->writer_info.find(topic);
+	if(it != this->writer_info.end())
+	{
+		// std::cout << it->second.info.type_information() << std::endl;
 	}
 }

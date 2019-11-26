@@ -19,29 +19,68 @@
 *******************************************************************************/
 // TODO this is a tool that needs to be made into a separate project and made
 // more sophisticated
+
 #include "util/topic_info/topic_info.hpp"
-#include <signal.h>
+#include <thread>
 
 using namespace dls;
+
+std::string argv0;
+void print_usage();
 int main(int argc, char **argv)
 {
-	std::string name;
-	if(argc > 1)
+
+	argv0 = argv[0];
+
+	TopicInfo t;
+	if(argc < 2)
 	{
-		name = argv[1];
+		print_usage();
+		return EXIT_FAILURE;
+	}
+
+	// Give TopicInfo a chance to register all topics
+	std::this_thread::sleep_for(std::chrono::seconds(1));
+
+	if(strcmp(argv[1],"list") == 0)
+	{
+		std::cout << t << std::endl;
+
+		return EXIT_SUCCESS;
+	}
+	else if(strcmp(argv[1], "type") == 0)
+	{
+		if(argc != 3)
+		{
+			print_usage();
+			return EXIT_FAILURE;
+		}
+		std::cout << t.getTopicType(argv[2]) << std::endl;
+	}
+	else if(strcmp(argv[1], "echo") == 0)
+	{
+		if(argc != 3)
+		{
+			print_usage();
+			return EXIT_FAILURE;
+		}
+		while(true)
+		{
+			t.echo(argv[2]);
+		}
 	}
 	else
 	{
-		name = "dummy_controller";
+		std::cerr << "Usage: " << argv[0] << " list | echo <topic>" << std::endl;
+		return EXIT_FAILURE;
 	}
-	// listen to topics and print
-	TopicInfo info(name);
-
-	// wait until killed by user
-	sigset_t sigset;
-	sigaddset(&sigset, SIGTERM);
-	int signum;
-	sigwait(&sigset, &signum);
 
 	return 0;
+}
+
+void print_usage()
+{
+	std::cerr << "Usage: " << argv0 <<
+		" list | type <topic> | echo <topic>"
+		<< std::endl;
 }
