@@ -35,6 +35,8 @@
 
 #include <string.h>
 #include <errno.h>
+// TODO  temp include
+#include <sstream>
 
 using namespace dls;
 // =============================================================================
@@ -118,6 +120,9 @@ ControlLayer::Status ControlLayer::run()
 		// Send the desired torques to HAL
 		publishDesiredTorques(saturateTorques(desired_torques));
 
+		std::stringstream ss;
+		ss << "Control layer published torques: " << desired_torques.transpose() << std::endl;
+		logging::cout << ss.str() << logging::endl;
 		TODO("sleep at correct frequency here")
 		// std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(500));
 		std::this_thread::sleep_for(std::chrono::duration<double, std::micro>(100));

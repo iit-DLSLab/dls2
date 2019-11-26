@@ -113,7 +113,7 @@ void Dls2ToRoscontrol::ControlMsgListener::onNewDataMessage(eprosima::fastrtps::
 	std::cout << "got signal: ";
 	for(const auto &el : this->pMsg->desired_torques())
 	{
-		std::cout << el << " " << std::endl;
+		std::cout << el << " ";
 	}
 	std::cout << std::endl;
 }
