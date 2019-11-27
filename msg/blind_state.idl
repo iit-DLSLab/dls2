@@ -20,8 +20,11 @@
 #include "joint_state.idl"
 #include "pose.idl"
 #include "screw.idl"
+#include "header.idl"
+
 struct BlindStateMsg
 {
+	HeaderMsg header;
 	JointStateMsg joint_state;
 	PoseMsg base_pose_world;
 	ScrewMsg base_velocity_world;

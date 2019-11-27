@@ -17,8 +17,11 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
+#include "header.idl"
+
 struct ControlSignalMsg
 {
+	HeaderMsg header;
 	sequence<double> torques;
 	unsigned long long signal_reconstruction_method;
 };
