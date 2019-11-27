@@ -198,10 +198,12 @@ void DlsRobotHwSim::fillBlindStateMsg(ros::Time time)
 	blind_state_msg_.base_pose_world.position[0] = sim_model_->GetWorldPose().pos.x;
 	blind_state_msg_.base_pose_world.position[1] = sim_model_->GetWorldPose().pos.y;
 	blind_state_msg_.base_pose_world.position[2] = sim_model_->GetWorldPose().pos.z;
-	blind_state_msg_.base_pose_world.quaternion[0] = sim_model_->GetWorldPose().rot.w;
-	blind_state_msg_.base_pose_world.quaternion[1] = sim_model_->GetWorldPose().rot.x;
-	blind_state_msg_.base_pose_world.quaternion[2] = sim_model_->GetWorldPose().rot.y;
-	blind_state_msg_.base_pose_world.quaternion[3] = sim_model_->GetWorldPose().rot.z;
+
+	// Filled in order x y z w to conform to Eigen's internal representation
+	blind_state_msg_.base_pose_world.quaternion[0] = sim_model_->GetWorldPose().rot.x;
+	blind_state_msg_.base_pose_world.quaternion[1] = sim_model_->GetWorldPose().rot.y;
+	blind_state_msg_.base_pose_world.quaternion[2] = sim_model_->GetWorldPose().rot.z;
+	blind_state_msg_.base_pose_world.quaternion[3] = sim_model_->GetWorldPose().rot.w;
 	
 	blind_state_msg_.base_velocity_world.linear[0] = sim_model_->GetWorldLinearVel().x;
 	blind_state_msg_.base_velocity_world.linear[1] = sim_model_->GetWorldLinearVel().y;

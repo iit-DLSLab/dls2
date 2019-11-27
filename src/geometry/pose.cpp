@@ -72,6 +72,7 @@ Pose::Pose(PoseMsg msg) :
 	quaternion(msg.quaternion().data())
 { }
 
+// TODO do not use copy
 Pose::operator PoseMsg() const
 {
 	PoseMsg msg;
