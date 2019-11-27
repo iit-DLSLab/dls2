@@ -92,6 +92,7 @@ add_message(vec3)
 add_message(screw)
 add_message(blind_state)
 add_message(console_command)
+add_message(header)
 
 # ==============================================================================
 # Libraries
