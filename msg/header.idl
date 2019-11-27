@@ -20,6 +20,6 @@
 struct HeaderMsg
 {
 	unsigned long seq;
-	long sec;
-	long nsec;
+	unsigned long sec;
+	unsigned long nsec;
 };
