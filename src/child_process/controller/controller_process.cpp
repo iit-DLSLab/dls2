@@ -39,7 +39,8 @@ void signal_handler(int signal);
 
 int main(int argc, char **argv)
 {
-	// Time::set_use_simulated_time(true);
+	Time::set_use_simulated_time(true);
+	DMSG("USING SIMULATED TIME");
 	if(argc != 2)
 	{
 		std::cerr << "Usage: " << argv[0] << " <controller_name>" << std::endl;

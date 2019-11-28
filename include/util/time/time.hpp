@@ -67,33 +67,6 @@ private:
 		void onNewDataMessage(eprosima::fastrtps::Subscriber *sub) override;
 		eprosima::fastrtps::SampleInfo_t info;
 	};
-
-	/// Utility struct
-	///
-	/// This struct combines the data that is requried to execute a sleep on
-	/// simulated time
-	struct SleepData
-	{
-		SleepData();
-		std::mutex mutex;
-		std::condition_variable condition_variable;
-		bool should_wake;
-	};
-
-	// Begin critical section
-		// the inner shared pointer is requried because C++ won't let me
-		// emplace_back a SleepData otherwise
-		static std::shared_ptr
-			<
-				std::multimap
-				<
-					time_point_t,
-					std::shared_ptr<SleepData>
-				>
-			> pSleep_datas;
-
-		static std::mutex sleep_data_mutex;
-	// End critical section
 };
 
 } // namespace dls

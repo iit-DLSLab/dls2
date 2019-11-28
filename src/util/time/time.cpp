@@ -38,16 +38,6 @@ bool Time::use_simulated_time = false;
 std::shared_ptr<SubscriberBase<TimeMsgPubSubType>> Time::pTime_sub = nullptr;
 Time::time_point_t Time::tick;
 std::shared_mutex Time::tick_mutex;
-std::shared_ptr
-	<
-		std::multimap
-		<
-			Time::time_point_t,
-			std::shared_ptr<Time::SleepData>
-		>
-	> Time::pSleep_datas = nullptr;
-
-std::mutex Time::sleep_data_mutex;
 
 // -----------------------------------------------------------------------------
 // Member Functions
@@ -62,23 +52,10 @@ void Time::set_use_simulated_time(bool b)
 			Time::pTime_sub = std::make_shared<ClockSubscriber>();
 		}
 
-		if(Time::pSleep_datas == nullptr)
-		{
-			pSleep_datas = std::make_shared
-				<
-					std::multimap
-					<
-						time_point_t,
-						std::shared_ptr<SleepData>
-					>
-				>
-			();
-		}
 	}
 	else
 	{
 		Time::pTime_sub = nullptr;
-		Time::pSleep_datas = nullptr;
 	}
 	DMSG("FINISHED SETTING TIME");
 }
@@ -100,37 +77,22 @@ void Time::sleep_until(time_point_t tp)
 {
 	if(use_simulated_time)
 	{
-		std::shared_ptr<SleepData> pSleep_data = std::make_shared<SleepData>();
-
-		// lock this mutex now, so that when the sleep data is registered, there
-		// exists no chance that it is woken and removed before waiting on the
-		// condition variable
-		std::unique_lock<std::mutex> lock(pSleep_data->mutex);
-
-		// Register to the Time module that this thread is going to sleep until
-		// the simulated time has been reached
+		auto sim_now = Time::now();
+		while(sim_now < tp)
 		{
-			std::lock_guard<std::mutex> lock(Time::sleep_data_mutex);
-			Time::pSleep_datas->insert
-				(
-					std::pair
-					<
-						time_point_t,
-						std::shared_ptr<SleepData>
-					>
-					(
-						tp,
-						pSleep_data
-					)
-				);
-		}
+			// Most often, the simulation will not be paused. Therefore, in the
+			// general case, this loop is executed only once
 
-		// Wait until woken up by the simulated time
-		pSleep_data->condition_variable.wait
-			(
-				lock,
-				[pSleep_data]{return pSleep_data->should_wake;}
-			);
+			// When the simulation is paused, we do not care about performance.
+			// The minimum amount of time that we need to sleep is the wall time
+			// plus the remainder of the sleep time. This is the case if the
+			// application is unpaused just as the sleep is entered. If the
+			// application is not unpaused during this period, the simulated
+			// time will not advance and the minimum sleep time will be the same
+			// in the next loop
+			std::this_thread::sleep_for(tp - sim_now);
+			sim_now = Time::now();
+		}
 	}
 	else
 	{
@@ -165,28 +127,5 @@ void Time::ClockSubscriber::onNewDataMessage
 			std::unique_lock lock(Time::tick_mutex);
 			Time::tick = tp;
 		}
-		// wake any sleeping threads waiting on simulation time
-		{
-			// std::lock_guard<std::mutex> lock(Time::sleep_data_mutex);
-			auto it = Time::pSleep_datas->begin();
-			for(; it != Time::pSleep_datas->end() && it->first <= tp; ++it)
-			{
-				std::lock_guard<std::mutex> lock(it->second->mutex);
-				it->second->should_wake = true;
-				it->second->condition_variable.notify_all();
-			}
-			// if(it != Time::pSleep_datas->begin())
-			// {
-			// 	Time::pSleep_datas->erase(Time::pSleep_datas->begin(), it);
-			// }
-		}
 	}
 }
-// -----------------------------------------------------------------------------
-// SleepData
-// -----------------------------------------------------------------------------
-Time::SleepData::SleepData() :
-	mutex(),
-	condition_variable(),
-	should_wake(false)
-{ }
