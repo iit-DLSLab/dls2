@@ -1,0 +1,101 @@
+/*******************************************************************************
+*                                                       ,----,                 *
+*                                                     .'   .' \                *
+*                                                   ,----,'    |               *
+*               ________  ___       ________        |    :  .  ;               *
+*              |\   ___ \|\  \     |\   ____\       ;    |.'  /                *
+*              \ \  \_|\ \ \  \    \ \  \___|_      `----'/  ;                 *
+*               \ \  \ \\ \ \  \    \ \_____  \       /  ;  /                  *
+*                \ \  \_\\ \ \  \____\|____|\  \     ;  /  /-,                 *
+*                 \ \_______\ \_______\____\_\  \   /  /  /.`|                 *
+*                  \|_______|\|_______|\_________\./__;      :                 *
+*                                     \|_________||   :    .'                  *
+*                                                 ;   | .'                     *
+*                                                 `---'                        *
+********************************************************************************
+* Author:            Hendrik de Bruin                                          *
+* Maintainer:        Hendrik de Bruin                                          *
+* author email:      hendrik.debruin@iit.it                                    *
+*******************************************************************************/
+#ifndef TIME_HPP_2XUSQ5WF
+#define TIME_HPP_2XUSQ5WF
+
+#include "msg/timePubSubTypes.h"
+#include "util/messaging/subscriber_base.hpp"
+
+#include <chrono>
+#include <memory>
+#include <shared_mutex>
+#include <map>
+
+namespace dls
+{
+
+/// Static utility time class
+///
+/// This class is a thin wrapper that provides a unified abstract interface into
+/// wall time for running on the robot, as well as simulated time
+class Time
+{
+	friend class ClockSubscriber;
+	using time_point_t = std::chrono::time_point
+		<std::chrono::system_clock, std::chrono::duration<double>>;
+public:
+	// note this function is not thread-safe and should only be set at library
+	// initialisation time
+	static void set_use_simulated_time(bool);
+	static time_point_t now();
+	static void sleep_until(time_point_t);
+
+private:
+	static bool use_simulated_time;
+	static std::shared_ptr<SubscriberBase<TimeMsgPubSubType>> pTime_sub;
+
+	// Begin critical section
+		// This critical section is only used in simulation.
+		static time_point_t tick;
+		static std::shared_mutex tick_mutex;
+	// End critical section
+
+	class ClockSubscriber : public SubscriberBase<TimeMsgPubSubType>
+	{
+	public:
+		ClockSubscriber();
+		~ClockSubscriber() = default;
+
+	private:
+		void onNewDataMessage(eprosima::fastrtps::Subscriber *sub) override;
+		eprosima::fastrtps::SampleInfo_t info;
+	};
+
+	/// Utility struct
+	///
+	/// This struct combines the data that is requried to execute a sleep on
+	/// simulated time
+	struct SleepData
+	{
+		SleepData();
+		std::mutex mutex;
+		std::condition_variable condition_variable;
+		bool should_wake;
+	};
+
+	// Begin critical section
+		// the inner shared pointer is requried because C++ won't let me
+		// emplace_back a SleepData otherwise
+		static std::shared_ptr
+			<
+				std::multimap
+				<
+					time_point_t,
+					std::shared_ptr<SleepData>
+				>
+			> pSleep_datas;
+
+		static std::mutex sleep_data_mutex;
+	// End critical section
+};
+
+} // namespace dls
+
+#endif /* end of include guard: TIME_HPP_2XUSQ5WF */

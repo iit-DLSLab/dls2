@@ -18,7 +18,9 @@
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
 #include <thread>
+#include <chrono>
 #include "application_framework/components/periodic_app_layer_component.hpp"
+#include "util/time/time.hpp"
 
 using namespace dls;
 // =============================================================================
@@ -39,19 +41,27 @@ AppLayerComponent::Status PeriodicAppLayerComponent::run()
 	do
 	{
 		// Calculate when the next period needs to start
-		auto next_loop_time = this->period + std::chrono::system_clock::now();
+		auto next_loop_time = this->period + Time::now();
 
 		// Run one epoch
-		run(std::chrono::system_clock::now());
+		std::chrono::system_clock::time_point tp =
+			std::chrono::time_point_cast
+			<
+				std::chrono::system_clock::duration,
+				std::chrono::system_clock,
+				std::chrono::duration<double>
+			>(Time::now());
+		run(tp);
 
 		// Check realtime
-		if(std::chrono::system_clock::now() > next_loop_time)
+		if(Time::now() > next_loop_time)
 		{
 			setStatus(Status::BREAKING_REALTIME);
 		}
 
 		TODO("use realtime sleep here")
-		std::this_thread::sleep_until(next_loop_time);
+		// std::this_thread::sleep_until(next_loop_time);
+		Time::sleep_until(next_loop_time);
 
 	}while(this->should_run);
 

@@ -40,6 +40,7 @@ add_compile_options(
 	-DPROJECT_MAJOR=${MAJOR}
 	-DPROJECT_MINOR=${MINOR}
 	-DPROJECT_PATCH=${PATCH}
+	-include ${CMAKE_SOURCE_DIR}/include/util/debug/debug.hpp
 )
 
 # ==============================================================================
@@ -93,6 +94,7 @@ add_message(screw)
 add_message(blind_state)
 add_message(console_command)
 add_message(header)
+add_message(time)
 
 # ==============================================================================
 # Libraries
@@ -182,6 +184,7 @@ target_link_libraries(dls_framework
 		readline # for console_layer
 		fastcdr
 		fastrtps
+		dls_time
 
 	PUBLIC # TODO fix this
 	#dls_string_util TODO link to this library and remove the source above
@@ -221,6 +224,13 @@ add_library(
 list(APPEND PROJECT_TARGETS dls_gaitgeneratorinterface)
 target_link_libraries(dls_gaitgeneratorinterface dls_geometry)
 
+# ==================================== Time ====================================
+add_library(dls_time
+	SHARED
+	${CMAKE_SOURCE_DIR}/src/util/time/time.cpp
+)
+list(APPEND PROJECT_TARGETS dls_time)
+
 # ==============================================================================
 # Child Processes
 # ==============================================================================
@@ -238,6 +248,9 @@ target_link_libraries(
 	dls_controlinterface
 	dls_gaitgeneratorinterface
 	dls_estimatorinterface
+
+	#PRIVATE
+	dls_time
 )
 list(APPEND PROJECT_TARGETS dls_controller_process)
 
@@ -254,6 +267,9 @@ target_link_libraries(dls_gait_generator_process
 	dls_controlinterface
 	dls_gaitgeneratorinterface
 	dls_estimatorinterface
+
+	#PRIVATE
+	dls_time
 )
 list(APPEND PROJECT_TARGETS dls_gait_generator_process)
 # ==============================================================================

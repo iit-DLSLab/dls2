@@ -31,12 +31,14 @@
 #include "util/log/log.hpp"
 #include "util/debug/debug.hpp"
 
+#include "util/time/time.hpp"
 using namespace dls;
 std::shared_ptr<GaitGenerator> pGaitGenerator;
 void signal_handler(int signal);
 
 int main(int argc, char **argv)
 {
+	// Time::set_use_simulated_time(true);
 	if(argc != 2)
 	{
 		std::cerr << "Usage: " << argv[0] << " <gait_generator_name>" << std::endl;

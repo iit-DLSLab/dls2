@@ -17,34 +17,15 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-#ifndef PERIODIC_APP_LAYER_COMPONENT_HPP_RY9LWBZG
-#define PERIODIC_APP_LAYER_COMPONENT_HPP_RY9LWBZG
-
-#include "application_framework/components/app_layer_component.hpp"
-#include "msg/timePubSubTypes.h"
-#include "util/messaging/subscriber_base.hpp"
-
-#include <chrono>
-#include <atomic>
+#ifndef SIMULATION_TIME_HPP_3TFA21IY
+#define SIMULATION_TIME_HPP_3TFA21IY
 
 namespace dls
 {
-class PeriodicAppLayerComponent : public AppLayerComponent
-{
-	friend class ClockSubscriber;
-public:
-	typedef std::chrono::duration<double, std::ratio<1, 1'000'000>> period_t;
-public:
-	PeriodicAppLayerComponent(const period_t&);
+	namespace topics
+	{
+		constexpr auto simulation_time = "simulation_time";
+	}
+}
 
-	Status run() override;
-	Status stop() override;
-	virtual void run(const std::chrono::system_clock::time_point&) = 0;
-
-private:
-	const period_t period;
-	std::atomic_bool should_run;
-};
-} // end namespace dls
-
-#endif /* end of include guard: PERIODIC_APP_LAYER_COMPONENT_HPP_RY9LWBZG */
+#endif /* end of include guard: SIMULATION_TIME_HPP_3TFA21IY */

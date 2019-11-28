@@ -29,7 +29,9 @@
 // Fastrtps publishing
 #include "util/messaging/publisher_base.hpp"
 #include "msg/blind_statePubSubTypes.h"
+#include "msg/timePubSubTypes.h"
 #include "topics/low_level_estimation/blind_state.hpp"
+#include "topics/simulation_time.hpp"
 
 // cpp
 #include <memory>
@@ -38,26 +40,28 @@
 #include "geometry/pose.hpp"
 
 #include <dls2_msgs/BlindState.h>
+#include <rosgraph_msgs/Clock.h>
 // TODO temp
 #include <std_msgs/Empty.h>
 std::shared_ptr<ros::Publisher> pEmpty_pub;
 using namespace dls;
+
 // needs to be a pointer, else it crashes at launch
 std::shared_ptr<PublisherBase<BlindStateMsgPubSubType>>
 	pState_pub;
+
+std::shared_ptr<PublisherBase<TimeMsgPubSubType>>
+	pClock_pub;
 
 void callback
 (
 	const dls2_msgs::BlindState::ConstPtr &msg
 );
 
-typedef message_filters::sync_policies::ApproximateTime
-<
-	sensor_msgs::JointState,
-	// geometry_msgs::PoseWithCovarianceStamped,
-	// sensor_msgs::Imu,
-	nav_msgs::Odometry
-> policy;
+void clock_callback
+(
+	const rosgraph_msgs::Clock::ConstPtr &msg
+);
 
 int main(int argc, char** argv)
 {
@@ -65,6 +69,9 @@ int main(int argc, char** argv)
 	pState_pub = std::make_shared<PublisherBase<BlindStateMsgPubSubType>>
 		(topics::low_level_estimation::blind_state);
 
+
+	pClock_pub = std::make_shared<PublisherBase<TimeMsgPubSubType>>
+		(topics::simulation_time);
 
 	ros::init(argc, argv, "roscontrol_to_dls2");
 	ros::NodeHandle node_handle;
@@ -75,6 +82,7 @@ int main(int argc, char** argv)
 		);
 
 	ros::Subscriber sub = node_handle.subscribe("/hyq/blind_state", 1000, callback);
+	ros::Subscriber clock_sub = node_handle.subscribe("/clock", 1000, clock_callback);
 
 	ros::spin();
 }
@@ -167,67 +175,14 @@ void callback
 	}
 
 	pState_pub->publish(blind_state_msg);
+}
 
-// ================================== OLD ======================================
-	// BlindStateMsg blind_state_msg;
-	// JointStateMsg joint_state_msg;
-
-	// // Fill the joint states
-	// joint_state_msg.position(joint_states.position);
-	// joint_state_msg.velocity(joint_states.velocity);
-	// joint_state_msg.effort(joint_states.effort);
-	// blind_state_msg.joint_state(joint_state_msg);
-
-	// // Fill the base pose
-	// // pose.pose because ros is poorly designed
-	// Eigen::Vector3d position;
-	// position << ground_truth.pose.pose.position.x,
-	// 			ground_truth.pose.pose.position.y,
-	// 			ground_truth.pose.pose.position.z;
-
-	// Eigen::Quaterniond quat
-	// 	(
-	// 		ground_truth.pose.pose.orientation.w,
-	// 		ground_truth.pose.pose.orientation.x,
-	// 		ground_truth.pose.pose.orientation.y,
-	// 		ground_truth.pose.pose.orientation.z
-	// 	);
-
-	// Pose p(position, quat);
-	// blind_state_msg.base_pose_world(p);
-
-	// // Fill the base velocity
-	// blind_state_msg.base_velocity_world().linear(
-	// 		{
-	// 			ground_truth.twist.twist.linear.x,
-	// 			ground_truth.twist.twist.linear.y,
-	// 			ground_truth.twist.twist.linear.z
-	// 		}
-	// 	);
-	// blind_state_msg.base_velocity_world().angular(
-	// 		{
-	// 			ground_truth.twist.twist.angular.x,
-	// 			ground_truth.twist.twist.angular.y,
-	// 			ground_truth.twist.twist.angular.z
-	// 		}
-	// 	);
-
-	// // Fill the base acceleration
-	// // TODO this is currently zero
-	// blind_state_msg.base_acceleration_world().linear(
-	// 		{
-	// 			0,
-	// 			0,
-	// 			0
-	// 		}
-	// 	);
-	// blind_state_msg.base_acceleration_world().angular(
-	// 		{
-	// 			0,
-	// 			0,
-	// 			0
-	// 		}
-	// 	);
-
-	// pState_pub->publish(blind_state_msg);
+void clock_callback
+(
+	const rosgraph_msgs::Clock::ConstPtr &msg
+)
+{
+	TimeMsg rtps_time;
+	rtps_time.seconds(ros::Time::now().toSec());
+	pClock_pub->publish(rtps_time);
 }
