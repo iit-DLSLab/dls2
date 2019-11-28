@@ -64,7 +64,8 @@ Time::time_point_t Time::now()
 {
 	if(Time::use_simulated_time)
 	{
-		std::shared_lock lock(Time::tick_mutex);
+//		std::shared_lock lock(Time::tick_mutex);
+		std::unique_lock lock(Time::tick_mutex);
 		return Time::tick;
 	}
 	else
