@@ -38,10 +38,13 @@ AppLayerComponent::Status PeriodicAppLayerComponent::run()
 {
 	setStatus(Status::RUNNING);
 	this->should_run = true;
+	auto next_loop_time = this->period + Time::now();
 	do
 	{
+		// auto last_loop_time = Time::now();
 		// Calculate when the next period needs to start
-		auto next_loop_time = this->period + Time::now();
+		// auto next_loop_time = this->period + Time::now();
+		// auto next_loop_time = this->period + last_loop_time;
 
 		// Run one epoch
 		std::chrono::system_clock::time_point tp =
@@ -62,6 +65,7 @@ AppLayerComponent::Status PeriodicAppLayerComponent::run()
 		TODO("use realtime sleep here")
 		// std::this_thread::sleep_until(next_loop_time);
 		Time::sleep_until(next_loop_time);
+		next_loop_time = this->period + Time::now();
 
 	}while(this->should_run);
 
