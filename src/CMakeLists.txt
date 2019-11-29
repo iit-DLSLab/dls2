@@ -41,6 +41,7 @@ add_compile_options(
 	-DPROJECT_MINOR=${MINOR}
 	-DPROJECT_PATCH=${PATCH}
 	-include ${CMAKE_SOURCE_DIR}/include/util/debug/debug.hpp
+	# -include ${CMAKE_SOURCE_DIR}/build_tools/include/todo.h
 )
 
 # ==============================================================================
@@ -387,28 +388,28 @@ list(APPEND PROJECT_TARGETS dls_dummy_estimator)
 # ==============================================================================
 # Tools
 # ==============================================================================
-#add_executable(topic_info
-#	${CMAKE_SOURCE_DIR}/src/util/topic_info/topic_info.cpp
-#	${CMAKE_SOURCE_DIR}/src/util/topic_info/topic_info_main.cpp
+add_executable(topic_info
+	${CMAKE_SOURCE_DIR}/src/util/topic_info/topic_info.cpp
+	${CMAKE_SOURCE_DIR}/src/util/topic_info/topic_info_main.cpp
 
-#	# TODO this should be put into the dls_messaging library and just linked
-#	# into this executable. It should NOT be recompiled here, it should only be
-#	# compiled in the library
-#	#${CMAKE_SOURCE_DIR}/src/controller/control_signal.cpp
-#)
-#target_link_libraries(topic_info
-#	fastcdr
-#	fastrtps
-#	#dls_messaging
+	# TODO this should be put into the dls_messaging library and just linked
+	# into this executable. It should NOT be recompiled here, it should only be
+	# compiled in the library
+	${CMAKE_SOURCE_DIR}/src/controller/control_signal.cpp
+)
+target_link_libraries(topic_info
+	fastcdr
+	fastrtps
+	dls_messaging
+	dls_debug
 
-#	# TODO this should be removed when the gait signal and contro lsignal
-#	# wrappers are moved to the messaging library
-#	# dls_gaitgeneratorinterface
-#	# dls_controlinterface
-#	# dls_estimatorinterface
-#	# dls_framework
-#)
-
+	# TODO this should be removed when the gait signal and contro lsignal
+	# wrappers are moved to the messaging library
+	# dls_gaitgeneratorinterface
+	# dls_controlinterface
+	# dls_estimatorinterface
+	# dls_framework
+)
 
 # ==============================================================================
 # Convencience Targets
