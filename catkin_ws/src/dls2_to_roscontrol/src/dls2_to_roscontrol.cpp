@@ -110,12 +110,12 @@ void Dls2ToRoscontrol::ControlMsgListener::onNewDataMessage(eprosima::fastrtps::
 {
 	std::lock_guard<std::mutex> lock(this->msg_mutex);
 	sub->takeNextData((void*)this->pMsg.get(), &info);
-	std::cout << "got signal: ";
-	for(const auto &el : this->pMsg->desired_torques())
-	{
-		std::cout << el << " ";
-	}
-	std::cout << std::endl;
+	// std::cout << "got signal: ";
+	// for(const auto &el : this->pMsg->desired_torques())
+	// {
+	// 	std::cout << el << " ";
+	// }
+	// std::cout << std::endl;
 }
 
 std::shared_ptr<DesiredTorquesMsg> Dls2ToRoscontrol::ControlMsgListener::getSignal()

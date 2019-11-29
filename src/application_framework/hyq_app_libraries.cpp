@@ -23,7 +23,7 @@
 using namespace dls;
 void HyQApp::init_libraries()
 {
-	Time::set_use_simulated_time(true);
+	// Time::set_use_simulated_time(true);
 }
 
 void HyQApp::close_libraries()
