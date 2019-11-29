@@ -69,9 +69,19 @@ int main(int argc, char **argv)
 			t.echo(argv[2]);
 		}
 	}
+	else if(strcmp(argv[1], "hz") == 0)
+	{
+		if(argc != 3)
+		{
+			print_usage();
+			return EXIT_FAILURE;
+		}
+		t.hz(argv[2]);
+		while(true);
+	}
 	else
 	{
-		std::cerr << "Usage: " << argv[0] << " list | echo <topic>" << std::endl;
+		std::cerr << "Usage: " << argv[0] << " list | hz <topic>" << std::endl;
 		return EXIT_FAILURE;
 	}
 

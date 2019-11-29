@@ -22,10 +22,16 @@
 #ifndef TOPIC_INFO_HPP_SVMAPUJA
 #define TOPIC_INFO_HPP_SVMAPUJA
 
+#include <chrono>
 #include <fastrtps/participant/ParticipantListener.h>
 #include <string>
 #include <mutex>
 #include <map>
+#include <memory>
+#include "util/messaging/subscriber_base.hpp"
+#include "msg/stringmsgPubSubTypes.h"
+#include "msg/gait_signalPubSubTypes.h"
+#include <atomic>
 
 namespace dls
 {
@@ -43,6 +49,7 @@ namespace dls
 
 		std::string getTopicType(const std::string &topic);
 		void echo(const std::string &topic);
+		void hz(const std::string &topic);
 
 	private:
 		void onSubscriberDiscovery
@@ -66,6 +73,20 @@ namespace dls
 			mutable std::mutex topics_subscribers_mutex;
 			std::multimap<std::string, eprosima::fastrtps::rtps::ReaderDiscoveryInfo> reader_info;
 		// End critical section
+
+		// class HzSub : public SubscriberBase<StringMsgPubSubType>
+		class HzSub : public eprosima::fastrtps::SubscriberListener
+		{
+			friend class TopicInfo;
+		public:
+			HzSub(const std::string &topic);
+		private:
+			void onNewDataMessage(eprosima::fastrtps::Subscriber *sub) override;
+			std::atomic<size_t> msg_count;
+
+		};
+
+		// std::shared_ptr<HzSub> pHz_sub;
 	};
 } // namespace dls
 #endif /* end of include guard: TOPIC_INFO_HPP_SVMAPUJA */

@@ -40,6 +40,7 @@ add_compile_options(
 	-DPROJECT_MAJOR=${MAJOR}
 	-DPROJECT_MINOR=${MINOR}
 	-DPROJECT_PATCH=${PATCH}
+	-include ${CMAKE_SOURCE_DIR}/build_tools/include/todo.h
 )
 
 # ==============================================================================
@@ -382,6 +383,7 @@ target_link_libraries(topic_info
 	fastcdr
 	fastrtps
 	dls_messaging
+	dls_debug
 
 	# TODO this should be removed when the gait signal and contro lsignal
 	# wrappers are moved to the messaging library

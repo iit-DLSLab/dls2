@@ -26,13 +26,36 @@
 #include <fastrtps/Domain.h>
 #include <fastrtps/transport/UDPv4TransportDescriptor.h>
 
+// TODO temporarily list all the types here
+#include "msg/blind_statePubSubTypes.h"
+#include "msg/console_commandPubSubTypes.h"
+#include "msg/control_signalPubSubTypes.h"
+#include "msg/desired_torquesPubSubTypes.h"
+#include "msg/gait_signalPubSubTypes.h"
+#include "msg/headerPubSubTypes.h"
+#include "msg/hello_worldPubSubTypes.h"
+#include "msg/imuPubSubTypes.h"
+#include "msg/joint_statePubSubTypes.h"
+#include "msg/posePubSubTypes.h"
+#include "msg/screwPubSubTypes.h"
+#include "msg/stringmsgPubSubTypes.h"
+#include "msg/timePubSubTypes.h"
+#include "msg/vec3PubSubTypes.h"
+
+
+#include "util/debug/debug.hpp"
+
 using namespace dls;
 
+// =============================================================================
+// Constructors
+// =============================================================================
 TopicInfo::TopicInfo() :
 	topics_publishers_mutex(),
 	writer_info(),
 	topics_subscribers_mutex(),
 	reader_info()
+	// pHz_sub(nullptr)
 {
 
 	eprosima::fastrtps::ParticipantAttributes participant_attr;
@@ -45,6 +68,9 @@ TopicInfo::TopicInfo() :
 	eprosima::fastrtps::Domain::createParticipant(participant_attr, this);
 }
 
+// =============================================================================
+// Interface Override
+// =============================================================================
 void TopicInfo::onSubscriberDiscovery
 (
 	eprosima::fastrtps::Participant *participant,
@@ -123,6 +149,9 @@ void TopicInfo::onPublisherDiscovery
 	}
 }
 
+// =============================================================================
+// Implementation
+// =============================================================================
 std::string TopicInfo::getTopicType(const std::string &topic)
 {
 	{
@@ -177,4 +206,101 @@ void TopicInfo::echo(const std::string &topic)
 	{
 		// std::cout << it->second.info.type_information() << std::endl;
 	}
+}
+
+void TopicInfo::hz(const std::string &topic)
+{
+	// this->pHz_sub = std::make_shared<TopicInfo::HzSub>(topic);
+	// std::cout << "constructed subscriber on topic '" << topic << "'" << std::endl;
+	std::lock_guard<std::mutex> lock(topics_publishers_mutex);
+	for(const auto &el : writer_info)
+	{
+		if(el.first == topic)
+		{
+			using namespace eprosima::fastrtps;
+			using namespace eprosima;
+			ParticipantAttributes participant_attr;
+			participant_attr.rtps.setName("Participant_subscriber");
+			auto custom_transport = std::make_shared<eprosima::fastrtps::rtps::UDPv4TransportDescriptor>();
+			custom_transport->interfaceWhiteList.emplace_back("127.0.0.1");
+			participant_attr.rtps.useBuiltinTransports = false;
+			participant_attr.rtps.userTransports.push_back(custom_transport);
+
+			Participant *participant = Domain::createParticipant(participant_attr);
+			// el.second.registerType(particpant);
+			// TODO temporarily resgister all the types explicitly like this
+			// GaitSignalMsgPubSubType type;
+			// Domain::registerType(participant, &type);
+
+			// TODO temporariliy do all of them explicitly
+			BlindStateMsgPubSubType      type0;
+			ConsoleCommandMsgPubSubType  type1;
+			ControlSignalMsgPubSubType   type2;
+			DesiredTorquesMsgPubSubType  type3;
+			GaitSignalMsgPubSubType      type4;
+			// HeaderMsgPubSubType          type5;
+			HelloWorldPubSubType         type6;
+			ImuMsgPubSubType             type7;
+			JointStateMsgPubSubType      type8;
+			PoseMsgPubSubType            type9;
+			ScrewMsgPubSubType           type10;
+			StringMsgPubSubType          type11;
+			// TimeMsgPubSubType            type12;
+			Vec3MsgPubSubType            type13;
+			Domain::registerType(participant, &type0);
+			Domain::registerType(participant, &type1);
+			Domain::registerType(participant, &type2);
+			Domain::registerType(participant, &type3);
+			Domain::registerType(participant, &type4);
+			// Domain::registerType(participant, &type5);
+			Domain::registerType(participant, &type6);
+			Domain::registerType(participant, &type7);
+			Domain::registerType(participant, &type8);
+			Domain::registerType(participant, &type9);
+			Domain::registerType(participant, &type10);
+			Domain::registerType(participant, &type11);
+			// Domain::registerType(participant, &type12);
+			Domain::registerType(participant, &type13);
+
+			SubscriberAttributes subscriber_attr;
+			subscriber_attr.topic.topicKind = eprosima::fastrtps::rtps::NO_KEY;
+			subscriber_attr.topic.topicName = topic;
+			subscriber_attr.topic.topicDataType = el.second.info.typeName();
+			DMSG(el.second.info.typeName());
+
+			HzSub subscriber_listener(topic);
+			Subscriber *subscriber = Domain::createSubscriber(participant, subscriber_attr, &subscriber_listener);
+			auto launch_time = std::chrono::system_clock::now();
+			while(true)
+			{
+				std::this_thread::sleep_for(std::chrono::seconds(1));
+				auto run_time = std::chrono::system_clock::now() - launch_time;
+				auto run_time_sec = std::chrono::duration_cast<std::chrono::duration<double>>(run_time);
+				// DMSG("Ran for " << run_time_sec.count() << " seconds");
+				// DLOG(subscriber_listener.msg_count);
+				std::cout << subscriber_listener.msg_count/run_time_sec.count()
+					<< " hz" << std::endl;
+			}
+			auto a = subscriber;
+			a += 1;
+			a = nullptr;
+			return;
+		}
+	}
+
+	std::cerr << "Topic '" << topic << "' not found" << std::endl;
+}
+
+// =============================================================================
+// Helper Classes
+// =============================================================================
+TopicInfo::HzSub::HzSub(const std::string &) :
+	msg_count(0)
+{
+	DMSG("Created sub");
+}
+
+void TopicInfo::HzSub::onNewDataMessage(eprosima::fastrtps::Subscriber*)
+{
+	++msg_count;
 }
