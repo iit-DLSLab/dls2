@@ -104,6 +104,7 @@ ControlLayer::Status ControlLayer::run()
 	TODO("Check status of all components in the control layer, take corrective actions if requred")
 	setStatus(Status::RUNNING);
 	TODO("correct looping condition")
+	double time;
 	while(getStatus() == Status::RUNNING)
 	{
 		// Read the control signals
@@ -119,12 +120,13 @@ ControlLayer::Status ControlLayer::run()
 				{
 					desired_torques +=
 						pair.second->premultiplier*pControl_signal->torques;
+					time = pControl_signal->time; // TODO How to pick which time
 				}
 			}
 		}
 
 		// Send the desired torques to HAL
-		publishDesiredTorques(saturateTorques(desired_torques));
+		publishDesiredTorques(saturateTorques(desired_torques),time);
 
 		std::stringstream ss;
 		ss << "Control layer published torques: " << desired_torques.transpose() << std::endl;
@@ -371,11 +373,12 @@ Eigen::MatrixXd ControlLayer::saturateTorques(const Eigen::MatrixXd &req) const
 	return req;
 }
 
-void ControlLayer::publishDesiredTorques(const Eigen::VectorXd &torques) const
+void ControlLayer::publishDesiredTorques(const Eigen::VectorXd &torques, double time) const // TODO Change type of time
 {
 
 	DesiredTorquesMsg msg;
 	msg.desired_torques().resize(torques.size());
+	msg.header().time().seconds()=time;
 	Eigen::VectorXd::Map(&msg.desired_torques()[0], torques.size()) = torques;
 	publisher.publish(msg);
 }

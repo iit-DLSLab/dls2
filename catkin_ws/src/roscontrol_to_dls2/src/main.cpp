@@ -99,12 +99,16 @@ void callback
 	std_msgs::Empty empty_msg;
 	pEmpty_pub->publish(empty_msg);
 
-	std::cout << "callback hit" << std::endl;
+	//std::cout << "callback hit" << std::endl;
 
 	BlindStateMsg blind_state_msg;
-	JointStateMsg joint_state_msg;
+
+	// =========================== Fill Header =================================
+	blind_state_msg.header().time().seconds() = double(msg->header.stamp.sec) + double(msg->header.stamp.nsec)/1e9;
+	blind_state_msg.header().seq() = msg->header.seq;
 
 	// =========================== Filll Joint State ===========================
+	JointStateMsg joint_state_msg;
 	joint_state_msg.position().resize(msg->joint_state.position.size());
 	joint_state_msg.velocity().resize(msg->joint_state.velocity.size());
 	joint_state_msg.acceleration().resize(msg->joint_state.acceleration.size());

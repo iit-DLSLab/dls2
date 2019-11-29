@@ -17,9 +17,10 @@
 * Maintainer:                                                                  *
 * author email:                                                                *
 *******************************************************************************/
+#include "time.idl"
+
 struct HeaderMsg
 {
 	unsigned long seq;
-	unsigned long sec;
-	unsigned long nsec;
+	TimeMsg time;
 };

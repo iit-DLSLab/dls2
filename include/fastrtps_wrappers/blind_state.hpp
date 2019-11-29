@@ -42,6 +42,7 @@ struct BlindState
 	Pose base_pose_world;
 	Screw base_velocity_world;
 	Screw base_acceleration_world;
+	double time; 
 };
 } // end namespace dls
 

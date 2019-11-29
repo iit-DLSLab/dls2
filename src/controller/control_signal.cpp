@@ -22,13 +22,15 @@
 using namespace dls;
 ControlSignal::ControlSignal() :
 	torques(),
-	signal_reconstruction_method(SignalReconstructionMethod::ZERO_ORDER_HOLD)
+	signal_reconstruction_method(SignalReconstructionMethod::ZERO_ORDER_HOLD),
+	time()
 { }
 
 ControlSignal::ControlSignal(ControlSignalMsg msg) :
 	// TODO this 12 should not be hardcoded
 	torques(Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(msg.torques().data(), 12)),
-	signal_reconstruction_method((SignalReconstructionMethod)msg.signal_reconstruction_method())
+	signal_reconstruction_method((SignalReconstructionMethod)msg.signal_reconstruction_method()),
+	time(msg.header().time().seconds())
 { }
 
 ControlSignal::operator ControlSignalMsg() const
@@ -41,6 +43,6 @@ ControlSignal::operator ControlSignalMsg() const
 	Eigen::VectorXd::Map(&msg.torques()[0], 12) = this->torques;
 
 	msg.signal_reconstruction_method((uint64_t)this->signal_reconstruction_method);
-
+	msg.header().time().seconds()=this->time;
 	return msg;
 }
