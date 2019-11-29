@@ -32,6 +32,7 @@
 #include "topics/desired_torques.hpp"
 #include "util/log/log.hpp"
 #include "path_prefixes/path_prefixes.hpp"
+#include "util/time/time.hpp"
 
 #include <string.h>
 #include <errno.h>
@@ -92,6 +93,11 @@ ControlLayer::~ControlLayer()
 // =============================================================================
 ControlLayer::Status ControlLayer::run()
 {
+	// TODO THIS NEEDS to be moved to the library initialisation of hyq_app.
+	// However, there is something going wrong with the fastrtps subscriber if
+	// it is done there. For now, this call has been placed here
+	DMSG("using simulated time");
+	Time::set_use_simulated_time(true);
 
 	TODO("spawn nonrealtime thread for user interaction")
 
@@ -125,7 +131,9 @@ ControlLayer::Status ControlLayer::run()
 		logging::cout << ss.str() << logging::endl;
 		TODO("sleep at correct frequency here")
 		// std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(500));
-		std::this_thread::sleep_for(std::chrono::duration<double, std::micro>(100));
+		// DMSG(Time::now().time_since_epoch().count());
+		// std::this_thread::sleep_for(std::chrono::duration<double, std::micro>(100));
+		Time::sleep_until(Time::now() + std::chrono::duration<double, std::micro>(100));
 	}
 
 	return getStatus();
