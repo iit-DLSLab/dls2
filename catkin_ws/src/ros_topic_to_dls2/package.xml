@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>roscontrol_to_dls2</name>
+  <name>ros_topic_to_dls2</name>
   <version>0.0.0</version>
-  <description>The roscontrol_to_dls2 package</description>
+  <description>The ros_topic_to_dls2 package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
