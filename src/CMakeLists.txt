@@ -336,6 +336,7 @@ if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 		TARGET ${EXECUTABLE_NAME}
 		POST_BUILD
 		COMMAND ${CMAKE_SOURCE_DIR}/build_tools/list_todos
+		COMMAND [ -f ${CMAKE_SOURCE_DIR}/bin/debug/launch_simulation_backend.sh ] || ln -s ${CMAKE_SOURCE_DIR}/scripts/launch_simulation_backend.sh ${CMAKE_SOURCE_DIR}/bin/debug/launch_simulation_backend.sh
 		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 	)
 endif()
