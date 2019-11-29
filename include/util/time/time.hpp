@@ -25,7 +25,7 @@
 
 #include <chrono>
 #include <memory>
-#include <shared_mutex>
+#include <mutex>
 #include <map>
 
 namespace dls
@@ -54,7 +54,7 @@ private:
 	// Begin critical section
 		// This critical section is only used in simulation.
 		static time_point_t tick;
-		static std::shared_mutex tick_mutex;
+		static std::mutex tick_mutex;
 	// End critical section
 
 	class ClockSubscriber : public SubscriberBase<TimeMsgPubSubType>

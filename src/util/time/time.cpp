@@ -37,7 +37,7 @@ using namespace dls;
 bool Time::use_simulated_time = false;
 std::shared_ptr<SubscriberBase<TimeMsgPubSubType>> Time::pTime_sub = nullptr;
 Time::time_point_t Time::tick;
-std::shared_mutex Time::tick_mutex;
+std::mutex Time::tick_mutex;
 
 // -----------------------------------------------------------------------------
 // Member Functions
@@ -65,7 +65,7 @@ Time::time_point_t Time::now()
 	if(Time::use_simulated_time)
 	{
 //		std::shared_lock lock(Time::tick_mutex);
-		std::unique_lock lock(Time::tick_mutex);
+		std::lock_guard<std::mutex> lock(Time::tick_mutex);
 		return Time::tick;
 	}
 	else
@@ -125,7 +125,7 @@ void Time::ClockSubscriber::onNewDataMessage
 		std::chrono::duration<double> seconds(msg.seconds());
 		tp += seconds;
 		{
-			std::unique_lock lock(Time::tick_mutex);
+			std::lock_guard<std::mutex> lock(Time::tick_mutex);
 			Time::tick = tp;
 		}
 	}

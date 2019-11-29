@@ -20,7 +20,7 @@ set(PROJECT_TARGETS "")
 # ==============================================================================
 add_compile_options(
 	# Standards
-	-std=c++17
+	-std=c++14
 
 	# Warnings
 	#	-Wfatal-errors
