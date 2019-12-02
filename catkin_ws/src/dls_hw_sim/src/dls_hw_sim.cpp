@@ -431,6 +431,7 @@ void DlsRobotHwSim::writeSim(ros::Time time, ros::Duration period)
 
 bool DlsRobotHwSim::checkForConflict(const std::list<hardware_interface::ControllerInfo>& info) const
 {
+	ROS_ERROR("CHECK FOR CONFLICT");
 	return false; // TODO All controllers can run at the same time! dangerous and bad
 }
 

@@ -27,7 +27,7 @@ void JointStateController::update(const ros::Time &time, const ros::Duration &pe
 {
 	for (auto js : joint_states_)
 	{
-		ROS_ERROR_STREAM(js.getName() << ":" << js.getPosition());
+		//ROS_ERROR_STREAM(js.getName() << ":" << js.getPosition());
 	}
 }
 
