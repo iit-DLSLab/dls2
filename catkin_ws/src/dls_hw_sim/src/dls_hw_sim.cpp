@@ -121,31 +121,48 @@ bool DlsRobotHwSim::initSim(
 	}
 
 	imu_orientation_.resize(4);
-	imu_ang_vel_.resize(3);
-	imu_lin_acc_.resize(3);
-
-	base_orientation_.resize(4);
+	imu_orientation_covariance_.resize(9); // row major 3x3
+	imu_angular_velocity_.resize(3);
+	imu_angular_velocity_covariance_.resize(9); // row major 3x3
+	imu_linear_acceleration_.resize(3);
+	imu_linear_acceleration_covariance_.resize(9); // row major 3x3
+	
+	imuData.name = "trunk_imu"; // TODO: Fetch from elsewhere?
+	imuData.frame_id = "trunk_imu"; // TODO: Fetch from URDF?
+	imuData.orientation = &imu_orientation_[0];
+	imuData.orientation_covariance = &imu_orientation_covariance_[0];
+	imuData.angular_velocity = &imu_angular_velocity_[0];
+	imuData.angular_velocity_covariance = &imu_angular_velocity_covariance_[0];
+	imuData.linear_acceleration = &imu_linear_acceleration_[0];
+	imuData.linear_acceleration_covariance = &imu_linear_acceleration_covariance_[0];
+	imu_sensor_interface_.registerHandle(hardware_interface::ImuSensorHandle(imuData));
+	
+	blind_state_base_pose_world_.resize(7);
+	blind_state_base_velocity_world_.resize(6);
+	blind_state_base_acceleration_world_.resize(6);
+	
+	blindStateData.name = "blind_state"; // TODO
+	blindStateData.joint_state = &joint_position_[0];
+	blindStateData.base_pose_world = &blind_state_base_pose_world_[0];
+	blindStateData.base_velocity_world = &blind_state_base_velocity_world_[0];
+	blindStateData.base_acceleration_world = &blind_state_base_acceleration_world_[0];
+	blind_state_interface_.registerHandle(hardware_interface::BlindStateHandle(blindStateData));
+	
+/*	base_orientation_.resize(4);
 	base_ang_vel_.resize(3);
 	base_ang_acc_.resize(3);
 	base_lin_acc_.resize(3);
 	base_lin_pos_.resize(3);
 	base_lin_vel_.resize(3);
-
-	imuData.name = "trunk_imu"; // TODO: Fetch from elsewhere?
-	imuData.frame_id = "trunk_imu"; // TODO: Fetch from URDF?
-	imuData.orientation = &imu_orientation_[0];
-	imuData.angular_velocity = &imu_ang_vel_[0];
-	imuData.linear_acceleration = &imu_lin_acc_[0];
-	imu_sensor_interface_.registerHandle(hardware_interface::ImuSensorHandle(imuData));
-
-
-	std::string frame("base_link"); //Some quick hack to pass the data over;
+	std::string frame("base_link"); //Some quick hack to pass the data over; */
 
 
 	// Register interfaces
 	registerInterface(&joint_command_interface_);
 	registerInterface(&joint_state_interface_);
 	registerInterface(&imu_sensor_interface_);
+	registerInterface(&blind_state_interface_);
+	
 	freeze_cmd_=true;
 	freeze_state_=false;
     freeze_base_srv_ = model_nh.advertiseService("freeze_base", &DlsRobotHwSim::freezeBase, this);
@@ -390,6 +407,11 @@ void DlsRobotHwSim::writeSim(ros::Time time, ros::Duration period)
 		}
 	}
 
+}
+
+bool DlsRobotHwSim::checkForConflict(const std::list<hardware_interface::ControllerInfo>& info) const
+{
+	return false; // TODO All controllers can run at the same time! dangerous and bad
 }
 
 

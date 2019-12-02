@@ -79,6 +79,8 @@ public:
      * @brief Toggles freeze base
      */
   bool freezeBase(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res);
+  
+  bool checkForConflict(const std::list<hardware_interface::ControllerInfo>& info) const;
 
 private:
 
