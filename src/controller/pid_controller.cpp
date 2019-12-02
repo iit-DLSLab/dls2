@@ -61,6 +61,7 @@ void PidController::run(const std::chrono::system_clock::time_point &time)
 		ControlSignal s;
 		s.torques.resize(12);
 		s.torques << tau;
+		s.time = pBlind_state_signal->time;
 		publishSignal(s);
 		logging::clog << "N=" << std::to_string(tau.size()) << logging::endl;
 		time.time_since_epoch();

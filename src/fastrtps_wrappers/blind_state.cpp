@@ -27,7 +27,8 @@ BlindState::BlindState() :
 	joint_state(),
 	base_pose_world(),
 	base_velocity_world(),
-	base_acceleration_world()
+	base_acceleration_world(),
+	time()
 {
 	// TODO do not hardcode size here
 	joint_state.position.resize(12);
@@ -45,7 +46,8 @@ BlindState::BlindState(BlindStateMsg msg) :
 	joint_state(msg.joint_state()),
 	base_pose_world(msg.base_pose_world()),
 	base_velocity_world(msg.base_velocity_world()),
-	base_acceleration_world(msg.base_acceleration_world())
+	base_acceleration_world(msg.base_acceleration_world()),
+	time(msg.header().time().seconds())
 { }
 
 // -----------------------------------------------------------------------------
@@ -58,6 +60,6 @@ BlindState::operator BlindStateMsg() const
 	msg.base_pose_world(this->base_pose_world);
 	msg.base_velocity_world(this->base_velocity_world);
 	msg.base_acceleration_world(this->base_acceleration_world);
-
+  msg.header().time().seconds(this->time);
     return msg;
 }

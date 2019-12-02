@@ -147,7 +147,7 @@ private:
 		eprosima::fastrtps::SampleInfo_t info;
 	};
 	// ============================ Communincation =============================
-	void publishDesiredTorques(const Eigen::VectorXd &) const;
+	void publishDesiredTorques(const Eigen::VectorXd &, double time) const; // TODO Change type of time
 
 	// ============================= Data Members ==============================
 	// BEGIN critical section
