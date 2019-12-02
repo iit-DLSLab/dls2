@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.5.1)
 project(dls2_to_roscontrol)
 
+message(WARNING "using a hack to point to root directory")
 # This is a hack until the catkin_ws can be properly integrated with the rest of
 # the project
 set(ROOT_PROJECT_DIRECTORY "${CMAKE_SOURCE_DIR}/../..")

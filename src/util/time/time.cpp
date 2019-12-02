@@ -22,6 +22,7 @@
 // =============================================================================
 #include "util/time/time.hpp"
 #include "topics/simulation_time.hpp"
+#include "topics/simulation_pause.hpp"
 
 // =============================================================================
 // Using Declarations
@@ -35,9 +36,10 @@ using namespace dls;
 // Static Members
 // -----------------------------------------------------------------------------
 bool Time::use_simulated_time = false;
-std::shared_ptr<SubscriberBase<TimeMsgPubSubType>> Time::pTime_sub = nullptr;
-Time::time_point_t Time::tick;
-std::mutex Time::tick_mutex;
+std::chrono::duration<double> Time::time_offset(0);
+std::shared_ptr<SubscriberBase<BoolMsgPubSubType>> Time::pPause_sub = nullptr;
+bool Time::simulation_paused(false);
+decltype(std::chrono::system_clock::now()) Time::pause_start_time;
 
 // -----------------------------------------------------------------------------
 // Member Functions
@@ -47,15 +49,15 @@ void Time::set_use_simulated_time(bool b)
 	Time::use_simulated_time = b;
 	if(b)
 	{
-		if(Time::pTime_sub == nullptr)
+		if(Time::pPause_sub == nullptr)
 		{
-			Time::pTime_sub = std::make_shared<ClockSubscriber>();
+			Time::pPause_sub = std::make_shared<PauseSubscriber>();
 		}
-
 	}
 	else
 	{
-		Time::pTime_sub = nullptr;
+		// Time::pTime_sub = nullptr;
+		Time::pPause_sub = nullptr;
 	}
 	DMSG("FINISHED SETTING TIME");
 }
@@ -64,9 +66,14 @@ Time::time_point_t Time::now()
 {
 	if(Time::use_simulated_time)
 	{
-//		std::shared_lock lock(Time::tick_mutex);
-		std::lock_guard<std::mutex> lock(Time::tick_mutex);
-		return Time::tick;
+		if(Time::simulation_paused)
+		{
+			return pause_start_time - Time::time_offset;
+		}
+		else
+		{
+			return std::chrono::system_clock::now() - Time::time_offset;
+		}
 	}
 	else
 	{
@@ -104,29 +111,30 @@ void Time::sleep_until(time_point_t tp)
 // =============================================================================
 // Helper Class Implementation
 // =============================================================================
+
 // -----------------------------------------------------------------------------
-// ClockSubscriber
+// PauseSubscriber
 // -----------------------------------------------------------------------------
-Time::ClockSubscriber::ClockSubscriber() :
-	SubscriberBase<TimeMsgPubSubType>(topics::simulation_time),
+Time::PauseSubscriber::PauseSubscriber() :
+	SubscriberBase<BoolMsgPubSubType>(topics::simulation_pause),
 	info()
 { }
 
-void Time::ClockSubscriber::onNewDataMessage
-(
-	eprosima::fastrtps::Subscriber *sub
-)
+void Time::PauseSubscriber::onNewDataMessage(eprosima::fastrtps::Subscriber *sub)
 {
-	TimeMsg msg;
+	BoolMsg msg;
 	if(sub->takeNextData(&msg, &info))
 	{
-		// read the simulation time
-		Time::time_point_t tp;
-		std::chrono::duration<double> seconds(msg.seconds());
-		tp += seconds;
+		// std::cout << "Got pause bool: " << msg.val() << std::endl;
+		if(msg.val()) // if paused
 		{
-			std::lock_guard<std::mutex> lock(Time::tick_mutex);
-			Time::tick = tp;
+			Time::pause_start_time = std::chrono::system_clock::now();
 		}
+		else
+		{
+			Time::time_offset += std::chrono::system_clock::now() - Time::pause_start_time;
+		}
+		Time::simulation_paused = msg.val();
+		// DMSG("Real time: " << std::chrono::system_clock::now().time_since_epoch().count() << " simulation time: " << Time::now().time_since_epoch().count());
 	}
 }

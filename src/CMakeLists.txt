@@ -96,6 +96,7 @@ add_message(blind_state)
 add_message(console_command)
 add_message(header)
 add_message(time)
+add_message(bool)
 
 # ==============================================================================
 # Libraries

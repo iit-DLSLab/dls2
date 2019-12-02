@@ -36,10 +36,29 @@ include_directories(include
   ${catkin_INCLUDE_DIRS}
   ${GAZEBO_INCLUDE_DIRS})
   
+message(WARNING "using a hack to point to root directory")
+# This is a hack until the catkin_ws can be properly integrated with the rest of
+# the project
+set(ROOT_PROJECT_DIRECTORY "${CMAKE_SOURCE_DIR}/../..")
+include_directories(
+	${ROOT_PROJECT_DIRECTORY}/include
+	${ROOT_PROJECT_DIRECTORY}/build_tools/include
+)
+include_directories(
+	SYSTEM
+	${ROOT_PROJECT_DIRECTORY}/gen/include
+)
+link_directories(
+	${ROOT_PROJECT_DIRECTORY}/bin/debug
+)
 ## Libraries
 add_library(dls_hw_sim src/dls_hw_sim.cpp)
 target_link_libraries(dls_hw_sim ${catkin_LIBRARIES} 
                       ${GAZEBO_LIBRARIES}
+	
+	fastcdr
+	fastrtps
+	dls_messaging
                       )
 
 install(DIRECTORY include/${PROJECT_NAME}/

@@ -96,8 +96,8 @@ void callback
 )
 {
 	// TODO temp remove
-	std_msgs::Empty empty_msg;
-	pEmpty_pub->publish(empty_msg);
+	// std_msgs::Empty empty_msg;
+	// pEmpty_pub->publish(empty_msg);
 
 	std::cout << "callback hit" << std::endl;
 

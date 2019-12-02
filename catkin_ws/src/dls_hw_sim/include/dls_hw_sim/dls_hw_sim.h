@@ -28,8 +28,10 @@
 #include <sensor_msgs/JointState.h>
 #include <nav_msgs/Odometry.h>
 
+
 // URDF include
 #include <urdf/model.h>
+void callback_pause(bool);
 
 namespace dls_hw_sim
 {
@@ -110,6 +112,8 @@ private:
   bool freeze_cmd_;
   bool freeze_state_;
   ros::ServiceServer freeze_base_srv_;
+
+	decltype(gazebo::event::Events::ConnectPause(std::function<void(bool)>(callback_pause))) pause_connection;
 
 };
 

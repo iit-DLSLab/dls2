@@ -21,11 +21,12 @@
 #define TIME_HPP_2XUSQ5WF
 
 #include "msg/timePubSubTypes.h"
+#include "msg/boolPubSubTypes.h"
 #include "util/messaging/subscriber_base.hpp"
 
 #include <chrono>
 #include <memory>
-#include <mutex>
+// #include <mutex>
 #include <map>
 
 namespace dls
@@ -37,7 +38,8 @@ namespace dls
 /// wall time for running on the robot, as well as simulated time
 class Time
 {
-	friend class ClockSubscriber;
+	// friend class ClockSubscriber;
+	friend class PauseSubscriber;
 	using time_point_t = std::chrono::time_point
 		<std::chrono::system_clock, std::chrono::duration<double>>;
 public:
@@ -46,23 +48,22 @@ public:
 	static void set_use_simulated_time(bool);
 	static time_point_t now();
 	static void sleep_until(time_point_t);
+	static decltype(std::chrono::system_clock::now()) pause_start_time;
 
 private:
 	static bool use_simulated_time;
-	static std::shared_ptr<SubscriberBase<TimeMsgPubSubType>> pTime_sub;
+	/// The offset between simulated time and real time
+	///
+	/// Keeps track of the time difference between real time and wall time
+	static std::chrono::duration<double> time_offset;
+	// static std::shared_ptr<SubscriberBase<TimeMsgPubSubType>> pTime_sub;
+	static std::shared_ptr<SubscriberBase<BoolMsgPubSubType>> pPause_sub;
+	static bool simulation_paused;
 
-	// Begin critical section
-		// This critical section is only used in simulation.
-		static time_point_t tick;
-		static std::mutex tick_mutex;
-	// End critical section
-
-	class ClockSubscriber : public SubscriberBase<TimeMsgPubSubType>
+	class PauseSubscriber : public SubscriberBase<BoolMsgPubSubType>
 	{
 	public:
-		ClockSubscriber();
-		~ClockSubscriber() = default;
-
+		PauseSubscriber();
 	private:
 		void onNewDataMessage(eprosima::fastrtps::Subscriber *sub) override;
 		eprosima::fastrtps::SampleInfo_t info;
