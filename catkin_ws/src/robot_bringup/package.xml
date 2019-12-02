@@ -1,0 +1,23 @@
+<?xml version=".0"?>
+<package format="2">
+  <name>robot_bringup</name>
+  <version>0.0.1</version>
+  <description>
+    start up the robot
+  </description>
+
+  <maintainer email="hyq@advr.iit.it">HyQ Group</maintainer>
+  <!-- One license tag required, multiple allowed, one license per tag -->
+  <!-- Commonly used license strings: -->
+  <!--   BSD, MIT, Boost Software License, GPLv2, GPLv3, LGPLv2.1, LGPLv3 -->
+  <license>TODO</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  
+  <depend>dls2_to_roscontrol</depend>
+  <depend>roscontrol_to_dls2</depend>
+  <depend>dls_hw_sim</depend>
+
+  
+
+</package>
