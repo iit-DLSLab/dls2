@@ -42,7 +42,7 @@ PidController::PidController() : PidController(std::make_shared<Dog>())
 
 void PidController::run(const std::chrono::system_clock::time_point &time)
 {
-	logging::clog << "PID Controller Epoch" << logging::endl;
+	// logging::clog << "PID Controller Epoch" << logging::endl;
 	auto pGait_signal = this->readGaitSignal();
 	auto pBlind_state_signal = this->readBlindStateSignal();
 
@@ -63,7 +63,7 @@ void PidController::run(const std::chrono::system_clock::time_point &time)
 		s.torques << tau;
 		s.time = pBlind_state_signal->time;
 		publishSignal(s);
-		logging::clog << "N=" << std::to_string(tau.size()) << logging::endl;
+		// logging::clog << "N=" << std::to_string(tau.size()) << logging::endl;
 		time.time_since_epoch();
 	}
 	else

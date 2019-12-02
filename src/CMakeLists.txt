@@ -109,11 +109,10 @@ add_library(
 	${CMAKE_SOURCE_DIR}/src/util/log/log.cpp
 )
 
-target_link_libraries(
-	dls_logging
-
-	fastcdr
-	fastrtps
+target_link_libraries(dls_logging
+	PRIVATE
+		fastcdr
+		fastrtps
 )
 list(APPEND PROJECT_TARGETS dls_logging)
 

@@ -171,6 +171,7 @@ target_link_libraries(${PROJECT_NAME}_node
 	${catkin_LIBRARIES}
 	dls_messaging
 	dls_geometry
+	dls_logging
 )
 
 #############

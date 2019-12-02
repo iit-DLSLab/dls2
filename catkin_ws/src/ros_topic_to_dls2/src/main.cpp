@@ -46,6 +46,11 @@
 std::shared_ptr<ros::Publisher> pEmpty_pub;
 using namespace dls;
 
+#ifndef NDEBUG
+#include "util/log/log.hpp"
+#include <sstream>
+#endif
+
 // needs to be a pointer, else it crashes at launch
 std::shared_ptr<PublisherBase<BlindStateMsgPubSubType>>
 	pState_pub;
@@ -179,6 +184,16 @@ void callback
 	}
 
 	pState_pub->publish(blind_state_msg);
+#ifndef NDEBUG
+	{
+		auto end_time = ros::Time::now();
+		double end_time_seconds = end_time.sec + end_time.nsec * 1e-9;
+		double msg_time_seconds = msg->header.stamp.sec + msg->header.stamp.nsec * 1e-9;
+		std::stringstream ss;
+		ss << "ros_topic_to_dls2 delay: " << (end_time_seconds - msg_time_seconds)*1000000 << " useconds";
+		dls::logging::cout << ss.str() << dls::logging::endl;
+	}
+#endif
 }
 
 void clock_callback

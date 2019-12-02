@@ -39,6 +39,12 @@
 // TODO  temp include
 #include <sstream>
 
+#ifndef NDEBUG
+#include <sstream>
+#include <chrono>
+#include "util/log/log.hpp"
+#endif
+
 using namespace dls;
 // =============================================================================
 // Constructors
@@ -107,6 +113,9 @@ ControlLayer::Status ControlLayer::run()
 	double time;
 	while(getStatus() == Status::RUNNING)
 	{
+		#ifndef NDEBUG
+			auto begin_epoch = std::chrono::system_clock::now();
+		#endif
 		// Read the control signals
 		Eigen::VectorXd desired_torques = Eigen::VectorXd::Zero(Robot::getDimension());
 		{
@@ -128,14 +137,31 @@ ControlLayer::Status ControlLayer::run()
 		// Send the desired torques to HAL
 		publishDesiredTorques(saturateTorques(desired_torques),time);
 
-		std::stringstream ss;
-		ss << "Control layer published torques: " << desired_torques.transpose() << std::endl;
-		logging::cout << ss.str() << logging::endl;
+		// std::stringstream ss;
+		// ss << "Control layer published torques: " << desired_torques.transpose() << std::endl;
+		// logging::cout << ss.str() << logging::endl;
+
 		TODO("sleep at correct frequency here")
 		// std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(500));
 		// DMSG(Time::now().time_since_epoch().count());
 		// std::this_thread::sleep_for(std::chrono::duration<double, std::micro>(100));
 		Time::sleep_until(Time::now() + std::chrono::duration<double, std::micro>(100));
+
+		#ifndef NDEBUG
+		{
+			auto end_epoch = std::chrono::system_clock::now();
+			double useconds =
+				std::chrono::duration<double, std::ratio<1, 1'000'000>>
+					(end_epoch - begin_epoch).count();
+
+			std::stringstream ss;
+			ss << "Control Layer has period "
+				<< std::chrono::duration<double, std::ratio<1, 1'000'000>>(100).count() << " useconds. epoch ran in: " << useconds << " useconds "
+				<< std::endl;
+			logging::cout << ss.str() << logging::endl;
+
+		}
+		#endif
 	}
 
 	return getStatus();

@@ -22,6 +22,12 @@
 #include "application_framework/components/periodic_app_layer_component.hpp"
 #include "util/time/time.hpp"
 
+#ifndef NDEBUG
+#include <sstream>
+#include <chrono>
+#include "util/log/log.hpp"
+#endif
+
 using namespace dls;
 // =============================================================================
 // Constructors
@@ -42,6 +48,9 @@ AppLayerComponent::Status PeriodicAppLayerComponent::run()
 	auto next_loop_time = this->period + Time::now();
 	do
 	{
+		#ifndef NDEBUG
+			auto begin_epoch = std::chrono::system_clock::now();
+		#endif
 		// auto last_loop_time = Time::now();
 		// Calculate when the next period needs to start
 		// auto next_loop_time = this->period + Time::now();
@@ -55,7 +64,23 @@ AppLayerComponent::Status PeriodicAppLayerComponent::run()
 				std::chrono::system_clock,
 				std::chrono::duration<double>
 			>(Time::now());
+
+		#ifndef NDEBUG
+			auto begin_run = std::chrono::system_clock::now();
+		#endif
 		run(tp);
+		#ifndef NDEBUG
+		{
+			auto end_run = std::chrono::system_clock::now();
+			double useconds =
+				std::chrono::duration<double, std::ratio<1, 1'000'000>>
+					(end_run - begin_run).count();
+			std::stringstream ss;
+			ss << "Component " << this->getID() << " ran in: "
+				<< useconds << " useconds " << std::endl;
+			logging::cout << ss.str() << logging::endl;
+		}
+		#endif
 
 		// Check realtime
 		if(Time::now() > next_loop_time)
@@ -67,6 +92,21 @@ AppLayerComponent::Status PeriodicAppLayerComponent::run()
 		// std::this_thread::sleep_until(next_loop_time);
 		Time::sleep_until(next_loop_time);
 		next_loop_time = this->period + Time::now();
+
+		#ifndef NDEBUG
+		{
+			auto end_epoch = std::chrono::system_clock::now();
+			double useconds =
+				std::chrono::duration<double, std::ratio<1, 1'000'000>>
+					(end_epoch - begin_epoch).count();
+
+			std::stringstream ss;
+			ss << "Component " << this->getID() << " has period "
+				<< std::chrono::duration<double, std::ratio<1, 1'000'000>>(this->period).count() << " useconds. epoch ran in: " << useconds << " useconds "
+				<< std::endl;
+			logging::cout << ss.str() << logging::endl;
+		}
+		#endif
 
 	}while(this->should_run);
 

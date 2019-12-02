@@ -45,7 +45,7 @@ PrepGaitGenerator::PrepGaitGenerator() : PrepGaitGenerator(std::make_shared<Dog>
 
 void PrepGaitGenerator::run(const std::chrono::system_clock::time_point &time)
 {
-	logging::clog << "Prep Gait Generator Epoch" << logging::endl;
+	// logging::clog << "Prep Gait Generator Epoch" << logging::endl;
 	publishData(data);
 	time.time_since_epoch();
 }
