@@ -28,7 +28,8 @@ namespace dls
 class AppLayerComponent
 {
 public:
-	AppLayerComponent();
+	using ID_t = std::string;
+	AppLayerComponent(const ID_t&);
 	virtual ~AppLayerComponent() = default;
 
 	enum class Status
@@ -52,6 +53,11 @@ public:
 
 	Status getStatus();
 
+	/// Returns the ID of this component
+	///
+	/// @ret the ID
+	ID_t getID();
+
 protected:
 	void setStatus(Status);
 
@@ -60,6 +66,7 @@ private:
 		Status status;
 		std::mutex status_mutex;
 	// END critical section
+	const ID_t ID;								///< The ID of this gait generator
 };
 } // end namespace dls
 

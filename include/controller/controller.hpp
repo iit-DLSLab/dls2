@@ -51,7 +51,7 @@ class Controller : public PeriodicAppLayerComponent
 	friend class GaitListener;
 	friend class BlindStateListener;
 public:
-	using ID_t = std::string;
+	// using ID_t = std::string;
 
 	// Plugin typedefs
 	typedef Controller *create_t();
@@ -71,10 +71,10 @@ public:
 	TODO("unknown what this should do")
 	// virtual void kill() = 0;
 
-	/// Get the ID of this controller
-	///
-	/// @ret the ID
-	ID_t getID() const;
+	///// Get the ID of this controller
+	/////
+	///// @ret the ID
+	//ID_t getID() const;
 
 	/// Returns the name of the topic where this controller is publishing its
 	/// control signal
@@ -98,7 +98,7 @@ protected:
 	const std::shared_ptr<const Dog> pDog;
 	const std::string name;
 	const ControlSignal::SignalReconstructionMethod signal_reconstruction_method;
-	const ID_t ID;
+	// const ID_t ID;
 
 private:
 	// BEGIN critical section

@@ -31,12 +31,12 @@ using namespace dls;
 GaitGenerator::GaitGenerator
 (
 	const std::shared_ptr<Dog> &pRobot_,
-	const ID_t &ID_,
+	const ID_t &ID,
 	const period_t &period_
 ) :
-	PeriodicAppLayerComponent(period_),
+	PeriodicAppLayerComponent(ID, period_),
 	pRobot(pRobot_),
-	ID(ID_),
+	// ID(ID_),
 	pData(nullptr),
 	data_mutex(),
 	publisher(topics::gait_signal)
@@ -45,10 +45,10 @@ GaitGenerator::GaitGenerator
 // =============================================================================
 // Implementation
 // =============================================================================
-GaitGenerator::ID_t GaitGenerator::getID()
-{
-	return this->ID;
-}
+// GaitGenerator::ID_t GaitGenerator::getID()
+// {
+// 	return this->ID;
+// }
 void GaitGenerator::publishData(const GaitSignal &signal)
 {
 	GaitSignalMsg p = signal;

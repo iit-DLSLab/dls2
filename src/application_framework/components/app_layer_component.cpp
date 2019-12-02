@@ -24,9 +24,10 @@ using namespace dls;
 // =============================================================================
 // Constructors
 // =============================================================================
-AppLayerComponent::AppLayerComponent() :
+AppLayerComponent::AppLayerComponent(const ID_t &ID_) :
 	status(Status::UNCONSTRUCTED),
-	status_mutex()
+	status_mutex(),
+	ID(ID_)
 { }
 
 // =============================================================================
@@ -41,4 +42,9 @@ AppLayerComponent::Status AppLayerComponent::getStatus()
 void AppLayerComponent::setStatus(Status s)
 {
 	this->status = s;
+}
+
+AppLayerComponent::ID_t AppLayerComponent::getID()
+{
+	return this->ID;
 }

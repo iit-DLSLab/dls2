@@ -37,11 +37,11 @@ Controller::Controller
 	const period_t &period_,
 	const ControlSignal::SignalReconstructionMethod &reconst_meth
 ):
-	PeriodicAppLayerComponent(period_),
+	PeriodicAppLayerComponent(name_,period_),
 	pDog(dog_),
 	name(name_),
 	signal_reconstruction_method(reconst_meth),
-	ID(name_),
+	// ID(name_),
 	pGait_signal(nullptr),
 	gait_signal_mutex(),
 	pControl_signal(nullptr),
@@ -60,10 +60,10 @@ Controller::Controller
 // =============================================================================
 // Implementation
 // =============================================================================
-Controller::ID_t Controller::getID() const
-{
-	return this->ID;
-}
+// Controller::ID_t Controller::getID() const
+// {
+// 	return this->ID;
+// }
 
 std::shared_ptr<const GaitSignal> Controller::readGaitSignal() const
 {

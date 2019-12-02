@@ -47,7 +47,7 @@ protected:
 
 public:
 	// Typedefs
-	using ID_t = std::string;
+	// using ID_t = std::string;
 	typedef GaitGenerator *create_t();
 	typedef void destroy_t(GaitGenerator*);
 
@@ -60,10 +60,10 @@ public:
 	);
 
 	virtual ~GaitGenerator() = default;
-	/// Returns the ID of this gait generator
-	///
-	/// @ret the ID
-	ID_t getID();
+	///// Returns the ID of this gait generator
+	/////
+	///// @ret the ID
+	//ID_t getID();
 
 protected:
 	void publishData(const GaitSignal &);
@@ -76,7 +76,7 @@ protected:
 	void publishData(const std::shared_ptr<GaitSignal> &pData);
 
 	const std::shared_ptr<const Dog> pRobot;	///< A pointer to the robot model
-	const ID_t ID;								///< The ID of this gait generator
+	// const ID_t ID;								///< The ID of this gait generator
 
 private:
 	// BEGIN critical section

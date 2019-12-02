@@ -35,7 +35,7 @@ class PeriodicAppLayerComponent : public AppLayerComponent
 public:
 	typedef std::chrono::duration<double, std::ratio<1, 1'000'000>> period_t;
 public:
-	PeriodicAppLayerComponent(const period_t&);
+	PeriodicAppLayerComponent(const ID_t&,const period_t&);
 
 	Status run() override;
 	Status stop() override;

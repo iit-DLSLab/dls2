@@ -24,8 +24,8 @@ using namespace dls;
 // Constructors
 // =============================================================================
 Estimator::Estimator(const ID_t &inID, const period_t &period) :
-	PeriodicAppLayerComponent(period),
-	ID(inID)
+	PeriodicAppLayerComponent(inID, period)
+	// ID(inID)
 { }
 
 // =============================================================================
@@ -52,7 +52,7 @@ Estimator::Estimator(const ID_t &inID, const period_t &period) :
 // =============================================================================
 // Implementation
 // =============================================================================
-Estimator::ID_t Estimator::getID() const
-{
-	return this->ID;
-}
+// Estimator::ID_t Estimator::getID() const
+// {
+// 	return this->ID;
+// }

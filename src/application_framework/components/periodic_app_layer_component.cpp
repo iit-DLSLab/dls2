@@ -26,7 +26,8 @@ using namespace dls;
 // =============================================================================
 // Constructors
 // =============================================================================
-PeriodicAppLayerComponent::PeriodicAppLayerComponent(const period_t &inPeriod) :
+PeriodicAppLayerComponent::PeriodicAppLayerComponent(const ID_t &ID, const period_t &inPeriod) :
+	AppLayerComponent(ID),
 	period(inPeriod),
 	should_run(false)
 { }

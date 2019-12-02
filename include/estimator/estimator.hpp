@@ -42,10 +42,10 @@ public:
 	typedef Estimator *create_t();
 	typedef void destroy_t(Estimator*);
 
-	ID_t getID() const;
+	// ID_t getID() const;
 
 private:
-	const ID_t ID;
+	// const ID_t ID;
 };
 } // end namespace dls
 

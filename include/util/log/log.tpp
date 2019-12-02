@@ -65,10 +65,10 @@ namespace dls
 				logging::impl::LogInput<loglevel> input;
 
 				// log the time
-				auto t = std::time(nullptr);
-				auto tm = *std::localtime(&t);
-				input.ss << std::put_time(&tm, "%d/%m/%Y %H:%M:%S");
-				input.ss << ": ";
+				// auto t = std::time(nullptr);
+				// auto tm = *std::localtime(&t);
+				// input.ss << std::put_time(&tm, "%d/%m/%Y %H:%M:%S");
+				// input.ss << ": ";
 
 				// record the message
 				input.ss << s;
