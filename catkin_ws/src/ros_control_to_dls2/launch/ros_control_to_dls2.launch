@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+<launch>
+	<arg name="robot_name" default="hyq" />
+
+	<rosparam file="$(find ros_control_to_dls2)/config/$(arg robot_name)_control_params.yaml" command="load"/>
+	<node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" ns="/$(arg robot_name)" args="JointStateController BlindStateController"/>
+			
+</launch>

@@ -1,0 +1,17 @@
+<library path="libros_control_to_dls2_joint_state_controller">
+	<class name="ros_control_to_dls2/JointStateController"
+		   type="ros_control_to_dls2::JointStateController"
+		   base_class_type="controller_interface::ControllerBase">
+		<description>
+		</description>
+	</class>
+</library>
+
+<library path="libros_control_to_dls2_blind_state_controller">
+	<class name="ros_control_to_dls2/BlindStateController"
+		   type="ros_control_to_dls2::BlindStateController"
+		   base_class_type="controller_interface::ControllerBase">
+		<description>
+		</description>
+	</class>
+</library>
