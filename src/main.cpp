@@ -25,6 +25,7 @@
 #include <signal.h>
 #include <unistd.h>
 #include <cstring>
+#include <sstream>
 
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -183,6 +184,7 @@ int main(int argc, char **argv)
 	logging::cfatalstream sfatal("framework_monitor");
 	while(true)
 	{
+		std::stringstream ss;
 		int status;
 		pid_t child_pid = wait(&status);
 		if(child_pid == -1)
@@ -196,30 +198,30 @@ int main(int argc, char **argv)
 
 		if(child_pid == hardware_layer_pid)
 		{
-			s << "Hardware layer exited" << std::endl;
+			ss << "Hardware layer exited ";
 		}
 		else if(child_pid == control_layer)
 		{
-			s << "Control layer exited" << std::endl;
+			ss << "Control layer exited ";
 		}
 		else if(child_pid == log_layer_pid)
 		{
-			s << "log layer exited" << std::endl;
+			ss << "log layer exited ";
 		}
 		else if(child_pid == console_layer_pid)
 		{
-			s << "console layer exited" << std::endl;
+			ss << "console layer exited ";
 		}
 		if(WIFEXITED(status))
 		{
-			s << "Child exited normally with exit status" << std::endl;
-			DMSG(WEXITSTATUS(status));
+			ss << " normally with exit status " << WEXITSTATUS(status) << std::endl;
+			// DMSG(WEXITSTATUS(status));
 		}
 		if(WIFSIGNALED(status))
 		{
 			TODO("Handle case where child process crashed")
-			s << "Child exited by signal" << std::endl;
-			DMSG(WTERMSIG(status));
+			ss << " by signal " << WTERMSIG(status) << std::endl;
+			// DMSG(WTERMSIG(status));
 
 			#ifdef WCOREDUMP
 			if(WCOREDUMP(status)) // not available on all unix implementations
@@ -228,6 +230,7 @@ int main(int argc, char **argv)
 			}
 			#endif
 		}
+		s << ss.str() << std::endl;
 		// Ignoring WIFSTOPPED, WSTOPSIG, WIFCONTINUED
 	}
 	return 0;
