@@ -34,18 +34,18 @@ DummyController::DummyController
 		ControlSignal::SignalReconstructionMethod::ZERO_ORDER_HOLD
 	)
 {
-	logging::clog << "dummy controller launched" << logging::endl;
+	logging::clog << "dummy controller launched" << std::endl;
 }
 
 DummyController::DummyController() :
 	DummyController(std::make_shared<Dog>())
 {
-	logging::clog << "dummy controller destroyed" << logging::endl;
+	logging::clog << "dummy controller destroyed" << std::endl;
 }
 
 void DummyController::run(const std::chrono::system_clock::time_point &time)
 {
-	logging::clog << "Dummy Controller Epoch" << logging::endl;
+	logging::clog << "Dummy Controller Epoch" << std::endl;
 	auto pGait_signal = this->readGaitSignal();
 
 	ControlSignal s;

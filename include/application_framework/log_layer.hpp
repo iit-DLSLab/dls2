@@ -47,6 +47,7 @@ public:
 	Status shutdown() override;
 
 private:
+	static std::string get_current_time();
 	class DebugListener : public SubscriberBase<StringMsgPubSubType>
 	{
 	public:
@@ -62,7 +63,7 @@ private:
 			{
 				if(info.sampleKind == eprosima::fastrtps::rtps::ALIVE)
 				{
-					std::cout << msg.msg() << std::endl;
+					std::cout << LogLayer::get_current_time() << ": " <<  msg.msg() << std::endl;
 				}
 			}
 		}
@@ -84,7 +85,7 @@ private:
 			{
 				if(info.sampleKind == eprosima::fastrtps::rtps::ALIVE)
 				{
-					std::cout << msg.msg() << std::endl;
+					std::cout << LogLayer::get_current_time() << ": " <<  msg.msg() << std::endl;
 				}
 			}
 		}
@@ -106,7 +107,7 @@ private:
 			{
 				if(info.sampleKind == eprosima::fastrtps::rtps::ALIVE)
 				{
-					std::cout << msg.msg() << std::endl;
+					std::cout << LogLayer::get_current_time() << ": " <<  msg.msg() << std::endl;
 				}
 			}
 		}
@@ -128,7 +129,7 @@ private:
 			{
 				if(info.sampleKind == eprosima::fastrtps::rtps::ALIVE)
 				{
-					std::cout << msg.msg() << std::endl;
+					std::cout << LogLayer::get_current_time() << ": " <<  msg.msg() << std::endl;
 				}
 			}
 		}
@@ -150,7 +151,7 @@ private:
 			{
 				if(info.sampleKind == eprosima::fastrtps::rtps::ALIVE)
 				{
-					std::cout << msg.msg() << std::endl;
+					std::cout << LogLayer::get_current_time() << ": " <<  msg.msg() << std::endl;
 				}
 			}
 		}

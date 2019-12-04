@@ -20,44 +20,36 @@
 #ifndef LOG_HPP_AMCC9JXS
 #define LOG_HPP_AMCC9JXS
 
-#include <sstream>
-#include <mutex>
-
-#include "util/log/impl/log.hpp"
+#include <streambuf>
 
 namespace dls
 {
-	/// Logging namespace
-	///
-	/// This namespace contains util classes related to logging, as well as
-	/// instances of those classes for use
-	namespace logging
-	{
-		/// Debug messages log stream
-		///
-		extern impl::LogStream<impl::LogLevel::DEBUG>  cdbg;
+namespace logging
+{
+class LogStreamBuffer : public std::streambuf
+{
+public:
+	LogStreamBuffer(std::size_t buffer_size = 512);
+	~LogStreamBuffer();
 
-		/// Stream for basic system logging, such as state changes
-		///
-		extern impl::LogStream<impl::LogLevel::INFO>   clog;
+	LogStreamBuffer(const LogStreamBuffer&) = delete;
+	LogStreamBuffer &operator=(const LogStreamBuffer&) = delete;
 
-		/// Stream for warnings that the user should be made aware of
-		///
-		extern impl::LogStream<impl::LogLevel::WARN>   cout;
+private:
+	int_type overflow(int_type ch) override;
+	int sync() override;
+	bool flush_buffer();
 
-		/// Stream for non-fatal errors
-		///
-		extern impl::LogStream<impl::LogLevel::ERROR>  cerr;
+	char *buf;
+};
 
-		/// Stream for fatal error messages
-		///
-		extern impl::LogStream<impl::LogLevel::FATAL>  cfatal;
+extern std::ostream cdbg;
+extern std::ostream clog;
+extern std::ostream cout;
+extern std::ostream cerr;
+extern std::ostream cfatal;
 
-		/// Stream manipulator indicating the end of a log stream
-		///
-		extern impl::StreamManip<impl::StreamManipulator::ENDL> endl;
-
-	} // namespace logging
+} // namespace logging
 } // namespace dls
 
 #endif /* end of include guard: LOG_HPP_AMCC9JXS */

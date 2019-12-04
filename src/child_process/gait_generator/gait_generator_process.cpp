@@ -62,13 +62,13 @@ int main(int argc, char **argv)
 		catch(const std::exception&)
 		{
 			DMSG("ADFSLFSDJLSDJFLSJFD");
-			logging::cfatal << "Gait generator not found" << logging::endl;
+			logging::cfatal << "Gait generator not found" << std::endl;
 			exit((int)GaitGenerator::Status::FATAL_ERROR);
 		}
 	}
 
 	std::signal(SIGTERM, signal_handler);
-	logging::clog << "Gait generator loaded" << logging::endl;
+	logging::clog << "Gait generator loaded" << std::endl;
 	pGaitGenerator->run();
 
 	return static_cast<int>(pGaitGenerator->getStatus());
@@ -81,7 +81,7 @@ void signal_handler(int signal)
 		std::stringstream ss;
 		ss << pGaitGenerator->getID();
 		ss << " received kill request";
-		logging::clog << ss.str() << logging::endl;
+		logging::clog << ss.str() << std::endl;
 
 		pGaitGenerator->stop();
 		exit(static_cast<int>(pGaitGenerator->getStatus()));

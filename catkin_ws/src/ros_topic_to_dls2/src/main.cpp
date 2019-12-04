@@ -191,7 +191,7 @@ void callback
 		double msg_time_seconds = msg->header.stamp.sec + msg->header.stamp.nsec * 1e-9;
 		std::stringstream ss;
 		ss << "ros_topic_to_dls2 delay: " << (end_time_seconds - msg_time_seconds)*1000000 << " useconds";
-		dls::logging::cout << ss.str() << dls::logging::endl;
+		dls::logging::cout << ss.str() << std::endl;
 	}
 #endif
 }
