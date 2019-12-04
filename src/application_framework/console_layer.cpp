@@ -288,7 +288,7 @@ void ConsoleLayer::onNewDataMessage(eprosima::fastrtps::Subscriber *sub)
 	StringMsg msg;
 	if(sub->takeNextData(&msg, nullptr))
 	{
-		std::cout << "\n" << msg.msg() << std::endl;
+		std::cout << "\n" << msg.msg() << std::flush;
 		std::cout << build_prompt() << " " << rl_line_buffer << std::flush;
 	}
 }
