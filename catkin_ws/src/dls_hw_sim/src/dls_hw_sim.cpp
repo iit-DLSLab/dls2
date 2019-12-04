@@ -48,6 +48,7 @@ bool DlsRobotHwSim::initSim(
 	joint_effort_limits_.resize(n_dof_);
 	joint_position_.resize(n_dof_);
 	joint_velocity_.resize(n_dof_);
+	joint_acceleration_.resize(n_dof_);
 	joint_effort_.resize(n_dof_);
 	joint_effort_command_.resize(n_dof_);
 	joint_state_msg_.name.resize(n_dof_);
@@ -97,6 +98,7 @@ bool DlsRobotHwSim::initSim(
 		joint_name_[j] = transmissions[j].joints_[0].name_;
 		joint_position_[j] = 0.0;
 		joint_velocity_[j] = 0.0;
+		joint_acceleration_[j] = 0.0;
 		joint_effort_[j] = 0.0;
 		joint_effort_command_[j] = 0.0;
 
@@ -162,7 +164,10 @@ bool DlsRobotHwSim::initSim(
 	blind_state_base_acceleration_world_.resize(6);
 	
 	blindStateData.name = "blind_state"; // TODO
-	blindStateData.joint_state = &joint_position_[0];
+	blindStateData.joint_position = &joint_position_[0];
+	blindStateData.joint_velocity = &joint_velocity_[0];
+	blindStateData.joint_acceleration = &joint_acceleration_[0];
+	blindStateData.joint_effort = &joint_effort_[0];
 	blindStateData.base_pose_world = &blind_state_base_pose_world_[0];
 	blindStateData.base_velocity_world = &blind_state_base_velocity_world_[0];
 	blindStateData.base_acceleration_world = &blind_state_base_acceleration_world_[0];
@@ -297,6 +302,7 @@ void DlsRobotHwSim::readSim(ros::Time time, ros::Duration period)
                               	  sim_joints_[j]->GetAngle(0).Radian());
 		}
 		joint_velocity_[j] = sim_joints_[j]->GetVelocity(0);
+		joint_acceleration_[j] = 0.0; // TODO
 		joint_effort_[j] = sim_joints_[j]->GetForce((unsigned int)(0));
 	}
 	fillJointStateMsgAndPublish(t);
@@ -431,6 +437,7 @@ void DlsRobotHwSim::writeSim(ros::Time time, ros::Duration period)
 
 bool DlsRobotHwSim::checkForConflict(const std::list<hardware_interface::ControllerInfo>& info) const
 {
+	ROS_ERROR("CHECK FOR CONFLICT");
 	return false; // TODO All controllers can run at the same time! dangerous and bad
 }
 

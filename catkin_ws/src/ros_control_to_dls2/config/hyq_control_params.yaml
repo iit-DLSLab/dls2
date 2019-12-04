@@ -1,5 +1,5 @@
 hyq:
-  ros_control_to_dls2:
+  JointStateController:
     type: ros_control_to_dls2/JointStateController
     publish_rate: 250
     joints:
@@ -20,8 +20,8 @@ hyq:
       - rf
       - lh
       - rh
-  ros_control_to_dls2:
-    type: ros_control_to_dls2/JointStateController
+  BlindStateController:
+    type: ros_control_to_dls2/BlindStateController
     publish_rate: 250
     joints:
       - lf_haa_joint

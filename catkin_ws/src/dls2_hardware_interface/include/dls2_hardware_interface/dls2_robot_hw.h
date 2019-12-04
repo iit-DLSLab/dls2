@@ -54,6 +54,7 @@ protected:
 	//std::vector<std::string> joint_name_; // same as joint_name_
 	std::vector<double> joint_position_;
 	std::vector<double> joint_velocity_;
+	std::vector<double> joint_acceleration_;
 	std::vector<double> joint_effort_;
 	
 

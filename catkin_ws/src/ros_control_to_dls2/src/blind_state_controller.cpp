@@ -31,10 +31,10 @@ void BlindStateController::update(const ros::Time &time, const ros::Duration &pe
 	blind_state_msg_.header().seq() = seq_++;
 	for (int i=0;i<12;i++)
 	{
-		blind_state_msg_.joint_state().position()[i] = blind_state_.getJointState()[i];
-		blind_state_msg_.joint_state().velocity()[i] = 0;
-		blind_state_msg_.joint_state().acceleration()[i] = 0;
-		blind_state_msg_.joint_state().effort()[i]=0;
+		blind_state_msg_.joint_state().position()[i] = blind_state_.getJointPosition()[i];
+		blind_state_msg_.joint_state().velocity()[i] = blind_state_.getJointVelocity()[i];;
+		blind_state_msg_.joint_state().acceleration()[i] = blind_state_.getJointAcceleration()[i];
+		blind_state_msg_.joint_state().effort()[i] = blind_state_.getJointEffort()[i];
 	}
 	for (int i=0;i<3;i++)
 	{
