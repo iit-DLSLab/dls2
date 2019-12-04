@@ -31,7 +31,12 @@ namespace logging
 class LogStreamBuffer : public std::streambuf
 {
 public:
-	LogStreamBuffer(const std::string &topic, std::size_t buffer_size = 512);
+	LogStreamBuffer
+	(
+		const std::string &topic,
+		std::size_t buffer_size = 512,
+		const std::string &prefix = ""
+	);
 	~LogStreamBuffer();
 
 	LogStreamBuffer(const LogStreamBuffer&) = delete;
@@ -45,6 +50,7 @@ private:
 	std::shared_ptr<PublisherBase<StringMsgPubSubType>> pPublisher;
 
 	char *buf;
+	const std::string prefix;
 };
 
 extern std::ostream cdbg;
@@ -52,6 +58,41 @@ extern std::ostream clog;
 extern std::ostream cout;
 extern std::ostream cerr;
 extern std::ostream cfatal;
+
+class cdbgstream : public std::ostream
+{
+public:
+	cdbgstream(const std::string &prefix, std::size_t buffer_size = 512);
+	~cdbgstream();
+};
+
+class clogstream : public std::ostream
+{
+public:
+	clogstream(const std::string &prefix, std::size_t buffer_size = 512);
+	~clogstream();
+};
+
+class coutstream : public std::ostream
+{
+public:
+	coutstream(const std::string &prefix, std::size_t buffer_size = 512);
+	~coutstream();
+};
+
+class cerrstream : public std::ostream
+{
+public:
+	cerrstream(const std::string &prefix, std::size_t buffer_size = 512);
+	~cerrstream();
+};
+
+class cfatalstream : public std::ostream
+{
+public:
+	cfatalstream(const std::string &prefix, std::size_t buffer_size = 512);
+	~cfatalstream();
+};
 
 } // namespace logging
 } // namespace dls
