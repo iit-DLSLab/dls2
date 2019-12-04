@@ -21,6 +21,8 @@
 #define LOG_LAYER_CPP_DLJLOFSG
 
 #include "application_framework/log_layer.hpp"
+#include <sys/time.h>
+#include <cstdio>
 
 using namespace dls;
 LogLayer::LogLayer() :
@@ -59,5 +61,17 @@ LogLayer::Status LogLayer::shutdown()
 	this->should_quit_cv.notify_one();
 
 	return this->getStatus();
+}
+
+std::string LogLayer::get_current_time()
+{
+	char buf [256];
+	struct timeval tv;
+	struct timezone tz;
+	struct tm *tm;
+	gettimeofday(&tv, &tz);
+	tm=localtime(&tv.tv_sec);
+	sprintf(buf, "%02d:%02d:%02d:%03d:%03d", tm->tm_hour, tm->tm_min, tm->tm_sec, (int)(tv.tv_usec/1000), (int)(tv.tv_usec%1000));
+	return buf;
 }
 #endif /* end of include guard: LOG_LAYER_CPP_DLJLOFSG */

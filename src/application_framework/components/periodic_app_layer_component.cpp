@@ -78,7 +78,7 @@ AppLayerComponent::Status PeriodicAppLayerComponent::run()
 			std::stringstream ss;
 			ss << "Component " << this->getID() << " ran in: "
 				<< useconds << " useconds " << std::endl;
-			logging::cout << ss.str() << logging::endl;
+			logging::cout << ss.str() << std::endl;
 		}
 		#endif
 
@@ -104,7 +104,7 @@ AppLayerComponent::Status PeriodicAppLayerComponent::run()
 			ss << "Component " << this->getID() << " has period "
 				<< std::chrono::duration<double, std::ratio<1, 1'000'000>>(this->period).count() << " useconds. epoch ran in: " << useconds << " useconds "
 				<< std::endl;
-			logging::cout << ss.str() << logging::endl;
+			logging::cout << ss.str() << std::endl;
 		}
 		#endif
 

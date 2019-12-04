@@ -63,13 +63,13 @@ int main(int argc, char **argv)
 		catch(const std::exception&)
 		{
 			DMSG("ADFSLFSDJLSDJFLSJFD");
-			logging::cfatal << "Controller not found" << logging::endl;
+			logging::cfatal << "Controller not found" << std::endl;
 			exit((int)Controller::Status::FATAL_ERROR);
 		}
 	}
 
 	std::signal(SIGTERM, signal_handler);
-	logging::clog << "controller loaded" << logging::endl;
+	logging::clog << "controller loaded" << std::endl;
 	pController->run();
 
 	return static_cast<int>(pController->getStatus());
@@ -82,7 +82,7 @@ void signal_handler(int signal)
 		std::stringstream ss;
 		ss << pController->getID();
 		ss << " received kill request";
-		logging::clog << ss.str() << logging::endl;
+		logging::clog << ss.str() << std::endl;
 
 		pController->stop();
 		exit(static_cast<int>(pController->getStatus()));

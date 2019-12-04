@@ -139,7 +139,7 @@ ControlLayer::Status ControlLayer::run()
 
 		// std::stringstream ss;
 		// ss << "Control layer published torques: " << desired_torques.transpose() << std::endl;
-		// logging::cout << ss.str() << logging::endl;
+		// logging::cout << ss.str() << std::endl;
 
 		TODO("sleep at correct frequency here")
 		// std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(500));
@@ -158,7 +158,8 @@ ControlLayer::Status ControlLayer::run()
 			ss << "Control Layer has period "
 				<< std::chrono::duration<double, std::ratio<1, 1'000'000>>(100).count() << " useconds. epoch ran in: " << useconds << " useconds "
 				<< std::endl;
-			logging::cout << ss.str() << logging::endl;
+			logging::cout << ss.str() << std::endl;
+			logging::cout << "Control layer published torques " << desired_torques.transpose() << std::endl;
 
 		}
 		#endif
@@ -233,7 +234,7 @@ bool ControlLayer::activateController(const Controller::ID_t &ID)
 			// since its premultiplier is initially set to zero, this will have
 			// no effect on the robot until the spline in is run later
 			execl(CHILD_PROCESS_PATH "dls_controller_process", ID.c_str(), ID.c_str(), (char *)NULL);
-			logging::cfatal << "Controller process failed to launch" << logging::endl;
+			logging::cfatal << "Controller process failed to launch" << std::endl;
 			DMSG(strerror(errno));
 			TODO("handle errors");
 			_exit(0);
@@ -351,7 +352,7 @@ bool ControlLayer::activateGaitGenerator(const GaitGenerator::ID_t &ID)
 	// if a gait generator is already running
 	if(this->pGait_generator_data && this->pGait_generator_data->gait_generator_pid != 0)
 	{
-		logging::cout << "A gait generator is already running" << logging::endl;
+		logging::cout << "A gait generator is already running" << std::endl;
 		return false;
 	}
 	// launch a gait generator and register it with the architecture
@@ -361,7 +362,7 @@ bool ControlLayer::activateGaitGenerator(const GaitGenerator::ID_t &ID)
 	{
 		TODO("error checking")
 		execl(CHILD_PROCESS_PATH "dls_gait_generator_process", ID.c_str(), ID.c_str(), (char *)NULL);
-		logging::cfatal << "Failed to launch gait generator" << logging::endl;
+		logging::cfatal << "Failed to launch gait generator" << std::endl;
 		DMSG(strerror(errno));
 	}
 

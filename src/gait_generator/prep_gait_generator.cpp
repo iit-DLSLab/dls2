@@ -27,7 +27,7 @@ namespace dls
 
 PrepGaitGenerator::PrepGaitGenerator(const std::shared_ptr<Dog> &pDog) : GaitGenerator(pDog, "prep_gait_generator", std::chrono::milliseconds(1)), data()
 {
-	logging::clog << "prep gait generator launched" << logging::endl;
+	logging::clog << "prep gait generator launched" << std::endl;
 	data.desired_joint_state.position.resize(12);
 	data.desired_joint_state.velocity.resize(12);
 	data.desired_joint_state.acceleration.resize(12); // TODO this field causes a segfault!!!
@@ -40,12 +40,12 @@ PrepGaitGenerator::PrepGaitGenerator(const std::shared_ptr<Dog> &pDog) : GaitGen
 
 PrepGaitGenerator::PrepGaitGenerator() : PrepGaitGenerator(std::make_shared<Dog>())
 {
-	logging::clog << "prep gait generator destroyed" << logging::endl;
+	logging::clog << "prep gait generator destroyed" << std::endl;
 }
 
 void PrepGaitGenerator::run(const std::chrono::system_clock::time_point &time)
 {
-	// logging::clog << "Prep Gait Generator Epoch" << logging::endl;
+	// logging::clog << "Prep Gait Generator Epoch" << std::endl;
 	publishData(data);
 	time.time_since_epoch();
 }
