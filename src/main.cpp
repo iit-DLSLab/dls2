@@ -91,12 +91,15 @@ int main(int argc, char **argv)
 	}
 	else if(hardware_layer_pid == 0)
 	{
-		change_process_name(argv, "hardware_layer");
-		std::shared_ptr<HardwareLayer> pHardwareLayer = std::make_shared<HardwareLayer>();
-		pApp->addLayer(pHardwareLayer);
+		if(!only_start_log)
+		{
+			change_process_name(argv, "hardware_layer");
+			std::shared_ptr<HardwareLayer> pHardwareLayer = std::make_shared<HardwareLayer>();
+			pApp->addLayer(pHardwareLayer);
 
-		TODO("Run should return a status")
-		if (!only_start_log) pApp->run();
+			TODO("Run should return a status")
+			pApp->run();
+		}
 		while(true);
 
 		return 0;
@@ -190,35 +193,35 @@ int main(int argc, char **argv)
 
 		if(child_pid == hardware_layer_pid)
 		{
-			logging::clog << "Hardware layer exited" << std::endl;
+			logging::cout << "Hardware layer exited" << std::endl;
 		}
 		else if(child_pid == control_layer)
 		{
-			logging::clog << "Control layer exited" << std::endl;
+			logging::cout << "Control layer exited" << std::endl;
 		}
 		else if(child_pid == log_layer_pid)
 		{
-			logging::clog << "log layer exited" << std::endl;
+			logging::cout << "log layer exited" << std::endl;
 		}
 		else if(child_pid == console_layer_pid)
 		{
-			logging::clog << "console layer exited" << std::endl;
+			logging::cout << "console layer exited" << std::endl;
 		}
 		if(WIFEXITED(status))
 		{
-			logging::clog << "Child exited normally with exit status" << std::endl;
+			logging::cout << "Child exited normally with exit status" << std::endl;
 			DMSG(WEXITSTATUS(status));
 		}
 		if(WIFSIGNALED(status))
 		{
 			TODO("Handle case where child process crashed")
-			logging::clog << "Child exited by signal" << std::endl;
+			logging::cout << "Child exited by signal" << std::endl;
 			DMSG(WTERMSIG(status));
 
 			#ifdef WCOREDUMP
 			if(WCOREDUMP(status)) // not available on all unix implementations
 			{
-				logging::cfatal << "Child had a core dump" << std::endl;
+				logging::cout << "Child had a core dump" << std::endl;
 			}
 			#endif
 		}

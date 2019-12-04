@@ -158,8 +158,8 @@ ControlLayer::Status ControlLayer::run()
 			ss << "Control Layer has period "
 				<< std::chrono::duration<double, std::ratio<1, 1'000'000>>(100).count() << " useconds. epoch ran in: " << useconds << " useconds "
 				<< std::endl;
-			logging::cout << ss.str() << std::endl;
-			logging::cout << "Control layer published torques " << desired_torques.transpose() << std::endl;
+			logging::clog << ss.str() << std::endl;
+			logging::clog << "Control layer published torques " << desired_torques.transpose() << std::endl;
 
 		}
 		#endif
@@ -248,7 +248,6 @@ bool ControlLayer::activateController(const Controller::ID_t &ID)
 				// TODO("This should be done by a static function in Controller")
 				std::string("control_signal_") + ID
 			);
-		std::cout << "Control layer is listening for controller on: '" << std::string("control_signal_") + ID << "'" << std::endl;
 
 		this->controllers_b.emplace
 		(
@@ -352,7 +351,7 @@ bool ControlLayer::activateGaitGenerator(const GaitGenerator::ID_t &ID)
 	// if a gait generator is already running
 	if(this->pGait_generator_data && this->pGait_generator_data->gait_generator_pid != 0)
 	{
-		logging::cout << "A gait generator is already running" << std::endl;
+		std::cout << "A gait generator is already running" << std::endl;
 		return false;
 	}
 	// launch a gait generator and register it with the architecture

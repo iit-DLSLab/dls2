@@ -24,6 +24,7 @@
 #include <dlfcn.h>
 #include <sstream>
 #include "util/class_loader.hpp"
+#include "util/log/log.hpp"
 
 namespace dls
 {

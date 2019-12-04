@@ -59,7 +59,6 @@ void Time::set_use_simulated_time(bool b)
 		// Time::pTime_sub = nullptr;
 		Time::pPause_sub = nullptr;
 	}
-	DMSG("FINISHED SETTING TIME");
 }
 
 Time::time_point_t Time::now()

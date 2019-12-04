@@ -21,6 +21,8 @@
 #define LOG_HPP_AMCC9JXS
 
 #include <streambuf>
+#include "util/messaging/publisher_base.hpp"
+#include "msg/stringmsgPubSubTypes.h"
 
 namespace dls
 {
@@ -29,7 +31,7 @@ namespace logging
 class LogStreamBuffer : public std::streambuf
 {
 public:
-	LogStreamBuffer(std::size_t buffer_size = 512);
+	LogStreamBuffer(const std::string &topic, std::size_t buffer_size = 512);
 	~LogStreamBuffer();
 
 	LogStreamBuffer(const LogStreamBuffer&) = delete;
@@ -39,6 +41,8 @@ private:
 	int_type overflow(int_type ch) override;
 	int sync() override;
 	bool flush_buffer();
+	std::string topic;
+	std::shared_ptr<PublisherBase<StringMsgPubSubType>> pPublisher;
 
 	char *buf;
 };

@@ -28,6 +28,7 @@
 // messaging
 #include "util/messaging/publisher_base.hpp"
 #include "msg/stringmsgPubSubTypes.h"
+#include "util/messaging/subscriber_base.hpp"
 
 // stdlib
 #include <map>
@@ -41,7 +42,7 @@ namespace dls
 {
 /// A console interface into the framework
 ///
-class ConsoleLayer : public AppLayer
+class ConsoleLayer : public AppLayer, public SubscriberBase<StringMsgPubSubType>
 {
 	// Console completion is handled by readline, which is a C-library.
 	// Therefore, need to declare this as a friend
@@ -109,6 +110,9 @@ private:
 		std::mutex commands_mutex; ///< Mutex protecting the console commands
 		std::map<std::string, Command> commands; ///< The commands registered with the console
 	// End critical section
+
+	void onNewDataMessage(eprosima::fastrtps::Subscriber *sub) override;
+
 };
 } // end namespace dls
 

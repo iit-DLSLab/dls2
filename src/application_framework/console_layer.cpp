@@ -39,6 +39,8 @@
 #include "topics/activate_gait_generator.hpp"
 #include "topics/deactivate_gait_generator.hpp"
 #include "util/debug/debug.hpp"
+#include "topics/warn_log_stream.hpp"
+#include "util/log/log.hpp"
 
 // =============================================================================
 // Foreward Declarations
@@ -77,6 +79,7 @@ std::shared_ptr<PublisherBase<StringMsgPubSubType>> pDeactivate_gait_generator_p
 // Constructors
 // =============================================================================
 ConsoleLayer::ConsoleLayer() :
+	SubscriberBase<StringMsgPubSubType>(topics::warn_log_stream),
 	commands_mutex(),
 	commands()
 {
@@ -278,6 +281,16 @@ ConsoleLayer::Status ConsoleLayer::run()
 ConsoleLayer::Status ConsoleLayer::shutdown()
 {
 	return getStatus();
+}
+
+void ConsoleLayer::onNewDataMessage(eprosima::fastrtps::Subscriber *sub)
+{
+	StringMsg msg;
+	if(sub->takeNextData(&msg, nullptr))
+	{
+		std::cout << "\n" << msg.msg() << std::endl;
+		std::cout << build_prompt() << " " << rl_line_buffer << std::flush;
+	}
 }
 
 // =============================================================================

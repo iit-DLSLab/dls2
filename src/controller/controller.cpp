@@ -25,6 +25,7 @@
 #include "fastrtps_wrappers/blind_state.hpp"
 #include "topics/control_signal_base.hpp"
 #include "topics/low_level_estimation/blind_state.hpp"
+#include "util/log/log.hpp"
 
 // =============================================================================
 // Constructors
@@ -53,8 +54,8 @@ Controller::Controller
 	blind_state_listener(std::shared_ptr<Controller>(this,[](Controller*){})),
 	control_signal_topic(std::string(topics::control_signal_base) + name_),
 	publisher(control_signal_topic)
-{ 
-	std::cout << "control signal topic: '" << this->control_signal_topic << "'" << std::endl;
+{
+	logging::cout << "control signal topic: '" << this->control_signal_topic << "'" << std::endl;
 }
 
 // =============================================================================
