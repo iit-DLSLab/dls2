@@ -46,6 +46,7 @@ public:
 
 private:
 	logging::coutstream outstream;
+	logging::clogstream logstream;
 };
 } // end namespace dls
 

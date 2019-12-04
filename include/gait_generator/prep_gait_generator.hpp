@@ -22,6 +22,7 @@
 
 #include "gait_generator/gait_generator.hpp"
 #include "util/debug/debug.hpp"
+#include "util/log/log.hpp"
 
 namespace dls
 {
@@ -34,6 +35,7 @@ public:
 	AppLayerComponent::Status eStop() override {return getStatus();}
 private:
 	GaitSignal data;
+	logging::coutstream scout;
 };
 } // end namespace dls
 

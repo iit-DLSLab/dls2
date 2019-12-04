@@ -357,6 +357,7 @@ add_library(
 	SHARED
 	controller/pid_controller.cpp
 )
+target_link_libraries(dls_pid_controller dls_logging)
 add_dependencies(dls_pid_controller messagelib)
 list(APPEND PROJECT_TARGETS dls_pid_controller)
 

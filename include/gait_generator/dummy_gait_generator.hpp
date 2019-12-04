@@ -22,6 +22,7 @@
 
 #include "gait_generator/gait_generator.hpp"
 #include "util/debug/debug.hpp"
+#include "util/log/log.hpp"
 
 namespace dls
 {
@@ -33,6 +34,10 @@ public:
 	DummyGaitGenerator(const std::shared_ptr<Dog> &pDog);
 	void run(const std::chrono::system_clock::time_point&) override;
 	AppLayerComponent::Status eStop() override {return getStatus();}
+
+private:
+	logging::coutstream scout;
+	logging::clogstream sclog;
 };
 } // end namespace dls
 

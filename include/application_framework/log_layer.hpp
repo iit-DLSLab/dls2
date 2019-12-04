@@ -63,7 +63,7 @@ private:
 			{
 				if(info.sampleKind == eprosima::fastrtps::rtps::ALIVE)
 				{
-					std::cout << LogLayer::get_current_time() << ": DEBUG: " <<  msg.msg() << std::endl;
+					std::cout << LogLayer::get_current_time() << ": DEBUG: " <<  msg.msg() << std::flush;
 				}
 			}
 		}
@@ -85,7 +85,7 @@ private:
 			{
 				if(info.sampleKind == eprosima::fastrtps::rtps::ALIVE)
 				{
-					std::cout << LogLayer::get_current_time() << ": INFO: " <<  msg.msg() << std::endl;
+					std::cout << LogLayer::get_current_time() << ": INFO: " <<  msg.msg() << std::flush;
 				}
 			}
 		}
@@ -107,7 +107,7 @@ private:
 			{
 				if(info.sampleKind == eprosima::fastrtps::rtps::ALIVE)
 				{
-					std::cout << LogLayer::get_current_time() << ": WARN: " <<  msg.msg() << std::endl;
+					std::cout << LogLayer::get_current_time() << ": WARN: " <<  msg.msg() << std::flush;
 				}
 			}
 		}
@@ -129,7 +129,7 @@ private:
 			{
 				if(info.sampleKind == eprosima::fastrtps::rtps::ALIVE)
 				{
-					std::cout << LogLayer::get_current_time() << ": ERROR: " <<  msg.msg() << std::endl;
+					std::cout << LogLayer::get_current_time() << ": ERROR: " <<  msg.msg() << std::flush;
 				}
 			}
 		}
@@ -151,7 +151,7 @@ private:
 			{
 				if(info.sampleKind == eprosima::fastrtps::rtps::ALIVE)
 				{
-					std::cout << LogLayer::get_current_time() << ": FATAL: " <<  msg.msg() << std::endl;
+					std::cout << LogLayer::get_current_time() << ": FATAL: " <<  msg.msg() << std::flush;
 				}
 			}
 		}

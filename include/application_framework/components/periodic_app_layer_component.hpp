@@ -44,6 +44,7 @@ public:
 private:
 	const period_t period;
 	std::atomic_bool should_run;
+
 };
 } // end namespace dls
 

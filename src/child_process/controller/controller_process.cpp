@@ -37,6 +37,8 @@ using namespace dls;
 std::shared_ptr<Controller> pController;
 void signal_handler(int signal);
 
+auto process_handle = "controller_child_process_launcher";
+
 int main(int argc, char **argv)
 {
 	Time::set_use_simulated_time(true);
@@ -61,13 +63,15 @@ int main(int argc, char **argv)
 		}
 		catch(const std::exception&)
 		{
-			logging::cout << "Controller not found" << std::endl;
+			logging::cfatalstream s(process_handle);
+			s << "Controller not found" << std::endl;
 			exit((int)Controller::Status::FATAL_ERROR);
 		}
 	}
 
 	std::signal(SIGTERM, signal_handler);
-	logging::cout << "controller loaded" << std::endl;
+	logging::coutstream s(process_handle);
+	s << "controller loaded" << std::endl;
 	pController->run();
 
 	return static_cast<int>(pController->getStatus());
@@ -77,12 +81,10 @@ void signal_handler(int signal)
 {
 	if(signal == SIGTERM)
 	{
-		std::stringstream ss;
-		ss << pController->getID();
-		ss << " received kill request";
-		logging::cout << ss.str() << std::endl;
-
 		pController->stop();
+
+		logging::coutstream s(process_handle);
+		s << pController->getID() << " received kill request";
 		exit(static_cast<int>(pController->getStatus()));
 	}
 }

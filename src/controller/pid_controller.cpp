@@ -30,19 +30,20 @@ PidController::PidController (const std::shared_ptr<Dog> &dog) : Controller
 		"dls_pid_controller",
 		std::chrono::milliseconds(1),
 		ControlSignal::SignalReconstructionMethod::ZERO_ORDER_HOLD
-	)
+	),
+	scout(getID())
 {
-	logging::clog << "pid controller launched" << std::endl;
+	scout << "pid controller launched" << std::endl;
 }
 
 PidController::PidController() : PidController(std::make_shared<Dog>())
 {
-	logging::clog << "pid controller destroyed" << std::endl;
+	scout << "pid controller destroyed" << std::endl;
 }
 
 void PidController::run(const std::chrono::system_clock::time_point &time)
 {
-	// logging::clog << "PID Controller Epoch" << std::endl;
+	// scout << "PID Controller Epoch" << std::endl;
 	auto pGait_signal = this->readGaitSignal();
 	auto pBlind_state_signal = this->readBlindStateSignal();
 
@@ -63,13 +64,13 @@ void PidController::run(const std::chrono::system_clock::time_point &time)
 		s.torques << tau;
 		s.time = pBlind_state_signal->time;
 		publishSignal(s);
-		// logging::clog << "N=" << std::to_string(tau.size()) << std::endl;
+		// scout << "N=" << std::to_string(tau.size()) << std::endl;
 		time.time_since_epoch();
 	}
 	else
 	{
-		if (!pBlind_state_signal) logging::clog << 	"NO blind state signal" << std::endl;
-		if (!pGait_signal) logging::clog << "NO gait signal" << std::endl;
+		if (!pBlind_state_signal) scout << 	"NO blind state signal" << std::endl;
+		if (!pGait_signal) scout << "NO gait signal" << std::endl;
 	}
 
 }

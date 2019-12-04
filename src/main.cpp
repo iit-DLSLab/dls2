@@ -178,6 +178,9 @@ int main(int argc, char **argv)
 		return 0;
 	}
 	// ======================== Monitor Child Processes ========================
+
+	logging::coutstream s("framework_monitor");
+	logging::cfatalstream sfatal("framework_monitor");
 	while(true)
 	{
 		int status;
@@ -193,35 +196,35 @@ int main(int argc, char **argv)
 
 		if(child_pid == hardware_layer_pid)
 		{
-			logging::cout << "Hardware layer exited" << std::endl;
+			s << "Hardware layer exited" << std::endl;
 		}
 		else if(child_pid == control_layer)
 		{
-			logging::cout << "Control layer exited" << std::endl;
+			s << "Control layer exited" << std::endl;
 		}
 		else if(child_pid == log_layer_pid)
 		{
-			logging::cout << "log layer exited" << std::endl;
+			s << "log layer exited" << std::endl;
 		}
 		else if(child_pid == console_layer_pid)
 		{
-			logging::cout << "console layer exited" << std::endl;
+			s << "console layer exited" << std::endl;
 		}
 		if(WIFEXITED(status))
 		{
-			logging::cout << "Child exited normally with exit status" << std::endl;
+			s << "Child exited normally with exit status" << std::endl;
 			DMSG(WEXITSTATUS(status));
 		}
 		if(WIFSIGNALED(status))
 		{
 			TODO("Handle case where child process crashed")
-			logging::cout << "Child exited by signal" << std::endl;
+			s << "Child exited by signal" << std::endl;
 			DMSG(WTERMSIG(status));
 
 			#ifdef WCOREDUMP
 			if(WCOREDUMP(status)) // not available on all unix implementations
 			{
-				logging::cout << "Child had a core dump" << std::endl;
+				sfatal << "Child had a core dump" << std::endl;
 			}
 			#endif
 		}

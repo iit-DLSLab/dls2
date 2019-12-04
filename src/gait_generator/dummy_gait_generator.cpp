@@ -29,20 +29,22 @@ DummyGaitGenerator::DummyGaitGenerator(const std::shared_ptr<Dog> &pDog) :
 		pDog,
 		"dummy_gait_generator",
 		std::chrono::duration<double>(1)
-	)
+	),
+	scout(getID()),
+	sclog(getID())
 {
-	logging::clog << "dummy gait generator launched" << std::endl;
+	scout << "dummy gait generator launched" << std::endl;
 }
 
 DummyGaitGenerator::DummyGaitGenerator()
 	: DummyGaitGenerator(std::make_shared<Dog>())
 {
-	logging::clog << "dummy gait generator destroyed" << std::endl;
+	scout << "dummy gait generator destroyed" << std::endl;
 }
 
 void DummyGaitGenerator::run(const std::chrono::system_clock::time_point &time)
 {
-	logging::clog << "Dummy Gait Generator Epoch" << std::endl;
+	sclog << "Dummy Gait Generator Epoch" << std::endl;
 	GaitSignal data;
 
 	Eigen::Vector3d com_position; com_position << 10, 2, 33;

@@ -30,7 +30,6 @@
 #include "util/class_loader.hpp"
 #include "msg/control_signalPubSubTypes.h"
 #include "topics/desired_torques.hpp"
-#include "util/log/log.hpp"
 #include "path_prefixes/path_prefixes.hpp"
 #include "util/time/time.hpp"
 
@@ -82,7 +81,9 @@ ControlLayer::ControlLayer() :
 	activate_gait_generator_listener(topics::activate_gait_generator, *this),
 	deactivate_gait_generator_listener(topics::deactivate_gait_generator, *this),
 	activate_controller_listener(topics::activate_controller, *this),
-	deactivate_controller_listener(topics::deactivate_controller, *this)
+	deactivate_controller_listener(topics::deactivate_controller, *this),
+	clog("control_layer"),
+	cfatal("control_layer")
 { }
 
 ControlLayer::~ControlLayer()
@@ -158,8 +159,8 @@ ControlLayer::Status ControlLayer::run()
 			ss << "Control Layer has period "
 				<< std::chrono::duration<double, std::ratio<1, 1'000'000>>(100).count() << " useconds. epoch ran in: " << useconds << " useconds "
 				<< std::endl;
-			logging::clog << ss.str() << std::endl;
-			logging::clog << "Control layer published torques " << desired_torques.transpose() << std::endl;
+			clog << ss.str() << std::endl;
+			clog << "Control layer published torques " << desired_torques.transpose() << std::endl;
 
 		}
 		#endif
@@ -234,7 +235,7 @@ bool ControlLayer::activateController(const Controller::ID_t &ID)
 			// since its premultiplier is initially set to zero, this will have
 			// no effect on the robot until the spline in is run later
 			execl(CHILD_PROCESS_PATH "dls_controller_process", ID.c_str(), ID.c_str(), (char *)NULL);
-			logging::cfatal << "Controller process failed to launch" << std::endl;
+			cfatal << "Controller process failed to launch" << std::endl;
 			DMSG(strerror(errno));
 			TODO("handle errors");
 			_exit(0);
@@ -361,7 +362,7 @@ bool ControlLayer::activateGaitGenerator(const GaitGenerator::ID_t &ID)
 	{
 		TODO("error checking")
 		execl(CHILD_PROCESS_PATH "dls_gait_generator_process", ID.c_str(), ID.c_str(), (char *)NULL);
-		logging::cfatal << "Failed to launch gait generator" << std::endl;
+		cfatal << "Failed to launch gait generator" << std::endl;
 		DMSG(strerror(errno));
 	}
 

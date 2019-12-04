@@ -36,6 +36,8 @@ using namespace dls;
 std::shared_ptr<GaitGenerator> pGaitGenerator;
 void signal_handler(int signal);
 
+auto process_handle = "controller_child_process_launcher";
+
 int main(int argc, char **argv)
 {
 	Time::set_use_simulated_time(true);
@@ -62,13 +64,15 @@ int main(int argc, char **argv)
 		catch(const std::exception&)
 		{
 			DMSG("ADFSLFSDJLSDJFLSJFD");
-			logging::cfatal << "Gait generator not found" << std::endl;
+			logging::cfatalstream s(process_handle);
+			s << "Gait generator not found" << std::endl;
 			exit((int)GaitGenerator::Status::FATAL_ERROR);
 		}
 	}
 
 	std::signal(SIGTERM, signal_handler);
-	logging::clog << "Gait generator loaded" << std::endl;
+	logging::coutstream s(process_handle);
+	s << "Gait generator loaded" << std::endl;
 	pGaitGenerator->run();
 
 	return static_cast<int>(pGaitGenerator->getStatus());
@@ -78,12 +82,11 @@ void signal_handler(int signal)
 {
 	if(signal == SIGTERM)
 	{
-		std::stringstream ss;
-		ss << pGaitGenerator->getID();
-		ss << " received kill request";
-		logging::clog << ss.str() << std::endl;
-
 		pGaitGenerator->stop();
+
+		logging::coutstream s(process_handle);
+		s << pGaitGenerator->getID() << " received kill request";
+
 		exit(static_cast<int>(pGaitGenerator->getStatus()));
 	}
 }

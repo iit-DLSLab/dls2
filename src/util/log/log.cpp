@@ -28,27 +28,6 @@
 #include "topics/warn_log_stream.hpp"
 
 // =============================================================================
-// Public Global Objects
-// =============================================================================
-namespace dls
-{
-	namespace logging
-	{
-		LogStreamBuffer bcdbg(dls::topics::debug_log_stream);
-		LogStreamBuffer bclog(dls::topics::info_log_stream);
-		LogStreamBuffer bcout(dls::topics::warn_log_stream);
-		LogStreamBuffer bcerr(dls::topics::error_log_stream);
-		LogStreamBuffer bcfatal(dls::topics::fatal_log_stream);
-
-		std::ostream cdbg(&bcdbg);
-		std::ostream clog(&bclog);
-		std::ostream cout(&bcout);
-		std::ostream cerr(&bcerr);
-		std::ostream cfatal(&bcfatal);
-	}
-}
-
-// =============================================================================
 // Using Declarations
 // =============================================================================
 using namespace dls::logging;
@@ -66,7 +45,7 @@ LogStreamBuffer::LogStreamBuffer
 	const std::string &prefix_
 ) :
 	topic(topic_),
-	pPublisher(nullptr),
+	pPublisher(std::make_shared<PublisherBase<StringMsgPubSubType>>(topic_)),
 	buf(new char[buffer_size]),
 	prefix(prefix_)
 {
@@ -103,10 +82,10 @@ bool LogStreamBuffer::flush_buffer()
 
 	// Done here, since if it's done statically (for the global cdb, clog, cout,
 	// cerr, cfatal classes, then fastrtps complains
-	if(pPublisher == nullptr)
-	{
-		pPublisher = std::make_shared<dls::PublisherBase<StringMsgPubSubType>>(this->topic);
-	}
+	// if(pPublisher == nullptr)
+	// {
+	// 	pPublisher = std::make_shared<dls::PublisherBase<StringMsgPubSubType>>(this->topic);
+	// }
 	pPublisher->publish(msg);
 	// std::cout << std::string(buf, pptr());
 	auto n = pptr() - pbase();

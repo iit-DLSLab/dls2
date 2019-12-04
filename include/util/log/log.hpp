@@ -53,12 +53,6 @@ private:
 	const std::string prefix;
 };
 
-extern std::ostream cdbg;
-extern std::ostream clog;
-extern std::ostream cout;
-extern std::ostream cerr;
-extern std::ostream cfatal;
-
 class cdbgstream : public std::ostream
 {
 public:

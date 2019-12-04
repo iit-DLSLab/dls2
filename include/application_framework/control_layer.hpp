@@ -46,6 +46,7 @@ TODO("REMOVE THESE INCLUDES WHEN A BETTER CONSOLE IS MADE")
 #include "topics/deactivate_controller.hpp"
 #include "topics/activate_gait_generator.hpp"
 #include "topics/deactivate_gait_generator.hpp"
+#include "util/log/log.hpp"
 
 // =============================================================================
 // Class Interface
@@ -301,6 +302,10 @@ private:
 		eprosima::fastrtps::SampleInfo_t info;
 	} deactivate_controller_listener;
 
+
+	// ================================ Members ================================
+	logging::clogstream clog;
+	logging::cfatalstream cfatal;
 };
 } // end namespace dls
 

@@ -22,6 +22,7 @@
 
 #include "controller/controller.hpp"
 #include <iostream>
+#include "util/log/log.hpp"
 
 namespace dls
 {
@@ -42,6 +43,8 @@ public:
 
 	// Status stop() override { return getStatus(); }
 	Status eStop() override { return getStatus(); }
+private:
+	logging::coutstream scout;
 };
 } // end namespace dls
 #endif /* end of include guard: PID_CONTROLLER_HPP_YGHMJHQN */
