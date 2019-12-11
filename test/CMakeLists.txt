@@ -31,3 +31,4 @@ endfunction()
 
 add_subdirectory(geometry)
 add_subdirectory(msg_wrappers)
+add_subdirectory(util)

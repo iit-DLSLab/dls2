@@ -70,8 +70,14 @@ namespace dls
 		eprosima::fastrtps::PublisherAttributes pub_attr;
 		pub_attr.topic.topicKind = eprosima::fastrtps::rtps::NO_KEY;
 		pub_attr.topic.topicDataType = rtps_type.getName();
+		pub_attr.qos.m_reliability.kind = eprosima::fastrtps::RELIABLE_RELIABILITY_QOS;
+		pub_attr.topic.historyQos.kind = eprosima::fastrtps::KEEP_ALL_HISTORY_QOS;
+		pub_attr.qos.m_durability.kind = eprosima::fastrtps::VOLATILE_DURABILITY_QOS;
 		TODO("Change the name here");
 		pub_attr.topic.topicName = topic;
+		pub_attr.qos.m_liveliness.announcement_period = 0.5;
+		pub_attr.qos.m_liveliness.lease_duration = 1;
+		pub_attr.qos.m_liveliness.kind = eprosima::fastrtps::AUTOMATIC_LIVELINESS_QOS;
 
 		TODO("not cleaning the publisher because it's generating a library error")
 		pPublisher.reset

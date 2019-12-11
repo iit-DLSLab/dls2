@@ -63,6 +63,11 @@ namespace dls
 		eprosima::fastrtps::SubscriberAttributes sub_attr;
 		sub_attr.topic.topicKind = eprosima::fastrtps::rtps::NO_KEY;
 		sub_attr.topic.topicDataType = rtps_type.getName();
+		sub_attr.qos.m_reliability.kind = eprosima::fastrtps::RELIABLE_RELIABILITY_QOS;
+		sub_attr.topic.historyQos.kind = eprosima::fastrtps::KEEP_ALL_HISTORY_QOS;
+		sub_attr.qos.m_durability.kind = eprosima::fastrtps::VOLATILE_DURABILITY_QOS;
+		sub_attr.qos.m_liveliness.lease_duration = 1;
+		sub_attr.qos.m_liveliness.kind = eprosima::fastrtps::AUTOMATIC_LIVELINESS_QOS;
 
 		sub_attr.topic.topicName = topic;
 
