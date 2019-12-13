@@ -14,6 +14,7 @@ class TestSub : public dls::SubscriberBase<StringMsgPubSubType>
 public:
 	TestSub() :
 		dls::SubscriberBase<StringMsgPubSubType>(topic),
+		// dls::SubscriberBase<StringMsgPubSubType>("sdfhashfdkashfkdshaklfhaskfdh"),
 		count(0)
 	{ }
 
@@ -26,8 +27,9 @@ private:
 	void onNewDataMessage(eprosima::fastrtps::Subscriber *s) override
 	{
 		StringMsg msg;
-		// s->takeNextData(&msg, nullptr);
-		// std::cout << "got a non-field message: " << msg.msg() << std::endl;
+		eprosima::fastrtps::SampleInfo_t info;
+		s->takeNextData(&msg, &info);
+		std::cout << "got a non-field message: " << msg.msg() << std::endl;
 		std::lock_guard<std::mutex> lock(this->count_mutex);
 		++count;
 	}
@@ -137,10 +139,10 @@ public:
 		std::cout << 9 << std::endl;
 		std::cout << "done run publish on stream publishers" << std::endl;
 
-		// dls::ControlSignal s;
-		// s.torques.resize(12);
+		dls::ControlSignal s;
+		s.torques.resize(12);
 
-		// publishSignal(s);
+		publishSignal(s);
 	}
 
 	Status eStop() override { return getStatus(); }
@@ -162,6 +164,7 @@ int main(int argc, char *argv[])
 		// std::this_thread::sleep_for(std::chrono::seconds(1));
 		std::cout << "========================================" << std::endl;
 	}
+	std::cout << "exit loop" << std::endl;
 
 	std::this_thread::sleep_for(std::chrono::seconds(3));
 	std::cout << "Got: " << test_sub.getCount() << " expected: " << loop_count*9*2 << std::endl;

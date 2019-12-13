@@ -45,18 +45,28 @@ namespace dls
 	{
 		// Create participant
 		eprosima::fastrtps::ParticipantAttributes participant_attr;
-		participant_attr.rtps.setName("Participant_publisher");
+		participant_attr.rtps.builtin.discovery_config.discoveryProtocol = eprosima::fastrtps::rtps::DiscoveryProtocol_t::SIMPLE;
+		participant_attr.rtps.builtin.discovery_config.use_SIMPLE_EndpointDiscoveryProtocol = true;
+		participant_attr.rtps.builtin.discovery_config.m_simpleEDP.use_PublicationReaderANDSubscriptionWriter = true;
+		participant_attr.rtps.builtin.discovery_config.m_simpleEDP.use_PublicationWriterANDSubscriptionReader = true;
+		participant_attr.rtps.builtin.domainId = 0;
+		participant_attr.rtps.builtin.discovery_config.leaseDuration = eprosima::fastrtps::c_TimeInfinite;
+		participant_attr.rtps.setName("Participant_pub");
 
-		auto custom_transport = std::make_shared<eprosima::fastrtps::rtps::UDPv4TransportDescriptor>();
-		custom_transport->interfaceWhiteList.emplace_back("127.0.0.1");
-		participant_attr.rtps.useBuiltinTransports = false;
-		participant_attr.rtps.userTransports.push_back(custom_transport);
+		// participant_attr.rtps.setName("Participant_publisher");
 
-		TODO("not cleaning the participant because it's generating a library error")
+		// auto custom_transport = std::make_shared<eprosima::fastrtps::rtps::UDPv4TransportDescriptor>();
+		// custom_transport->interfaceWhiteList.emplace_back("127.0.0.1");
+		// participant_attr.rtps.useBuiltinTransports = false;
+		// participant_attr.rtps.userTransports.push_back(custom_transport);
+
 		pParticipant.reset
 		(
 			eprosima::fastrtps::Domain::createParticipant(participant_attr),
-			[](eprosima::fastrtps::Participant*){}
+			[](eprosima::fastrtps::Participant *p)
+			{
+				eprosima::fastrtps::Domain::removeParticipant(p);
+			}
 		);
 		TODO("Check for null pointer above")
 
@@ -70,14 +80,23 @@ namespace dls
 		eprosima::fastrtps::PublisherAttributes pub_attr;
 		pub_attr.topic.topicKind = eprosima::fastrtps::rtps::NO_KEY;
 		pub_attr.topic.topicDataType = rtps_type.getName();
-		pub_attr.qos.m_reliability.kind = eprosima::fastrtps::RELIABLE_RELIABILITY_QOS;
-		pub_attr.topic.historyQos.kind = eprosima::fastrtps::KEEP_ALL_HISTORY_QOS;
-		pub_attr.qos.m_durability.kind = eprosima::fastrtps::VOLATILE_DURABILITY_QOS;
-		TODO("Change the name here");
 		pub_attr.topic.topicName = topic;
-		pub_attr.qos.m_liveliness.announcement_period = 0.5;
-		pub_attr.qos.m_liveliness.lease_duration = 1;
-		pub_attr.qos.m_liveliness.kind = eprosima::fastrtps::AUTOMATIC_LIVELINESS_QOS;
+		pub_attr.topic.historyQos.kind = eprosima::fastrtps::KEEP_LAST_HISTORY_QOS;
+		pub_attr.topic.historyQos.depth = 30;
+		pub_attr.topic.resourceLimitsQos.max_samples = 50;
+		pub_attr.topic.resourceLimitsQos.allocated_samples = 20;
+		pub_attr.times.heartbeatPeriod.seconds = 2;
+		pub_attr.times.heartbeatPeriod.nanosec = 200*1000*1000;
+		pub_attr.qos.m_reliability.kind = eprosima::fastrtps::RELIABLE_RELIABILITY_QOS;
+
+
+		// pub_attr.qos.m_reliability.kind = eprosima::fastrtps::RELIABLE_RELIABILITY_QOS;
+		// pub_attr.topic.historyQos.kind = eprosima::fastrtps::KEEP_ALL_HISTORY_QOS;
+		// pub_attr.qos.m_durability.kind = eprosima::fastrtps::VOLATILE_DURABILITY_QOS;
+		// TODO("Change the name here");
+		// pub_attr.qos.m_liveliness.announcement_period = 0.5;
+		// pub_attr.qos.m_liveliness.lease_duration = 1;
+		// pub_attr.qos.m_liveliness.kind = eprosima::fastrtps::AUTOMATIC_LIVELINESS_QOS;
 
 		TODO("not cleaning the publisher because it's generating a library error")
 		pPublisher.reset

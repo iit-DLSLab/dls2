@@ -41,18 +41,26 @@ namespace dls
 		pSubscriber(nullptr)
 	{
 		eprosima::fastrtps::ParticipantAttributes participant_attr;
-		participant_attr.rtps.setName("Participant_subscriber");
+		participant_attr.rtps.builtin.discovery_config.discoveryProtocol = eprosima::fastrtps::rtps::DiscoveryProtocol_t::SIMPLE;
+		participant_attr.rtps.builtin.discovery_config.use_SIMPLE_EndpointDiscoveryProtocol = true;
+		participant_attr.rtps.builtin.discovery_config.m_simpleEDP.use_PublicationReaderANDSubscriptionWriter = true;
+		participant_attr.rtps.builtin.discovery_config.m_simpleEDP.use_PublicationWriterANDSubscriptionReader = true;
+		participant_attr.rtps.builtin.domainId = 0;
+		participant_attr.rtps.builtin.discovery_config.leaseDuration = eprosima::fastrtps::c_TimeInfinite;
+		participant_attr.rtps.setName("Participant_sub");
 
-		auto custom_transport = std::make_shared<eprosima::fastrtps::rtps::UDPv4TransportDescriptor>();
-		custom_transport->interfaceWhiteList.emplace_back("127.0.0.1");
-		participant_attr.rtps.useBuiltinTransports = false;
-		participant_attr.rtps.userTransports.push_back(custom_transport);
+		// auto custom_transport = std::make_shared<eprosima::fastrtps::rtps::UDPv4TransportDescriptor>();
+		// custom_transport->interfaceWhiteList.emplace_back("127.0.0.1");
+		// participant_attr.rtps.useBuiltinTransports = false;
+		// participant_attr.rtps.userTransports.push_back(custom_transport);
 
-		TODO("figure out how to remove participant properly")
 		pParticipant.reset
 		(
 			eprosima::fastrtps::Domain::createParticipant(participant_attr),
-			[](eprosima::fastrtps::Participant*){}
+			[](eprosima::fastrtps::Participant *p)
+			{
+				eprosima::fastrtps::Domain::removeParticipant(p);
+			}
 		);
 		eprosima::fastrtps::Domain::registerType
 		(
@@ -63,13 +71,23 @@ namespace dls
 		eprosima::fastrtps::SubscriberAttributes sub_attr;
 		sub_attr.topic.topicKind = eprosima::fastrtps::rtps::NO_KEY;
 		sub_attr.topic.topicDataType = rtps_type.getName();
-		sub_attr.qos.m_reliability.kind = eprosima::fastrtps::RELIABLE_RELIABILITY_QOS;
-		sub_attr.topic.historyQos.kind = eprosima::fastrtps::KEEP_ALL_HISTORY_QOS;
-		sub_attr.qos.m_durability.kind = eprosima::fastrtps::VOLATILE_DURABILITY_QOS;
-		sub_attr.qos.m_liveliness.lease_duration = 1;
-		sub_attr.qos.m_liveliness.kind = eprosima::fastrtps::AUTOMATIC_LIVELINESS_QOS;
-
 		sub_attr.topic.topicName = topic;
+		sub_attr.topic.historyQos.kind = eprosima::fastrtps::KEEP_LAST_HISTORY_QOS;
+		sub_attr.topic.historyQos.depth = 30;
+		sub_attr.topic.resourceLimitsQos.max_samples = 50;
+		sub_attr.topic.resourceLimitsQos.allocated_samples = 50;
+		sub_attr.qos.m_reliability.kind = eprosima::fastrtps::RELIABLE_RELIABILITY_QOS;
+		sub_attr.qos.m_durability.kind = eprosima::fastrtps::TRANSIENT_LOCAL_DURABILITY_QOS;
+
+
+		// sub_attr.topic.topicKind = eprosima::fastrtps::rtps::NO_KEY;
+		// sub_attr.topic.topicDataType = rtps_type.getName();
+		// sub_attr.qos.m_reliability.kind = eprosima::fastrtps::RELIABLE_RELIABILITY_QOS;
+		// sub_attr.topic.historyQos.kind = eprosima::fastrtps::KEEP_ALL_HISTORY_QOS;
+		// sub_attr.qos.m_durability.kind = eprosima::fastrtps::VOLATILE_DURABILITY_QOS;
+		// sub_attr.qos.m_liveliness.lease_duration = 1;
+		// sub_attr.qos.m_liveliness.kind = eprosima::fastrtps::AUTOMATIC_LIVELINESS_QOS;
+		// sub_attr.topic.topicName = topic;
 
 		TODO("figure out how to remove this subscriber")
 		pSubscriber.reset
