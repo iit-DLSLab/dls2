@@ -41,6 +41,7 @@
 #include "util/debug/debug.hpp"
 #include "topics/warn_log_stream.hpp"
 #include "util/log/log.hpp"
+#include "topics/command_register.hpp"
 
 // =============================================================================
 // Foreward Declarations
@@ -79,9 +80,12 @@ std::shared_ptr<PublisherBase<StringMsgPubSubType>> pDeactivate_gait_generator_p
 // Constructors
 // =============================================================================
 ConsoleLayer::ConsoleLayer() :
-	SubscriberBase<StringMsgPubSubType>(topics::warn_log_stream),
+	// SubscriberBase<StringMsgPubSubType>(topics::warn_log_stream),
 	commands_mutex(),
-	commands()
+	commands(),
+	command_registration_listener()
+	,
+	 string_listener(*this)
 {
 	pInstance = this;
 
@@ -283,15 +287,15 @@ ConsoleLayer::Status ConsoleLayer::shutdown()
 	return getStatus();
 }
 
-void ConsoleLayer::onNewDataMessage(eprosima::fastrtps::Subscriber *sub)
-{
-	StringMsg msg;
-	if(sub->takeNextData(&msg, nullptr))
-	{
-		std::cout << "\n" << msg.msg() << std::flush;
-		std::cout << build_prompt() << " " << rl_line_buffer << std::flush;
-	}
-}
+// void ConsoleLayer::onNewDataMessage(eprosima::fastrtps::Subscriber *sub)
+// {
+// 	StringMsg msg;
+// 	if(sub->takeNextData(&msg, nullptr))
+// 	{
+// 		std::cout << "\n" << msg.msg() << std::flush;
+// 		std::cout << build_prompt() << " " << rl_line_buffer << std::flush;
+// 	}
+// }
 
 // =============================================================================
 // Implementaton
@@ -549,3 +553,44 @@ std::string &trim_inplace(std::string *const s)
 	return *s;
 }
 
+// =============================================================================
+// Subscribers
+// =============================================================================
+// -----------------------------------------------------------------------------
+// Strings
+// -----------------------------------------------------------------------------
+ConsoleLayer::StringListener::StringListener(ConsoleLayer &owner_) :
+	SubscriberBase<StringMsgPubSubType>(topics::warn_log_stream),
+	owner(owner_)
+{ }
+
+void ConsoleLayer::StringListener::onNewDataMessage(eprosima::fastrtps::Subscriber *sub)
+// void ConsoleLayer::StringListener::onNewDataMessage(eprosima::fastrtps::Subscriber *)
+{
+	eprosima::fastrtps::SampleInfo_t info;
+	StringMsg msg;
+	if(sub->takeNextData(&msg, &info))
+	{
+		std::cout << "\n" << msg.msg() << std::flush;
+		std::cout << owner.build_prompt() << " " << rl_line_buffer << std::flush;
+	}
+}
+// -----------------------------------------------------------------------------
+// Commands
+// -----------------------------------------------------------------------------
+ConsoleLayer::CommandRegistrationListener::CommandRegistrationListener() :
+	SubscriberBase<CommandRegisterMsgPubSubType>(topics::command_register)
+{ }
+
+void ConsoleLayer::CommandRegistrationListener::onNewDataMessage
+(
+	eprosima::fastrtps::Subscriber *sub
+)
+{
+	eprosima::fastrtps::SampleInfo_t info;
+	CommandRegisterMsg msg;
+	if(sub->takeNextData(&msg, &info))
+	{
+		std::cout << "got a registration message" << std::endl;
+	}
+}

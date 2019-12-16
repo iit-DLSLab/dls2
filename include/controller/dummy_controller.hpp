@@ -23,6 +23,7 @@
 #include "controller/controller.hpp"
 #include <iostream>
 #include "util/log/log.hpp"
+#include "command/command.hpp"
 
 TODO("This is a dummy class. Remove it, its cpp file, as well as its entry in the CMakeLists file")
 namespace dls
@@ -47,6 +48,7 @@ public:
 private:
 	logging::coutstream outstream;
 	logging::clogstream logstream;
+	Command<int, int> command;
 };
 } // end namespace dls
 

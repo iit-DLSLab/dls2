@@ -17,39 +17,41 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-#ifndef SUBSCRIBER_BASE_HPP_XPACOJJI
-#define SUBSCRIBER_BASE_HPP_XPACOJJI
+#ifndef COMMAND_HPP_RSTXNA3I
+#define COMMAND_HPP_RSTXNA3I
 
-#include <memory>
-#include <fastrtps/fastrtps_fwd.h>
-#include <fastrtps/subscriber/SubscriberListener.h>
-#include <fastrtps/subscriber/SampleInfo.h>
-#include <fastrtps/participant/Participant.h>
-#include "todo.h"
-#include <mutex>
+// =============================================================================
+// Includes
+// =============================================================================
+#include "util/messaging/publisher_base.hpp"
+#include "msg/command_registerPubSubTypes.h"
+#include <string>
+#include <functional>
 
 namespace dls
 {
-	template <class PubSub_t>
-	class SubscriberBase : public eprosima::fastrtps::SubscriberListener
-	{
-	public:
-		SubscriberBase(const std::string &topic);
-		virtual ~SubscriberBase() = default;
+// =============================================================================
+// Class Interface
+// =============================================================================
+template <typename ret_t, typename...arg_ts>
+class Command
+{
+public:
+	Command
+	(
+		const std::string &command_name,
+		const std::string &docstring,
+		const std::function<ret_t(arg_ts...)> &f
+	);
 
-	private:
-		std::shared_ptr<eprosima::fastrtps::Participant> pParticipant;
-		std::shared_ptr<eprosima::fastrtps::Subscriber> pSubscriber;
+private:
+	const std::string command_name;
+	const std::string docstring;
+	std::function<ret_t(arg_ts...)> f;
+	PublisherBase<CommandRegisterMsgPubSubType> publisher;
+};
+} // end namespace dls
 
-		static PubSub_t rtps_type;
+#include "command/command.tpp"
 
-		// begin critical section
-			static std::mutex ID_mutex;
-			static size_t ID;
-		// end critical section
-	};
-}
-
-#include "util/messaging/subscriber_base.tpp"
-
-#endif /* end of include guard: SUBSCRIBER_BASE_HPP_XPACOJJI */
+#endif /* end of include guard: COMMAND_HPP_RSTXNA3I */

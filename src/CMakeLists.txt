@@ -97,6 +97,7 @@ add_message(console_command)
 add_message(header)
 add_message(time)
 add_message(bool)
+add_message(command_register)
 
 # ==============================================================================
 # Libraries
@@ -390,6 +391,7 @@ list(APPEND PROJECT_TARGETS dls_dummy_estimator)
 # Tools
 # ==============================================================================
 add_executable(topic_info
+	EXCLUDE_FROM_ALL
 	${CMAKE_SOURCE_DIR}/src/util/topic_info/topic_info.cpp
 	${CMAKE_SOURCE_DIR}/src/util/topic_info/topic_info_main.cpp
 

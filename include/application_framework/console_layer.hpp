@@ -28,6 +28,7 @@
 // messaging
 #include "util/messaging/publisher_base.hpp"
 #include "msg/stringmsgPubSubTypes.h"
+#include "msg/command_registerPubSubTypes.h"
 #include "util/messaging/subscriber_base.hpp"
 
 // stdlib
@@ -42,7 +43,7 @@ namespace dls
 {
 /// A console interface into the framework
 ///
-class ConsoleLayer : public AppLayer, public SubscriberBase<StringMsgPubSubType>
+class ConsoleLayer : public AppLayer//, public SubscriberBase<StringMsgPubSubType>
 {
 	// Console completion is handled by readline, which is a C-library.
 	// Therefore, need to declare this as a friend
@@ -111,7 +112,24 @@ private:
 		std::map<std::string, Command> commands; ///< The commands registered with the console
 	// End critical section
 
-	void onNewDataMessage(eprosima::fastrtps::Subscriber *sub) override;
+	// void onNewDataMessage(eprosima::fastrtps::Subscriber *sub) override;
+
+	class CommandRegistrationListener : public SubscriberBase<CommandRegisterMsgPubSubType>
+	{
+	public:
+		CommandRegistrationListener();
+	private:
+		void onNewDataMessage(eprosima::fastrtps::Subscriber *sub) override;
+	} command_registration_listener;
+
+	class StringListener : public SubscriberBase<StringMsgPubSubType>
+	{
+	public:
+		StringListener(ConsoleLayer &owner);
+	private:
+		void onNewDataMessage(eprosima::fastrtps::Subscriber *sub) override;
+		ConsoleLayer &owner;
+	}string_listener;
 
 };
 } // end namespace dls

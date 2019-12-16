@@ -29,11 +29,18 @@
 #include <fastrtps/Domain.h>
 #include <fastrtps/TopicDataType.h>
 #include <fastrtps/transport/UDPv4TransportDescriptor.h>
+#include <sstream>
 
 namespace dls
 {
 	template <class PubSub_t>
 	PubSub_t SubscriberBase<PubSub_t>::rtps_type;
+
+	template<class PubSub_t>
+	std::mutex SubscriberBase<PubSub_t>::ID_mutex;
+
+	template<class PubSub_t>
+	size_t SubscriberBase<PubSub_t>::ID = 0;
 
 	template <class PubSub_t>
 	SubscriberBase<PubSub_t>::SubscriberBase(const std::string &topic) :
@@ -47,7 +54,15 @@ namespace dls
 		participant_attr.rtps.builtin.discovery_config.m_simpleEDP.use_PublicationWriterANDSubscriptionReader = true;
 		participant_attr.rtps.builtin.domainId = 0;
 		participant_attr.rtps.builtin.discovery_config.leaseDuration = eprosima::fastrtps::c_TimeInfinite;
-		participant_attr.rtps.setName("Participant_sub");
+
+		std::stringstream ss;
+		ss << "Participant_sub";
+		{
+			std::lock_guard<std::mutex> lock(SubscriberBase<PubSub_t>::ID_mutex);
+			ss << SubscriberBase<PubSub_t>::ID;
+			++SubscriberBase<PubSub_t>::ID;
+		}
+		participant_attr.rtps.setName(ss.str().c_str());
 
 		// auto custom_transport = std::make_shared<eprosima::fastrtps::rtps::UDPv4TransportDescriptor>();
 		// custom_transport->interfaceWhiteList.emplace_back("127.0.0.1");
@@ -57,10 +72,11 @@ namespace dls
 		pParticipant.reset
 		(
 			eprosima::fastrtps::Domain::createParticipant(participant_attr),
-			[](eprosima::fastrtps::Participant *p)
-			{
-				eprosima::fastrtps::Domain::removeParticipant(p);
-			}
+			[](eprosima::fastrtps::Participant*){}
+			// [](eprosima::fastrtps::Participant *p)
+			// {
+			// 	eprosima::fastrtps::Domain::removeParticipant(p);
+			// }
 		);
 		eprosima::fastrtps::Domain::registerType
 		(

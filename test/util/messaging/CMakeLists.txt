@@ -1,3 +1,13 @@
+create_test(temp_test_receive_command
+	${CMAKE_CURRENT_SOURCE_DIR}/temp_test_receive_command.cpp
+	"fastrtps;fastcdr;dls_messaging"
+)
+
+create_test(temp_test_send_command
+	${CMAKE_CURRENT_SOURCE_DIR}/temp_test_send_command.cpp
+	"fastrtps;fastcdr;dls_messaging"
+)
+
 create_test(
 	multiple_publishers_as_fields
 	${CMAKE_CURRENT_SOURCE_DIR}/multiple_publishers_as_fields.cpp

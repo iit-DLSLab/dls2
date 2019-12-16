@@ -63,10 +63,11 @@ namespace dls
 		pParticipant.reset
 		(
 			eprosima::fastrtps::Domain::createParticipant(participant_attr),
-			[](eprosima::fastrtps::Participant *p)
-			{
-				eprosima::fastrtps::Domain::removeParticipant(p);
-			}
+			[](eprosima::fastrtps::Participant*){}
+			// [](eprosima::fastrtps::Participant *p)
+			// {
+			// 	eprosima::fastrtps::Domain::removeParticipant(p);
+			// }
 		);
 		TODO("Check for null pointer above")
 

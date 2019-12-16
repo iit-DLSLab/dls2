@@ -22,6 +22,8 @@
 #include "util/log/log.hpp"
 
 using namespace dls;
+
+int foo(int){return 1;}
 DummyController::DummyController
 (
 	const std::shared_ptr<Dog> &dog
@@ -34,7 +36,8 @@ DummyController::DummyController
 		ControlSignal::SignalReconstructionMethod::ZERO_ORDER_HOLD
 	),
 	outstream(getID()),
-	logstream(getID())
+	logstream(getID()),
+	command("dummy", "help", foo)
 {
 	outstream << "dummy controller launched" << std::endl;
 	outstream << "Constructed a dummy controller. Hello from my new fancy stream" << std::endl;
@@ -49,6 +52,7 @@ DummyController::DummyController() :
 
 void DummyController::run(const std::chrono::system_clock::time_point &time)
 {
+	// Command<int, int> command("dummy", "help", foo);
 	logstream << "Dummy Controller Epoch" << std::endl;
 	auto pGait_signal = this->readGaitSignal();
 
