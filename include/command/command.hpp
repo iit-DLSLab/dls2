@@ -24,6 +24,7 @@
 // Includes
 // =============================================================================
 #include "util/messaging/publisher_base.hpp"
+#include "util/messaging/subscriber_base.hpp"
 #include "msg/command_registerPubSubTypes.h"
 #include <string>
 #include <functional>
@@ -58,7 +59,8 @@ public:
 	};
 
 protected:
-	typedef decltype(std::declval<CommandRegisterMsg>().arg_types()) RepresentationVector;
+	typedef decltype(std::declval<CommandRegisterMsg>().arg_types())
+		RepresentationVector;
 
 	template <typename T>
 	ArgumentType typeToRepresentation();
@@ -124,6 +126,65 @@ public:
 
 private:
 	std::vector<std::unique_ptr<CommandBase>> commands;
+};
+
+// =============================================================================
+// Remote Commands
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// Implementation Class
+// -----------------------------------------------------------------------------
+class RemoteCommand : public CommandBase
+{
+	friend class RemoteCommandManager;
+public:
+	RemoteCommand(const CommandRegisterMsg &msg);
+	void clearArgs();
+	template <typename T>
+	void pushArg(T t);
+	void call();
+// private:
+	const std::string owner;
+	const std::string command_name;
+	const std::string docstring;
+	const CommandBase::RepresentationVector args;
+	const std::remove_reference<CommandBase::RepresentationVector>::type::value_type ret_type;
+};
+
+// -----------------------------------------------------------------------------
+// Manager Class
+// -----------------------------------------------------------------------------
+class RemoteCommandManager
+{
+public:
+	RemoteCommandManager
+	(
+		std::function<void(std::shared_ptr<RemoteCommand>)> onNewCommand = nullptr,
+		std::function<void(std::shared_ptr<RemoteCommand>)> onRemoveCommand = nullptr
+	);
+
+	std::vector<std::shared_ptr<RemoteCommand>> findByOwner(const std::string&);
+	std::vector<std::shared_ptr<RemoteCommand>> findByName(const std::string&);
+	std::shared_ptr<RemoteCommand> find(const std::string &owner, const std::string &name);
+
+private:
+	// begin critical section
+		std::mutex remote_commands_mutex;
+		std::vector<std::shared_ptr<RemoteCommand>> remote_commands;
+	// end critical section
+
+	class RegistrationListener : public SubscriberBase<CommandRegisterMsgPubSubType>
+	{
+	public:
+		RegistrationListener(RemoteCommandManager &owner);
+	private:
+		void onNewDataMessage(eprosima::fastrtps::Subscriber*) override;
+		RemoteCommandManager &owner;
+	} registration_listener;
+
+	std::function<void(std::shared_ptr<RemoteCommand>)> onNewCommand;
+	std::function<void(std::shared_ptr<RemoteCommand>)> onRemoveCommand;
 };
 } // end namespace dls
 
