@@ -19,7 +19,7 @@
 *******************************************************************************/
 struct CommandRegisterMsg
 {
-	string ID;
+	string owner;
 	string command_name;
 	string docstring;
 

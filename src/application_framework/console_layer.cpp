@@ -83,9 +83,9 @@ ConsoleLayer::ConsoleLayer() :
 	// SubscriberBase<StringMsgPubSubType>(topics::warn_log_stream),
 	commands_mutex(),
 	commands(),
-	command_registration_listener()
-	,
-	 string_listener(*this)
+	command_registration_listener(*this)
+	// ,
+	//  string_listener(*this)
 {
 	pInstance = this;
 
@@ -569,6 +569,7 @@ void ConsoleLayer::StringListener::onNewDataMessage(eprosima::fastrtps::Subscrib
 {
 	eprosima::fastrtps::SampleInfo_t info;
 	StringMsg msg;
+	std::cout << "hit string callback" << std::endl;
 	if(sub->takeNextData(&msg, &info))
 	{
 		std::cout << "\n" << msg.msg() << std::flush;
@@ -578,8 +579,9 @@ void ConsoleLayer::StringListener::onNewDataMessage(eprosima::fastrtps::Subscrib
 // -----------------------------------------------------------------------------
 // Commands
 // -----------------------------------------------------------------------------
-ConsoleLayer::CommandRegistrationListener::CommandRegistrationListener() :
-	SubscriberBase<CommandRegisterMsgPubSubType>(topics::command_register)
+ConsoleLayer::CommandRegistrationListener::CommandRegistrationListener(ConsoleLayer &owner_) :
+	SubscriberBase<CommandRegisterMsgPubSubType>(topics::command_register),
+	owner(owner_)
 { }
 
 void ConsoleLayer::CommandRegistrationListener::onNewDataMessage
@@ -587,10 +589,33 @@ void ConsoleLayer::CommandRegistrationListener::onNewDataMessage
 	eprosima::fastrtps::Subscriber *sub
 )
 {
+	std::cout << "hit registration callback" << std::endl;
 	eprosima::fastrtps::SampleInfo_t info;
 	CommandRegisterMsg msg;
 	if(sub->takeNextData(&msg, &info))
 	{
 		std::cout << "got a registration message" << std::endl;
+		std::cout << "Owner: " << msg.owner() << std::endl;
+		std::cout << "Command: " << msg.command_name() << std::endl;
+		std::cout << "doc: " << msg.docstring() << std::endl;
+
+		std::cout << "arg types: " << std::endl;
+		for(const auto &el : msg.arg_types())
+		{
+			std::cout << "\t" << el << std::endl;
+		}
+
+		std::cout << "ret type: " << msg.ret_type() << std::endl;
+
+		owner.addCommand
+		(
+			Command
+			(
+				msg.command_name(),
+				[](const std::vector<std::string> &)
+				{ },
+				msg.docstring()
+			)
+		);
 	}
 }

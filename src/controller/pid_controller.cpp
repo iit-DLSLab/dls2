@@ -21,6 +21,7 @@
 #include "util/debug/debug.hpp"
 #include "util/log/log.hpp"
 
+int foo(double, int){return 1;}
 namespace dls
 {
 
@@ -31,9 +32,18 @@ PidController::PidController (const std::shared_ptr<Dog> &dog) : Controller
 		std::chrono::milliseconds(1),
 		ControlSignal::SignalReconstructionMethod::ZERO_ORDER_HOLD
 	),
-	scout(getID())
+	scout(getID()),
+	command_manager()
+	// command("dummy_controller", "foo", "help", foo)
 {
 	scout << "pid controller launched" << std::endl;
+	command_manager.addCommand<int, double, int>
+		(
+			std::string("pid"),
+			std::string("foo"),
+			std::string("foohelp"),
+			std::function<int(double, int)>(foo)
+		);
 }
 
 PidController::PidController() : PidController(std::make_shared<Dog>())
@@ -69,8 +79,8 @@ void PidController::run(const std::chrono::system_clock::time_point &time)
 	}
 	else
 	{
-		if (!pBlind_state_signal) scout << 	"NO blind state signal" << std::endl;
-		if (!pGait_signal) scout << "NO gait signal" << std::endl;
+		// if (!pBlind_state_signal) scout << 	"NO blind state signal" << std::endl;
+		// if (!pGait_signal) scout << "NO gait signal" << std::endl;
 	}
 
 }

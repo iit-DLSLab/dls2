@@ -23,7 +23,6 @@
 
 using namespace dls;
 
-int foo(int){return 1;}
 DummyController::DummyController
 (
 	const std::shared_ptr<Dog> &dog
@@ -32,12 +31,12 @@ DummyController::DummyController
 	(
 		dog,
 		"dls_dummy_controller",
-		std::chrono::duration<double, std::ratio<1, 1'000'000'000>>(1),
+		// std::chrono::duration<double, std::ratio<1, 1'000'000'000>>(1),
+		std::chrono::duration<double, std::ratio<1, 1>>(1),
 		ControlSignal::SignalReconstructionMethod::ZERO_ORDER_HOLD
 	),
 	outstream(getID()),
-	logstream(getID()),
-	command("dummy", "help", foo)
+	logstream(getID())
 {
 	outstream << "dummy controller launched" << std::endl;
 	outstream << "Constructed a dummy controller. Hello from my new fancy stream" << std::endl;

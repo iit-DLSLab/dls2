@@ -117,9 +117,10 @@ private:
 	class CommandRegistrationListener : public SubscriberBase<CommandRegisterMsgPubSubType>
 	{
 	public:
-		CommandRegistrationListener();
+		CommandRegistrationListener(ConsoleLayer &owner);
 	private:
 		void onNewDataMessage(eprosima::fastrtps::Subscriber *sub) override;
+		ConsoleLayer &owner;
 	} command_registration_listener;
 
 	class StringListener : public SubscriberBase<StringMsgPubSubType>
@@ -129,7 +130,8 @@ private:
 	private:
 		void onNewDataMessage(eprosima::fastrtps::Subscriber *sub) override;
 		ConsoleLayer &owner;
-	}string_listener;
+	// }string_listener;
+	};
 
 };
 } // end namespace dls
