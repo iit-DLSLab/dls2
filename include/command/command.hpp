@@ -32,6 +32,7 @@
 #include <utility>
 #include <vector>
 #include <memory>
+#include <fastrtps/types/DynamicPubSubType.h>
 
 namespace dls
 {
@@ -62,7 +63,7 @@ public:
 		const std::function<ret_t(arg_ts...)> &f
 	);
 
-	/// Registers thi command with the framework
+	/// Registers this command with the framework
 	///
 	void requestRegistration();
 
@@ -106,6 +107,25 @@ private:
 	/// Publisher used to register the command with the rest of the framework
 	///
 	PublisherBase<CommandRegisterMsgPubSubType> publisher;
+
+	/// Subscriber listening for requests to call this command
+	///
+	class CommandCallListener : public eprosima::fastrtps::SubscriberListener
+	{
+	public:
+		CommandCallListener(Command<ret_t, arg_ts...>&);
+	private:
+		void onNewDataMessage
+		(
+			eprosima::fastrtps::Subscriber*
+		) override;
+
+		Command<ret_t, arg_ts...> &owner;
+		std::shared_ptr<eprosima::fastrtps::Participant> pParticipant;
+		std::shared_ptr<eprosima::fastrtps::Subscriber> pSubscriber;
+		eprosima::fastrtps::types::DynamicPubSubType dynamic_type;
+		std::shared_ptr<eprosima::fastrtps::types::DynamicData> pData;
+	} command_call_listener;
 };
 
 // =============================================================================
