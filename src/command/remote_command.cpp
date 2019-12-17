@@ -20,7 +20,8 @@
 // =============================================================================
 // Includes
 // =============================================================================
-#include "command/command.hpp"
+#include "command/remote_command.hpp"
+#include "topics/command_register.hpp"
 #include <vector>
 
 // =============================================================================
@@ -34,29 +35,47 @@ using namespace dls;
 // -----------------------------------------------------------------------------
 // Constructors
 // -----------------------------------------------------------------------------
+RemoteCommand::RemoteCommand(CommandRegisterMsg &msg) :
+	owner(msg.owner()),
+	command_name(msg.command_name()),
+	docstring(msg.docstring()),
+	args(msg.arg_types()),
+	ret_type(msg.ret_type())
+{ }
 
 // -----------------------------------------------------------------------------
 // Implementation
 // -----------------------------------------------------------------------------
+void RemoteCommand::clearArgs()
+{
+	// TODO implement
+}
+
+void RemoteCommand::call()
+{
+	// TODO implement
+}
 
 // =============================================================================
-// Remote Command Manager Constructors
+// Remote Command Manager
 // =============================================================================
+// -----------------------------------------------------------------------------
+// Constructors
+// -----------------------------------------------------------------------------
 RemoteCommandManager::RemoteCommandManager
 (
 	std::function<void(std::shared_ptr<RemoteCommand>)> onNewCommand_,
 	std::function<void(std::shared_ptr<RemoteCommand>)> onRemoveCommand_
 ) :
+	remote_commands_mutex(),
+	remote_commands(),
 	registration_listener(*this),
 	onNewCommand(onNewCommand_),
 	onRemoveCommand(onRemoveCommand_)
 { }
 
-// =============================================================================
-// Remote Command Manager Implementation
-// =============================================================================
 // -----------------------------------------------------------------------------
-// Finders
+// Implementation
 // -----------------------------------------------------------------------------
 std::vector<std::shared_ptr<RemoteCommand>> RemoteCommandManager::findByOwner
 (
@@ -119,12 +138,10 @@ std::shared_ptr<RemoteCommand> RemoteCommandManager::find
 	return nullptr;
 }
 
-// =============================================================================
-// Remote Command Mnager Helper Subscriber
-// =============================================================================
 // -----------------------------------------------------------------------------
-// Constructors
+// Subscriber Helper
 // -----------------------------------------------------------------------------
+// =============================== Constructors ================================
 RemoteCommandManager::RegistrationListener::RegistrationListener
 (
 	RemoteCommandManager &owner_
@@ -133,9 +150,7 @@ RemoteCommandManager::RegistrationListener::RegistrationListener
 	owner(owner_)
 { }
 
-// -----------------------------------------------------------------------------
-// Implementation
-// -----------------------------------------------------------------------------
+// ============================== Implementation ===============================
 void RemoteCommandManager::RegistrationListener::onNewDataMessage
 (
 	eprosima::fastrtps::Subscriber *sub
@@ -163,4 +178,3 @@ void RemoteCommandManager::RegistrationListener::onNewDataMessage
 		}
 	}
 }
-

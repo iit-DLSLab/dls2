@@ -17,81 +17,25 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-#ifndef COMMAND_HPP_RSTXNA3I
-#define COMMAND_HPP_RSTXNA3I
+#ifndef REMOTE_COMMAND_TPP_1796GJVY
+#define REMOTE_COMMAND_TPP_1796GJVY
 
 // =============================================================================
 // Includes
 // =============================================================================
-#include "command/command_base.hpp"
-#include "util/messaging/publisher_base.hpp"
-#include "util/messaging/subscriber_base.hpp"
-#include "msg/command_registerPubSubTypes.h"
-#include <string>
-#include <functional>
-#include <utility>
-#include <vector>
-#include <memory>
+#include "command/remote_command.hpp"
 
 namespace dls
 {
 // =============================================================================
-// Class Interface
+// Remote Command Implementation
 // =============================================================================
-template <typename ret_t, typename...arg_ts>
-class Command : public CommandBase
+template <typename T>
+void RemoteCommand::pushArg(T t)
 {
-public:
-	Command
-	(
-		const std::string &owner,
-		const std::string &command_name,
-		const std::string &docstring,
-		const std::function<ret_t(arg_ts...)> &f
-	);
-
-	void requestRegistration();
-	void requestDeregistration();
-
-private:
-	// ========================== Constructor helpers ==========================
-	CommandRegisterMsg buildMsg
-	(
-		const std::string &owner,
-		const std::string &command_name,
-		const std::string &docstring
-	);
-
-	// ============================= Data Members ==============================
-	const std::string owner;
-	const std::string command_name;
-	const std::string docstring;
-	const std::function<ret_t(arg_ts...)> f;
-	CommandRegisterMsg msg;
-	PublisherBase<CommandRegisterMsgPubSubType> publisher;
-};
-
-// =============================================================================
-// Container Class
-// =============================================================================
-class CommandManager
-{
-public:
-	CommandManager();
-	template <typename ret_t, typename... arg_ts>
-	void addCommand
-	(
-		const std::string &owner,
-		const std::string &command_name,
-		const std::string &docstring,
-		const std::function<ret_t(arg_ts...)> &f
-	);
-
-private:
-	std::vector<std::unique_ptr<CommandBase>> commands;
-};
+	// TODO implement
+}
 } // end namespace dls
 
-#include "command/command.tpp"
 
-#endif /* end of include guard: COMMAND_HPP_RSTXNA3I */
+#endif /* end of include guard: REMOTE_COMMAND_TPP_1796GJVY */

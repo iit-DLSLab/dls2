@@ -17,81 +17,80 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-#ifndef COMMAND_HPP_RSTXNA3I
-#define COMMAND_HPP_RSTXNA3I
+#ifndef REMOTE_COMMAND_HPP_EDSRALCP
+#define REMOTE_COMMAND_HPP_EDSRALCP
 
 // =============================================================================
 // Includes
 // =============================================================================
-#include "command/command_base.hpp"
-#include "util/messaging/publisher_base.hpp"
-#include "util/messaging/subscriber_base.hpp"
-#include "msg/command_registerPubSubTypes.h"
-#include <string>
-#include <functional>
-#include <utility>
-#include <vector>
 #include <memory>
+#include <functional>
+#include "command/command_base.hpp"
+#include "util/messaging/subscriber_base.hpp"
 
 namespace dls
 {
 // =============================================================================
+// Forward Declarations
+// =============================================================================
+class RemoteCommandManager;
+// =============================================================================
 // Class Interface
 // =============================================================================
-template <typename ret_t, typename...arg_ts>
-class Command : public CommandBase
+class RemoteCommand : public CommandBase
 {
+	friend class RemoteCommandManager;
 public:
-	Command
-	(
-		const std::string &owner,
-		const std::string &command_name,
-		const std::string &docstring,
-		const std::function<ret_t(arg_ts...)> &f
-	);
-
-	void requestRegistration();
-	void requestDeregistration();
+	RemoteCommand(CommandRegisterMsg &msg);
 
 private:
-	// ========================== Constructor helpers ==========================
-	CommandRegisterMsg buildMsg
-	(
-		const std::string &owner,
-		const std::string &command_name,
-		const std::string &docstring
-	);
+	void clearArgs();
+	template <typename T>
+	void pushArg(T t);
+	void call();
 
-	// ============================= Data Members ==============================
+private:
 	const std::string owner;
 	const std::string command_name;
 	const std::string docstring;
-	const std::function<ret_t(arg_ts...)> f;
-	CommandRegisterMsg msg;
-	PublisherBase<CommandRegisterMsgPubSubType> publisher;
+	const CommandBase::RepresentationVector args;
+	const std::remove_reference<CommandBase::RepresentationVector>::type::value_type ret_type;
 };
-
 // =============================================================================
-// Container Class
+// Manager Class
 // =============================================================================
-class CommandManager
+class RemoteCommandManager
 {
 public:
-	CommandManager();
-	template <typename ret_t, typename... arg_ts>
-	void addCommand
+	RemoteCommandManager
 	(
-		const std::string &owner,
-		const std::string &command_name,
-		const std::string &docstring,
-		const std::function<ret_t(arg_ts...)> &f
+		std::function<void(std::shared_ptr<RemoteCommand>)> onNewCommand = nullptr,
+		std::function<void(std::shared_ptr<RemoteCommand>)> onRemoveCommand = nullptr
 	);
 
+	std::vector<std::shared_ptr<RemoteCommand>> findByOwner(const std::string&);
+	std::vector<std::shared_ptr<RemoteCommand>> findByName(const std::string&);
+	std::shared_ptr<RemoteCommand> find(const std::string &owner, const std::string &name);
+
 private:
-	std::vector<std::unique_ptr<CommandBase>> commands;
+	// begin critical section
+		std::mutex remote_commands_mutex;
+		std::vector<std::shared_ptr<RemoteCommand>> remote_commands;
+	// end critical section
+
+	class RegistrationListener : public SubscriberBase<CommandRegisterMsgPubSubType>
+	{
+	public:
+		RegistrationListener(RemoteCommandManager &owner);
+	private:
+		void onNewDataMessage(eprosima::fastrtps::Subscriber*) override;
+		RemoteCommandManager &owner;
+	} registration_listener;
+
+	std::function<void(std::shared_ptr<RemoteCommand>)> onNewCommand;
+	std::function<void(std::shared_ptr<RemoteCommand>)> onRemoveCommand;
 };
 } // end namespace dls
 
-#include "command/command.tpp"
-
-#endif /* end of include guard: COMMAND_HPP_RSTXNA3I */
+#include "command/remote_command.tpp"
+#endif /* end of include guard: REMOTE_COMMAND_HPP_EDSRALCP */

@@ -178,6 +178,9 @@ add_library(
 	application_framework/components/app_layer_component.cpp
 	application_framework/components/periodic_app_layer_component.cpp
 
+	# Commands
+	command/remote_command.cpp
+
 	# TODO remove this and instead link to the library
 	util/string/string.cpp
 )
