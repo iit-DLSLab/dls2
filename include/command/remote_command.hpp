@@ -28,6 +28,11 @@
 #include "command/command_base.hpp"
 #include "util/messaging/subscriber_base.hpp"
 
+#include <fastrtps/types/DynamicPubSubType.h>
+#include <fastrtps/participant/Participant.h>
+#include <fastrtps/publisher/PublisherListener.h>
+#include <memory>
+
 namespace dls
 {
 // =============================================================================
@@ -78,6 +83,25 @@ public:
 	/// The return type of this command
 	///
 	const std::remove_reference<CommandBase::RepresentationVector>::type::value_type ret_type;
+
+private:
+	/// Dynamic publisher helper class
+	///
+	/// Note that when a remote command is created, there will be a delay of
+	/// around 80ms (determined experimentally) before which it can be used. If
+	/// the command is called within this period, then it may be missed by the
+	/// rest of the framework
+	class RemoteCommandPublisher : public eprosima::fastrtps::PublisherListener
+	{
+	public:
+		RemoteCommandPublisher(const CommandRegisterMsg &msg);
+
+	private:
+		eprosima::fastrtps::types::DynamicPubSubType dynamic_type;
+		std::shared_ptr<eprosima::fastrtps::types::DynamicData> pData;
+		std::shared_ptr<eprosima::fastrtps::Participant> pParticipant;
+		std::shared_ptr<eprosima::fastrtps::Publisher> pPublisher;
+	}remote_command_publisher;
 };
 // =============================================================================
 // Manager Class
