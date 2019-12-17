@@ -79,6 +79,7 @@ protected:
 	/// Builds a vector of ArgumentTypes representing the types given in the
 	/// temlate paramters
 	///
+	/// Recursion base case
 	template <typename arg_t>
 	RepresentationVector &buildRepresentationVector(RepresentationVector&);
 };
