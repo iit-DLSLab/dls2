@@ -180,6 +180,7 @@ add_library(
 
 	# Commands
 	command/remote_command.cpp
+	command/command_base.cpp
 
 	# TODO remove this and instead link to the library
 	util/string/string.cpp

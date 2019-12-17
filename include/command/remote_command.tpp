@@ -37,5 +37,4 @@ void RemoteCommand::pushArg(T t)
 }
 } // end namespace dls
 
-
 #endif /* end of include guard: REMOTE_COMMAND_TPP_1796GJVY */

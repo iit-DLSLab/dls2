@@ -67,5 +67,4 @@ protected:
 } // end namespace dls
 
 #include "command/command_base.tpp"
-
 #endif /* end of include guard: COMMAND_BASE_HPP_BH05RHMM */

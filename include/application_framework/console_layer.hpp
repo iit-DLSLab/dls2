@@ -31,6 +31,9 @@
 #include "msg/command_registerPubSubTypes.h"
 #include "util/messaging/subscriber_base.hpp"
 
+// commands
+#include "command/remote_command.hpp"
+
 // stdlib
 #include <map>
 #include <functional>
@@ -114,14 +117,16 @@ private:
 
 	// void onNewDataMessage(eprosima::fastrtps::Subscriber *sub) override;
 
-	class CommandRegistrationListener : public SubscriberBase<CommandRegisterMsgPubSubType>
-	{
-	public:
-		CommandRegistrationListener(ConsoleLayer &owner);
-	private:
-		void onNewDataMessage(eprosima::fastrtps::Subscriber *sub) override;
-		ConsoleLayer &owner;
-	} command_registration_listener;
+	// class CommandRegistrationListener : public SubscriberBase<CommandRegisterMsgPubSubType>
+	// {
+	// public:
+	// 	CommandRegistrationListener(ConsoleLayer &owner);
+	// private:
+	// 	void onNewDataMessage(eprosima::fastrtps::Subscriber *sub) override;
+	// 	ConsoleLayer &owner;
+	// } command_registration_listener;
+
+	RemoteCommandManager remote_command_manager;
 
 	class StringListener : public SubscriberBase<StringMsgPubSubType>
 	{
