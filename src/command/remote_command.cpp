@@ -160,7 +160,6 @@ void RemoteCommandManager::RegistrationListener::onNewDataMessage
 	CommandRegisterMsg msg;
 	if(sub->takeNextData(&msg, &info))
 	{
-		std::cout << "Command manger got a new command" << std::endl;
 		std::shared_ptr<RemoteCommand> pCommand =
 			std::make_shared<RemoteCommand>
 			(

@@ -30,9 +30,17 @@
 // =============================================================================
 namespace dls
 {
+/// Base class for command types
+///
 class CommandBase
 {
 public:
+	/// Argument and return type representations
+	///
+	/// Since commands may be registered dynamically from external processes, we
+	/// cannot simply use template types to instantiate new external commands.
+	/// As such, the currently supported command types and arguments are
+	/// encapsulated by the following enumeration
 	enum class ArgumentType : uint32_t
 	{
 		VOID,
@@ -52,15 +60,25 @@ public:
 	};
 
 protected:
+	/// Convenience typedef
+	///
 	typedef decltype(std::declval<CommandRegisterMsg>().arg_types())
 		RepresentationVector;
 
+	/// Converts a type to its representation for serialization and publishing
+	///
 	template <typename T>
 	ArgumentType typeToRepresentation();
 
+	/// Builds a vector of ArgumentTypes representing the types given in the
+	/// temlate paramters
+	///
 	template <typename arg1_t, typename arg2_t, typename...arg_other_ts>
 	RepresentationVector &buildRepresentationVector(RepresentationVector&);
 
+	/// Builds a vector of ArgumentTypes representing the types given in the
+	/// temlate paramters
+	///
 	template <typename arg_t>
 	RepresentationVector &buildRepresentationVector(RepresentationVector&);
 };

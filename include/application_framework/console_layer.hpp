@@ -57,6 +57,7 @@ class ConsoleLayer : public AppLayer//, public SubscriberBase<StringMsgPubSubTyp
 public:
 	/// Utility class for collecting a console command
 	///
+	// TODO remove this and use remote command class instead
 	struct Command
 	{
 		/// Constructor
@@ -114,17 +115,6 @@ private:
 		std::mutex commands_mutex; ///< Mutex protecting the console commands
 		std::map<std::string, Command> commands; ///< The commands registered with the console
 	// End critical section
-
-	// void onNewDataMessage(eprosima::fastrtps::Subscriber *sub) override;
-
-	// class CommandRegistrationListener : public SubscriberBase<CommandRegisterMsgPubSubType>
-	// {
-	// public:
-	// 	CommandRegistrationListener(ConsoleLayer &owner);
-	// private:
-	// 	void onNewDataMessage(eprosima::fastrtps::Subscriber *sub) override;
-	// 	ConsoleLayer &owner;
-	// } command_registration_listener;
 
 	RemoteCommandManager remote_command_manager;
 

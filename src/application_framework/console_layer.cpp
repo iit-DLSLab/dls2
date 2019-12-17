@@ -80,12 +80,15 @@ std::shared_ptr<PublisherBase<StringMsgPubSubType>> pDeactivate_gait_generator_p
 // Constructors
 // =============================================================================
 ConsoleLayer::ConsoleLayer() :
-	// SubscriberBase<StringMsgPubSubType>(topics::warn_log_stream),
 	commands_mutex(),
 	commands(),
-	remote_command_manager()
-	// ,
-	// command_registration_listener(*this)
+	remote_command_manager
+	(
+		[this](std::shared_ptr<RemoteCommand> p)
+		{
+			this->addCommand(Command(p->command_name, nullptr, p->docstring));
+		}
+	)
 	// ,
 	//  string_listener(*this)
 {
@@ -578,46 +581,3 @@ void ConsoleLayer::StringListener::onNewDataMessage(eprosima::fastrtps::Subscrib
 		std::cout << owner.build_prompt() << " " << rl_line_buffer << std::flush;
 	}
 }
-// -----------------------------------------------------------------------------
-// Commands
-// -----------------------------------------------------------------------------
-// ConsoleLayer::CommandRegistrationListener::CommandRegistrationListener(ConsoleLayer &owner_) :
-// 	SubscriberBase<CommandRegisterMsgPubSubType>(topics::command_register),
-// 	owner(owner_)
-// { }
-
-// void ConsoleLayer::CommandRegistrationListener::onNewDataMessage
-// (
-// 	eprosima::fastrtps::Subscriber *sub
-// )
-// {
-// 	std::cout << "hit registration callback" << std::endl;
-// 	eprosima::fastrtps::SampleInfo_t info;
-// 	CommandRegisterMsg msg;
-// 	if(sub->takeNextData(&msg, &info))
-// 	{
-// 		std::cout << "got a registration message" << std::endl;
-// 		std::cout << "Owner: " << msg.owner() << std::endl;
-// 		std::cout << "Command: " << msg.command_name() << std::endl;
-// 		std::cout << "doc: " << msg.docstring() << std::endl;
-
-// 		std::cout << "arg types: " << std::endl;
-// 		for(const auto &el : msg.arg_types())
-// 		{
-// 			std::cout << "\t" << el << std::endl;
-// 		}
-
-// 		std::cout << "ret type: " << msg.ret_type() << std::endl;
-
-// 		owner.addCommand
-// 		(
-// 			Command
-// 			(
-// 				msg.command_name(),
-// 				[](const std::vector<std::string> &)
-// 				{ },
-// 				msg.docstring()
-// 			)
-// 		);
-// 	}
-// }
