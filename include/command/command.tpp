@@ -25,11 +25,11 @@
 // =============================================================================
 #include "command/command.hpp"
 #include "topics/command_register.hpp"
-#include <fastrtps/types/DynamicTypeBuilderPtr.h>
 #include <fastrtps/types/DynamicTypeBuilderFactory.h>
 #include <fastrtps/types/DynamicDataFactory.h>
 #include <fastrtps/types/DynamicData.h>
 #include <iostream>
+
 namespace dls
 {
 // =============================================================================
@@ -143,21 +143,22 @@ Command<ret_t, arg_ts...>::CommandCallListener::CommandCallListener
 		eprosima::fastrtps::types::DynamicTypeBuilderFactory::get_instance()->
 			create_struct_builder();
 
-	struct_type_builder->add_member
-	(
-		0,
-		"index",
-		eprosima::fastrtps::types::DynamicTypeBuilderFactory::get_instance()->
-			create_uint32_builder()
-	);
+	buildDynamicType<arg_ts...>(struct_type_builder);
+	// struct_type_builder->add_member
+	// (
+	// 	0,
+	// 	"index",
+	// 	eprosima::fastrtps::types::DynamicTypeBuilderFactory::get_instance()->
+	// 		create_uint32_builder()
+	// );
 
-	struct_type_builder->add_member
-	(
-		1,
-		"message",
-		eprosima::fastrtps::types::DynamicTypeBuilderFactory::get_instance()->
-			create_string_type()
-	);
+	// struct_type_builder->add_member
+	// (
+	// 	1,
+	// 	"message",
+	// 	eprosima::fastrtps::types::DynamicTypeBuilderFactory::get_instance()->
+	// 		create_string_type()
+	// );
 	struct_type_builder->set_name("HelloWorld");
 
 	eprosima::fastrtps::types::DynamicType_ptr dtp = struct_type_builder->build();
@@ -201,6 +202,260 @@ Command<ret_t, arg_ts...>::CommandCallListener::CommandCallListener
 	std::cout << "created remote call listener" << std::endl;
 }
 
+// -----------------------------------------------------------------------------
+// Constructor Helpers
+// -----------------------------------------------------------------------------
+template <typename arg1_t, typename arg2_t, typename... arg_other_ts>
+void buildDynamicType
+(
+	eprosima::fastrtps::types::DynamicTypeBuilder_ptr &builder,
+	size_t index
+)
+{
+	buildDynamicType<arg1_t>(builder, index);
+	buildDynamicType<arg2_t, arg_other_ts...>(builder, ++index);
+}
+
+// ========================= Base Case Specialisations =========================
+template<>
+void buildDynamicType<char>
+(
+	eprosima::fastrtps::types::DynamicTypeBuilder_ptr &builder,
+	size_t index
+)
+{
+	builder->add_member
+	(
+		index,
+		std::string("field_") + std::to_string(index),
+		eprosima::fastrtps::types::DynamicTypeBuilderFactory::get_instance()->
+			create_char8_builder()
+	);
+}
+
+template<>
+void buildDynamicType<uint8_t>
+(
+	eprosima::fastrtps::types::DynamicTypeBuilder_ptr &builder,
+	size_t index
+)
+{
+	builder->add_member
+	(
+		index,
+		std::string("field_") + std::to_string(index),
+		eprosima::fastrtps::types::DynamicTypeBuilderFactory::get_instance()->
+			create_uint16_builder()
+	);
+}
+
+template<>
+void buildDynamicType<int16_t>
+(
+	eprosima::fastrtps::types::DynamicTypeBuilder_ptr &builder,
+	size_t index
+)
+{
+	builder->add_member
+	(
+		index,
+		std::string("field_") + std::to_string(index),
+		eprosima::fastrtps::types::DynamicTypeBuilderFactory::get_instance()->
+			create_int16_builder()
+	);
+}
+
+template<>
+void buildDynamicType<uint16_t>
+(
+	eprosima::fastrtps::types::DynamicTypeBuilder_ptr &builder,
+	size_t index
+)
+{
+	builder->add_member
+	(
+		index,
+		std::string("field_") + std::to_string(index),
+		eprosima::fastrtps::types::DynamicTypeBuilderFactory::get_instance()->
+			create_uint16_builder()
+	);
+}
+
+template<>
+void buildDynamicType<int32_t>
+(
+	eprosima::fastrtps::types::DynamicTypeBuilder_ptr &builder,
+	size_t index
+)
+{
+	builder->add_member
+	(
+		index,
+		std::string("field_") + std::to_string(index),
+		eprosima::fastrtps::types::DynamicTypeBuilderFactory::get_instance()->
+			create_int32_builder()
+	);
+}
+
+template<>
+void buildDynamicType<uint32_t>
+(
+	eprosima::fastrtps::types::DynamicTypeBuilder_ptr &builder,
+	size_t index
+)
+{
+	builder->add_member
+	(
+		index,
+		std::string("field_") + std::to_string(index),
+		eprosima::fastrtps::types::DynamicTypeBuilderFactory::get_instance()->
+			create_uint32_builder()
+	);
+}
+
+template<>
+void buildDynamicType<int64_t>
+(
+	eprosima::fastrtps::types::DynamicTypeBuilder_ptr &builder,
+	size_t index
+)
+{
+	builder->add_member
+	(
+		index,
+		std::string("field_") + std::to_string(index),
+		eprosima::fastrtps::types::DynamicTypeBuilderFactory::get_instance()->
+			create_int64_builder()
+	);
+}
+
+template<>
+void buildDynamicType<uint64_t>
+(
+	eprosima::fastrtps::types::DynamicTypeBuilder_ptr &builder,
+	size_t index
+)
+{
+	builder->add_member
+	(
+		index,
+		std::string("field_") + std::to_string(index),
+		eprosima::fastrtps::types::DynamicTypeBuilderFactory::get_instance()->
+			create_uint64_builder()
+	);
+}
+
+template<>
+void buildDynamicType<float>
+(
+	eprosima::fastrtps::types::DynamicTypeBuilder_ptr &builder,
+	size_t index
+)
+{
+	builder->add_member
+	(
+		index,
+		std::string("field_") + std::to_string(index),
+		eprosima::fastrtps::types::DynamicTypeBuilderFactory::get_instance()->
+			create_float32_builder()
+	);
+}
+
+template<>
+void buildDynamicType<double>
+(
+	eprosima::fastrtps::types::DynamicTypeBuilder_ptr &builder,
+	size_t index
+)
+{
+	builder->add_member
+	(
+		index,
+		std::string("field_") + std::to_string(index),
+		eprosima::fastrtps::types::DynamicTypeBuilderFactory::get_instance()->
+			create_float64_builder()
+	);
+}
+
+template<>
+void buildDynamicType<long double>
+(
+	eprosima::fastrtps::types::DynamicTypeBuilder_ptr &builder,
+	size_t index
+)
+{
+	builder->add_member
+	(
+		index,
+		std::string("field_") + std::to_string(index),
+		eprosima::fastrtps::types::DynamicTypeBuilderFactory::get_instance()->
+			create_float128_builder()
+	);
+}
+
+template<>
+void buildDynamicType<bool>
+(
+	eprosima::fastrtps::types::DynamicTypeBuilder_ptr &builder,
+	size_t index
+)
+{
+	builder->add_member
+	(
+		index,
+		std::string("field_") + std::to_string(index),
+		eprosima::fastrtps::types::DynamicTypeBuilderFactory::get_instance()->
+			create_float128_builder()
+	);
+}
+
+template<>
+void buildDynamicType<std::string>
+(
+	eprosima::fastrtps::types::DynamicTypeBuilder_ptr &builder,
+	size_t index
+)
+{
+	builder->add_member
+	(
+		index,
+		std::string("field_") + std::to_string(index),
+		eprosima::fastrtps::types::DynamicTypeBuilderFactory::get_instance()->
+			create_string_builder()
+	);
+}
+
+template<>
+void buildDynamicType<std::string&>
+(
+	eprosima::fastrtps::types::DynamicTypeBuilder_ptr &builder,
+	size_t index
+)
+{
+	builder->add_member
+	(
+		index,
+		std::string("field_") + std::to_string(index),
+		eprosima::fastrtps::types::DynamicTypeBuilderFactory::get_instance()->
+			create_string_builder()
+	);
+}
+
+template<>
+void buildDynamicType<const std::string&>
+(
+	eprosima::fastrtps::types::DynamicTypeBuilder_ptr &builder,
+	size_t index
+)
+{
+	builder->add_member
+	(
+		index,
+		std::string("field_") + std::to_string(index),
+		eprosima::fastrtps::types::DynamicTypeBuilderFactory::get_instance()->
+			create_string_builder()
+	);
+}
 // -----------------------------------------------------------------------------
 // Command Call Listener Implementation
 // -----------------------------------------------------------------------------

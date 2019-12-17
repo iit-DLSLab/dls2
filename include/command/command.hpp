@@ -32,6 +32,7 @@
 #include <utility>
 #include <vector>
 #include <memory>
+#include <fastrtps/types/DynamicTypeBuilderPtr.h>
 #include <fastrtps/types/DynamicPubSubType.h>
 
 namespace dls
@@ -114,12 +115,15 @@ private:
 	{
 	public:
 		CommandCallListener(Command<ret_t, arg_ts...>&);
+
 	private:
+		// ======================== Interface Override =========================
 		void onNewDataMessage
 		(
 			eprosima::fastrtps::Subscriber*
 		) override;
 
+		// =========================== Data Members ============================
 		Command<ret_t, arg_ts...> &owner;
 		std::shared_ptr<eprosima::fastrtps::Participant> pParticipant;
 		std::shared_ptr<eprosima::fastrtps::Subscriber> pSubscriber;
@@ -127,6 +131,30 @@ private:
 		std::shared_ptr<eprosima::fastrtps::types::DynamicData> pData;
 	} command_call_listener;
 };
+// =============================================================================
+// Free Functions
+// =============================================================================
+// -----------------------------------------------------------------------------
+// CommandCallListener
+// -----------------------------------------------------------------------------
+// ======================== Constructor Helpers ========================
+// TODO put these into a proper namespace
+template <typename arg1_t, typename arg2_t, typename... arg_other_ts>
+// eprosima::fastrtps::types::DynamicTypeBuilder_ptr
+void buildDynamicType
+(
+	eprosima::fastrtps::types::DynamicTypeBuilder_ptr&,
+	size_t index = 0
+);
+
+template <typename arg>
+// eprosima::fastrtps::types::DynamicTypeBuilder_ptr
+void buildDynamicType
+(
+	eprosima::fastrtps::types::DynamicTypeBuilder_ptr&,
+	size_t index = 0
+);
+
 
 // =============================================================================
 // Container Class
