@@ -207,7 +207,9 @@ RemoteCommandManager::RemoteCommandManager
 	registration_listener(*this),
 	onNewCommand(onNewCommand_),
 	onRemoveCommand(onRemoveCommand_)
-{ }
+{
+	std::cout << "Remote Command Manager Constructed" << std::endl;
+}
 
 // -----------------------------------------------------------------------------
 // Implementation
@@ -295,6 +297,7 @@ void RemoteCommandManager::RegistrationListener::onNewDataMessage
 	CommandRegisterMsg msg;
 	if(sub->takeNextData(&msg, &info))
 	{
+		std::cout << "remote command manager building new command" << std::endl;
 		std::shared_ptr<RemoteCommand> pCommand =
 			std::make_shared<RemoteCommand>
 			(

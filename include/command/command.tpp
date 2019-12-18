@@ -51,7 +51,7 @@ Command<ret_t, arg_ts...>::Command
 	publisher(topics::command_register),
 	command_call_listener(*this)
 {
-	requestRegistration();
+	// requestRegistration();
 }
 
 // -----------------------------------------------------------------------------
@@ -144,21 +144,7 @@ Command<ret_t, arg_ts...>::CommandCallListener::CommandCallListener
 			create_struct_builder();
 
 	buildDynamicType<arg_ts...>(struct_type_builder);
-	// struct_type_builder->add_member
-	// (
-	// 	0,
-	// 	"index",
-	// 	eprosima::fastrtps::types::DynamicTypeBuilderFactory::get_instance()->
-	// 		create_uint32_builder()
-	// );
 
-	// struct_type_builder->add_member
-	// (
-	// 	1,
-	// 	"message",
-	// 	eprosima::fastrtps::types::DynamicTypeBuilderFactory::get_instance()->
-	// 		create_string_type()
-	// );
 	struct_type_builder->set_name("HelloWorld");
 
 	eprosima::fastrtps::types::DynamicType_ptr dtp = struct_type_builder->build();
@@ -224,6 +210,7 @@ void buildDynamicType<char>
 	size_t index
 )
 {
+	std::cout << "call base char" << std::endl;
 	builder->add_member
 	(
 		index,
@@ -240,6 +227,7 @@ void buildDynamicType<uint8_t>
 	size_t index
 )
 {
+	std::cout << "call base uint8" << std::endl;
 	builder->add_member
 	(
 		index,
@@ -256,6 +244,7 @@ void buildDynamicType<int16_t>
 	size_t index
 )
 {
+	std::cout << "call base int16" << std::endl;
 	builder->add_member
 	(
 		index,
@@ -272,6 +261,7 @@ void buildDynamicType<uint16_t>
 	size_t index
 )
 {
+	std::cout << "call base uint16" << std::endl;
 	builder->add_member
 	(
 		index,
@@ -288,6 +278,7 @@ void buildDynamicType<int32_t>
 	size_t index
 )
 {
+	std::cout << "call base int32 " << index << std::endl;
 	builder->add_member
 	(
 		index,
@@ -304,6 +295,7 @@ void buildDynamicType<uint32_t>
 	size_t index
 )
 {
+	std::cout << "call base uint32 " << index << std::endl;
 	builder->add_member
 	(
 		index,
@@ -320,6 +312,7 @@ void buildDynamicType<int64_t>
 	size_t index
 )
 {
+	std::cout << "call base int64 " << index << std::endl;
 	builder->add_member
 	(
 		index,
@@ -336,6 +329,7 @@ void buildDynamicType<uint64_t>
 	size_t index
 )
 {
+	std::cout << "call base uint64 " << index << std::endl;
 	builder->add_member
 	(
 		index,
@@ -352,6 +346,7 @@ void buildDynamicType<float>
 	size_t index
 )
 {
+	std::cout << "call base float " << index << std::endl;
 	builder->add_member
 	(
 		index,
@@ -368,6 +363,7 @@ void buildDynamicType<double>
 	size_t index
 )
 {
+	std::cout << "call base double " << index << std::endl;
 	builder->add_member
 	(
 		index,
@@ -384,6 +380,7 @@ void buildDynamicType<long double>
 	size_t index
 )
 {
+	std::cout << "call base long double " << index << std::endl;
 	builder->add_member
 	(
 		index,
@@ -400,6 +397,7 @@ void buildDynamicType<bool>
 	size_t index
 )
 {
+	std::cout << "call base bool " << index << std::endl;
 	builder->add_member
 	(
 		index,
@@ -416,12 +414,13 @@ void buildDynamicType<std::string>
 	size_t index
 )
 {
+	std::cout << "call base string " << index << std::endl;
 	builder->add_member
 	(
 		index,
 		std::string("field_") + std::to_string(index),
 		eprosima::fastrtps::types::DynamicTypeBuilderFactory::get_instance()->
-			create_string_builder()
+			create_string_type()
 	);
 }
 
@@ -432,12 +431,13 @@ void buildDynamicType<std::string&>
 	size_t index
 )
 {
+	std::cout << "call base string ref " << index << std::endl;
 	builder->add_member
 	(
 		index,
 		std::string("field_") + std::to_string(index),
 		eprosima::fastrtps::types::DynamicTypeBuilderFactory::get_instance()->
-			create_string_builder()
+			create_string_type()
 	);
 }
 
@@ -448,12 +448,13 @@ void buildDynamicType<const std::string&>
 	size_t index
 )
 {
+	std::cout << "call base const string ref " << index << std::endl;
 	builder->add_member
 	(
 		index,
 		std::string("field_") + std::to_string(index),
 		eprosima::fastrtps::types::DynamicTypeBuilderFactory::get_instance()->
-			create_string_builder()
+			create_string_type()
 	);
 }
 // -----------------------------------------------------------------------------
