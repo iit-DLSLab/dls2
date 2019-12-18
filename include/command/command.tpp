@@ -51,7 +51,7 @@ Command<ret_t, arg_ts...>::Command
 	publisher(topics::command_register),
 	command_call_listener(*this)
 {
-	// requestRegistration();
+	requestRegistration();
 }
 
 // -----------------------------------------------------------------------------

@@ -61,7 +61,7 @@ CommandBase::ArgumentType CommandBase::typeToRepresentation<uint16_t>()
 template <>
 CommandBase::ArgumentType CommandBase::typeToRepresentation<int32_t>()
 {
-	return ArgumentType::UINT32;
+	return ArgumentType::INT32;
 }
 
 template <>

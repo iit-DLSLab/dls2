@@ -21,7 +21,7 @@
 #include "util/debug/debug.hpp"
 #include "util/log/log.hpp"
 
-int foo(int32_t, std::string){return 1;}
+int foo(float, std::string){return 1;}
 namespace dls
 {
 
@@ -37,12 +37,12 @@ PidController::PidController (const std::shared_ptr<Dog> &dog) : Controller
 	// command("dummy_controller", "foo", "help", foo)
 {
 	scout << "pid controller launched" << std::endl;
-	command_manager.addCommand<int, int32_t, std::string>
+	command_manager.addCommand<int, float, std::string>
 		(
 			std::string("pid"),
 			std::string("foo"),
 			std::string("foohelp"),
-			std::function<int(int32_t, std::string)>(foo)
+			std::function<int(float, std::string)>(foo)
 		);
 }
 
