@@ -80,14 +80,14 @@ std::shared_ptr<PublisherBase<StringMsgPubSubType>> pDeactivate_gait_generator_p
 // Constructors
 // =============================================================================
 ConsoleLayer::ConsoleLayer() :
-	commands_mutex(),
-	commands(),
+	// commands_mutex(),
+	// commands(),
 	remote_command_manager
 	(
-		[this](std::shared_ptr<RemoteCommand> p)
-		{
-			this->addCommand(Command(p->command_name, nullptr, p->docstring));
-		}
+		// [this](std::shared_ptr<RemoteCommand> p)
+		// {
+		// 	this->addCommand(Command(p->command_name, nullptr, p->docstring));
+		// }
 	)
 	// ,
 	//  string_listener(*this)
@@ -126,104 +126,104 @@ ConsoleLayer::ConsoleLayer() :
 	rl_completion_entry_function = [](const char *, int)->char*{return nullptr;};
 
 	// populate commands
-	addCommand
-	(
-		Command
-		(
-			"activateController",
-			// TODO lambda is currently copied everywhere, but this will
-			// diseappear when everything is made more flexible
-			[](const std::vector<std::string> &vec)
-			{
-				StringMsg msg;
-				if(vec.size() > 0)
-				{
-					msg.msg(vec[0]);
-					pActivate_controller_pub->publish(msg);
-				}
-			},
-			"activates the controller"
-		)
-	);
+	// addCommand
+	// (
+	// 	Command
+	// 	(
+	// 		"activateController",
+	// 		// TODO lambda is currently copied everywhere, but this will
+	// 		// diseappear when everything is made more flexible
+	// 		[](const std::vector<std::string> &vec)
+	// 		{
+	// 			StringMsg msg;
+	// 			if(vec.size() > 0)
+	// 			{
+	// 				msg.msg(vec[0]);
+	// 				pActivate_controller_pub->publish(msg);
+	// 			}
+	// 		},
+	// 		"activates the controller"
+	// 	)
+	// );
 
-	addCommand
-	(
-		Command
-		(
-			"deactivateController",
-			[](const std::vector<std::string> &vec)
-			{
-				StringMsg msg;
-				if(vec.size() > 0)
-				{
-					msg.msg(vec[0]);
-					pDeactivate_controller_pub->publish(msg);
-				}
-			},
-			"deactivates the controller"
-		)
-	);
+	// addCommand
+	// (
+	// 	Command
+	// 	(
+	// 		"deactivateController",
+	// 		[](const std::vector<std::string> &vec)
+	// 		{
+	// 			StringMsg msg;
+	// 			if(vec.size() > 0)
+	// 			{
+	// 				msg.msg(vec[0]);
+	// 				pDeactivate_controller_pub->publish(msg);
+	// 			}
+	// 		},
+	// 		"deactivates the controller"
+	// 	)
+	// );
 
-	addCommand
-	(
-		Command
-		(
-			"activateGaitGenerator",
-			[](const std::vector<std::string> &vec)
-			{
-				StringMsg msg;
-				if(vec.size() > 0)
-				{
-					msg.msg(vec[0]);
-					pActivate_gait_generator_pub->publish(msg);
-				}
-			},
-			"deactivates the controller"
-		)
-	);
+	// addCommand
+	// (
+	// 	Command
+	// 	(
+	// 		"activateGaitGenerator",
+	// 		[](const std::vector<std::string> &vec)
+	// 		{
+	// 			StringMsg msg;
+	// 			if(vec.size() > 0)
+	// 			{
+	// 				msg.msg(vec[0]);
+	// 				pActivate_gait_generator_pub->publish(msg);
+	// 			}
+	// 		},
+	// 		"deactivates the controller"
+	// 	)
+	// );
 
-	addCommand
-	(
-		Command
-		(
-			"deactivateGaitGenerator",
-			[](const std::vector<std::string> &)
-			{
-				StringMsg msg;
-				pDeactivate_gait_generator_pub->publish(msg);
-			},
-			"deactivates the controller"
-		)
-	);
+	// addCommand
+	// (
+	// 	Command
+	// 	(
+	// 		"deactivateGaitGenerator",
+	// 		[](const std::vector<std::string> &)
+	// 		{
+	// 			StringMsg msg;
+	// 			pDeactivate_gait_generator_pub->publish(msg);
+	// 		},
+	// 		"deactivates the controller"
+	// 	)
+	// );
 
-	addCommand
-	(
-		Command
-		(
-			"help",
-			[&](const std::vector<std::string> &vec)
-			{
-				if(vec.size() == 0)
-				{
-					std::cout << "usage: help arg [arg...]" << std::endl;
-				}
-				else
-				{
-					// std::lock_guard<std::mutex> lock(this->commands_mutex);
-					for(const auto &arg : vec)
-					{
-						auto it = commands.find(arg);
-						if(it == commands.end())
-						{
-							continue;
-						}
-						std::cout << arg << ": " << it->second.docstring << std::endl;
-					}
-				}
-			},
-			"Prints docstrings of its arguments"
-		)
-	);
+	// addCommand
+	// (
+	// 	Command
+	// 	(
+	// 		"help",
+	// 		[&](const std::vector<std::string> &vec)
+	// 		{
+	// 			if(vec.size() == 0)
+	// 			{
+	// 				std::cout << "usage: help arg [arg...]" << std::endl;
+	// 			}
+	// 			else
+	// 			{
+	// 				// std::lock_guard<std::mutex> lock(this->commands_mutex);
+	// 				for(const auto &arg : vec)
+	// 				{
+	// 					auto it = commands.find(arg);
+	// 					if(it == commands.end())
+	// 					{
+	// 						continue;
+	// 					}
+	// 					std::cout << arg << ": " << it->second.docstring << std::endl;
+	// 				}
+	// 			}
+	// 		},
+	// 		"Prints docstrings of its arguments"
+	// 	)
+	// );
 }
 
 // =============================================================================
@@ -262,12 +262,26 @@ ConsoleLayer::Status ConsoleLayer::run()
 
 				// Execute the commands
 				{
-					std::lock_guard<std::mutex> lock(this->commands_mutex);
+					std::vector<std::shared_ptr<RemoteCommand>> remote_commands =
+						pInstance->remote_command_manager
+							.getCurrentlyRegisteredCommands();
 
-					auto it = pInstance->commands.find(input_split[0]);
-					if(it != pInstance->commands.end())
+					auto it = remote_commands.begin();
+					for(;it != remote_commands.end(); ++it)
 					{
-						it->second.function(args);
+						if((*it)->command_name == input_split[0])
+						{
+							break;
+						}
+					}
+					if(it != remote_commands.end())
+					{
+						// (*it)->c
+						// TODO call command here
+						std::cout << "found command: "
+							<< (*it)->command_name << " belonging to component: "
+							<< (*it)->owner
+							<< std::endl;
 					}
 					else
 					{
@@ -310,18 +324,18 @@ std::string ConsoleLayer::build_prompt()
 	return "> ";
 }
 
-void ConsoleLayer::addCommand(const Command &c)
-{
-	std::lock_guard<std::mutex> lock(this->commands_mutex);
-	this->commands.insert
-	(
-		std::pair<std::string, Command>
-		(
-			c.command_name,
-			c
-		)
-	);
-}
+// void ConsoleLayer::addCommand(const Command &c)
+// {
+// 	std::lock_guard<std::mutex> lock(this->commands_mutex);
+// 	this->commands.insert
+// 	(
+// 		std::pair<std::string, Command>
+// 		(
+// 			c.command_name,
+// 			c
+// 		)
+// 	);
+// }
 
 // =============================================================================
 // Readline
@@ -360,9 +374,17 @@ char **dls::console_completion(const char *text, int start, int /*end*/)
 		{
 			// std::lock_guard<std::mutex> lock(pInstance->commands_mutex);
 
-			auto command_it = pInstance->commands.find(command_name);
-			// readline_globals::current_command = command_it;
-			if(command_it != pInstance->commands.end())
+			std::vector<std::shared_ptr<RemoteCommand>> remote_commands =
+				pInstance->remote_command_manager.getCurrentlyRegisteredCommands();
+
+			auto it = remote_commands.begin();
+			for(; it != remote_commands.end(); ++it)
+			{
+				if((*it)->command_name == command_name)
+					break;
+			}
+
+			if(it != remote_commands.end())
 			{
 				matches = rl_completion_matches(text, arg_completion);
 			}
@@ -378,7 +400,9 @@ char **dls::console_completion(const char *text, int start, int /*end*/)
 // -----------------------------------------------------------------------------
 char *dls::command_completion(const char *text, int state)
 {
-	static decltype(pInstance->commands.cbegin()) it;
+	// static decltype(pInstance->commands.cbegin()) it;
+	static decltype(pInstance->remote_command_manager.getCurrentlyRegisteredCommands()) commands;
+	static decltype(pInstance->remote_command_manager.getCurrentlyRegisteredCommands().cbegin()) it;
 	static int string_length;
 
 	// Safety check is not currently needed, but putting it now for future
@@ -388,17 +412,19 @@ char *dls::command_completion(const char *text, int state)
 		// if first time this completer is being run
 		if(state == 0)
 		{
-			// Not using lock_guard, since lock must persist across all calls to
-			// this generator
-			pInstance->commands_mutex.lock();
-			it = pInstance->commands.begin();
+			commands = pInstance->remote_command_manager.getCurrentlyRegisteredCommands();
+			// pInstance->commands_mutex.lock();
+			// it = pInstance->commands.begin();
+			it = commands.begin();
 			string_length = std::strlen(text);
 		}
 
 		// Do command completion
-		while(it != pInstance->commands.cend())
+		// while(it != pInstance->commands.cend())
+		while(it != commands.cend())
 		{
-			const char *match_candidate = it->second.command_name.c_str();
+			// const char *match_candidate = it->second.command_name.c_str();
+			const char *match_candidate = (*it)->command_name.c_str();
 			++it;
 
 			// TODO move this into a function, since it is copied in the other
@@ -419,7 +445,7 @@ char *dls::command_completion(const char *text, int state)
 			}
 		}
 
-		pInstance->commands_mutex.unlock();
+		// pInstance->commands_mutex.unlock();
 	}
 
 	return nullptr;
@@ -530,18 +556,18 @@ char *dls::arg_completion(const char * text, int state)
 // =============================================================================
 // Helper Class
 // =============================================================================
-ConsoleLayer::Command::Command
-(
-	const std::string &command_name_,
-	const std::function<void(const std::vector<std::string>&)> &function_,
-	const std::string &docstring_
-	// const std::vector<std::string> &default_completions_
-) :
-	command_name(command_name_),
-	function(function_),
-	docstring(docstring_)
-	// default_completions(default_completions_)
-{}
+// ConsoleLayer::Command::Command
+// (
+// 	const std::string &command_name_,
+// 	const std::function<void(const std::vector<std::string>&)> &function_,
+// 	const std::string &docstring_
+// 	// const std::vector<std::string> &default_completions_
+// ) :
+// 	command_name(command_name_),
+// 	function(function_),
+// 	docstring(docstring_)
+// 	// default_completions(default_completions_)
+// {}
 
 std::string trim(const std::string &s)
 {

@@ -150,6 +150,16 @@ public:
 	/// failure
 	std::shared_ptr<RemoteCommand> find(const std::string &owner, const std::string &name);
 
+	/// Get list of all registered commands
+	///
+	/// Since commands may be added from separate processes, it is not possible
+	/// to give direct access to the CommandManager's list of commands. Instead,
+	/// this command makes a copy of the registered commands and returns that.
+	/// That way, if some component starts walking through its list of commands,
+	/// that list will never get invalidated by another process registering new
+	/// commands
+	std::vector<std::shared_ptr<RemoteCommand>> getCurrentlyRegisteredCommands();
+
 private:
 	// begin critical section
 		/// Mutex protecting the `remote_commands` vector

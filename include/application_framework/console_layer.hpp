@@ -55,36 +55,6 @@ class ConsoleLayer : public AppLayer//, public SubscriberBase<StringMsgPubSubTyp
 	friend char *dls::arg_completion(const char * text, int state);
 
 public:
-	/// Utility class for collecting a console command
-	///
-	// TODO remove this and use remote command class instead
-	struct Command
-	{
-		/// Constructor
-		///
-		Command
-		(
-			const std::string &command_name,
-			const std::function<void(const std::vector<std::string>&)> &function,
-			const std::string &docstring
-			// const std::vector<std::string> &default_completions = {}
-		);
-
-		/// The command name in the console
-		///
-		std::string                                    command_name;
-
-		/// The function that is called when the command is input
-		///
-		std::function<void(std::vector<std::string>)>  function;
-
-		/// The documentation string of the command
-		///
-		/// This is displayed when calling the `help` command in the console
-		std::string                                    docstring;
-		// std::vector<std::string>                       default_completions;
-	};
-
 	/// Default Constructor
 	///
 	ConsoleLayer();
@@ -102,7 +72,7 @@ public:
 
 	/// Adds a command to the console
 	///
-	void addCommand(const Command&);
+	// void addCommand(const Command&);
 
 private:
 	/// Generates the console prompt
@@ -112,8 +82,8 @@ private:
 	std::string build_prompt();
 
 	// Begin critical section
-		std::mutex commands_mutex; ///< Mutex protecting the console commands
-		std::map<std::string, Command> commands; ///< The commands registered with the console
+		// std::mutex commands_mutex; ///< Mutex protecting the console commands
+		// std::map<std::string, Command> commands; ///< The commands registered with the console
 	// End critical section
 
 	RemoteCommandManager remote_command_manager;

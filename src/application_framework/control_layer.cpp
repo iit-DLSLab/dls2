@@ -77,14 +77,72 @@ ControlLayer::ControlLayer() :
 	),
 	default_duration_seconds(2),
 
+	command_manager(),
 	TODO("These are temporary until a proper console is developed")
-	activate_gait_generator_listener(topics::activate_gait_generator, *this),
-	deactivate_gait_generator_listener(topics::deactivate_gait_generator, *this),
-	activate_controller_listener(topics::activate_controller, *this),
-	deactivate_controller_listener(topics::deactivate_controller, *this),
+	// activate_gait_generator_listener(topics::activate_gait_generator, *this),
+	// deactivate_gait_generator_listener(topics::deactivate_gait_generator, *this),
+	// activate_controller_listener(topics::activate_controller, *this),
+	// deactivate_controller_listener(topics::deactivate_controller, *this),
 	clog("control_layer"),
 	cfatal("control_layer")
-{ }
+{
+	command_manager.addCommand<bool, const std::string&>
+	(
+		"control_layer",
+		"activateGaitGenerator_manager",
+		"activates a gait generator",
+		std::function<bool(const std::string&)>
+		(
+			[&](const std::string &s)->bool
+			{
+				return this->activateGaitGenerator(s);
+			}
+		)
+	);
+
+	command_manager.addCommand<bool, const std::string&>
+	(
+		"control_layer",
+		"activateController_manager",
+		"activates a controller",
+		std::function<bool(const std::string &s)>
+		(
+			[&](const std::string &s)->bool
+			{
+				return this->activateController(s);
+			}
+		)
+	);
+
+	// TODO template system can't currently handle no arguments
+	// command_manager.addCommand<void>
+	// (
+	// 	"control_layer",
+	// 	"deactivateGaitGenerators_manager",
+	// 	"stops all running gait generators",
+	// 	std::function<void()>
+	// 	(
+	// 		[&]()
+	// 		{
+	// 			this->deactivateGaitGenerators();
+	// 		}
+	// 	)
+	// );
+
+	command_manager.addCommand<void, const std::string&>
+	(
+		"control_layer",
+		"deactivateController_manager",
+		"stops a controller",
+		std::function<void(const std::string&)>
+		(
+			[&](const std::string &s)
+			{
+				this->deactivateController(s);
+			}
+		)
+	);
+}
 
 ControlLayer::~ControlLayer()
 {

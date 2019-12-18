@@ -360,6 +360,13 @@ std::shared_ptr<RemoteCommand> RemoteCommandManager::find
 	return nullptr;
 }
 
+std::vector<std::shared_ptr<RemoteCommand>>
+	RemoteCommandManager::getCurrentlyRegisteredCommands()
+{
+	std::lock_guard<std::mutex> lock(this->remote_commands_mutex);
+	return this->remote_commands;
+}
+
 // -----------------------------------------------------------------------------
 // Subscriber Helper
 // -----------------------------------------------------------------------------

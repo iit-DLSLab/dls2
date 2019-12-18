@@ -38,6 +38,7 @@
 #include "msg/desired_torquesPubSubTypes.h"
 #include "msg/hello_worldPubSubTypes.h"
 #include "math/spline/ramp.hpp"
+#include "command/command.hpp"
 
 // temporary console includes
 TODO("REMOVE THESE INCLUDES WHEN A BETTER CONSOLE IS MADE")
@@ -215,92 +216,93 @@ private:
 	void waitOnChildGaitGenerator(std::shared_ptr<GaitGeneratorData>);
 	void deactivateController(std::shared_ptr<ControllerData> pData);
 
+	CommandManager command_manager;
 	// ======================= Temporary console things ========================
-	TODO("THE CONSOLE STUFF IS TEMPORARY AND NEEDS TO CHANGE")
-	class ActivateGaitGeneratorListener : public SubscriberBase<StringMsgPubSubType>
-	{
-	public:
-		ActivateGaitGeneratorListener(const std::string &topic, ControlLayer &owner_) :
-			SubscriberBase<StringMsgPubSubType>(topic),
-			owner(owner_),
-			info()
-	{ }
-	private:
-		void onNewDataMessage(eprosima::fastrtps::Subscriber *sub) override
-		{
-			StringMsg msg;
-			if(sub->takeNextData(&msg, &info))
-			{
-				owner.activateGaitGenerator(msg.msg());
-			}
-		}
+	// TODO("THE CONSOLE STUFF IS TEMPORARY AND NEEDS TO CHANGE")
+	// class ActivateGaitGeneratorListener : public SubscriberBase<StringMsgPubSubType>
+	// {
+	// public:
+	// 	ActivateGaitGeneratorListener(const std::string &topic, ControlLayer &owner_) :
+	// 		SubscriberBase<StringMsgPubSubType>(topic),
+	// 		owner(owner_),
+	// 		info()
+	// { }
+	// private:
+	// 	void onNewDataMessage(eprosima::fastrtps::Subscriber *sub) override
+	// 	{
+	// 		StringMsg msg;
+	// 		if(sub->takeNextData(&msg, &info))
+	// 		{
+	// 			owner.activateGaitGenerator(msg.msg());
+	// 		}
+	// 	}
 
-		ControlLayer &owner;
-		eprosima::fastrtps::SampleInfo_t info;
-	} activate_gait_generator_listener;
-	class DeactivateGaitGeneratorListener : public SubscriberBase<StringMsgPubSubType>
-	{
-	public:
-		DeactivateGaitGeneratorListener(const std::string &topic, ControlLayer &owner_) :
-			SubscriberBase<StringMsgPubSubType>(topic),
-			owner(owner_),
-			info()
-	{ }
-	private:
-		void onNewDataMessage(eprosima::fastrtps::Subscriber *sub) override
-		{
-			StringMsg msg;
-			if(sub->takeNextData(&msg, &info))
-			{
-				owner.deactivateGaitGenerators();
-			}
-		}
+	// 	ControlLayer &owner;
+	// 	eprosima::fastrtps::SampleInfo_t info;
+	// } activate_gait_generator_listener;
+	// class DeactivateGaitGeneratorListener : public SubscriberBase<StringMsgPubSubType>
+	// {
+	// public:
+	// 	DeactivateGaitGeneratorListener(const std::string &topic, ControlLayer &owner_) :
+	// 		SubscriberBase<StringMsgPubSubType>(topic),
+	// 		owner(owner_),
+	// 		info()
+	// { }
+	// private:
+	// 	void onNewDataMessage(eprosima::fastrtps::Subscriber *sub) override
+	// 	{
+	// 		StringMsg msg;
+	// 		if(sub->takeNextData(&msg, &info))
+	// 		{
+	// 			owner.deactivateGaitGenerators();
+	// 		}
+	// 	}
 
-		ControlLayer &owner;
-		eprosima::fastrtps::SampleInfo_t info;
-	} deactivate_gait_generator_listener;
-	class ActivateControllerListener : public SubscriberBase<StringMsgPubSubType>
-	{
-	public:
-		ActivateControllerListener(const std::string &topic, ControlLayer &owner_) :
-			SubscriberBase<StringMsgPubSubType>(topic),
-			owner(owner_),
-			info()
-		{ }
-	private:
-		void onNewDataMessage(eprosima::fastrtps::Subscriber *sub) override
-		{
-			StringMsg msg;
-			if(sub->takeNextData(&msg, &info))
-			{
-				owner.activateController(msg.msg());
-			}
-		}
+	// 	ControlLayer &owner;
+	// 	eprosima::fastrtps::SampleInfo_t info;
+	// } deactivate_gait_generator_listener;
+	// class ActivateControllerListener : public SubscriberBase<StringMsgPubSubType>
+	// {
+	// public:
+	// 	ActivateControllerListener(const std::string &topic, ControlLayer &owner_) :
+	// 		SubscriberBase<StringMsgPubSubType>(topic),
+	// 		owner(owner_),
+	// 		info()
+	// 	{ }
+	// private:
+	// 	void onNewDataMessage(eprosima::fastrtps::Subscriber *sub) override
+	// 	{
+	// 		StringMsg msg;
+	// 		if(sub->takeNextData(&msg, &info))
+	// 		{
+	// 			owner.activateController(msg.msg());
+	// 		}
+	// 	}
 
-		ControlLayer &owner;
-		eprosima::fastrtps::SampleInfo_t info;
-	} activate_controller_listener;
-	class DeactivateControllerListener : public SubscriberBase<StringMsgPubSubType>
-	{
-	public:
-		DeactivateControllerListener(const std::string &topic, ControlLayer &owner_) :
-			SubscriberBase<StringMsgPubSubType>(topic),
-			owner(owner_),
-			info()
-	{ }
-	private:
-		void onNewDataMessage(eprosima::fastrtps::Subscriber *sub) override
-		{
-			StringMsg msg;
-			if(sub->takeNextData(&msg, &info))
-			{
-				owner.deactivateController(msg.msg());
-			}
-		}
+	// 	ControlLayer &owner;
+	// 	eprosima::fastrtps::SampleInfo_t info;
+	// } activate_controller_listener;
+	// class DeactivateControllerListener : public SubscriberBase<StringMsgPubSubType>
+	// {
+	// public:
+	// 	DeactivateControllerListener(const std::string &topic, ControlLayer &owner_) :
+	// 		SubscriberBase<StringMsgPubSubType>(topic),
+	// 		owner(owner_),
+	// 		info()
+	// { }
+	// private:
+	// 	void onNewDataMessage(eprosima::fastrtps::Subscriber *sub) override
+	// 	{
+	// 		StringMsg msg;
+	// 		if(sub->takeNextData(&msg, &info))
+	// 		{
+	// 			owner.deactivateController(msg.msg());
+	// 		}
+	// 	}
 
-		ControlLayer &owner;
-		eprosima::fastrtps::SampleInfo_t info;
-	} deactivate_controller_listener;
+	// 	ControlLayer &owner;
+	// 	eprosima::fastrtps::SampleInfo_t info;
+	// } deactivate_controller_listener;
 
 
 	// ================================ Members ================================
