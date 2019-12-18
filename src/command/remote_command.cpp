@@ -63,11 +63,16 @@ RemoteCommand::RemoteCommand(CommandRegisterMsg &msg) :
 void RemoteCommand::clearArgs()
 {
 	// TODO implement
+	this->remote_command_publisher.command_arg_index = 0;
 }
 
 void RemoteCommand::call()
 {
-	// TODO implement
+	this->remote_command_publisher.pPublisher->write
+	(
+		(void*)this->remote_command_publisher.pData.get()
+	);
+	this->clearArgs();
 }
 
 // -----------------------------------------------------------------------------
@@ -82,7 +87,8 @@ RemoteCommand::RemoteCommandPublisher::RemoteCommandPublisher
 	dynamic_type(),
 	pData(nullptr),
 	pParticipant(nullptr),
-	pPublisher(nullptr)
+	pPublisher(nullptr),
+	command_arg_index(0)
 {
 	std::cout << "remote command pub constructor enter" << std::endl;
 	// create a builder
@@ -194,8 +200,8 @@ RemoteCommand::RemoteCommandPublisher::RemoteCommandPublisher
 		// TODO add proper deleter here
 		[](eprosima::fastrtps::types::DynamicData*){}
 	);
-	pData->set_uint32_value(0, 0);
-	pData->set_string_value("HelloWorld", 1);
+	// pData->set_uint32_value(0, 0);
+	// pData->set_string_value("HelloWorld", 1);
 
 	// create participant
 	eprosima::fastrtps::ParticipantAttributes participant_attributes;
@@ -259,14 +265,14 @@ RemoteCommand::RemoteCommandPublisher::RemoteCommandPublisher
 	// this->pData->set_uint32_value(123, 0);
 	// this->pData->set_string_value("HelloWorld", 1);
 	// std::this_thread::sleep_for(std::chrono::seconds(10));
-	std::this_thread::sleep_for(std::chrono::milliseconds(80));
-	for(size_t i = 0; i != 5; ++i)
-	{
-		std::cout << "sending dummy data" << std::endl;
-		// pData->set_uint32_value(i, 0);
-		this->pPublisher->write((void*)this->pData.get());
-		std::this_thread::sleep_for(std::chrono::seconds(1));
-	}
+	// std::this_thread::sleep_for(std::chrono::milliseconds(80));
+	// for(size_t i = 0; i != 5; ++i)
+	// {
+	// 	std::cout << "sending dummy data" << std::endl;
+	// 	// pData->set_uint32_value(i, 0);
+	// 	this->pPublisher->write((void*)this->pData.get());
+	// 	std::this_thread::sleep_for(std::chrono::seconds(1));
+	// }
 
 }
 
@@ -394,3 +400,165 @@ void RemoteCommandManager::RegistrationListener::onNewDataMessage
 		}
 	}
 }
+
+// =================================== call ====================================
+
+// ============================== Push Arguments ===============================
+namespace dls
+{
+template <>
+void RemoteCommand::pushArg(char c)
+{
+	std::cout << "push char" << std::endl;
+	this->remote_command_publisher.pData->set_char8_value
+	(
+		c,
+		this->remote_command_publisher.command_arg_index
+	);
+
+	this->remote_command_publisher.command_arg_index++;
+}
+
+template <>
+void RemoteCommand::pushArg(uint8_t i)
+{
+	std::cout << "push uint8" << std::endl;
+	this->remote_command_publisher.pData->set_uint8_value
+	(
+		i,
+		this->remote_command_publisher.command_arg_index
+	);
+
+	this->remote_command_publisher.command_arg_index++;
+}
+
+template <>
+void RemoteCommand::pushArg(int16_t i)
+{
+	std::cout << "push int16" << std::endl;
+	this->remote_command_publisher.pData->set_int16_value
+	(
+		i,
+		this->remote_command_publisher.command_arg_index
+	);
+
+	this->remote_command_publisher.command_arg_index++;
+}
+
+template <>
+void RemoteCommand::pushArg(uint16_t i)
+{
+	std::cout << "push uint16" << std::endl;
+	this->remote_command_publisher.pData->set_uint16_value
+	(
+		i,
+		this->remote_command_publisher.command_arg_index
+	);
+
+	this->remote_command_publisher.command_arg_index++;
+}
+
+template <>
+void RemoteCommand::pushArg(int32_t i)
+{
+	std::cout << "push int32" << std::endl;
+	this->remote_command_publisher.pData->set_int32_value
+	(
+		i,
+		this->remote_command_publisher.command_arg_index
+	);
+
+	this->remote_command_publisher.command_arg_index++;
+}
+
+template <>
+void RemoteCommand::pushArg(uint32_t i)
+{
+	std::cout << "push uint32" << std::endl;
+	this->remote_command_publisher.pData->set_uint32_value
+	(
+		i,
+		this->remote_command_publisher.command_arg_index
+	);
+
+	this->remote_command_publisher.command_arg_index++;
+}
+
+template <>
+void RemoteCommand::pushArg(int64_t i)
+{
+	std::cout << "push int64" << std::endl;
+	this->remote_command_publisher.pData->set_int64_value
+	(
+		i,
+		this->remote_command_publisher.command_arg_index
+	);
+
+	this->remote_command_publisher.command_arg_index++;
+}
+
+template <>
+void RemoteCommand::pushArg(float f)
+{
+	std::cout << "push float" << std::endl;
+	this->remote_command_publisher.pData->set_float32_value
+	(
+		f,
+		this->remote_command_publisher.command_arg_index
+	);
+
+	this->remote_command_publisher.command_arg_index++;
+}
+
+template <>
+void RemoteCommand::pushArg(double d)
+{
+	std::cout << "push double" << std::endl;
+	this->remote_command_publisher.pData->set_float64_value
+	(
+		d,
+		this->remote_command_publisher.command_arg_index
+	);
+
+	this->remote_command_publisher.command_arg_index++;
+}
+
+template <>
+void RemoteCommand::pushArg(long double ld)
+{
+	std::cout << "push long double" << std::endl;
+	this->remote_command_publisher.pData->set_float128_value
+	(
+		ld,
+		this->remote_command_publisher.command_arg_index
+	);
+
+	this->remote_command_publisher.command_arg_index++;
+}
+
+template <>
+void RemoteCommand::pushArg(bool b)
+{
+	std::cout << "push bool" << std::endl;
+	this->remote_command_publisher.pData->set_bool_value
+	(
+		b,
+		this->remote_command_publisher.command_arg_index
+	);
+
+	this->remote_command_publisher.command_arg_index++;
+}
+
+template <>
+void RemoteCommand::pushArg(const std::string &s)
+{
+	std::cout << "push string" << std::endl;
+	this->remote_command_publisher.pData->set_string_value
+	(
+		s,
+		this->remote_command_publisher.command_arg_index
+	);
+
+	this->remote_command_publisher.command_arg_index++;
+}
+} // end namespace dls

@@ -54,11 +54,12 @@ public:
 	///
 	RemoteCommand(CommandRegisterMsg &msg);
 
-private:
-	void clearArgs();
 	template <typename T>
 	void pushArg(T t);
 	void call();
+
+private:
+	void clearArgs();
 
 // private:
 // TODO make private again
@@ -96,13 +97,17 @@ private:
 	public:
 		RemoteCommandPublisher(RemoteCommand &owner, const CommandRegisterMsg &msg);
 
-	private:
 		eprosima::fastrtps::types::DynamicPubSubType dynamic_type;
 		std::shared_ptr<eprosima::fastrtps::types::DynamicData> pData;
 		std::shared_ptr<eprosima::fastrtps::Participant> pParticipant;
 		std::shared_ptr<eprosima::fastrtps::Publisher> pPublisher;
 		// RemoteCommand &owner:
+
+		/// The index of the next command to be pushed into the dynamic data
+		/// type pData
+		size_t command_arg_index;
 	}remote_command_publisher;
+
 };
 // =============================================================================
 // Manager Class
