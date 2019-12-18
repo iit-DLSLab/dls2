@@ -75,7 +75,7 @@ void RemoteCommand::call()
 // =================== Remote Command Publisher Constructors ===================
 RemoteCommand::RemoteCommandPublisher::RemoteCommandPublisher
 (
-	const CommandRegisterMsg &//msg
+	const CommandRegisterMsg &msg
 ) :
 	dynamic_type(),
 	pData(nullptr),
@@ -92,21 +92,80 @@ RemoteCommand::RemoteCommandPublisher::RemoteCommandPublisher
 		);
 
 	// add members to the builder
-	struct_type_builder->add_member
-	(
-		0,
-		"index",
-		eprosima::fastrtps::types::DynamicTypeBuilderFactory::get_instance()->
-			create_uint32_type()
-	);
-
-	struct_type_builder->add_member
-	(
-		1,
-		"message",
-		eprosima::fastrtps::types::DynamicTypeBuilderFactory::get_instance()->
-			create_string_type()
-	);
+	for(size_t i = 0; i != msg.arg_types().size(); ++i)
+	{
+		eprosima::fastrtps::types::DynamicType_ptr pType;
+		auto pFactory = eprosima::fastrtps::types::DynamicTypeBuilderFactory::get_instance();
+		auto add_member = [&]()
+		{
+			struct_type_builder->add_member
+			(
+				i,
+				std::string("field_") + std::to_string(i),
+				pType
+			);
+		};
+		switch(static_cast<CommandBase::ArgumentType>(msg.arg_types()[i]))
+		{
+			case CommandBase::ArgumentType::VOID:
+				std::cout << "void -- skipping" << std::endl;
+				continue;
+			case CommandBase::ArgumentType::CHAR:
+				std::cout << "char8 " << i << std::endl;
+				pType = pFactory->create_char8_type();
+				break;
+			case CommandBase::ArgumentType::UINT8:
+				std::cout << "uint8 " << i << std::endl;
+				pType = pFactory->create_uint16_type();
+				break;
+			case CommandBase::ArgumentType::INT16:
+				std::cout << "int16 " << i << std::endl;
+				pType = pFactory->create_int16_type();
+				break;
+			case CommandBase::ArgumentType::UINT16:
+				std::cout << "uint16 " << i << std::endl;
+				pType = pFactory->create_uint16_type();
+				break;
+			case CommandBase::ArgumentType::INT32:
+				std::cout << "int32 " << i << std::endl;
+				pType = pFactory->create_int32_type();
+				break;
+			case CommandBase::ArgumentType::UINT32:
+				std::cout << "uint32 " << i << std::endl;
+				pType = pFactory->create_uint32_type();
+				break;
+			case CommandBase::ArgumentType::INT64:
+				std::cout << "int64 " << i << std::endl;
+				pType = pFactory->create_int64_type();
+				break;
+			case CommandBase::ArgumentType::UINT64:
+				std::cout << "uint64 " << i << std::endl;
+				pType = pFactory->create_uint64_type();
+				break;
+			case CommandBase::ArgumentType::FLOAT:
+				std::cout << "float " << i << std::endl;
+				pType = pFactory->create_float32_type();
+				break;
+			case CommandBase::ArgumentType::DOUBLE:
+				std::cout << "double " << i << std::endl;
+				pType = pFactory->create_float64_type();
+				break;
+			case CommandBase::ArgumentType::LONG_DOUBLE:
+				std::cout << "long double " << i << std::endl;
+				pType = pFactory->create_float128_type();
+				break;
+			case CommandBase::ArgumentType::BOOL:
+				std::cout << "bool " << i << std::endl;
+				break;
+			case CommandBase::ArgumentType::STD_STRING:
+				std::cout << "string " << i << std::endl;
+				pType = pFactory->create_string_type();
+				break;
+			default:
+				break;
+		}
+		add_member();
+	}
 
 	struct_type_builder->set_name("HelloWorld");
 
@@ -184,7 +243,7 @@ RemoteCommand::RemoteCommandPublisher::RemoteCommandPublisher
 	for(size_t i = 0; i != 5; ++i)
 	{
 		std::cout << "sending dummy data" << std::endl;
-		pData->set_uint32_value(i, 0);
+		// pData->set_uint32_value(i, 0);
 		this->pPublisher->write((void*)this->pData.get());
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
