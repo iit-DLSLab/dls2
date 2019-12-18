@@ -24,6 +24,7 @@
 // Includes
 // =============================================================================
 #include "command/command.hpp"
+#include "topics/command_call.hpp"
 #include "topics/command_register.hpp"
 #include <fastrtps/types/DynamicTypeBuilderFactory.h>
 #include <fastrtps/types/DynamicDataFactory.h>
@@ -124,7 +125,16 @@ Command<ret_t, arg_ts...>::CommandCallListener::CommandCallListener
 {
 	eprosima::fastrtps::ParticipantAttributes participant_attributes;
 	participant_attributes.rtps.builtin.domainId = 0;
-	participant_attributes.rtps.setName("DynHelloworld_sub");
+	// participant_attributes.rtps.setName("DynHelloworld_sub");
+	participant_attributes.rtps.setName
+	(
+		(
+			std::string(topics::command_call) + "_" +
+			this->owner.owner + "_" + this->owner.command_name +
+			"_sub_participant"
+		)
+		.c_str()
+	);
 
 	pParticipant.reset
 	(
@@ -145,7 +155,15 @@ Command<ret_t, arg_ts...>::CommandCallListener::CommandCallListener
 
 	buildDynamicType<arg_ts...>(struct_type_builder);
 
-	struct_type_builder->set_name("HelloWorld");
+	struct_type_builder->set_name
+	(
+		(
+			std::string(topics::command_call) + "_" +
+			this->owner.owner + "_" + this->owner.command_name +
+			"_struct"
+		)
+		.c_str()
+	);
 
 	eprosima::fastrtps::types::DynamicType_ptr dtp = struct_type_builder->build();
 	this->dynamic_type.SetDynamicType(dtp);
@@ -165,8 +183,12 @@ Command<ret_t, arg_ts...>::CommandCallListener::CommandCallListener
 
 	eprosima::fastrtps::SubscriberAttributes subscriber_attributes;
 	subscriber_attributes.topic.topicKind = eprosima::fastrtps::rtps::NO_KEY;
-	subscriber_attributes.topic.topicDataType = "HelloWorld";
-	subscriber_attributes.topic.topicName = "HelloWorldTopic";
+	subscriber_attributes.topic.topicDataType = struct_type_builder->get_name();
+	subscriber_attributes.topic.topicName =
+	(
+		std::string(topics::command_call) + "_" + this->owner.owner + "_" +
+		this->owner.command_name
+	);
 
 	this->pSubscriber.reset
 	(

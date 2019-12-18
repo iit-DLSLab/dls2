@@ -94,13 +94,14 @@ private:
 	class RemoteCommandPublisher : public eprosima::fastrtps::PublisherListener
 	{
 	public:
-		RemoteCommandPublisher(const CommandRegisterMsg &msg);
+		RemoteCommandPublisher(RemoteCommand &owner, const CommandRegisterMsg &msg);
 
 	private:
 		eprosima::fastrtps::types::DynamicPubSubType dynamic_type;
 		std::shared_ptr<eprosima::fastrtps::types::DynamicData> pData;
 		std::shared_ptr<eprosima::fastrtps::Participant> pParticipant;
 		std::shared_ptr<eprosima::fastrtps::Publisher> pPublisher;
+		// RemoteCommand &owner:
 	}remote_command_publisher;
 };
 // =============================================================================

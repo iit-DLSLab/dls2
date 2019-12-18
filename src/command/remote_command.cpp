@@ -23,6 +23,7 @@
 #include "command/remote_command.hpp"
 #include "topics/command_register.hpp"
 #include <vector>
+#include "topics/command_call.hpp"
 
 #include <fastrtps/Domain.h>
 #include <fastrtps/types/DynamicData.h>
@@ -51,7 +52,7 @@ RemoteCommand::RemoteCommand(CommandRegisterMsg &msg) :
 	docstring(msg.docstring()),
 	args(msg.arg_types()),
 	ret_type(msg.ret_type()),
-	remote_command_publisher(msg)
+	remote_command_publisher(*this, msg)
 {
 	std::cout << "built remote command" << std::endl;
 }
@@ -75,6 +76,7 @@ void RemoteCommand::call()
 // =================== Remote Command Publisher Constructors ===================
 RemoteCommand::RemoteCommandPublisher::RemoteCommandPublisher
 (
+	RemoteCommand &owner_,
 	const CommandRegisterMsg &msg
 ) :
 	dynamic_type(),
@@ -96,6 +98,10 @@ RemoteCommand::RemoteCommandPublisher::RemoteCommandPublisher
 	{
 		eprosima::fastrtps::types::DynamicType_ptr pType;
 		auto pFactory = eprosima::fastrtps::types::DynamicTypeBuilderFactory::get_instance();
+
+		// Using a lambda because for some reasong this code won't work when
+		// just copying the contents of the lambda into its single call site at
+		// the end of this switch statement
 		auto add_member = [&]()
 		{
 			struct_type_builder->add_member
@@ -167,7 +173,13 @@ RemoteCommand::RemoteCommandPublisher::RemoteCommandPublisher
 		add_member();
 	}
 
-	struct_type_builder->set_name("HelloWorld");
+	struct_type_builder->set_name
+	(
+		(
+			std::string(topics::command_call) + "_" + owner_.owner + "_" +
+			owner_.command_name + "_struct"
+		).c_str()
+	);
 
 	// create a struct from the builder
 	eprosima::fastrtps::types::DynamicType_ptr pDynamic_type =
@@ -188,7 +200,13 @@ RemoteCommand::RemoteCommandPublisher::RemoteCommandPublisher
 	// create participant
 	eprosima::fastrtps::ParticipantAttributes participant_attributes;
 	participant_attributes.rtps.builtin.domainId = 0;
-	participant_attributes.rtps.setName("DynHelloWorld_pub");
+	participant_attributes.rtps.setName
+	(
+		(
+			std::string(topics::command_call) + "_" + owner_.owner + "_" +
+			owner_.command_name + "_pub_participant"
+		).c_str()
+	);
 
 	// TODO add deleter
 	this->pParticipant.reset
@@ -216,8 +234,10 @@ RemoteCommand::RemoteCommandPublisher::RemoteCommandPublisher
 	// Create the publisher
 	eprosima::fastrtps::PublisherAttributes publisher_attributes;
 	publisher_attributes.topic.topicKind = eprosima::fastrtps::rtps::NO_KEY;
-	publisher_attributes.topic.topicDataType = "HelloWorld";
-	publisher_attributes.topic.topicName = "HelloWorldTopic";
+	publisher_attributes.topic.topicDataType = struct_type_builder->get_name();
+	publisher_attributes.topic.topicName =
+		std::string(topics::command_call) + "_" + owner_.owner + "_" +
+		owner_.command_name;
 	this->pPublisher.reset
 	(
 		eprosima::fastrtps::Domain::createPublisher
