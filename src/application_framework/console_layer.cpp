@@ -84,6 +84,21 @@ ConsoleLayer::ConsoleLayer() :
 	// commands(),
 	remote_command_manager
 	(
+		[](std::shared_ptr<RemoteCommand> p)
+		{
+			static std::mutex m;
+			{
+				std::lock_guard<std::mutex> lock(m);
+				std::cout << "\n==========" << std::endl;
+				std::cout << p->command_name << std::endl;
+				std::cout << "----------" << std::endl;
+				for(const auto &el : p->args)
+				{
+					std::cout << el << std::endl;
+				}
+				std::cout << "==========\n" << std::endl;
+			}
+		}
 		// [this](std::shared_ptr<RemoteCommand> p)
 		// {
 		// 	this->addCommand(Command(p->command_name, nullptr, p->docstring));
@@ -262,7 +277,7 @@ ConsoleLayer::Status ConsoleLayer::run()
 
 				// Execute the commands
 				{
-					std::vector<std::shared_ptr<RemoteCommand>> remote_commands =
+					std::vector<std::shared_ptr<const RemoteCommand>> remote_commands =
 						pInstance->remote_command_manager
 							.getCurrentlyRegisteredCommands();
 
@@ -281,7 +296,14 @@ ConsoleLayer::Status ConsoleLayer::run()
 						std::cout << "found command: "
 							<< (*it)->command_name << " belonging to component: "
 							<< (*it)->owner
-							<< std::endl;
+							<< " Having argument types:\n";
+						for(const auto &el : (*it)->args)
+						{
+							std::cout << "\t" << el << "\n";
+						}
+						std::cout << std::endl;
+
+						callCommand(**it, args);
 					}
 					else
 					{
@@ -322,6 +344,133 @@ ConsoleLayer::Status ConsoleLayer::shutdown()
 std::string ConsoleLayer::build_prompt()
 {
 	return "> ";
+}
+
+void ConsoleLayer::callCommand
+(
+	const RemoteCommand &command, const std::vector<std::string> &args
+)
+{
+	// Ensure args are correct size
+	if(args.size() != command.args.size())
+	{
+		std::cout << "Error: incorrect number of arguments" << std::endl;
+		build_prompt();
+		return;
+	}
+
+	// push the args
+	for(size_t i = 0; i != args.size(); ++ i)
+	{
+		std::stringstream ss(args[i]);
+		switch(static_cast<CommandBase::ArgumentType>(command.args[i]))
+		{
+			case CommandBase::ArgumentType::CHAR:
+			{
+				char val;
+				ss >> val;
+				command.pushArg<char>(val);
+				std::cout << "push char command" << std::endl;
+				break;
+			}
+			case CommandBase::ArgumentType::UINT8:
+			{
+				uint8_t val;
+				ss >> val;
+				command.pushArg<uint8_t>(val);
+				std::cout << "push int8 command" << std::endl;
+				break;
+			}
+			case CommandBase::ArgumentType::INT16:
+			{
+				int16_t val;
+				ss >> val;
+				command.pushArg<int16_t>(val);
+				std::cout << "push int 16 command" << std::endl;
+				break;
+			}
+			case CommandBase::ArgumentType::UINT16:
+			{
+				uint16_t val;
+				ss >> val;
+				command.pushArg<uint16_t>(val);
+				std::cout << "push uint16 command" << std::endl;
+				break;
+			}
+			case CommandBase::ArgumentType::INT32:
+			{
+				int32_t val;
+				ss >> val;
+				command.pushArg<int32_t>(val);
+				std::cout << "push int32 command" << std::endl;
+				break;
+			}
+			case CommandBase::ArgumentType::UINT32:
+			{
+				uint32_t val;
+				ss >> val;
+				command.pushArg<uint32_t>(val);
+				std::cout << "push uint32 command" << std::endl;
+				break;
+			}
+			case CommandBase::ArgumentType::INT64:
+			{
+				int64_t val;
+				ss >> val;
+				command.pushArg<int64_t>(val);
+				std::cout << "push int64 command" << std::endl;
+				break;
+			}
+			case CommandBase::ArgumentType::FLOAT:
+			{
+				float val;
+				ss >> val;
+				command.pushArg<float>(val);
+				std::cout << "push float command" << std::endl;
+				break;
+			}
+			case CommandBase::ArgumentType::DOUBLE:
+			{
+				double val;
+				ss >> val;
+				command.pushArg<double>(val);
+				std::cout << "push double command" << std::endl;
+				break;
+			}
+			case CommandBase::ArgumentType::LONG_DOUBLE:
+			{
+				long double val;
+				ss >> val;
+				command.pushArg<long double>(val);
+				std::cout << "push long double command" << std::endl;
+				break;
+			}
+			case CommandBase::ArgumentType::BOOL:
+			{
+				bool val;
+				ss >> val;
+				command.pushArg<bool>(val);
+				std::cout << "push bool command" << std::endl;
+				break;
+			}
+			case CommandBase::ArgumentType::STD_STRING:
+			{
+				command.pushArg<std::string>(ss.str());
+				std::cout << "push string command" << std::endl;
+				break;
+			}
+			default:
+			{
+				std::cout << "ERROR: unsupported argument type: " <<
+					command.args[i] << std::endl;
+				std::cout << "STD_STRING: " << static_cast<uint32_t>(CommandBase::ArgumentType::STD_STRING) << std::endl;
+				return;
+			}
+		}
+	}
+
+	// call the command
+	command.call();
 }
 
 // void ConsoleLayer::addCommand(const Command &c)
@@ -374,7 +523,7 @@ char **dls::console_completion(const char *text, int start, int /*end*/)
 		{
 			// std::lock_guard<std::mutex> lock(pInstance->commands_mutex);
 
-			std::vector<std::shared_ptr<RemoteCommand>> remote_commands =
+			std::vector<std::shared_ptr<const RemoteCommand>> remote_commands =
 				pInstance->remote_command_manager.getCurrentlyRegisteredCommands();
 
 			auto it = remote_commands.begin();

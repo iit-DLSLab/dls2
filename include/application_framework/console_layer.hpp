@@ -86,6 +86,14 @@ private:
 		// std::map<std::string, Command> commands; ///< The commands registered with the console
 	// End critical section
 
+	/// Calls a command with the given command line arguments
+	///
+	/// This function automatically converts the string arguments to the correct
+	/// types to be pushed to the remote command
+	/// @param c a remote command to be called
+	/// @param args a vector of string representations of the arguments
+	void callCommand(const RemoteCommand &c, const std::vector<std::string> &args);
+
 	RemoteCommandManager remote_command_manager;
 
 	class StringListener : public SubscriberBase<StringMsgPubSubType>

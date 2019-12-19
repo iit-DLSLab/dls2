@@ -55,11 +55,11 @@ public:
 	RemoteCommand(CommandRegisterMsg &msg);
 
 	template <typename T>
-	void pushArg(T t);
-	void call();
+	void pushArg(T t) const;
+	void call() const;
 
 private:
-	void clearArgs();
+	void clearArgs() const;
 
 // private:
 // TODO make private again
@@ -79,7 +79,8 @@ public:
 	/// Argument types
 	///
 	/// The type of arguments to this command are represented in a vector
-	const CommandBase::RepresentationVector args;
+	const std::remove_reference<CommandBase::RepresentationVector>::type args;
+	// const std::vector<unsigned long long> args;
 
 	/// The return type of this command
 	///
@@ -105,7 +106,7 @@ private:
 
 		/// The index of the next command to be pushed into the dynamic data
 		/// type pData
-		size_t command_arg_index;
+		mutable size_t command_arg_index;
 	}remote_command_publisher;
 
 };
@@ -134,21 +135,21 @@ public:
 	/// Find commands
 	///
 	/// Finds a vector of commands by the name of the component that owns them
-	std::vector<std::shared_ptr<RemoteCommand>> findByOwner(const std::string&);
+	std::vector<std::shared_ptr<const RemoteCommand>> findByOwner(const std::string&) const;
 
 	/// Find commands
 	///
 	/// Finds a vector of commands by their name. Note that certain commands may
 	/// have the same name but different owners. This could be the case, for
 	/// instance, if multiple controllers advertise a `start` or `stop` command.
-	std::vector<std::shared_ptr<RemoteCommand>> findByName(const std::string&);
+	std::vector<std::shared_ptr<const RemoteCommand>> findByName(const std::string&) const;
 
 	/// Find command
 	///
 	/// Finds a command by its name and the name of its owner. There is
 	/// guaranteed to be at most one command of this type. Returns nullptr on
 	/// failure
-	std::shared_ptr<RemoteCommand> find(const std::string &owner, const std::string &name);
+	std::shared_ptr<const RemoteCommand> find(const std::string &owner, const std::string &name) const;
 
 	/// Get list of all registered commands
 	///
@@ -158,17 +159,17 @@ public:
 	/// That way, if some component starts walking through its list of commands,
 	/// that list will never get invalidated by another process registering new
 	/// commands
-	std::vector<std::shared_ptr<RemoteCommand>> getCurrentlyRegisteredCommands();
+	std::vector<std::shared_ptr<const RemoteCommand>> getCurrentlyRegisteredCommands();
 
 private:
 	// begin critical section
 		/// Mutex protecting the `remote_commands` vector
 		///
-		std::mutex remote_commands_mutex;
+		mutable std::mutex remote_commands_mutex;
 
 		/// The internal representation of remote commands
 		///
-		std::vector<std::shared_ptr<RemoteCommand>> remote_commands;
+		std::vector<std::shared_ptr<const RemoteCommand>> remote_commands;
 	// end critical section
 
 	/// Helper Listener class
@@ -199,6 +200,10 @@ private:
 	/// Callback when a command is removed from the framework
 	///
 	std::function<void(std::shared_ptr<RemoteCommand>)> onRemoveCommand;
+
+	/// Adds a command to the manager
+	///
+	void addCommand(std::shared_ptr<RemoteCommand>);
 };
 } // end namespace dls
 

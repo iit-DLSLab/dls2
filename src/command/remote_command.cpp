@@ -51,22 +51,21 @@ RemoteCommand::RemoteCommand(CommandRegisterMsg &msg) :
 	command_name(msg.command_name()),
 	docstring(msg.docstring()),
 	args(msg.arg_types()),
+	// args(),
 	ret_type(msg.ret_type()),
 	remote_command_publisher(*this, msg)
-{
-	std::cout << "built remote command" << std::endl;
-}
+{ }
 
 // -----------------------------------------------------------------------------
 // Implementation
 // -----------------------------------------------------------------------------
-void RemoteCommand::clearArgs()
+void RemoteCommand::clearArgs() const
 {
 	// TODO implement
 	this->remote_command_publisher.command_arg_index = 0;
 }
 
-void RemoteCommand::call()
+void RemoteCommand::call() const
 {
 	this->remote_command_publisher.pPublisher->write
 	(
@@ -90,7 +89,6 @@ RemoteCommand::RemoteCommandPublisher::RemoteCommandPublisher
 	pPublisher(nullptr),
 	command_arg_index(0)
 {
-	std::cout << "remote command pub constructor enter" << std::endl;
 	// create a builder
 	eprosima::fastrtps::types::DynamicTypeBuilder_ptr
 		struct_type_builder
@@ -292,19 +290,17 @@ RemoteCommandManager::RemoteCommandManager
 	registration_listener(*this),
 	onNewCommand(onNewCommand_),
 	onRemoveCommand(onRemoveCommand_)
-{
-	std::cout << "Remote Command Manager Constructed" << std::endl;
-}
+{ }
 
 // -----------------------------------------------------------------------------
 // Implementation
 // -----------------------------------------------------------------------------
-std::vector<std::shared_ptr<RemoteCommand>> RemoteCommandManager::findByOwner
+std::vector<std::shared_ptr<const RemoteCommand>> RemoteCommandManager::findByOwner
 (
 	const std::string &owner
-)
+) const
 {
-	std::vector<std::shared_ptr<RemoteCommand>> vec;
+	std::vector<std::shared_ptr<const RemoteCommand>> vec;
 	{
 		std::lock_guard<std::mutex> lock(this->remote_commands_mutex);
 		for(const auto &el : this->remote_commands)
@@ -318,12 +314,12 @@ std::vector<std::shared_ptr<RemoteCommand>> RemoteCommandManager::findByOwner
 	return vec;
 }
 
-std::vector<std::shared_ptr<RemoteCommand>> RemoteCommandManager::findByName
+std::vector<std::shared_ptr<const RemoteCommand>> RemoteCommandManager::findByName
 (
 	const std::string &name
-)
+) const
 {
-	std::vector<std::shared_ptr<RemoteCommand>> vec;
+	std::vector<std::shared_ptr<const RemoteCommand>> vec;
 	{
 		std::lock_guard<std::mutex> lock(this->remote_commands_mutex);
 		for(const auto &el : this->remote_commands)
@@ -337,11 +333,11 @@ std::vector<std::shared_ptr<RemoteCommand>> RemoteCommandManager::findByName
 	return vec;
 }
 
-std::shared_ptr<RemoteCommand> RemoteCommandManager::find
+std::shared_ptr<const RemoteCommand> RemoteCommandManager::find
 (
 	const std::string &owner,
 	const std::string &name
-)
+) const
 {
 	{
 		std::lock_guard<std::mutex> lock(this->remote_commands_mutex);
@@ -360,11 +356,22 @@ std::shared_ptr<RemoteCommand> RemoteCommandManager::find
 	return nullptr;
 }
 
-std::vector<std::shared_ptr<RemoteCommand>>
+std::vector<std::shared_ptr<const RemoteCommand>>
 	RemoteCommandManager::getCurrentlyRegisteredCommands()
 {
 	std::lock_guard<std::mutex> lock(this->remote_commands_mutex);
 	return this->remote_commands;
+}
+
+void RemoteCommandManager::addCommand(std::shared_ptr<RemoteCommand> pCommand)
+{
+	std::lock_guard<std::mutex> lock(this->remote_commands_mutex);
+	this->remote_commands.push_back(pCommand);
+
+	if(this->onNewCommand)
+	{
+		this->onNewCommand(pCommand);
+	}
 }
 
 // -----------------------------------------------------------------------------
@@ -389,22 +396,33 @@ void RemoteCommandManager::RegistrationListener::onNewDataMessage
 	CommandRegisterMsg msg;
 	if(sub->takeNextData(&msg, &info))
 	{
-		std::cout << "remote command manager building new command" << std::endl;
 		std::shared_ptr<RemoteCommand> pCommand =
 			std::make_shared<RemoteCommand>
 			(
 				msg
 			);
+		owner.addCommand(pCommand);
 
-		{
-			std::lock_guard<std::mutex> lock(owner.remote_commands_mutex);
-			owner.remote_commands.push_back(pCommand);
-		}
+		// {
+		// 	std::lock_guard<std::mutex> lock(owner.remote_commands_mutex);
+		// 	owner.remote_commands.push_back(pCommand);
 
-		if(owner.onNewCommand)
-		{
-			owner.onNewCommand(pCommand);
-		}
+		// 	std::cout << "Listner added command. Iterating through all commands from listener\n";
+		// 	for(const auto &pCommand : owner.remote_commands)
+		// 	{
+		// 		std::cout << pCommand->command_name << "\n";
+		// 		for(const auto &arg : pCommand->args)
+		// 		{
+		// 			std::cout << "\t" << arg << "\n" << std::endl;
+		// 		}
+		// 	}
+		// 	std::cout << std::endl;
+		// }
+
+		// if(owner.onNewCommand)
+		// {
+		// 	owner.onNewCommand(pCommand);
+		// }
 	}
 }
 
@@ -414,7 +432,7 @@ void RemoteCommandManager::RegistrationListener::onNewDataMessage
 namespace dls
 {
 template <>
-void RemoteCommand::pushArg(char c)
+void RemoteCommand::pushArg(char c) const
 {
 	std::cout << "push char" << std::endl;
 	this->remote_command_publisher.pData->set_char8_value
@@ -427,7 +445,7 @@ void RemoteCommand::pushArg(char c)
 }
 
 template <>
-void RemoteCommand::pushArg(uint8_t i)
+void RemoteCommand::pushArg(uint8_t i) const
 {
 	std::cout << "push uint8" << std::endl;
 	this->remote_command_publisher.pData->set_uint8_value
@@ -440,7 +458,7 @@ void RemoteCommand::pushArg(uint8_t i)
 }
 
 template <>
-void RemoteCommand::pushArg(int16_t i)
+void RemoteCommand::pushArg(int16_t i) const
 {
 	std::cout << "push int16" << std::endl;
 	this->remote_command_publisher.pData->set_int16_value
@@ -453,7 +471,7 @@ void RemoteCommand::pushArg(int16_t i)
 }
 
 template <>
-void RemoteCommand::pushArg(uint16_t i)
+void RemoteCommand::pushArg(uint16_t i) const
 {
 	std::cout << "push uint16" << std::endl;
 	this->remote_command_publisher.pData->set_uint16_value
@@ -466,7 +484,7 @@ void RemoteCommand::pushArg(uint16_t i)
 }
 
 template <>
-void RemoteCommand::pushArg(int32_t i)
+void RemoteCommand::pushArg(int32_t i) const
 {
 	std::cout << "push int32" << std::endl;
 	this->remote_command_publisher.pData->set_int32_value
@@ -479,7 +497,7 @@ void RemoteCommand::pushArg(int32_t i)
 }
 
 template <>
-void RemoteCommand::pushArg(uint32_t i)
+void RemoteCommand::pushArg(uint32_t i) const
 {
 	std::cout << "push uint32" << std::endl;
 	this->remote_command_publisher.pData->set_uint32_value
@@ -492,7 +510,7 @@ void RemoteCommand::pushArg(uint32_t i)
 }
 
 template <>
-void RemoteCommand::pushArg(int64_t i)
+void RemoteCommand::pushArg(int64_t i) const
 {
 	std::cout << "push int64" << std::endl;
 	this->remote_command_publisher.pData->set_int64_value
@@ -505,7 +523,7 @@ void RemoteCommand::pushArg(int64_t i)
 }
 
 template <>
-void RemoteCommand::pushArg(float f)
+void RemoteCommand::pushArg(float f) const
 {
 	std::cout << "push float" << std::endl;
 	this->remote_command_publisher.pData->set_float32_value
@@ -518,7 +536,7 @@ void RemoteCommand::pushArg(float f)
 }
 
 template <>
-void RemoteCommand::pushArg(double d)
+void RemoteCommand::pushArg(double d) const
 {
 	std::cout << "push double" << std::endl;
 	this->remote_command_publisher.pData->set_float64_value
@@ -531,7 +549,7 @@ void RemoteCommand::pushArg(double d)
 }
 
 template <>
-void RemoteCommand::pushArg(long double ld)
+void RemoteCommand::pushArg(long double ld) const
 {
 	std::cout << "push long double" << std::endl;
 	this->remote_command_publisher.pData->set_float128_value
@@ -544,7 +562,7 @@ void RemoteCommand::pushArg(long double ld)
 }
 
 template <>
-void RemoteCommand::pushArg(bool b)
+void RemoteCommand::pushArg(bool b) const
 {
 	std::cout << "push bool" << std::endl;
 	this->remote_command_publisher.pData->set_bool_value
@@ -557,7 +575,7 @@ void RemoteCommand::pushArg(bool b)
 }
 
 template <>
-void RemoteCommand::pushArg(const std::string &s)
+void RemoteCommand::pushArg(/*const*/ std::string /*&*/s) const
 {
 	std::cout << "push string" << std::endl;
 	this->remote_command_publisher.pData->set_string_value
