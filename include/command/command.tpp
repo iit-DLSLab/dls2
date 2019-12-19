@@ -485,12 +485,46 @@ void buildDynamicType<const std::string&>
 template <typename ret_t, typename...arg_ts>
 void Command<ret_t, arg_ts...>::CommandCallListener::onNewDataMessage
 (
-	eprosima::fastrtps::Subscriber*
+	eprosima::fastrtps::Subscriber *sub
 )
 {
-	std::cout << "command callback listener callback hit" << std::endl;
+	eprosima::fastrtps::SampleInfo_t info;
+	if(sub->takeNextData((void*)this->pData.get(), &info))
+	{
+		std::cout << "command callback listener callback hit" << std::endl;
+		/*std::tuple<arg_ts...> tuple =*/ buildArgTuple<arg_ts...>(sub, 0);
+	}
 }
 
+// ========================== Argument Tuple Building ==========================
+template <typename ret_t, typename...arg_ts>
+template <typename tuple_arg1_t, typename tuple_arg2_t, typename... tuple_arg_ts>
+std::tuple<tuple_arg1_t, tuple_arg2_t, tuple_arg_ts...> Command<ret_t, arg_ts...>::CommandCallListener::buildArgTuple
+(
+	eprosima::fastrtps::Subscriber *sub,
+	size_t index
+)
+{
+	std::cout << "template build tuple debounce CONTINUE HERE" << std::endl;
+	typename std::remove_reference<tuple_arg1_t>::type arg;
+	std::tuple<tuple_arg1_t> t(arg);
+	return std::tuple_cat(t, buildArgTuple<tuple_arg2_t, tuple_arg_ts...>(sub, ++index));
+}
+
+template <typename ret_t, typename...arg_ts>
+template <typename tuple_arg_t>
+std::tuple<tuple_arg_t> Command<ret_t,
+	arg_ts...>::CommandCallListener::buildArgTuple
+(
+	eprosima::fastrtps::Subscriber *,//sub,
+	size_t //index
+)
+{
+	std::cout << "template build tuple base CONTINUE HERE" << std::endl;
+	typename std::remove_reference<tuple_arg_t>::type arg;
+	std::tuple<tuple_arg_t> t(arg);
+	return t;
+}
 // =============================================================================
 // Command Manager Implementation
 // =============================================================================

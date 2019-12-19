@@ -129,7 +129,23 @@ private:
 		std::shared_ptr<eprosima::fastrtps::Subscriber> pSubscriber;
 		eprosima::fastrtps::types::DynamicPubSubType dynamic_type;
 		std::shared_ptr<eprosima::fastrtps::types::DynamicData> pData;
+
+		template <typename tuple_arg1_t, typename tuple_arg2_t, typename... tuple_arg_ts>
+		std::tuple<tuple_arg1_t, tuple_arg2_t, tuple_arg_ts...> buildArgTuple
+		(
+			eprosima::fastrtps::Subscriber *sub,
+			size_t index
+		);
+
+		template <typename tuple_arg_t>
+		std::tuple<tuple_arg_t> buildArgTuple
+		(
+			eprosima::fastrtps::Subscriber *sub,
+			size_t index
+		);
 	} command_call_listener;
+
+
 };
 // =============================================================================
 // Free Functions
