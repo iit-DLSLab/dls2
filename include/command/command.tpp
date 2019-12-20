@@ -122,7 +122,6 @@ template <typename ret_t, typename...arg_ts>
 template<size_t...I>
 ret_t Command<ret_t, arg_ts...>::call(std::tuple<arg_ts...> &t, std::index_sequence<I...>)
 {
-	std::cout << "first argument to call is: " << std::get<0>(t) << std::endl;
 	return this->f(std::get<I>(t)...);
 }
 
@@ -145,7 +144,6 @@ Command<ret_t, arg_ts...>::CommandCallListener::CommandCallListener
 {
 	eprosima::fastrtps::ParticipantAttributes participant_attributes;
 	participant_attributes.rtps.builtin.domainId = 0;
-	// participant_attributes.rtps.setName("DynHelloworld_sub");
 	participant_attributes.rtps.setName
 	(
 		(
@@ -227,7 +225,6 @@ Command<ret_t, arg_ts...>::CommandCallListener::CommandCallListener
 		// TODO something more sensible here
 		std::cout << "ERROR: could not create dynamic subscriber" << std::endl;
 	}
-	std::cout << "created remote call listener" << std::endl;
 }
 
 // -----------------------------------------------------------------------------
@@ -259,7 +256,6 @@ void buildDynamicType<char>
 	size_t index
 )
 {
-	std::cout << "call base char" << std::endl;
 	builder->add_member
 	(
 		index,
@@ -276,7 +272,6 @@ void buildDynamicType<uint8_t>
 	size_t index
 )
 {
-	std::cout << "call base uint8" << std::endl;
 	builder->add_member
 	(
 		index,
@@ -293,7 +288,6 @@ void buildDynamicType<int16_t>
 	size_t index
 )
 {
-	std::cout << "call base int16" << std::endl;
 	builder->add_member
 	(
 		index,
@@ -310,7 +304,6 @@ void buildDynamicType<uint16_t>
 	size_t index
 )
 {
-	std::cout << "call base uint16" << std::endl;
 	builder->add_member
 	(
 		index,
@@ -327,7 +320,6 @@ void buildDynamicType<int32_t>
 	size_t index
 )
 {
-	std::cout << "call base int32 " << index << std::endl;
 	builder->add_member
 	(
 		index,
@@ -344,7 +336,6 @@ void buildDynamicType<uint32_t>
 	size_t index
 )
 {
-	std::cout << "call base uint32 " << index << std::endl;
 	builder->add_member
 	(
 		index,
@@ -361,7 +352,6 @@ void buildDynamicType<int64_t>
 	size_t index
 )
 {
-	std::cout << "call base int64 " << index << std::endl;
 	builder->add_member
 	(
 		index,
@@ -378,7 +368,6 @@ void buildDynamicType<uint64_t>
 	size_t index
 )
 {
-	std::cout << "call base uint64 " << index << std::endl;
 	builder->add_member
 	(
 		index,
@@ -395,7 +384,6 @@ void buildDynamicType<float>
 	size_t index
 )
 {
-	std::cout << "call base float " << index << std::endl;
 	builder->add_member
 	(
 		index,
@@ -412,7 +400,6 @@ void buildDynamicType<double>
 	size_t index
 )
 {
-	std::cout << "call base double " << index << std::endl;
 	builder->add_member
 	(
 		index,
@@ -429,7 +416,6 @@ void buildDynamicType<long double>
 	size_t index
 )
 {
-	std::cout << "call base long double " << index << std::endl;
 	builder->add_member
 	(
 		index,
@@ -446,7 +432,6 @@ void buildDynamicType<bool>
 	size_t index
 )
 {
-	std::cout << "call base bool " << index << std::endl;
 	builder->add_member
 	(
 		index,
@@ -463,7 +448,6 @@ void buildDynamicType<std::string>
 	size_t index
 )
 {
-	std::cout << "call base string " << index << std::endl;
 	builder->add_member
 	(
 		index,
@@ -480,7 +464,6 @@ void buildDynamicType<std::string&>
 	size_t index
 )
 {
-	std::cout << "call base string ref " << index << std::endl;
 	builder->add_member
 	(
 		index,
@@ -497,7 +480,6 @@ void buildDynamicType<const std::string&>
 	size_t index
 )
 {
-	std::cout << "call base const string ref " << index << std::endl;
 	builder->add_member
 	(
 		index,
@@ -520,9 +502,7 @@ void Command<ret_t, arg_ts...>::CommandCallListener::onNewDataMessage
 	{
 		if(info.sampleKind == eprosima::fastrtps::rtps::ALIVE)
 		{
-			std::cout << "command callback listener callback hit" << std::endl;
-			std::tuple<arg_ts...> tuple = buildArgTuple<arg_ts...>(/*sub,*/ 0);
-			// std::cout << "first argument from onNewDataMessage is: " << std::get<0>(tuple) << std::endl;
+			std::tuple<arg_ts...> tuple = buildArgTuple<arg_ts...>(0);
 			owner.call(tuple);
 		}
 	}
@@ -534,14 +514,10 @@ template <typename tuple_arg1_t, typename tuple_arg2_t, typename... tuple_arg_ts
 std::tuple<tuple_arg1_t, tuple_arg2_t, tuple_arg_ts...>
 	Command<ret_t, arg_ts...>::CommandCallListener::buildArgTuple
 (
-	// eprosima::fastrtps::Subscriber *sub,
 	size_t index
 )
 {
 	std::cout << "template build tuple debounce CONTINUE HERE" << std::endl;
-	// std::cout << takeArg<tuple_arg1_t>(pData, index) << std::endl;
-	// typename std::remove_reference<tuple_arg1_t>::type arg;
-	// std::tuple<tuple_arg1_t> t(arg);
 	std::tuple<tuple_arg1_t>
 		t
 		(
@@ -554,7 +530,7 @@ std::tuple<tuple_arg1_t, tuple_arg2_t, tuple_arg_ts...>
 			>
 			(pData, index)
 		);
-	return std::tuple_cat(t, buildArgTuple<tuple_arg2_t, tuple_arg_ts...>(/*pData,*/ ++index));
+	return std::tuple_cat(t, buildArgTuple<tuple_arg2_t, tuple_arg_ts...>(++index));
 }
 
 template <typename ret_t, typename...arg_ts>
@@ -562,14 +538,9 @@ template <typename tuple_arg_t>
 std::tuple<tuple_arg_t> Command<ret_t,
 	arg_ts...>::CommandCallListener::buildArgTuple
 (
-	// eprosima::fastrtps::Subscriber *sub,
 	size_t index
 )
 {
-	std::cout << "template build tuple base CONTINUE HERE" << std::endl;
-	// typename std::remove_reference<tuple_arg_t>::type arg;
-	// std::tuple<tuple_arg_t> t(arg);
-	// std::cout << takeArg<tuple_arg_t>(pData, index) << std::endl;
 	std::tuple<tuple_arg_t>
 		t
 		(
@@ -596,7 +567,6 @@ char takeArg<char>
 {
 	char message;
 	pData->get_char8_value(message, index);
-	std::cout << "local command got char: " << message << std::endl;
 	return message;
 }
 template <>
@@ -608,7 +578,6 @@ uint8_t takeArg<uint8_t>
 {
 	uint8_t message;
 	pData->get_uint8_value(message, index);
-	std::cout << "local command got uint8: " << message << std::endl;
 	return message;
 }
 template <>
@@ -620,7 +589,6 @@ int16_t takeArg<int16_t>
 {
 	int16_t message;
 	pData->get_int16_value(message, index);
-	std::cout << "local command got int16: " << message << std::endl;
 	return message;
 }
 template <>
@@ -632,7 +600,6 @@ uint16_t takeArg<uint16_t>
 {
 	uint16_t message;
 	pData->get_uint16_value(message, index);
-	std::cout << "local command got uint16: " << message << std::endl;
 	return message;
 }
 template <>
@@ -644,7 +611,6 @@ int32_t takeArg<int32_t>
 {
 	int32_t message;
 	pData->get_int32_value(message, index);
-	std::cout << "local command got int32_t " << message << std::endl;
 	return message;
 }
 template <>
@@ -656,7 +622,6 @@ uint32_t takeArg<uint32_t>
 {
 	uint32_t message;
 	pData->get_uint32_value(message, index);
-	std::cout << "local command got uint32_t " << message << std::endl;
 	return message;
 }
 template <>
@@ -668,7 +633,6 @@ int64_t takeArg<int64_t>
 {
 	int64_t message;
 	pData->get_int64_value(message, index);
-	std::cout << "local command got int64_t " << message << std::endl;
 	return message;
 }
 template <>
@@ -680,7 +644,6 @@ uint64_t takeArg<uint64_t>
 {
 	uint64_t message;
 	pData->get_uint64_value(message, index);
-	std::cout << "local command got uint64_t " << message << std::endl;
 	return message;
 }
 template <>
@@ -692,7 +655,6 @@ float takeArg<float>
 {
 	float message;
 	pData->get_float32_value(message, index);
-	std::cout << "local command got float " << message << std::endl;
 	return message;
 }
 template <>
@@ -704,7 +666,6 @@ double takeArg<double>
 {
 	double message;
 	pData->get_float64_value(message, index);
-	std::cout << "local command got double " << message << std::endl;
 	return message;
 }
 template <>
@@ -716,7 +677,6 @@ long double takeArg<long double>
 {
 	long double message;
 	pData->get_float128_value(message, index);
-	std::cout << "local command got long double " << message << std::endl;
 	return message;
 }
 template <>
@@ -728,7 +688,6 @@ bool takeArg<bool>
 {
 	bool message;
 	pData->get_bool_value(message, index);
-	std::cout << "local command got bool " << message << std::endl;
 	return message;
 }
 template <>
@@ -740,7 +699,6 @@ std::string takeArg<std::string>
 {
 	std::string message;
 	pData->get_string_value(message, index);
-	std::cout << "local command got string: " << message << std::endl;
 	return message;
 }
 

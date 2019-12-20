@@ -51,7 +51,6 @@ RemoteCommand::RemoteCommand(CommandRegisterMsg &msg) :
 	command_name(msg.command_name()),
 	docstring(msg.docstring()),
 	args(msg.arg_types()),
-	// args(),
 	ret_type(msg.ret_type()),
 	remote_command_publisher(*this, msg)
 { }
@@ -118,57 +117,43 @@ RemoteCommand::RemoteCommandPublisher::RemoteCommandPublisher
 		switch(static_cast<CommandBase::ArgumentType>(msg.arg_types()[i]))
 		{
 			case CommandBase::ArgumentType::VOID:
-				std::cout << "void -- skipping" << std::endl;
 				continue;
 			case CommandBase::ArgumentType::CHAR:
-				std::cout << "char8 " << i << std::endl;
 				pType = pFactory->create_char8_type();
 				break;
 			case CommandBase::ArgumentType::UINT8:
-				std::cout << "uint8 " << i << std::endl;
 				pType = pFactory->create_uint16_type();
 				break;
 			case CommandBase::ArgumentType::INT16:
-				std::cout << "int16 " << i << std::endl;
 				pType = pFactory->create_int16_type();
 				break;
 			case CommandBase::ArgumentType::UINT16:
-				std::cout << "uint16 " << i << std::endl;
 				pType = pFactory->create_uint16_type();
 				break;
 			case CommandBase::ArgumentType::INT32:
-				std::cout << "int32 " << i << std::endl;
 				pType = pFactory->create_int32_type();
 				break;
 			case CommandBase::ArgumentType::UINT32:
-				std::cout << "uint32 " << i << std::endl;
 				pType = pFactory->create_uint32_type();
 				break;
 			case CommandBase::ArgumentType::INT64:
-				std::cout << "int64 " << i << std::endl;
 				pType = pFactory->create_int64_type();
 				break;
 			case CommandBase::ArgumentType::UINT64:
-				std::cout << "uint64 " << i << std::endl;
 				pType = pFactory->create_uint64_type();
 				break;
 			case CommandBase::ArgumentType::FLOAT:
-				std::cout << "float " << i << std::endl;
 				pType = pFactory->create_float32_type();
 				break;
 			case CommandBase::ArgumentType::DOUBLE:
-				std::cout << "double " << i << std::endl;
 				pType = pFactory->create_float64_type();
 				break;
 			case CommandBase::ArgumentType::LONG_DOUBLE:
-				std::cout << "long double " << i << std::endl;
 				pType = pFactory->create_float128_type();
 				break;
 			case CommandBase::ArgumentType::BOOL:
-				std::cout << "bool " << i << std::endl;
 				break;
 			case CommandBase::ArgumentType::STD_STRING:
-				std::cout << "string " << i << std::endl;
 				pType = pFactory->create_string_type();
 				break;
 			default:
@@ -198,9 +183,6 @@ RemoteCommand::RemoteCommandPublisher::RemoteCommandPublisher
 		// TODO add proper deleter here
 		[](eprosima::fastrtps::types::DynamicData*){}
 	);
-	// pData->set_uint32_value(0, 0);
-	// pData->set_string_value("HelloWorld", 1);
-
 	// create participant
 	eprosima::fastrtps::ParticipantAttributes participant_attributes;
 	participant_attributes.rtps.builtin.domainId = 0;
@@ -258,20 +240,6 @@ RemoteCommand::RemoteCommandPublisher::RemoteCommandPublisher
 		// TODO do something better here
 		std::cout << "ERROR: dynamic publisher was not created" << std::endl;
 	}
-
-	// Send dummy data
-	// this->pData->set_uint32_value(123, 0);
-	// this->pData->set_string_value("HelloWorld", 1);
-	// std::this_thread::sleep_for(std::chrono::seconds(10));
-	// std::this_thread::sleep_for(std::chrono::milliseconds(80));
-	// for(size_t i = 0; i != 5; ++i)
-	// {
-	// 	std::cout << "sending dummy data" << std::endl;
-	// 	// pData->set_uint32_value(i, 0);
-	// 	this->pPublisher->write((void*)this->pData.get());
-	// 	std::this_thread::sleep_for(std::chrono::seconds(1));
-	// }
-
 }
 
 // =============================================================================
@@ -402,31 +370,8 @@ void RemoteCommandManager::RegistrationListener::onNewDataMessage
 				msg
 			);
 		owner.addCommand(pCommand);
-
-		// {
-		// 	std::lock_guard<std::mutex> lock(owner.remote_commands_mutex);
-		// 	owner.remote_commands.push_back(pCommand);
-
-		// 	std::cout << "Listner added command. Iterating through all commands from listener\n";
-		// 	for(const auto &pCommand : owner.remote_commands)
-		// 	{
-		// 		std::cout << pCommand->command_name << "\n";
-		// 		for(const auto &arg : pCommand->args)
-		// 		{
-		// 			std::cout << "\t" << arg << "\n" << std::endl;
-		// 		}
-		// 	}
-		// 	std::cout << std::endl;
-		// }
-
-		// if(owner.onNewCommand)
-		// {
-		// 	owner.onNewCommand(pCommand);
-		// }
 	}
 }
-
-// =================================== call ====================================
 
 // ============================== Push Arguments ===============================
 namespace dls
@@ -434,7 +379,6 @@ namespace dls
 template <>
 void RemoteCommand::pushArg(char c) const
 {
-	std::cout << "push char" << std::endl;
 	this->remote_command_publisher.pData->set_char8_value
 	(
 		c,
@@ -447,7 +391,6 @@ void RemoteCommand::pushArg(char c) const
 template <>
 void RemoteCommand::pushArg(uint8_t i) const
 {
-	std::cout << "push uint8" << std::endl;
 	this->remote_command_publisher.pData->set_uint8_value
 	(
 		i,
@@ -460,7 +403,6 @@ void RemoteCommand::pushArg(uint8_t i) const
 template <>
 void RemoteCommand::pushArg(int16_t i) const
 {
-	std::cout << "push int16" << std::endl;
 	this->remote_command_publisher.pData->set_int16_value
 	(
 		i,
@@ -473,7 +415,6 @@ void RemoteCommand::pushArg(int16_t i) const
 template <>
 void RemoteCommand::pushArg(uint16_t i) const
 {
-	std::cout << "push uint16" << std::endl;
 	this->remote_command_publisher.pData->set_uint16_value
 	(
 		i,
@@ -486,7 +427,6 @@ void RemoteCommand::pushArg(uint16_t i) const
 template <>
 void RemoteCommand::pushArg(int32_t i) const
 {
-	std::cout << "push int32" << std::endl;
 	this->remote_command_publisher.pData->set_int32_value
 	(
 		i,
@@ -499,7 +439,6 @@ void RemoteCommand::pushArg(int32_t i) const
 template <>
 void RemoteCommand::pushArg(uint32_t i) const
 {
-	std::cout << "push uint32" << std::endl;
 	this->remote_command_publisher.pData->set_uint32_value
 	(
 		i,
@@ -512,7 +451,6 @@ void RemoteCommand::pushArg(uint32_t i) const
 template <>
 void RemoteCommand::pushArg(int64_t i) const
 {
-	std::cout << "push int64" << std::endl;
 	this->remote_command_publisher.pData->set_int64_value
 	(
 		i,
@@ -525,7 +463,6 @@ void RemoteCommand::pushArg(int64_t i) const
 template <>
 void RemoteCommand::pushArg(float f) const
 {
-	std::cout << "push float" << std::endl;
 	this->remote_command_publisher.pData->set_float32_value
 	(
 		f,
@@ -538,7 +475,6 @@ void RemoteCommand::pushArg(float f) const
 template <>
 void RemoteCommand::pushArg(double d) const
 {
-	std::cout << "push double" << std::endl;
 	this->remote_command_publisher.pData->set_float64_value
 	(
 		d,
@@ -551,7 +487,6 @@ void RemoteCommand::pushArg(double d) const
 template <>
 void RemoteCommand::pushArg(long double ld) const
 {
-	std::cout << "push long double" << std::endl;
 	this->remote_command_publisher.pData->set_float128_value
 	(
 		ld,
@@ -564,7 +499,6 @@ void RemoteCommand::pushArg(long double ld) const
 template <>
 void RemoteCommand::pushArg(bool b) const
 {
-	std::cout << "push bool" << std::endl;
 	this->remote_command_publisher.pData->set_bool_value
 	(
 		b,
@@ -577,7 +511,6 @@ void RemoteCommand::pushArg(bool b) const
 template <>
 void RemoteCommand::pushArg(/*const*/ std::string /*&*/s) const
 {
-	std::cout << "push string" << std::endl;
 	this->remote_command_publisher.pData->set_string_value
 	(
 		s,

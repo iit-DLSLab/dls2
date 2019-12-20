@@ -130,23 +130,42 @@ private:
 		) override;
 
 		// =========================== Data Members ============================
+		/// A reference to the command object that owns this listener
+		///
 		Command<ret_t, arg_ts...> &owner;
+
+		/// The fastrtps participant
+		///
 		std::shared_ptr<eprosima::fastrtps::Participant> pParticipant;
+
+		/// The fastrtps subscriber
+		///
 		std::shared_ptr<eprosima::fastrtps::Subscriber> pSubscriber;
+
+		/// The dynamic type
+		///
 		eprosima::fastrtps::types::DynamicPubSubType dynamic_type;
+
+		/// Data storage
+		///
+		/// When a new message is received, it is stored here
 		std::shared_ptr<eprosima::fastrtps::types::DynamicData> pData;
 
+		/// Build a tuple from the arguments from a received message
+		///
+		/// Takes data stored in `pData` and recursively builds a tuple from it
 		template <typename tuple_arg1_t, typename tuple_arg2_t, typename... tuple_arg_ts>
 		std::tuple<tuple_arg1_t, tuple_arg2_t, tuple_arg_ts...> buildArgTuple
 		(
-			// eprosima::fastrtps::Subscriber *sub,
 			size_t index
 		);
 
+		/// Build a tuple from the arguments from a received message
+		///
+		/// recursion base case
 		template <typename tuple_arg_t>
 		std::tuple<tuple_arg_t> buildArgTuple
 		(
-			// eprosima::fastrtps::Subscriber*,
 			size_t index
 		);
 
@@ -160,16 +179,21 @@ private:
 // -----------------------------------------------------------------------------
 // ======================== Constructor Helpers ========================
 // TODO put these into a proper namespace
+
+/// Build the dynamic type of a dynamic subscriber
+///
+/// Recursively adds argument types to the subscriber
 template <typename arg1_t, typename arg2_t, typename... arg_other_ts>
-// eprosima::fastrtps::types::DynamicTypeBuilder_ptr
 void buildDynamicType
 (
 	eprosima::fastrtps::types::DynamicTypeBuilder_ptr&,
 	size_t index = 0
 );
 
+/// Build the dynamic type of a dynamic subscriber
+///
+/// Recursion base case
 template <typename arg>
-// eprosima::fastrtps::types::DynamicTypeBuilder_ptr
 void buildDynamicType
 (
 	eprosima::fastrtps::types::DynamicTypeBuilder_ptr&,
@@ -178,6 +202,8 @@ void buildDynamicType
 
 // ============================ Subscriber reading =============================
 // TODO put these into a proper namespace
+/// Takes an argument from a dynamic subscriber
+///
 template <typename T>
 T takeArg
 (

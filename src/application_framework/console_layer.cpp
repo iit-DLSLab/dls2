@@ -80,28 +80,22 @@ std::shared_ptr<PublisherBase<StringMsgPubSubType>> pDeactivate_gait_generator_p
 // Constructors
 // =============================================================================
 ConsoleLayer::ConsoleLayer() :
-	// commands_mutex(),
-	// commands(),
 	remote_command_manager
 	(
-		[](std::shared_ptr<RemoteCommand> p)
-		{
-			static std::mutex m;
-			{
-				std::lock_guard<std::mutex> lock(m);
-				std::cout << "\n==========" << std::endl;
-				std::cout << p->command_name << std::endl;
-				std::cout << "----------" << std::endl;
-				for(const auto &el : p->args)
-				{
-					std::cout << el << std::endl;
-				}
-				std::cout << "==========\n" << std::endl;
-			}
-		}
-		// [this](std::shared_ptr<RemoteCommand> p)
+		// [](std::shared_ptr<RemoteCommand> p)
 		// {
-		// 	this->addCommand(Command(p->command_name, nullptr, p->docstring));
+		// 	static std::mutex m;
+		// 	{
+		// 		std::lock_guard<std::mutex> lock(m);
+		// 		std::cout << "\n==========" << std::endl;
+		// 		std::cout << p->command_name << std::endl;
+		// 		std::cout << "----------" << std::endl;
+		// 		for(const auto &el : p->args)
+		// 		{
+		// 			std::cout << el << std::endl;
+		// 		}
+		// 		std::cout << "==========\n" << std::endl;
+		// 	}
 		// }
 	)
 	// ,
@@ -291,18 +285,6 @@ ConsoleLayer::Status ConsoleLayer::run()
 					}
 					if(it != remote_commands.end())
 					{
-						// (*it)->c
-						// TODO call command here
-						std::cout << "found command: "
-							<< (*it)->command_name << " belonging to component: "
-							<< (*it)->owner
-							<< " Having argument types:\n";
-						for(const auto &el : (*it)->args)
-						{
-							std::cout << "\t" << el << "\n";
-						}
-						std::cout << std::endl;
-
 						callCommand(**it, args);
 					}
 					else
@@ -370,7 +352,6 @@ void ConsoleLayer::callCommand
 				char val;
 				ss >> val;
 				command.pushArg<char>(val);
-				std::cout << "push char command" << std::endl;
 				break;
 			}
 			case CommandBase::ArgumentType::UINT8:
@@ -378,7 +359,6 @@ void ConsoleLayer::callCommand
 				uint8_t val;
 				ss >> val;
 				command.pushArg<uint8_t>(val);
-				std::cout << "push int8 command" << std::endl;
 				break;
 			}
 			case CommandBase::ArgumentType::INT16:
@@ -386,7 +366,6 @@ void ConsoleLayer::callCommand
 				int16_t val;
 				ss >> val;
 				command.pushArg<int16_t>(val);
-				std::cout << "push int 16 command" << std::endl;
 				break;
 			}
 			case CommandBase::ArgumentType::UINT16:
@@ -394,7 +373,6 @@ void ConsoleLayer::callCommand
 				uint16_t val;
 				ss >> val;
 				command.pushArg<uint16_t>(val);
-				std::cout << "push uint16 command" << std::endl;
 				break;
 			}
 			case CommandBase::ArgumentType::INT32:
@@ -402,7 +380,6 @@ void ConsoleLayer::callCommand
 				int32_t val;
 				ss >> val;
 				command.pushArg<int32_t>(val);
-				std::cout << "push int32 command" << std::endl;
 				break;
 			}
 			case CommandBase::ArgumentType::UINT32:
@@ -410,7 +387,6 @@ void ConsoleLayer::callCommand
 				uint32_t val;
 				ss >> val;
 				command.pushArg<uint32_t>(val);
-				std::cout << "push uint32 command" << std::endl;
 				break;
 			}
 			case CommandBase::ArgumentType::INT64:
@@ -418,7 +394,6 @@ void ConsoleLayer::callCommand
 				int64_t val;
 				ss >> val;
 				command.pushArg<int64_t>(val);
-				std::cout << "push int64 command" << std::endl;
 				break;
 			}
 			case CommandBase::ArgumentType::FLOAT:
@@ -426,7 +401,6 @@ void ConsoleLayer::callCommand
 				float val;
 				ss >> val;
 				command.pushArg<float>(val);
-				std::cout << "push float command" << std::endl;
 				break;
 			}
 			case CommandBase::ArgumentType::DOUBLE:
@@ -434,7 +408,6 @@ void ConsoleLayer::callCommand
 				double val;
 				ss >> val;
 				command.pushArg<double>(val);
-				std::cout << "push double command" << std::endl;
 				break;
 			}
 			case CommandBase::ArgumentType::LONG_DOUBLE:
@@ -442,7 +415,6 @@ void ConsoleLayer::callCommand
 				long double val;
 				ss >> val;
 				command.pushArg<long double>(val);
-				std::cout << "push long double command" << std::endl;
 				break;
 			}
 			case CommandBase::ArgumentType::BOOL:
@@ -450,13 +422,11 @@ void ConsoleLayer::callCommand
 				bool val;
 				ss >> val;
 				command.pushArg<bool>(val);
-				std::cout << "push bool command" << std::endl;
 				break;
 			}
 			case CommandBase::ArgumentType::STD_STRING:
 			{
 				command.pushArg<std::string>(ss.str());
-				std::cout << "push string command" << std::endl;
 				break;
 			}
 			default:

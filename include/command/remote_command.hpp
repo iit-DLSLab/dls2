@@ -206,6 +206,4 @@ private:
 	void addCommand(std::shared_ptr<RemoteCommand>);
 };
 } // end namespace dls
-
-#include "command/remote_command.tpp"
 #endif /* end of include guard: REMOTE_COMMAND_HPP_EDSRALCP */
