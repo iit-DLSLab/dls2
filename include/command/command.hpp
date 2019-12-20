@@ -133,19 +133,18 @@ private:
 		template <typename tuple_arg1_t, typename tuple_arg2_t, typename... tuple_arg_ts>
 		std::tuple<tuple_arg1_t, tuple_arg2_t, tuple_arg_ts...> buildArgTuple
 		(
-			eprosima::fastrtps::Subscriber *sub,
+			// eprosima::fastrtps::Subscriber *sub,
 			size_t index
 		);
 
 		template <typename tuple_arg_t>
 		std::tuple<tuple_arg_t> buildArgTuple
 		(
-			eprosima::fastrtps::Subscriber *sub,
+			// eprosima::fastrtps::Subscriber*,
 			size_t index
 		);
+
 	} command_call_listener;
-
-
 };
 // =============================================================================
 // Free Functions
@@ -171,6 +170,14 @@ void buildDynamicType
 	size_t index = 0
 );
 
+// ============================ Subscriber reading =============================
+// TODO put these into a proper namespace
+template <typename T>
+T takeArg
+(
+	std::shared_ptr<eprosima::fastrtps::types::DynamicData> pData,
+	size_t index
+);
 
 // =============================================================================
 // Container Class

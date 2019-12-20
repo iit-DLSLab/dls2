@@ -37,13 +37,13 @@ PidController::PidController (const std::shared_ptr<Dog> &dog) : Controller
 	// command("dummy_controller", "foo", "help", foo)
 {
 	scout << "pid controller launched" << std::endl;
-	command_manager.addCommand<int, float, std::string>
-		(
-			std::string("pid"),
-			std::string("foo"),
-			std::string("foohelp"),
-			std::function<int(float, std::string)>(foo)
-		);
+	// command_manager.addCommand<int, float, std::string>
+	// 	(
+	// 		std::string("pid"),
+	// 		std::string("foo"),
+	// 		std::string("foohelp"),
+	// 		std::function<int(float, std::string)>(foo)
+	// 	);
 }
 
 PidController::PidController() : PidController(std::make_shared<Dog>())

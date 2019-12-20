@@ -86,19 +86,34 @@ ControlLayer::ControlLayer() :
 	clog("control_layer"),
 	cfatal("control_layer")
 {
-	command_manager.addCommand<bool, const std::string&>
+	command_manager.addCommand<bool /*,const std::string&*/, double, double>
 	(
 		"control_layer",
 		"activateGaitGenerator_manager",
 		"activates a gait generator",
-		std::function<bool(const std::string&)>
+		std::function<bool(/*const std::string&,*/ double, double)>
 		(
-			[&](const std::string &s)->bool
+			[&](/*const std::string &s, */double, double)->bool
 			{
-				return this->activateGaitGenerator(s);
+				// return this->activateGaitGenerator(s);
+				return true;
 			}
 		)
 	);
+
+	// command_manager.addCommand<bool, const std::string&>
+	// (
+	// 	"control_layer",
+	// 	"activateGaitGenerator_manager",
+	// 	"activates a gait generator",
+	// 	std::function<bool(const std::string&)>
+	// 	(
+	// 		[&](const std::string &s)->bool
+	// 		{
+	// 			return this->activateGaitGenerator(s);
+	// 		}
+	// 	)
+	// );
 
 	command_manager.addCommand<bool, const std::string&>
 	(
