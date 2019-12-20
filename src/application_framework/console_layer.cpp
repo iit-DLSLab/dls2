@@ -97,9 +97,9 @@ ConsoleLayer::ConsoleLayer() :
 		// 		std::cout << "==========\n" << std::endl;
 		// 	}
 		// }
-	)
-	// ,
-	//  string_listener(*this)
+	),
+	//  string_listener(*this),
+	command_manager()
 {
 	pInstance = this;
 
@@ -134,105 +134,28 @@ ConsoleLayer::ConsoleLayer() :
 	// flexible rl_attempted_completion_function
 	rl_completion_entry_function = [](const char *, int)->char*{return nullptr;};
 
-	// populate commands
-	// addCommand
-	// (
-	// 	Command
-	// 	(
-	// 		"activateController",
-	// 		// TODO lambda is currently copied everywhere, but this will
-	// 		// diseappear when everything is made more flexible
-	// 		[](const std::vector<std::string> &vec)
-	// 		{
-	// 			StringMsg msg;
-	// 			if(vec.size() > 0)
-	// 			{
-	// 				msg.msg(vec[0]);
-	// 				pActivate_controller_pub->publish(msg);
-	// 			}
-	// 		},
-	// 		"activates the controller"
-	// 	)
-	// );
+	command_manager.addCommand<void, std::string>
+	(
+		"console_layer",
+		"help",
+		"prints docstring of a command",
+		std::function<void(std::string)>
+		(
+			[&](std::string s)
+			{
+				for(auto pCommand : this->remote_command_manager.findByName(s))
+				{
+					std::cout << pCommand->owner << "::" <<
+						pCommand->command_name << ": " <<
+						pCommand->docstring << std::endl;
 
-	// addCommand
-	// (
-	// 	Command
-	// 	(
-	// 		"deactivateController",
-	// 		[](const std::vector<std::string> &vec)
-	// 		{
-	// 			StringMsg msg;
-	// 			if(vec.size() > 0)
-	// 			{
-	// 				msg.msg(vec[0]);
-	// 				pDeactivate_controller_pub->publish(msg);
-	// 			}
-	// 		},
-	// 		"deactivates the controller"
-	// 	)
-	// );
-
-	// addCommand
-	// (
-	// 	Command
-	// 	(
-	// 		"activateGaitGenerator",
-	// 		[](const std::vector<std::string> &vec)
-	// 		{
-	// 			StringMsg msg;
-	// 			if(vec.size() > 0)
-	// 			{
-	// 				msg.msg(vec[0]);
-	// 				pActivate_gait_generator_pub->publish(msg);
-	// 			}
-	// 		},
-	// 		"deactivates the controller"
-	// 	)
-	// );
-
-	// addCommand
-	// (
-	// 	Command
-	// 	(
-	// 		"deactivateGaitGenerator",
-	// 		[](const std::vector<std::string> &)
-	// 		{
-	// 			StringMsg msg;
-	// 			pDeactivate_gait_generator_pub->publish(msg);
-	// 		},
-	// 		"deactivates the controller"
-	// 	)
-	// );
-
-	// addCommand
-	// (
-	// 	Command
-	// 	(
-	// 		"help",
-	// 		[&](const std::vector<std::string> &vec)
-	// 		{
-	// 			if(vec.size() == 0)
-	// 			{
-	// 				std::cout << "usage: help arg [arg...]" << std::endl;
-	// 			}
-	// 			else
-	// 			{
-	// 				// std::lock_guard<std::mutex> lock(this->commands_mutex);
-	// 				for(const auto &arg : vec)
-	// 				{
-	// 					auto it = commands.find(arg);
-	// 					if(it == commands.end())
-	// 					{
-	// 						continue;
-	// 					}
-	// 					std::cout << arg << ": " << it->second.docstring << std::endl;
-	// 				}
-	// 			}
-	// 		},
-	// 		"Prints docstrings of its arguments"
-	// 	)
-	// );
+					// for now we only have unique commands, so break
+					break;
+				}
+				std::cout << this->build_prompt() << std::endl;
+			}
+		)
+	);
 }
 
 // =============================================================================

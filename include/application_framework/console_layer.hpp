@@ -33,6 +33,7 @@
 
 // commands
 #include "command/remote_command.hpp"
+#include "command/command.hpp"
 
 // stdlib
 #include <map>
@@ -58,6 +59,9 @@ public:
 	/// Default Constructor
 	///
 	ConsoleLayer();
+
+	/// Default Destructor
+	///
 	~ConsoleLayer() = default;
 
 	/// Run the console
@@ -70,21 +74,12 @@ public:
 	/// Will cause `run` to stop running
 	Status shutdown() override;
 
-	/// Adds a command to the console
-	///
-	// void addCommand(const Command&);
-
 private:
 	/// Generates the console prompt
 	///
 	/// This is currently just a stub function, but it can be expanded apon in
 	/// future
 	std::string build_prompt();
-
-	// Begin critical section
-		// std::mutex commands_mutex; ///< Mutex protecting the console commands
-		// std::map<std::string, Command> commands; ///< The commands registered with the console
-	// End critical section
 
 	/// Calls a command with the given command line arguments
 	///
@@ -105,6 +100,8 @@ private:
 		ConsoleLayer &owner;
 	// }string_listener;
 	};
+
+	CommandManager command_manager;
 
 };
 } // end namespace dls
