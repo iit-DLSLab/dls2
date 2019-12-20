@@ -86,54 +86,24 @@ ControlLayer::ControlLayer() :
 	clog("control_layer"),
 	cfatal("control_layer")
 {
-	command_manager.addCommand<bool /*,const std::string&*/, double, double>
+	command_manager.addCommand<bool, std::string>
 	(
 		"control_layer",
-		"activateGaitGenerator_manager",
+		"activateGaitGenerator",
 		"activates a gait generator",
-		std::function<bool(/*const std::string&,*/ double, double)>
+		std::function<bool(std::string)>
 		(
-			[&](/*const std::string &s, */double a, double b)->bool
+			[&](std::string s)->bool
 			{
-				// return this->activateGaitGenerator(s);
-				std::cout << "sum is:" << a + b << std::endl;
-				return true;
+				return this->activateGaitGenerator(s);
 			}
 		)
 	);
 
-	command_manager.addCommand<void, std::string>
-	(
-		"control_layer",
-		"echo",
-		"echos a message",
-		std::function<void(std::string)>
-		{
-			[](const std::string &s)
-			{
-				std::cout << s << std::endl;
-			}
-		}
-	);
-
-	// command_manager.addCommand<bool, const std::string&>
-	// (
-	// 	"control_layer",
-	// 	"activateGaitGenerator_manager",
-	// 	"activates a gait generator",
-	// 	std::function<bool(const std::string&)>
-	// 	(
-	// 		[&](const std::string &s)->bool
-	// 		{
-	// 			return this->activateGaitGenerator(s);
-	// 		}
-	// 	)
-	// );
-
 	command_manager.addCommand<bool, std::string>
 	(
 		"control_layer",
-		"activateController_manager",
+		"activateController",
 		"activates a controller",
 		std::function<bool(std::string s)>
 		(
@@ -144,25 +114,26 @@ ControlLayer::ControlLayer() :
 		)
 	);
 
-	// TODO template system can't currently handle no arguments
-	// command_manager.addCommand<void>
-	// (
-	// 	"control_layer",
-	// 	"deactivateGaitGenerators_manager",
-	// 	"stops all running gait generators",
-	// 	std::function<void()>
-	// 	(
-	// 		[&]()
-	// 		{
-	// 			this->deactivateGaitGenerators();
-	// 		}
-	// 	)
-	// );
+	// TODO template system can't currently handle no arguments -- this is just
+	// a temporary workaround by passing an unnecessary string
+	command_manager.addCommand<void, std::string>
+	(
+		"control_layer",
+		"deactivateGaitGenerators",
+		"stops all running gait generators",
+		std::function<void(std::string)>
+		(
+			[&](std::string)
+			{
+				this->deactivateGaitGenerators();
+			}
+		)
+	);
 
 	command_manager.addCommand<void, std::string>
 	(
 		"control_layer",
-		"deactivateController_manager",
+		"deactivateController",
 		"stops a controller",
 		std::function<void(std::string)>
 		(

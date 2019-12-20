@@ -246,6 +246,13 @@ void buildDynamicType
 
 // ========================= Base Case Specialisations =========================
 template<>
+void buildDynamicType<void>
+(
+	eprosima::fastrtps::types::DynamicTypeBuilder_ptr&,
+	size_t
+)
+{ }
+template<>
 void buildDynamicType<char>
 (
 	eprosima::fastrtps::types::DynamicTypeBuilder_ptr &builder,
