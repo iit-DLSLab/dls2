@@ -93,12 +93,27 @@ ControlLayer::ControlLayer() :
 		"activates a gait generator",
 		std::function<bool(/*const std::string&,*/ double, double)>
 		(
-			[&](/*const std::string &s, */double, double)->bool
+			[&](/*const std::string &s, */double a, double b)->bool
 			{
 				// return this->activateGaitGenerator(s);
+				std::cout << "sum is:" << a + b << std::endl;
 				return true;
 			}
 		)
+	);
+
+	command_manager.addCommand<void, std::string>
+	(
+		"control_layer",
+		"echo",
+		"echos a message",
+		std::function<void(std::string)>
+		{
+			[](const std::string &s)
+			{
+				std::cout << s << std::endl;
+			}
+		}
 	);
 
 	// command_manager.addCommand<bool, const std::string&>
@@ -115,12 +130,12 @@ ControlLayer::ControlLayer() :
 	// 	)
 	// );
 
-	command_manager.addCommand<bool, const std::string&>
+	command_manager.addCommand<bool, std::string>
 	(
 		"control_layer",
 		"activateController_manager",
 		"activates a controller",
-		std::function<bool(const std::string &s)>
+		std::function<bool(std::string s)>
 		(
 			[&](const std::string &s)->bool
 			{
@@ -144,14 +159,14 @@ ControlLayer::ControlLayer() :
 	// 	)
 	// );
 
-	command_manager.addCommand<void, const std::string&>
+	command_manager.addCommand<void, std::string>
 	(
 		"control_layer",
 		"deactivateController_manager",
 		"stops a controller",
-		std::function<void(const std::string&)>
+		std::function<void(std::string)>
 		(
-			[&](const std::string &s)
+			[&](std::string s)
 			{
 				this->deactivateController(s);
 			}

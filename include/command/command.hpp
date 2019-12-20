@@ -84,6 +84,12 @@ private:
 		const std::string &docstring
 	);
 
+	// =========================== Member Functions ============================
+	ret_t call(std::tuple<arg_ts...>&);
+
+	template <size_t...I>
+	ret_t call(std::tuple<arg_ts...>&, std::index_sequence<I...>);
+
 	// ============================= Data Members ==============================
 	/// Name of the component that owns this command
 	///

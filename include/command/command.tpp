@@ -91,6 +91,9 @@ CommandRegisterMsg Command<ret_t, arg_ts...>::buildMsg
 // =============================================================================
 // Implementation
 // =============================================================================
+// -----------------------------------------------------------------------------
+// Registration
+// -----------------------------------------------------------------------------
 template <typename ret_t, typename...arg_ts>
 void Command<ret_t, arg_ts...>::requestRegistration()
 {
@@ -104,6 +107,23 @@ template <typename ret_t, typename...arg_ts>
 void Command<ret_t, arg_ts...>::requestDeregistration()
 {
 	// TODO implement
+}
+// -----------------------------------------------------------------------------
+// Calling
+// -----------------------------------------------------------------------------
+template <typename ret_t, typename...arg_ts>
+ret_t Command<ret_t, arg_ts...>::call(std::tuple<arg_ts...> &t)
+{
+	static constexpr auto tuple_size = std::tuple_size<std::tuple<arg_ts...>>::value;
+	return call(t, std::make_index_sequence<tuple_size>{});
+}
+
+template <typename ret_t, typename...arg_ts>
+template<size_t...I>
+ret_t Command<ret_t, arg_ts...>::call(std::tuple<arg_ts...> &t, std::index_sequence<I...>)
+{
+	std::cout << "first argument to call is: " << std::get<0>(t) << std::endl;
+	return this->f(std::get<I>(t)...);
 }
 
 // =============================================================================
@@ -494,7 +514,9 @@ void Command<ret_t, arg_ts...>::CommandCallListener::onNewDataMessage
 		if(info.sampleKind == eprosima::fastrtps::rtps::ALIVE)
 		{
 			std::cout << "command callback listener callback hit" << std::endl;
-			/*std::tuple<arg_ts...> tuple =*/ buildArgTuple<arg_ts...>(/*sub,*/ 0);
+			std::tuple<arg_ts...> tuple = buildArgTuple<arg_ts...>(/*sub,*/ 0);
+			// std::cout << "first argument from onNewDataMessage is: " << std::get<0>(tuple) << std::endl;
+			owner.call(tuple);
 		}
 	}
 }
@@ -510,6 +532,7 @@ std::tuple<tuple_arg1_t, tuple_arg2_t, tuple_arg_ts...>
 )
 {
 	std::cout << "template build tuple debounce CONTINUE HERE" << std::endl;
+	// std::cout << takeArg<tuple_arg1_t>(pData, index) << std::endl;
 	// typename std::remove_reference<tuple_arg1_t>::type arg;
 	// std::tuple<tuple_arg1_t> t(arg);
 	std::tuple<tuple_arg1_t>
@@ -517,10 +540,10 @@ std::tuple<tuple_arg1_t, tuple_arg2_t, tuple_arg_ts...>
 		(
 			takeArg
 			<
-				typename std::remove_const
-				<
+				// typename std::remove_const
+				// <
 					typename std::remove_reference<tuple_arg1_t>::type
-				>::type
+				// >::type
 			>
 			(pData, index)
 		);
@@ -539,18 +562,20 @@ std::tuple<tuple_arg_t> Command<ret_t,
 	std::cout << "template build tuple base CONTINUE HERE" << std::endl;
 	// typename std::remove_reference<tuple_arg_t>::type arg;
 	// std::tuple<tuple_arg_t> t(arg);
+	// std::cout << takeArg<tuple_arg_t>(pData, index) << std::endl;
 	std::tuple<tuple_arg_t>
 		t
 		(
 			takeArg
 			<
-				typename std::remove_const
-				<
+				// typename std::remove_const
+				// <
 					typename std::remove_reference<tuple_arg_t>::type
-				>::type
+				// >::type
 			>
 			(pData, index)
 		);
+
 	return t;
 }
 
