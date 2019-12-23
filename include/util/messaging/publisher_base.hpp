@@ -31,7 +31,8 @@ namespace dls
 	{
 	public:
 		PublisherBase(const std::string &topic);
-		virtual ~PublisherBase() = default;
+		// virtual ~PublisherBase() = default;
+		virtual ~PublisherBase();
 
 		void publish(typename PubSub_t::type &msg) const;
 
@@ -39,7 +40,10 @@ namespace dls
 		std::shared_ptr<eprosima::fastrtps::Participant> pParticipant;
 		std::shared_ptr<eprosima::fastrtps::Publisher> pPublisher;
 
-		static PubSub_t rtps_type;
+		/*static*/ PubSub_t rtps_type;
+
+		// TODO temp, remove
+		const std::string temp_topic;
 	};
 } // end namespace dls
 

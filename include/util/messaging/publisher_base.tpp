@@ -35,13 +35,15 @@
 
 namespace dls
 {
-	template <class PubSub_t>
-	PubSub_t PublisherBase<PubSub_t>::rtps_type;
+	// template <class PubSub_t>
+	// PubSub_t PublisherBase<PubSub_t>::rtps_type;
 
 	template <class PubSub_t>
 	PublisherBase<PubSub_t>::PublisherBase(const std::string &topic) :
 		pParticipant(nullptr),
-		pPublisher(nullptr)
+		pPublisher(nullptr),
+		rtps_type(),
+		temp_topic(topic)
 	{
 		// Create participant
 		eprosima::fastrtps::ParticipantAttributes participant_attr;
@@ -118,6 +120,10 @@ namespace dls
 	{
 		pPublisher->write(&msg);
 	}
+
+	template<class PubSub_t>
+	PublisherBase<PubSub_t>::~PublisherBase()
+	{ }
 } // end namespace dls
 
 #endif /* end of include guard: PUBLISHER_BASE_TPP_I5UWXWN8 */

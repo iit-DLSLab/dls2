@@ -34,6 +34,7 @@ namespace dls
 ///
 class CommandBase
 {
+	friend class CommandManager;
 public:
 	/// Argument and return type representations
 	///
@@ -59,6 +60,8 @@ public:
 		STD_STRING
 	};
 
+	virtual ~CommandBase() = default;
+
 protected:
 	/// Convenience typedef
 	///
@@ -82,6 +85,14 @@ protected:
 	/// Recursion base case
 	template <typename arg_t>
 	RepresentationVector &buildRepresentationVector(RepresentationVector&);
+
+	/// Register this command with the framework
+	///
+	virtual void requestRegistration() = 0;
+
+	/// Unregister this command with the framework
+	///
+	virtual void requestDeregistration() = 0;
 };
 } // end namespace dls
 

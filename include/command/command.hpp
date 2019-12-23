@@ -64,13 +64,18 @@ public:
 		const std::function<ret_t(arg_ts...)> &f
 	);
 
+	/// Destructor
+	///
+	/// Request removal of the command from the framework
+	~Command();
+
 	/// Registers this command with the framework
 	///
-	void requestRegistration();
+	void requestRegistration() override;
 
 	/// Removes this command from the framework
 	///
-	void requestDeregistration();
+	void requestDeregistration() override;
 
 private:
 	// ========================== Constructor helpers ==========================
@@ -224,6 +229,11 @@ public:
 	/// Constructor
 	///
 	CommandManager();
+
+	/// Destructor
+	///
+	~CommandManager();
+
 
 	/// Adds a command to the CommandManager and registers it with the rest of
 	/// the framework

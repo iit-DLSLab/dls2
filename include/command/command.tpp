@@ -55,6 +55,12 @@ Command<ret_t, arg_ts...>::Command
 	requestRegistration();
 }
 
+template <typename ret_t, typename...arg_ts>
+Command<ret_t, arg_ts...>::~Command()
+{
+	requestDeregistration();
+}
+
 // -----------------------------------------------------------------------------
 // Constructor Helpers
 // -----------------------------------------------------------------------------
@@ -97,16 +103,17 @@ CommandRegisterMsg Command<ret_t, arg_ts...>::buildMsg
 template <typename ret_t, typename...arg_ts>
 void Command<ret_t, arg_ts...>::requestRegistration()
 {
-	this->publisher.publish
-	(
-		this->msg
-	);
+	auto msg = this->msg;
+	msg.register_nremove() = true;
+	this->publisher.publish(msg);
 }
 
 template <typename ret_t, typename...arg_ts>
 void Command<ret_t, arg_ts...>::requestDeregistration()
 {
-	// TODO implement
+	auto msg = this->msg;
+	msg.register_nremove() = false;
+	this->publisher.publish(msg);
 }
 // -----------------------------------------------------------------------------
 // Calling
@@ -270,7 +277,6 @@ std::tuple<tuple_arg1_t, tuple_arg2_t, tuple_arg_ts...>
 	size_t index
 )
 {
-	std::cout << "template build tuple debounce CONTINUE HERE" << std::endl;
 	std::tuple<tuple_arg1_t>
 		t
 		(

@@ -109,6 +109,8 @@ private:
 		mutable size_t command_arg_index;
 	}remote_command_publisher;
 
+	void requestRegistration() override {}
+	void requestDeregistration() override {}
 };
 // =============================================================================
 // Manager Class
@@ -128,8 +130,8 @@ public:
 	/// from the framework
 	RemoteCommandManager
 	(
-		std::function<void(std::shared_ptr<RemoteCommand>)> onNewCommand = nullptr,
-		std::function<void(std::shared_ptr<RemoteCommand>)> onRemoveCommand = nullptr
+		std::function<void(std::shared_ptr<const RemoteCommand>)> onNewCommand = nullptr,
+		std::function<void(std::shared_ptr<const RemoteCommand>)> onRemoveCommand = nullptr
 	);
 
 	/// Find commands
@@ -195,15 +197,19 @@ private:
 
 	/// Callback when a command is added to the framework
 	///
-	std::function<void(std::shared_ptr<RemoteCommand>)> onNewCommand;
+	std::function<void(std::shared_ptr<const RemoteCommand>)> onNewCommand;
 
 	/// Callback when a command is removed from the framework
 	///
-	std::function<void(std::shared_ptr<RemoteCommand>)> onRemoveCommand;
+	std::function<void(std::shared_ptr<const RemoteCommand>)> onRemoveCommand;
 
 	/// Adds a command to the manager
 	///
 	void addCommand(std::shared_ptr<RemoteCommand>);
+
+	/// Removes a command from the manager
+	///
+	void removeCommand(const CommandRegisterMsg &msg);
 };
 } // end namespace dls
 #endif /* end of include guard: REMOTE_COMMAND_HPP_EDSRALCP */

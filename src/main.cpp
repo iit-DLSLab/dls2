@@ -41,9 +41,6 @@
 #include "util/debug/debug.hpp"
 #include "util/log/log.hpp"
 
-TODO("temporary include")
-#include "controller/dummy_controller.hpp"
-TODO("temporary incude")
 #include <thread>
 
 #include "geometry/pose.hpp"

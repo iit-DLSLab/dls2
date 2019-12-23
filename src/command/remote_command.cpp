@@ -250,8 +250,8 @@ RemoteCommand::RemoteCommandPublisher::RemoteCommandPublisher
 // -----------------------------------------------------------------------------
 RemoteCommandManager::RemoteCommandManager
 (
-	std::function<void(std::shared_ptr<RemoteCommand>)> onNewCommand_,
-	std::function<void(std::shared_ptr<RemoteCommand>)> onRemoveCommand_
+	std::function<void(std::shared_ptr<const RemoteCommand>)> onNewCommand_,
+	std::function<void(std::shared_ptr<const RemoteCommand>)> onRemoveCommand_
 ) :
 	remote_commands_mutex(),
 	remote_commands(),
@@ -342,6 +342,27 @@ void RemoteCommandManager::addCommand(std::shared_ptr<RemoteCommand> pCommand)
 	}
 }
 
+void RemoteCommandManager::removeCommand(const CommandRegisterMsg &msg)
+{
+	std::lock_guard<std::mutex> lock(this->remote_commands_mutex);
+	for(auto it = this->remote_commands.begin(); it != this->remote_commands.end(); ++it)
+	{
+		if
+		(
+			(*it)->owner == msg.owner() &&
+			(*it)->command_name == msg.command_name()
+		)
+		{
+			if(this->onRemoveCommand)
+			{
+				this->onRemoveCommand(*it);
+			}
+			this->remote_commands.erase(it);
+			break;
+		}
+	}
+}
+
 // -----------------------------------------------------------------------------
 // Subscriber Helper
 // -----------------------------------------------------------------------------
@@ -364,12 +385,19 @@ void RemoteCommandManager::RegistrationListener::onNewDataMessage
 	CommandRegisterMsg msg;
 	if(sub->takeNextData(&msg, &info))
 	{
-		std::shared_ptr<RemoteCommand> pCommand =
-			std::make_shared<RemoteCommand>
-			(
-				msg
-			);
-		owner.addCommand(pCommand);
+		if(msg.register_nremove())
+		{
+			std::shared_ptr<RemoteCommand> pCommand =
+				std::make_shared<RemoteCommand>
+				(
+					msg
+				);
+			owner.addCommand(pCommand);
+		}
+		else
+		{
+			owner.removeCommand(msg);
+		}
 	}
 }
 

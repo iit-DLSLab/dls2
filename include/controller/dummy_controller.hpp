@@ -23,7 +23,7 @@
 #include "controller/controller.hpp"
 #include <iostream>
 #include "util/log/log.hpp"
-// #include "command/command.hpp"
+#include "command/command.hpp"
 
 TODO("This is a dummy class. Remove it, its cpp file, as well as its entry in the CMakeLists file")
 namespace dls
@@ -34,11 +34,11 @@ public:
 	DummyController
 	(
 		const std::shared_ptr<Dog> &dog
-		// const std::string &name,
-		// const period_t &period
 	);
 
 	DummyController();
+
+	~DummyController();
 
 	void run(const std::chrono::system_clock::time_point &time) override;
 
@@ -46,6 +46,7 @@ public:
 	Status eStop() override { return getStatus(); }
 
 private:
+	CommandManager command_manager;
 	logging::coutstream outstream;
 	logging::clogstream logstream;
 };

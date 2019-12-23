@@ -433,4 +433,7 @@ namespace dls
 CommandManager::CommandManager():
 	commands()
 { }
+
+CommandManager::~CommandManager()
+{ }
 } // end namespace dls

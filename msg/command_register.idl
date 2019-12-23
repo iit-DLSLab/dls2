@@ -26,4 +26,5 @@ struct CommandRegisterMsg
 	// TODO do not use unsigned long long
 	sequence<unsigned long long> arg_types;
 	unsigned long long ret_type;
+	boolean register_nremove; // true means add command, false means remove command
 };

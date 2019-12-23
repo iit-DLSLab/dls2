@@ -35,11 +35,44 @@ DummyController::DummyController
 		std::chrono::duration<double, std::ratio<1, 1>>(1),
 		ControlSignal::SignalReconstructionMethod::ZERO_ORDER_HOLD
 	),
+	command_manager(),
 	outstream(getID()),
 	logstream(getID())
 {
 	outstream << "dummy controller launched" << std::endl;
 	outstream << "Constructed a dummy controller. Hello from my new fancy stream" << std::endl;
+
+	command_manager.addCommand<double, double, double>
+	(
+		getID(),
+		"addTwoDoubles",
+		"adds two doubles",
+		std::function<double(double,double)>
+		{
+			[](double a, double b) ->double
+			{
+				std::cout << a + b << std::endl;
+				return a + b;
+			}
+		}
+	);
+
+	// std::cout << "creating free standing command" << std::endl;
+	// Command<double, double, double>
+	// (
+	// 	"test",
+	// 	"test",
+	// 	"test",
+	// 	std::function<double(double,double)>
+	// 	{
+	// 		[](double a, double b) ->double
+	// 		{
+	// 			std::cout << a + b << std::endl;
+	// 			return a + b;
+	// 		}
+	// 	}
+	// );
+	// std::cout << "removing free-standing command" << std::endl;
 }
 
 DummyController::DummyController() :
@@ -47,6 +80,11 @@ DummyController::DummyController() :
 {
 	outstream << "dummy controller destroyed" << std::endl;
 	outstream << "Destroyed a dummy controller. Hello from my new fancy stream" << std::endl;
+}
+
+DummyController::~DummyController()
+{
+	std::cout << "Dummy controller destructor" << std::endl;
 }
 
 void DummyController::run(const std::chrono::system_clock::time_point &time)

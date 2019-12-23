@@ -84,8 +84,11 @@ void signal_handler(int signal)
 		pController->stop();
 
 		logging::coutstream s(process_handle);
+		std::cout << pController->getID() << " received kill request" << std::endl;
 		s << pController->getID() << " received kill request";
-		exit(static_cast<int>(pController->getStatus()));
+		auto exit_status = pController->getStatus();
+		pController = nullptr;
+		exit(static_cast<int>(exit_status));
 	}
 }
 
@@ -100,7 +103,7 @@ public:
 		Controller
 		(
 			nullptr,
-			"dummy_controller",
+			"void_controller",
 			std::chrono::duration<double>(1),
 			ControlSignal::SignalReconstructionMethod::ZERO_ORDER_HOLD
 		)
