@@ -112,9 +112,6 @@ ConsoleLayer::ConsoleLayer() :
 					std::cout << pCommand->owner << "::" <<
 						pCommand->command_name << ": " <<
 						pCommand->docstring << std::endl;
-
-					// for now we only have unique commands, so break
-					break;
 				}
 				std::cout << this->build_prompt() << std::endl;
 			}
