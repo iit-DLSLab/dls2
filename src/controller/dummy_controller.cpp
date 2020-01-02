@@ -77,14 +77,11 @@ DummyController::DummyController
 
 DummyController::DummyController() :
 	DummyController(std::make_shared<Dog>())
-{
-	outstream << "dummy controller destroyed" << std::endl;
-	outstream << "Destroyed a dummy controller. Hello from my new fancy stream" << std::endl;
-}
+{ }
 
 DummyController::~DummyController()
 {
-	std::cout << "Dummy controller destructor" << std::endl;
+	outstream << "Dummy controller destructor" << std::endl;
 }
 
 void DummyController::run(const std::chrono::system_clock::time_point &time)

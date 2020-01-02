@@ -40,6 +40,7 @@
 #include "topics/deactivate_gait_generator.hpp"
 #include "util/debug/debug.hpp"
 #include "topics/warn_log_stream.hpp"
+#include "topics/info_log_stream.hpp" // TODO temp include
 #include "util/log/log.hpp"
 #include "topics/command_register.hpp"
 
@@ -80,7 +81,7 @@ ConsoleLayer::ConsoleLayer() :
 		// 	std::lock_guard<std::mutex> lock(this->commands_mutex);
 		// }
 	),
-	//  string_listener(*this),
+	 string_listener(*this),
 	command_manager()
 {
 	pInstance = this;
@@ -693,6 +694,7 @@ std::string &trim_inplace(std::string *const s)
 // -----------------------------------------------------------------------------
 ConsoleLayer::StringListener::StringListener(ConsoleLayer &owner_) :
 	SubscriberBase<StringMsgPubSubType>(topics::warn_log_stream),
+	// SubscriberBase<StringMsgPubSubType>(topics::info_log_stream),
 	owner(owner_)
 { }
 
@@ -701,7 +703,6 @@ void ConsoleLayer::StringListener::onNewDataMessage(eprosima::fastrtps::Subscrib
 {
 	eprosima::fastrtps::SampleInfo_t info;
 	StringMsg msg;
-	std::cout << "hit string callback" << std::endl;
 	if(sub->takeNextData(&msg, &info))
 	{
 		std::cout << "\n" << msg.msg() << std::flush;

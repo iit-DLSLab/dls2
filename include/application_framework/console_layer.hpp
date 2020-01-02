@@ -98,8 +98,8 @@ private:
 	private:
 		void onNewDataMessage(eprosima::fastrtps::Subscriber *sub) override;
 		ConsoleLayer &owner;
-	// }string_listener;
-	};
+	}string_listener;
+	// };
 
 	CommandManager command_manager;
 

@@ -84,10 +84,12 @@ void signal_handler(int signal)
 		pController->stop();
 
 		logging::coutstream s(process_handle);
-		std::cout << pController->getID() << " received kill request" << std::endl;
-		s << pController->getID() << " received kill request";
+		s << pController->getID() << " received kill request" << std::endl;
 		auto exit_status = pController->getStatus();
 		pController = nullptr;
+
+		// sleep to give time for received kill request message to be sent
+		std::this_thread::sleep_for(std::chrono::milliseconds(300));
 		exit(static_cast<int>(exit_status));
 	}
 }
