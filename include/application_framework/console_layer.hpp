@@ -103,6 +103,29 @@ private:
 
 	CommandManager command_manager;
 
+	//// Begin Critical section
+	//	/// Command container
+	//	///
+	//	/// Since commands are dynamically added by different processes
+	//	/// potentially writen by different developers, there may be commands
+	//	/// that have name clashes. Therefore, each command is first indexed by
+	//	/// the name of the component that owns the command, then by the name of
+	//	/// the command
+	//	std::map
+	//	<
+	//		std::string,								// command owner name
+	//		std::map
+	//		<
+	//			std::string,							// command nmae
+	//			std::shared_ptr<const RemoteCommand>	// command
+	//		>
+	//	> commands;
+
+	//	/// Mutex protects `commands`
+	//	///
+	//	std::mutex commands_mutex;
+	//// END Critical section
+
 };
 } // end namespace dls
 

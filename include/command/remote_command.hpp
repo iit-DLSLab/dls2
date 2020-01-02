@@ -32,6 +32,7 @@
 #include <fastrtps/participant/Participant.h>
 #include <fastrtps/publisher/PublisherListener.h>
 #include <memory>
+#include <set>
 
 namespace dls
 {
@@ -162,6 +163,10 @@ public:
 	/// that list will never get invalidated by another process registering new
 	/// commands
 	std::vector<std::shared_ptr<const RemoteCommand>> getCurrentlyRegisteredCommands();
+
+	/// Get a list of the unique owners of the commands
+	///
+	std::set<std::string> getCurrentlyRegisteredOwners();
 
 private:
 	// begin critical section

@@ -331,6 +331,18 @@ std::vector<std::shared_ptr<const RemoteCommand>>
 	return this->remote_commands;
 }
 
+std::set<std::string> RemoteCommandManager::getCurrentlyRegisteredOwners()
+{
+	std::lock_guard<std::mutex> lock(this->remote_commands_mutex);
+	std::set<std::string> set;
+	for(auto it = remote_commands.begin(); it != remote_commands.end(); ++it)
+	{
+		set.insert((*it)->owner);
+	}
+
+	return set;
+}
+
 void RemoteCommandManager::addCommand(std::shared_ptr<RemoteCommand> pCommand)
 {
 	std::lock_guard<std::mutex> lock(this->remote_commands_mutex);

@@ -69,57 +69,21 @@ std::string &trim_inplace(std::string *const);
 // will always be the case
 ConsoleLayer *pInstance = nullptr;
 
-// TODO these should not be hardcoded
-std::shared_ptr<PublisherBase<StringMsgPubSubType>> pActivate_controller_pub;
-std::shared_ptr<PublisherBase<StringMsgPubSubType>> pDeactivate_controller_pub;
-std::shared_ptr<PublisherBase<StringMsgPubSubType>> pActivate_gait_generator_pub;
-std::shared_ptr<PublisherBase<StringMsgPubSubType>> pDeactivate_gait_generator_pub;
-
-
 // =============================================================================
 // Constructors
 // =============================================================================
 ConsoleLayer::ConsoleLayer() :
 	remote_command_manager
 	(
-		// [](std::shared_ptr<RemoteCommand> p)
+		// [this](std::shared_ptr<const RemoteCommand> p)
 		// {
-		// 	static std::mutex m;
-		// 	{
-		// 		std::lock_guard<std::mutex> lock(m);
-		// 		std::cout << "\n==========" << std::endl;
-		// 		std::cout << p->command_name << std::endl;
-		// 		std::cout << "----------" << std::endl;
-		// 		for(const auto &el : p->args)
-		// 		{
-		// 			std::cout << el << std::endl;
-		// 		}
-		// 		std::cout << "==========\n" << std::endl;
-		// 	}
+		// 	std::lock_guard<std::mutex> lock(this->commands_mutex);
 		// }
 	),
 	//  string_listener(*this),
 	command_manager()
 {
 	pInstance = this;
-
-	// TODO remove these
-	pActivate_controller_pub = std::make_shared<PublisherBase<StringMsgPubSubType>>
-		(
-			topics::activate_controller
-		);
-	pDeactivate_controller_pub = std::make_shared<PublisherBase<StringMsgPubSubType>>
-		(
-			topics::deactivate_controller
-		);
-	pActivate_gait_generator_pub = std::make_shared<PublisherBase<StringMsgPubSubType>>
-		(
-			topics::activate_gait_generator
-		);
-	pDeactivate_gait_generator_pub = std::make_shared<PublisherBase<StringMsgPubSubType>>
-		(
-			topics::deactivate_gait_generator
-		);
 
 	// TODO expose process name here for readline
 	rl_readline_name = "DLS2_READLINE";
@@ -156,6 +120,21 @@ ConsoleLayer::ConsoleLayer() :
 			}
 		)
 	);
+
+	command_manager.addCommand<double, double, double>
+	(
+		"console_layer",
+		"addTwoDoubles",
+		"adds two doubles",
+		std::function<double(double,double)>
+		{
+			[](double a, double b) ->double
+			{
+				std::cout << "Console layer: " << a + b << std::endl;
+				return a + b;
+			}
+		}
+	);
 }
 
 // =============================================================================
@@ -180,6 +159,7 @@ ConsoleLayer::Status ConsoleLayer::run()
 				add_history(input.c_str());
 
 				// Parse the arguments
+				// the format is [namespace::]command_name [arg1 [arg2...]]
 				std::istringstream iss(input);
 				std::vector<std::string> input_split
 					(
@@ -194,27 +174,89 @@ ConsoleLayer::Status ConsoleLayer::run()
 
 				// Execute the commands
 				{
-					std::vector<std::shared_ptr<const RemoteCommand>> remote_commands =
-						pInstance->remote_command_manager
-							.getCurrentlyRegisteredCommands();
 
-					auto it = remote_commands.begin();
-					for(;it != remote_commands.end(); ++it)
+					// extract the command name and its namespace
+					// The format of the string is
+					// [namespace::]command_name
+					size_t namespace_delimiter_index = input_split[0].find("::");
+
+					// if the command is of the form namepsace::command_name
+					if(namespace_delimiter_index != std::string::npos)
 					{
-						if((*it)->command_name == input_split[0])
+						std::string namespace_name =
+							input_split[0].substr(0, namespace_delimiter_index);
+						std::string command_name =
+							input_split[0].substr(namespace_delimiter_index + 2);
+
+						// find the command
+						auto pCommand = pInstance->remote_command_manager
+							.find(namespace_name, command_name);
+
+						// call the command
+						if(pCommand)
 						{
-							break;
+							callCommand(*pCommand, args);
+						}
+						else
+						{
+							std::cerr << "Command '" << command_name
+								<< "' in namespace '" << namespace_name
+								<< " not found" << std::endl;
+							build_prompt();
 						}
 					}
-					if(it != remote_commands.end())
-					{
-						callCommand(**it, args);
-					}
+
+					// if the command is of the form command_name
 					else
 					{
-						std::cerr << "Command '" << input_split[0]
-							<< "' not found" << std::endl;
+						std::vector<std::shared_ptr<const RemoteCommand>> remote_commands =
+							pInstance->remote_command_manager.findByName(input_split[0]);
+
+						if(remote_commands.size() == 1)
+						{
+							callCommand(*remote_commands[0], args);
+						}
+						else if(remote_commands.size() == 0)
+						{
+							std::cerr << "Command '" << input_split[0] <<
+								"' not found" << std::endl;
+							build_prompt();
+						}
+						else
+						{
+							std::cout << "error: ambiguous overload. Command '"
+								<< input_split[0] << "' found in these namespaces:\n";
+							for(const auto &el : remote_commands)
+							{
+								std::cout << "\t" << el->owner << "\n";
+							}
+							std::cout << std::endl;
+							build_prompt();
+						}
 					}
+
+
+					// std::vector<std::shared_ptr<const RemoteCommand>> remote_commands =
+					// 	pInstance->remote_command_manager
+					// 		.getCurrentlyRegisteredCommands();
+
+					// auto it = remote_commands.begin();
+					// for(;it != remote_commands.end(); ++it)
+					// {
+					// 	if((*it)->command_name == input_split[0])
+					// 	{
+					// 		break;
+					// 	}
+					// }
+					// if(it != remote_commands.end())
+					// {
+					// 	callCommand(**it, args);
+					// }
+					// else
+					// {
+					// 	std::cerr << "Command '" << input_split[0]
+					// 		<< "' not found" << std::endl;
+					// }
 				}
 			}
 			free(line);
@@ -366,19 +408,6 @@ void ConsoleLayer::callCommand
 	command.call();
 }
 
-// void ConsoleLayer::addCommand(const Command &c)
-// {
-// 	std::lock_guard<std::mutex> lock(this->commands_mutex);
-// 	this->commands.insert
-// 	(
-// 		std::pair<std::string, Command>
-// 		(
-// 			c.command_name,
-// 			c
-// 		)
-// 	);
-// }
-
 // =============================================================================
 // Readline
 // =============================================================================
@@ -442,9 +471,10 @@ char **dls::console_completion(const char *text, int start, int /*end*/)
 // -----------------------------------------------------------------------------
 char *dls::command_completion(const char *text, int state)
 {
-	// static decltype(pInstance->commands.cbegin()) it;
 	static decltype(pInstance->remote_command_manager.getCurrentlyRegisteredCommands()) commands;
-	static decltype(pInstance->remote_command_manager.getCurrentlyRegisteredCommands().cbegin()) it;
+	static decltype(pInstance->remote_command_manager.getCurrentlyRegisteredCommands().cbegin()) it_commands;
+	static decltype(pInstance->remote_command_manager.getCurrentlyRegisteredOwners()) owners;
+	static decltype(pInstance->remote_command_manager.getCurrentlyRegisteredOwners().cbegin()) it_owners;
 	static int string_length;
 
 	// Safety check is not currently needed, but putting it now for future
@@ -455,19 +485,19 @@ char *dls::command_completion(const char *text, int state)
 		if(state == 0)
 		{
 			commands = pInstance->remote_command_manager.getCurrentlyRegisteredCommands();
+			owners = pInstance->remote_command_manager.getCurrentlyRegisteredOwners();
 			// pInstance->commands_mutex.lock();
 			// it = pInstance->commands.begin();
-			it = commands.begin();
+			it_commands = commands.begin();
+			it_owners = owners.begin();
 			string_length = std::strlen(text);
 		}
 
 		// Do command completion
-		// while(it != pInstance->commands.cend())
-		while(it != commands.cend())
+		while(it_commands != commands.cend())
 		{
-			// const char *match_candidate = it->second.command_name.c_str();
-			const char *match_candidate = (*it)->command_name.c_str();
-			++it;
+			const char *match_candidate = (*it_commands)->command_name.c_str();
+			++it_commands;
 
 			// TODO move this into a function, since it is copied in the other
 			// completers
@@ -483,6 +513,38 @@ char *dls::command_completion(const char *text, int state)
 					)
 				);
 				strcpy(ret_str, match_candidate);
+				return ret_str;
+			}
+		}
+		// Do owner completion
+		while(it_owners != owners.cend())
+		{
+			const char *match_candidate = it_owners->c_str();
+			++it_owners;
+
+			// TODO move this into a function, since it is copied in the other
+			// completers
+			if(strncmp(match_candidate, text, string_length) == 0)
+			{
+				char *ret_str = static_cast<char *>
+				(
+					// malloc is required by readline
+					// readline will free the string
+					malloc
+					(
+						strlen(match_candidate) + 3 // 2 for '::', 1 for '\0'
+					)
+				);
+				strcpy
+				(
+					ret_str,
+					(
+						std::string
+						(
+							match_candidate
+						) + "::"
+					).c_str()
+				);
 				return ret_str;
 			}
 		}
