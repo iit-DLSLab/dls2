@@ -96,12 +96,6 @@ public:
 	/// Deactivates the current gait generator
 	void deactivateGaitGenerators();
 
-	/// Dynamically loads a gait generator at run time
-	///
-	/// This function throws a std::runtime_error if the gait generator shared
-	/// object cannot be found
-	void loadGaitGenerator(const std::string &name);
-
 private:
 
 	TODO("This should be put in the robot class")
@@ -146,6 +140,7 @@ private:
 	// BEGIN critical section
 		/// Helper struct for collecting controllers, their thread handles, and
 		/// subscribers to a controller's control signal
+		///
 		struct ControllerData
 		{
 			ControllerData

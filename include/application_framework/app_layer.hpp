@@ -47,7 +47,11 @@ public:
 	AppLayer();
 	virtual ~AppLayer() = default;
 
-	Status eStop();
+	/// Emergency stop
+	///
+	/// If a layer does not override this function, it defaults to the layer's
+	/// shutdown function
+	virtual Status eStop();
 	Status getStatus() const;
 	TODO("Make protected")
 	void setStatus(Status);

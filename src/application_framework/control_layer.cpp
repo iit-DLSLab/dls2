@@ -462,8 +462,7 @@ bool ControlLayer::activateGaitGenerator(const GaitGenerator::ID_t &ID)
 	{
 		TODO("error checking")
 		execl(CHILD_PROCESS_PATH "dls_gait_generator_process", ID.c_str(), ID.c_str(), (char *)NULL);
-		cfatal << "Failed to launch gait generator" << std::endl;
-		DMSG(strerror(errno));
+		cfatal << "Failed to launch gait generator process" << std::endl;
 	}
 
 	// start the wait thread -- it will remove the gait generator data when done
@@ -481,17 +480,6 @@ void ControlLayer::deactivateGaitGenerators()
 	{
 		kill(this->pGait_generator_data->gait_generator_pid, SIGTERM);
 	}
-}
-
-TODO("remove this function")
-void ControlLayer::loadGaitGenerator(const std::string &name)
-{
-	DMSG("Deprecated function call does nothing");
-	name.c_str();
-	// std::shared_ptr<GaitGenerator> pGaitGenerator =
-	// 	ClassLoader::loadClass<GaitGenerator>(name);
-	// TODO("define properly what this function does when a gait generator already exists")
-	// this->addGaitGenerator(pGaitGenerator);
 }
 
 Eigen::MatrixXd ControlLayer::saturateTorques(const Eigen::MatrixXd &req) const

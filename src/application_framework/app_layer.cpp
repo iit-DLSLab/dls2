@@ -57,15 +57,16 @@ void AppLayer::setStatus(Status s)
 
 AppLayer::Status AppLayer::eStop()
 {
-	{
-		std::lock_guard<std::mutex> lock(this->components_mutex);
-		for(const auto pComponent : this->components)
-		{
-			pComponent->eStop();
-		}
-	}
+	return this->shutdown();
+	// {
+	// 	std::lock_guard<std::mutex> lock(this->components_mutex);
+	// 	for(const auto pComponent : this->components)
+	// 	{
+	// 		pComponent->eStop();
+	// 	}
+	// }
 
-	std::lock_guard<std::mutex> lock(this->status_mutex);
-	this->status = Status::E_STOP;
-	return this->status;
+	// std::lock_guard<std::mutex> lock(this->status_mutex);
+	// this->status = Status::E_STOP;
+	// return this->status;
 }

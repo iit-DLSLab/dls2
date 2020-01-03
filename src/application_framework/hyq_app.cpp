@@ -73,13 +73,14 @@ HyQApp::~HyQApp()
 // =============================================================================
 void HyQApp::panic()
 {
-	TODO("Here set safety")
-
+	std::cout << "panic" << std::endl;
 	std::lock_guard<std::mutex> lock(this->layers_mutex);
+	std::cout << "panic got mutex" << std::endl;
 	for(const auto &pLayer : layers)
 	{
 		pLayer->eStop();
 	}
+	std::cout << "exit panic" << std::endl;
 }
 
 HyQApp::Status HyQApp::getStatus()

@@ -249,11 +249,12 @@ void forkLayer(const std::string &process_name, char **argv)
 		signal
 		(
 			SIGTERM,
-			[&](int)
-			{
-				std::cout << "caught sigterm " << getpid() << std::endl;
-				pApp->stop();
-			}
+			[&](int){pApp->stop();}
+		);
+		signal
+		(
+			SIGSEGV,
+			[&](int){pApp->panic();}
 		);
 
 		pApp->run();
