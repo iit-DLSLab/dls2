@@ -51,7 +51,7 @@ HyQApp::HyQApp(const std::initializer_list<pLayer_t> &_layers) :
 HyQApp::~HyQApp()
 {
 	{
-		std::lock_guard<std::mutex> lock(this->layers_mutex);
+		// std::lock_guard<std::mutex> lock(this->layers_mutex);
 
 		// Tell each layer that it needs to stop
 		// for(auto &pLayer : this->layers)
@@ -107,4 +107,13 @@ void HyQApp::run()
 		}
 	}
 	this->setStatus(Status::RUNNING);
+}
+
+void HyQApp::stop()
+{
+	std::lock_guard<std::mutex> lock(layers_mutex);
+	for(const auto &pLayer : layers)
+	{
+		pLayer->shutdown();
+	}
 }

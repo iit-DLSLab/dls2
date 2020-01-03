@@ -74,15 +74,10 @@ ConsoleLayer *pInstance = nullptr;
 // Constructors
 // =============================================================================
 ConsoleLayer::ConsoleLayer() :
-	remote_command_manager
-	(
-		// [this](std::shared_ptr<const RemoteCommand> p)
-		// {
-		// 	std::lock_guard<std::mutex> lock(this->commands_mutex);
-		// }
-	),
+	remote_command_manager(),
 	string_listener(*this),
-	command_manager()
+	command_manager(),
+	should_quit(false)
 {
 	pInstance = this;
 
@@ -141,7 +136,7 @@ ConsoleLayer::ConsoleLayer() :
 // =============================================================================
 ConsoleLayer::Status ConsoleLayer::run()
 {
-	while(true)
+	while(!this->should_quit)
 	{
 		// This calls malloc behind the scenes. Needs to be freed manually
 		char *line = readline(this->build_prompt().c_str());
@@ -233,29 +228,6 @@ ConsoleLayer::Status ConsoleLayer::run()
 							build_prompt();
 						}
 					}
-
-
-					// std::vector<std::shared_ptr<const RemoteCommand>> remote_commands =
-					// 	pInstance->remote_command_manager
-					// 		.getCurrentlyRegisteredCommands();
-
-					// auto it = remote_commands.begin();
-					// for(;it != remote_commands.end(); ++it)
-					// {
-					// 	if((*it)->command_name == input_split[0])
-					// 	{
-					// 		break;
-					// 	}
-					// }
-					// if(it != remote_commands.end())
-					// {
-					// 	callCommand(**it, args);
-					// }
-					// else
-					// {
-					// 	std::cerr << "Command '" << input_split[0]
-					// 		<< "' not found" << std::endl;
-					// }
 				}
 			}
 			free(line);
@@ -271,6 +243,7 @@ ConsoleLayer::Status ConsoleLayer::run()
 
 ConsoleLayer::Status ConsoleLayer::shutdown()
 {
+	this->should_quit = true;
 	return getStatus();
 }
 

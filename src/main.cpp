@@ -153,7 +153,7 @@ int main(int argc, char **argv)
 
 	// Monitor the child processes
 	//
-	// lopp is exited when there are no more children
+	// loop is exited when there are no more children
 	while(true)
 	{
 		std::stringstream ss;
@@ -245,6 +245,18 @@ void forkLayer(const std::string &process_name, char **argv)
 		change_process_name(argv, process_name);
 		std::shared_ptr<layer_t> pLayer = std::make_shared<layer_t>();
 		pApp->addLayer(pLayer);
+
+		// register shutdown handler
+		signal
+		(
+			SIGTERM,
+			[&](int)
+			{
+				std::cout << "caught sigterm " << getpid() << std::endl;
+				pApp->stop();
+			}
+		);
+
 		pApp->run();
 		exit(EXIT_SUCCESS);
 	}

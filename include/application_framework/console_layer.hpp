@@ -39,6 +39,7 @@
 #include <map>
 #include <functional>
 #include <mutex>
+#include <atomic>
 
 // =============================================================================
 // Class Interface
@@ -152,6 +153,7 @@ private:
 	/// Stores commands registered by the console
 	///
 	CommandManager command_manager;
+	std::atomic_bool should_quit;
 };
 } // end namespace dls
 

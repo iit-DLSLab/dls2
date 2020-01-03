@@ -75,11 +75,18 @@ public:
 	bool addLayer(std::shared_ptr<layer_t>);
 
 	TODO("make this return a status")
+
 	/// Starts the app
 	///
 	/// Spawns a thread for each layer and calls that layer's run inside the
 	/// thread
 	void run();
+
+	/// Stops the app
+	///
+	/// Asks each layer in the app to stop. Each layer is responsible for nicely
+	/// stopping when this request is received
+	void stop();
 
 private:
 	/// Performs any initialisation required by the libraries used in the
