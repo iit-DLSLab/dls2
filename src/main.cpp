@@ -254,7 +254,22 @@ void forkLayer(const std::string &process_name, char **argv)
 		signal
 		(
 			SIGSEGV,
-			[&](int){pApp->panic();}
+			[&](int)
+			{
+				pApp->panic();
+				std::this_thread::sleep_for(std::chrono::milliseconds(300));
+
+				// remove segfault signal handler
+				signal(SIGSEGV, SIG_DFL);
+
+				// force segfault now that it is handled in this process. This
+				// will signal the monitor procss that a segfault occured here
+				kill(getpid(), SIGSEGV);
+
+				// alternatively, could exit like this:
+				// exit(SOME_SEGFAULT_ENUM);
+				// then, the monitor would have to respond to that exit value
+			}
 		);
 
 		pApp->run();

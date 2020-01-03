@@ -85,9 +85,13 @@ void signal_handler(int signal)
 		pGaitGenerator->stop();
 
 		logging::coutstream s(process_handle);
-		s << pGaitGenerator->getID() << " received kill request";
+		s << pGaitGenerator->getID() << " received kill request" << std::endl;
+		auto exit_status = pGaitGenerator->getStatus();
+		pGaitGenerator = nullptr;
 
-		exit(static_cast<int>(pGaitGenerator->getStatus()));
+		// give fastrtps a moment to send its message
+		std::this_thread::sleep_for(std::chrono::milliseconds(300));
+		exit(static_cast<int>(exit_status));
 	}
 }
 
