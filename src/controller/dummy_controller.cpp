@@ -40,7 +40,6 @@ DummyController::DummyController
 	logstream(getID())
 {
 	outstream << "dummy controller launched" << std::endl;
-	outstream << "Constructed a dummy controller. Hello from my new fancy stream" << std::endl;
 
 	command_manager.addCommand<double, double, double>
 	(
@@ -80,9 +79,7 @@ DummyController::DummyController() :
 { }
 
 DummyController::~DummyController()
-{
-	outstream << "Dummy controller destructor" << std::endl;
-}
+{ }
 
 void DummyController::run(const std::chrono::system_clock::time_point &time)
 {

@@ -81,7 +81,7 @@ ConsoleLayer::ConsoleLayer() :
 		// 	std::lock_guard<std::mutex> lock(this->commands_mutex);
 		// }
 	),
-	 string_listener(*this),
+	string_listener(*this),
 	command_manager()
 {
 	pInstance = this;
@@ -108,6 +108,7 @@ ConsoleLayer::ConsoleLayer() :
 		(
 			[&](std::string s)
 			{
+				std::cout << std::endl;
 				for(auto pCommand : this->remote_command_manager.findByName(s))
 				{
 					std::cout << pCommand->owner << "::" <<
@@ -694,18 +695,74 @@ std::string &trim_inplace(std::string *const s)
 // -----------------------------------------------------------------------------
 ConsoleLayer::StringListener::StringListener(ConsoleLayer &owner_) :
 	SubscriberBase<StringMsgPubSubType>(topics::warn_log_stream),
-	// SubscriberBase<StringMsgPubSubType>(topics::info_log_stream),
-	owner(owner_)
-{ }
+	owner(owner_),
+	message_stack_mutex(),
+	message_stack_ready(),
+	message_stack(),
+	should_quit(false),
+	print_thread()
+{
+
+	std::thread t(&StringListener::aggregatePrint, this);
+
+	this->print_thread.swap(t);
+}
+
+ConsoleLayer::StringListener::~StringListener()
+{
+	std::lock_guard<std::mutex> lock(this->message_stack_mutex);
+	this->should_quit = true;
+	this->message_stack_ready.notify_one();
+	this->print_thread.join();
+}
+
+void ConsoleLayer::StringListener::aggregatePrint()
+{
+	while(true)
+	{
+		// wait for the condition variable
+		{
+			std::unique_lock<std::mutex> lock(this->message_stack_mutex);
+			this->message_stack_ready.wait
+			(
+				lock,
+				[&]()
+				{
+					return this->message_stack.size() > 0;
+				}
+			);
+			if(should_quit) return;
+		}
+
+		// Sleep to aggregate multiple messages sent in quick succession
+		std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+		// Print out the messages in one go
+		{
+			std::lock_guard<std::mutex> lock(this->message_stack_mutex);
+			std::cout << "\n" << std::endl;
+			for(const auto &el : message_stack)
+			{
+				std::cout << el << std::flush;
+			}
+			this->message_stack.clear();
+			std::cout << owner.build_prompt() << " " << rl_line_buffer << std::flush;
+		}
+	}
+}
 
 void ConsoleLayer::StringListener::onNewDataMessage(eprosima::fastrtps::Subscriber *sub)
-// void ConsoleLayer::StringListener::onNewDataMessage(eprosima::fastrtps::Subscriber *)
 {
 	eprosima::fastrtps::SampleInfo_t info;
 	StringMsg msg;
 	if(sub->takeNextData(&msg, &info))
 	{
-		std::cout << "\n" << msg.msg() << std::flush;
-		std::cout << owner.build_prompt() << " " << rl_line_buffer << std::flush;
+		// std::cout << "\n" << msg.msg() << std::flush;
+		// std::cout << owner.build_prompt() << " " << rl_line_buffer << std::flush;
+		{
+			std::lock_guard<std::mutex> lock(this->message_stack_mutex);
+			this->message_stack.push_back(msg.msg());
+		}
+		this->message_stack_ready.notify_one();
 	}
 }

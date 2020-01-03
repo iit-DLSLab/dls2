@@ -71,7 +71,7 @@ int main(int argc, char **argv)
 
 	std::signal(SIGTERM, signal_handler);
 	logging::coutstream s(process_handle);
-	s << "controller loaded" << std::endl;
+	s << "controller " << pController->getID() << " loaded" << std::endl;
 	pController->run();
 
 	return static_cast<int>(pController->getStatus());
@@ -88,7 +88,7 @@ void signal_handler(int signal)
 		auto exit_status = pController->getStatus();
 		pController = nullptr;
 
-		// sleep to give time for received kill request message to be sent
+		// give fastrtps a moment to send its message
 		std::this_thread::sleep_for(std::chrono::milliseconds(300));
 		exit(static_cast<int>(exit_status));
 	}
