@@ -218,9 +218,8 @@ ControlLayer::Status ControlLayer::run()
 
 	TODO("Check status of all components in the control layer, take corrective actions if requred")
 	setStatus(Status::RUNNING);
-	TODO("correct looping condition")
 	double time;
-	while(getStatus() == Status::RUNNING)
+	while(!this->should_quit)
 	{
 		#ifndef NDEBUG
 			auto begin_epoch = std::chrono::system_clock::now();
@@ -285,13 +284,6 @@ ControlLayer::Status ControlLayer::shutdown()
 	// Stop all controllers
 	{
 		std::unique_lock<std::mutex> lock(this->controllers_mutex_b);
-		// while(controllers_b.size() != 0)
-		// {
-		// 	Controller::ID_t ID = controllers_b.begin()->second->ID;
-		// 	lock.unlock(); // TODO fix this
-		// 	deactivateController(ID);
-		// 	lock.lock();
-		// }
 		for(auto &pair : this->controllers_b)
 		{
 			deactivateController(pair.second);
@@ -306,7 +298,7 @@ ControlLayer::Status ControlLayer::shutdown()
 			thread.join();
 		}
 	}
-
+	this->should_quit = true;
 	return getStatus();
 }
 
@@ -484,7 +476,8 @@ bool ControlLayer::activateGaitGenerator(const GaitGenerator::ID_t &ID)
 void ControlLayer::deactivateGaitGenerators()
 {
 	std::lock_guard<std::mutex> lock(this->gait_generators_mutex);
-	if(this->pGait_generator_data || this->pGait_generator_data->gait_generator_pid != 0)
+	// if(this->pGait_generator_data || this->pGait_generator_data->gait_generator_pid != 0)
+	if(this->pGait_generator_data && this->pGait_generator_data->gait_generator_pid != 0)
 	{
 		kill(this->pGait_generator_data->gait_generator_pid, SIGTERM);
 	}

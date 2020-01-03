@@ -31,6 +31,7 @@
 #include <memory>
 #include <mutex>
 #include <thread>
+#include <atomic>
 
 #include "util/messaging/subscriber_base.hpp"
 #include "util/messaging/publisher_base.hpp"
@@ -66,13 +67,6 @@ public:
 	Status shutdown() override;
 
 	// ============================== Controllers ==============================
-	/// Adds a controller to the control layer
-	///
-	/// This call does not start the controller. see
-	/// ControlLayer::activateController
-	// template <typename controller_t>
-	// void addController(const std::shared_ptr<controller_t>&);
-
 	/// Activates a controller
 	///
 	/// @ret true if the controller exists, false otherwise.
@@ -92,13 +86,6 @@ public:
 	void loadController(const std::string &name);
 
 	// ============================ Gait Generators ============================
-	/// Adds a gait generator to the control layer
-	///
-	/// This call does not start the gait generator. See
-	/// ControlLayer::activateGaitGenerator
-	// template <typename generator_t>
-	// void addGaitGenerator(const std::shared_ptr<generator_t>&);
-
 	/// Activates a gait generator
 	///
 	/// This will stop any other running gait generators
@@ -125,6 +112,7 @@ private:
 	Eigen::MatrixXd saturateTorques(const Eigen::MatrixXd &req) const;
 
 	/// Helper class that subscribes to a given controller's control signal
+	///
 	class ControlSubListener : public SubscriberBase<ControlSignalMsgPubSubType>
 	// class ControlSubListener : public SubscriberBase<HelloWorldPubSubType>
 	{
@@ -149,7 +137,10 @@ private:
 		eprosima::fastrtps::SampleInfo_t info;
 	};
 	// ============================ Communincation =============================
-	void publishDesiredTorques(const Eigen::VectorXd &, double time) const; // TODO Change type of time
+	// TODO Change type of time
+	/// Publish Torques to the rest of the framework
+	///
+	void publishDesiredTorques(const Eigen::VectorXd &, double time) const;
 
 	// ============================= Data Members ==============================
 	// BEGIN critical section
@@ -188,11 +179,6 @@ private:
 	// END critical section
 	PublisherBase<DesiredTorquesMsgPubSubType> publisher;
 
-	// BEGING critical section
-		// size_t num_children;
-		// std::condition_variable num_children_cv;
-		// std::mutex num_children_mutex;
-	// END critical section
 	std::atomic_bool should_quit;
 
 	// BEGIN critical section
@@ -217,93 +203,6 @@ private:
 	void deactivateController(std::shared_ptr<ControllerData> pData);
 
 	CommandManager command_manager;
-	// ======================= Temporary console things ========================
-	// TODO("THE CONSOLE STUFF IS TEMPORARY AND NEEDS TO CHANGE")
-	// class ActivateGaitGeneratorListener : public SubscriberBase<StringMsgPubSubType>
-	// {
-	// public:
-	// 	ActivateGaitGeneratorListener(const std::string &topic, ControlLayer &owner_) :
-	// 		SubscriberBase<StringMsgPubSubType>(topic),
-	// 		owner(owner_),
-	// 		info()
-	// { }
-	// private:
-	// 	void onNewDataMessage(eprosima::fastrtps::Subscriber *sub) override
-	// 	{
-	// 		StringMsg msg;
-	// 		if(sub->takeNextData(&msg, &info))
-	// 		{
-	// 			owner.activateGaitGenerator(msg.msg());
-	// 		}
-	// 	}
-
-	// 	ControlLayer &owner;
-	// 	eprosima::fastrtps::SampleInfo_t info;
-	// } activate_gait_generator_listener;
-	// class DeactivateGaitGeneratorListener : public SubscriberBase<StringMsgPubSubType>
-	// {
-	// public:
-	// 	DeactivateGaitGeneratorListener(const std::string &topic, ControlLayer &owner_) :
-	// 		SubscriberBase<StringMsgPubSubType>(topic),
-	// 		owner(owner_),
-	// 		info()
-	// { }
-	// private:
-	// 	void onNewDataMessage(eprosima::fastrtps::Subscriber *sub) override
-	// 	{
-	// 		StringMsg msg;
-	// 		if(sub->takeNextData(&msg, &info))
-	// 		{
-	// 			owner.deactivateGaitGenerators();
-	// 		}
-	// 	}
-
-	// 	ControlLayer &owner;
-	// 	eprosima::fastrtps::SampleInfo_t info;
-	// } deactivate_gait_generator_listener;
-	// class ActivateControllerListener : public SubscriberBase<StringMsgPubSubType>
-	// {
-	// public:
-	// 	ActivateControllerListener(const std::string &topic, ControlLayer &owner_) :
-	// 		SubscriberBase<StringMsgPubSubType>(topic),
-	// 		owner(owner_),
-	// 		info()
-	// 	{ }
-	// private:
-	// 	void onNewDataMessage(eprosima::fastrtps::Subscriber *sub) override
-	// 	{
-	// 		StringMsg msg;
-	// 		if(sub->takeNextData(&msg, &info))
-	// 		{
-	// 			owner.activateController(msg.msg());
-	// 		}
-	// 	}
-
-	// 	ControlLayer &owner;
-	// 	eprosima::fastrtps::SampleInfo_t info;
-	// } activate_controller_listener;
-	// class DeactivateControllerListener : public SubscriberBase<StringMsgPubSubType>
-	// {
-	// public:
-	// 	DeactivateControllerListener(const std::string &topic, ControlLayer &owner_) :
-	// 		SubscriberBase<StringMsgPubSubType>(topic),
-	// 		owner(owner_),
-	// 		info()
-	// { }
-	// private:
-	// 	void onNewDataMessage(eprosima::fastrtps::Subscriber *sub) override
-	// 	{
-	// 		StringMsg msg;
-	// 		if(sub->takeNextData(&msg, &info))
-	// 		{
-	// 			owner.deactivateController(msg.msg());
-	// 		}
-	// 	}
-
-	// 	ControlLayer &owner;
-	// 	eprosima::fastrtps::SampleInfo_t info;
-	// } deactivate_controller_listener;
-
 
 	// ================================ Members ================================
 	logging::coutstream scout;
