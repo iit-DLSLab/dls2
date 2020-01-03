@@ -40,7 +40,6 @@ DummyController::DummyController
 	logstream(getID())
 {
 	outstream << "dummy controller launched" << std::endl;
-	outstream << "Constructed a dummy controller. Hello from my new fancy stream" << std::endl;
 
 	command_manager.addCommand<double, double, double>
 	(
@@ -77,10 +76,7 @@ DummyController::DummyController
 
 DummyController::DummyController() :
 	DummyController(std::make_shared<Dog>())
-{
-	outstream << "dummy controller destroyed" << std::endl;
-	outstream << "Destroyed a dummy controller. Hello from my new fancy stream" << std::endl;
-}
+{ }
 
 DummyController::~DummyController()
 {

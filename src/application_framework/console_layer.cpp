@@ -80,7 +80,7 @@ ConsoleLayer::ConsoleLayer() :
 		// 	std::lock_guard<std::mutex> lock(this->commands_mutex);
 		// }
 	),
-	//  string_listener(*this),
+	string_listener(*this),
 	command_manager()
 {
 	pInstance = this;
@@ -700,11 +700,9 @@ ConsoleLayer::StringListener::StringListener(ConsoleLayer &owner_) :
 { }
 
 void ConsoleLayer::StringListener::onNewDataMessage(eprosima::fastrtps::Subscriber *sub)
-// void ConsoleLayer::StringListener::onNewDataMessage(eprosima::fastrtps::Subscriber *)
 {
 	eprosima::fastrtps::SampleInfo_t info;
 	StringMsg msg;
-	std::cout << "hit string callback" << std::endl;
 	if(sub->takeNextData(&msg, &info))
 	{
 		std::cout << "\n" << msg.msg() << std::flush;

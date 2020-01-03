@@ -79,6 +79,27 @@ int main(int argc, char **argv)
 	// Create application
 	pApp = std::make_shared<HyQApp>();
 
+	// ============================= Console Layer =============================
+	const pid_t console_layer_pid = fork();
+	if(console_layer_pid == -1)
+	{
+		TODO("HANDE ERROR ON FORK")
+		return -1;
+	}
+	else if(console_layer_pid == 0)
+	{
+		change_process_name(argv, "console_layer");
+		std::shared_ptr<ConsoleLayer> pConsoleLayer = std::make_shared<ConsoleLayer>();
+		pApp->addLayer(pConsoleLayer);
+		if (!only_start_log) pApp->run();
+
+		return 0;
+	}
+	// Give the console time to load its subscribers. If the fastrtps
+	// configuration can be improved, this sleep will no longer be necessary
+	std::this_thread::sleep_for(std::chrono::seconds(1));
+
+
 	// ========================= Start Hardware Layer ==========================
 	const pid_t hardware_layer_pid = fork();
 	if(hardware_layer_pid == -1)
@@ -115,23 +136,6 @@ int main(int argc, char **argv)
 		std::shared_ptr<LogLayer> pLogLayer = std::make_shared<LogLayer>();
 		pApp->addLayer(pLogLayer);
 		if (only_start_log) pApp->run();
-
-		return 0;
-	}
-
-	// ============================= Console Layer =============================
-	const pid_t console_layer_pid = fork();
-	if(console_layer_pid == -1)
-	{
-		TODO("HANDE ERROR ON FORK")
-		return -1;
-	}
-	else if(console_layer_pid == 0)
-	{
-		change_process_name(argv, "console_layer");
-		std::shared_ptr<ConsoleLayer> pConsoleLayer = std::make_shared<ConsoleLayer>();
-		pApp->addLayer(pConsoleLayer);
-		if (!only_start_log) pApp->run();
 
 		return 0;
 	}
