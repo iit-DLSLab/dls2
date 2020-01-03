@@ -54,8 +54,32 @@ using namespace dls;
 // =============================================================================
 
 /// Pointer to application
+///
 std::shared_ptr<HyQApp> pApp;
 
+
+/// Child proccess data
+///
+struct ChildData
+{
+	ChildData(const std::string &name_, pid_t pid_) :
+		name(name_), pid(pid_)
+	{ }
+
+	/// Name of procses as reported to users
+	///
+	std::string name;
+
+	/// PID of process
+	///
+	pid_t pid;
+};
+
+std::map<pid_t, ChildData> child_datas;
+
+// =============================================================================
+// Prtototypes
+// =============================================================================
 bool handle_args(int argc, char **argv);
 
 /// Change the name of a process for ease of monitoring inside of htop, ps etc
@@ -63,6 +87,12 @@ bool handle_args(int argc, char **argv);
 /// Linux only allocates a certain amount of space for the process name. Hence,
 /// this function may truncate the name if it is too long for the alloted space
 void change_process_name(char **argv, const std::string &name);
+
+/// Forks the process and launches the application containing a layer specified
+/// by the template argument
+///
+template <class layer_t>
+void forkLayer(const std::string &process_name, char **argv);
 
 // =============================================================================
 // Main Logic
@@ -79,116 +109,30 @@ int main(int argc, char **argv)
 	bool only_start_log = handle_args(argc, argv);
 
 	// Ignore cntrl-C
+	//
+	// To exit the framework, an exit command is registered later
 	signal(SIGINT, SIG_IGN);
 
 	// Create application
 	pApp = std::make_shared<HyQApp>();
 
-	// ============================= Console Layer =============================
-	const pid_t console_layer_pid = fork();
-	if(console_layer_pid == -1)
+	// Launch layers
+	if(only_start_log)
 	{
-		TODO("HANDE ERROR ON FORK")
-		return -1;
+		forkLayer<LogLayer>("log_layer", argv);
 	}
-	else if(console_layer_pid == 0)
+	else
 	{
-		change_process_name(argv, "console_layer");
-		std::shared_ptr<ConsoleLayer> pConsoleLayer = std::make_shared<ConsoleLayer>();
-		pApp->addLayer(pConsoleLayer);
-		if (!only_start_log) pApp->run();
-
-		return 0;
-	}
-	// Give the console time to load its subscribers. If the fastrtps
-	// configuration can be improved, this sleep will no longer be necessary
-	std::this_thread::sleep_for(std::chrono::seconds(1));
-
-
-	// ========================= Start Hardware Layer ==========================
-	const pid_t hardware_layer_pid = fork();
-	if(hardware_layer_pid == -1)
-	{
-		TODO("handle error of fork")
-		return -1;
-
-	}
-	else if(hardware_layer_pid == 0)
-	{
-		if(!only_start_log)
-		{
-			change_process_name(argv, "hardware_layer");
-			std::shared_ptr<HardwareLayer> pHardwareLayer = std::make_shared<HardwareLayer>();
-			pApp->addLayer(pHardwareLayer);
-
-			TODO("Run should return a status")
-			pApp->run();
-		}
-		while(true);
-
-		return 0;
-	}
-	// =============================== Log Layer ===============================
-	const pid_t log_layer_pid = fork();
-	if(log_layer_pid == -1)
-	{
-		TODO("Handle error on fork")
-		return -1;
-	}
-	else if(log_layer_pid == 0)
-	{
-		change_process_name(argv, "log_layer");
-		std::shared_ptr<LogLayer> pLogLayer = std::make_shared<LogLayer>();
-		pApp->addLayer(pLogLayer);
-		if (only_start_log) pApp->run();
-
-		return 0;
+		forkLayer<ConsoleLayer>("console_layer", argv);
+		std::this_thread::sleep_for(std::chrono::seconds(1));
+		// forkLayer<HardwareLayer>("hardware_layer", argv);
+		forkLayer<ControlLayer>("control_layer", argv);
 	}
 
-	// ========================== Start Control Layer ==========================
-	const pid_t control_layer = fork();
-	if(control_layer == -1)
-	{
-		TODO("Fork failed, handle error")
-		return -1;
-	}
-	else if (control_layer == 0)
-	{
-		change_process_name(argv, "control_layer");
-		std::shared_ptr<ControlLayer> pControlLayer = std::make_shared<ControlLayer>();
-		TODO("move this to separate process")
-		// std::shared_ptr<EstimationLayer> pEstimationLayer = std::make_shared<EstimationLayer>();
-
-		pApp->addLayer(pControlLayer);
-		// pApp->addLayer(pEstimationLayer);
-
-		TODO("Run should return a status")
-		TODO("Run should be blocking")
-		if (!only_start_log) pApp->run();
-
-		// ============================== Temporary Thing =======================
-		// TODO("This is temporary to simulate user input")
-		// std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
-		// // std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(3000));
-		// // pControlLayer->loadController("./libdummy_controller.so");
-		// // pControlLayer->loadGaitGenerator("./libdummy_gait_generator.so");
-		// // std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(3000));
-		// std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
-		// pControlLayer->activateController("dls_dummy_controller");
-		// pControlLayer->activateGaitGenerator("dls_dummy_gait_generator");
-		// // pEstimationLayer->loadEstimator("./libdummy_estimator.so");
-		// // pEstimationLayer->activateEstimator("Dummy Estimator");
-
-		// // std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(30000));
-		// std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(9000));
-
-		return 0;
-	}
-	// ======================== Monitor Child Processes ========================
-
-	logging::coutstream s("framework_monitor");
+	logging::coutstream outstream("framework_monitor");
 	logging::cfatalstream sfatal("framework_monitor");
 
+	// Register an exit command to leave the framework
 	CommandManager command_manager;
 	command_manager.addCommand<void, int>
 	(
@@ -199,14 +143,17 @@ int main(int argc, char **argv)
 		(
 			[&](int)
 			{
-				kill(hardware_layer_pid, SIGTERM);
-				kill(control_layer, SIGTERM);
-				kill(log_layer_pid, SIGTERM);
-				kill(console_layer_pid, SIGTERM);
+				for(const auto &el : child_datas)
+				{
+					kill(el.second.pid, SIGTERM);
+				}
 			}
 		)
 	);
 
+	// Monitor the child processes
+	//
+	// lopp is exited when there are no more children
 	while(true)
 	{
 		std::stringstream ss;
@@ -221,42 +168,30 @@ int main(int argc, char **argv)
 			}
 		}
 
-		if(child_pid == hardware_layer_pid)
+		auto it = child_datas.find(child_pid);
+		if(it != child_datas.end())
 		{
-			ss << "Hardware layer exited ";
-		}
-		else if(child_pid == control_layer)
-		{
-			ss << "Control layer exited ";
-		}
-		else if(child_pid == log_layer_pid)
-		{
-			ss << "log layer exited ";
-		}
-		else if(child_pid == console_layer_pid)
-		{
-			ss << "console layer exited ";
-		}
-		if(WIFEXITED(status))
-		{
-			ss << " normally with exit status " << WEXITSTATUS(status) << std::endl;
-			// DMSG(WEXITSTATUS(status));
-		}
-		if(WIFSIGNALED(status))
-		{
-			TODO("Handle case where child process crashed")
-			ss << " by signal " << WTERMSIG(status) << std::endl;
-			// DMSG(WTERMSIG(status));
-
-			#ifdef WCOREDUMP
-			if(WCOREDUMP(status)) // not available on all unix implementations
+			ss << it->second.name << " ";
+			// Ignoring WIFSTOPPED, WSTOPSIG, WIFCONTINUED
+			if(WIFEXITED(status))
 			{
-				sfatal << "Child had a core dump" << std::endl;
+				ss << " exited normally with exit status " << WEXITSTATUS(status);
 			}
-			#endif
+			if(WIFSIGNALED(status))
+			{
+				ss << " exited by signal " << WTERMSIG(status);
+
+				#ifdef WCOREDUMP
+				if(WCOREDUMP(status)) // not available on all unix implementations
+				{
+					ss << " and had a core dump";
+				}
+				#endif
+			}
+			ss.flush();
 		}
-		s << ss.str() << std::endl;
-		// Ignoring WIFSTOPPED, WSTOPSIG, WIFCONTINUED
+		outstream << ss.str() << std::endl;
+		std::cout << "'" << ss.str() << "'" << std::endl;
 	}
 	return 0;
 }
@@ -277,9 +212,6 @@ bool handle_args(int argc, char **argv)
 	return false;
 }
 
-
-
-
 void change_process_name(char **argv, const std::string &name)
 {
 	// change info in /proc/$pid/cmdline
@@ -288,4 +220,41 @@ void change_process_name(char **argv, const std::string &name)
 
 	// change info in /proc/$pid/status
 	prctl(PR_SET_NAME, name.c_str());
+}
+
+template <class layer_t>
+void forkLayer(const std::string &process_name, char **argv)
+{
+	const pid_t pid = fork();
+	if(pid == -1)
+	{
+		auto error = errno;
+		std::cerr << "Could not fork" << std::endl;
+		switch(error)
+		{
+			case EAGAIN:
+				std::cout << "Thread limit reached or SCHED_DEADLINE used" << std::endl;
+				break;
+			case ENOMEM:
+				std::cout << "Out of memory" << std::endl;
+				break;
+		}
+	}
+	else if(pid == 0)
+	{
+		change_process_name(argv, process_name);
+		std::shared_ptr<layer_t> pLayer = std::make_shared<layer_t>();
+		pApp->addLayer(pLayer);
+		pApp->run();
+		exit(EXIT_SUCCESS);
+	}
+	else
+	{
+		child_datas.emplace
+		(
+			std::piecewise_construct,
+			std::forward_as_tuple(pid),
+			std::forward_as_tuple(process_name, pid)
+		);
+	}
 }
