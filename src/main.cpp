@@ -191,7 +191,6 @@ int main(int argc, char **argv)
 			ss.flush();
 		}
 		outstream << ss.str() << std::endl;
-		std::cout << "'" << ss.str() << "'" << std::endl;
 	}
 	return 0;
 }

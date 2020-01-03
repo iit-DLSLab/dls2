@@ -555,14 +555,16 @@ void ControlLayer::waitOnChildController(std::shared_ptr<ControllerData> pData)
 
 	TODO("Handle errors, relaunching etc")
 	/*pid_t child_pid = */waitpid(pData->controller_pid, &status, 0);
-	// DMSG("CHILD : " << pData->controller_pid << " pid " << child_pid << " exited");
 	if(WIFSIGNALED(status))
 	{
-		std::cout << "child controller exited by signal" << std::endl;
+		std::stringstream ss;
+		ss << "child controller " << pData->ID << " exited by signal " << std::flush;
 		if(WCOREDUMP(status))
 		{
-			std::cout << "child controller had a core dump" << std::endl;
+			ss << " and produced a core dump";
 		}
+		ss << std::flush;
+		scout << ss.str() << std::endl;
 	}
 	{
 		std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
@@ -580,11 +582,14 @@ void ControlLayer::waitOnChildGaitGenerator(std::shared_ptr<GaitGeneratorData> p
 	/*pid_t child_pid =*/ waitpid(pData->gait_generator_pid, &status, 0);
 	if(WIFSIGNALED(status))
 	{
-		std::cout << "child gait generator exited by signal" << std::endl;
+		std::stringstream ss;
+		ss << "child gait generator exited by signal " << std::flush;
 		if(WCOREDUMP(status))
 		{
-			std::cout << "child gait generator had a core dump" << std::endl;
+			ss << "and produced a core dump" << std::flush;
 		}
+		ss << std::flush;
+		scout << ss.str() << std::endl;
 	}
 	// DMSG("child gait generator " << child_pid << " exited");
 	{
