@@ -29,6 +29,12 @@ namespace dls
 // Class Implementation
 // =============================================================================
 template <>
+CommandBase::ArgumentType CommandBase::typeToRepresentation<ARGVOID>()
+{
+	return ArgumentType::VOID;
+}
+
+template <>
 CommandBase::ArgumentType CommandBase::typeToRepresentation<void>()
 {
 	return ArgumentType::VOID;

@@ -417,6 +417,11 @@ void RemoteCommandManager::RegistrationListener::onNewDataMessage
 namespace dls
 {
 template <>
+void RemoteCommand::pushArg(ARGVOID) const
+{
+	this->remote_command_publisher.command_arg_index++;
+}
+template <>
 void RemoteCommand::pushArg(char c) const
 {
 	this->remote_command_publisher.pData->set_char8_value

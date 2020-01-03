@@ -31,6 +31,13 @@ namespace dls
 // buildDynamicType
 // -----------------------------------------------------------------------------
 	template<>
+	void buildDynamicType<ARGVOID>
+	(
+		eprosima::fastrtps::types::DynamicTypeBuilder_ptr&,
+		size_t
+	)
+	{ }
+	template<>
 	void buildDynamicType<void>
 	(
 		eprosima::fastrtps::types::DynamicTypeBuilder_ptr&,
@@ -280,6 +287,15 @@ namespace dls
 // -----------------------------------------------------------------------------
 // takeArg
 // -----------------------------------------------------------------------------
+	template <>
+	ARGVOID takeArg<ARGVOID>
+	(
+		std::shared_ptr<eprosima::fastrtps::types::DynamicData>,
+		size_t
+	)
+	{
+		return ARGVOID();
+	}
 	template <>
 	char takeArg<char>
 	(

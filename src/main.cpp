@@ -134,19 +134,33 @@ int main(int argc, char **argv)
 
 	// Register an exit command to leave the framework
 	CommandManager command_manager;
-	command_manager.addCommand<void, int>
+	command_manager.addCommand<void, ARGVOID>
 	(
 		"HyQApp_server",
 		"exit",
 		"exits the framework",
-		std::function<void(int)>
+		std::function<void(ARGVOID)>
 		(
-			[&](int)
+			[&](ARGVOID)
 			{
 				for(const auto &el : child_datas)
 				{
 					kill(el.second.pid, SIGTERM);
 				}
+			}
+		)
+	);
+
+	command_manager.addCommand<void, ARGVOID>
+	(
+		"HyQApp_server",
+		"void",
+		"voids",
+		std::function<void(ARGVOID)>
+		(
+			[&](ARGVOID)
+			{
+				std::cout << "voided" << std::endl;
 			}
 		)
 	);

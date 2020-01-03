@@ -30,6 +30,7 @@
 // =============================================================================
 namespace dls
 {
+class ARGVOID {};
 /// Base class for command types
 ///
 class CommandBase

@@ -271,7 +271,18 @@ void ConsoleLayer::callCommand
 )
 {
 	// Ensure args are correct size
-	if(args.size() != command.args.size())
+	if
+	(
+		(
+			args.size() != 0 &&
+			static_cast<CommandBase::ArgumentType>(command.args[0]) == CommandBase::ArgumentType::VOID
+		)
+		||
+		(
+			args.size() != command.args.size() &&
+			static_cast<CommandBase::ArgumentType>(command.args[0]) != CommandBase::ArgumentType::VOID
+		)
+	)
 	{
 		std::cout << "Error: incorrect number of arguments" << std::endl;
 		build_prompt();
@@ -284,6 +295,11 @@ void ConsoleLayer::callCommand
 		std::stringstream ss(args[i]);
 		switch(static_cast<CommandBase::ArgumentType>(command.args[i]))
 		{
+			case CommandBase::ArgumentType::VOID:
+			{
+				ARGVOID v;
+				command.pushArg<ARGVOID>(v);
+			}
 			case CommandBase::ArgumentType::CHAR:
 			{
 				char val;
