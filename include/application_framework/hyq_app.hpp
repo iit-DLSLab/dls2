@@ -28,6 +28,7 @@
 
 #include "application_framework/app_layer.hpp"
 #include "todo.h"
+#include "util/log/log.hpp"
 
 namespace dls
 {
@@ -108,6 +109,7 @@ private:
 		Status status;
 		std::mutex status_mutex;
 	// END critical section
+	logging::coutstream outstream;
 };
 } // end namespace dls
 

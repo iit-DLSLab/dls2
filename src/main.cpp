@@ -257,7 +257,7 @@ void forkLayer(const std::string &process_name, char **argv)
 			[&](int)
 			{
 				pApp->panic();
-				std::this_thread::sleep_for(std::chrono::milliseconds(300));
+				std::cout << "framework level segfault detected" << std::endl;
 
 				// remove segfault signal handler
 				signal(SIGSEGV, SIG_DFL);
