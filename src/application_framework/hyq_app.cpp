@@ -34,6 +34,7 @@ HyQApp::HyQApp() :
 {
 	this->setStatus(Status::INITIALISING);
 	init_libraries();
+
 }
 
 HyQApp::HyQApp(const std::initializer_list<pLayer_t> &_layers) :

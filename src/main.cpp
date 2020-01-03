@@ -40,6 +40,7 @@
 
 #include "util/debug/debug.hpp"
 #include "util/log/log.hpp"
+#include "command/command.hpp"
 
 #include <thread>
 
@@ -73,8 +74,12 @@ int main(int argc, char **argv)
 		std::cout << "Version: " << PROJECT_MAJOR << "."
 			<< PROJECT_MINOR << "." << PROJECT_PATCH << std::endl;
 	#endif
+
 	// Runtime Configuration
 	bool only_start_log = handle_args(argc, argv);
+
+	// Ignore cntrl-C
+	signal(SIGINT, SIG_IGN);
 
 	// Create application
 	pApp = std::make_shared<HyQApp>();
@@ -183,6 +188,25 @@ int main(int argc, char **argv)
 
 	logging::coutstream s("framework_monitor");
 	logging::cfatalstream sfatal("framework_monitor");
+
+	CommandManager command_manager;
+	command_manager.addCommand<void, int>
+	(
+		"HyQApp_server",
+		"exit",
+		"exits the framework",
+		std::function<void(int)>
+		(
+			[&](int)
+			{
+				kill(hardware_layer_pid, SIGTERM);
+				kill(control_layer, SIGTERM);
+				kill(log_layer_pid, SIGTERM);
+				kill(console_layer_pid, SIGTERM);
+			}
+		)
+	);
+
 	while(true)
 	{
 		std::stringstream ss;
