@@ -83,6 +83,7 @@ ControlLayer::ControlLayer() :
 	// deactivate_gait_generator_listener(topics::deactivate_gait_generator, *this),
 	// activate_controller_listener(topics::activate_controller, *this),
 	// deactivate_controller_listener(topics::deactivate_controller, *this),
+	scout("control_layer"),
 	clog("control_layer"),
 	cfatal("control_layer")
 {
@@ -140,6 +141,54 @@ ControlLayer::ControlLayer() :
 			[&](std::string s)
 			{
 				this->deactivateController(s);
+			}
+		)
+	);
+
+	command_manager.addCommand<void, std::string>
+	(
+		"control_layer",
+		"ls",
+
+		"List components\n"
+		"argument:\n"
+		"\tcont - list controllers\n"
+		"\tgait - list gait generator",
+
+		std::function<void(std::string)>
+		(
+			[&](std::string s)
+			{
+				if(s == "cont")
+				{
+					std::stringstream ss;
+					std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
+					size_t i = 0;
+					for
+					(
+						auto it = this->controllers_b.cbegin();
+						it != this->controllers_b.cend();
+						++it
+					)
+					{
+						ss << it->first << "\n";
+						++i;
+					}
+					if(i) this->scout << ss.str() << std::endl;
+				}
+				else if(s == "gait")
+				{
+					std::lock_guard<std::mutex> lock(this->gait_generators_mutex);
+					if(this->pGait_generator_data)
+					{
+						scout << this->pGait_generator_data->gait_generator_pid
+							<< std::endl;
+					}
+				}
+				else
+				{
+					scout << "Error: unrecognised argument" << std::endl;
+				}
 			}
 		)
 	);

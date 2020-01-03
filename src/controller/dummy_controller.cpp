@@ -79,9 +79,7 @@ DummyController::DummyController() :
 { }
 
 DummyController::~DummyController()
-{
-	std::cout << "Dummy controller destructor" << std::endl;
-}
+{ }
 
 void DummyController::run(const std::chrono::system_clock::time_point &time)
 {

@@ -91,41 +91,67 @@ private:
 
 	RemoteCommandManager remote_command_manager;
 
+	/// User feedback subscriber
+	///
+	/// Messages may be published to the framework using the logstream classes.
+	/// The `coutstream` class is used for messages that should be directly
+	/// displayed to the user. This class listens to those messages and prints
+	/// them to the console
 	class StringListener : public SubscriberBase<StringMsgPubSubType>
 	{
 	public:
+		/// Constructor
+		///
 		StringListener(ConsoleLayer &owner);
+
+		/// Destructor
+		///
+		~StringListener();
 	private:
+		/// Subscription callback
+		///
+		/// When a message is received, it is merely put in a buffer of messgaes
 		void onNewDataMessage(eprosima::fastrtps::Subscriber *sub) override;
+
+		/// Reference to the console owning this subscriber
+		///
 		ConsoleLayer &owner;
+
+		// BEGIN critical section
+			std::mutex message_stack_mutex;
+
+			/// Condition variable to indicate that there are messages available
+			///
+			std::condition_variable message_stack_ready;
+
+			/// Messages
+			///
+			std::vector<std::string> message_stack;
+
+			/// Variable used to tell the print thread to quit
+			///
+			bool should_quit;
+		// END critical section
+
+		/// Thread for printing messages to the console
+		///
+		std::thread print_thread;
+
+		/// Prints messages to the console
+		///
+		/// It is possible to print messages directly in the subscriber
+		/// callback. This means, however, that each message will be printed
+		/// individually and, after each message, the console prompt will be
+		/// reprinted. However, it happens sometimes that an event will trigger
+		/// multiple messages in quick succession. Printing them directly makes
+		/// the console messy and hard to read. Instead, this function collects
+		/// a group of messages to be printed together
+		void aggregatePrint();
 	}string_listener;
-	// };
 
+	/// Stores commands registered by the console
+	///
 	CommandManager command_manager;
-
-	//// Begin Critical section
-	//	/// Command container
-	//	///
-	//	/// Since commands are dynamically added by different processes
-	//	/// potentially writen by different developers, there may be commands
-	//	/// that have name clashes. Therefore, each command is first indexed by
-	//	/// the name of the component that owns the command, then by the name of
-	//	/// the command
-	//	std::map
-	//	<
-	//		std::string,								// command owner name
-	//		std::map
-	//		<
-	//			std::string,							// command nmae
-	//			std::shared_ptr<const RemoteCommand>	// command
-	//		>
-	//	> commands;
-
-	//	/// Mutex protects `commands`
-	//	///
-	//	std::mutex commands_mutex;
-	//// END Critical section
-
 };
 } // end namespace dls
 

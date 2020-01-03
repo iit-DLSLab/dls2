@@ -306,6 +306,7 @@ private:
 
 
 	// ================================ Members ================================
+	logging::coutstream scout;
 	logging::clogstream clog;
 	logging::cfatalstream cfatal;
 };
