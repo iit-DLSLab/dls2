@@ -129,6 +129,21 @@ ConsoleLayer::ConsoleLayer() :
 			}
 		}
 	);
+
+	command_manager.addCommand<void, ARGVOID>
+	(
+		"console_layer",
+		"clc",
+		"clears the console",
+		std::function<void(ARGVOID)>
+		{
+			[](ARGVOID)
+			{
+				std::cout << "\033[2J" << std::endl; // clear
+				std::cout << "\033[H" << std::endl; // home
+			}
+		}
+	);
 }
 
 // =============================================================================
