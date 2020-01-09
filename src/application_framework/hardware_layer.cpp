@@ -18,23 +18,31 @@
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
 #include "application_framework/hardware_layer.hpp"
+#include <sys/types.h>
+#include <sys/wait.h>
 
 using namespace dls;
+
 // =============================================================================
 // Constructors
 // =============================================================================
 HardwareLayer::HardwareLayer() :
-	sensors(),
-	sensors_mutex()
-{ }
+	child_pid(fork())
+{
+	if(this->child_pid == 0)
+	{
+		execl("./xenomotor", "xenomotor", nullptr);
+	}
+}
 
-HardwareLayer::HardwareLayer
-(
-	std::initializer_list<std::shared_ptr<SensorBase>> _sensors
-) :
-	sensors(_sensors),
-	sensors_mutex()
-{ }
+HardwareLayer::~HardwareLayer()
+{
+	DMSG("Destructor start");
+	int status;
+	waitpid(this->child_pid, &status, 0);
+	DMSG("Wait finished");
+}
+
 
 // =============================================================================
 // Member Functions
@@ -49,17 +57,17 @@ HardwareLayer::Status HardwareLayer::shutdown()
 	return getStatus();
 }
 
-void HardwareLayer::addSensor(std::shared_ptr<SensorBase> pSensor)
-{
-	std::lock_guard<std::mutex> lock(this->sensors_mutex);
-	this->sensors.push_back(pSensor);
-}
+// void HardwareLayer::addSensor(std::shared_ptr<SensorBase> pSensor)
+// {
+// 	std::lock_guard<std::mutex> lock(this->sensors_mutex);
+// 	this->sensors.push_back(pSensor);
+// }
 
-void HardwareLayer::addSensor
-(
-	std::initializer_list<std::shared_ptr<SensorBase>> in_sensors
-)
-{
-	std::lock_guard<std::mutex> lock(this->sensors_mutex);
-	this->sensors.insert(this->sensors.end(), in_sensors.begin(), in_sensors.end());
-}
+// void HardwareLayer::addSensor
+// (
+// 	std::initializer_list<std::shared_ptr<SensorBase>> in_sensors
+// )
+// {
+// 	std::lock_guard<std::mutex> lock(this->sensors_mutex);
+// 	this->sensors.insert(this->sensors.end(), in_sensors.begin(), in_sensors.end());
+// }

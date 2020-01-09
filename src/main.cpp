@@ -125,7 +125,7 @@ int main(int argc, char **argv)
 	{
 		forkLayer<ConsoleLayer>("console_layer", argv);
 		std::this_thread::sleep_for(std::chrono::seconds(1));
-		// forkLayer<HardwareLayer>("hardware_layer", argv);
+		forkLayer<HardwareLayer>("hardware_layer", argv);
 		forkLayer<ControlLayer>("control_layer", argv);
 	}
 

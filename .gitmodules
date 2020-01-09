@@ -1,0 +1,3 @@
+[submodule "3rd_party/iit-commons"]
+	path = 3rd_party/iit-commons
+	url = git@gitlab.advr.iit.it:dls-lab/iit-commons.git

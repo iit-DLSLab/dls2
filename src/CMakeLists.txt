@@ -288,6 +288,11 @@ add_custom_target(dls2_to_roscontrol
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/catkin_ws
 	COMMENT "Building dls2_to_roscontrol subproject"
 )
+add_custom_command(
+	TARGET dls2_to_roscontrol
+	POST_BUILD
+	COMMAND cp ${CATKIN_WORKSPACE}/devel/lib/dls_hal/xenomotor ${EXECUTABLE_OUTPUT_PATH}
+)
 
 set_property(
 	DIRECTORY

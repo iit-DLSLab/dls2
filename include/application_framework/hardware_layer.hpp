@@ -20,12 +20,8 @@
 #ifndef HARDWARE_LAYER_HPP_64INVL3T
 #define HARDWARE_LAYER_HPP_64INVL3T
 
-#include <vector>
-#include <memory>
-#include <mutex>
-
 #include "application_framework/app_layer.hpp"
-#include "sensors/sensor_base.hpp"
+#include <unistd.h>
 
 namespace dls
 {
@@ -33,19 +29,13 @@ class HardwareLayer : public AppLayer
 {
 public:
 	HardwareLayer();
-	HardwareLayer(std::initializer_list<std::shared_ptr<SensorBase>>);
+	~HardwareLayer();
 
 	Status run() override;
 	Status shutdown() override;
 
-	void addSensor(std::shared_ptr<SensorBase>);
-	void addSensor(std::initializer_list<std::shared_ptr<SensorBase>>);
-
 private:
-	// BEGIN critical section
-		std::vector<std::shared_ptr<SensorBase>> sensors;
-		std::mutex sensors_mutex;
-	// END critical section
+	pid_t child_pid;
 };
 } // end namespace dls
 
