@@ -21,6 +21,7 @@
 #define HARDWARE_LAYER_HPP_64INVL3T
 
 #include "application_framework/app_layer.hpp"
+#include "util/log/log.hpp"
 #include <unistd.h>
 
 namespace dls
@@ -37,6 +38,7 @@ public:
 private:
 	pid_t xenomotor_pid;
 	pid_t xenorostask_pid;
+	logging::coutstream scout;
 };
 } // end namespace dls
 

@@ -28,8 +28,11 @@ using namespace dls;
 // =============================================================================
 HardwareLayer::HardwareLayer() :
 	xenomotor_pid(0),
-	xenorostask_pid(0)
+	xenorostask_pid(0),
+	scout("hardware_layer")
 {
+	scout << "hello" << std::endl;
+	std::cout << "ELLO" << std::endl;
 	if((this->xenomotor_pid = fork()) == 0)
 	{
 		execl("./xenomotor", "xenomotor", nullptr);
@@ -43,9 +46,32 @@ HardwareLayer::HardwareLayer() :
 
 HardwareLayer::~HardwareLayer()
 {
-	int status;
-	waitpid(this->xenomotor_pid, &status, 0);
-	waitpid(this->xenorostask_pid, &status, 0);
+	while(true)
+	{
+		int status;
+		pid_t child_pid = wait(&status);
+		if(child_pid == - 1 && errno == ECHILD) break;
+
+		std::string childname;
+		if(child_pid == this->xenomotor_pid)
+		{
+			childname = "xenomotor";
+		}
+		else if(child_pid == this->xenorostask_pid)
+		{
+			childname = "xenorostask";
+		}
+		if(WIFEXITED(status))
+		{
+			scout << childname << " exited" << std::endl;
+		}
+		if(WIFSIGNALED(status))
+		{
+			scout <<  "child process " << childname << " exited by signal" << std::endl;
+		}
+	// waitpid(this->xenomotor_pid, &status, 0);
+	// waitpid(this->xenorostask_pid, &status, 0);
+	}
 }
 
 
