@@ -98,6 +98,15 @@ add_message(header)
 add_message(time)
 add_message(bool)
 add_message(command_register)
+add_message(el3104)
+add_message(hpu)
+add_message(pcb)
+add_message(psb)
+add_message(smart_actuator)
+add_message(battery)
+add_message(heatsink)
+add_message(leg_raw)
+add_message(hyqreal_raw)
 
 # ==============================================================================
 # Libraries

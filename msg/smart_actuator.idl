@@ -1,0 +1,36 @@
+/*******************************************************************************
+*                                                       ,----,                 *
+*                                                     .'   .' \                *
+*                                                   ,----,'    |               *
+*               ________  ___       ________        |    :  .  ;               *
+*              |\   ___ \|\  \     |\   ____\       ;    |.'  /                *
+*              \ \  \_|\ \ \  \    \ \  \___|_      `----'/  ;                 *
+*               \ \  \ \\ \ \  \    \ \_____  \       /  ;  /                  *
+*                \ \  \_\\ \ \  \____\|____|\  \     ;  /  /-,                 *
+*                 \ \_______\ \_______\____\_\  \   /  /  /.`|                 *
+*                  \|_______|\|_______|\_________\./__;      :                 *
+*                                     \|_________||   :    .'                  *
+*                                                 ;   | .'                     *
+*                                                 `---'                        *
+********************************************************************************
+* Author:            Hendrik de Bruin                                          *
+* Maintainer:        Hendrik de Bruin                                          *
+* author email:      hendrik.debruin@iit.it                                    *
+*******************************************************************************/
+struct SmartActuatorMsg
+{
+	double actual_position;
+	double actual_force;
+	double calc_velocity;
+	double pressure_1;
+	double pressure_2;
+	double pressure_4;
+	double spool_position;
+	double force_command;
+	double spool_command;
+	double error_word;
+	double system_temp;
+	double spare_ptr1;
+	double spare_ptr2;
+	double status_word;
+};

@@ -1,0 +1,49 @@
+/*******************************************************************************
+*                                                       ,----,                 *
+*                                                     .'   .' \                *
+*                                                   ,----,'    |               *
+*               ________  ___       ________        |    :  .  ;               *
+*              |\   ___ \|\  \     |\   ____\       ;    |.'  /                *
+*              \ \  \_|\ \ \  \    \ \  \___|_      `----'/  ;                 *
+*               \ \  \ \\ \ \  \    \ \_____  \       /  ;  /                  *
+*                \ \  \_\\ \ \  \____\|____|\  \     ;  /  /-,                 *
+*                 \ \_______\ \_______\____\_\  \   /  /  /.`|                 *
+*                  \|_______|\|_______|\_________\./__;      :                 *
+*                                     \|_________||   :    .'                  *
+*                                                 ;   | .'                     *
+*                                                 `---'                        *
+********************************************************************************
+* Author:            Hendrik de Bruin                                          *
+* Maintainer:        Hendrik de Bruin                                          *
+* author email:      hendrik.debruin@iit.it                                    *
+*******************************************************************************/
+#include "el3104.idl"
+#include "hpu.idl"
+#include "pcb.idl"
+#include "psb.idl"
+#include "battery.idl"
+#include "heatsink.idl"
+#include "imu.idl"
+#include "time.idl"
+#include "leg_raw.idl"
+
+struct HyQRealRawMsg
+{
+	LegRawMsg lf;
+	LegRawMsg rf;
+	LegRawMsg lh;
+	LegRawMsg rh;
+
+	ImuMsg imu_1;
+	ImuMsg imu_2;
+
+	BatteryMsg battery;
+	PcbMsg pcb;
+	PsbMsg psb;
+
+	HpuMsg front_hpu;
+	HpuMsg rear_hpu;
+	EL3104Msg el3104;
+
+	TimeMsg time;
+};
