@@ -246,6 +246,7 @@ ConsoleLayer::Status ConsoleLayer::run()
 				}
 			}
 			free(line);
+			std::this_thread::sleep_for(std::chrono::milliseconds(50));
 		}
 		else // if EOF received
 		{

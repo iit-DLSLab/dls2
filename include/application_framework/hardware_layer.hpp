@@ -35,7 +35,8 @@ public:
 	Status shutdown() override;
 
 private:
-	pid_t child_pid;
+	pid_t xenomotor_pid;
+	pid_t xenorostask_pid;
 };
 } // end namespace dls
 

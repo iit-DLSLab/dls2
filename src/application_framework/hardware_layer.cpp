@@ -27,20 +27,25 @@ using namespace dls;
 // Constructors
 // =============================================================================
 HardwareLayer::HardwareLayer() :
-	child_pid(fork())
+	xenomotor_pid(0),
+	xenorostask_pid(0)
 {
-	if(this->child_pid == 0)
+	if((this->xenomotor_pid = fork()) == 0)
 	{
 		execl("./xenomotor", "xenomotor", nullptr);
+	}
+
+	if((this->xenorostask_pid = fork()) == 0)
+	{
+		execl("./xenorostask", "xenorostask", nullptr);
 	}
 }
 
 HardwareLayer::~HardwareLayer()
 {
-	DMSG("Destructor start");
 	int status;
-	waitpid(this->child_pid, &status, 0);
-	DMSG("Wait finished");
+	waitpid(this->xenomotor_pid, &status, 0);
+	waitpid(this->xenorostask_pid, &status, 0);
 }
 
 

@@ -292,6 +292,7 @@ add_custom_command(
 	TARGET dls2_to_roscontrol
 	POST_BUILD
 	COMMAND cp ${CATKIN_WORKSPACE}/devel/lib/dls_hal/xenomotor ${EXECUTABLE_OUTPUT_PATH}
+	COMMAND cp ${CATKIN_WORKSPACE}/devel/lib/dls_hal/xenorostask ${EXECUTABLE_OUTPUT_PATH}
 )
 
 set_property(
