@@ -1,3 +1,6 @@
 [submodule "3rd_party/iit-commons"]
 	path = 3rd_party/iit-commons
 	url = git@gitlab.advr.iit.it:dls-lab/iit-commons.git
+[submodule "catkin_ws/src/dls-hal"]
+	path = catkin_ws/src/dls-hal
+	url = git@gitlab.advr.iit.it:dls-lab/dls-hal.git
