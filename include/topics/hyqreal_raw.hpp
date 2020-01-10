@@ -17,27 +17,15 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-#include "el3104.idl"
-#include "hpu.idl"
-#include "pcb.idl"
-#include "psb.idl"
-#include "battery.idl"
-#include "heatsink.idl"
-#include "imu.idl"
-#include "time.idl"
-#include "leg_raw.idl"
+#ifndef HYQREAL_RAW_HPP_NA5WOVDU
+#define HYQREAL_RAW_HPP_NA5WOVDU
 
-struct HyQRealRawMsg
+namespace dls
 {
-	LegRawMsg lf;
-	LegRawMsg rf;
-	LegRawMsg lh;
-	LegRawMsg rh;
-	ImuMsg imu;
-	PsbMsg psb;
-	HpuMsg front_hpu;
-	HpuMsg rear_hpu;
-	/* EL3104Msg el3104; */
-	/* TimeMsg time; */
-	double time;
-};
+	namespace  topics
+	{
+			constexpr auto hyqreal_raw = "hyqreal_raw";
+	}
+}
+
+#endif /* end of include guard: HYQREAL_RAW_HPP_NA5WOVDU */

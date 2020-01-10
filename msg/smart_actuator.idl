@@ -24,6 +24,7 @@ struct SmartActuatorMsg
 	double calc_velocity;
 	double pressure_1;
 	double pressure_2;
+	double pressure_3;
 	double pressure_4;
 	double spool_position;
 	double force_command;

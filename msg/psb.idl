@@ -23,4 +23,10 @@ struct PsbMsg
 	double fault;
 	double master_cmd_ack;
 	double state_machine_status;
+	double battery_voltage;
+	double load_voltage;
+	double load_current;
+	double pcb_temperature;
+	double heatsink_temperature;
+	double battery_temperature;
 };
