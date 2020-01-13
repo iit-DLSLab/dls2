@@ -31,6 +31,7 @@ LogLayer::LogLayer() :
 	warn_listener(),
 	error_listener(),
 	fatal_listener(),
+	raw_listener(),
 	should_quit(false),
 	should_quit_cv(),
 	should_quit_mutex()
