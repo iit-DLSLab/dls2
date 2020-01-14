@@ -12,3 +12,4 @@ doc/man
 gen/
 Debug/
 Release/
+build-debug
