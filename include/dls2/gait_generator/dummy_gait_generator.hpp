@@ -26,7 +26,7 @@
 
 namespace dls
 {
-TODO("this is a temporary class. Remove this file, the cpp file, and the CMake entry")
+// TODO("this is a temporary class. Remove this file, the cpp file, and the CMake entry")
 class DummyGaitGenerator : public GaitGenerator
 {
 public:

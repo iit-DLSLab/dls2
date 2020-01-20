@@ -21,7 +21,6 @@
 #define APP_LAYER_COMPONENT_HPP_B4KVSXQY
 
 #include <mutex>
-#include "todo.h"
 
 namespace dls
 {

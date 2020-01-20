@@ -89,7 +89,7 @@ AppLayerComponent::Status PeriodicAppLayerComponent::run()
 			setStatus(Status::BREAKING_REALTIME);
 		}
 
-		TODO("use realtime sleep here")
+		// TODO("use realtime sleep here")
 		// std::this_thread::sleep_until(next_loop_time);
 		Time::sleep_until(next_loop_time);
 		next_loop_time = this->period + Time::now(); // TODO ABC

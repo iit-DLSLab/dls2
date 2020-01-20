@@ -63,7 +63,7 @@ public:
 
 	// ========================== Interface Overrides ==========================
 	Status run() override;
-	TODO("This function is not implemented")
+	// TODO("This function is not implemented")
 	Status shutdown() override;
 
 	// ============================== Controllers ==============================
@@ -98,7 +98,7 @@ public:
 
 private:
 
-	TODO("This should be put in the robot class")
+	// TODO("This should be put in the robot class")
 	/// Saturates torques so that they do not exceed safe limits
 	///
 	/// @param req The requested torques

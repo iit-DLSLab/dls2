@@ -78,7 +78,7 @@ ControlLayer::ControlLayer() :
 	default_duration_seconds(2),
 
 	command_manager(),
-	TODO("These are temporary until a proper console is developed")
+	// TODO("These are temporary until a proper console is developed")
 	// activate_gait_generator_listener(topics::activate_gait_generator, *this),
 	// deactivate_gait_generator_listener(topics::deactivate_gait_generator, *this),
 	// activate_controller_listener(topics::activate_controller, *this),
@@ -214,9 +214,9 @@ ControlLayer::Status ControlLayer::run()
 	DMSG("using simulated time");
 	Time::set_use_simulated_time(true);
 
-	TODO("spawn nonrealtime thread for user interaction")
+	// TODO("spawn nonrealtime thread for user interaction")
 
-	TODO("Check status of all components in the control layer, take corrective actions if requred")
+	// TODO("Check status of all components in the control layer, take corrective actions if requred")
 	setStatus(Status::RUNNING);
 	// TODO this is wrong and just used to remove compile error for unitialised
 	// time. Time should not be doubles.
@@ -251,7 +251,7 @@ ControlLayer::Status ControlLayer::run()
 		// ss << "Control layer published torques: " << desired_torques.transpose() << std::endl;
 		// logging::cout << ss.str() << std::endl;
 
-		TODO("sleep at correct frequency here")
+		// TODO("sleep at correct frequency here")
 		// std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(500));
 		// DMSG(Time::now().time_since_epoch().count());
 		// std::this_thread::sleep_for(std::chrono::duration<double, std::micro>(100));
@@ -310,7 +310,7 @@ ControlLayer::Status ControlLayer::shutdown()
 // -----------------------------------------------------------------------------
 // Controllers
 // -----------------------------------------------------------------------------
-TODO("std::map already does this check for emplace, maybe for others. Double check and make this more efficient")
+// TODO("std::map already does this check for emplace, maybe for others. Double check and make this more efficient")
 bool ControlLayer::activateController(const Controller::ID_t &ID)
 {
 	pid_t controller_pid;
@@ -327,7 +327,7 @@ bool ControlLayer::activateController(const Controller::ID_t &ID)
 
 		// find the controller in the list of controllers
 		pair_it = this->controllers_b.find(ID);
-		TODO("Inform the user that the controller already exists")
+		// TODO("Inform the user that the controller already exists")
 		if(pair_it != this->controllers_b.end()) return false;
 
 		if((controller_pid = fork()) == 0)
@@ -339,7 +339,7 @@ bool ControlLayer::activateController(const Controller::ID_t &ID)
 			execl(CHILD_PROCESS_PATH "dls_controller_process", ID.c_str(), ID.c_str(), (char *)NULL);
 			cfatal << "Controller process failed to launch" << std::endl;
 			DMSG(strerror(errno));
-			TODO("handle errors");
+			// TODO("handle errors");
 			_exit(0);
 		}
 
@@ -428,7 +428,7 @@ bool ControlLayer::deactivateController(const Controller::ID_t &ID)
 		std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
 		pair_it = this->controllers_b.find(ID);
 
-		TODO("Inform user that the controller does not exist")
+		// TODO("Inform user that the controller does not exist")
 		if(pair_it == this->controllers_b.end()) return false;
 	}
 
@@ -437,7 +437,7 @@ bool ControlLayer::deactivateController(const Controller::ID_t &ID)
 	return true;
 }
 
-TODO("remove this function")
+// TODO("remove this function")
 void ControlLayer::loadController(const Controller::ID_t &name)
 {
 	DMSG("Deprecated function call does nothing");
@@ -462,7 +462,7 @@ bool ControlLayer::activateGaitGenerator(const GaitGenerator::ID_t &ID)
 	this->pGait_generator_data->gait_generator_pid = fork();
 	if(this->pGait_generator_data->gait_generator_pid == 0)
 	{
-		TODO("error checking")
+		// TODO("error checking")
 		execl(CHILD_PROCESS_PATH "dls_gait_generator_process", ID.c_str(), ID.c_str(), (char *)NULL);
 		cfatal << "Failed to launch gait generator process" << std::endl;
 	}
@@ -486,8 +486,8 @@ void ControlLayer::deactivateGaitGenerators()
 
 Eigen::MatrixXd ControlLayer::saturateTorques(const Eigen::MatrixXd &req) const
 {
-	TODO("This is not implemented yet")
-	TODO("Move this to the robot class")
+	// TODO("This is not implemented yet")
+	// TODO("Move this to the robot class")
 	return req;
 }
 
@@ -543,7 +543,7 @@ void ControlLayer::waitOnChildController(std::shared_ptr<ControllerData> pData)
 {
 	int status;
 
-	TODO("Handle errors, relaunching etc")
+	// TODO("Handle errors, relaunching etc")
 	/*pid_t child_pid = */waitpid(pData->controller_pid, &status, 0);
 	if(WIFSIGNALED(status))
 	{

@@ -20,11 +20,12 @@
 #include "dls2/application_framework/hyq_app.hpp"
 #include "dls2/util/debug/debug.hpp"
 
+#include "todo.h"
 using namespace dls;
 // =============================================================================
 // Constructors
 // =============================================================================
-TODO("Make these constructors DRY")
+// TODO("Make these constructors DRY")
 HyQApp::HyQApp() :
 	layers(),
 	layer_threads(),

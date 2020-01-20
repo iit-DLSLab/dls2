@@ -32,7 +32,7 @@
 
 namespace dls
 {
-TODO("Document this class")
+// TODO("Document this class")
 class EstimationLayer : public AppLayer
 {
 public:
@@ -47,7 +47,7 @@ public:
 
 	void loadEstimator(const std::string&);
 
-	TODO("These two should probably return bool")
+	//TODO("These two should probably return bool")
 	bool activateEstimator(const Estimator::ID_t&);
 	bool deactivateEstimator(const Estimator::ID_t);
 

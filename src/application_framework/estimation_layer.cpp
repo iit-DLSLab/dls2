@@ -21,7 +21,7 @@
 #include "dls2/util/class_loader.hpp"
 #include "dls2/util/debug/debug.hpp"
 
-TODO("temp includes")
+// TODO("temp includes")
 #include <chrono>
 #include <thread>
 
@@ -58,8 +58,8 @@ AppLayer::Status EstimationLayer::run()
 {
 	while(this->should_run)
 	{
-		TODO("Watchdog over estimators here")
-		TODO("proper sleep here")
+		// TODO("Watchdog over estimators here")
+		// TODO("proper sleep here")
 		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(300));
 	}
 	return getStatus();
@@ -80,7 +80,7 @@ void EstimationLayer::loadEstimator(const std::string &name)
 	this->addEstimator(pEstimator);
 }
 
-TODO("This is copied more or less in all the layers")
+// TODO("This is copied more or less in all the layers")
 bool EstimationLayer::activateEstimator(const Estimator::ID_t &ID)
 {
 	std::lock_guard<std::mutex> lock(this->estimators_mutex);
@@ -89,7 +89,7 @@ bool EstimationLayer::activateEstimator(const Estimator::ID_t &ID)
 
 	if(estimator_it == this->estimators.end()) return false;
 
-	TODO("check whether estimator is already active or not")
+	// TODO("check whether estimator is already active or not")
 
 	AppLayerComponent::Status (Estimator::*run_p)() = &Estimator::run;
 	this->estimator_threads.emplace
