@@ -457,11 +457,10 @@ if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
 	)
 	install(
 		DIRECTORY
-			${CMAKE_SOURCE_DIR}/include/
-			${CMAKE_SOURCE_DIR}/build_tools/include/
-			${CMAKE_SOURCE_DIR}/gen/include/
+			${CMAKE_SOURCE_DIR}/include/dls2/
+			${CMAKE_SOURCE_DIR}/gen/include/dls2/
 		DESTINATION
-			include/dls
+			include/dls2
 		FILES_MATCHING
 			PATTERN "*.h"
 			PATTERN "*.hpp"
