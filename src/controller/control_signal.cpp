@@ -17,7 +17,7 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-#include "controller/control_signal.hpp"
+#include "dls2/controller/control_signal.hpp"
 
 using namespace dls;
 ControlSignal::ControlSignal() :

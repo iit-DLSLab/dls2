@@ -17,7 +17,7 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-#include "application_framework/console_layer.hpp"
+#include "dls2/application_framework/console_layer.hpp"
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <cstring>
@@ -30,19 +30,19 @@
 
 // #include "util/string/string.hpp"
 
-#include "util/messaging/publisher_base.hpp"
+#include "dls2/util/messaging/publisher_base.hpp"
 
 //TODO these topics should be removed and instead generated dynamically
-#include "msg/stringmsgPubSubTypes.h"
-#include "topics/activate_controller.hpp"
-#include "topics/deactivate_controller.hpp"
-#include "topics/activate_gait_generator.hpp"
-#include "topics/deactivate_gait_generator.hpp"
-#include "util/debug/debug.hpp"
-#include "topics/warn_log_stream.hpp"
-#include "topics/info_log_stream.hpp" // TODO temp include
-#include "util/log/log.hpp"
-#include "topics/command_register.hpp"
+#include "dls2/msg/stringmsgPubSubTypes.h"
+#include "dls2/topics/activate_controller.hpp"
+#include "dls2/topics/deactivate_controller.hpp"
+#include "dls2/topics/activate_gait_generator.hpp"
+#include "dls2/topics/deactivate_gait_generator.hpp"
+#include "dls2/util/debug/debug.hpp"
+#include "dls2/topics/warn_log_stream.hpp"
+#include "dls2/topics/info_log_stream.hpp" // TODO temp include
+#include "dls2/util/log/log.hpp"
+#include "dls2/topics/command_register.hpp"
 
 // =============================================================================
 // Foreward Declarations

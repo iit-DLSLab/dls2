@@ -17,7 +17,7 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-#include "geometry/pose.hpp"
+#include "dls2/geometry/pose.hpp"
 #include <algorithm>
 #include <iit/commons/geometry/rotations.h>
 

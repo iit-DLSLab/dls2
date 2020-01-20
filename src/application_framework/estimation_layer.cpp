@@ -17,9 +17,9 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-#include "application_framework/estimation_layer.hpp"
-#include "util/class_loader.hpp"
-#include "util/debug/debug.hpp"
+#include "dls2/application_framework/estimation_layer.hpp"
+#include "dls2/util/class_loader.hpp"
+#include "dls2/util/debug/debug.hpp"
 
 TODO("temp includes")
 #include <chrono>

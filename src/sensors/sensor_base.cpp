@@ -17,7 +17,7 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-#include "sensors/sensor_base.hpp"
+#include "dls2/sensors/sensor_base.hpp"
 
 using namespace dls;
 // =============================================================================

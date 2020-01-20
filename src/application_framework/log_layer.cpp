@@ -20,7 +20,7 @@
 #ifndef LOG_LAYER_CPP_DLJLOFSG
 #define LOG_LAYER_CPP_DLJLOFSG
 
-#include "application_framework/log_layer.hpp"
+#include "dls2/application_framework/log_layer.hpp"
 #include <sys/time.h>
 #include <cstdio>
 

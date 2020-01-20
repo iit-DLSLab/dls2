@@ -20,10 +20,10 @@
 // =============================================================================
 // Includes
 // =============================================================================
-#include "command/remote_command.hpp"
-#include "topics/command_register.hpp"
+#include "dls2/command/remote_command.hpp"
+#include "dls2/topics/command_register.hpp"
 #include <vector>
-#include "topics/command_call.hpp"
+#include "dls2/topics/command_call.hpp"
 
 #include <fastrtps/Domain.h>
 #include <fastrtps/types/DynamicData.h>

@@ -17,7 +17,7 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-#include "fastrtps_wrappers/blind_state.hpp"
+#include "dls2/fastrtps_wrappers/blind_state.hpp"
 
 using namespace dls;
 // =============================================================================

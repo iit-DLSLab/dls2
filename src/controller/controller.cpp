@@ -18,14 +18,13 @@
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
 #include <thread>
-#include "controller/controller.hpp"
-#include "todo.h"
-#include "util/debug/debug.hpp"
-#include "topics/gait_signal.hpp"
-#include "fastrtps_wrappers/blind_state.hpp"
-#include "topics/control_signal_base.hpp"
-#include "topics/low_level_estimation/blind_state.hpp"
-#include "util/log/log.hpp"
+#include "dls2/controller/controller.hpp"
+#include "dls2/util/debug/debug.hpp"
+#include "dls2/topics/gait_signal.hpp"
+#include "dls2/fastrtps_wrappers/blind_state.hpp"
+#include "dls2/topics/control_signal_base.hpp"
+#include "dls2/topics/low_level_estimation/blind_state.hpp"
+#include "dls2/util/log/log.hpp"
 
 // =============================================================================
 // Constructors

@@ -31,22 +31,22 @@
 #include <sys/wait.h>
 #include <sys/prctl.h>
 
-#include "application_framework/hyq_app.hpp"
-#include "application_framework/hardware_layer.hpp"
-#include "application_framework/control_layer.hpp"
-#include "application_framework/estimation_layer.hpp"
-#include "application_framework/log_layer.hpp"
-#include "application_framework/console_layer.hpp"
+#include "dls2/application_framework/hyq_app.hpp"
+#include "dls2/application_framework/hardware_layer.hpp"
+#include "dls2/application_framework/control_layer.hpp"
+#include "dls2/application_framework/estimation_layer.hpp"
+#include "dls2/application_framework/log_layer.hpp"
+#include "dls2/application_framework/console_layer.hpp"
 
-#include "util/debug/debug.hpp"
-#include "util/log/log.hpp"
-#include "command/command.hpp"
+#include "dls2/util/debug/debug.hpp"
+#include "dls2/util/log/log.hpp"
+#include "dls2/command/command.hpp"
 
 #include <thread>
 
-#include "geometry/pose.hpp"
+#include "dls2/geometry/pose.hpp"
 
-#include "util/log/log.hpp"
+#include "dls2/util/log/log.hpp"
 
 using namespace dls;
 // =============================================================================

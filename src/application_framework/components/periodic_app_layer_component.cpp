@@ -19,13 +19,13 @@
 *******************************************************************************/
 #include <thread>
 #include <chrono>
-#include "application_framework/components/periodic_app_layer_component.hpp"
-#include "util/time/time.hpp"
+#include "dls2/application_framework/components/periodic_app_layer_component.hpp"
+#include "dls2/util/time/time.hpp"
 
 #ifndef NDEBUG
 #include <sstream>
 #include <chrono>
-#include "util/log/log.hpp"
+#include "dls2/util/log/log.hpp"
 #endif
 
 using namespace dls;

@@ -24,14 +24,14 @@
 #include <csignal>
 #include <sstream>
 
-#include "util/class_loader.hpp"
-#include "gait_generator/gait_generator.hpp"
-#include "util/debug/debug.hpp"
-#include "path_prefixes/path_prefixes.hpp"
-#include "util/log/log.hpp"
-#include "util/debug/debug.hpp"
+#include "dls2/util/class_loader.hpp"
+#include "dls2/gait_generator/gait_generator.hpp"
+#include "dls2/util/debug/debug.hpp"
+#include "dls2/path_prefixes/path_prefixes.hpp"
+#include "dls2/util/log/log.hpp"
+#include "dls2/util/debug/debug.hpp"
 
-#include "util/time/time.hpp"
+#include "dls2/util/time/time.hpp"
 using namespace dls;
 std::shared_ptr<GaitGenerator> pGaitGenerator;
 void signal_handler(int signal);

@@ -20,9 +20,9 @@
 // =============================================================================
 // includes
 // =============================================================================
-#include "util/time/time.hpp"
-#include "topics/simulation_time.hpp"
-#include "topics/simulation_pause.hpp"
+#include "dls2/util/time/time.hpp"
+#include "dls2/topics/simulation_time.hpp"
+#include "dls2/topics/simulation_pause.hpp"
 
 // =============================================================================
 // Using Declarations

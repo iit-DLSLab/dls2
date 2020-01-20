@@ -17,7 +17,7 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-#include "msg_wrappers/screw.hpp"
+#include "dls2/msg_wrappers/screw.hpp"
 
 using namespace dls;
 // =============================================================================

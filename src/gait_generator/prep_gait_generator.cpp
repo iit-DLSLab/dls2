@@ -17,10 +17,10 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-#include "gait_generator/prep_gait_generator.hpp"
-#include "util/debug/debug.hpp"
-#include "geometry/pose.hpp"
-#include "util/log/log.hpp"
+#include "dls2/gait_generator/prep_gait_generator.hpp"
+#include "dls2/util/debug/debug.hpp"
+#include "dls2/geometry/pose.hpp"
+#include "dls2/util/log/log.hpp"
 
 namespace dls
 {

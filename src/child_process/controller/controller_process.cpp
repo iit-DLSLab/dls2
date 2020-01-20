@@ -24,14 +24,14 @@
 #include <csignal>
 #include <sstream>
 
-#include "util/class_loader.hpp"
-#include "controller/controller.hpp"
-#include "util/debug/debug.hpp"
-#include "util/log/log.hpp"
-#include "util/debug/debug.hpp"
+#include "dls2/util/class_loader.hpp"
+#include "dls2/controller/controller.hpp"
+#include "dls2/util/debug/debug.hpp"
+#include "dls2/util/log/log.hpp"
+#include "dls2/util/debug/debug.hpp"
 
-#include "path_prefixes/path_prefixes.hpp"
-#include "util/time/time.hpp"
+#include "dls2/path_prefixes/path_prefixes.hpp"
+#include "dls2/util/time/time.hpp"
 
 using namespace dls;
 std::shared_ptr<Controller> pController;

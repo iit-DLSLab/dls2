@@ -17,8 +17,8 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-#include "estimator/dummy_estimator.hpp"
-#include "util/debug/debug.hpp"
+#include "dls2/estimator/dummy_estimator.hpp"
+#include "dls2/util/debug/debug.hpp"
 
 using namespace dls;
 DummyEstimator::DummyEstimator() :

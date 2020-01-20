@@ -17,8 +17,8 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-#include "application_framework/hyq_app.hpp"
-#include "util/time/time.hpp"
+#include "dls2/application_framework/hyq_app.hpp"
+#include "dls2/util/time/time.hpp"
 
 using namespace dls;
 void HyQApp::init_libraries()

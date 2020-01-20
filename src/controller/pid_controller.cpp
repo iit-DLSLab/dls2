@@ -17,9 +17,9 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-#include "controller/pid_controller.hpp"
-#include "util/debug/debug.hpp"
-#include "util/log/log.hpp"
+#include "dls2/controller/pid_controller.hpp"
+#include "dls2/util/debug/debug.hpp"
+#include "dls2/util/log/log.hpp"
 
 int foo(float, std::string){return 1;}
 namespace dls

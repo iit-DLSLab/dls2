@@ -17,9 +17,9 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-#include "controller/dummy_controller.hpp"
-#include "util/debug/debug.hpp"
-#include "util/log/log.hpp"
+#include "dls2/controller/dummy_controller.hpp"
+#include "dls2/util/debug/debug.hpp"
+#include "dls2/util/log/log.hpp"
 
 using namespace dls;
 

@@ -20,8 +20,8 @@
 #ifndef JOINT_STATE_CPP_8TOBMLEP
 #define JOINT_STATE_CPP_8TOBMLEP
 
-#include "msg_wrappers/joint_state.hpp"
-#include "robot/robot.hpp"
+#include "dls2/msg_wrappers/joint_state.hpp"
+#include "dls2/robot/robot.hpp"
 
 using namespace dls;
 JointState::JointState() :
@@ -29,7 +29,7 @@ JointState::JointState() :
 	velocity(),
 	effort()
 {
-    TODO("Robot is unimplemented")
+    // TODO ("Robot is unimplemented")
     /*int joint_space_dimension = Robot::getJointSpaceDimension();
 
     position.resize(joint_space_dimension, 1);

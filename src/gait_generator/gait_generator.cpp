@@ -17,9 +17,9 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-#include "gait_generator/gait_generator.hpp"
-#include "util/debug/debug.hpp"
-#include "topics/gait_signal.hpp"
+#include "dls2/gait_generator/gait_generator.hpp"
+#include "dls2/util/debug/debug.hpp"
+#include "dls2/topics/gait_signal.hpp"
 
 #include <chrono>
 #include <thread>

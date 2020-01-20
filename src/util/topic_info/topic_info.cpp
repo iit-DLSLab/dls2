@@ -19,7 +19,7 @@
 *******************************************************************************/
 // TODO this is a tool that needs to be made into a separate project and made
 // more sophisticated
-#include "util/topic_info/topic_info.hpp"
+#include "dls2/util/topic_info/topic_info.hpp"
 #include <fastrtps/attributes/ParticipantAttributes.h>
 #include <fastrtps/Domain.h>
 #include <fastrtps/attributes/ParticipantAttributes.h>
@@ -27,23 +27,23 @@
 #include <fastrtps/transport/UDPv4TransportDescriptor.h>
 
 // TODO temporarily list all the types here
-#include "msg/blind_statePubSubTypes.h"
-#include "msg/console_commandPubSubTypes.h"
-#include "msg/control_signalPubSubTypes.h"
-#include "msg/desired_torquesPubSubTypes.h"
-#include "msg/gait_signalPubSubTypes.h"
-#include "msg/headerPubSubTypes.h"
-#include "msg/hello_worldPubSubTypes.h"
-#include "msg/imuPubSubTypes.h"
-#include "msg/joint_statePubSubTypes.h"
-#include "msg/posePubSubTypes.h"
-#include "msg/screwPubSubTypes.h"
-#include "msg/stringmsgPubSubTypes.h"
-#include "msg/timePubSubTypes.h"
-#include "msg/vec3PubSubTypes.h"
+#include "dls2/msg/blind_statePubSubTypes.h"
+#include "dls2/msg/console_commandPubSubTypes.h"
+#include "dls2/msg/control_signalPubSubTypes.h"
+#include "dls2/msg/desired_torquesPubSubTypes.h"
+#include "dls2/msg/gait_signalPubSubTypes.h"
+#include "dls2/msg/headerPubSubTypes.h"
+#include "dls2/msg/hello_worldPubSubTypes.h"
+#include "dls2/msg/imuPubSubTypes.h"
+#include "dls2/msg/joint_statePubSubTypes.h"
+#include "dls2/msg/posePubSubTypes.h"
+#include "dls2/msg/screwPubSubTypes.h"
+#include "dls2/msg/stringmsgPubSubTypes.h"
+#include "dls2/msg/timePubSubTypes.h"
+#include "dls2/msg/vec3PubSubTypes.h"
 
 
-#include "util/debug/debug.hpp"
+#include "dls2/util/debug/debug.hpp"
 
 using namespace dls;
 

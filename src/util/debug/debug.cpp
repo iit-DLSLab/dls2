@@ -17,7 +17,7 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-#include "util/debug/debug.hpp"
+#include "dls2/util/debug/debug.hpp"
 
 namespace dls
 {

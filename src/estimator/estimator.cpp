@@ -17,7 +17,7 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-#include "estimator/estimator.hpp"
+#include "dls2/estimator/estimator.hpp"
 
 using namespace dls;
 // =============================================================================

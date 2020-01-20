@@ -17,7 +17,7 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-#include "application_framework/control_layer.hpp"
+#include "dls2/application_framework/control_layer.hpp"
 #include <Eigen/Dense>
 #include <tuple>
 
@@ -25,13 +25,13 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-#include "util/debug/debug.hpp"
-#include "robot/robot.hpp"
-#include "util/class_loader.hpp"
-#include "msg/control_signalPubSubTypes.h"
-#include "topics/desired_torques.hpp"
-#include "path_prefixes/path_prefixes.hpp"
-#include "util/time/time.hpp"
+#include "dls2/util/debug/debug.hpp"
+#include "dls2/robot/robot.hpp"
+#include "dls2/util/class_loader.hpp"
+#include "dls2/msg/control_signalPubSubTypes.h"
+#include "dls2/topics/desired_torques.hpp"
+#include "dls2/path_prefixes/path_prefixes.hpp"
+#include "dls2/util/time/time.hpp"
 
 #include <string.h>
 #include <errno.h>
@@ -41,7 +41,7 @@
 #ifndef NDEBUG
 #include <sstream>
 #include <chrono>
-#include "util/log/log.hpp"
+#include "dls2/util/log/log.hpp"
 #endif
 
 using namespace dls;

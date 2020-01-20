@@ -20,8 +20,8 @@
 // =============================================================================
 // Includes
 // =============================================================================
-#include "gait_generator/gait_signal.hpp"
-#include "robot/robot.hpp"
+#include "dls2/gait_generator/gait_signal.hpp"
+#include "dls2/robot/robot.hpp"
 
 using namespace dls;
 // =============================================================================
@@ -46,7 +46,7 @@ GaitSignal::GaitSignal() :
 // -----------------------------------------------------------------------------
 // Converting Constructor
 // -----------------------------------------------------------------------------
-TODO("stance feet")
+// TODO ("stance feet")
 GaitSignal::GaitSignal(GaitSignalMsg msg) :
     desired_com_pose_world(msg.desired_com_pose_world()),
     desired_com_velocity_world(msg.desired_com_velocity_world()),

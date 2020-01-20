@@ -17,15 +17,15 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-#include "util/log/log.hpp"
-#include "util/messaging/publisher_base.hpp"
-#include "msg/stringmsgPubSubTypes.h"
+#include "dls2/util/log/log.hpp"
+#include "dls2/util/messaging/publisher_base.hpp"
+#include "dls2/msg/stringmsgPubSubTypes.h"
 
-#include "topics/debug_log_stream.hpp"
-#include "topics/error_log_stream.hpp"
-#include "topics/fatal_log_stream.hpp"
-#include "topics/info_log_stream.hpp"
-#include "topics/warn_log_stream.hpp"
+#include "dls2/topics/debug_log_stream.hpp"
+#include "dls2/topics/error_log_stream.hpp"
+#include "dls2/topics/fatal_log_stream.hpp"
+#include "dls2/topics/info_log_stream.hpp"
+#include "dls2/topics/warn_log_stream.hpp"
 
 // =============================================================================
 // Using Declarations
