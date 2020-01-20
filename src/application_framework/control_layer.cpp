@@ -218,7 +218,9 @@ ControlLayer::Status ControlLayer::run()
 
 	TODO("Check status of all components in the control layer, take corrective actions if requred")
 	setStatus(Status::RUNNING);
-	double time;
+	// TODO this is wrong and just used to remove compile error for unitialised
+	// time. Time should not be doubles.
+	double time = std::chrono::system_clock::now().time_since_epoch().count();
 	while(!this->should_quit)
 	{
 		#ifndef NDEBUG

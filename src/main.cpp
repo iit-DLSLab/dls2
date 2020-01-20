@@ -151,6 +151,29 @@ int main(int argc, char **argv)
 		)
 	);
 
+	command_manager.addCommand<void, std::string>
+	(
+		"HyQApp_server",
+		"launchLayer",
+
+		"Launches a layer specified by its argument:\n"
+		"* hardware\n"
+		"* console\n"
+		"* control\n"
+		"* log",
+
+		std::function<void(std::string)>
+		(
+			[&](std::string s)
+			{
+				if(s == "hardware") forkLayer<HardwareLayer>("hardware_layer", argv);
+				else if(s == "console") forkLayer<ConsoleLayer>("console_layer", argv);
+				else if(s == "control") forkLayer<ControlLayer>("control_layer", argv);
+				else if(s == "log") forkLayer<LogLayer>("log_layer", argv);
+			}
+		)
+	);
+
 	command_manager.addCommand<void, ARGVOID>
 	(
 		"HyQApp_server",
