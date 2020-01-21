@@ -6,11 +6,13 @@
 #include <controller_interface/controller.h>
 #include <pluginlib/class_list_macros.h>
 #include <dls2_hardware_interface/blind_state_interface.h>
-#include "util/messaging/publisher_base.hpp"
-#include "msg/blind_statePubSubTypes.h"
-#include "msg/timePubSubTypes.h"
-#include "topics/low_level_estimation/blind_state.hpp"
-#include "topics/simulation_time.hpp"
+
+#include "dls2/util/messaging/publisher_base.hpp"
+#include "dls2/msg/blind_statePubSubTypes.h"
+#include "dls2/msg/timePubSubTypes.h"
+#include "dls2/topics/low_level_estimation/blind_state.hpp"
+#include "dls2/topics/simulation_time.hpp"
+
 #include <dls2_msgs/BlindState.h>
 #include <rosgraph_msgs/Clock.h>
 

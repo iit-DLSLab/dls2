@@ -5,17 +5,17 @@
 #include <hardware_interface/robot_hw.h>
 #include <hardware_interface/joint_command_interface.h>
 #include <controller_interface/controller.h>
-#include <controller/control_signal.hpp>
+#include <dls2/controller/control_signal.hpp>
 #include <pluginlib/class_list_macros.h>
 
 // fastrtps
-#include "todo.h"
-#include "util/messaging/subscriber_base.hpp"
-#include "util/messaging/publisher_base.hpp"
+// #include "todo.h"
+#include "dls2/util/messaging/subscriber_base.hpp"
+#include "dls2/util/messaging/publisher_base.hpp"
 //#include "msg/desired_torquesPubSubTypes.h"
 // #include "msg/control_signalPubSubTypes.h"
-#include "msg/desired_torquesPubSubTypes.h"
-#include "msg/joint_statePubSubTypes.h"
+#include "dls2/msg/desired_torquesPubSubTypes.h"
+#include "dls2/msg/joint_statePubSubTypes.h"
 #include <mutex>
 #include <memory>
 

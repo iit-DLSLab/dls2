@@ -10,10 +10,10 @@ PLUGINLIB_EXPORT_CLASS(dls_hw_sim::DlsRobotHwSim, gazebo_ros_control::RobotHWSim
 
 
 // dls2
-#include "util/messaging/publisher_base.hpp"
+#include "dls2/util/messaging/publisher_base.hpp"
 #include <memory>
-#include "msg/boolPubSubTypes.h"
-#include "topics/simulation_pause.hpp"
+#include "dls2/msg/boolPubSubTypes.h"
+#include "dls2/topics/simulation_pause.hpp"
 std::shared_ptr<dls::PublisherBase<BoolMsgPubSubType>> pPause_pub;
 
 void callback_pause(bool is_paused)

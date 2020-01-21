@@ -27,17 +27,17 @@
 #include <nav_msgs/Odometry.h>
 
 // Fastrtps publishing
-#include "util/messaging/publisher_base.hpp"
-#include "msg/blind_statePubSubTypes.h"
-#include "msg/timePubSubTypes.h"
-#include "topics/low_level_estimation/blind_state.hpp"
-#include "topics/simulation_time.hpp"
+#include "dls2/util/messaging/publisher_base.hpp"
+#include "dls2/msg/blind_statePubSubTypes.h"
+#include "dls2/msg/timePubSubTypes.h"
+#include "dls2/topics/low_level_estimation/blind_state.hpp"
+#include "dls2/topics/simulation_time.hpp"
 
 // cpp
 #include <memory>
 
 // project
-#include "geometry/pose.hpp"
+#include "dls2/geometry/pose.hpp"
 
 #include <dls2_msgs/BlindState.h>
 #include <rosgraph_msgs/Clock.h>
@@ -47,7 +47,7 @@ std::shared_ptr<ros::Publisher> pEmpty_pub;
 using namespace dls;
 
 #ifndef NDEBUG
-#include "util/log/log.hpp"
+#include "dls2/util/log/log.hpp"
 #include <sstream>
 #endif
 

@@ -1,7 +1,7 @@
 #ifndef TRUNK_CONTROLLER_HPP
 #define TRUNK_CONTROLELR_HPP
 
-#include "controller/controller.hpp"
+#include "dls2/controller/controller.hpp"
 
 #include <iit/commons/dog/kin_dyn_params.h>
 #include <iit/commons/dog/robot_limits.h>

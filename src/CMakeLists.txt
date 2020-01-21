@@ -291,30 +291,27 @@ list(APPEND PROJECT_TARGETS dls_gait_generator_process)
 # ==============================================================================
 # Roscontrol Tranlsation Block
 # ==============================================================================
-# TODO TODO TODO note also the dependency dls2_to_roscontrol of the main
-# executable is commented out TODO TODO TODO
+set(CATKIN_WORKSPACE ${CMAKE_SOURCE_DIR}/catkin_ws)
+add_custom_target(dls2_to_roscontrol
+	COMMAND catkin_make
+	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/catkin_ws
+	COMMENT "Building dls2_to_roscontrol subproject"
+)
+add_custom_command(
+	TARGET dls2_to_roscontrol
+	POST_BUILD
+	COMMAND cp ${CATKIN_WORKSPACE}/devel/lib/dls_hal/xenomotor ${EXECUTABLE_OUTPUT_PATH}
+	COMMAND cp ${CATKIN_WORKSPACE}/devel/lib/dls_hal/xenorostask ${EXECUTABLE_OUTPUT_PATH}
+)
 
-# set(CATKIN_WORKSPACE ${CMAKE_SOURCE_DIR}/catkin_ws)
-# add_custom_target(dls2_to_roscontrol
-# 	COMMAND catkin_make
-# 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/catkin_ws
-# 	COMMENT "Building dls2_to_roscontrol subproject"
-# )
-# add_custom_command(
-# 	TARGET dls2_to_roscontrol
-# 	POST_BUILD
-# 	COMMAND cp ${CATKIN_WORKSPACE}/devel/lib/dls_hal/xenomotor ${EXECUTABLE_OUTPUT_PATH}
-# 	COMMAND cp ${CATKIN_WORKSPACE}/devel/lib/dls_hal/xenorostask ${EXECUTABLE_OUTPUT_PATH}
-# )
-
-# set_property(
-# 	DIRECTORY
-# 		${CMAKE_SOURCE_DIR}
-# 	PROPERTY ADDITIONAL_MAKE_CLEAN_FILES
-# 		${CATKIN_WORKSPACE}/build
-# 		${CATKIN_WORKSPACE}/devel
-# )
-# add_dependencies(dls2_to_roscontrol dls_framework dls_messaging)
+set_property(
+	DIRECTORY
+		${CMAKE_SOURCE_DIR}
+	PROPERTY ADDITIONAL_MAKE_CLEAN_FILES
+		${CATKIN_WORKSPACE}/build
+		${CATKIN_WORKSPACE}/devel
+)
+add_dependencies(dls2_to_roscontrol dls_framework dls_messaging)
 
 # ==============================================================================
 # Main Executable
@@ -336,7 +333,7 @@ add_dependencies(${EXECUTABLE_NAME}
 	messagelib
 	dls_controller_process
 	dls_gait_generator_process
-	# dls2_to_roscontrol
+	dls2_to_roscontrol
 	# dls_pid_controller
 	# dls_prep_gait_generator
 )

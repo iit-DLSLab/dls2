@@ -2,13 +2,13 @@
 
 // fastrtps
 //#include "topics/desired_torques.hpp"
-#include "topics/control_signal_base.hpp"
-#include "topics/joint_states.hpp"
-#include "controller/control_signal.hpp"
+#include "dls2/topics/control_signal_base.hpp"
+#include "dls2/topics/joint_states.hpp"
+#include "dls2/controller/control_signal.hpp"
 
 // TODO remove all ROS_ERROR for new logging
 
-#include "topics/desired_torques.hpp"
+#include "dls2/topics/desired_torques.hpp"
 
 namespace dls2_to_roscontrol {
 
