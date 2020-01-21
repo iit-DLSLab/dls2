@@ -22,6 +22,10 @@
 #include "dls2/geometry/pose.hpp"
 #include "dls2/util/log/log.hpp"
 
+#include <doglib/factory/robot_factory.hpp>
+
+using dls::dog::Dog;
+
 namespace dls
 {
 
@@ -43,10 +47,10 @@ PrepGaitGenerator::PrepGaitGenerator(const std::shared_ptr<Dog> &pDog) :
 	data.desired_joint_state.effort << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
 }
 
-PrepGaitGenerator::PrepGaitGenerator() : PrepGaitGenerator(std::make_shared<Dog>())
-{
-	scout << "prep gait generator destroyed" << std::endl;
-}
+// PrepGaitGenerator::PrepGaitGenerator() : PrepGaitGenerator(std::make_shared<Dog>())
+// {
+// 	scout << "prep gait generator destroyed" << std::endl;
+// }
 
 void PrepGaitGenerator::run(const std::chrono::system_clock::time_point &time)
 {
@@ -57,7 +61,8 @@ void PrepGaitGenerator::run(const std::chrono::system_clock::time_point &time)
 
 extern "C" GaitGenerator *create()
 {
-	auto p = new PrepGaitGenerator;
+	using dls::dog::RobotFactory;
+	auto p = new PrepGaitGenerator(RobotFactory::buildRobot(RobotFactory::RobotType::HyQReal));
 	return p;
 }
 

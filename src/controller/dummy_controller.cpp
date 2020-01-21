@@ -20,8 +20,10 @@
 #include "dls2/controller/dummy_controller.hpp"
 #include "dls2/util/debug/debug.hpp"
 #include "dls2/util/log/log.hpp"
+#include <doglib/factory/robot_factory.hpp>
 
 using namespace dls;
+using dls::dog::Dog;
 
 DummyController::DummyController
 (
@@ -75,7 +77,11 @@ DummyController::DummyController
 }
 
 DummyController::DummyController() :
-	DummyController(std::make_shared<Dog>())
+	DummyController
+	(
+		// std::make_shared<Dog>()
+		dls::dog::RobotFactory::buildRobot(dls::dog::RobotFactory::RobotType::HyQ)
+	)
 { }
 
 DummyController::~DummyController()

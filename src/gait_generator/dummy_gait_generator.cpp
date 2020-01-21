@@ -21,8 +21,11 @@
 #include "dls2/util/debug/debug.hpp"
 #include "dls2/geometry/pose.hpp"
 #include "dls2/util/log/log.hpp"
+#include <doglib/factory/robot_factory.hpp>
 
 using namespace dls;
+using dls::dog::Dog;
+
 DummyGaitGenerator::DummyGaitGenerator(const std::shared_ptr<Dog> &pDog) :
 	GaitGenerator
 	(
@@ -36,11 +39,11 @@ DummyGaitGenerator::DummyGaitGenerator(const std::shared_ptr<Dog> &pDog) :
 	scout << "dummy gait generator launched" << std::endl;
 }
 
-DummyGaitGenerator::DummyGaitGenerator()
-	: DummyGaitGenerator(std::make_shared<Dog>())
-{
-	scout << "dummy gait generator destroyed" << std::endl;
-}
+// DummyGaitGenerator::DummyGaitGenerator()
+// 	: DummyGaitGenerator(std::make_shared<Dog>())
+// {
+// 	scout << "dummy gait generator destroyed" << std::endl;
+// }
 
 void DummyGaitGenerator::run(const std::chrono::system_clock::time_point &time)
 {
@@ -56,7 +59,8 @@ void DummyGaitGenerator::run(const std::chrono::system_clock::time_point &time)
 
 extern "C" GaitGenerator *create()
 {
-	auto p = new DummyGaitGenerator;
+	using dls::dog::RobotFactory;
+	auto p = new DummyGaitGenerator(RobotFactory::buildRobot(RobotFactory::RobotType::HyQReal));
 	return p;
 }
 

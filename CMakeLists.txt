@@ -36,12 +36,14 @@ include_directories(
 	SYSTEM
 	${EIGEN_DIR}
 	${CMAKE_SOURCE_DIR}/3rd_party/iit_commons/include
+	${CMAKE_SOURCE_DIR}/3rd_party/doglib/include
 )
 include_directories(
 	SYSTEM
 	${CMAKE_SOURCE_DIR}/gen/include
 )
 
+add_subdirectory(3rd_party)
 add_subdirectory(src)
 
 if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")

@@ -21,7 +21,11 @@
 #include "dls2/util/debug/debug.hpp"
 #include "dls2/util/log/log.hpp"
 
+#include <doglib/factory/robot_factory.hpp>
+
 int foo(float, std::string){return 1;}
+
+using dls::dog::Dog;
 namespace dls
 {
 
@@ -46,7 +50,7 @@ PidController::PidController (const std::shared_ptr<Dog> &dog) : Controller
 	// 	);
 }
 
-PidController::PidController() : PidController(std::make_shared<Dog>())
+PidController::PidController() : PidController(dls::dog::RobotFactory::buildRobot(dog::RobotFactory::RobotType::HyQReal))
 {
 	scout << "pid controller destroyed" << std::endl;
 }
@@ -87,7 +91,8 @@ void PidController::run(const std::chrono::system_clock::time_point &time)
 
 extern "C" Controller *create()
 {
-	auto p = new PidController;
+	using dls::dog::RobotFactory;
+	auto p = new PidController(RobotFactory::buildRobot(RobotFactory::RobotType::HyQReal));
 	return p;
 }
 

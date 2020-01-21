@@ -25,6 +25,8 @@
 #include "dls2/util/log/log.hpp"
 #include "dls2/command/command.hpp"
 
+#include <doglib/base/dog.hpp>
+
 // TODO This is a dummy class. Remove it, its cpp file, as well as its entry in the CMakeLists file
 namespace dls
 {
@@ -33,7 +35,7 @@ class DummyController : public Controller
 public:
 	DummyController
 	(
-		const std::shared_ptr<Dog> &dog
+		const std::shared_ptr<dls::dog::Dog> &dog
 	);
 
 	DummyController();

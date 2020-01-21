@@ -33,6 +33,8 @@
 #include "dls2/util/messaging/publisher_base.hpp"
 #include "dls2/msg/gait_signalPubSubTypes.h"
 
+#include <doglib/base/dog.hpp>
+
 // =============================================================================
 // Class Interface
 // =============================================================================
@@ -53,7 +55,7 @@ public:
 	// Constructors
 	GaitGenerator
 	(
-		const std::shared_ptr<Dog>&,	///< A pointer to the robot model
+		const std::shared_ptr<dog::Dog>&,	///< A pointer to the robot model
 		const ID_t&,					///< The ID of the gait generator
 		const period_t&					///< The period of the gait generator
 	);
@@ -74,7 +76,7 @@ protected:
 	/// current epoch
 	void publishData(const std::shared_ptr<GaitSignal> &pData);
 
-	const std::shared_ptr<const Dog> pRobot;	///< A pointer to the robot model
+	const std::shared_ptr<const dog::Dog> pRobot;	///< A pointer to the robot model
 	// const ID_t ID;								///< The ID of this gait generator
 
 private:

@@ -30,8 +30,8 @@ namespace dls
 class DummyGaitGenerator : public GaitGenerator
 {
 public:
-	DummyGaitGenerator();
-	DummyGaitGenerator(const std::shared_ptr<Dog> &pDog);
+	// DummyGaitGenerator();
+	DummyGaitGenerator(const std::shared_ptr<dog::Dog> &pDog);
 	void run(const std::chrono::system_clock::time_point&) override;
 	AppLayerComponent::Status eStop() override {return getStatus();}
 

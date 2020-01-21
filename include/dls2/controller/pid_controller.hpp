@@ -25,6 +25,8 @@
 #include "dls2/util/log/log.hpp"
 #include "dls2/command/command.hpp"
 
+#include <doglib/base/dog.hpp>
+
 namespace dls
 {
 // TODO This is a dummy class. Remove it, its cpp file, as well as its entry in the CMakeLists file
@@ -33,7 +35,7 @@ class PidController : public Controller
 public:
 	PidController
 	(
-		const std::shared_ptr<Dog> &dog
+		const std::shared_ptr<dog::Dog> &dog
 		// const std::string &name,
 		// const period_t &period
 	);

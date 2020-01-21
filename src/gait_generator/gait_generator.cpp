@@ -30,7 +30,7 @@ using namespace dls;
 // =============================================================================
 GaitGenerator::GaitGenerator
 (
-	const std::shared_ptr<Dog> &pRobot_,
+	const std::shared_ptr<dog::Dog> &pRobot_,
 	const ID_t &ID,
 	const period_t &period_
 ) :

@@ -33,6 +33,8 @@
 #include "dls2/msg/gait_signalPubSubTypes.h"
 #include "dls2/msg/control_signalPubSubTypes.h"
 #include "dls2/msg/blind_statePubSubTypes.h"
+#include <doglib/base/dog.hpp>
+
 
 #include <chrono>
 #include <string>
@@ -59,7 +61,7 @@ public:
 
 	Controller
 	(
-		const std::shared_ptr<Dog>&,						///< A pointer to the robot model
+		const std::shared_ptr<dog::Dog>&,						///< A pointer to the robot model
 		const ID_t&,										///< The ID of the controller
 		const period_t&,									///< The period of the controller
 		const ControlSignal::SignalReconstructionMethod&	///< Signal reconstruction used by this controller
@@ -95,7 +97,7 @@ protected:
 	/// Sends the control command to the rest of the architecture
 	void publishSignal(const ControlSignal&);
 
-	const std::shared_ptr<const Dog> pDog;
+	const std::shared_ptr<const dog::Dog> pDog;
 	const std::string name;
 	const ControlSignal::SignalReconstructionMethod signal_reconstruction_method;
 	// const ID_t ID;

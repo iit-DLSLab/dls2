@@ -18,6 +18,7 @@ include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}/include
 	${ROOT_PROJECT_DIRECTORY}/include
 	${ROOT_PROJECT_DIRECTORY}/build_tools/include
+	${ROOT_PROJECT_DIRECTORY}/3rd_party/doglib/include
 )
 include_directories(
 	SYSTEM

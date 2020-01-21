@@ -24,13 +24,15 @@
 #include "dls2/util/debug/debug.hpp"
 #include "dls2/util/log/log.hpp"
 
+#include <doglib/base/dog.hpp>
+
 namespace dls
 {
 class PrepGaitGenerator : public GaitGenerator
 {
 public:
-	PrepGaitGenerator();
-	PrepGaitGenerator(const std::shared_ptr<Dog> &pDog);
+	// PrepGaitGenerator();
+	PrepGaitGenerator(const std::shared_ptr<dog::Dog> &pDog);
 	void run(const std::chrono::system_clock::time_point&);
 	AppLayerComponent::Status eStop() override {return getStatus();}
 private:

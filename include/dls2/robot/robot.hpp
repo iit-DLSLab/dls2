@@ -22,8 +22,9 @@
 
 namespace dls
 {
-// TODO remove references to Dog, replace with Robot
-class Dog {};
+// // TODO remove references to Dog, replace with Robot
+// // class Dog {};
+// typedef doglib::Dog Dog;
 
 // TODO This class is completely temporary
 /// Class representing the robot model

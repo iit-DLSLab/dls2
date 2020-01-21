@@ -4,3 +4,6 @@
 [submodule "catkin_ws/src/dls-hal"]
 	path = catkin_ws/src/dls-hal
 	url = git@gitlab.advr.iit.it:dls-lab/dls-hal.git
+[submodule "3rd_party/doglib"]
+	path = 3rd_party/doglib
+	url = git@gitlab.advr.iit.it:hdebruin/doglib.git
