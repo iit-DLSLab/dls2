@@ -608,33 +608,39 @@ char *dls::arg_completion(const char * text, int state)
 		// ADD UP TO HERE WHEN USING A PROPER C++17 COMPILER
 
 		// TODO remove this code when we are using a proper C++17 compiler
-		DIR *dp = nullptr;
-		struct dirent *ep = nullptr;
-		dp = opendir("./");
-		if(dp != nullptr)
+		auto gen = [&](const std::string& dirname)
 		{
-			while( (ep = readdir(dp)) )
+			DIR *dp = nullptr;
+			struct dirent *ep = nullptr;
+			// dp = opendir("./");
+			dp = opendir(dirname.c_str());
+			if(dp != nullptr)
 			{
-				std::string filename = ep->d_name;
-				if(filename == "." || filename == "..")
+				while( (ep = readdir(dp)) )
 				{
-					continue;
-				}
-				if
-				(
-					filename.find_first_of("lib") == 0 &&
-					filename.find_last_of(".so") == filename.size() - 1
-				)
-				{
-					files.push_back
+					std::string filename = ep->d_name;
+					if(filename == "." || filename == "..")
+					{
+						continue;
+					}
+					if
 					(
-						// strip "lib" and ".so" from file
-						filename.substr(3, filename.size() - 6)
-					);
+						filename.find_first_of("lib") == 0 &&
+						filename.find_last_of(".so") == filename.size() - 1
+					)
+					{
+						files.push_back
+						(
+							// strip "lib" and ".so" from file
+							filename.substr(3, filename.size() - 6)
+						);
+					}
 				}
+				(void)closedir(dp);
 			}
-			(void)closedir(dp);
-		}
+		};
+		gen("./");
+		gen("/usr/lib/dls2");
 		// REMOVE UP TO HERE WHEN USING A PROPER C++17 compiler
 
 	}

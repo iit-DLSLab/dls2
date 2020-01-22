@@ -30,12 +30,12 @@
 #endif
 
 // where shared objects are located
-#ifndef NDEBUG
-	// if debug, look in current directory
-	#define LIBRARY_PROCESS_PATH "./"
-#else
-	// if release, look in standard locations
-	#define LIBRARY_PROCESS_PATH ""
-#endif
+// #ifndef NDEBUG
+// 	// if debug, look in current directory
+// 	#define LIBRARY_PROCESS_PATH "./"
+// #else
+// 	// if release, look in standard locations
+// 	#define LIBRARY_PROCESS_PATH ""
+// #endif
 
 #endif /* end of include guard: PATH_PREFIXES_HPP_NVDZRRGM */

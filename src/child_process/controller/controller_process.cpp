@@ -56,12 +56,12 @@ int main(int argc, char **argv)
 		exit(EXIT_FAILURE);
 	}
 
-	try // this is a quick hack to first check local directory for library
+	try
 	{
 		pController =
 			ClassLoader::loadClass<Controller, std::shared_ptr<dls::dog::Dog>>
 			(
-				std::string(LIBRARY_PROCESS_PATH "./lib") + argv[1] + ".so",
+				std::string("./lib") + argv[1] + ".so",
 				pRobot
 			);
 	}
@@ -72,7 +72,7 @@ int main(int argc, char **argv)
 			pController =
 				ClassLoader::loadClass<Controller, std::shared_ptr<dls::dog::Dog>>
 				(
-					std::string(LIBRARY_PROCESS_PATH "lib") + argv[1] + ".so",
+					std::string("/usr/lib/dls2/lib") + argv[1] + ".so",
 					pRobot
 				);
 		}
