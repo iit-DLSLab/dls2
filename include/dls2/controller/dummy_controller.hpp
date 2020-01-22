@@ -38,7 +38,7 @@ public:
 		const std::shared_ptr<dls::dog::Dog> &dog
 	);
 
-	DummyController();
+	// DummyController();
 
 	~DummyController();
 

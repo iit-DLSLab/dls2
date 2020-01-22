@@ -33,6 +33,8 @@
 #include "dls2/path_prefixes/path_prefixes.hpp"
 #include "dls2/util/time/time.hpp"
 
+#include <doglib/factory/robot_factory.hpp>
+
 using namespace dls;
 std::shared_ptr<Controller> pController;
 void signal_handler(int signal);
@@ -41,6 +43,11 @@ auto process_handle = "controller_child_process_launcher";
 
 int main(int argc, char **argv)
 {
+	auto pRobot = dls::dog::RobotFactory::buildRobot
+	(
+		dls::dog::RobotFactory::RobotType::HyQReal
+	);
+
 	Time::set_use_simulated_time(true);
 	if(argc != 2)
 	{
@@ -52,14 +59,22 @@ int main(int argc, char **argv)
 	try // this is a quick hack to first check local directory for library
 	{
 		pController =
-			ClassLoader::loadClass<Controller>(std::string(LIBRARY_PROCESS_PATH "./lib") + argv[1] + ".so");
+			ClassLoader::loadClass<Controller, std::shared_ptr<dls::dog::Dog>>
+			(
+				std::string(LIBRARY_PROCESS_PATH "./lib") + argv[1] + ".so",
+				pRobot
+			);
 	}
 	catch(const std::exception&)
 	{
 		try
 		{
 			pController =
-				ClassLoader::loadClass<Controller>(std::string(LIBRARY_PROCESS_PATH "lib") + argv[1] + ".so");
+				ClassLoader::loadClass<Controller, std::shared_ptr<dls::dog::Dog>>
+				(
+					std::string(LIBRARY_PROCESS_PATH "lib") + argv[1] + ".so",
+					pRobot
+				);
 		}
 		catch(const std::exception&)
 		{

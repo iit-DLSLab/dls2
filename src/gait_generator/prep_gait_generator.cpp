@@ -59,10 +59,9 @@ void PrepGaitGenerator::run(const std::chrono::system_clock::time_point &time)
 	time.time_since_epoch();
 }
 
-extern "C" GaitGenerator *create()
+extern "C" GaitGenerator *create(std::shared_ptr<dls::dog::Dog> pDog)
 {
-	using dls::dog::RobotFactory;
-	auto p = new PrepGaitGenerator(RobotFactory::buildRobot(RobotFactory::RobotType::HyQReal));
+	auto p = new PrepGaitGenerator(pDog);
 	return p;
 }
 

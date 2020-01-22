@@ -32,6 +32,7 @@
 #include "dls2/util/debug/debug.hpp"
 
 #include "dls2/util/time/time.hpp"
+#include <doglib/factory/robot_factory.hpp>
 using namespace dls;
 std::shared_ptr<GaitGenerator> pGaitGenerator;
 void signal_handler(int signal);
@@ -40,6 +41,10 @@ auto process_handle = "controller_child_process_launcher";
 
 int main(int argc, char **argv)
 {
+	auto pRobot = dls::dog::RobotFactory::buildRobot
+	(
+		dls::dog::RobotFactory::RobotType::HyQReal
+	);
 	Time::set_use_simulated_time(true);
 	DMSG("USING SIMULATED TIME");
 	if(argc != 2)
@@ -52,14 +57,22 @@ int main(int argc, char **argv)
 	try // this is a quick hack to first check local directory for library
 	{
 		pGaitGenerator =
-			ClassLoader::loadClass<GaitGenerator>(std::string(LIBRARY_PROCESS_PATH "./lib") + argv[1] + ".so");
+			ClassLoader::loadClass<GaitGenerator, std::shared_ptr<dls::dog::Dog>>
+			(
+				std::string(LIBRARY_PROCESS_PATH "./lib") + argv[1] + ".so",
+				pRobot
+			);
 	}
 	catch(const std::exception&)
 	{
 		try
 		{
 			pGaitGenerator =
-				ClassLoader::loadClass<GaitGenerator>(std::string(LIBRARY_PROCESS_PATH "lib") + argv[1] + ".so");
+				ClassLoader::loadClass<GaitGenerator, std::shared_ptr<dls::dog::Dog>>
+				(
+					std::string(LIBRARY_PROCESS_PATH "lib") + argv[1] + ".so",
+					pRobot
+				);
 		}
 		catch(const std::exception&)
 		{

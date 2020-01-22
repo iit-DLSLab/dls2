@@ -76,13 +76,13 @@ DummyController::DummyController
 	// std::cout << "removing free-standing command" << std::endl;
 }
 
-DummyController::DummyController() :
-	DummyController
-	(
-		// std::make_shared<Dog>()
-		dls::dog::RobotFactory::buildRobot(dls::dog::RobotFactory::RobotType::HyQ)
-	)
-{ }
+// DummyController::DummyController() :
+// 	DummyController
+// 	(
+// 		// std::make_shared<Dog>()
+// 		dls::dog::RobotFactory::buildRobot(dls::dog::RobotFactory::RobotType::HyQ)
+// 	)
+// { }
 
 DummyController::~DummyController()
 { }
@@ -101,9 +101,10 @@ void DummyController::run(const std::chrono::system_clock::time_point &time)
 	time.time_since_epoch();
 }
 
-extern "C" Controller *create()
+extern "C" Controller *create(std::shared_ptr<dls::dog::Dog> pDog)
 {
-	auto p = new DummyController;
+	auto p = new DummyController(pDog);
+	std::cout << "loaded dummy controller on: " << pDog->getName() << std::endl;
 	return p;
 }
 

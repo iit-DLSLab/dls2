@@ -238,7 +238,7 @@ add_library(
 	gait_generator/gait_signal.cpp
 )
 list(APPEND PROJECT_TARGETS dls_gaitgeneratorinterface)
-target_link_libraries(dls_gaitgeneratorinterface dls_geometry)
+target_link_libraries(dls_gaitgeneratorinterface dls_geometry doglib)
 
 # ==================================== Time ====================================
 add_library(dls_time
@@ -267,6 +267,7 @@ target_link_libraries(
 
 	#PRIVATE
 	dls_time
+	doglib
 )
 list(APPEND PROJECT_TARGETS dls_controller_process)
 

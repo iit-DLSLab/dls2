@@ -49,7 +49,7 @@ protected:
 public:
 	// Typedefs
 	// using ID_t = std::string;
-	typedef GaitGenerator *create_t();
+	typedef GaitGenerator *create_t(std::shared_ptr<dls::dog::Dog>);
 	typedef void destroy_t(GaitGenerator*);
 
 	// Constructors

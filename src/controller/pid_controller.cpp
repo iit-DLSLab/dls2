@@ -63,16 +63,16 @@ void PidController::run(const std::chrono::system_clock::time_point &time)
 
 	if(pBlind_state_signal && pGait_signal)
 	{
-		
+
 		Eigen::Matrix<double,1,12> kp; kp << 300,300,200,300,300,200,300,300,200,300,300,200;
-		Eigen::Matrix<double,1,12> kd; kd << 10,10,6,10,10,6,10,10,6,10,10,6;		
+		Eigen::Matrix<double,1,12> kd; kd << 10,10,6,10,10,6,10,10,6,10,10,6;
 		Eigen::VectorXd tau = pGait_signal->desired_joint_state.position;
 
 		for (int i=0;i<12;i++)
 		{
 			tau[i] = kp[i]*(pGait_signal->desired_joint_state.position[i]-pBlind_state_signal->joint_state.position[i]) + kd[i]*(pGait_signal->desired_joint_state.velocity[i]-pBlind_state_signal->joint_state.velocity[i]);
 		}
-		
+
 		ControlSignal s;
 		s.torques.resize(12);
 		s.torques << tau;
@@ -89,10 +89,9 @@ void PidController::run(const std::chrono::system_clock::time_point &time)
 
 }
 
-extern "C" Controller *create()
+extern "C" Controller *create(std::shared_ptr<dls::dog::Dog> pDog)
 {
-	using dls::dog::RobotFactory;
-	auto p = new PidController(RobotFactory::buildRobot(RobotFactory::RobotType::HyQReal));
+	auto p = new PidController(pDog);
 	return p;
 }
 

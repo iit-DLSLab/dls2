@@ -35,8 +35,8 @@ public:
 	/// and will use `destroy` as its custom deleter.
 	/// @param name The string name of the shared object containing the class
 	/// @return a shared pointer to the class
-	template <class T>
-	static std::shared_ptr<T> loadClass(const std::string &name);
+	template <class T, typename...constructor_arg_ts>
+	static std::shared_ptr<T> loadClass(const std::string &name, constructor_arg_ts...);
 };
 } // end namespace dls
 

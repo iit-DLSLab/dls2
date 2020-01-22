@@ -1140,11 +1140,9 @@ dls::dog::JointState TrunkController::getLegWeightTorques(const Eigen::Matrix3d 
 }
 
 
-#include <doglib/factory/robot_factory.hpp>
-extern "C" dls::Controller *create()
+extern "C" dls::Controller *create(std::shared_ptr<dls::dog::Dog> pDog)
 {
-	using namespace dls::dog;
-	auto p = new TrunkController(RobotFactory::buildRobot(RobotFactory::RobotType::HyQ));
+	auto p = new TrunkController(pDog);
 	return p;
 }
 
