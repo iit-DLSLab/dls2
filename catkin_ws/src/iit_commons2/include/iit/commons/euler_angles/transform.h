@@ -12,7 +12,7 @@
 
 #include <Eigen/Core>
 
-#include <iit/rbd/StateDependentMatrix.h>
+#include <doglib/rbd/StateDependentMatrix.h>
 
 #include "common.h"
 #include "eigen_traits.h"

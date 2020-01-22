@@ -6,13 +6,13 @@
  */
 
 #include "wholeBodyOptimization.h"
-#include <iit/commons/geometry/algebra.h>
-#include <iit/commons/geometry/rotations.h>
+#include <commons/geometry/algebra.h>
+#include <commons/geometry/rotations.h>
 #include <iostream>
-#include <iit/commons/dog/joint_id_tricks.h>
-#include <iit/commons/dog/jsim.h>
+#include <doglib/base/joint_id_tricks.hpp>
+#include <doglib/base/jsim.hpp>
 
-namespace iit {
+namespace dls {
 namespace dog {
 
 using namespace Eigen;
@@ -21,8 +21,8 @@ using namespace std;
 WholeBodyOptimization::WholeBodyOptimization(HomogeneousTransformsBase &hom_transforms,
                                              MotionTransformsBase &motion_transforms,
                                              InverseDynamicsBase & idObj_in,
-                                             ForwardKinematics & fwd_kin_in,
-                                             dog::FeetJacobians & feet_jacobians,
+                                             ForwardKinematicsBase & fwd_kin_in,
+                                             dog::FeetJacobiansBase & feet_jacobians,
                                              dog::JSIMBase & jsim_in,
                                              dog::InertiaPropertiesBase &inertiaProps_in)
     :
@@ -73,7 +73,7 @@ WholeBodyOptimization::WholeBodyOptimization(HomogeneousTransformsBase &hom_tran
 
 	tau_max = dog::JointState::Constant(1000);
 
-    slacks.resize(1 + planning::contactConstrCount*dog::_LEGS_COUNT);
+    slacks.resize(1 + iit::planning::contactConstrCount*dog::_LEGS_COUNT);
     slacks.setZero();
 	dt = 1/250.0;
 	cpmargin = 0.0;
@@ -83,10 +83,10 @@ WholeBodyOptimization::WholeBodyOptimization(HomogeneousTransformsBase &hom_tran
     stance_legs = true;
     stance_legs_old = true;
 
-    legmap[iit::dog::LF] = "LF";
-    legmap[iit::dog::RF] = "RF";
-    legmap[iit::dog::LH] = "LH";
-    legmap[iit::dog::RH] = "RH";
+    legmap[dls::dog::LF] = "LF";
+    legmap[dls::dog::RF] = "RF";
+    legmap[dls::dog::LH] = "LH";
+    legmap[dls::dog::RH] = "RH";
 
     initialized = false;
 }
@@ -103,7 +103,7 @@ void WholeBodyOptimization::computeOptimization(const dog::LegDataMap<Vector3d> 
                                                       const dog::LegDataMap<double> & force_min,
                                                       const dog::JointState & torque_limits,
                                                       const rbd::VelocityVector & baseTwist,
-                                                      const LegDataMap<planning::Point3d> &swingFootRef,
+                                                      const LegDataMap<iit::planning::Point3d> &swingFootRef,
                                                       const Matrix3d & R,
                                                       const JointState & q,
                                                       const JointState & qd,
@@ -128,9 +128,9 @@ void WholeBodyOptimization::computeOptimization(const dog::LegDataMap<Vector3d> 
 	//find number of stance legs
     cleg_count = dog::compute_stance_legs(stance_legs);
 	////////////////useful variables//////////////////////
-    contact_forces = planning::contactConstrCount*cleg_count;
+    contact_forces = iit::planning::contactConstrCount*cleg_count;
 	//equality constraints
-    swing_constr = planning::contactConstrCount*(dog::_LEGS_COUNT - cleg_count);
+    swing_constr = iit::planning::contactConstrCount*(dog::_LEGS_COUNT - cleg_count);
     dyn_constr = 6;
     num_eq = contact_forces+   dyn_constr ;//+ stanceSpringConstraintsFlag*contact_forces;//swing_constr
 	//ineq constraints
@@ -180,7 +180,7 @@ void WholeBodyOptimization::computeOptimization(const dog::LegDataMap<Vector3d> 
 		int cleg_counter = 0;
         for (int leg = 0; leg < dog::_LEGS_COUNT; leg++){
             if (stance_legs[LegID(leg)]){
-                feet_forces[LegID(leg)] = x.segment(idx_forces + cleg_counter*planning::contactConstrCount, 3);
+                feet_forces[LegID(leg)] = x.segment(idx_forces + cleg_counter*iit::planning::contactConstrCount, 3);
 				cleg_counter++;
 			}
 		}
@@ -211,7 +211,7 @@ void WholeBodyOptimization::prepareOptimization(){
 	//TODO
     //compute internally baseTwist //dog::computeBaseTwist(footPos, footVel, omega, stance_legs, baseTwist);
 
-	gW <<0.0, 0.0, 0.0, 0.0, 0.0, -iit::rbd::g; gB.setZero();
+	gW <<0.0, 0.0, 0.0, 0.0, 0.0, -dls::rbd::g; gB.setZero();
 	gB.segment(rbd::LX,3) = R*gW.segment(rbd::LX,3);
 	//Compute h using ID floating base with qdd=0, baseAcc=0
 	rbd::ForceVector baseWrench;
@@ -254,10 +254,10 @@ void WholeBodyOptimization::setCostFunction(Eigen::MatrixXd & GQ, Eigen::MatrixX
 //				tangentDir2 = surf_normal[dog::LegID(leg)].cross(tangentDir1); tangentDir2.normalize();
 				//compute rotation matrix
 				BaseChange<<tangentDir1, tangentDir2,surf_normal[dog::LegID(leg)];
-                W.block(dog::jointsCount+6 + cleg_counter*planning::contactConstrCount,dog::jointsCount+6 + cleg_counter*planning::contactConstrCount, 3, 3) = BaseChange*0.01*W_forces.asDiagonal()*BaseChange.transpose();
+                W.block(dog::jointsCount+6 + cleg_counter*iit::planning::contactConstrCount,dog::jointsCount+6 + cleg_counter*iit::planning::contactConstrCount, 3, 3) = BaseChange*0.01*W_forces.asDiagonal()*BaseChange.transpose();
 			}
 			if (min_goal == TORQUES){
-                W.block(dog::jointsCount+6 + cleg_counter*planning::contactConstrCount,dog::jointsCount+6 + cleg_counter*planning::contactConstrCount, 3, 3) =  R.transpose()*(feet_jacobians_.getFootJacobian(q,dog::LegID(leg)))*0.01*W_torques[dog::LegID(leg)].asDiagonal()*(feet_jacobians_.getFootJacobian(q,dog::LegID(leg))).transpose()*R;
+                W.block(dog::jointsCount+6 + cleg_counter*iit::planning::contactConstrCount,dog::jointsCount+6 + cleg_counter*iit::planning::contactConstrCount, 3, 3) =  R.transpose()*(feet_jacobians_.getFootJacobian(q,dog::LegID(leg)))*0.01*W_torques[dog::LegID(leg)].asDiagonal()*(feet_jacobians_.getFootJacobian(q,dog::LegID(leg))).transpose()*R;
 			}
 		cleg_counter++;
 		}
@@ -513,7 +513,7 @@ void  WholeBodyOptimization::computeOperationalSpaceSwingtask(rbd::VelocityVecto
             dog::JointIdentifiers id = dog::toJointID(dog::LegID(leg),dog::HAA);
 
             //idyn ospace
-            swing_accDes.segment(planning::contactConstrCount*sleg_count,3) = swingFootRef[dog::LegID(leg)].xdd +
+            swing_accDes.segment(iit::planning::contactConstrCount*sleg_count,3) = swingFootRef[dog::LegID(leg)].xdd +
                     Kp_swing*(swingFootRef[dog::LegID(leg)].x - footPos[dog::LegID(leg)])  + Kd_swing*(swingFootRef[dog::LegID(leg)].xd - footVel[dog::LegID(leg)]);
             sleg_count++;
         }
@@ -540,7 +540,7 @@ void  WholeBodyOptimization::computeJointSpaceSwingTask(rbd::VelocityVector & gB
              qdd_des.segment(jointsLegCount*sleg_count,3) = feet_jacobians_.getFootJacobian(q,LegID(leg)).inverse()*(swingFootRef[LegID(leg)].xdd - JswdQd.segment(sleg_count*dog::jointsLegCount,3)) +
                      Kp_swing*(dog::getLegJointState(LegID(leg),swing_q_des) - dog::getLegJointState(LegID(leg),q))  +
                      Kd_swing*(feet_jacobians_.getFootJacobian(q,LegID(leg)).inverse()*swingFootRef[dog::LegID(leg)].xd - dog::getLegJointState(LegID(leg),qd));
-             B.block(planning::contactConstrCount*sleg_count, activeJoints + jointsLegCount*LegID(leg), 3, 3).setIdentity();
+             B.block(iit::planning::contactConstrCount*sleg_count, activeJoints + jointsLegCount*LegID(leg), 3, 3).setIdentity();
 			 sleg_count++;
 		 }
 	}
@@ -706,7 +706,7 @@ void WholeBodyOptimization::computeCPConstraints(Eigen::MatrixXd & B, Eigen::Mat
 
 
 	//compute omega
-	double omega = sqrt(iit::rbd::g/com(rbd::Z));
+	double omega = sqrt(dls::rbd::g/com(rbd::Z));
 	double factor_d = (dt*(omega*dt+2))/(2*omega);
 
 	//compute CP for debugging purposes
@@ -723,7 +723,7 @@ void WholeBodyOptimization::computeCPConstraints(Eigen::MatrixXd & B, Eigen::Mat
 		}
 
 	}
-    planning::CounterClockwiseSort(footCCwiseSorted);
+    iit::planning::CounterClockwiseSort(footCCwiseSorted);
 
 	// the com projection must always lay on one side of triangle side:
    	// p*xcp + q*ycp  +r  > + stability_margin
@@ -736,7 +736,7 @@ void WholeBodyOptimization::computeCPConstraints(Eigen::MatrixXd & B, Eigen::Mat
 
 	for(int edgeCounter = 0; edgeCounter<lineCoeff.size(); edgeCounter++){
 			//compute the coeffs of the line between two feet
-            lineCoeff[edgeCounter] = planning::LineCoeff(footCCwiseSorted[edgeCounter],	footCCwiseSorted[(edgeCounter + 1) % (cp_constr)], false); //I set true to normalize and use stab margin
+            lineCoeff[edgeCounter] = iit::planning::LineCoeff(footCCwiseSorted[edgeCounter],	footCCwiseSorted[(edgeCounter + 1) % (cp_constr)], false); //I set true to normalize and use stab margin
  			factor_a[edgeCounter] = lineCoeff[edgeCounter].p*dt*factor_d;
 			factor_b[edgeCounter] = lineCoeff[edgeCounter].q*dt*factor_d;
 			factor_c[edgeCounter] = lineCoeff[edgeCounter].p*com(rbd::X) + lineCoeff[edgeCounter].q*com(rbd::Y) +
@@ -942,7 +942,7 @@ Eigen::Vector3d WholeBodyOptimization::getCP(){
 void WholeBodyOptimization::getSlacks(Eigen::VectorXd & slacks_out)
 {
     //always resize to the maximum size
-    slacks_out.resize(1 + planning::contactConstrCount*dog::_LEGS_COUNT);
+    slacks_out.resize(1 + iit::planning::contactConstrCount*dog::_LEGS_COUNT);
     slacks_out.segment(0,number_of_slacks) = slacks;
 }
 ////////////////////

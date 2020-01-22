@@ -42,8 +42,8 @@ catkin_package(
    DEPENDS
 )
 
-set(SOURCES src/hydraulics.cpp 
-            src/fbl/four_bar_linkage.cpp
+set(SOURCES #src/hydraulics.cpp 
+	#src/fbl/four_bar_linkage.cpp
             src/control/VirtualModel.cpp)
 
 # Include directories

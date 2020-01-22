@@ -2,7 +2,7 @@
 #define IIT_COMMONS_PLANNING_HPP_
 
 #include <Eigen/Dense>
-#include <iit/rbd/rbd.h>
+#include <doglib/rbd/rbd.h>
 #include <iostream>
 
 namespace iit {
@@ -141,8 +141,8 @@ inline double Point2isRightOfLine(const Eigen::Vector3d p0,
                                   const Eigen::Vector3d p1,
                                   const Eigen::Vector3d p2)
 {
-  return (p2(rbd::X) - p0(rbd::X)) * (p1(rbd::Y) - p0(rbd::Y))
-          - (p1(rbd::X) - p0(rbd::X)) * (p2(rbd::Y) - p0(rbd::Y));
+  return (p2(dls::rbd::X) - p0(dls::rbd::X)) * (p1(dls::rbd::Y) - p0(dls::rbd::Y))
+          - (p1(dls::rbd::X) - p0(dls::rbd::X)) * (p2(dls::rbd::Y) - p0(dls::rbd::Y));
 }
 
 /**
@@ -241,9 +241,9 @@ inline LineCoeff2d LineCoeff(const Eigen::Vector3d& pt0,
     // with (p,q) perpendicular to the segment S=(x1- x0, y1-y0) is
     // p = -(y1-y0) q=x1-x0 for which (p,q).dot(S) = 0
     LineCoeff2d ret;
-    ret.p = pt0(rbd::Y) - pt1(rbd::Y);
-    ret.q = pt1(rbd::X) - pt0(rbd::X);
-    ret.r = -ret.p * pt0(rbd::X) - ret.q * pt0(rbd::Y);
+    ret.p = pt0(dls::rbd::Y) - pt1(dls::rbd::Y);
+    ret.q = pt1(dls::rbd::X) - pt0(dls::rbd::X);
+    ret.r = -ret.p * pt0(dls::rbd::X) - ret.q * pt0(dls::rbd::Y);
 
     // normalize the equation in order to intuitively use stability margins
     if (normalize) {
@@ -418,7 +418,7 @@ inline void  computeHalfPlaneDescription(const  Eigen::MatrixXd vertices, Eigen:
     verticesCCwiseSorted.resize(number_of_constraints);
     for (int vertex_index = 0; vertex_index<number_of_constraints; vertex_index++)
     {
-       verticesCCwiseSorted[vertex_index] = Eigen::Vector3d( vertices(rbd::X, vertex_index), vertices(rbd::Y, vertex_index),0.0);
+       verticesCCwiseSorted[vertex_index] = Eigen::Vector3d( vertices(dls::rbd::X, vertex_index), vertices(dls::rbd::Y, vertex_index),0.0);
     }
     //sort the positions
     planning::CounterClockwiseSort(verticesCCwiseSorted);
@@ -556,7 +556,7 @@ inline double computePolygonArea(const  Eigen::MatrixXd vertices)
     int j = num_of_vertices - 1;
     for (int i = 0; i < num_of_vertices; i++)
     {
-        area += (vertices.col(j)(rbd::X) + vertices.col(i)(rbd::X)) * (vertices.col(j)(rbd::Y) - vertices.col(i)(rbd::Y));
+        area += (vertices.col(j)(dls::rbd::X) + vertices.col(i)(dls::rbd::X)) * (vertices.col(j)(dls::rbd::Y) - vertices.col(i)(dls::rbd::Y));
         j = i;  // j is previous vertex to i
     }
 

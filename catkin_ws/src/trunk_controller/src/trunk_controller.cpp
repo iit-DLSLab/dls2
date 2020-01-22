@@ -1,42 +1,42 @@
 #include "trunk_controller.hpp"
-#include <iit/commons/geometry/algebra.h>
-#include <iit/commons/geometry/rotations.h>
+#include <commons/geometry/algebra.h>
+#include <commons/geometry/rotations.h>
 #include "computeJacobians.h"
-#include <iit/rbd/rbd.h>
+#include <doglib/rbd/rbd.h>
 //#include <iit/robots/hyq/default_parameters_getter.h>
 #include <parameters_getter.h>
 //#include <iit/locomotionutils/parameters_getter.h>
 
 using namespace Eigen;
-using namespace iit::rbd;
-using namespace iit::dog;
-using namespace iit;
+using namespace dls::rbd;
+using namespace dls::dog;
+using namespace dls::commons;
 
-TrunkController::TrunkController() :
+TrunkController::TrunkController(std::shared_ptr<dls::dog::Dog> pDog) :
     Controller
     (
-        std::make_shared<dls::Dog>(),
-"dls_trunk_controller",
-std::chrono::duration<double>(dt_),
+		pDog,
+		"dls_trunk_controller",
+		std::chrono::duration<double>(dt_),
         dls::ControlSignal::SignalReconstructionMethod::ZERO_ORDER_HOLD
         ),
 
     mu_estimate_(0.8),
-    tau_max_(dog::JointState::Constant(1e03)),
-    q_max_(dog::JointState::Constant(10)),
-    q_min_(dog::JointState::Constant(-10)),
+    tau_max_(dls::dog::JointState::Constant(1e03)),
+    q_max_(dls::dog::JointState::Constant(10)),
+    q_min_(dls::dog::JointState::Constant(-10)),
     high_force_limit_(2.0e10),
     low_force_limit_(5.0),
     surf_normal_(Vector3d(0.0, 0.0, 1.0)),
-    des_vm_wrench_(rbd::ForceVector::Zero()),
-    des_wrench_(rbd::ForceVector::Zero()),
-    des_ffwd_wrench_(rbd::ForceVector::Zero()),
-    gravity_wrench_(rbd::ForceVector::Zero()),
+    des_vm_wrench_(dls::rbd::ForceVector::Zero()),
+    des_wrench_(dls::rbd::ForceVector::Zero()),
+    des_ffwd_wrench_(dls::rbd::ForceVector::Zero()),
+    gravity_wrench_(dls::rbd::ForceVector::Zero()),
     stance_legs_(true),
     wait_for_stance_(false),
-    Kp_posture_(rbd::Vector6D::Zero()),
-    Kd_posture_(rbd::Vector6D::Zero()),
-    wrench_error_(rbd::ForceVector::Zero()),
+    Kp_posture_(dls::rbd::Vector6D::Zero()),
+    Kd_posture_(dls::rbd::Vector6D::Zero()),
+    wrench_error_(dls::rbd::ForceVector::Zero()),
     use_internal_virtual_model_(false),
 leg_torque_weights_(Eigen::Vector3d(1, 5 , 0.2)),
 first_time_(true)
@@ -82,30 +82,30 @@ first_time_(true)
     //	}
 
 
-    //robot_params_.reset(new iit::dog::UrdfParamsGetter(robot_model));
-    robot_params_.reset(new iit::HyQ::TestParamsGetter());
+    //robot_params_.reset(new dls::dog::UrdfParamsGetter(robot_model));
+    robot_params_.reset(new dls::HyQ::TestParamsGetter());
 	
 	
-    //robot_params_.reset(new iit::HyQ::DefaultParamsGetter());
+    //robot_params_.reset(new dls::dog::HyQ::DefaultParamsGetter());
 
-    hyq_jacobians_.reset(new iit::HyQ::Jacobians(*robot_params_));
-    hyq_hom_transforms_.reset(new iit::HyQ::HomogeneousTransforms(*robot_params_));
-    hyq_inertia_props_.reset(new iit::HyQ::dyn::InertiaProperties(*robot_params_));
-    hyq_motion_transforms_.reset(new iit::HyQ::MotionTransforms(*robot_params_));
-    hyq_force_transforms_.reset(new iit::HyQ::ForceTransforms(*robot_params_));
+    hyq_jacobians_.reset(new dls::dog::HyQ::Jacobians(*robot_params_));
+    hyq_hom_transforms_.reset(new dls::dog::HyQ::HomogeneousTransforms(*robot_params_));
+    hyq_inertia_props_.reset(new dls::dog::HyQ::dyn::InertiaProperties(*robot_params_));
+    hyq_motion_transforms_.reset(new dls::dog::HyQ::MotionTransforms(*robot_params_));
+    hyq_force_transforms_.reset(new dls::dog::HyQ::ForceTransforms(*robot_params_));
 
 
-    ik_.reset(new iit::HyQ::InverseKinematics(*robot_params_));
-    inv_dyn_.reset(new iit::HyQ::dyn::InverseDynamics(*hyq_inertia_props_,*hyq_motion_transforms_));
-    fwd_kin_.reset(new iit::HyQ::ForwardKinematics(*robot_params_));
-    feet_jacobians_.reset(new iit::HyQ::FeetJacobians(*hyq_jacobians_));
-    shin_jacobians_.reset(new iit::HyQ::ShinJacobians(*robot_params_));
-    jsim_.reset(new iit::HyQ::dyn::JSIM(*hyq_inertia_props_,*hyq_force_transforms_));
+    ik_.reset(new dls::dog::HyQ::InverseKinematics(*robot_params_));
+    inv_dyn_.reset(new dls::dog::HyQ::dyn::InverseDynamics(*hyq_inertia_props_,*hyq_motion_transforms_));
+    fwd_kin_.reset(new dls::dog::HyQ::ForwardKinematics(*robot_params_));
+    feet_jacobians_.reset(new dls::dog::HyQ::FeetJacobians(*hyq_jacobians_));
+    shin_jacobians_.reset(new dls::dog::HyQ::ShinJacobians(*robot_params_));
+    jsim_.reset(new dls::dog::HyQ::dyn::JSIM(*hyq_inertia_props_,*hyq_force_transforms_));
     inertia_props_.reset(hyq_inertia_props_.get());
     hom_transforms_.reset(hyq_hom_transforms_.get());
     motion_transforms_.reset(hyq_motion_transforms_.get());
-    robot_limits_.reset(new iit::HyQ::Limits());
-    feet_forces_.reset(new iit::HyQ::FeetContactForces(*feet_jacobians_, *inv_dyn_, *jsim_));
+    robot_limits_.reset(new dls::dog::HyQ::Limits());
+    feet_forces_.reset(new dls::dog::HyQ::FeetContactForces(*feet_jacobians_, *inv_dyn_, *jsim_));
 
 
 
@@ -157,11 +157,11 @@ void TrunkController::run(const std::chrono::system_clock::time_point &time)
 
     //add some desired wrench
     //setFFWDTrunkWrench(wrench);
-    iit::dog::LegBoolMap stance_legs(true);
+    dls::dog::LegBoolMap stance_legs(true);
 
-    iit::rbd::Vector6D baseTwist, comTwist;
+    dls::rbd::Vector6D baseTwist, comTwist;
     Eigen::Matrix3d b_R_w = Eigen::Matrix3d::Identity();
-    iit::dog::JointState q_curr, qd_curr, des_q, des_qd;
+    dls::dog::JointState q_curr, qd_curr, des_q, des_qd;
 	iit::planning::Point3d  actual_base, actual_CoM, desired_com_pos, desired_base_pos;
 
     // TODO move this memory assignment
@@ -180,7 +180,7 @@ void TrunkController::run(const std::chrono::system_clock::time_point &time)
 
     //orientation
 	actual_angular_state_.x = pBlind_state_signal->base_pose_world.toRpy();
-	b_R_w = commons::rpyToRot(actual_angular_state_.x);
+	b_R_w = rpyToRot(actual_angular_state_.x);
 	actual_angular_state_.xd = b_R_w * pBlind_state_signal->base_velocity_world.getAngular(); //virtualModel.cpp wants in the base frame...
 
     //base
@@ -188,12 +188,12 @@ void TrunkController::run(const std::chrono::system_clock::time_point &time)
     actual_base.xd = pBlind_state_signal->base_velocity_world.getLinear();
 
     //com
-	actual_CoM.x = iit::dog::getCoMFromBase(q_curr, actual_angular_state_.x,actual_base.x, *inertia_props_);
+	actual_CoM.x = dls::dog::getCoMFromBase(q_curr, actual_angular_state_.x,actual_base.x, *inertia_props_);
     //compute actual com velocity in WF
     Vector6D body_velocity_base;
-    body_velocity_base= dog::motionVectorTransform(Vector3d::Zero(),b_R_w) * pBlind_state_signal->base_velocity_world.data();
-    comTwist = iit::dog::getWholeBodyCOMVelFB(body_velocity_base, b_R_w.transpose(),  q_curr, qd_curr, *inertia_props_, *hom_transforms_);
-    actual_CoM.xd = rbd::linearPart(comTwist);
+    body_velocity_base= dls::dog::motionVectorTransform(Vector3d::Zero(),b_R_w) * pBlind_state_signal->base_velocity_world.data();
+    comTwist = dls::dog::getWholeBodyCOMVelFB(body_velocity_base, b_R_w.transpose(),  q_curr, qd_curr, *inertia_props_, *hom_transforms_);
+    actual_CoM.xd = dls::rbd::linearPart(comTwist);
 
 	if (isBaseControlled())
 	{
@@ -203,8 +203,8 @@ void TrunkController::run(const std::chrono::system_clock::time_point &time)
 	}
     //TODO
     //Eigen::Vector3d offCoM =  inertiaProps_->getWholeBodyCOM(q_curr);
-    //actual_CoM_height = actual_base_height + (terr_R_w * R.transpose()*offCoM)(rbd::Z);
-    //actual_CoM_heightd = (terr_R_w*actual_CoM.xd)(rbd::Z);
+    //actual_CoM_height = actual_base_height + (terr_R_w * R.transpose()*offCoM)(dls::rbd::Z);
+    //actual_CoM_heightd = (terr_R_w*actual_CoM.xd)(dls::rbd::Z);
 
 	// TODO move this memory assignment
 	auto pGait_signal = this->readGaitSignal();
@@ -240,7 +240,7 @@ void TrunkController::run(const std::chrono::system_clock::time_point &time)
 	   des_angular_state_.xd = pGait_signal->desired_base_velocity_world.getAngular();
 	}
 
-    iit::dog::JointState trunk_ctrl_tau(iit::dog::JointState::Zero());
+    dls::dog::JointState trunk_ctrl_tau(dls::dog::JointState::Zero());
 
 
 //    std::cout << "actual_linear_state_x" <<actual_linear_state_.x.transpose() <<std::endl;
@@ -255,26 +255,26 @@ void TrunkController::run(const std::chrono::system_clock::time_point &time)
     //	}
 
     //TODO handle shin collision
-    iit::dog::LegDataMap<Eigen::Vector3d> contactPos(Eigen::Vector3d::Zero());
-    iit::dog::LegDataMap<iit::dog::FootJac> contactJacs;
+    dls::dog::LegDataMap<Eigen::Vector3d> contactPos(Eigen::Vector3d::Zero());
+    dls::dog::LegDataMap<dls::dog::FootJac> contactJacs;
 
 
     //TODO fill in shin_contact_position_ from gazebo
-    for (int leg = iit::dog::LF; leg<=iit::dog::RH; leg++)
+    for (int leg = dls::dog::LF; leg<=dls::dog::RH; leg++)
     {
-        if (getShinCollisionFlag(dog::LegID(leg)) &&  (shin_contact_position_[leg] != 0.0))
+        if (getShinCollisionFlag(dls::dog::LegID(leg)) &&  (shin_contact_position_[leg] != 0.0))
         {
-            contactPos[iit::dog::LegID(leg)] = fwd_kin_->getShinPos(q_curr,shin_contact_position_[leg], iit::dog::LegID(leg));
-            contactJacs[iit::dog::LegID(leg)] = shin_jacobians_->getShinJacobian(q_curr, shin_contact_position_[leg], iit::dog::LegID(leg));
+            contactPos[dls::dog::LegID(leg)] = fwd_kin_->getShinPos(q_curr,shin_contact_position_[leg], dls::dog::LegID(leg));
+            contactJacs[dls::dog::LegID(leg)] = shin_jacobians_->getShinJacobian(q_curr, shin_contact_position_[leg], dls::dog::LegID(leg));
         }
         else
         {
-            contactPos[iit::dog::LegID(leg)] = fwd_kin_->getFootPos(q_curr, iit::dog::LegID(leg));
-            contactJacs[iit::dog::LegID(leg)] = feet_jacobians_->getFootJacobian(q_curr, iit::dog::LegID(leg));
+            contactPos[dls::dog::LegID(leg)] = fwd_kin_->getFootPos(q_curr, dls::dog::LegID(leg));
+            contactJacs[dls::dog::LegID(leg)] = feet_jacobians_->getFootJacobian(q_curr, dls::dog::LegID(leg));
         }
         //for swing foot dont make distinction
-        des_swing_foot_state_[iit::dog::LegID(leg)].x = fwd_kin_->getFootPos(des_q, iit::dog::LegID(leg));
-        des_swing_foot_state_[iit::dog::LegID(leg)].xd = feet_jacobians_->getFootJacobian(des_q, iit::dog::LegID(leg)) * dog::getLegJointState(iit::dog::LegID(leg), des_qd);
+        des_swing_foot_state_[dls::dog::LegID(leg)].x = fwd_kin_->getFootPos(des_q, dls::dog::LegID(leg));
+        des_swing_foot_state_[dls::dog::LegID(leg)].xd = feet_jacobians_->getFootJacobian(des_q, dls::dog::LegID(leg)) * dls::dog::getLegJointState(dls::dog::LegID(leg), des_qd);
     }
 
 
@@ -307,8 +307,8 @@ void TrunkController::run(const std::chrono::system_clock::time_point &time)
     publishSignal(control_signal);
 
     //      // Plot desired forces (blue) / and actual forces (green)
-    //      iit::dog::LegDataMap<Eigen::Vector3d> feetDesForces(Eigen::Vector3d::Zero());
-    //      iit::dog::LegDataMap<Eigen::Vector3d> actualFeetForces(Eigen::Vector3d::Zero());
+    //      dls::dog::LegDataMap<Eigen::Vector3d> feetDesForces(Eigen::Vector3d::Zero());
+    //      dls::dog::LegDataMap<Eigen::Vector3d> actualFeetForces(Eigen::Vector3d::Zero());
     //      trunk_ctrl_->getFeetForces(feetDesForces); //they are in world frame
     //      //
     //      // THIS LINE HAS BEEN COMMENTED IN ORDER TO RUN THE DEMO
@@ -323,17 +323,17 @@ void TrunkController::run(const std::chrono::system_clock::time_point &time)
     //      //plot stuff
     //      dwl::ArrowProperties arrow(0.02, 0.05, 0.0);
 
-    //      for (int leg = iit::dog::LF; leg<=iit::dog::RH; leg++)
+    //      for (int leg = dls::dog::LF; leg<=dls::dog::RH; leg++)
     //      {
-    //        if (contactPos[iit::dog::LegID(leg)].allFinite() && feetDesForces[iit::dog::LegID(leg)].allFinite() && actualFeetForces[iit::dog::LegID(leg)].allFinite())
+    //        if (contactPos[dls::dog::LegID(leg)].allFinite() && feetDesForces[dls::dog::LegID(leg)].allFinite() && actualFeetForces[dls::dog::LegID(leg)].allFinite())
     //        {
-    //                display_.drawArrow(contactPos[iit::dog::LegID(leg)],
-    //                                   contactPos[iit::dog::LegID(leg)] + b_R_w * feetDesForces[iit::dog::LegID(leg)] / (iit::rbd::g*inertiaProps_->getTotalMass()),
+    //                display_.drawArrow(contactPos[dls::dog::LegID(leg)],
+    //                                   contactPos[dls::dog::LegID(leg)] + b_R_w * feetDesForces[dls::dog::LegID(leg)] / (dls::rbd::g*inertiaProps_->getTotalMass()),
     //                                   arrow,
     //                                   dwl::Color(dwl::ColorType::Blue, 1.),
     //                                   "base_link");
-    //                display_.drawArrow(contactPos[iit::dog::LegID(leg)],
-    //                                   contactPos[iit::dog::LegID(leg)] + actualFeetForces[iit::dog::LegID(leg)] / (iit::rbd::g*inertiaProps_->getTotalMass()),
+    //                display_.drawArrow(contactPos[dls::dog::LegID(leg)],
+    //                                   contactPos[dls::dog::LegID(leg)] + actualFeetForces[dls::dog::LegID(leg)] / (dls::rbd::g*inertiaProps_->getTotalMass()),
     //                                   arrow,
     //                                   dwl::Color(dwl::ColorType::Green, 1.),
     //                                   "base_link");
@@ -454,16 +454,16 @@ void TrunkController::setSwingLegGains(Vector3d & Kp_swing, Vector3d & Kd_swing)
 }
 
 
-void TrunkController::getTarget(planning::Point3d & des_pos,
-                                planning::Point3d & des_orient)
+void TrunkController::getTarget(iit::planning::Point3d & des_pos,
+                                iit::planning::Point3d & des_orient)
 {
     des_pos = this->des_linear_state_;
     des_orient = this->des_angular_state_;
 }
 
 
-void TrunkController::getTarget(planning::Point3d & des_pos,
-                                planning::Point3d & des_orient,
+void TrunkController::getTarget(iit::planning::Point3d & des_pos,
+                                iit::planning::Point3d & des_orient,
                                 double & des_height)
 {
     des_pos = this->des_linear_state_;
@@ -487,14 +487,14 @@ void TrunkController::setForceLimits(const LegDataMap<double> & high_force_limit
     }
 }
 
-void TrunkController::setTorqueLimits(dog::JointState & tau_max)
+void TrunkController::setTorqueLimits(dls::dog::JointState & tau_max)
 {
     if (params_.opt_type == OptimizationType::WHOLE_BODY_DYNAMIC) {
         this->tau_max_ = tau_max;
     }
 }
 
-void TrunkController::setJointLimits(dog::JointState & q_max, dog::JointState & q_min)
+void TrunkController::setJointLimits(dls::dog::JointState & q_max, dls::dog::JointState & q_min)
 {
     if (params_.opt_type == OptimizationType::WHOLE_BODY_DYNAMIC){
         this->q_max_ = q_max;
@@ -504,23 +504,23 @@ void TrunkController::setJointLimits(dog::JointState & q_max, dog::JointState & 
 }
 
 //directly set desired trunk wrench
-void TrunkController::setFFWDTrunkWrench(const rbd::Vector6D  & wrench){
+void TrunkController::setFFWDTrunkWrench(const dls::rbd::Vector6D  & wrench){
     des_ffwd_wrench_ = wrench;
 }
 
 
-void TrunkController::getTotalWrench(rbd::Vector6D & wrench)
+void TrunkController::getTotalWrench(dls::rbd::Vector6D & wrench)
 {
     wrench = des_wrench_;
 }
 
 
-void TrunkController::getFeedForwardWrench(rbd::Vector6D & wrench)
+void TrunkController::getFeedForwardWrench(dls::rbd::Vector6D & wrench)
 {
     wrench = des_ffwd_wrench_ + gravity_wrench_;
 }
 
-void TrunkController::getFeedBackWrench(rbd::Vector6D & wrench)
+void TrunkController::getFeedBackWrench(dls::rbd::Vector6D & wrench)
 {
     wrench = des_vm_wrench_;
 }
@@ -558,8 +558,8 @@ void TrunkController::setGravityCompensation(const bool & flag){
     params_.use_gravity_compensation = flag;
 }
 
-void TrunkController::setGains(const rbd::Vector6D  & Kp_posture,
-                               const rbd::Vector6D  & Kd_posture)
+void TrunkController::setGains(const dls::rbd::Vector6D  & Kp_posture,
+                               const dls::rbd::Vector6D  & Kd_posture)
 {
     Kp_posture_ = Kp_posture;
     Kd_posture_ = Kd_posture;
@@ -567,7 +567,7 @@ void TrunkController::setGains(const rbd::Vector6D  & Kp_posture,
     vmodel_.setGains(Kp_posture_, Kd_posture_);
 }
 
-void TrunkController::getGains(rbd::Vector6D  & Kp_posture, rbd::Vector6D  & Kd_posture)
+void TrunkController::getGains(dls::rbd::Vector6D  & Kp_posture, dls::rbd::Vector6D  & Kd_posture)
 {
     //update the gains from the vm (there can be some degradation)
     vmodel_.getGains(Kp_posture_, Kd_posture_);
@@ -582,7 +582,7 @@ void TrunkController::useDampingOnly(bool use_damping_only){
     params_.damping_only = use_damping_only;
 }
 
-iit::dog::LegBoolMap TrunkController::getActualStance()
+dls::dog::LegBoolMap TrunkController::getActualStance()
 {
     return this->stance_legs_;
 }
@@ -671,18 +671,18 @@ void TrunkController::createObjects(){
         double default_kd = 10;
         if  (params_.swing_type == SwingType::FORCE_BASED_JSPACE)
         {
-            if (Kd_swing_(rbd::X) > default_kd)
-                Kd_swing_(rbd::X) = default_kd;
-            if (Kd_swing_(rbd::Y) > default_kd)
-                Kd_swing_(rbd::Y) = default_kd;
-            if (Kd_swing_(rbd::Z) > default_kd)
-                Kd_swing_(rbd::Z) = default_kd;
-            if (Kp_swing_(rbd::X) > 600)
-                Kp_swing_(rbd::X) = default_kp;
-            if (Kp_swing_(rbd::Y) > 600)
-                Kp_swing_(rbd::Y) = default_kp;
-            if (Kp_swing_(rbd::Z) > 600)
-                Kp_swing_(rbd::Z) = default_kp;
+            if (Kd_swing_(dls::rbd::X) > default_kd)
+                Kd_swing_(dls::rbd::X) = default_kd;
+            if (Kd_swing_(dls::rbd::Y) > default_kd)
+                Kd_swing_(dls::rbd::Y) = default_kd;
+            if (Kd_swing_(dls::rbd::Z) > default_kd)
+                Kd_swing_(dls::rbd::Z) = default_kd;
+            if (Kp_swing_(dls::rbd::X) > 600)
+                Kp_swing_(dls::rbd::X) = default_kp;
+            if (Kp_swing_(dls::rbd::Y) > 600)
+                Kp_swing_(dls::rbd::Y) = default_kp;
+            if (Kp_swing_(dls::rbd::Z) > 600)
+                Kp_swing_(dls::rbd::Z) = default_kp;
         }
         params_.Kp_swing = Kp_swing_;
         params_.Kd_swing = Kd_swing_;
@@ -720,17 +720,17 @@ void TrunkController::createObjects(){
 }
 
 
-void TrunkController::getActualState(planning::Point3d &actual_linear_state,
-                                     planning::Point3d &actual_angular_state)
+void TrunkController::getActualState(iit::planning::Point3d &actual_linear_state,
+                                     iit::planning::Point3d &actual_angular_state)
 {
     actual_linear_state = actual_linear_state_;
     actual_angular_state = actual_angular_state_;
 }
 
-void TrunkController::computeDesiredWrench(const dog::JointState& q,
-                                           rbd::Vector6D & wrench)
+void TrunkController::computeDesiredWrench(const dls::dog::JointState& q,
+                                           dls::rbd::Vector6D & wrench)
 {
-    wrench = rbd::ForceVector::Zero();
+    wrench = dls::rbd::ForceVector::Zero();
     Vector3d height_forceW = Vector3d::Zero();
     Vector3d height_force_terr = Vector3d::Zero();
     //compute height force
@@ -738,14 +738,14 @@ void TrunkController::computeDesiredWrench(const dog::JointState& q,
         //des height control
         // test for the whole body controllersetForceLimits:
         // des_height = 0.6 + 0.05*sin(2*M_PI*0.5*taskServoTime);
-        height_force_terr(rbd::Z) = Kp_posture_(rbd::LZ) *
-                (des_height_ - actual_height_.x) - Kd_posture_(rbd::LZ) * actual_height_.xd;
+        height_force_terr(dls::rbd::Z) = Kp_posture_(dls::rbd::LZ) *
+                (des_height_ - actual_height_.x) - Kd_posture_(dls::rbd::LZ) * actual_height_.xd;
         //this force is in a terrain frame (you want to push you away from it!)
         //we should map to world frame to add it
         height_forceW = terrain_R_world_.transpose() * height_force_terr;
         //this will result in no action on Z component
-        vmodel_.setGain(rbd::LZ, control::VirtualModel::PROPORTIONAL, 0);
-        vmodel_.setGain(rbd::LZ, control::VirtualModel::DERIVATIVE, 0);
+        vmodel_.setGain(dls::rbd::LZ, dls::control::VirtualModel::PROPORTIONAL, 0);
+        vmodel_.setGain(dls::rbd::LZ, dls::control::VirtualModel::DERIVATIVE, 0);
     }
 
     Vector3d offCoM = inertia_props_->getWholeBodyCOM(q);
@@ -754,9 +754,9 @@ void TrunkController::computeDesiredWrench(const dog::JointState& q,
     // if we work in the CoM we need to shift
     if (!params_.is_base_controlled){
         //the position of base wrt to com is -offCoM!
-        rbd::Matrix66d base_X_com  = motionVectorTransform(-offCoM,  Matrix3d::Identity());
+        dls::rbd::Matrix66d base_X_com  = motionVectorTransform(-offCoM,  Matrix3d::Identity());
         //the two frames are aligned
-        rbd::Matrix66d com_X_base_f = forceVectorTransform(offCoM,  Matrix3d::Identity());
+        dls::rbd::Matrix66d com_X_base_f = forceVectorTransform(offCoM,  Matrix3d::Identity());
         // we have to do the assignment in two steps
         // no idea why, probably some Eigen inheritance problem
         Ic = com_X_base_f * Ic * base_X_com;
@@ -775,20 +775,20 @@ void TrunkController::computeDesiredWrench(const dog::JointState& q,
                                     inertia_props_->getTotalMass(), Ic, wrench_error_);
 
     //add height force if any...(we add only z component to avoid conflicts)
-    wrench(rbd::LZ) += height_forceW(rbd::Z);
+    wrench(dls::rbd::LZ) += height_forceW(dls::rbd::Z);
 }
 
-void TrunkController::wrenchStaticMapping(const iit::rbd::ForceVector wrench,
+void TrunkController::wrenchStaticMapping(const dls::rbd::ForceVector wrench,
                                           const Eigen::Matrix3d R,
-                                          const dog::JointState q,
+                                          const dls::dog::JointState q,
                                           const LegBoolMap & stance_legs,
                                           const LegDataMap<FootJac> &foot_jacs,
                                           const LegDataMap<Vector3d> & feet,
-                                          dog::JointState& joint_torques)
+                                          dls::dog::JointState& joint_torques)
 {
     Eigen::Matrix<double, Eigen::Dynamic, 6> Jcb;
     Eigen::Matrix<double, Eigen::Dynamic, 6> Jcbt_inv;
-    Eigen::Matrix<double, Eigen::Dynamic, iit::dog::jointsCount> Jcq;
+    Eigen::Matrix<double, Eigen::Dynamic, dls::dog::jointsCount> Jcq;
 
     if (compute_stance_legs(stance_legs) != 0) {
         //if you set identity the forces will be in the same frame of the wrench
@@ -799,22 +799,22 @@ void TrunkController::wrenchStaticMapping(const iit::rbd::ForceVector wrench,
             W.resize(contactConstrCount*compute_stance_legs(stance_legs), contactConstrCount*compute_stance_legs(stance_legs));
             W.setZero();
             int cleg_counter = 0;
-            for (int leg=0; leg<dog::_LEGS_COUNT;leg++){
-                if (stance_legs[dog::LegID(leg)]){
-                    W.block(cleg_counter*contactConstrCount,cleg_counter*contactConstrCount, 3, 3) =  foot_jacs[dog::LegID(leg)]*
-                            leg_torque_weights_[dog::LegID(leg)].asDiagonal()*
-                            foot_jacs[dog::LegID(leg)].transpose();
+            for (int leg=0; leg<dls::dog::_LEGS_COUNT;leg++){
+                if (stance_legs[dls::dog::LegID(leg)]){
+                    W.block(cleg_counter*contactConstrCount,cleg_counter*contactConstrCount, 3, 3) =  foot_jacs[dls::dog::LegID(leg)]*
+                            leg_torque_weights_[dls::dog::LegID(leg)].asDiagonal()*
+                            foot_jacs[dls::dog::LegID(leg)].transpose();
                     cleg_counter++;
                 }
 
             }
-            Jcbt_inv = commons::psdInvW(Jcb.transpose(), W,   1E-06);
+            Jcbt_inv =psdInvW(Jcb.transpose(), W,   1E-06);
         } else { //mingoal wrench (normals TODO)
-            Jcbt_inv = commons::psdInv(Jcb.transpose(),  1E-06);
+            Jcbt_inv =psdInv(Jcb.transpose(),  1E-06);
         }
         //project torques into the constraint space
         //since the wrench is in the world frame I need to rotate it
-        rbd::Matrix66d b_X_w = rbd::Matrix66d::Zero();
+        dls::rbd::Matrix66d b_X_w = dls::rbd::Matrix66d::Zero();
         b_X_w.block<3,3>(0,0) = R;
         b_X_w.block<3,3>(3,3) = R;
 
@@ -827,10 +827,10 @@ void TrunkController::wrenchStaticMapping(const iit::rbd::ForceVector wrench,
             std::cout  << "Jcbt_inv        = " << Jcbt_inv        << std::endl;
             std::cout  << "Jcq.transpose() = " << Jcq.transpose() << std::endl;
         }
-        dog::JointState h_joints = getLegWeightTorques(R, q);
+        dls::dog::JointState h_joints = getLegWeightTorques(R, q);
         joint_torques =  h_joints -Jcq.transpose() * Jcbt_inv * b_X_w * wrench;
     } else {
-        joint_torques = dog::JointState::Zero();
+        joint_torques = dls::dog::JointState::Zero();
     }
 }
 
@@ -868,10 +868,10 @@ void TrunkController::setStanceLegs(const LegBoolMap & input_stance_legs, const 
     //internal stance computation
     if (params_.use_internal_stance_computation)
     {
-        if (commons::allclose(feet_grf[LF], Vector3d::Zero(), 0.0, 0.5) &&
-                commons::allclose(feet_grf[RF], Vector3d::Zero(), 0.0, 0.5) &&
-                commons::allclose(feet_grf[LH], Vector3d::Zero(), 0.0, 0.5) &&
-                commons::allclose(feet_grf[RH], Vector3d::Zero(), 0.0, 0.5))
+        if (allclose(feet_grf[LF], Vector3d::Zero(), 0.0, 0.5) &&
+               allclose(feet_grf[RF], Vector3d::Zero(), 0.0, 0.5) &&
+               allclose(feet_grf[LH], Vector3d::Zero(), 0.0, 0.5) &&
+               allclose(feet_grf[RH], Vector3d::Zero(), 0.0, 0.5))
         {
             std::cerr << " grfs not set in internal stance computation using user stance" <<std::endl;
             stance_legs_ = input_stance_legs;
@@ -890,18 +890,18 @@ void TrunkController::setStanceLegs(const LegBoolMap & input_stance_legs, const 
 
 
 void TrunkController::getJointTorques(const Eigen::Matrix3d & R,
-                                      const rbd::VelocityVector & baseTwist,
-                                      const dog::JointState & q,
-                                      const dog::JointState & qd,
+                                      const dls::rbd::VelocityVector & baseTwist,
+                                      const dls::dog::JointState & q,
+                                      const dls::dog::JointState & qd,
                                       const LegDataMap<Vector3d> & footPos_in,
                                       const LegDataMap<FootJac> & JFoot_in,
-                                      dog::JointState & jointTorques)
+                                      dls::dog::JointState & jointTorques)
 {
     //init
-    ffwd_torques_ = dog::JointState::Zero();
+    ffwd_torques_ = dls::dog::JointState::Zero();
     des_feet_forces_ = LegDataMap<Vector3d>(Vector3d::Zero());
-    des_vm_wrench_ = rbd::ForceVector::Zero();
-    gravity_wrench_ = rbd::ForceVector::Zero();
+    des_vm_wrench_ = dls::rbd::ForceVector::Zero();
+    gravity_wrench_ = dls::rbd::ForceVector::Zero();
     Vector3d offCoM = Vector3d::Zero();
 
 
@@ -918,7 +918,7 @@ void TrunkController::getJointTorques(const Eigen::Matrix3d & R,
     //add gravitycompensation if required
     if (params_.use_gravity_compensation)
     {
-        gravity_wrench_(rbd::LZ) = rbd::g * inertia_props_->getTotalMass();
+        gravity_wrench_(dls::rbd::LZ) = dls::rbd::g * inertia_props_->getTotalMass();
     }
 
     //add ffwd wrench
@@ -1106,7 +1106,7 @@ void TrunkController::useSlacks(bool flag)
     }
 }
 
-void TrunkController::setSurfaceNormal(const dog::LegID leg, const Eigen::Vector3d & surf_normal)
+void TrunkController::setSurfaceNormal(const dls::dog::LegID leg, const Eigen::Vector3d & surf_normal)
 {
     this->surf_normal_[leg] = surf_normal;
 }
@@ -1117,7 +1117,7 @@ void TrunkController::setSurfaceNormal(const LegDataMap<Eigen::Vector3d> & surf_
 }
 
 
-void TrunkController::setFrictionCoefficient(const dog::LegID leg, const double & mu_estimate)
+void TrunkController::setFrictionCoefficient(const dls::dog::LegID leg, const double & mu_estimate)
 {
     this->mu_estimate_[leg] = mu_estimate;
 }
@@ -1127,22 +1127,24 @@ void TrunkController::setFrictionCoefficient(const LegDataMap<double> & mu_estim
     this->mu_estimate_ = mu_estimate;
 }
 
-iit::dog::JointState TrunkController::getLegWeightTorques(const Eigen::Matrix3d Rcurr, const iit::dog::JointState & q_curr)
+dls::dog::JointState TrunkController::getLegWeightTorques(const Eigen::Matrix3d Rcurr, const dls::dog::JointState & q_curr)
 {
 
-    iit::rbd::VelocityVector gW, gB;
-    gW <<0.0, 0.0, 0.0, 0.0, 0.0, -iit::rbd::g; gB.setZero();
-    gB.segment(rbd::LX,3) = Rcurr*gW.segment(rbd::LX,3);
-    iit::rbd::ForceVector baseWrench; dog::JointState  h_joints;
-    inv_dyn_->id_fully_actuated(baseWrench, h_joints, gB, rbd::VelocityVector::Zero(), rbd::VelocityVector::Zero(), q_curr, dog::JointState::Zero(), dog::JointState::Zero());
+    dls::rbd::VelocityVector gW, gB;
+    gW <<0.0, 0.0, 0.0, 0.0, 0.0, -dls::rbd::g; gB.setZero();
+    gB.segment(dls::rbd::LX,3) = Rcurr*gW.segment(dls::rbd::LX,3);
+    dls::rbd::ForceVector baseWrench; dls::dog::JointState  h_joints;
+    inv_dyn_->id_fully_actuated(baseWrench, h_joints, gB, dls::rbd::VelocityVector::Zero(), dls::rbd::VelocityVector::Zero(), q_curr, dls::dog::JointState::Zero(), dls::dog::JointState::Zero());
     return h_joints;
 
 }
 
 
+#include <doglib/factory/robot_factory.hpp>
 extern "C" dls::Controller *create()
 {
-	auto p = new TrunkController;
+	using namespace dls::dog;
+	auto p = new TrunkController(RobotFactory::buildRobot(RobotFactory::RobotType::HyQ));
 	return p;
 }
 

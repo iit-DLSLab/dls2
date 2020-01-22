@@ -6,11 +6,11 @@
  */
 
 #include "wholeBodyOptimizationStatic.h"
-#include <iit/commons/geometry/algebra.h>
+#include <commons/geometry/algebra.h>
 #include <iostream>
-#include <iit/commons/dog/joint_id_tricks.h>
+#include <doglib/base/joint_id_tricks.hpp>
 
-namespace iit {
+namespace dls {
 namespace dog {
 
 using namespace Eigen;
@@ -18,8 +18,8 @@ using namespace std;
 
 WholeBodyOptimizationStatic::WholeBodyOptimizationStatic(dog::MotionTransformsBase & motion_transforms_in,
                                                          dog::InverseDynamicsBase &idObj_in,
-                                                         ForwardKinematics & fwd_kin_in,
-                                                         dog::FeetJacobians &jacs_in,
+                                                         ForwardKinematicsBase & fwd_kin_in,
+                                                         dog::FeetJacobiansBase &jacs_in,
                                                          dog::InertiaPropertiesBase & inertiaProps_in)
 
 : mt(motion_transforms_in),
@@ -165,8 +165,8 @@ void WholeBodyOptimizationStatic::computeOptimization(const dog::LegDataMap<Eige
 		//map feet forces into a joint state vector because the number of contact forces is variable a for loop is needed
 		dog::LegJointState tau_leg;
 
-		iit::rbd::VelocityVector gW, gB;
-		gW <<0.0, 0.0, 0.0, 0.0, 0.0, -iit::rbd::g; gB.setZero();
+		dls::rbd::VelocityVector gW, gB;
+		gW <<0.0, 0.0, 0.0, 0.0, 0.0, -dls::rbd::g; gB.setZero();
 		gB.segment(rbd::LX,3) = R*gW.segment(rbd::LX,3);
 		rbd::ForceVector baseWrench; dog::JointState  h_joints;
         idObj.id_fully_actuated(baseWrench, h_joints, gB, rbd::VelocityVector::Zero(), rbd::VelocityVector::Zero(), q, dog::JointState::Zero(), dog::JointState::Zero());

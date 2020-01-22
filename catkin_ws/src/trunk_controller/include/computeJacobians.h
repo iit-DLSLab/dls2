@@ -9,15 +9,15 @@
 #define IIT_DOG_COMPUTE_JACOBIANS_H_
 
 #include <Eigen/Dense>
-#include <iit/commons/dog/transforms.h>
-#include <iit/commons/dog/declarations.h>
-#include <iit/commons/dog/leg_data_map.h>
-#include <iit/commons/dog/feet_jacobians.h>
-#include <iit/commons/dog/forward_kinematics.h>
-#include <iit/commons/dog/inertia_properties.h>
-#include <iit/commons/dog/inverse_dynamics.h>
+#include <doglib/base/transforms.hpp>
+#include <doglib/base/declarations.hpp>
+#include <doglib/base/leg_data_map.hpp>
+#include <doglib/base/feet_jacobians.hpp>
+#include <doglib/base/forward_kinematics.hpp>
+#include <doglib/base/inertia_properties.hpp>
+#include <doglib/base/inverse_dynamics.hpp>
 
-namespace iit {
+namespace dls {
 namespace dog {
 
 void computeJcb(Eigen::Matrix<double, Eigen::Dynamic, 6> & Jcb,
@@ -51,19 +51,19 @@ void computeStanceJacobian(Eigen::Matrix<double, Eigen::Dynamic, dog::jointsCoun
 
 void computeJcdQd(Eigen::Matrix<double, Eigen::Dynamic, 1> & JcdQd,
                   const dog::LegDataMap<bool> & stance_legs,
-                  const iit::rbd::VelocityVector &  baseVel,
-                  const iit::rbd::VelocityVector &  gB,
+                  const dls::rbd::VelocityVector &  baseVel,
+                  const dls::rbd::VelocityVector &  gB,
                   const Eigen::Matrix3d & R,
                   const dog::JointState & q,
                   const dog::JointState & qd,
                   dog::InverseDynamicsBase& id,
                   dog::MotionTransformsBase& mt,
-                  dog::ForwardKinematics &fwd_kin);
+                  dog::ForwardKinematicsBase &fwd_kin);
 
 
-iit::rbd::Vector6D revoluteGJac(const iit::rbd::Vector3d & p,
-                                const iit::rbd::Vector3d & origin,
-                                const iit::rbd::Vector3d & axis);
+dls::rbd::Vector6D revoluteGJac(const dls::rbd::Vector3d & p,
+                                const dls::rbd::Vector3d & origin,
+                                const dls::rbd::Vector3d & axis);
 
 Eigen::Matrix<double, 6, dog::jointsCount> getWholeBodyCOMJacobian(const dog::JointState& q,
                                                                    const dog::InertiaPropertiesBase &in,
@@ -75,13 +75,13 @@ Eigen::Matrix<double, 6,  dog::jointsCount + 6> getWholeBodyCOMJacobianFB(const 
         dog::HomogeneousTransformsBase& ht);
 
 
-iit::rbd::Vector6D getWholeBodyCOMVel(const dog::JointState & q,
+dls::rbd::Vector6D getWholeBodyCOMVel(const dog::JointState & q,
                                       const dog::JointState & qd,
                                       const dog::InertiaPropertiesBase &inertiaProps,
                                       dog::HomogeneousTransformsBase& ht);
 
 
-iit::rbd::Vector6D getWholeBodyCOMVelFB(const iit::rbd::VelocityVector & baseVel,
+dls::rbd::Vector6D getWholeBodyCOMVelFB(const dls::rbd::VelocityVector & baseVel,
                                         const Eigen::Matrix3d & rotationMx,
                                         const dog::JointState & q,
                                         const dog::JointState & qd,
@@ -102,7 +102,7 @@ iit::rbd::Vector6D getWholeBodyCOMVelFB(const iit::rbd::VelocityVector & baseVel
  * @param rotationMx is a 3x3 rotational coordinate transform
  * @return
  */
-iit::rbd::Matrix66d motionVectorTransform(const iit::rbd::Vector3d & position,
+dls::rbd::Matrix66d motionVectorTransform(const dls::rbd::Vector3d & position,
                                           const Eigen::Matrix3d & rotationMx);
 
 /**
@@ -113,14 +113,14 @@ iit::rbd::Matrix66d motionVectorTransform(const iit::rbd::Vector3d & position,
  * @note this is the transposed of motionVectorTransform()
  * @sa motionVectorTransform()
  */
-iit::rbd::Matrix66d forceVectorTransform(const iit::rbd::Vector3d & position,
+dls::rbd::Matrix66d forceVectorTransform(const dls::rbd::Vector3d & position,
                                          const Eigen::Matrix3d & rotationMx);
 
 void computeBaseTwist(const dog::LegDataMap<Eigen::Vector3d> & feet,
                       const dog::LegDataMap<Eigen::Vector3d> & feet_vel,
                       const Eigen::Vector3d omega,
                       const dog::LegDataMap<bool> & stance_legs,
-                      iit::rbd::VelocityVector & baseVel);
+                      dls::rbd::VelocityVector & baseVel);
 
 int compute_stance_legs(const dog::LegDataMap<bool> & stance_legs);
 

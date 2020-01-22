@@ -9,15 +9,15 @@
 #define IIT_DOG_WHOLE_BODY_OPTIMIZATION_STATIC_H_
 
 #include <Eigen/Dense>
-#include <iit/rbd/rbd.h>
-#include <iit/rbd/utils.h>
-#include <iit/commons/dog/inverse_dynamics.h>
-#include <iit/commons/dog/jsim.h>
+#include <doglib/rbd/rbd.h>
+#include <doglib/rbd/utils.h>
+#include <doglib/base/inverse_dynamics.hpp>
+#include <doglib/base/jsim.hpp>
 
 #include "eiquadprog.hpp"
 #include "computeJacobians.h"
 
-namespace iit {
+namespace dls {
 namespace dog {
 
 class WholeBodyOptimizationStatic {
@@ -39,8 +39,8 @@ public:
      */
     WholeBodyOptimizationStatic(dog::MotionTransformsBase & motion_transforms_in,
                                 dog::InverseDynamicsBase &idObj_in,
-                                dog::ForwardKinematics & fwd_kin_in,
-                                dog::FeetJacobians &jacs_in,
+                                dog::ForwardKinematicsBase & fwd_kin_in,
+                                dog::FeetJacobiansBase &jacs_in,
                                 dog::InertiaPropertiesBase & inertiaProps_in);
 
 	~WholeBodyOptimizationStatic();
@@ -113,9 +113,9 @@ protected:
     void computeSlackCost(const Eigen::VectorXd & slacks, double & slackCost);
 	//constructor variables
 
-    dog::FeetJacobians& jacs; // class to compute jacobians
+    dog::FeetJacobiansBase& jacs; // class to compute jacobians
     dog::LegDataMap<dog::FootJac> JFoot_; // already computed jacobians
-    dog::ForwardKinematics & fwd_kin;
+    dog::ForwardKinematicsBase & fwd_kin;
     dog::MotionTransformsBase & mt;
     dog::InertiaPropertiesBase & inertiaProps;
     dog::InverseDynamicsBase & idObj;
@@ -126,7 +126,7 @@ protected:
 	dog::LegDataMap<bool>  stance_legs;
     dog::LegDataMap<Eigen::Vector3d>  surf_normal;
     dog::LegDataMap<Eigen::Vector3d>  footPos, footVel;
-    iit::rbd::VelocityVector baseTwist;
+    dls::rbd::VelocityVector baseTwist;
     JointState q;
 	dog::LegDataMap<double> force_max, force_min;
 	dog::LegDataMap<double> muEstimate;

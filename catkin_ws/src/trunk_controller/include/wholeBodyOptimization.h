@@ -7,22 +7,22 @@
 
 #ifndef IIT_DOG_WHOLE_BODY_OPTIMIZATION_H_
 #define IIT_DOG_WHOLE_BODY_OPTIMIZATION_H_
+#include <iit/commons/planning/planning.h>
 
 #include <Eigen/Dense>
-#include <iit/rbd/rbd.h>
-#include <iit/rbd/utils.h>
+#include <doglib/rbd/rbd.h>
+#include <doglib/rbd/utils.h>
 
-#include <iit/commons/dog/inverse_dynamics.h>
-#include <iit/commons/dog/jsim.h>
+#include <doglib/base/inverse_dynamics.hpp>
+#include <doglib/base/jsim.hpp>
 
 #include "eiquadprog.hpp"
 #include "computeJacobians.h"
 
-#include <iit/commons/dog/leg_bool_map.h>
-#include <iit/commons/dog/feet_jacobians.h>
-#include <iit/commons/planning/planning.h>
+#include <doglib/base/leg_bool_map.hpp>
+#include <doglib/base/feet_jacobians.hpp>
 
-namespace iit {
+namespace dls {
 namespace dog {
 
 class WholeBodyOptimization {
@@ -50,8 +50,8 @@ public:
    WholeBodyOptimization(HomogeneousTransformsBase & hom_transforms,
                          MotionTransformsBase & motion_transforms,
                          InverseDynamicsBase &idObj_in,
-                         dog::ForwardKinematics & fwd_kin_in,
-                         dog::FeetJacobians & feet_jacobians_,                     
+                         dog::ForwardKinematicsBase & fwd_kin_in,
+                         dog::FeetJacobiansBase & feet_jacobians_,                     
                          JSIMBase &jsim_in,
                          InertiaPropertiesBase & inertiaProps_in);
 
@@ -68,7 +68,7 @@ public:
                                 const LegDataMap<double> & force_min,
                                 const JointState & torque_limits,
 								const rbd::VelocityVector & baseTwist,
-                                const LegDataMap<planning::Point3d> & swingFootRef,
+                                const LegDataMap<iit::planning::Point3d> & swingFootRef,
 								const Eigen::Matrix3d & R,
 								const JointState & q,
 								const JointState & qd,
@@ -108,7 +108,7 @@ public:
     void useStanceSpringConstraints(bool flag);
 	void printCosts();
     void useSlacks(bool flag);
-    std::vector<planning::LineCoeff2d> lineCoeff;
+    std::vector<iit::planning::LineCoeff2d> lineCoeff;
 
 protected:
 
@@ -136,8 +136,8 @@ protected:
     MotionTransformsBase & mt;
     HomogeneousTransformsBase & ht;
     InverseDynamicsBase & idObj;
-    FeetJacobians& feet_jacobians_; // class to compute feet jacobians given q
-    dog::ForwardKinematics& fwd_kin;
+    FeetJacobiansBase& feet_jacobians_; // class to compute feet jacobians given q
+    dog::ForwardKinematicsBase& fwd_kin;
     JSIMBase& jsim;
     InertiaPropertiesBase & inertiaProps;
 
@@ -149,7 +149,7 @@ protected:
     LegDataMap<Eigen::Vector3d>  footPos, footVel, desStanceFootPos;
 
     rbd::VelocityVector baseTwist;
-    LegDataMap<planning::Point3d> swingFootRef;
+    LegDataMap<iit::planning::Point3d> swingFootRef;
     JointState q, qd;
     LegDataMap<double> force_max, force_min;
     LegDataMap<double> muEstimate;

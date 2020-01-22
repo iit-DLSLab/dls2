@@ -3,7 +3,11 @@ project(dls_trunk_controller)
 
 
 find_package(catkin REQUIRED
-	iit_commons2 roscpp rospy std_msgs hyq_commons2)
+	iit_commons2
+	roscpp
+	rospy
+	std_msgs
+)
 # Locate GTest
 find_package(GTest REQUIRED)
 include_directories(${GTEST_INCLUDE_DIRS})
@@ -19,6 +23,8 @@ include_directories(
 	${ROOT_PROJECT_DIRECTORY}/include
 	${ROOT_PROJECT_DIRECTORY}/build_tools/include
 	${ROOT_PROJECT_DIRECTORY}/3rd_party/doglib/include
+	# ${ROOT_PROJECT_DIRECTORY}/3rd_party/iit_commons/include/iit
+	# ${ROOT_PROJECT_DIRECTORY}/3rd_party/iit_commons/include/iit/commons
 )
 include_directories(
 	SYSTEM
@@ -255,7 +261,7 @@ target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES}
 
 
 if (CATKIN_ENABLE_TESTING)
-	find_package(catkin REQUIRED COMPONENTS urdf rostest hyq_commons2)
+	find_package(catkin REQUIRED COMPONENTS urdf rostest)
 	include_directories(include ${catkin_INCLUDE_DIRS} )
 	message(STATUS "  Building tests for robot HyQ")
 	catkin_add_gtest(trunk_controller_test tests/test.cpp)

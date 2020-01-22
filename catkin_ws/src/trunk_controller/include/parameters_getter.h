@@ -2,17 +2,17 @@
 #define _TEST_PARAM_GETTER_HyQ_
 
 
-#include <iit/robots/hyq/kinematics_parameters.h>
-#include <iit/robots/hyq/dynamics_parameters.h>
-#include <iit/robots/hyq/default_parameters_getter.h>
+#include <doglib/hyq/kinematics_parameters.hpp>
+#include <doglib/hyq/dynamics_parameters.hpp>
+#include <doglib/hyq/default_parameters_getter.hpp>
 
 
 
-namespace iit {
+namespace dls {
 namespace HyQ {
 
 
-class TestParamsGetter : public DefaultParamsGetter
+class TestParamsGetter : public dls::dog::HyQ::DefaultParamsGetter
 {
     public:
     TestParamsGetter() {
@@ -111,20 +111,20 @@ class TestParamsGetter : public DefaultParamsGetter
         /**
          * @return the whole set of the current inertias of the inertia parameters
          */
-        const dyn::RuntimeInertiaParams& getInertiaParams() const {
+        const dls::dog::HyQ::dyn::RuntimeInertiaParams& getInertiaParams() const {
             return inertias;
         }
         /**
          * Sets new inertias for all the inertia parameters
          */
-        void setInertiaParams(const dyn::RuntimeInertiaParams& newp) {
+        void setInertiaParams(const dls::dog::HyQ::dyn::RuntimeInertiaParams& newp) {
         	inertias = newp;
         }
 
 
     private:
-        Params_lengths value;
-        dyn::RuntimeInertiaParams inertias;
+		dls::dog::HyQ::Params_lengths value;
+		dls::dog::HyQ::dyn::RuntimeInertiaParams inertias;
 };
 
 

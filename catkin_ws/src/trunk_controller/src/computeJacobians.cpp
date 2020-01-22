@@ -8,12 +8,12 @@
 #include "computeJacobians.h"
 #include <iit/commons/geometry/algebra.h>
 #include <iit/commons/geometry/rotations.h>
-#include <iit/rbd/rbd.h>
-#include <iit/rbd/utils.h>
+#include <doglib/rbd/rbd.h>
+#include <doglib/rbd/utils.h>
 #include <iit/commons/planning/planning.h>
 
 
-namespace iit {
+namespace dls {
 namespace dog {
 
 //the output of Jcb*[w ; xd_base] is the stance feet velocity
@@ -41,7 +41,7 @@ void computeJcb(Eigen::Matrix<double, Eigen::Dynamic, 6> & Jcb,
 	  if (stance_legs[dog::LegID(i)]) // if leg is constrained then leg is in stance, ie no need to check all eff_dof
 	  {
 		  //base contribution to
-	  	  Jcb.block(cleg_count*dog::jointsLegCount , dog::baseJoints + rbd::AX, 3,3) = -R.transpose()*commons::skew_sim(feet[dog::LegID(i)]); //need to map from base to world frame cause feet is in base frame
+	  	  Jcb.block(cleg_count*dog::jointsLegCount , dog::baseJoints + rbd::AX, 3,3) = -R.transpose()*iit::commons::skew_sim(feet[dog::LegID(i)]); //need to map from base to world frame cause feet is in base frame
 	  	  Jcb.block(cleg_count*dog::jointsLegCount , dog::baseJoints + rbd::LX, 3,3) = R.transpose()*Eigen::Matrix3d::Identity();//base linear velocity is assumed in the base frame
 	  	  cleg_count++;
   	  }
@@ -55,7 +55,7 @@ void computeJcq(Eigen::Matrix<double, Eigen::Dynamic, dog::jointsCount> & Jcq,
 
 // create the Jc matrix
   int cleg_count = compute_stance_legs(stance_legs);
-  int num_const = cleg_count * planning::contactConstrCount;
+  int num_const = cleg_count * iit::planning::contactConstrCount;
 
   Jcq.resize(num_const, dog::jointsCount);
   Jcq.setZero();
@@ -66,7 +66,7 @@ void computeJcq(Eigen::Matrix<double, Eigen::Dynamic, dog::jointsCount> & Jcq,
 	  if (stance_legs[dog::LegID(i)]) // if leg is constrained then leg is in stance, ie no need to check all eff_dof
 	  {
 		  //joint contribution to feet vleocity
-          Jcq.block(cleg_count * planning::contactConstrCount , LegID(i) * dog::jointsLegCount, 3, 3) =  R.transpose() * (jacs[LegID(i)]);
+          Jcq.block(cleg_count * iit::planning::contactConstrCount , LegID(i) * dog::jointsLegCount, 3, 3) =  R.transpose() * (jacs[LegID(i)]);
 		  cleg_count++;
   	  }
   }
@@ -123,7 +123,7 @@ Eigen::Matrix<double, Eigen::Dynamic, dog::jointsCount>  Jcq;
   //trasform euler rate in omega rate
   Eigen::Matrix<double, 6, 6> T;
 
-  T.block(rbd::AX, rbd::AX, 3,3) = commons::rpyToEar(commons::rotTorpy(R));
+  T.block(rbd::AX, rbd::AX, 3,3) = iit::commons::rpyToEar(iit::commons::rotTorpy(R));
   T.block(rbd::LX, rbd::LX, 3,3).setIdentity();
 
   Jc.block(0 , dog::baseJoints, num_const, 6) = Jcb*T;
@@ -145,7 +145,7 @@ Eigen::Matrix<double, dog::jointsCount+6, Eigen::Dynamic> Jc_pinv;
 computeStanceJacobian(Jc, R, stance_legs, feet, jacs);
 Jc_pinv.resize(dog::jointsCount+6, Jc.rows());
 Jc_pinv.setZero();
-commons::psdInv(Jc, Jc_pinv, 1E-04);	// compute pseudoinverse of Jc and null space
+iit::commons::psdInv(Jc, Jc_pinv, 1E-04);	// compute pseudoinverse of Jc and null space
 
 //compute null space
 Nc.setIdentity();
@@ -166,13 +166,13 @@ void computeJcdQd(Eigen::Matrix<double, Eigen::Dynamic, 1> & JcdQd,
         const JointState & qd,
         dog::InverseDynamicsBase &id,
         dog::MotionTransformsBase& mt,
-        dog::ForwardKinematics& fwd_kin)
+        dog::ForwardKinematicsBase& fwd_kin)
 {
 
 	JointState qdd = JointState::Zero();
 
 	int cleg_count = compute_stance_legs(stance_legs);
-    int num_const = cleg_count * planning::contactConstrCount;
+    int num_const = cleg_count * iit::planning::contactConstrCount;
 
 	JcdQd.resize(num_const);
 	JcdQd.setZero();
@@ -521,7 +521,7 @@ cleg_count = 0;
 for (int i = 0; i<dog::_LEGS_COUNT; i++){
 	if (stance_legs[dog::LegID(i)])
 	{
-		A.block(cleg_count*3, 0, 3,3) = -commons::skew_sim(feet[dog::LegID(i)]);
+		A.block(cleg_count*3, 0, 3,3) = -iit::commons::skew_sim(feet[dog::LegID(i)]);
 		A.block(cleg_count*3, 3, 3,3).setIdentity();
 		b.segment(cleg_count*3, 3) = -feet_vel[dog::LegID(i)];
 		cleg_count++;
@@ -541,13 +541,13 @@ case 2:
 	A.block(cleg_count*3,rbd::LX, 3,3).setZero();
 	b.segment(cleg_count*3,3) = omega;//the previous part has already been set
 	//compute base twist
-	baseVel = commons::psdInv(A, 1E-04)*b;
+	baseVel = iit::commons::psdInv(A, 1E-04)*b;
 	break;
 	}
 default:
 	{
 	//compute base twist //with 3/4 legs omega will be discarded
-	baseVel = commons::psdInv(A, 1E-04)*b;
+	baseVel = iit::commons::psdInv(A, 1E-04)*b;
 	break;
 	}
 }
@@ -614,7 +614,7 @@ Eigen::Vector3d getCoMFromBase(const JointState & q,
                                const Eigen::Vector3d & base_pos,
                                dog::InertiaPropertiesBase& in)
 {
-	Eigen::Matrix3d R = commons::rpyToRot(base_orient);
+	Eigen::Matrix3d R = iit::commons::rpyToRot(base_orient);
     Eigen::Vector3d offCoM = in.getWholeBodyCOM(q);
 	return base_pos + R.transpose()*offCoM; //CoM is in the world frame off CoM is in base frame
 }
@@ -631,7 +631,7 @@ Eigen::Vector3d getBaseFromCoM(const JointState & q,
                                const Eigen::Vector3d & CoM,
                                dog::InertiaPropertiesBase &in)
 {
-        Eigen::Matrix3d b_R_w = commons::rpyToRot(base_orient);
+        Eigen::Matrix3d b_R_w = iit::commons::rpyToRot(base_orient);
     Eigen::Vector3d offCoM = in.getWholeBodyCOM(q);
         return CoM - b_R_w.transpose()*offCoM; //CoM is in the world frame off CoM is in base frame
 }

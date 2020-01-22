@@ -1,8 +1,8 @@
 #include "VirtualModel.hpp"
-#include <iit/commons/geometry/rotations.h>
-#include <iit/rbd/InertiaMatrix.h>
+#include <commons/geometry/rotations.h>
+#include <doglib/rbd/InertiaMatrix.h>
 
-namespace iit {
+namespace dls {
 namespace control {
 
 

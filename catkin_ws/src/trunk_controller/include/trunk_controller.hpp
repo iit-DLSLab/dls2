@@ -3,32 +3,32 @@
 
 #include "dls2/controller/controller.hpp"
 
-#include <iit/commons/dog/kin_dyn_params.h>
-#include <iit/commons/dog/robot_limits.h>
-#include <iit/commons/dog/forward_kinematics.h>
-#include <iit/commons/dog/inverse_kinematics.h>
-#include <iit/commons/dog/transforms.h>
-#include <iit/commons/dog/inverse_dynamics.h>
-#include <iit/commons/dog/feet_jacobians.h>
-#include <iit/commons/dog/jsim.h>
-#include <iit/commons/dog/inertia_properties.h>
-#include <iit/commons/dog/shin_jacobians.h>
-#include <iit/commons/dog/robot_limits.h>
-#include <iit/commons/dog/feet_contact_forces.h>
+#include <doglib/base/kin_dyn_params.hpp>
+#include <doglib/base/robot_limits.hpp>
+#include <doglib/base/forward_kinematics.hpp>
+#include <doglib/base/inverse_kinematics.hpp>
+#include <doglib/base/transforms.hpp>
+#include <doglib/base/inverse_dynamics.hpp>
+#include <doglib/base/feet_jacobians.hpp>
+#include <doglib/base/jsim.hpp>
+#include <doglib/base/inertia_properties.hpp>
+#include <doglib/base/shin_jacobians.hpp>
+#include <doglib/base/robot_limits.hpp>
+#include <doglib/base/feet_contact_forces.hpp>
 #include <iit/commons/planning/planning.h>
-#include <iit/rbd/rbd.h>
+#include <doglib/rbd/rbd.h>
 
 //robot dependent:hyq
-#include <iit/robots/hyq/forward_kinematics.h>
-#include <iit/robots/hyq/inverse_kinematics.h>
-#include <iit/robots/hyq/transforms.h>
-#include <iit/robots/hyq/inverse_dynamics.h>
-#include <iit/robots/hyq/feet_jacobians.h>
-#include <iit/robots/hyq/jsim.h>
-#include <iit/robots/hyq/inertia_properties.h>
-#include <iit/robots/hyq/shin_jacobians.h>
-#include <iit/robots/hyq/robot_limits.h>
-#include <iit/robots/hyq/feet_contact_forces.h>
+#include <doglib/hyq/forward_kinematics.hpp>
+#include <doglib/hyq/inverse_kinematics.hpp>
+#include <doglib/hyq/transforms.hpp>
+#include <doglib/hyq/inverse_dynamics.hpp>
+#include <doglib/hyq/feet_jacobians.hpp>
+#include <doglib/hyq/jsim.hpp>
+#include <doglib/hyq/inertia_properties.hpp>
+#include <doglib/hyq/shin_jacobians.hpp>
+#include <doglib/hyq/robot_limits.hpp>
+#include <doglib/hyq/feet_contact_forces.hpp>
 
 #include "VirtualModel.hpp"
 #include "wholeBodyOptimization.h"
@@ -48,9 +48,9 @@ enum class OptimizationType {WHOLE_BODY_STATIC = 0,
 
 enum class AttractorType {WRENCH = 0, ACCELERATION};
 
-typedef iit::dog::WholeBodyOptimization::MinMethod MinGoal;
-typedef iit::dog::WholeBodyOptimization::swing_type SwingType;
-typedef iit::dog::WholeBodyOptimization::ConstrViolation ConstrViolation;
+typedef dls::dog::WholeBodyOptimization::MinMethod MinGoal;
+typedef dls::dog::WholeBodyOptimization::swing_type SwingType;
+typedef dls::dog::WholeBodyOptimization::ConstrViolation ConstrViolation;
 
 /**
  * @brief The TrunkControllerParams struct incorporates all the parameters
@@ -63,13 +63,13 @@ struct TrunkControllerParams {
     SwingType swing_type = SwingType::FORCE_BASED_JSPACE;
     AttractorType attractorType = AttractorType::WRENCH; //TODO Acceleration
 
-    iit::rbd::Vector6D Kp_posture = iit::rbd::Vector6D::Zero();
-    iit::rbd::Vector6D Kd_posture = iit::rbd::Vector6D::Zero();
+    dls::rbd::Vector6D Kp_posture = dls::rbd::Vector6D::Zero();
+    dls::rbd::Vector6D Kd_posture = dls::rbd::Vector6D::Zero();
 
-    iit::rbd::Vector3d Kp_swing = iit::rbd::Vector3d::Zero() ;
-    iit::rbd::Vector3d Kd_swing = iit::rbd::Vector3d::Zero() ;
+    dls::rbd::Vector3d Kp_swing = dls::rbd::Vector3d::Zero() ;
+    dls::rbd::Vector3d Kd_swing = dls::rbd::Vector3d::Zero() ;
 
-    iit::rbd::ForceVector wrench_error_threshold;
+    dls::rbd::ForceVector wrench_error_threshold;
 
     bool is_height_controlled = false;
     bool is_base_controlled = false; // robot is CoM controlled by default
@@ -109,7 +109,7 @@ class TrunkController : public dls::Controller
 public:
     typedef std::shared_ptr<TrunkController> Ptr;
     typedef std::shared_ptr<const TrunkController> ConstPtr;
-    TrunkController();
+    TrunkController(std::shared_ptr<dls::dog::Dog> pDog);
     void run(const std::chrono::system_clock::time_point &time) override;
     Status eStop() override;
 
@@ -153,7 +153,7 @@ public:
      * @param leg
      * @param weights_leg
      */
-    void setLegTorqueWeights(const iit::dog::LegID & leg, Eigen::Vector3d & weights_leg);
+    void setLegTorqueWeights(const dls::dog::LegID & leg, Eigen::Vector3d & weights_leg);
 
     /**
      * @brief TrunkController::setSwingType set the type of swing attractor
@@ -179,36 +179,36 @@ public:
      * @param surf_normal
      * @param mu_estimate
      */
-    void setForceLimits(const iit::dog::LegDataMap<double> & high_force_limit,
-                        const iit::dog::LegDataMap<double> & low_force_limit,
-                        const iit::dog::LegDataMap<Eigen::Vector3d> & surf_normal,
-                        const iit::dog::LegDataMap<double> & mu_estimate);
+    void setForceLimits(const dls::dog::LegDataMap<double> & high_force_limit,
+                        const dls::dog::LegDataMap<double> & low_force_limit,
+                        const dls::dog::LegDataMap<Eigen::Vector3d> & surf_normal,
+                        const dls::dog::LegDataMap<double> & mu_estimate);
 
     /**
      * @brief setTorqueLimits constraints the maximum torque at the joints
      * @param tau_max
      */
-    void setTorqueLimits(iit::dog::JointState & tau_max);
+    void setTorqueLimits(dls::dog::JointState & tau_max);
 
     /**
      * @brief setJointLimits constraints the minimum and maximum joint position
      * @param q_max
      * @param q_min
      */
-    void setJointLimits(iit::dog::JointState & q_max, iit::dog::JointState & q_min);
+    void setJointLimits(dls::dog::JointState & q_max, dls::dog::JointState & q_min);
 
     /**
      * @brief setSurfaceNormal sets the normal at the contact point for a single leg
      * @param leg leg index
      * @param normal normal at the contact point for leg
      */
-    void setSurfaceNormal(const iit::dog::LegID leg, const Eigen::Vector3d & surf_normal);
+    void setSurfaceNormal(const dls::dog::LegID leg, const Eigen::Vector3d & surf_normal);
 
     /**
      * @brief setSurfaceNormal sets the normals at all the contact points
      * @param normal normals at the contact points
      */
-    void setSurfaceNormal(const iit::dog::LegDataMap<Eigen::Vector3d> & surf_normal);
+    void setSurfaceNormal(const dls::dog::LegDataMap<Eigen::Vector3d> & surf_normal);
 
 
     /**
@@ -216,13 +216,13 @@ public:
      * @param leg leg index
      * @param mu_estimate friction coefficient at the contact point for leg
      */
-    void setFrictionCoefficient(const iit::dog::LegID leg, const double & mu_estimate);
+    void setFrictionCoefficient(const dls::dog::LegID leg, const double & mu_estimate);
 
     /**
      * @brief setFrictionCoefficient sets the normals at all the contact points
      * @param mu_estimate friction coefficients at the contact points
      */
-    void setFrictionCoefficient(const iit::dog::LegDataMap<double> & mu_estimate);
+    void setFrictionCoefficient(const dls::dog::LegDataMap<double> & mu_estimate);
 
 
     /**
@@ -288,7 +288,7 @@ public:
      * @param wrenchDes
      * @sa useInternalVirtualModel()
      */
-    void setFFWDTrunkWrench(const iit::rbd::Vector6D  & wrenchDes);
+    void setFFWDTrunkWrench(const dls::rbd::Vector6D  & wrenchDes);
 
     /**
      * @brief setGains set the proportional and derivative gains for the
@@ -297,8 +297,8 @@ public:
      * @param Kd_posture
      * @sa useInternalVirtualModel()
      */
-    void setGains(const iit::rbd::Vector6D  & Kp_posture,
-                  const iit::rbd::Vector6D  & Kd_posture);
+    void setGains(const dls::rbd::Vector6D  & Kp_posture,
+                  const dls::rbd::Vector6D  & Kd_posture);
 
     /**
      * @brief setGravityCompensation sets the gravity compensation for the
@@ -325,22 +325,22 @@ public:
      * @param weight
      * @param input_desired_forces
      */
-    void setDesiredFeetForces(const iit::dog::LegBoolMap & stance_legs,
+    void setDesiredFeetForces(const dls::dog::LegBoolMap & stance_legs,
                               const double weight,
-                              const iit::dog::LegDataMap<Eigen::Vector3d> & input_desired_forces);
+                              const dls::dog::LegDataMap<Eigen::Vector3d> & input_desired_forces);
 
     /**
      * @brief getDesiredFeetForces returns the latest computed (or set) desired
      * feet contact forces
      * @param des_forces
      */
-    void getDesiredFeetForces(iit::dog::LegDataMap<Eigen::Vector3d> & des_forces);
+    void getDesiredFeetForces(dls::dog::LegDataMap<Eigen::Vector3d> & des_forces);
 
     /**
      * @brief getFeetForces returns the latest actual feet contact forces
      * @param feet_forces
      */
-    void getFeetForces(iit::dog::LegDataMap<Eigen::Vector3d> & des_feet_forces);
+    void getFeetForces(dls::dog::LegDataMap<Eigen::Vector3d> & des_feet_forces);
 
         //TODO delete
     /**
@@ -353,13 +353,13 @@ public:
      * @param swingFootRef
      * @param torques
      */
-    void getJointTorques(const iit::dog::LegBoolMap & stance_legs,
+    void getJointTorques(const dls::dog::LegBoolMap & stance_legs,
                          const Eigen::Matrix3d & R,
-                         const iit::rbd::VelocityVector & baseTwist,
-                         const iit::dog::JointState & q,
-                         const iit::dog::JointState & qd,
-                         const iit::dog::LegDataMap<iit::planning::Point3d> & swingFootRef,
-                         iit::dog::JointState & torques);
+                         const dls::rbd::VelocityVector & baseTwist,
+                         const dls::dog::JointState & q,
+                         const dls::dog::JointState & qd,
+                         const dls::dog::LegDataMap<iit::planning::Point3d> & swingFootRef,
+                         dls::dog::JointState & torques);
 
 
     //TODO delete
@@ -374,30 +374,30 @@ public:
          * @param torques
          * @note this enables to set different feet position (e.g. when you have shin collision)
          */
-    void getJointTorques(const iit::dog::LegBoolMap & stance_legs,
+    void getJointTorques(const dls::dog::LegBoolMap & stance_legs,
                          const Eigen::Matrix3d & R,
-                         const iit::dog::JointState & q,
-                         const iit::dog::LegDataMap<Eigen::Vector3d> & footPos_in,
-                         const iit::dog::LegDataMap<iit::dog::FootJac> & JFoot_in,
-                         iit::dog::JointState & torques);
+                         const dls::dog::JointState & q,
+                         const dls::dog::LegDataMap<Eigen::Vector3d> & footPos_in,
+                         const dls::dog::LegDataMap<dls::dog::FootJac> & JFoot_in,
+                         dls::dog::JointState & torques);
 
 
 
-    void getConstraintViolations(iit::dog::WholeBodyOptimization::ConstrViolation & constr_viol);
+    void getConstraintViolations(dls::dog::WholeBodyOptimization::ConstrViolation & constr_viol);
 
-    void getTotalWrench(iit::rbd::Vector6D & wrench);
+    void getTotalWrench(dls::rbd::Vector6D & wrench);
 
-    void getFeedForwardWrench(iit::rbd::Vector6D & wrench);
+    void getFeedForwardWrench(dls::rbd::Vector6D & wrench);
 
-    void getFeedBackWrench(iit::rbd::Vector6D & wrench);
+    void getFeedBackWrench(dls::rbd::Vector6D & wrench);
 
-    void getGains(iit::rbd::Vector6D  & Kp_posture, iit::rbd::Vector6D  & Kd_posture);
+    void getGains(dls::rbd::Vector6D  & Kp_posture, dls::rbd::Vector6D  & Kd_posture);
 
     inline bool isBaseControlled(){
         return params_.is_base_controlled;
     }
 
-    iit::dog::LegBoolMap getActualStance();
+    dls::dog::LegBoolMap getActualStance();
 
     /**
      * @brief useDampingOnly sets the TrunkController to not use the
@@ -409,23 +409,23 @@ public:
 
 
 
-    iit::dog::WholeBodyOptimization::MinMethod minGoal();
+    dls::dog::WholeBodyOptimization::MinMethod minGoal();
 
     SwingType swingType();
 
     //optional sets that should happen in the controller
 
-    void setStanceLegs(const iit::dog::LegBoolMap & input_stance_legs,
-                       const iit::dog::LegDataMap<Eigen::Vector3d> & feet_grf = iit::dog::LegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()));
+    void setStanceLegs(const dls::dog::LegBoolMap & input_stance_legs,
+                       const dls::dog::LegDataMap<Eigen::Vector3d> & feet_grf = dls::dog::LegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()));
     void getJointTorques(const Eigen::Matrix3d & R,
-                         const iit::rbd::VelocityVector & baseTwist,
-                         const iit::dog::JointState & q,
-                         const iit::dog::JointState & qd,
-                         const iit::dog::LegDataMap<Eigen::Vector3d> & footPos_in,
-                         const iit::dog::LegDataMap<iit::dog::FootJac> & JFoot_in,
-                         iit::dog::JointState & jointTorques);
+                         const dls::rbd::VelocityVector & baseTwist,
+                         const dls::dog::JointState & q,
+                         const dls::dog::JointState & qd,
+                         const dls::dog::LegDataMap<Eigen::Vector3d> & footPos_in,
+                         const dls::dog::LegDataMap<dls::dog::FootJac> & JFoot_in,
+                         dls::dog::JointState & jointTorques);
 
-    inline iit::dog::JointState probeJointTorques(){
+    inline dls::dog::JointState probeJointTorques(){
         return ffwd_torques_;
     }
 
@@ -442,11 +442,11 @@ public:
 
     }
 
-    inline bool getShinCollisionFlag(const iit::dog::LegID leg)
+    inline bool getShinCollisionFlag(const dls::dog::LegID leg)
     {
         return handleShinCollision[leg];
     }
-    inline void setShinCollisionFlag(const iit::dog::LegID leg, bool flag)
+    inline void setShinCollisionFlag(const dls::dog::LegID leg, bool flag)
     {
         handleShinCollision[leg] = flag;
     }
@@ -469,32 +469,32 @@ public:
 private:
 
     void createObjects();
-    void computeDesiredWrench(const iit::dog::JointState &q, iit::rbd::Vector6D & des_wrench_);
+    void computeDesiredWrench(const dls::dog::JointState &q, dls::rbd::Vector6D & des_wrench_);
 
-    void wrenchStaticMapping(const  iit::rbd::ForceVector wrench,
-                             const Eigen::Matrix3d R, const iit::dog::JointState q_curr,
-                             const iit::dog::LegBoolMap & stance_legs_,
-                             const iit::dog::LegDataMap<iit::dog::FootJac> &foot_jacs,
-                             const iit::dog::LegDataMap<Eigen::Vector3d> & feet,
-                             iit::dog::JointState& joint_torques);
+    void wrenchStaticMapping(const  dls::rbd::ForceVector wrench,
+                             const Eigen::Matrix3d R, const dls::dog::JointState q_curr,
+                             const dls::dog::LegBoolMap & stance_legs_,
+                             const dls::dog::LegDataMap<dls::dog::FootJac> &foot_jacs,
+                             const dls::dog::LegDataMap<Eigen::Vector3d> & feet,
+                             dls::dog::JointState& joint_torques);
 
-    iit::dog::JointState getLegWeightTorques(const Eigen::Matrix3d Rcurr, const iit::dog::JointState & q_curr);
+    dls::dog::JointState getLegWeightTorques(const Eigen::Matrix3d Rcurr, const dls::dog::JointState & q_curr);
 
     void computeDesiredAcceleration();
 
-    void computeOptimization(const iit::dog::LegBoolMap & input_stance_legs,
+    void computeOptimization(const dls::dog::LegBoolMap & input_stance_legs,
                              const Eigen::Matrix3d & R,
-                             const iit::rbd::VelocityVector & baseTwist,
-                             const iit::dog::JointState & q,
-                             const iit::dog::JointState & qd,
-                             const iit::dog::LegDataMap<iit::planning::Point3d> &swingFootRef,
-                             const iit::rbd::ForceVector & wrenchToRealize,
-                             iit::dog::JointState & optimalTorques,
-                             iit::dog::LegDataMap<Eigen::Vector3d> & optimalFeetForces);
+                             const dls::rbd::VelocityVector & baseTwist,
+                             const dls::dog::JointState & q,
+                             const dls::dog::JointState & qd,
+                             const dls::dog::LegDataMap<iit::planning::Point3d> &swingFootRef,
+                             const dls::rbd::ForceVector & wrenchToRealize,
+                             dls::dog::JointState & optimalTorques,
+                             dls::dog::LegDataMap<Eigen::Vector3d> & optimalFeetForces);
 
-    void computeStance(const iit::dog::LegBoolMap & des_stance,
-                       const iit::dog::LegDataMap<Eigen::Vector3d> &actual_grfs,
-                       iit::dog::LegBoolMap & actual_stance);
+    void computeStance(const dls::dog::LegBoolMap & des_stance,
+                       const dls::dog::LegDataMap<Eigen::Vector3d> &actual_grfs,
+                       dls::dog::LegBoolMap & actual_stance);
 
 
 	//////////////////////////// TODO This should go in model class
@@ -521,63 +521,63 @@ private:
 	std::vector<double> shin_contact_position_;
 
 
-    std::shared_ptr<iit::dog::InverseKinematics> ik_;
-    std::shared_ptr<iit::dog::InverseDynamicsBase> inv_dyn_;
-    std::shared_ptr<iit::dog::ForwardKinematics> fwd_kin_;
-    std::shared_ptr<iit::dog::FeetJacobians> feet_jacobians_;
-    std::shared_ptr<iit::dog::ShinJacobians> shin_jacobians_;
-    std::shared_ptr<iit::dog::JSIMBase> jsim_;
-    std::shared_ptr<iit::dog::InertiaPropertiesBase> inertia_props_;
-    std::shared_ptr<iit::dog::HomogeneousTransformsBase> hom_transforms_;
-      std::shared_ptr<iit::dog::MotionTransformsBase> motion_transforms_;
-    std::shared_ptr<iit::dog::KinDynParams> robot_params_;
-    std::shared_ptr<iit::dog::FeetContactForces> feet_forces_;
+    std::shared_ptr<dls::dog::InverseKinematicsBase> ik_;
+    std::shared_ptr<dls::dog::InverseDynamicsBase> inv_dyn_;
+    std::shared_ptr<dls::dog::ForwardKinematicsBase> fwd_kin_;
+    std::shared_ptr<dls::dog::FeetJacobiansBase> feet_jacobians_;
+    std::shared_ptr<dls::dog::ShinJacobiansBase> shin_jacobians_;
+    std::shared_ptr<dls::dog::JSIMBase> jsim_;
+    std::shared_ptr<dls::dog::InertiaPropertiesBase> inertia_props_;
+    std::shared_ptr<dls::dog::HomogeneousTransformsBase> hom_transforms_;
+      std::shared_ptr<dls::dog::MotionTransformsBase> motion_transforms_;
+    std::shared_ptr<dls::dog::KinDynParamsBase> robot_params_;
+    std::shared_ptr<dls::dog::FeetContactForcesBase> feet_forces_;
 
-    std::shared_ptr<iit::dog::LimitsBase> robot_limits_;
+    std::shared_ptr<dls::dog::LimitsBase> robot_limits_;
 
-    std::shared_ptr<iit::HyQ::Jacobians> hyq_jacobians_;
-    std::shared_ptr<iit::HyQ::HomogeneousTransforms> hyq_hom_transforms_;
-    std::shared_ptr<iit::HyQ::dyn::InertiaProperties> hyq_inertia_props_;
-    std::shared_ptr<iit::HyQ::MotionTransforms> hyq_motion_transforms_;
-    std::shared_ptr<iit::HyQ::ForceTransforms> hyq_force_transforms_;
+    std::shared_ptr<dls::dog::HyQ::Jacobians> hyq_jacobians_;
+    std::shared_ptr<dls::dog::HyQ::HomogeneousTransforms> hyq_hom_transforms_;
+    std::shared_ptr<dls::dog::HyQ::dyn::InertiaProperties> hyq_inertia_props_;
+    std::shared_ptr<dls::dog::HyQ::MotionTransforms> hyq_motion_transforms_;
+    std::shared_ptr<dls::dog::HyQ::ForceTransforms> hyq_force_transforms_;
 
 	//////////////////////////// TODO This should go in model classs
 
 
-	std::shared_ptr<iit::dog::WholeBodyOptimizationStatic > wb_opt_static_;
-    std::shared_ptr<iit::dog::WholeBodyOptimization > wb_opt_;
+	std::shared_ptr<dls::dog::WholeBodyOptimizationStatic > wb_opt_static_;
+    std::shared_ptr<dls::dog::WholeBodyOptimization > wb_opt_;
     ConstrViolation constr_viol_;
 
     //trunk controller enable
     bool is_on_ = false;
 
-    iit::dog::LegBoolMap handleShinCollision = false;
+    dls::dog::LegBoolMap handleShinCollision = false;
 
 
     //stance legs computation
-    iit::dog::LegBoolMap stance_legs_; //memory of the stance state
-    iit::dog::LegBoolMap wait_for_stance_;
+    dls::dog::LegBoolMap stance_legs_; //memory of the stance state
+    dls::dog::LegBoolMap wait_for_stance_;
     double force_th_ = 35;
 
     //virtual models
-    iit::rbd::Vector6D Kp_posture_;
-    iit::rbd::Vector6D Kd_posture_;
+    dls::rbd::Vector6D Kp_posture_;
+    dls::rbd::Vector6D Kd_posture_;
     Eigen::Vector3d Kp_swing_;
     Eigen::Vector3d Kd_swing_;
     //with gravity compensation
-    iit::control::VirtualModel vmodel_;
+    dls::control::VirtualModel vmodel_;
 
     //optimization constraints
-    iit::dog::LegDataMap<double> high_force_limit_;
-    iit::dog::LegDataMap<double> low_force_limit_;
+    dls::dog::LegDataMap<double> high_force_limit_;
+    dls::dog::LegDataMap<double> low_force_limit_;
 
-    iit::dog::JointState tau_max_;
-    iit::dog::JointState q_max_;
-    iit::dog::JointState q_min_;
+    dls::dog::JointState tau_max_;
+    dls::dog::JointState q_max_;
+    dls::dog::JointState q_min_;
 
     //terrain properties
-    iit::dog::LegDataMap<Eigen::Vector3d> surf_normal_;
-    iit::dog::LegDataMap<double>  mu_estimate_;
+    dls::dog::LegDataMap<Eigen::Vector3d> surf_normal_;
+    dls::dog::LegDataMap<double>  mu_estimate_;
 
     //des target
     iit::planning::Point3d des_linear_state_;
@@ -591,23 +591,23 @@ private:
     double des_height_;
 
 
-    iit::dog::LegDataMap<iit::planning::Point3d> des_swing_foot_state_;
+    dls::dog::LegDataMap<iit::planning::Point3d> des_swing_foot_state_;
 
     //outputs
 
-    iit::rbd::ForceVector des_wrench_;
-    iit::rbd::ForceVector des_ffwd_wrench_;
-    iit::rbd::ForceVector gravity_wrench_;
-    iit::rbd::ForceVector des_vm_wrench_;
-    iit::rbd::ForceVector des_vm_accel_;
-    iit::rbd::ForceVector wrench_error_;
+    dls::rbd::ForceVector des_wrench_;
+    dls::rbd::ForceVector des_ffwd_wrench_;
+    dls::rbd::ForceVector gravity_wrench_;
+    dls::rbd::ForceVector des_vm_wrench_;
+    dls::rbd::ForceVector des_vm_accel_;
+    dls::rbd::ForceVector wrench_error_;
 
-    iit::dog::JointState ffwd_torques_;
-    iit::dog::LegDataMap<Eigen::Vector3d> des_feet_forces_;
-    iit::dog::LegDataMap<Eigen::Vector3d>  des_forces_;
+    dls::dog::JointState ffwd_torques_;
+    dls::dog::LegDataMap<Eigen::Vector3d> des_feet_forces_;
+    dls::dog::LegDataMap<Eigen::Vector3d>  des_forces_;
     double des_forces_weight_;
 
-    iit::dog::LegDataMap<Eigen::Vector3d> leg_torque_weights_;
+    dls::dog::LegDataMap<Eigen::Vector3d> leg_torque_weights_;
 
 
     TrunkControllerParams params_;

@@ -1,6 +1,6 @@
 #include <iit/commons/control/VirtualModel.hpp>
 #include <iit/commons/geometry/rotations.h>
-#include <iit/rbd/InertiaMatrix.h>
+#include <doglib/rbd/InertiaMatrix.h>
 
 namespace iit {
 namespace control {
@@ -29,30 +29,30 @@ void VirtualModel::setGains(double lx_p, double ly_p, double lz_p,
     Wrench Kd;
 
     // Proportional  gain, linear part
-    Kp(rbd::LX) = lx_p;
-    Kp(rbd::LY) = ly_p;
-    Kp(rbd::LZ) = lz_p;
+    Kp(dls::rbd::LX) = lx_p;
+    Kp(dls::rbd::LY) = ly_p;
+    Kp(dls::rbd::LZ) = lz_p;
 
     // Proportional  gain, angular part
-    Kp(rbd::AX) = ax_p;
-    Kp(rbd::AY) = ay_p;
-    Kp(rbd::AZ) = az_p;
+    Kp(dls::rbd::AX) = ax_p;
+    Kp(dls::rbd::AY) = ay_p;
+    Kp(dls::rbd::AZ) = az_p;
 
     // Derivative  gain, linear part
-    Kd(rbd::LX) = lx_d;
-    Kd(rbd::LY) = ly_d;
-    Kd(rbd::LZ) = lz_d;
+    Kd(dls::rbd::LX) = lx_d;
+    Kd(dls::rbd::LY) = ly_d;
+    Kd(dls::rbd::LZ) = lz_d;
 
     // Derivative  gain, angular part
-    Kd(rbd::AX) = ax_d;
-    Kd(rbd::AY) = ay_d;
-    Kd(rbd::AZ) = az_d;
+    Kd(dls::rbd::AX) = ax_d;
+    Kd(dls::rbd::AY) = ay_d;
+    Kd(dls::rbd::AZ) = az_d;
 
     setGains(Kp,Kd);
 }
 
 
-void VirtualModel::setGain(rbd::Coords6D index, GainType type, double value)
+void VirtualModel::setGain(dls::rbd::Coords6D index, GainType type, double value)
 {
     if (type == PROPORTIONAL){
         this->Kp_(index)= value;
@@ -85,14 +85,14 @@ VirtualModel::Wrench VirtualModel::getFeedBackWrench(const PointState & des_lin_
     Eigen::Matrix3d  R = commons::rpyToRot(actual_ang_state.x);
 
     //gracefully degrade performances
-    rbd::Vector6D wrench_error_base;
+    dls::rbd::Vector6D wrench_error_base;
     Wrench scaleGains = Wrench::Ones();
 
     // project the wrench error in the base frame
-    wrench_error_base.segment(rbd::AX,3) = R * wrench_error.segment(rbd::AX,3);
-    wrench_error_base.segment(rbd::LX,3) = R * wrench_error.segment(rbd::LX,3);
+    wrench_error_base.segment(dls::rbd::AX,3) = R * wrench_error.segment(dls::rbd::AX,3);
+    wrench_error_base.segment(dls::rbd::LX,3) = R * wrench_error.segment(dls::rbd::LX,3);
 
-    scaleGains = rbd::Vector6D::Constant(1.0) -
+    scaleGains = dls::rbd::Vector6D::Constant(1.0) -
             (wrench_error_base.cwiseAbs()).cwiseProduct(wrenchErrorThreshold_.cwiseInverse());
 
     // clip  between 0 and 1
@@ -102,10 +102,10 @@ VirtualModel::Wrench VirtualModel::getFeedBackWrench(const PointState & des_lin_
     Kd_limited_ = scaleGains.cwiseProduct(Kd_);
 
     //linear position
-    wrench_out.segment(rbd::LX,3) = R.transpose() *
-            Kp_limited_.segment(rbd::LX,3).asDiagonal() * R *
+    wrench_out.segment(dls::rbd::LX,3) = R.transpose() *
+            Kp_limited_.segment(dls::rbd::LX,3).asDiagonal() * R *
             (des_lin_state.x - actual_lin_state.x) +
-            R.transpose()* Kd_limited_.segment(rbd::LX,3).asDiagonal() * R *
+            R.transpose()* Kd_limited_.segment(dls::rbd::LX,3).asDiagonal() * R *
             (des_lin_state.xd - actual_lin_state.xd);
 
     // orientation (omega is expressed in the base frame)
@@ -117,10 +117,10 @@ VirtualModel::Wrench VirtualModel::getFeedBackWrench(const PointState & des_lin_
     Eigen::Matrix3d Jomega = commons::rpyToEar(des_ang_state.x);
 
     //new
-    wrench_out.segment(rbd::AX,3) = R.transpose() *
-            (Kp_limited_.segment(rbd::AX,3).asDiagonal() *
+    wrench_out.segment(dls::rbd::AX,3) = R.transpose() *
+            (Kp_limited_.segment(dls::rbd::AX,3).asDiagonal() *
              commons::computeOrientError(des_ang_state.x, actual_ang_state.x) +
-             Kd_limited_.segment(rbd::AX,3).asDiagonal() *(Jomega*des_ang_state.xd - actual_ang_state.xd));
+             Kd_limited_.segment(dls::rbd::AX,3).asDiagonal() *(Jomega*des_ang_state.xd - actual_ang_state.xd));
              // Rt map into the moments in world frame cause omega
              // is defined in base frame
 
@@ -141,7 +141,7 @@ VirtualModel::Wrench VirtualModel::getFeedForwardWrench(const Vector3d& des_lin_
     Eigen::Matrix3d  R = commons::rpyToRot(des_ang_pos);
     //linear term
     //multiply by the robot mass
-    wrench_out.segment(rbd::LX,3) = mass * des_lin_acc;
+    wrench_out.segment(dls::rbd::LX,3) = mass * des_lin_acc;
 
 
 
@@ -155,8 +155,8 @@ VirtualModel::Wrench VirtualModel::getFeedForwardWrench(const Vector3d& des_lin_
     //angular term (Ic is supposed in the base frame)
     //new
     //multiply by the trunk inertia I is supposed in the base frame)
-    wrench_out.segment(rbd::AX,3) = R.transpose() *
-           inertia_matrix.block(rbd::AX, rbd::AX,3,3) * des_omega_dot;
+    wrench_out.segment(dls::rbd::AX,3) = R.transpose() *
+           inertia_matrix.block(dls::rbd::AX, dls::rbd::AX,3,3) * des_omega_dot;
 
 
     return wrench_out;

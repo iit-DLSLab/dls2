@@ -2,7 +2,7 @@
 #define IIT_CONTROL_VIRTUALMODEL_HPP_
 
 
-#include <iit/rbd/rbd.h>
+#include <doglib/rbd/rbd.h>
 #include <Eigen/Dense>
 #include <iit/commons/planning/planning.h>
 
@@ -18,9 +18,9 @@ namespace control {
  */
 class VirtualModel {
 public:
-    typedef iit::rbd::ForceVector Gains;
-    typedef iit::rbd::ForceVector Wrench;
-    typedef iit::rbd::InertiaMatrixDense InertiaMatrix;
+    typedef dls::rbd::ForceVector Gains;
+    typedef dls::rbd::ForceVector Wrench;
+    typedef dls::rbd::InertiaMatrixDense InertiaMatrix;
     typedef iit::planning::Point3d PointState;
     typedef Eigen::Vector3d Vector3d;
 
@@ -69,7 +69,7 @@ public:
      * @param[in] type VirtualModel::PROPORTIONAL or VirtualModel::DERIVATIVE
      * @param[in] value to be set for the selected gain
      */
-    void setGain(rbd::Coords6D index, GainType type, double value);
+    void setGain(dls::rbd::Coords6D index, GainType type, double value);
 
     /**
      * @brief getGains
