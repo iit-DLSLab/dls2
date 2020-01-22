@@ -369,6 +369,9 @@ add_library(
 	SHARED
 	controller/dummy_controller.cpp
 )
+target_link_libraries(dls_dummy_controller
+	doglib
+)
 add_dependencies(dls_dummy_controller messagelib)
 list(APPEND PROJECT_TARGETS dls_dummy_controller)
 # target_link_libraries(dummy_controller dls_geometry)
@@ -378,7 +381,7 @@ add_library(
 	SHARED
 	controller/pid_controller.cpp
 )
-target_link_libraries(dls_pid_controller dls_logging)
+target_link_libraries(dls_pid_controller dls_logging doglib)
 add_dependencies(dls_pid_controller messagelib)
 list(APPEND PROJECT_TARGETS dls_pid_controller)
 
@@ -389,13 +392,16 @@ add_library(
 )
 add_dependencies(dls_dummy_gait_generator messagelib)
 list(APPEND PROJECT_TARGETS dls_dummy_gait_generator)
+target_link_libraries(dls_dummy_gait_generator
+	doglib
+)
 
 add_library(
 	dls_prep_gait_generator
 	SHARED
 	gait_generator/prep_gait_generator.cpp
 )
-add_dependencies(dls_prep_gait_generator messagelib)
+add_dependencies(dls_prep_gait_generator messagelib doglib)
 list(APPEND PROJECT_TARGETS dls_prep_gait_generator)
 
 add_library(
@@ -403,7 +409,7 @@ add_library(
 	SHARED
 	estimator/dummy_estimator.cpp
 )
-add_dependencies(dls_dummy_estimator messagelib)
+add_dependencies(dls_dummy_estimator messagelib doglib)
 list(APPEND PROJECT_TARGETS dls_dummy_estimator)
 # target_link_libraries(dummy_gait_generator dls_geometry)
 

@@ -45,9 +45,9 @@
 // Issues`
 //
 //                                                                     - Hendrik
-#ifdef ALIVE
-#undef ALIVE
-#endif
+// #ifdef ALIVE
+// #undef ALIVE
+// #endif
 
 namespace dls
 {
@@ -278,11 +278,11 @@ void Command<ret_t, arg_ts...>::CommandCallListener::onNewDataMessage
 	eprosima::fastrtps::SampleInfo_t info;
 	if(sub->takeNextData((void*)this->pData.get(), &info))
 	{
-		if(info.sampleKind == eprosima::fastrtps::rtps::ALIVE)
-		{
+		// if(info.sampleKind == eprosima::fastrtps::rtps::ALIVE)
+		// {
 			std::tuple<arg_ts...> tuple = buildArgTuple<arg_ts...>(0);
 			owner.call(tuple);
-		}
+		// }
 	}
 }
 

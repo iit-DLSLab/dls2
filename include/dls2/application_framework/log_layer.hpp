@@ -63,7 +63,7 @@ private:
 			StringMsg msg;
 			if(sub->takeNextData((void*)&msg, &info))
 			{
-				if(info.sampleKind == eprosima::fastrtps::rtps::ALIVE)
+				// if(info.sampleKind == eprosima::fastrtps::rtps::ALIVE)
 				{
 					std::cout << LogLayer::get_current_time() << ": DEBUG: " <<  msg.msg() << std::flush;
 				}
@@ -85,7 +85,7 @@ private:
 			StringMsg msg;
 			if(sub->takeNextData((void*)&msg, &info))
 			{
-				if(info.sampleKind == eprosima::fastrtps::rtps::ALIVE)
+				// if(info.sampleKind == eprosima::fastrtps::rtps::ALIVE)
 				{
 					std::cout << LogLayer::get_current_time() << ": INFO: " <<  msg.msg() << std::flush;
 				}
@@ -107,7 +107,7 @@ private:
 			StringMsg msg;
 			if(sub->takeNextData((void*)&msg, &info))
 			{
-				if(info.sampleKind == eprosima::fastrtps::rtps::ALIVE)
+				// if(info.sampleKind == eprosima::fastrtps::rtps::ALIVE)
 				{
 					std::cout << LogLayer::get_current_time() << ": WARN: " <<  msg.msg() << std::flush;
 				}
@@ -129,7 +129,7 @@ private:
 			StringMsg msg;
 			if(sub->takeNextData((void*)&msg, &info))
 			{
-				if(info.sampleKind == eprosima::fastrtps::rtps::ALIVE)
+				// if(info.sampleKind == eprosima::fastrtps::rtps::ALIVE)
 				{
 					std::cout << LogLayer::get_current_time() << ": ERROR: " <<  msg.msg() << std::flush;
 				}
@@ -151,7 +151,7 @@ private:
 			StringMsg msg;
 			if(sub->takeNextData((void*)&msg, &info))
 			{
-				if(info.sampleKind == eprosima::fastrtps::rtps::ALIVE)
+				// if(info.sampleKind == eprosima::fastrtps::rtps::ALIVE)
 				{
 					std::cout << LogLayer::get_current_time() << ": FATAL: " <<  msg.msg() << std::flush;
 				}
@@ -176,7 +176,7 @@ private:
 			{
 				// TODO this is just a temporary messy quick implementation.
 				// This whole layer needs to be written better in any case
-				if(info.sampleKind == eprosima::fastrtps::rtps::ALIVE)
+				// if(info.sampleKind == eprosima::fastrtps::rtps::ALIVE)
 				{
 					std::cout << LogLayer::get_current_time() << ": RAW: " <<
 						msg.lf().haa().actual_position() << " " <<

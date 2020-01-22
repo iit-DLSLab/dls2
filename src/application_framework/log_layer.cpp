@@ -24,6 +24,24 @@
 #include <sys/time.h>
 #include <cstdio>
 
+// The current release of Eigen defines in the file `Eigen_Colamd.h` the macro:
+// # define ALIVE (0)
+// This macro seems to be refered to in only that file. Being a very generic
+// name, it clashes with the enumeration in: `eprosima::fastrtps::rtps::ALIVE`
+// As of this writing, it seems that this has been fixed in Eigen's github.
+// However, it has not been officially released yet. At the time of this writing
+// (21 January 2020), the latest stable release of Eigen is Eigen 3.3.7,
+// released on 11 December 2018. Until such time as Eigen's fix makes it into a
+// new release, the following lines solves the issue.
+//
+// For this message, and other similar issues, refer to the wiki page `Software
+// Issues`
+//
+//                                                                     - Hendrik
+#ifdef ALIVE
+#undef ALIVE
+#endif
+
 using namespace dls;
 LogLayer::LogLayer() :
 	debug_listener(),
