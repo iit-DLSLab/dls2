@@ -354,7 +354,7 @@ bool ControlLayer::activateController(const Controller::ID_t &ID)
 			//
 			// since its premultiplier is initially set to zero, this will have
 			// no effect on the robot until the spline in is run later
-			execl(CHILD_PROCESS_PATH "dls_controller_process", ID.c_str(), ID.c_str(), (char *)NULL);
+			execl("${DLS_INSTALL_RUNTIME_DIR}/dls_controller_process", ID.c_str(), ID.c_str(), (char *)NULL);
 			cfatal << "Controller process failed to launch" << std::endl;
 			DMSG(strerror(errno));
 			// TODO("handle errors");
@@ -481,7 +481,7 @@ bool ControlLayer::activateGaitGenerator(const GaitGenerator::ID_t &ID)
 	if(this->pGait_generator_data->gait_generator_pid == 0)
 	{
 		// TODO("error checking")
-		execl(CHILD_PROCESS_PATH "dls_gait_generator_process", ID.c_str(), ID.c_str(), (char *)NULL);
+		execl("${DLS_INSTALL_RUNTIME_DIR}/dls_gait_generator_process", ID.c_str(), ID.c_str(), (char *)NULL);
 		cfatal << "Failed to launch gait generator process" << std::endl;
 	}
 

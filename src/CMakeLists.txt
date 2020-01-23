@@ -169,6 +169,10 @@ add_library(
 add_dependencies(dls_geometry dls_messaging)
 list(APPEND PROJECT_TARGETS dls_geometry)
 # ============================ Application Layers ==============================
+configure_file(
+	application_framework/control_layer.cpp.in
+	control_layer.cpp
+)
 add_library(
 	dls_framework
 
@@ -178,7 +182,8 @@ add_library(
 	application_framework/app_layer.cpp
 	application_framework/hardware_layer.cpp
 	application_framework/hyq_app_libraries.cpp
-	application_framework/control_layer.cpp
+	# application_framework/control_layer.cpp
+	control_layer.cpp
 	application_framework/console_layer.cpp
 	application_framework/estimation_layer.cpp
 	application_framework/log_layer.cpp
