@@ -6,6 +6,9 @@ set(MAJOR 0)
 set(MINOR 0)
 set(PATCH 0)
 
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/dls_options.cmake)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/scripts/launch_framework.in ${CMAKE_CURRENT_SOURCE_DIR}/install/dls)
+
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
 	set(BUILD_PREFIX "release")
 elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -58,7 +61,7 @@ add_custom_target(
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
-if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
+# if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
 	include(InstallRequiredSystemLibraries)
 	set(CPACK_GENERATOR "DEB")
 	set(CPACK_PACKAGE_VENDOR "dlslab")
@@ -68,4 +71,12 @@ if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
 	set(CPACK_PACKAGE_VERSION_MINOR ${MINOR})
 	set(CPACK_PACKAGE_VERSION_PATCH ${PATCH})
 	include(CPack)
-endif()
+# endif()
+
+install(
+	FILES ${CMAKE_SOURCE_DIR}/install/dls
+	PERMISSIONS
+		WORLD_EXECUTE WORLD_READ
+		OWNER_READ OWNER_WRITE
+	DESTINATION /usr/bin
+)
