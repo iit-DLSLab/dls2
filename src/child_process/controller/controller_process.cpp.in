@@ -25,16 +25,18 @@
 #include <sstream>
 
 #include "dls2/util/class_loader.hpp"
-#include "dls2/gait_generator/gait_generator.hpp"
+#include "dls2/controller/controller.hpp"
 #include "dls2/util/debug/debug.hpp"
-#include "dls2/path_prefixes/path_prefixes.hpp"
 #include "dls2/util/log/log.hpp"
 #include "dls2/util/debug/debug.hpp"
 
+#include "dls2/path_prefixes/path_prefixes.hpp"
 #include "dls2/util/time/time.hpp"
+
 #include <doglib/factory/robot_factory.hpp>
+
 using namespace dls;
-std::shared_ptr<GaitGenerator> pGaitGenerator;
+std::shared_ptr<Controller> pController;
 void signal_handler(int signal);
 
 auto process_handle = "controller_child_process_launcher";
@@ -45,64 +47,64 @@ int main(int argc, char **argv)
 	(
 		dls::dog::RobotFactory::RobotType::HyQReal
 	);
+
 	Time::set_use_simulated_time(true);
-	DMSG("USING SIMULATED TIME");
 	if(argc != 2)
 	{
-		std::cerr << "Usage: " << argv[0] << " <gait_generator_name>" << std::endl;
+		std::cerr << "Usage: " << argv[0] << " <controller_name>" << std::endl;
 		std::cerr << "argc: " << argc << std::endl;
 		exit(EXIT_FAILURE);
 	}
 
 	try
 	{
-		pGaitGenerator =
-			ClassLoader::loadClass<GaitGenerator, std::shared_ptr<dls::dog::Dog>>
+		pController =
+			ClassLoader::loadClass<Controller, std::shared_ptr<dls::dog::Dog>>
 			(
 				std::string("./lib") + argv[1] + ".so",
 				pRobot
 			);
-		std::cout << "Loaded gait generator from local directory" << std::endl;
+
+		std::cout << "Loaded controller from local directory" << std::endl;
 	}
 	catch(const std::exception&)
 	{
 		try
 		{
-			pGaitGenerator =
-				ClassLoader::loadClass<GaitGenerator, std::shared_ptr<dls::dog::Dog>>
+			pController =
+				ClassLoader::loadClass<Controller, std::shared_ptr<dls::dog::Dog>>
 				(
-					std::string("/usr/lib/dls2/lib") + argv[1] + ".so",
+					std::string("${DLS_INSTALL_CONTROLLER_DIR}/lib") + argv[1] + ".so",
 					pRobot
 				);
-			std::cout << "Loaded gait generator from installed directory" << std::endl;
+			std::cout << "Loaded controller from installed directory" << std::endl;
 		}
 		catch(const std::exception&)
 		{
-			DMSG("ADFSLFSDJLSDJFLSJFD");
 			logging::cfatalstream s(process_handle);
-			s << "Gait generator not found" << std::endl;
-			exit((int)GaitGenerator::Status::FATAL_ERROR);
+			s << "Controller not found" << std::endl;
+			exit((int)Controller::Status::FATAL_ERROR);
 		}
 	}
 
 	std::signal(SIGTERM, signal_handler);
 	logging::coutstream s(process_handle);
-	s << "Gait generator loaded" << std::endl;
-	pGaitGenerator->run();
+	s << "controller " << pController->getID() << " loaded" << std::endl;
+	pController->run();
 
-	return static_cast<int>(pGaitGenerator->getStatus());
+	return static_cast<int>(pController->getStatus());
 }
 
 void signal_handler(int signal)
 {
 	if(signal == SIGTERM)
 	{
-		pGaitGenerator->stop();
+		pController->stop();
 
 		logging::coutstream s(process_handle);
-		s << pGaitGenerator->getID() << " received kill request" << std::endl;
-		auto exit_status = pGaitGenerator->getStatus();
-		pGaitGenerator = nullptr;
+		s << pController->getID() << " received kill request" << std::endl;
+		auto exit_status = pController->getStatus();
+		pController = nullptr;
 
 		// give fastrtps a moment to send its message
 		std::this_thread::sleep_for(std::chrono::milliseconds(300));
@@ -112,21 +114,22 @@ void signal_handler(int signal)
 
 // If this class isn't delcared, the linker will link the whole class away, then
 // the call to loadClass will fail
-class VoidGaitGenerator : public GaitGenerator
+class VoidController : public Controller
 {
 public:
-	VoidGaitGenerator
+	VoidController
 	(
 	) :
-		GaitGenerator
+		Controller
 		(
 			nullptr,
-			"dummy_controller",
-			std::chrono::duration<double>(1)
+			"void_controller",
+			std::chrono::duration<double>(1),
+			ControlSignal::SignalReconstructionMethod::ZERO_ORDER_HOLD
 		)
 	{ }
 
-	~VoidGaitGenerator() = default;
+	~VoidController() = default;
 
 	void run(const std::chrono::system_clock::time_point &time)override
 	{
@@ -134,4 +137,4 @@ public:
 	};
 
 	Status eStop() override { return getStatus(); }
-}voidGaitGenerator;
+}voidController;

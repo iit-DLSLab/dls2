@@ -250,13 +250,15 @@ list(APPEND PROJECT_TARGETS dls_time)
 # ==============================================================================
 # Child Processes
 # ==============================================================================
-add_executable(
-	dls_controller_process
-
-	${CMAKE_SOURCE_DIR}/src/child_process/controller/controller_process.cpp
+configure_file(${CMAKE_SOURCE_DIR}/src/child_process/controller/controller_process.cpp.in
+	controller_process.cpp
 )
-target_link_libraries(
-	dls_controller_process
+
+add_executable( dls_controller_process
+	controller_process.cpp
+)
+
+target_link_libraries(dls_controller_process
 	fastcdr
 	fastrtps
 	dl
@@ -271,10 +273,12 @@ target_link_libraries(
 )
 list(APPEND PROJECT_TARGETS dls_controller_process)
 
-add_executable(
-	dls_gait_generator_process
+configure_file(${CMAKE_SOURCE_DIR}/src/child_process/gait_generator/gait_generator_process.cpp.in
+	gait_generator_process.cpp
+)
 
-	${CMAKE_SOURCE_DIR}/src/child_process/gait_generator/gait_generator_process.cpp
+add_executable(dls_gait_generator_process
+	gait_generator_process.cpp
 )
 target_link_libraries(dls_gait_generator_process
 	dls_framework
