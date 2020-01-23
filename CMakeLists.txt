@@ -7,7 +7,19 @@ set(MINOR 0)
 set(PATCH 0)
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/dls_options.cmake)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/scripts/launch_framework.in ${CMAKE_CURRENT_SOURCE_DIR}/install/dls)
+
+configure_file(
+	${CMAKE_CURRENT_SOURCE_DIR}/scripts/launch_framework.in
+	${CMAKE_CURRENT_SOURCE_DIR}/install/dls
+)
+
+# TODO add install command for this file
+configure_file(
+	${CMAKE_CURRENT_SOURCE_DIR}/cmake/dls_install.cmake.in
+	${CMAKE_CURRENT_SOURCE_DIR}/install/dls_install.cmake
+	@ONLY
+)
+
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
 	set(BUILD_PREFIX "release")

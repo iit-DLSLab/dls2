@@ -1,0 +1,27 @@
+function(dls_enforce_shared_lib target)
+	get_target_property(target_type target TYPE)
+	if(NOT target_type STREQUAL "SHARED_LIBRARY")
+		message(FATAL_ERROR "Error, target ${target} must be a shared library")
+	endif()
+endfunction()
+
+function(dls_install_controller controller)
+	dls_enforce_shared_lib(controller)
+	install(controller
+		LIBRARY DESTINATION @DLS_INSTALL_CONTROLLER_DIR@
+	)
+endfunction()
+
+function(dls_install_gait_generator generator)
+	dls_enforce_shared_lib(generator)
+	install(generator
+		LIBRARY DESTINATION @DLS_INSTALL_GAIT_GENERATOR_DIR@
+	)
+endfunction()
+
+function(dls_install_estimator estimator)
+	dls_enforce_shared_lib(estimator)
+	install(estimator
+		LIBRARY DESTINATION @DLS_INSTALL_GAIT_GENERATOR_DIR@
+	)
+endfunction()
