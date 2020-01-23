@@ -64,6 +64,8 @@ int main(int argc, char **argv)
 				std::string("./lib") + argv[1] + ".so",
 				pRobot
 			);
+
+		std::cout << "Loaded controller from local directory" << std::endl;
 	}
 	catch(const std::exception&)
 	{
@@ -75,6 +77,7 @@ int main(int argc, char **argv)
 					std::string("/usr/lib/dls2/lib") + argv[1] + ".so",
 					pRobot
 				);
+			std::cout << "Loaded controller from installed directory" << std::endl;
 		}
 		catch(const std::exception&)
 		{
