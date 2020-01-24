@@ -13,15 +13,15 @@ function(dls_install_controller controller)
 endfunction()
 
 function(dls_install_gait_generator generator)
-	dls_enforce_shared_lib(TARGETS ${generator})
-	install(${generator}
+	dls_enforce_shared_lib(${generator})
+	install(TARGETS ${generator}
 		LIBRARY DESTINATION @DLS_INSTALL_GAIT_GENERATOR_DIR@
 	)
 endfunction()
 
 function(dls_install_estimator estimator)
-	dls_enforce_shared_lib(TARGETS ${estimator})
-	install(${estimator}
+	dls_enforce_shared_lib(${estimator})
+	install(TARGETS ${estimator}
 		LIBRARY DESTINATION @DLS_INSTALL_GAIT_GENERATOR_DIR@
 	)
 endfunction()
