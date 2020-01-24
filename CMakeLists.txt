@@ -6,7 +6,9 @@ set(MAJOR 0)
 set(MINOR 0)
 set(PATCH 0)
 
-include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/dls_options.cmake)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+include(dls_options)
+# include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/dls_options.cmake)
 
 configure_file(
 	${CMAKE_CURRENT_SOURCE_DIR}/scripts/launch_framework.in
