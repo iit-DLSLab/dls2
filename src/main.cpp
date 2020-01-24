@@ -388,7 +388,8 @@ void handle_args(int argc, char **argv, options *opts)
 				}
 				else
 				{
-					std::cerr << "Unknown robot: " << optarg << std::endl;
+					std::cerr << "Unknown robot: " << optarg
+						<<"\nvalid options are 'hyq' or 'hyqreal'" << std::endl;
 					goto invalid_command_line;
 				}
 				robot_specified = true;
@@ -450,6 +451,13 @@ void handle_args(int argc, char **argv, options *opts)
 					else
 					{
 						std::cerr << "unknown layer: " << value << std::endl;
+						auto p = tokens;
+						std::cout << "valid layers are: ";
+						while(p != nullptr)
+						{
+							std::cout << p << " ";
+						}
+						std::cout << std::endl;
 						goto invalid_command_line;
 					}
 				}
