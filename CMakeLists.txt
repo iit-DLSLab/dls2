@@ -18,10 +18,9 @@ configure_file(
 # TODO add install command for this file
 configure_file(
 	${CMAKE_CURRENT_SOURCE_DIR}/cmake/dls_install.cmake.in
-	${CMAKE_CURRENT_SOURCE_DIR}/install/dls_install.cmake
+	${CMAKE_CURRENT_SOURCE_DIR}/install/dlsConfig.cmake
 	@ONLY
 )
-
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
 	set(BUILD_PREFIX "release")
@@ -93,4 +92,9 @@ install(
 		WORLD_EXECUTE WORLD_READ
 		OWNER_READ OWNER_WRITE
 	DESTINATION /usr/bin
+)
+
+install(
+	FILES ${CMAKE_CURRENT_SOURCE_DIR}/install/dlsConfig.cmake
+	DESTINATION lib/cmake/dls
 )
