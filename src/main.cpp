@@ -104,11 +104,13 @@ struct options
 		{
 			layer_decl::CONTROL,
 			layer_decl::CONSOLE
-		}
+		},
+		is_core(false)
 	{ }
 	dls::dog::RobotFactory::RobotType robot;
 	bool simulation_nhardware;
 	std::vector<layer_decl> layers;
+	bool is_core;
 };
 
 
@@ -180,59 +182,63 @@ int main(int argc, char **argv)
 
 	// Register an exit command to leave the framework
 	CommandManager command_manager;
-	command_manager.addCommand<void, ARGVOID>
-	(
-		"HyQApp_server",
-		"exit",
-		"exits the framework",
-		std::function<void(ARGVOID)>
+
+	if(opt.is_core)
+	{
+		command_manager.addCommand<void, ARGVOID>
 		(
-			[&](ARGVOID)
-			{
-				for(const auto &el : child_datas)
+			"HyQApp_server",
+			"exit",
+			"exits the framework",
+			std::function<void(ARGVOID)>
+			(
+				[&](ARGVOID)
 				{
-					kill(el.second.pid, SIGTERM);
+					for(const auto &el : child_datas)
+					{
+						kill(el.second.pid, SIGTERM);
+					}
 				}
-			}
-		)
-	);
+			)
+		);
 
-	command_manager.addCommand<void, std::string>
-	(
-		"HyQApp_server",
-		"launchLayer",
-
-		"Launches a layer specified by its argument:\n"
-		"* hardware\n"
-		"* console\n"
-		"* control\n"
-		"* log",
-
-		std::function<void(std::string)>
+		command_manager.addCommand<void, std::string>
 		(
-			[&](std::string s)
-			{
-				if(s == "hardware") forkLayer<HardwareLayer>("hardware_layer", argv);
-				else if(s == "console") forkLayer<ConsoleLayer>("console_layer", argv);
-				else if(s == "control") forkLayer<ControlLayer>("control_layer", argv);
-				else if(s == "log") forkLayer<LogLayer>("log_layer", argv);
-			}
-		)
-	);
+			"HyQApp_server",
+			"launchLayer",
 
-	command_manager.addCommand<void, ARGVOID>
-	(
-		"HyQApp_server",
-		"void",
-		"voids",
-		std::function<void(ARGVOID)>
+			"Launches a layer specified by its argument:\n"
+			"* hardware\n"
+			"* console\n"
+			"* control\n"
+			"* log",
+
+			std::function<void(std::string)>
+			(
+				[&](std::string s)
+				{
+					if(s == "hardware") forkLayer<HardwareLayer>("hardware_layer", argv);
+					else if(s == "console") forkLayer<ConsoleLayer>("console_layer", argv);
+					else if(s == "control") forkLayer<ControlLayer>("control_layer", argv);
+					else if(s == "log") forkLayer<LogLayer>("log_layer", argv);
+				}
+			)
+		);
+
+		command_manager.addCommand<void, ARGVOID>
 		(
-			[&](ARGVOID)
-			{
-				std::cout << "voided" << std::endl;
-			}
-		)
-	);
+			"HyQApp_server",
+			"void",
+			"voids",
+			std::function<void(ARGVOID)>
+			(
+				[&](ARGVOID)
+				{
+					std::cout << "voided" << std::endl;
+				}
+			)
+		);
+	}
 
 	// Monitor the child processes
 	//
@@ -367,12 +373,13 @@ void handle_args(int argc, char **argv, options *opts)
 		{"layers",     optional_argument,  nullptr,       'l'},
 		{"version",    no_argument,        nullptr,       'v'},
 		{"help",       no_argument,        nullptr,       'h'},
+		{"core",       no_argument,        nullptr,       'c'},
 		{0,            0,                  0,             0}
 	};
 
 	int opt;
 	bool robot_specified = false;
-	while((opt = getopt_long(argc, argv, "r:sHl:vh::", long_options, nullptr)) != -1)
+	while((opt = getopt_long(argc, argv, "r:sHl:vh::c", long_options, nullptr)) != -1)
 	{
 		switch(opt)
 		{
@@ -475,6 +482,11 @@ void handle_args(int argc, char **argv, options *opts)
 				exit(EXIT_SUCCESS);
 				break;
 			}
+			case 'c':
+			{
+				opts->is_core = true;
+				break;
+			}
 			default:
 			{
 				goto invalid_command_line;
@@ -504,8 +516,8 @@ void print_usage(int /*argc*/, char **argv)
 	"[ --simulation | -s] "
 	"[ --hardware | -H ] "
 	"[ --version | -v ] "
-	"[ --help - h ]"
-
+	"[ --help | -h ] "
+	"[ --core | -c ]"
 	"\n"
 	"\n"
 	"Flag meanings:\n"
@@ -518,5 +530,6 @@ void print_usage(int /*argc*/, char **argv)
 	"| layers      | l            | a comma-separated list of layers to launch          |\n"
 	"| version     | v            | print the version and exit                          |\n"
 	"| help        | h            | print this help and exit                            |\n"
+	"| core        | c            | launch in core mode                                 |\n"
 	<< std::endl;
 }
