@@ -217,6 +217,11 @@ target_link_libraries(dls_framework
 )
 list(APPEND PROJECT_TARGETS dls_framework)
 # ============================ Controller Modules ==============================
+add_library(dls_reflex
+	SHARED
+	${CMAKE_CURRENT_SOURCE_DIR}/reflex/reflex
+)
+
 add_library(
 	dls_estimatorinterface
 	SHARED

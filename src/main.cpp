@@ -150,7 +150,7 @@ int main(int argc, char **argv)
 	// Ignore cntrl-C
 	//
 	// To exit the framework, an exit command is registered later
-	signal(SIGINT, SIG_IGN);
+	// signal(SIGINT, SIG_IGN);
 
 	// Create application
 	pApp = std::make_shared<HyQApp>();
@@ -188,7 +188,7 @@ int main(int argc, char **argv)
 		command_manager.addCommand<void, ARGVOID>
 		(
 			"HyQApp_server",
-			"exit",
+			"core_exit",
 			"exits the framework",
 			std::function<void(ARGVOID)>
 			(
