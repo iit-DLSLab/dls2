@@ -241,9 +241,9 @@ ControlLayer::Status ControlLayer::run()
 	double time = std::chrono::system_clock::now().time_since_epoch().count();
 	while(!this->should_quit)
 	{
-		#ifndef NDEBUG
+		// #ifndef NDEBUG
 			auto begin_epoch = std::chrono::system_clock::now();
-		#endif
+		// #endif
 		// Read the control signals
 		Eigen::VectorXd desired_torques = Eigen::VectorXd::Zero(Robot::getDimension());
 		{
@@ -275,7 +275,7 @@ ControlLayer::Status ControlLayer::run()
 		// std::this_thread::sleep_for(std::chrono::duration<double, std::micro>(100));
 		Time::sleep_until(Time::now() + std::chrono::duration<double, std::micro>(100));
 
-		#ifndef NDEBUG
+		// #ifndef NDEBUG
 		{
 			auto end_epoch = std::chrono::system_clock::now();
 			double useconds =
@@ -290,7 +290,7 @@ ControlLayer::Status ControlLayer::run()
 			clog << "Control layer published torques " << desired_torques.transpose() << std::endl;
 
 		}
-		#endif
+		// #endif
 	}
 
 	return getStatus();
