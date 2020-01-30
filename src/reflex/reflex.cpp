@@ -36,13 +36,13 @@ Reflex::Reflex(size_t njoints_, bool(*predicate_)()) :
 	zeroes()
 {
 	zeroes.resize(njoints);
-	zeros = Eigen::VectorXd::zero(njoints);
+	zeroes = Eigen::VectorXd::Zero(njoints);
 }
 
 // =============================================================================
 // Implementation
 // =============================================================================
-Eigen::VectorXd run()
+Eigen::VectorXd Reflex::run()
 {
 	if(this->predicate())
 	{

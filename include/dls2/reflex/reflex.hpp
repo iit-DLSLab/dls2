@@ -48,10 +48,12 @@ namespace dls
 		/// should run
 		Reflex(size_t njoints, bool(*predicate)());
 
+		virtual ~Reflex() = default;
+
 		/// Calculates the reflex
 		///
 		/// Only calculates if the predicate is true. Returns zeroes otherwise
-		Eigen::VectorXd run():
+		Eigen::VectorXd run();
 
 	protected:
 		/// Pure Virtual callculation function
