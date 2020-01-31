@@ -24,7 +24,6 @@
 #include <memory>
 #include <signal.h>
 #include <unistd.h>
-#include <getopt.h>
 #include <stdlib.h>
 #include <cstring>
 #include <sstream>
@@ -40,6 +39,7 @@
 #include "dls2/application_framework/estimation_layer.hpp"
 #include "dls2/application_framework/log_layer.hpp"
 #include "dls2/application_framework/console_layer.hpp"
+#include "dls2/application_framework/options.hpp"
 
 #include "dls2/util/debug/debug.hpp"
 #include "dls2/util/log/log.hpp"
@@ -81,45 +81,9 @@ struct ChildData
 };
 
 std::map<pid_t, ChildData> child_datas;
-
-/// Layers
-///
-enum class layer_decl
-{
-	CONTROL,
-	CONSOLE,
-	ESTIMATION,
-	HARDWARE,
-	LOG
-};
-
-/// Command line options struct
-///
-struct options
-{
-	options() :
-		robot(dls::dog::RobotFactory::RobotType::HyQ),
-		simulation_nhardware(true),
-		layers
-		{
-			layer_decl::CONTROL,
-			layer_decl::CONSOLE
-		},
-		is_core(false)
-	{ }
-	dls::dog::RobotFactory::RobotType robot;
-	bool simulation_nhardware;
-	std::vector<layer_decl> layers;
-	bool is_core;
-};
-
-
 // =============================================================================
 // Prtototypes
 // =============================================================================
-void handle_args(int argc, char **argv, options*);
-void print_usage(int argc, char **argv);
-
 /// Change the name of a process for ease of monitoring inside of htop, ps etc
 ///
 /// Linux only allocates a certain amount of space for the process name. Hence,
@@ -144,8 +108,7 @@ int main(int argc, char **argv)
 	#endif
 
 	// Runtime Configuration
-	options opt;
-	handle_args(argc, argv, &opt);
+	Options::init(argc, argv);
 
 	// Ignore cntrl-C
 	//
@@ -156,26 +119,14 @@ int main(int argc, char **argv)
 	pApp = std::make_shared<HyQApp>();
 
 	// Launch layers
-	for(const auto &el : opt.layers)
+	if(Options::launch_log) forkLayer<LogLayer>("log_layer", argv);
+	if(Options::launch_console)
 	{
-		if(el == layer_decl::LOG)
-		{
-			forkLayer<LogLayer>("log_layer", argv);
-		}
-		else if(el == layer_decl::CONSOLE)
-		{
 			forkLayer<ConsoleLayer>("console_layer", argv);
 			std::this_thread::sleep_for(std::chrono::seconds(1));
-		}
-		else if(el == layer_decl::HARDWARE)
-		{
-			forkLayer<HardwareLayer>("hardware_layer", argv);
-		}
-		else if(el == layer_decl::CONTROL)
-		{
-			forkLayer<ControlLayer>("control_layer", argv);
-		}
 	}
+	if(Options::launch_hardware) forkLayer<HardwareLayer>("hardware_layer", argv);
+	if(Options::launch_control) forkLayer<ConsoleLayer>("control_layer", argv);
 
 	logging::coutstream outstream("framework_monitor");
 	logging::cfatalstream sfatal("framework_monitor");
@@ -183,7 +134,7 @@ int main(int argc, char **argv)
 	// Register an exit command to leave the framework
 	CommandManager command_manager;
 
-	if(opt.is_core)
+	if(Options::is_core)
 	{
 		command_manager.addCommand<void, ARGVOID>
 		(
@@ -360,176 +311,4 @@ void forkLayer(const std::string &process_name, char **argv)
 			std::forward_as_tuple(process_name, pid)
 		);
 	}
-}
-
-void handle_args(int argc, char **argv, options *opts)
-{
-	static struct option long_options[] =
-	{
-		//long_name    required?           return_short?  short_version
-		{"robot",      required_argument,  nullptr,       'r'},
-		{"simulation", no_argument,        nullptr,       's'},
-		{"hardware",   no_argument,        nullptr,       'H'},
-		{"layers",     optional_argument,  nullptr,       'l'},
-		{"version",    no_argument,        nullptr,       'v'},
-		{"help",       no_argument,        nullptr,       'h'},
-		{"core",       no_argument,        nullptr,       'c'},
-		{0,            0,                  0,             0}
-	};
-
-	int opt;
-	bool robot_specified = false;
-	while((opt = getopt_long(argc, argv, "r:sHl:vh::c", long_options, nullptr)) != -1)
-	{
-		switch(opt)
-		{
-			case 'r':
-			{
-				if(std::strcmp(optarg, "hyq") == 0)
-				{
-					opts->robot = dls::dog::RobotFactory::RobotType::HyQ;
-				}
-				else if(std::strcmp(optarg, "hyqreal") == 0)
-				{
-					opts->robot = dls::dog::RobotFactory::RobotType::HyQReal;
-				}
-				else
-				{
-					std::cerr << "Unknown robot: " << optarg
-						<<"\nvalid options are 'hyq' or 'hyqreal'" << std::endl;
-					goto invalid_command_line;
-				}
-				robot_specified = true;
-				break;
-			}
-			case 's':
-			{
-				opts->simulation_nhardware = true;
-				break;
-			}
-			case 'H':
-			{
-				opts->simulation_nhardware = false;
-				break;
-			}
-			case 'l':
-			{
-				opts->layers.clear();
-				char * const tokens []
-				{
-					const_cast<char*>("hardware"),
-					const_cast<char*>("control"),
-					const_cast<char*>("console"),
-					const_cast<char*>("log"),
-					const_cast<char*>("estimation"),
-					nullptr
-				};
-				char *value;
-				int opt;
-				char *subopts = optarg;
-
-				while(*subopts != '\0')
-				{
-					opt = getsubopt(&subopts, tokens, &value);
-					if(opt != -1)
-					{
-						auto layer = tokens[opt];
-						if(std::strcmp(layer, "hardware") == 0)
-						{
-							opts->layers.push_back(layer_decl::HARDWARE);
-						}
-						else if(std::strcmp(layer, "control") == 0)
-						{
-							opts->layers.push_back(layer_decl::CONTROL);
-						}
-						else if(std::strcmp(layer, "console") == 0)
-						{
-							opts->layers.push_back(layer_decl::CONSOLE);
-						}
-						else if(std::strcmp(layer, "log") == 0)
-						{
-							opts->layers.push_back(layer_decl::LOG);
-						}
-						else if(std::strcmp(layer, "estimation") == 0)
-						{
-							opts->layers.push_back(layer_decl::ESTIMATION);
-						}
-					}
-					else
-					{
-						std::cerr << "unknown layer: " << value << std::endl;
-						auto p = tokens;
-						std::cout << "valid layers are: ";
-						while(p != nullptr)
-						{
-							std::cout << p << " ";
-						}
-						std::cout << std::endl;
-						goto invalid_command_line;
-					}
-				}
-				break;
-			}
-			case 'v':
-			{
-				std::cout << "asked for version" << std::endl;
-				break;
-			}
-			case 'h':
-			{
-				// TODO print help of specific arg
-				print_usage(argc, argv);
-				exit(EXIT_SUCCESS);
-				break;
-			}
-			case 'c':
-			{
-				opts->is_core = true;
-				break;
-			}
-			default:
-			{
-				goto invalid_command_line;
-			}
-		}
-	}
-
-	if(!robot_specified)
-	{
-		std::cerr << "Error: robot not specified" << std::endl;
-		goto invalid_command_line;
-	}
-
-	return;
-
-invalid_command_line:
-	print_usage(argc, argv);
-	exit(EXIT_FAILURE);
-}
-
-void print_usage(int /*argc*/, char **argv)
-{
-	std::cout << "USAGE: " << argv[0] << " "
-
-	"< -r <hyq|hyqreal> | --robot=<hyq|hyqreal> > "
-	"< --layers= | l ...> "
-	"[ --simulation | -s] "
-	"[ --hardware | -H ] "
-	"[ --version | -v ] "
-	"[ --help | -h ] "
-	"[ --core | -c ]"
-	"\n"
-	"\n"
-	"Flag meanings:\n"
-	"==============\n"
-	"| long option | short option | meaning                                             |\n"
-	"|-------------|--------------|-----------------------------------------------------|\n"
-	"| robot       | r            | specify the robot on which the framework is running |\n"
-	"| simulation  | s            | run the framework in simulated mode (default)       |\n"
-	"| hardware    | H            | run the framework on the real robot                 |\n"
-	"| layers      | l            | a comma-separated list of layers to launch          |\n"
-	"| version     | v            | print the version and exit                          |\n"
-	"| help        | h            | print this help and exit                            |\n"
-	"| core        | c            | launch in core mode                                 |\n"
-	<< std::endl;
 }

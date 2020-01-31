@@ -188,6 +188,8 @@ add_library(
 	application_framework/estimation_layer.cpp
 	application_framework/log_layer.cpp
 
+	application_framework/options.cpp
+
 	# Components
 	application_framework/components/app_layer_component.cpp
 	application_framework/components/periodic_app_layer_component.cpp
