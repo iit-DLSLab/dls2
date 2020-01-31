@@ -10,18 +10,18 @@ PLUGINLIB_EXPORT_CLASS(dls_hw_sim::DlsRobotHwSim, gazebo_ros_control::RobotHWSim
 
 
 // dls2
-#include "dls2/util/messaging/publisher_base.hpp"
-#include <memory>
-#include "dls2/msg/boolPubSubTypes.h"
-#include "dls2/topics/simulation_pause.hpp"
-std::shared_ptr<dls::PublisherBase<BoolMsgPubSubType>> pPause_pub;
+// #include "dls2/util/messaging/publisher_base.hpp"
+// #include <memory>
+// #include "dls2/msg/boolPubSubTypes.h"
+// #include "dls2/topics/simulation_pause.hpp"
+// std::shared_ptr<dls::PublisherBase<BoolMsgPubSubType>> pPause_pub;
 
 void callback_pause(bool is_paused)
 {
-	std::cout << "pause callback triggered" << std::endl;
-	BoolMsg msg;
-	msg.val(is_paused);
-	pPause_pub->publish(msg);
+	// std::cout << "pause callback triggered" << std::endl;
+	// BoolMsg msg;
+	// msg.val(is_paused);
+	// pPause_pub->publish(msg);
 }
 namespace dls_hw_sim
 {
@@ -59,9 +59,9 @@ bool DlsRobotHwSim::initSim(
 	odometry_msg_.child_frame_id = "base";
 	blind_state_msg_.header.frame_id = "base";
 	
-	pPause_pub = std::make_shared<dls::PublisherBase<BoolMsgPubSubType>>(dls::topics::simulation_pause);
-	pause_connection =  gazebo::event::Events::ConnectPause(std::function<void(bool)>(callback_pause));
-	// gazebo::event::Events::ConnectPause();
+	// pPause_pub = std::make_shared<dls::PublisherBase<BoolMsgPubSubType>>(dls::topics::simulation_pause);
+	// pause_connection =  gazebo::event::Events::ConnectPause(std::function<void(bool)>(callback_pause));
+	//// gazebo::event::Events::ConnectPause();
 
 	for (int i=0;i<36;i++)
 	{
