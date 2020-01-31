@@ -28,6 +28,7 @@
 
 // project includes
 #include "dls2/application_framework/options.hpp"
+#include "dls2/application_framework/version_info.hpp"
 
 // =============================================================================
 // Using Declarations
@@ -185,7 +186,8 @@ void Options::parseArgs(int argc, char **argv)
 			}
 			case 'v':
 			{
-				std::cout << "asked for version" << std::endl;
+				std::cout << "Version: " << VersionInfo::getVersionString() << std::endl;
+				exit(EXIT_SUCCESS);
 				break;
 			}
 			case 'h':

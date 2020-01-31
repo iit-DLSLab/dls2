@@ -102,15 +102,12 @@ void forkLayer(const std::string &process_name, char **argv);
 // =============================================================================
 int main(int argc, char **argv)
 {
-	// #ifndef NDEBUG
-	// 	std::cout << "Debug build" << std::endl;
-	// 	std::cout << "Version: " << PROJECT_MAJOR << "."
-	// 		<< PROJECT_MINOR << "." << PROJECT_PATCH << std::endl;
-	// #endif
-	std::cout << "Version: " << VersionInfo::getVersionString() << std::endl;
 
 	// Runtime Configuration
 	Options::init(argc, argv);
+	#ifndef NDEBUG
+		std::cout << "Debug build" << std::endl;
+	#endif
 
 	// Ignore cntrl-C
 	//
@@ -128,7 +125,7 @@ int main(int argc, char **argv)
 			std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
 	if(Options::launch_hardware) forkLayer<HardwareLayer>("hardware_layer", argv);
-	if(Options::launch_control) forkLayer<ConsoleLayer>("control_layer", argv);
+	if(Options::launch_control) forkLayer<ControlLayer>("control_layer", argv);
 
 	logging::coutstream outstream("framework_monitor");
 	logging::cfatalstream sfatal("framework_monitor");
