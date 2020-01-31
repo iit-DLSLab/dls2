@@ -173,6 +173,11 @@ configure_file(
 	application_framework/control_layer.cpp.in
 	${CMAKE_SOURCE_DIR}/build/control_layer.cpp
 )
+
+configure_file(
+	application_framework/version_info.cpp.in
+	${CMAKE_SOURCE_DIR}/build/version_info.cpp
+)
 add_library(
 	dls_framework
 
@@ -184,6 +189,7 @@ add_library(
 	application_framework/hyq_app_libraries.cpp
 	# application_framework/control_layer.cpp
 	${CMAKE_SOURCE_DIR}/build/control_layer.cpp
+	${CMAKE_SOURCE_DIR}/build/version_info.cpp
 	application_framework/console_layer.cpp
 	application_framework/estimation_layer.cpp
 	application_framework/log_layer.cpp

@@ -1,10 +1,11 @@
 cmake_minimum_required(VERSION 3.5.1)
-project(dls2)
+project(dls2 VERSION 0.0.0)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(MAJOR 0)
-set(MINOR 0)
-set(PATCH 0)
+# TODO remove references to MAJOR, MINOR and PATCH and use the long forms instead
+set(MAJOR ${PROJECT_VERSION_MAJOR})
+set(MINOR ${PROJECT_VERSION_MINOR})
+set(PATCH ${PROJECT_VERSION_PATCH})
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 include(dls_options)

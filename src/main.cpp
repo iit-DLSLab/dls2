@@ -40,6 +40,7 @@
 #include "dls2/application_framework/log_layer.hpp"
 #include "dls2/application_framework/console_layer.hpp"
 #include "dls2/application_framework/options.hpp"
+#include "dls2/application_framework/version_info.hpp"
 
 #include "dls2/util/debug/debug.hpp"
 #include "dls2/util/log/log.hpp"
@@ -101,11 +102,12 @@ void forkLayer(const std::string &process_name, char **argv);
 // =============================================================================
 int main(int argc, char **argv)
 {
-	#ifndef NDEBUG
-		std::cout << "Debug build" << std::endl;
-		std::cout << "Version: " << PROJECT_MAJOR << "."
-			<< PROJECT_MINOR << "." << PROJECT_PATCH << std::endl;
-	#endif
+	// #ifndef NDEBUG
+	// 	std::cout << "Debug build" << std::endl;
+	// 	std::cout << "Version: " << PROJECT_MAJOR << "."
+	// 		<< PROJECT_MINOR << "." << PROJECT_PATCH << std::endl;
+	// #endif
+	std::cout << "Version: " << VersionInfo::getVersionString() << std::endl;
 
 	// Runtime Configuration
 	Options::init(argc, argv);
