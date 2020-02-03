@@ -152,4 +152,14 @@ private:
 };
 } // end namespace dls
 
+#define DLS_EXPORT_CONTROLLER(controller) \
+extern "C" dls::Controller *create(std::shared_ptr<dls::dog::Dog> pDog) \
+{ \
+	return new controller(pDog); \
+} \
+extern "C" void destroy(dls::Controller *p) \
+{ \
+	delete p; \
+}
+
 #endif /* end of include guard: CONTROLLER_HPP_RSFU8GQS */
