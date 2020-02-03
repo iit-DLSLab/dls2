@@ -99,3 +99,8 @@ install(
 	FILES ${CMAKE_CURRENT_SOURCE_DIR}/install/dlsConfig.cmake
 	DESTINATION lib/cmake/dls
 )
+
+install(
+	FILES ${CMAKE_CURRENT_SOURCE_DIR}/scripts/dls-completion.bash
+	DESTINATION /etc/bash_completion.d
+)
