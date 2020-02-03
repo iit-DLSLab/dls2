@@ -104,3 +104,9 @@ install(
 	FILES ${CMAKE_CURRENT_SOURCE_DIR}/scripts/dls-completion.bash
 	DESTINATION /etc/bash_completion.d
 )
+
+install(
+	FILES ${CMAKE_CURRENT_SOURCE_DIR}/scripts/dls-completion.zsh
+	DESTINATION /usr/share/zsh/vendor-completions
+	RENAME _dls
+)
