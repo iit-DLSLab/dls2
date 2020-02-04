@@ -35,6 +35,11 @@
 
 #include <doglib/factory/robot_factory.hpp>
 
+// TODO remove this include
+// This is put here because the controllers in the old framework are entwined
+// with ros to an egregious extent. When they have been disentangled, this, as
+// well as the call to ros::init, may be removed
+#include <ros/ros.h>
 using namespace dls;
 std::shared_ptr<Controller> pController;
 void signal_handler(int signal);
@@ -43,6 +48,8 @@ auto process_handle = "controller_child_process_launcher";
 
 int main(int argc, char **argv)
 {
+
+	ros::init(argc, argv, argv[1]);
 	auto pRobot = dls::dog::RobotFactory::buildRobot
 	(
 		dls::dog::RobotFactory::RobotType::HyQReal

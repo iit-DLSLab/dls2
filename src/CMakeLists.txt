@@ -15,6 +15,15 @@ set(LIBRARY_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/bin/${BUILD_PREFIX}")
 set(EXECUTABLE_NAME dynamic_legged_systems_framework)
 
 set(PROJECT_TARGETS "")
+
+# ==============================================================================
+# ROS TODO this is required for launching some child generators. Move this to
+# the directory child_processes
+# ==============================================================================
+find_package(roscpp REQUIRED)
+find_package(std_msgs REQUIRED)
+include_directories(SYSTEM ${roscpp_INCLUDE_DIRS})
+
 # ==============================================================================
 # Global Compilation Options
 # ==============================================================================
@@ -288,6 +297,7 @@ target_link_libraries(dls_controller_process
 	#PRIVATE
 	dls_time
 	doglib
+	${roscpp_LIBRARIES}
 )
 list(APPEND PROJECT_TARGETS dls_controller_process)
 
@@ -309,6 +319,8 @@ target_link_libraries(dls_gait_generator_process
 
 	#PRIVATE
 	dls_time
+
+	${roscpp_LIBRARIES}
 )
 list(APPEND PROJECT_TARGETS dls_gait_generator_process)
 # ==============================================================================
