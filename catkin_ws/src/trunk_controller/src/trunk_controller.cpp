@@ -83,6 +83,7 @@ first_time_(true)
 
 
     //robot_params_.reset(new dls::dog::UrdfParamsGetter(robot_model));
+	std::cout << "WARNING: TRUNK HARDCODED TO HYQ" << std::endl;
     robot_params_.reset(new dls::HyQ::TestParamsGetter());
 	
 	
