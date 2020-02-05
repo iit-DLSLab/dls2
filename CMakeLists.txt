@@ -148,11 +148,9 @@ add_custom_command(
 	COMMAND gzip ${CMAKE_BINARY_DIR}/doc/dls.2
 	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/doc
 )
-install(
-	FILES ${CMAKE_BINARY_DIR}/doc/dls.1.gz
+install(FILES ${CMAKE_BINARY_DIR}/doc/dls.1.gz
 	DESTINATION /usr/man/man1
 )
-install(
-	FILES ${CMAKE_BINARY_DIR}/doc/dls.2.gz
+install(FILES ${CMAKE_BINARY_DIR}/doc/dls.2.gz
 	DESTINATION /usr/man/man2
 )

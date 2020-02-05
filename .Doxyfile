@@ -811,7 +811,18 @@ RECURSIVE              = YES
 # Note that relative paths are relative to the directory from which doxygen is
 # run.
 
-EXCLUDE                =
+EXCLUDE                = bin
+EXCLUDE                += build
+EXCLUDE                += build_tools
+EXCLUDE                += cmake
+EXCLUDE                += doc
+EXCLUDE                += gen
+EXCLUDE                += install
+EXCLUDE                += msg
+EXCLUDE                += scripts
+EXCLUDE                += test
+EXCLUDE                += 3rd_party
+EXCLUDE                += lib
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded
@@ -828,16 +839,6 @@ EXCLUDE_SYMLINKS       = NO
 # exclude all test directories for example use the pattern */test/*
 
 EXCLUDE_PATTERNS       = */catkin_ws/*
-EXCLUDE_PATTERNS       += bin
-EXCLUDE_PATTERNS       += build
-EXCLUDE_PATTERNS       += build_tools
-EXCLUDE_PATTERNS       += cmake
-EXCLUDE_PATTERNS       += doc
-EXCLUDE_PATTERNS       += gen
-EXCLUDE_PATTERNS       += install
-EXCLUDE_PATTERNS       += msg
-EXCLUDE_PATTERNS       += scripts
-EXCLUDE_PATTERNS       += test
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
 # (namespaces, classes, functions, etc.) that should be excluded from the
@@ -1850,7 +1851,7 @@ RTF_SOURCE_CODE        = NO
 # classes and files.
 # The default value is: NO.
 
-GENERATE_MAN           = NO
+GENERATE_MAN           = YES
 
 # The MAN_OUTPUT tag is used to specify where the man pages will be put. If a
 # relative path is entered the value of OUTPUT_DIRECTORY will be put in front of
