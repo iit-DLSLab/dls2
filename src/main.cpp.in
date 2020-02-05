@@ -32,6 +32,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/prctl.h>
+#include <stdlib.h>
 
 #include "dls2/application_framework/hyq_app.hpp"
 #include "dls2/application_framework/hardware_layer.hpp"
@@ -116,6 +117,14 @@ int main(int argc, char **argv)
 
 	// Create application
 	pApp = std::make_shared<HyQApp>();
+	if(Options::show_docs)
+	{
+		return system
+		(
+			"@DLS_INSTALL_SCRIPTS_DIR@/xdg-open "
+			"@DLS_INSTALL_DEVELOPMENT_DOCS_DIR@/html/index.html"
+		);
+	}
 
 	// Launch layers
 	if(Options::launch_log) forkLayer<LogLayer>("log_layer", argv);

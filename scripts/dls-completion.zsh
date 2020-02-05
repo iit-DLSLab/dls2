@@ -18,6 +18,8 @@ function _dls {
 		'--simulation[specify running in simulation]' \
 		'-H[specify running on real hardware]' \
 		'--hardware[specify running on real hardware]' \
+		'-d[Show development docs]' \
+		'--docs[Show development docs]' \
 
 	case "$state" in
 		(robot_name)

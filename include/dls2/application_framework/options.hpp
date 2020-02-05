@@ -76,6 +76,9 @@ public:
 
 	static dls::dog::RobotFactory::RobotType robot;
 
+	// launch browser for documentation
+	static bool show_docs;
+
 private:
 	/// Parses the arguments and updates the representations
 	///

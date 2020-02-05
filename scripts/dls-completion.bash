@@ -33,6 +33,7 @@ _dls_completion()
 		if ((!version_specified)); then
 			completions+=("--version")
 		fi
+		completions+=("--docs")
 	# fi
 	COMPREPLY=($(compgen -W "${completions[*]}" -- "${COMP_WORDS[COMP_CWORD]}"))
 }

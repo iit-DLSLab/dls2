@@ -20,3 +20,15 @@ set(DLS_INSTALL_CONTROLLER_DIR /usr/lib/dls2
 set(DLS_INSTALL_ESTIMATOR_DIR /usr/lib/dls2
 	CACHE string "Directory where shared object libraries for estimators are stored"
 )
+
+set(DLS_INSTALL_SCRIPTS_DIR /usr/bin/dls2/scripts
+	CACHE string "Directory where executable scripts are stored"
+)
+
+set(DLS_INSTALL_DEVELOPMENT_DOCS_DIR /usr/local/share/doc/dls2
+	CACHE string "Directory where software development documentation is stored"
+)
+
+set(DLS_INSTALL_DOCUMENTATION On
+	CACHE bool "Whether to install documentation"
+)

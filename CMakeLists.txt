@@ -22,6 +22,10 @@ configure_file(
 	${CMAKE_CURRENT_SOURCE_DIR}/install/dlsConfig.cmake
 	@ONLY
 )
+configure_file(
+	${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp.in
+	${CMAKE_CURRENT_SOURCE_DIR}/install/main.cpp
+)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
 	set(BUILD_PREFIX "release")
@@ -63,11 +67,11 @@ include_directories(
 add_subdirectory(3rd_party)
 add_subdirectory(src)
 
-if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+# if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 	enable_testing()
 	add_subdirectory(test)
 	add_subdirectory(doc)
-endif()
+# endif()
 
 add_custom_target(
 	todos
@@ -110,3 +114,19 @@ install(
 	DESTINATION /usr/share/zsh/vendor-completions
 	RENAME _dls
 )
+
+install(
+	FILES ${CMAKE_CURRENT_SOURCE_DIR}/scripts/xdg-open
+	DESTINATION ${DLS_INSTALL_SCRIPTS_DIR}
+	PERMISSIONS
+		WORLD_EXECUTE WORLD_READ
+		OWNER_READ OWNER_WRITE
+)
+
+if(DLS_INSTALL_DOCUMENTATION)
+
+	install(
+		DIRECTORY ${CMAKE_SOURCE_DIR}/doc/html
+		DESTINATION ${DLS_INSTALL_DEVELOPMENT_DOCS_DIR}
+	)
+endif()

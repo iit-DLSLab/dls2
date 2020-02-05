@@ -54,6 +54,9 @@ bool  Options::simulation_mode    =      true;
 // if this is the core
 bool  Options::is_core            =      false;
 
+// show the documentation in a browser
+bool Options::show_docs = false;
+
 dog::RobotFactory::RobotType Options::robot = dog::RobotFactory::RobotType::HyQ;
 static bool robot_is_specified = false;
 
@@ -82,15 +85,20 @@ void Options::parseArgs(int argc, char **argv)
 		{"version",    no_argument,        nullptr,       'v'},
 		{"help",       no_argument,        nullptr,       'h'},
 		{"core",       no_argument,        nullptr,       'c'},
+		{"docs",       no_argument,        nullptr,       'd'},
 		{0,            0,                  0,             0}
 	};
 
 	int opt;
-	while((opt = getopt_long(argc, argv, "r:sHl:vh::c", long_options, nullptr)) != -1)
+	while((opt = getopt_long(argc, argv, "r:sHl:vh::cd", long_options, nullptr)) != -1)
 	{
 		switch(opt)
 		{
-			// TODO
+			case 'd':
+			{
+				Options::show_docs = true;
+				break;
+			}
 			case 'r':
 			{
 				robot_is_specified = true;
@@ -226,7 +234,8 @@ void Options::printUsage()
 	"[ --hardware | -H ] "
 	"[ --version | -v ] "
 	"[ --help | -h ] "
-	"[ --core | -c ]"
+	"[ --core | -c ] "
+	"[ --doc | -d ]"
 	"\n"
 	"\n"
 	"Flag meanings:\n"
@@ -240,11 +249,18 @@ void Options::printUsage()
 	"| version     | v            | print the version and exit                          |\n"
 	"| help        | h            | print this help and exit                            |\n"
 	"| core        | c            | launch in core mode                                 |\n"
+	"| doc         | d            | show development documentation                      |\n"
 	<< std::endl;
 }
 
 void Options::validate()
 {
+	if(Options::show_docs)
+	{
+		// if show docs is enabled, main will just show the docs and exit
+		// Not doing more checks in that case
+		return;
+	}
 	if
 	(
 		(Options::launch_control || Options::launch_hardware) &&
