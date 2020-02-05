@@ -1,10 +1,10 @@
 .TH dls 1 "Build date: @DLS_COMPILE_DATE@" "version @PROJECT_VERSION@" "Dynamic Legged Systems Framework"
 
 .\" ============================================================================
-.SH dls
+.SH NAME
 .\" ============================================================================
 
-Dynamic Legged Systems software framework for the HyQ robot family.
+dls - Dynamic Legged Systems software framework for the HyQ robot family.
 
 .\" ============================================================================
 .SH SYNOPSIS

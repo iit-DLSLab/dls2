@@ -18,6 +18,11 @@ configure_file(
 	@ONLY
 )
 configure_file(
+	${CMAKE_CURRENT_SOURCE_DIR}/doc/dls.2.in
+	${CMAKE_BINARY_DIR}/doc/dls.2
+	@ONLY
+)
+configure_file(
 	${CMAKE_CURRENT_SOURCE_DIR}/scripts/launch_framework.in
 	${CMAKE_BINARY_DIR}/scripts/dls
 )
@@ -134,13 +139,20 @@ if(DLS_INSTALL_DOCUMENTATION)
 endif()
 
 # Install manpages
-add_custom_target(man ALL DEPENDS ${CMAKE_BINARY_DIR}/doc/dls.1.gz)
+add_custom_target(man ALL DEPENDS ${CMAKE_BINARY_DIR}/doc/dls.1.gz ${CMAKE_BINARY_DIR}/doc/dls.2.gz)
 add_custom_command(
-	OUTPUT ${CMAKE_BINARY_DIR}/doc/dls.1.gz
+	OUTPUT
+		${CMAKE_BINARY_DIR}/doc/dls.1.gz
+		${CMAKE_BINARY_DIR}/doc/dls.2.gz
 	COMMAND gzip ${CMAKE_BINARY_DIR}/doc/dls.1
+	COMMAND gzip ${CMAKE_BINARY_DIR}/doc/dls.2
 	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/doc
 )
 install(
 	FILES ${CMAKE_BINARY_DIR}/doc/dls.1.gz
 	DESTINATION /usr/man/man1
+)
+install(
+	FILES ${CMAKE_BINARY_DIR}/doc/dls.2.gz
+	DESTINATION /usr/man/man2
 )
