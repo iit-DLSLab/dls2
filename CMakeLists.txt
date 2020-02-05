@@ -7,24 +7,26 @@ set(MAJOR ${PROJECT_VERSION_MAJOR})
 set(MINOR ${PROJECT_VERSION_MINOR})
 set(PATCH ${PROJECT_VERSION_PATCH})
 
+string(TIMESTAMP DLS_COMPILE_DATE "%d-%m-%Y")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 include(dls_options)
 # include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/dls_options.cmake)
 
 configure_file(
+	${CMAKE_CURRENT_SOURCE_DIR}/doc/dls.1.in
+	${CMAKE_BINARY_DIR}/doc/dls.1
+	@ONLY
+)
+configure_file(
 	${CMAKE_CURRENT_SOURCE_DIR}/scripts/launch_framework.in
-	${CMAKE_CURRENT_SOURCE_DIR}/install/dls
+	${CMAKE_BINARY_DIR}/scripts/dls
 )
 
 # TODO add install command for this file
 configure_file(
 	${CMAKE_CURRENT_SOURCE_DIR}/cmake/dls_install.cmake.in
-	${CMAKE_CURRENT_SOURCE_DIR}/install/dlsConfig.cmake
+	${CMAKE_BINARY_DIR}/cmake/dlsConfig.cmake
 	@ONLY
-)
-configure_file(
-	${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp.in
-	${CMAKE_CURRENT_SOURCE_DIR}/install/main.cpp
 )
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
@@ -92,7 +94,7 @@ add_custom_target(
 # endif()
 
 install(
-	FILES ${CMAKE_SOURCE_DIR}/install/dls
+	FILES ${CMAKE_BINARY_DIR}/scripts/dls
 	PERMISSIONS
 		WORLD_EXECUTE WORLD_READ
 		OWNER_READ OWNER_WRITE
@@ -100,7 +102,7 @@ install(
 )
 
 install(
-	FILES ${CMAKE_CURRENT_SOURCE_DIR}/install/dlsConfig.cmake
+	FILES ${CMAKE_BINARY_DIR}/cmake/dlsConfig.cmake
 	DESTINATION lib/cmake/dls
 )
 
@@ -130,3 +132,15 @@ if(DLS_INSTALL_DOCUMENTATION)
 		DESTINATION ${DLS_INSTALL_DEVELOPMENT_DOCS_DIR}
 	)
 endif()
+
+# Install manpages
+add_custom_target(man ALL DEPENDS ${CMAKE_BINARY_DIR}/doc/dls.1.gz)
+add_custom_command(
+	OUTPUT ${CMAKE_BINARY_DIR}/doc/dls.1.gz
+	COMMAND gzip ${CMAKE_BINARY_DIR}/doc/dls.1
+	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/doc
+)
+install(
+	FILES ${CMAKE_BINARY_DIR}/doc/dls.1.gz
+	DESTINATION /usr/man/man1
+)

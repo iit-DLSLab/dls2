@@ -56,8 +56,12 @@ add_compile_options(
 # ==============================================================================
 # Forward declaration of main executable
 # ==============================================================================
+configure_file(
+	${CMAKE_SOURCE_DIR}/src/main.cpp.in
+	${CMAKE_BINARY_DIR}/src/main.cpp
+)
 # add_executable(${EXECUTABLE_NAME} main.cpp)
-add_executable(${EXECUTABLE_NAME} ${CMAKE_SOURCE_DIR}/install/main.cpp)
+add_executable(${EXECUTABLE_NAME} ${CMAKE_BINARY_DIR}/src/main.cpp)
 list(APPEND PROJECT_TARGETS ${EXECUTABLE_NAME})
 
 # ==============================================================================

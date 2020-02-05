@@ -1,0 +1,148 @@
+.TH dls 1 "Build date: @DLS_COMPILE_DATE@" "version @PROJECT_VERSION@" "Dynamic Legged Systems Framework"
+
+.\" ============================================================================
+.SH dls
+.\" ============================================================================
+
+Dynamic Legged Systems software framework for the HyQ robot family.
+
+.\" ============================================================================
+.SH SYNOPSIS
+.\" ============================================================================
+
+.B dls
+[ --version | -v ]
+[ --help | -h ]
+[ --docs | -d ]
+[ --robot=robotname | -rrobotname ]
+[ --layers=layers | -llayers ]
+[ [ --simulation | -s ] | [ --hardware | -H ] ]
+[ --core | -c ]
+
+
+.\" ============================================================================
+.SH DESCRIPTION
+.\" ============================================================================
+
+.PP
+This program launches the control framework for the HyQ robot family.
+
+.PP
+The framework is divided into separate layers. These layers may be launched
+inside the same process space, inside different processes or on different
+machines in any configuration.
+
+Command autocompletion is available for both the bash and the zsh shells.
+.PP
+The layers available are:
+.RS
+Control Layer
+.\" ----------------------------------------------------------------------------
+.RS
+Handles launching of controllers and gait generators. Takes care of
+communication with the hardware or simulation. Takes corrective action if a gait
+generator or controller crashes
+.RE
+
+Console Layer
+.\" ----------------------------------------------------------------------------
+.RS
+Provides a command-line interface into the framework. The console supports tab
+completion. The console provides a 'help' command that may be used to learn more
+about unknown commands.
+
+.PP
+Note that commands are added to and removed from the console dynamically as
+components are added to and removed from the framework. Since commands may be
+added by 3rd-party plugins, each command is assigned a namespace. If a
+registered command has a unique name, it may be entered directly into the
+console. However, if multiple commands of the same name exist, the console will
+list the namespaces in which the command is found. In such cases, it is
+necessary to call the command using the form 'namespace_name::command'.
+.RE
+
+Estimation Layer
+.\" ----------------------------------------------------------------------------
+.RS
+This layer is responsible for launching and managing state estimators.
+.RE
+
+Hardware Layer
+.\" ----------------------------------------------------------------------------
+.RS
+This layer is responsible for communication between the framework and the robot
+hardware or simulation. In simulation mode this layer may be launched anywhere.
+When running on the robot, however, it must be launched on the actual robot
+hardware.
+.RE
+
+Log Layer
+.\" ----------------------------------------------------------------------------
+.RS
+This layer is responsible for redirecting all the log information to files or
+standard output for recording a session. The log output is in a format that can
+easily be filtered with standard Unix tools.
+
+Log information may be inspected in realtime by launching a log layer that
+prints everything to standard out, and then filtering with tools such as 'grep'
+or 'awk'.
+.RE
+
+.RE
+.\" ============================================================================
+.SH OPTIONS
+.\" ============================================================================
+.TP
+.B --help, -h
+Prints a help message and exits.
+
+.TP
+.B --version, -v
+Prints the version and exits.
+
+.TP
+.B --docs, -d
+Opens development documentation in a browser.
+
+.TP
+.BI "--robot=" "robotname" ", " " " "-r" "robotname"
+Specifies the robot that the framework is running on. Necessary when specifying
+the control, estimation or hardware layers. 'robotname' may be one of 'hyq'
+or 'hyqreal'.
+
+.TP
+.B --simulation, -s
+Runs the framework in simulation mode (This is the default mode).
+
+.TP
+.B --core, -c
+Launches the framework in core mode. This mode launches an instance of roscore
+in case some controllers need to use ros. An instance of the framework launched
+in this mode may create and manage new layers by issuing the appropriate
+commands from a console instance.
+
+.TP
+.B --hardware, -H
+Runs the framework for the real hardware (as opposed to in simulation).
+
+.TP
+.BI "--layers=" "layernames" ", " " " "-l" "layernames"
+Launches the layers specified by the coma-separated list 'layernames'. Available
+options are 'console', 'control', 'estimation', 'hardware' and 'log'.
+
+If the layers are not specified, the framework will default to "estimation",
+"control" and "console"
+
+
+.\" ============================================================================
+.SH AUTHOR
+.\" ============================================================================
+Hendrik Scheepers de Bruin
+
+.PP
+hendrik.debruin@iit.it
+
+.\" ============================================================================
+.SH SEE ALSO
+.\" ============================================================================
+dls(2)
