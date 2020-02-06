@@ -239,6 +239,20 @@ int main(int argc, char **argv)
 				}
 			}
 		);
+
+		command_manager.addCommand<int, ARGVOID>
+		(
+			"HyQApp_server",
+			"freezeBase",
+			"puts the robot down in simulation",
+			std::function<int(ARGVOID)>
+			{
+				[&](ARGVOID)
+				{
+					return system("rosservice call /hyq/freeze_base");
+				}
+			}
+		);
 	}
 
 	// Monitor the child processes
