@@ -486,7 +486,7 @@ target_link_libraries(topic_info
 # TODO remove dummy_controller from here
 add_custom_target(
 	run
-	COMMAND ./${EXECUTABLE_NAME}
+	COMMAND ./${EXECUTABLE_NAME} --robot=hyq --core
 	DEPENDS ${EXECUTABLE_NAME} dls_dummy_controller dls_dummy_gait_generator dls_dummy_estimator
 	WORKING_DIRECTORY ${EXECUTABLE_OUTPUT_PATH}
 )
