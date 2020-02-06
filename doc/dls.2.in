@@ -164,6 +164,8 @@ void ExampleGaitGenerator::run(const std::chrono::system_clock::time_point&)
 	// publish
 	publishData(data);
 }
+// Export the gait generator so that it may be loaded by the framework
+.BI DLS_EXPORT_GAIT_GENERATOR( ${generator} )
 .fi
 .RE
 

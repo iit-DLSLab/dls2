@@ -82,6 +82,9 @@ struct ChildData
 	pid_t pid;
 };
 
+// TODO this is a global variable that is accessed only inside of this file. At
+// some point it will need to be refactored, since this file is steadily growing
+// in size.
 std::map<pid_t, ChildData> child_datas;
 // =============================================================================
 // Prtototypes
@@ -97,6 +100,14 @@ void change_process_name(char **argv, const std::string &name);
 ///
 template <class layer_t>
 void forkLayer(const std::string &process_name, char **argv);
+
+/// Forks and launches roscore
+///
+void forkRosCore();
+
+/// Forks and launches simulation
+///
+void launchSim();
 
 // =============================================================================
 // Main Logic
@@ -144,6 +155,20 @@ int main(int argc, char **argv)
 
 	if(Options::is_core)
 	{
+		forkRosCore();
+		command_manager.addCommand<void, ARGVOID>
+		(
+			"HyQApp_server",
+			"launchRosCore",
+			"Launches the ros core",
+			std::function<void(ARGVOID)>
+			(
+				[&](ARGVOID)
+				{
+					forkRosCore();
+				}
+			)
+		);
 		command_manager.addCommand<void, ARGVOID>
 		(
 			"HyQApp_server",
@@ -196,6 +221,23 @@ int main(int argc, char **argv)
 					std::cout << "voided" << std::endl;
 				}
 			)
+		);
+	}
+
+	if(Options::simulation_mode)
+	{
+		command_manager.addCommand<void, ARGVOID>
+		(
+			"HyQApp_server",
+			"launchSim",
+			"launches the simulation backend",
+			std::function<void(ARGVOID)>
+			{
+				[&](ARGVOID)
+				{
+					launchSim();
+				}
+			}
 		);
 	}
 
@@ -319,4 +361,38 @@ void forkLayer(const std::string &process_name, char **argv)
 			std::forward_as_tuple(process_name, pid)
 		);
 	}
+}
+
+void forkRosCore()
+{
+		const pid_t pid = fork(); // TODO error handling on fork
+		if(pid == 0)
+		{
+			change_process_name(Options::argv, "roscore");
+			auto ret = system("roscore > /dev/null");
+			_exit(ret);
+		}
+		child_datas.emplace
+		(
+			std::piecewise_construct,
+			std::forward_as_tuple(pid),
+			std::forward_as_tuple("roscore", pid)
+		);
+}
+
+void launchSim()
+{
+	const pid_t pid = fork();
+	if(pid == 0)
+	{
+		change_process_name(Options::argv, "simulation");
+		auto ret = system("roslaunch robot_bringup hyq.launch");
+		_exit(ret);
+	}
+	child_datas.emplace
+	(
+		std::piecewise_construct,
+		std::forward_as_tuple(pid),
+		std::forward_as_tuple("simulation", pid)
+	);
 }
