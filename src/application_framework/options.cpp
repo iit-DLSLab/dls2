@@ -249,7 +249,7 @@ void Options::printUsage()
 	"| version     | v            | print the version and exit                          |\n"
 	"| help        | h            | print this help and exit                            |\n"
 	"| core        | c            | launch in core mode                                 |\n"
-	"| doc         | d            | show development documentation                      |\n"
+	"| docs        | d            | show development documentation                      |\n"
 	<< std::endl;
 }
 
