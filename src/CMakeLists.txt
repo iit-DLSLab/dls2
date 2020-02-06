@@ -16,13 +16,6 @@ set(EXECUTABLE_NAME dynamic_legged_systems_framework)
 
 set(PROJECT_TARGETS "")
 
-# ==============================================================================
-# ROS TODO this is required for launching some child generators. Move this to
-# the directory child_processes
-# ==============================================================================
-find_package(roscpp REQUIRED)
-find_package(std_msgs REQUIRED)
-include_directories(SYSTEM ${roscpp_INCLUDE_DIRS})
 
 # ==============================================================================
 # Global Compilation Options
@@ -52,6 +45,11 @@ add_compile_options(
 	-include ${CMAKE_SOURCE_DIR}/include/dls2/util/debug/debug.hpp
 	# -include ${CMAKE_SOURCE_DIR}/build_tools/include/todo.h
 )
+
+add_subdirectory(application_framework)
+add_subdirectory(child_process)
+add_subdirectory(command)
+add_subdirectory(controller)
 
 # ==============================================================================
 # Forward declaration of main executable
@@ -182,62 +180,6 @@ add_library(
 )
 add_dependencies(dls_geometry dls_messaging)
 list(APPEND PROJECT_TARGETS dls_geometry)
-# ============================ Application Layers ==============================
-configure_file(
-	application_framework/control_layer.cpp.in
-	${CMAKE_SOURCE_DIR}/build/control_layer.cpp
-)
-
-configure_file(
-	application_framework/version_info.cpp.in
-	${CMAKE_SOURCE_DIR}/build/version_info.cpp
-)
-add_library(
-	dls_framework
-
-	SHARED
-	# Framework Classes
-	application_framework/hyq_app.cpp
-	application_framework/app_layer.cpp
-	application_framework/hardware_layer.cpp
-	application_framework/hyq_app_libraries.cpp
-	# application_framework/control_layer.cpp
-	${CMAKE_SOURCE_DIR}/build/control_layer.cpp
-	${CMAKE_SOURCE_DIR}/build/version_info.cpp
-	application_framework/console_layer.cpp
-	application_framework/estimation_layer.cpp
-	application_framework/log_layer.cpp
-
-	application_framework/options.cpp
-
-	# Components
-	application_framework/components/app_layer_component.cpp
-	application_framework/components/periodic_app_layer_component.cpp
-
-	# Commands
-	command/remote_command.cpp
-	command/command_base.cpp
-	command/command.cpp
-
-	# TODO remove this and instead link to the library
-	util/string/string.cpp
-)
-target_link_libraries(dls_framework
-	PRIVATE
-		readline # for console_layer
-		fastcdr
-		fastrtps
-		dls_time
-
-	PUBLIC # TODO fix this
-	#dls_string_util TODO link to this library and remove the source above
-		dls_logging
-		dls_messaging
-		pthread
-		dl
-		dls_debug
-)
-list(APPEND PROJECT_TARGETS dls_framework)
 # ============================ Controller Modules ==============================
 add_library(dls_reflex
 	SHARED
@@ -250,17 +192,6 @@ add_library(
 	estimator/estimator.cpp
 )
 list(APPEND PROJECT_TARGETS dls_estimatorinterface)
-add_library(
-	dls_controlinterface
-	SHARED
-	controller/controller.cpp
-
-	# TODO this should be moved to the messaging library
-	controller/control_signal.cpp
-	fastrtps_wrappers/blind_state.cpp
-)
-list(APPEND PROJECT_TARGETS dls_controlinterface)
-target_link_libraries(dls_controlinterface dls_geometry)
 
 add_library(
 	dls_gaitgeneratorinterface
@@ -279,54 +210,8 @@ add_library(dls_time
 )
 list(APPEND PROJECT_TARGETS dls_time)
 
-# ==============================================================================
-# Child Processes
-# ==============================================================================
-configure_file(${CMAKE_SOURCE_DIR}/src/child_process/controller/controller_process.cpp.in
-	controller_process.cpp
-)
-
-add_executable( dls_controller_process
-	controller_process.cpp
-)
-
-target_link_libraries(dls_controller_process
-	fastcdr
-	fastrtps
-	dl
-	dls_framework
-	dls_controlinterface
-	dls_gaitgeneratorinterface
-	dls_estimatorinterface
-
-	#PRIVATE
-	dls_time
-	doglib
-	${roscpp_LIBRARIES}
-)
 list(APPEND PROJECT_TARGETS dls_controller_process)
 
-configure_file(${CMAKE_SOURCE_DIR}/src/child_process/gait_generator/gait_generator_process.cpp.in
-	gait_generator_process.cpp
-)
-
-add_executable(dls_gait_generator_process
-	gait_generator_process.cpp
-)
-target_link_libraries(dls_gait_generator_process
-	dls_framework
-	fastcdr
-	fastrtps
-	dl
-	dls_controlinterface
-	dls_gaitgeneratorinterface
-	dls_estimatorinterface
-
-	#PRIVATE
-	dls_time
-
-	${roscpp_LIBRARIES}
-)
 list(APPEND PROJECT_TARGETS dls_gait_generator_process)
 # ==============================================================================
 # Roscontrol Tranlsation Block
@@ -388,7 +273,7 @@ target_link_libraries(
 	# note that the order of these is important
 	dls_framework
 	dls_estimatorinterface
-	dls_controlinterface
+	dls_controller
 	dls_gaitgeneratorinterface
 )
 
@@ -402,28 +287,6 @@ if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 	)
 endif()
-
-# Temporary test class for controller plugin interface
-add_library(
-	dls_dummy_controller
-	SHARED
-	controller/dummy_controller.cpp
-)
-target_link_libraries(dls_dummy_controller
-	doglib
-)
-add_dependencies(dls_dummy_controller messagelib)
-list(APPEND PROJECT_TARGETS dls_dummy_controller)
-# target_link_libraries(dummy_controller dls_geometry)
-
-add_library(
-	dls_pid_controller
-	SHARED
-	controller/pid_controller.cpp
-)
-target_link_libraries(dls_pid_controller dls_logging doglib)
-add_dependencies(dls_pid_controller messagelib)
-list(APPEND PROJECT_TARGETS dls_pid_controller)
 
 add_library(
 	dls_dummy_gait_generator
