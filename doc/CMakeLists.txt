@@ -1,4 +1,56 @@
 # ==============================================================================
+# Man Pages
+# ==============================================================================
+# ------------------------------------------------------------------------------
+# Configuration
+# ------------------------------------------------------------------------------
+configure_file(
+	${CMAKE_CURRENT_SOURCE_DIR}/dls.1.in
+	${CMAKE_BINARY_DIR}/doc/dls.1
+	@ONLY
+)
+configure_file(
+	${CMAKE_CURRENT_SOURCE_DIR}/dls.2.in
+	${CMAKE_BINARY_DIR}/doc/dls.2
+	@ONLY
+)
+
+# ------------------------------------------------------------------------------
+# Installation
+# ------------------------------------------------------------------------------
+# command to run before installation
+add_custom_target(man
+	ALL
+	DEPENDS
+		${CMAKE_BINARY_DIR}/doc/dls.1.gz
+		${CMAKE_BINARY_DIR}/doc/dls.2.gz
+)
+
+add_custom_command(
+	OUTPUT
+		${CMAKE_BINARY_DIR}/doc/dls.1.gz
+		${CMAKE_BINARY_DIR}/doc/dls.2.gz
+	COMMAND gzip ${CMAKE_BINARY_DIR}/doc/dls.1
+	COMMAND gzip ${CMAKE_BINARY_DIR}/doc/dls.2
+	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/doc
+)
+
+# actual installation
+install(FILES ${CMAKE_BINARY_DIR}/doc/dls.1.gz
+	DESTINATION /usr/man/man1
+)
+
+install(FILES ${CMAKE_BINARY_DIR}/doc/dls.2.gz
+	DESTINATION /usr/man/man2
+)
+# ==============================================================================
+# ==============================================================================
+# ==============================================================================
+# DOXYGEN
+# ==============================================================================
+# ==============================================================================
+# ==============================================================================
+# ==============================================================================
 # Make Directories
 # ==============================================================================
 add_custom_command(
@@ -74,3 +126,11 @@ set_directory_properties(
 	PROPERTY ADDITIONAL_MAKE_CLEAN_FILES
 	"${CMAKE_CURRENT_SOURCE_DIR}/html;${CMAKE_CURRENT_SOURCE_DIR}/latex;${CMAKE_CURRENT_SOURCE_DIR}/man"
 )
+
+if(DLS_INSTALL_DOCUMENTATION)
+
+	install(
+		DIRECTORY ${CMAKE_SOURCE_DIR}/doc/html
+		DESTINATION ${DLS_INSTALL_DEVELOPMENT_DOCS_DIR}
+	)
+endif()

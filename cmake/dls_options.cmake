@@ -29,6 +29,13 @@ set(DLS_INSTALL_DEVELOPMENT_DOCS_DIR /usr/local/share/doc/dls2
 	CACHE STRING "Directory where software development documentation is stored"
 )
 
+set(EIGEN_DIR /usr/include/eigen3
+	CACHE STRING "Directory where Eigen is installed"
+)
+
+# ==============================================================================
+# Documentation
+# ==============================================================================
 set(DLS_INSTALL_DOCUMENTATION On
 	CACHE BOOL "Whether to install documentation"
 )

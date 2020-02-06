@@ -6,12 +6,12 @@
 
 # Note that the external collaborators do not need the shared object libraries,
 # they only need the final executable
-
+include(dls_include_paths)
 # ==============================================================================
 # Output Directories and CMake Variables
 # ==============================================================================
-set(EXECUTABLE_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/bin/${BUILD_PREFIX}")
-set(LIBRARY_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/bin/${BUILD_PREFIX}")
+set(EXECUTABLE_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}")
+set(LIBRARY_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}")
 set(EXECUTABLE_NAME dynamic_legged_systems_framework)
 
 set(PROJECT_TARGETS "")

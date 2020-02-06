@@ -1,3 +1,6 @@
+# ==============================================================================
+# Functions to install plugins to correct directories automatically
+# ==============================================================================
 function(dls_enforce_shared_lib target)
 	get_target_property(target_type ${target} TYPE)
 	if(NOT target_type STREQUAL "SHARED_LIBRARY")
