@@ -1,4 +1,9 @@
 # ==============================================================================
+# Read Include Files
+# ==============================================================================
+file(READ flow_chart.incl FLOW_CHART_INCL)
+
+# ==============================================================================
 # Man Pages
 # ==============================================================================
 # ------------------------------------------------------------------------------
@@ -50,6 +55,10 @@ endif()
 # Doxyfile.in contains @DOXYFILE_DEST@ as ouput directory. Set its value here
 dls_configure_destination(Doxyfile.in DOXYFILE_DEST)
 
+# Configure the main page and set @MAIN_MD@ read by doxygen
+dls_configure_atonly(main.md.in MAIN_MD)
+# message(FATAL_ERROR "MAIN MD ${MAIN_MD}")
+
 # Now run the configure with that value set
 dls_configure_atonly(Doxyfile.in DOXYFILE)
 # ------------------------------------------------------------------------------
@@ -57,11 +66,15 @@ dls_configure_atonly(Doxyfile.in DOXYFILE)
 # ------------------------------------------------------------------------------
 add_custom_target(doxygen
 	ALL
-	DEPENDS
-		${DOXYFILE_DEST}/html
-		#${DOXYFILE_DEST}/latex/refman.pdf
-		${DOXYFILE_DEST}/man
-		${DOXYFILE}
+	#DEPENDS
+	#	${DOXYFILE_DEST}/html
+	#	#${DOXYFILE_DEST}/latex/refman.pdf
+	#	${DOXYFILE_DEST}/man
+	#	${DOXYFILE}
+	COMMAND
+		doxygen ${DOXYFILE}
+	WORKING_DIRECTORY
+		${CMAKE_SOURCE_DIR}
 )
 
 # ------------------------------------------------------------------------------
