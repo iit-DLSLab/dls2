@@ -1,5 +1,15 @@
 # @CMAKE_PROJECT_NAME@ API documentation
 
+This is the API description. For usage and a description of the layers, refer
+to:
+
+```txt
+$ man 1 dls
+```
+
+While not strictly necessary to understand the information flow in order to
+build a plugin, it is briefly shown in the following diagram:
+
 ```txt
 @FLOW_CHART_INCL@
 ```
