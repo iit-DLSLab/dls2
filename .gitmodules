@@ -7,3 +7,6 @@
 [submodule "3rd_party/doglib"]
 	path = 3rd_party/doglib
 	url = git@gitlab.advr.iit.it:hdebruin/doglib.git
+[submodule "doc/dls2_examples"]
+	path = doc/dls2_examples
+	url = https://gitlab.advr.iit.it/hdebruin/dls2_examples

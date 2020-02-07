@@ -61,23 +61,7 @@ Consider the example header file:
 
 .RS
 .nf
-#include <dls2/gait_generator/gait_generator.hpp>
-
-class ExampleGaitGenerator : public dls::GaitGenerator
-{
-public:
-	ExampleGaitGenerator(std::shared_ptr<dls::dog::Dog>);
-	~ExampleGaitGenerator();
-
-	// Called at the rate specified in the constructor
-	void run(const std::chrono::system_clock::time_point&) override;
-
-	// Implement any emergency stop procedures here
-	Status eStop() override;
-
-private:
-	dls::GaitSignal data;
-};
+@EXAMPLE_GAIT_GENERATOR_HPP@
 .fi
 .RE
 
@@ -85,31 +69,7 @@ and its corresponding source file
 
 .RS
 .nf
-ExampleGaitGenerator::ExampleGaitGenerator
-(
-	std::shared_ptr<dls::dog::Dog> pDog
-) :
-	GaitGenerator
-	(
-		pDog,
-		"example_gait_generator",     // ID of this gait generator
-		std::chrono::milliseconds(4)  // period of this gait generator
-	)
-{
-	// Constructor runs as non-realtime code
-}
-
-
-void ExampleGaitGenerator::run(const std::chrono::system_clock::time_point&)
-{
-	// realtime code. Perform calculations here
-	// write data to GaitSignal
-
-	// publish
-	publishData(data);
-}
-// Export the gait generator so that it may be loaded by the framework
-.BI DLS_EXPORT_GAIT_GENERATOR( ${generator} )
+@EXAMPLE_GAIT_GENERATOR_CPP@
 .fi
 .RE
 
@@ -122,21 +82,7 @@ Consider the header file:
 
 .RS
 .nf
-#include <dls2/controller/controller.hpp>
-
-class ExampleController : public dls::Controller
-{
-public:
-	ExampleController(std::shared_ptr<dls::dog::Dog>);
-
-	// Called at the rate specified in the constructor
-	void run(const std::chrono::system_clock::time_point&) override;
-
-	// Implement any emergency stop procedures here
-	Status eStop() override;
-private:
-	dls::ControlSignal s;
-};
+@EXAMPLE_CONTROLLER_HPP@
 .fi
 .RE
 
@@ -144,45 +90,11 @@ and its corresponding source file:
 
 .RS
 .nf
-ExampleController::ExampleController
-(
-	std::shared_ptr<dls::dog::Dog> pDog
-) :
-	dls::Controller
-	(
-		pDog,
-		"controller_name",              // ID of this controller
-		std::chrono::milliseconds(4),   // period of this controller
-		dls::ControlSignal::SignalReconstructionMethod::ZERO_ORDER_HOLD
-	)
-{
-	// The constructor is not realtime. Assign memory here
-	this->s.torques.resize(pDog->nDof());
-}
-
-void ExampleController::run(const std::chrono:system_clock::time_point&)
-{
-	auto pSignal = this->readGaitSignal();
-	if(pSignal)
-	{
-		// calculations when a gait signal is received
-	}
-	else
-	{
-		// what to do when no signal is received
-	}
-
-	// set torques
-	s.torques << 1, 2, 3; // ...
-
-	// publish torques to framework
-	publishSignal(s);
-}
-
-// Export the controller so that it may be loaded into the framework
-DLS_EXPORT_CONTROLLER(ExampleController)
+@EXAMPLE_CONTROLLER_CPP@
 .fi
 .RE
+
+Installing it can be achieved with the code:
 
 .SS Installing
 .\" ----------------------------------------------------------------------------
@@ -191,13 +103,23 @@ The framework will look for controllers and generators in predefined
 installation directories.
 
 
-To install them to the correct directories, use the following CMake macros:
+To install them to the correct directories, use the following CMake code for a
+gait generator:
 
+.RS
 .nf
-find_package(dls CONFIG REQUIRED)
-dls_install_gait_generator( ${generator_name} )
-dls_install_controller( ${controller_name} )
+@EXAMPLE_GAIT_GENERATOR_CMAKE@
 .fi
+.RE
+
+The following may be used for a controller:
+
+.RS
+.nf
+@EXAMPLE_CONTROLLER_CMAKE@
+.fi
+.RE
+
 
 .\" ============================================================================
 .SH AUTHOR

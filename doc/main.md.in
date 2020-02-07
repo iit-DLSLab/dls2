@@ -1,5 +1,50 @@
 # @CMAKE_PROJECT_NAME@ API documentation
 
-```
+```txt
 @FLOW_CHART_INCL@
+```
+
+## Quick Start
+
+The following shows an extract from an example project and illustrates how to
+write plugins for @CMAKE_PROJECT_NAME@.
+
+PROTIP: The source code here contains hyperlinks. Use it to jump to the
+documentation of a component.
+
+### Building a new controller
+
+Consider the header file:
+
+```cpp
+@EXAMPLE_CONTROLLER_HPP@
+```
+And its source file:
+
+```cpp
+@EXAMPLE_CONTROLLER_CPP@
+```
+To build and install it:
+
+<!-- Figure out how to highlight this -->
+```txt
+@EXAMPLE_CONTROLLER_CMAKE@
+```
+### Building a new generator
+
+Consider the header file:
+
+```cpp
+@EXAMPLE_GAIT_GENERATOR_HPP@
+```
+And its source file:
+
+```cpp
+@EXAMPLE_GAIT_GENERATOR_CPP@
+```
+To build and install it:
+
+<!-- Figure out how to highlight this -->
+```txt
+@EXAMPLE_GAIT_GENERATOR_CMAKE@
 ```

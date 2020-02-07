@@ -1,7 +1,42 @@
 # ==============================================================================
 # Read Include Files
 # ==============================================================================
+# Flow chart
 file(READ flow_chart.incl FLOW_CHART_INCL)
+
+# ------------------------------------------------------------------------------
+# Example Controller
+# ------------------------------------------------------------------------------
+# Controller Header
+file(READ dls2_examples/example_controller/include/example_controller.hpp
+	EXAMPLE_CONTROLLER_HPP
+)
+
+# Controller Source
+file(READ dls2_examples/example_controller/src/example_controller.cpp
+	EXAMPLE_CONTROLLER_CPP
+)
+
+# Controller CMake
+file(READ dls2_examples/example_controller/src/CMakeLists.txt
+	EXAMPLE_CONTROLLER_CMAKE
+)
+
+# ------------------------------------------------------------------------------
+# Example Generator
+# ------------------------------------------------------------------------------
+# Generator Header
+file(READ dls2_examples/example_gait_generator/include/example_gait_generator.hpp
+	EXAMPLE_GAIT_GENERATOR_HPP
+)
+
+# Generator Source
+file(READ dls2_examples/example_gait_generator/src/example_gait_generator.cpp
+	EXAMPLE_GAIT_GENERATOR_CPP
+)
+file(READ dls2_examples/example_gait_generator/src/CMakeLists.txt
+	EXAMPLE_GAIT_GENERATOR_CMAKE
+)
 
 # ==============================================================================
 # Man Pages
@@ -61,6 +96,11 @@ dls_configure_atonly(main.md.in MAIN_MD)
 
 # Now run the configure with that value set
 dls_configure_atonly(Doxyfile.in DOXYFILE)
+
+set(DOXYGEN_EXTRACT_PRIVATE
+	$<$<CONFIG:Debug>:YES>
+	$<$CONFIG:Release>NO>
+)
 # ------------------------------------------------------------------------------
 # Target for installation
 # ------------------------------------------------------------------------------
