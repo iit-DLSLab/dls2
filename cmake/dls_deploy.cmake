@@ -15,26 +15,25 @@ include(CPack)
 # Target Installation
 # ==============================================================================
 # Target installation macro
-macro(dls_install TARGET)
+function(dls_install TARGET)
 	install(TARGETS ${TARGET}
 		LIBRARY DESTINATION lib/dls2
 		ARCHIVE DESTINATION lib
 		RUNTIME DESTINATION ${DLS_INSTALL_RUNTIME_DIR}
 		PUBLIC_HEADER DESTINATION dls/include
 	)
-endmacro()
+endfunction()
 
-message(WARNING "Fix  this macro")
 # Target to install only for debug builds, not in release
-macro(dls_install_debug TARGET)
-	# install(TARGETS ${TARGET}
-	# 	$<$<CONFIG:Debug>:${TARGET}>
-	# 	LIBRARY DESTINATION lib/dls2
-	# 	ARCHIVE DESTINATION lib
-	# 	RUNTIME DESTINATION ${DLS_INSTALL_RUNTIME_DIR}
-	# 	PUBLIC_HEADER DESTINATION dls/include
-	# )
-endmacro()
+function(dls_install_debug INSTALL_TARGET)
+	install(TARGETS ${INSTALL_TARGET}
+		CONFIGURATIONS Debug
+		LIBRARY DESTINATION lib/dls2
+		ARCHIVE DESTINATION lib
+		RUNTIME DESTINATION ${DLS_INSTALL_RUNTIME_DIR}
+		PUBLIC_HEADER DESTINATION dls/include
+	)
+endfunction()
 
 # Header file installation
 install(

@@ -1,6 +1,3 @@
-# ==============================================================================
-# Controller Library
-# ==============================================================================
 add_library(dls_controller
 	SHARED
 	controller.cpp
@@ -12,10 +9,7 @@ add_library(dls_controller
 dls_install(dls_controller)
 target_link_libraries(dls_controller dls_geometry)
 
-
-add_library(
-	dls_dummy_controller
-	SHARED
+add_library(dls_dummy_controller SHARED
 	dummy_controller.cpp
 )
 target_link_libraries(dls_dummy_controller
@@ -24,9 +18,7 @@ target_link_libraries(dls_dummy_controller
 add_dependencies(dls_dummy_controller messagelib)
 dls_install_debug(dls_dummy_controller)
 
-add_library(
-	dls_pid_controller
-	SHARED
+add_library(dls_pid_controller SHARED
 	pid_controller.cpp
 )
 target_link_libraries(dls_pid_controller dls_logging doglib)

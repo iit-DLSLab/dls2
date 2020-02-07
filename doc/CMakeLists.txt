@@ -4,16 +4,10 @@
 # ------------------------------------------------------------------------------
 # Configuration
 # ------------------------------------------------------------------------------
-configure_file(
-	${CMAKE_CURRENT_SOURCE_DIR}/dls.1.in
-	${CMAKE_BINARY_DIR}/doc/dls.1
-	@ONLY
-)
-configure_file(
-	${CMAKE_CURRENT_SOURCE_DIR}/dls.2.in
-	${CMAKE_BINARY_DIR}/doc/dls.2
-	@ONLY
-)
+dls_configure_atonly(dls.1.in DLS_1)
+dls_configure_atonly(dls.2.in DLS_2)
+dls_configure_destination(dls.1.in DLS_1_DEST)
+dls_configure_destination(dls.2.in DLS_2_DEST)
 
 # ------------------------------------------------------------------------------
 # Installation
@@ -22,25 +16,25 @@ configure_file(
 add_custom_target(man
 	ALL
 	DEPENDS
-		${CMAKE_BINARY_DIR}/doc/dls.1.gz
-		${CMAKE_BINARY_DIR}/doc/dls.2.gz
+		${DLS_1_DEST}/dls.1.gz
+		${DLS_2_DEST}/dls.2.gz
 )
 
 add_custom_command(
 	OUTPUT
-		${CMAKE_BINARY_DIR}/doc/dls.1.gz
-		${CMAKE_BINARY_DIR}/doc/dls.2.gz
-	COMMAND gzip ${CMAKE_BINARY_DIR}/doc/dls.1
-	COMMAND gzip ${CMAKE_BINARY_DIR}/doc/dls.2
-	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/doc
+		${DLS_1_DEST}/dls.1.gz
+		${DLS_2_DEST}/dls.2.gz
+	COMMAND gzip ${DLS_1}
+	COMMAND gzip ${DLS_2}
+	WORKING_DIRECTORY ${DLS_1_DEST}
 )
 
 # actual installation
-install(FILES ${CMAKE_BINARY_DIR}/doc/dls.1.gz
+install(FILES ${DLS_1_DEST}/dls.1.gz
 	DESTINATION /usr/man/man1
 )
 
-install(FILES ${CMAKE_BINARY_DIR}/doc/dls.2.gz
+install(FILES ${DLS_2_DEST}/dls.2.gz
 	DESTINATION /usr/man/man2
 )
 # ==============================================================================

@@ -1,13 +1,10 @@
 # ==============================================================================
 # Framework Launching
 # ==============================================================================
-configure_file(
-	${CMAKE_CURRENT_SOURCE_DIR}/launch_framework.in
-	${CMAKE_BINARY_DIR}/scripts/launch_framework
-)
+dls_configure_atonly(launch_framework.in LAUNCH_FRAMEWORK)
 
 install(
-	FILES ${CMAKE_BINARY_DIR}/scripts/launch_framework
+	FILES ${LAUNCH_FRAMEWORK}
 	PERMISSIONS
 		WORLD_EXECUTE WORLD_READ
 		OWNER_READ OWNER_WRITE
@@ -43,14 +40,10 @@ install(
 # ==============================================================================
 # CMake Macros for 3rd party plugins
 # ==============================================================================
-configure_file(
-	${CMAKE_CURRENT_SOURCE_DIR}/dls_install.cmake.in
-	${CMAKE_BINARY_DIR}/scripts/dls_install.cmake
-	@ONLY
-)
+dls_configure_atonly(dls_install.cmake.in DLS_INSTALL_CMAKE)
 
 install(
-	FILES ${CMAKE_BINARY_DIR}/scripts/dls_install.cmake
+	FILES ${DLS_INSTALL_CMAKE}
 	DESTINATION lib/cmake/dls
 	RENAME dlsConfig.cmake
 )
