@@ -1,42 +1,42 @@
-## ==============================================================================
-## Man Pages
-## ==============================================================================
-## ------------------------------------------------------------------------------
-## Configuration
-## ------------------------------------------------------------------------------
-#dls_configure_atonly(dls.1.in DLS_1)
-#dls_configure_atonly(dls.2.in DLS_2)
-#dls_configure_destination(dls.1.in DLS_1_DEST)
-#dls_configure_destination(dls.2.in DLS_2_DEST)
+# ==============================================================================
+# Man Pages
+# ==============================================================================
+# ------------------------------------------------------------------------------
+# Configuration
+# ------------------------------------------------------------------------------
+dls_configure_atonly(dls.1.in DLS_1)
+dls_configure_atonly(dls.2.in DLS_2)
+dls_configure_destination(dls.1.in DLS_1_DEST)
+dls_configure_destination(dls.2.in DLS_2_DEST)
 
-## ------------------------------------------------------------------------------
-## Installation
-## ------------------------------------------------------------------------------
-## command to run before installation
-#add_custom_target(man
-#	ALL
-#	DEPENDS
-#		${DLS_1_DEST}/dls.1.gz
-#		${DLS_2_DEST}/dls.2.gz
-#)
+# ------------------------------------------------------------------------------
+# Installation
+# ------------------------------------------------------------------------------
+# command to run before installation
+add_custom_target(man
+	ALL
+	DEPENDS
+		${DLS_1_DEST}/dls.1.gz
+		${DLS_2_DEST}/dls.2.gz
+)
 
-#add_custom_command(
-#	OUTPUT
-#		${DLS_1_DEST}/dls.1.gz
-#		${DLS_2_DEST}/dls.2.gz
-#	COMMAND gzip ${DLS_1}
-#	COMMAND gzip ${DLS_2}
-#	WORKING_DIRECTORY ${DLS_1_DEST}
-#)
+add_custom_command(
+	OUTPUT
+		${DLS_1_DEST}/dls.1.gz
+		${DLS_2_DEST}/dls.2.gz
+	COMMAND gzip ${DLS_1}
+	COMMAND gzip ${DLS_2}
+	WORKING_DIRECTORY ${DLS_1_DEST}
+)
 
-## actual installation
-#install(FILES ${DLS_1_DEST}/dls.1.gz
-#	DESTINATION /usr/man/man1
-#)
+# actual installation
+install(FILES ${DLS_1_DEST}/dls.1.gz
+	DESTINATION /usr/man/man1
+)
 
-#install(FILES ${DLS_2_DEST}/dls.2.gz
-#	DESTINATION /usr/man/man2
-#)
+install(FILES ${DLS_2_DEST}/dls.2.gz
+	DESTINATION /usr/man/man2
+)
 ## ==============================================================================
 ## ==============================================================================
 ## ==============================================================================

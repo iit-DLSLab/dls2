@@ -1,7 +1,7 @@
 # ==============================================================================
 # Framework Launching
 # ==============================================================================
-dls_configure_atonly(launch_framework.in LAUNCH_FRAMEWORK)
+dls_configure(launch_framework.in LAUNCH_FRAMEWORK)
 
 install(FILES ${LAUNCH_FRAMEWORK}
 	PERMISSIONS
