@@ -1,21 +1,9 @@
-# To ease external collaboration, the framework is built as a series of dynamic
-# libraries. These libraries are linked statically into the executable. External
-# plugins are compiled as shared objects and loaded at runtime. In doing so, the
-# external plugins do not need access to the source code implementing base
-# classes, but only headers of the relevant (potentially not abstract) classes.
-
-# Note that the external collaborators do not need the shared object libraries,
-# they only need the final executable
 include(dls_include_paths)
 # ==============================================================================
 # Output Directories and CMake Variables
 # ==============================================================================
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}")
 set(LIBRARY_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}")
-set(EXECUTABLE_NAME dynamic_legged_systems_framework)
-
-set(PROJECT_TARGETS "")
-
 
 # ==============================================================================
 # Global Compilation Options
@@ -50,6 +38,10 @@ add_subdirectory(application_framework)
 add_subdirectory(child_process)
 add_subdirectory(command)
 add_subdirectory(controller)
+add_subdirectory(estimator)
+add_subdirectory(gait_generator)
+add_subdirectory(geometry)
+add_subdirectory(util)
 
 # ==============================================================================
 # Forward declaration of main executable
@@ -58,9 +50,10 @@ configure_file(
 	${CMAKE_SOURCE_DIR}/src/main.cpp.in
 	${CMAKE_BINARY_DIR}/src/main.cpp
 )
-# add_executable(${EXECUTABLE_NAME} main.cpp)
-add_executable(${EXECUTABLE_NAME} ${CMAKE_BINARY_DIR}/src/main.cpp)
-list(APPEND PROJECT_TARGETS ${EXECUTABLE_NAME})
+# add_executable(dynamic_legged_systems_framework main.cpp)
+add_executable(dynamic_legged_systems_framework ${CMAKE_BINARY_DIR}/src/main.cpp)
+# list(APPEND PROJECT_TARGETS dynamic_legged_systems_framework)
+dls_install(dynamic_legged_systems_framework)
 
 # ==============================================================================
 # Header Export
@@ -124,26 +117,6 @@ add_message(hyqreal_raw)
 # Libraries
 # ==============================================================================
 
-# =================================== Logging ==================================
-add_library(
-	dls_logging
-	SHARED
-	${CMAKE_SOURCE_DIR}/src/util/log/log.cpp
-)
-
-target_link_libraries(dls_logging
-	PRIVATE
-		fastcdr
-		fastrtps
-)
-list(APPEND PROJECT_TARGETS dls_logging)
-
-# ==================================== util ====================================
-# add_library(dls_string_util
-# 	SHARED
-# 	${CMAKE_SOURCE_DIR}/src/util/string/string.cpp
-# )
-# list(APPEND PROJECT_TARGETS string_util)
 # ================================== messages ==================================
 add_library(dls_messaging
 	SHARED
@@ -161,58 +134,21 @@ target_compile_options(
 	PRIVATE
 	-w # Suppress all warnings, this library's code is auto-generated
 )
-list(APPEND PROJECT_TARGETS dls_messaging)
+# list(APPEND PROJECT_TARGETS dls_messaging)
+dls_install(dls_messaging)
 add_custom_target(messagelib DEPENDS ${MESSAGE_SOURCES})
 
 # ==================================== Debug ===================================
-add_library(
-	dls_debug
-	SHARED
-	util/debug/debug.cpp
-)
-list(APPEND PROJECT_TARGETS dls_debug)
 
-# ================================= Geometry ===================================
-add_library(
-	dls_geometry
-	SHARED
-	geometry/pose.cpp
-)
-add_dependencies(dls_geometry dls_messaging)
-list(APPEND PROJECT_TARGETS dls_geometry)
 # ============================ Controller Modules ==============================
 add_library(dls_reflex
 	SHARED
 	${CMAKE_CURRENT_SOURCE_DIR}/reflex/reflex
 )
 
-add_library(
-	dls_estimatorinterface
-	SHARED
-	estimator/estimator.cpp
-)
-list(APPEND PROJECT_TARGETS dls_estimatorinterface)
 
-add_library(
-	dls_gaitgeneratorinterface
-	SHARED
-	gait_generator/gait_generator.cpp
-	# TODO this should be moved to the messaging library
-	gait_generator/gait_signal.cpp
-)
-list(APPEND PROJECT_TARGETS dls_gaitgeneratorinterface)
-target_link_libraries(dls_gaitgeneratorinterface dls_geometry doglib)
 
 # ==================================== Time ====================================
-add_library(dls_time
-	SHARED
-	${CMAKE_SOURCE_DIR}/src/util/time/time.cpp
-)
-list(APPEND PROJECT_TARGETS dls_time)
-
-list(APPEND PROJECT_TARGETS dls_controller_process)
-
-list(APPEND PROJECT_TARGETS dls_gait_generator_process)
 # ==============================================================================
 # Roscontrol Tranlsation Block
 # ==============================================================================
@@ -242,7 +178,7 @@ add_dependencies(dls2_to_roscontrol dls_framework dls_messaging)
 # Main Executable
 # ==============================================================================
 target_sources(
-	${EXECUTABLE_NAME}
+	dynamic_legged_systems_framework
 
 	PUBLIC
 
@@ -254,7 +190,7 @@ target_sources(
 	sensors/sensor_base.cpp
 )
 
-add_dependencies(${EXECUTABLE_NAME}
+add_dependencies(dynamic_legged_systems_framework
 	messagelib
 	dls_controller_process
 	dls_gait_generator_process
@@ -264,7 +200,7 @@ add_dependencies(${EXECUTABLE_NAME}
 )
 
 target_link_libraries(
-	${EXECUTABLE_NAME}
+	dynamic_legged_systems_framework
 
 	# fastrtps
 	fastcdr
@@ -272,104 +208,28 @@ target_link_libraries(
 
 	# note that the order of these is important
 	dls_framework
-	dls_estimatorinterface
+	dls_estimator
 	dls_controller
-	dls_gaitgeneratorinterface
+	dls_gait_generator
 )
 
 # Count TODOs after build
 if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 	add_custom_command(
-		TARGET ${EXECUTABLE_NAME}
+		TARGET dynamic_legged_systems_framework
 		POST_BUILD
 		COMMAND ${CMAKE_SOURCE_DIR}/build_tools/list_todos
 		COMMAND [ -f ${CMAKE_SOURCE_DIR}/bin/debug/launch_simulation_backend.sh ] || ln -s ${CMAKE_SOURCE_DIR}/scripts/launch_simulation_backend.sh ${CMAKE_SOURCE_DIR}/bin/debug/launch_simulation_backend.sh
 		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 	)
 endif()
-
-add_library(
-	dls_dummy_gait_generator
-	SHARED
-	gait_generator/dummy_gait_generator.cpp
-)
-add_dependencies(dls_dummy_gait_generator messagelib)
-list(APPEND PROJECT_TARGETS dls_dummy_gait_generator)
-target_link_libraries(dls_dummy_gait_generator
-	doglib
-)
-
-add_library(
-	dls_prep_gait_generator
-	SHARED
-	gait_generator/prep_gait_generator.cpp
-)
-add_dependencies(dls_prep_gait_generator messagelib doglib)
-list(APPEND PROJECT_TARGETS dls_prep_gait_generator)
-
-add_library(
-	dls_dummy_estimator
-	SHARED
-	estimator/dummy_estimator.cpp
-)
-add_dependencies(dls_dummy_estimator messagelib doglib)
-list(APPEND PROJECT_TARGETS dls_dummy_estimator)
-# target_link_libraries(dummy_gait_generator dls_geometry)
-
-# ==============================================================================
-# Tools
-# ==============================================================================
-add_executable(topic_info
-	EXCLUDE_FROM_ALL
-	${CMAKE_SOURCE_DIR}/src/util/topic_info/topic_info.cpp
-	${CMAKE_SOURCE_DIR}/src/util/topic_info/topic_info_main.cpp
-
-	# TODO this should be put into the dls_messaging library and just linked
-	# into this executable. It should NOT be recompiled here, it should only be
-	# compiled in the library
-	${CMAKE_SOURCE_DIR}/src/controller/control_signal.cpp
-)
-target_link_libraries(topic_info
-	fastcdr
-	fastrtps
-	dls_messaging
-	dls_debug
-
-	# TODO this should be removed when the gait signal and contro lsignal
-	# wrappers are moved to the messaging library
-	# dls_gaitgeneratorinterface
-	# dls_controlinterface
-	# dls_estimatorinterface
-	# dls_framework
-)
-
 # ==============================================================================
 # Convencience Targets
 # ==============================================================================
 # TODO remove dummy_controller from here
 add_custom_target(
 	run
-	COMMAND ./${EXECUTABLE_NAME} --robot=hyq --core
-	DEPENDS ${EXECUTABLE_NAME} dls_dummy_controller dls_dummy_gait_generator dls_dummy_estimator
+	COMMAND ./dynamic_legged_systems_framework --robot=hyq --core
+	DEPENDS dynamic_legged_systems_framework dls_dummy_controller dls_dummy_gait_generator dls_dummy_estimator
 	WORKING_DIRECTORY ${EXECUTABLE_OUTPUT_PATH}
 )
-
-# if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
-	install(TARGETS ${PROJECT_TARGETS}
-		LIBRARY DESTINATION lib/dls2
-		ARCHIVE DESTINATION lib
-		RUNTIME DESTINATION ${DLS_INSTALL_RUNTIME_DIR}
-		PUBLIC_HEADER DESTINATION dls/include
-	)
-	install(
-		DIRECTORY
-			${CMAKE_SOURCE_DIR}/include/dls2/
-			${CMAKE_SOURCE_DIR}/gen/include/dls2/
-		DESTINATION
-			include/dls2
-		FILES_MATCHING
-			PATTERN "*.h"
-			PATTERN "*.hpp"
-			PATTERN "*.tpp"
-	)
-# endif()

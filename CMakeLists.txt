@@ -7,6 +7,7 @@ message(STATUS "Build type is ${CMAKE_BUILD_TYPE}")
 
 include(dls_options)
 include(dls_globals)
+include(dls_deploy)
 
 add_subdirectory(3rd_party)
 add_subdirectory(src)

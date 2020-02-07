@@ -5,3 +5,4 @@ add_library(dls_command
 	command_base.cpp
 	command.cpp
 )
+dls_install(dls_command)

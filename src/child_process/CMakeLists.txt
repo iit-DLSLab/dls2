@@ -19,14 +19,15 @@ target_link_libraries(dls_controller_process
 	dl
 	dls_framework
 	dls_controller
-	dls_gaitgeneratorinterface
-	dls_estimatorinterface
+	dls_gait_generator
+	dls_estimator
 
 	#PRIVATE
 	dls_time
 	doglib
 	${roscpp_LIBRARIES}
 )
+dls_install(dls_controller_process)
 
 configure_file(gait_generator/gait_generator_process.cpp.in
 	${CMAKE_BINARY_DIR}/src/child_process/gait_generator_process.cpp
@@ -35,17 +36,22 @@ configure_file(gait_generator/gait_generator_process.cpp.in
 add_executable(dls_gait_generator_process
 	${CMAKE_BINARY_DIR}/src/child_process/gait_generator_process.cpp
 )
+
 target_link_libraries(dls_gait_generator_process
 	dls_framework
 	fastcdr
 	fastrtps
 	dl
 	dls_controller
-	dls_gaitgeneratorinterface
-	dls_estimatorinterface
+	dls_gait_generator
+	dls_estimator
 
 	#PRIVATE
 	dls_time
 
 	${roscpp_LIBRARIES}
 )
+dls_install(dls_gait_generator_process)
+
+# list(APPEND PROJECT_TARGETS dls_controller_process)
+# list(APPEND PROJECT_TARGETS dls_gait_generator_process)

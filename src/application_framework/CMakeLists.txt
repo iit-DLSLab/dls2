@@ -47,4 +47,5 @@ target_link_libraries(dls_framework
 		dls_debug
 		dls_command
 )
-list(APPEND PROJECT_TARGETS dls_framework)
+# list(APPEND PROJECT_TARGETS dls_framework)
+dls_install(dls_framework)
