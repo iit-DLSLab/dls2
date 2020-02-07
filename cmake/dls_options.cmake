@@ -39,3 +39,10 @@ set(EIGEN_DIR /usr/include/eigen3
 set(DLS_INSTALL_DOCUMENTATION On
 	CACHE BOOL "Whether to install documentation"
 )
+
+# ==============================================================================
+# Convencience Targets
+# ==============================================================================
+set(DLS_BUILD_MAKE_RUN_FLAGS "--robot-hyq --core"
+	CACHE STRING "Flags to pass to framework when calling 'make run'"
+)

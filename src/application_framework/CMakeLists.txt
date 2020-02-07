@@ -1,12 +1,6 @@
-configure_file(
-	control_layer.cpp.in
-	${CMAKE_BINARY_DIR}/src/application_framework/control_layer.cpp
-)
+dls_configure(control_layer.cpp.in CONTROL_LAYER_CPP)
+dls_configure(version_info.cpp.in VERSION_INFO_CPP)
 
-configure_file(
-	version_info.cpp.in
-	${CMAKE_BINARY_DIR}/src/application_framework/version_info.cpp
-)
 add_library(dls_framework
 
 	SHARED
@@ -15,8 +9,8 @@ add_library(dls_framework
 	app_layer.cpp
 	hardware_layer.cpp
 	hyq_app_libraries.cpp
-	${CMAKE_BINARY_DIR}/src/application_framework/control_layer.cpp
-	${CMAKE_BINARY_DIR}/src/application_framework/version_info.cpp
+	${CONTROL_LAYER_CPP}
+	${VERSION_INFO_CPP}
 	console_layer.cpp
 	estimation_layer.cpp
 	log_layer.cpp
@@ -47,5 +41,4 @@ target_link_libraries(dls_framework
 		dls_debug
 		dls_command
 )
-# list(APPEND PROJECT_TARGETS dls_framework)
 dls_install(dls_framework)

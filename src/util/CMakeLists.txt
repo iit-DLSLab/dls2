@@ -3,7 +3,6 @@ add_library(
 	SHARED
 	debug/debug.cpp
 )
-# list(APPEND PROJECT_TARGETS dls_debug)
 dls_install(dls_debug)
 
 add_library(
@@ -17,14 +16,12 @@ target_link_libraries(dls_logging
 		fastcdr
 		fastrtps
 )
-# list(APPEND PROJECT_TARGETS dls_logging)
 dls_install(dls_logging)
 
 add_library(dls_time
 	SHARED
 	time/time.cpp
 )
-# list(APPEND PROJECT_TARGETS dls_time)
 dls_install(dls_time)
 
 # ==============================================================================

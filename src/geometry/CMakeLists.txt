@@ -5,5 +5,4 @@ add_library(
 )
 
 add_dependencies(dls_geometry dls_messaging)
-# list(APPEND PROJECT_TARGETS dls_geometry)
 dls_install(dls_geometry)

@@ -13,7 +13,6 @@ add_compile_options(
 	-std=c++14
 
 	# Warnings
-	#	-Wfatal-errors
 	-Wall
 	-Wextra
 	-pedantic
@@ -26,12 +25,7 @@ add_compile_options(
 
 	# Custom defintions
 	-DSOURCE_PATH_SIZE=${SOURCE_PATH_SIZE}
-	# -DSHOW_TODOS_AT_COMPILE_TIME
-	-DPROJECT_MAJOR=${MAJOR}
-	-DPROJECT_MINOR=${MINOR}
-	-DPROJECT_PATCH=${PATCH}
 	-include ${CMAKE_SOURCE_DIR}/include/dls2/util/debug/debug.hpp
-	# -include ${CMAKE_SOURCE_DIR}/build_tools/include/todo.h
 )
 
 add_subdirectory(application_framework)
@@ -51,7 +45,9 @@ configure_file(
 	${CMAKE_BINARY_DIR}/src/main.cpp
 )
 # add_executable(dynamic_legged_systems_framework main.cpp)
-add_executable(dynamic_legged_systems_framework ${CMAKE_BINARY_DIR}/src/main.cpp)
+add_executable(dynamic_legged_systems_framework
+	${CMAKE_BINARY_DIR}/src/main.cpp
+)
 # list(APPEND PROJECT_TARGETS dynamic_legged_systems_framework)
 dls_install(dynamic_legged_systems_framework)
 
@@ -138,15 +134,11 @@ target_compile_options(
 dls_install(dls_messaging)
 add_custom_target(messagelib DEPENDS ${MESSAGE_SOURCES})
 
-# ==================================== Debug ===================================
-
 # ============================ Controller Modules ==============================
 add_library(dls_reflex
 	SHARED
 	${CMAKE_CURRENT_SOURCE_DIR}/reflex/reflex
 )
-
-
 
 # ==================================== Time ====================================
 # ==============================================================================
@@ -177,26 +169,12 @@ add_dependencies(dls2_to_roscontrol dls_framework dls_messaging)
 # ==============================================================================
 # Main Executable
 # ==============================================================================
-target_sources(
-	dynamic_legged_systems_framework
-
-	PUBLIC
-
-	# current version of cmake does not allow to specify target with no sources
-	# initialy, hence this line added earlier and not here
-	# main.cpp
-
-	# Sensor Classes
-	sensors/sensor_base.cpp
-)
 
 add_dependencies(dynamic_legged_systems_framework
 	messagelib
 	dls_controller_process
 	dls_gait_generator_process
 	dls2_to_roscontrol
-	# dls_pid_controller
-	# dls_prep_gait_generator
 )
 
 target_link_libraries(
@@ -219,17 +197,19 @@ if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 		TARGET dynamic_legged_systems_framework
 		POST_BUILD
 		COMMAND ${CMAKE_SOURCE_DIR}/build_tools/list_todos
-		COMMAND [ -f ${CMAKE_SOURCE_DIR}/bin/debug/launch_simulation_backend.sh ] || ln -s ${CMAKE_SOURCE_DIR}/scripts/launch_simulation_backend.sh ${CMAKE_SOURCE_DIR}/bin/debug/launch_simulation_backend.sh
 		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 	)
 endif()
 # ==============================================================================
 # Convencience Targets
 # ==============================================================================
-# TODO remove dummy_controller from here
 add_custom_target(
 	run
-	COMMAND ./dynamic_legged_systems_framework --robot=hyq --core
-	DEPENDS dynamic_legged_systems_framework dls_dummy_controller dls_dummy_gait_generator dls_dummy_estimator
+	COMMAND ./dynamic_legged_systems_framework ${DLS_BUILD_MAKE_RUN_FLAGS}
+	DEPENDS
+		dynamic_legged_systems_framework
+		dls_dummy_controller
+		dls_dummy_gait_generator
+		dls_dummy_estimator
 	WORKING_DIRECTORY ${EXECUTABLE_OUTPUT_PATH}
 )

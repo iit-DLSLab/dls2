@@ -5,6 +5,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 message(STATUS "Build type is ${CMAKE_BUILD_TYPE}")
 
+include(dls_configure)
 include(dls_options)
 include(dls_globals)
 include(dls_deploy)
@@ -14,3 +15,4 @@ add_subdirectory(src)
 add_subdirectory(scripts)
 add_subdirectory(test)
 add_subdirectory(doc)
+

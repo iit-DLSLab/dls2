@@ -5,12 +5,10 @@ include_directories(SYSTEM ${roscpp_INCLUDE_DIRS})
 # ==============================================================================
 # Child Processes
 # ==============================================================================
-configure_file(controller/controller_process.cpp.in
-	${CMAKE_BINARY_DIR}/src/child_process/controller/controller_process.cpp
-)
+dls_configure(controller/controller_process.cpp.in CONTROLLER_PROCESS_CPP)
 
 add_executable( dls_controller_process
-	${CMAKE_BINARY_DIR}/src/child_process/controller/controller_process.cpp
+	${CONTROLLER_PROCESS_CPP}
 )
 
 target_link_libraries(dls_controller_process
@@ -32,9 +30,11 @@ dls_install(dls_controller_process)
 configure_file(gait_generator/gait_generator_process.cpp.in
 	${CMAKE_BINARY_DIR}/src/child_process/gait_generator_process.cpp
 )
+dls_configure(gait_generator/gait_generator_process.cpp.in
+	GAIT_GENERATOR_CPP)
 
 add_executable(dls_gait_generator_process
-	${CMAKE_BINARY_DIR}/src/child_process/gait_generator_process.cpp
+	${GAIT_GENERATOR_CPP}
 )
 
 target_link_libraries(dls_gait_generator_process
@@ -52,6 +52,3 @@ target_link_libraries(dls_gait_generator_process
 	${roscpp_LIBRARIES}
 )
 dls_install(dls_gait_generator_process)
-
-# list(APPEND PROJECT_TARGETS dls_controller_process)
-# list(APPEND PROJECT_TARGETS dls_gait_generator_process)
