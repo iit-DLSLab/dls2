@@ -12,7 +12,7 @@ dls_configure_destination(dls.2.in DLS_2_DEST)
 # ------------------------------------------------------------------------------
 # Installation
 # ------------------------------------------------------------------------------
-# command to run before installation
+# Build manpages target
 add_custom_target(man
 	ALL
 	DEPENDS
@@ -20,6 +20,7 @@ add_custom_target(man
 		${DLS_2_DEST}/dls.2.gz
 )
 
+# Build manpages
 add_custom_command(
 	OUTPUT
 		${DLS_1_DEST}/dls.1.gz
@@ -29,102 +30,92 @@ add_custom_command(
 	WORKING_DIRECTORY ${DLS_1_DEST}
 )
 
-# actual installation
+# Install manpages
 install(FILES ${DLS_1_DEST}/dls.1.gz
 	DESTINATION /usr/man/man1
 )
 
-install(FILES ${DLS_2_DEST}/dls.2.gz
-	DESTINATION /usr/man/man2
+if(DLS_INSTALL_DEVELOPER_DOCUMENTATION)
+	install(FILES ${DLS_2_DEST}/dls.2.gz
+		DESTINATION /usr/man/man2
+	)
+endif()
+
+# ==============================================================================
+# DOXYGEN
+# ==============================================================================
+# ------------------------------------------------------------------------------
+# Configure
+# ------------------------------------------------------------------------------
+# Doxyfile.in contains @DOXYFILE_DEST@ as ouput directory. Set its value here
+dls_configure_destination(Doxyfile.in DOXYFILE_DEST)
+
+# Now run the configure with that value set
+dls_configure_atonly(Doxyfile.in DOXYFILE)
+# ------------------------------------------------------------------------------
+# Target for installation
+# ------------------------------------------------------------------------------
+add_custom_target(doxygen
+	ALL
+	DEPENDS
+		${DOXYFILE_DEST}/html
+		#${DOXYFILE_DEST}/latex/refman.pdf
+		${DOXYFILE_DEST}/man
+		${DOXYFILE}
 )
-## ==============================================================================
-## ==============================================================================
-## ==============================================================================
-## DOXYGEN
-## ==============================================================================
-## ==============================================================================
-## ==============================================================================
-## ==============================================================================
-## Make Directories
-## ==============================================================================
-#add_custom_command(
-#	OUTPUT
-#		"${CMAKE_SOURCE_DIR}/doc/latex/"
-#	COMMAND
-#		[[ -d ${CMAKE_SOURCE_DIR}/doc/latex ]] || mkdir ${CMAKE_SOURCE_DIR}/doc/latex
-#)
-#add_custom_command(
-#	OUTPUT
-#		"${CMAKE_SOURCE_DIR}/doc/man/"
-#	COMMAND
-#		[[ -d ${CMAKE_SOURCE_DIR}/doc/man ]] || mkdir ${CMAKE_SOURCE_DIR}/doc/man
-#)
-#add_custom_command(
-#	OUTPUT
-#		"${CMAKE_SOURCE_DIR}/doc/html/"
-#	COMMAND
-#		[[ -d ${CMAKE_SOURCE_DIR}/doc/html ]] || mkdir ${CMAKE_SOURCE_DIR}/doc/html
-#)
 
+# ------------------------------------------------------------------------------
+# Create Documentation
+# ------------------------------------------------------------------------------
+add_custom_command(
+	OUTPUT
+		${DOXYFILE_DEST}/html
+		${DOXYFILE_DEST}/latex
+		${DOXYFILE_DEST}/man
+	COMMAND
+		doxygen ${DOXYFILE}
+	WORKING_DIRECTORY
+		${CMAKE_SOURCE_DIR}
+)
 
-## ==============================================================================
-## Create Documentation
-## ==============================================================================
-#add_custom_command(
-#	OUTPUT
-#		"${CMAKE_SOURCE_DIR}/doc/html/index.html"
-#		"${CMAKE_SOURCE_DIR}/doc/latex/Makefile"
-#		"${CMAKE_SOURCE_DIR}/doc/man"
-#	DEPENDS
-#		"${CMAKE_SOURCE_DIR}/doc/html/"
-#		"${CMAKE_SOURCE_DIR}/doc/latex/"
-#		"${CMAKE_SOURCE_DIR}/doc/man/"
-#	COMMAND
-#		doxygen .Doxyfile
-#	WORKING_DIRECTORY
-#		"${CMAKE_SOURCE_DIR}"
-#)
+# ------------------------------------------------------------------------------
+# Compile PDF
+# ------------------------------------------------------------------------------
+add_custom_command(
+	OUTPUT
+		${DOXYFILE_DEST}/latex/refman.pdf
+	DEPENDS
+		${DOXYFILE_DEST}/latex/Makefile
+	COMMAND
+		make
+	WORKING_DIRECTORY
+		${DOXYFILE_DEST}/latex
+)
 
-## ==============================================================================
-## Compile PDF
-## ==============================================================================
-#add_custom_command(
-#	OUTPUT
-#		"${CMAKE_SOURCE_DIR}/doc/latex/refman.pdf"
-#	DEPENDS
-#		"${CMAKE_SOURCE_DIR}/doc/latex/Makefile"
-#	COMMAND
-#		make
-#	WORKING_DIRECTORY
-#		"${CMAKE_SOURCE_DIR}/doc/latex"
-#)
+# ------------------------------------------------------------------------------
+# Clean Directories
+# ------------------------------------------------------------------------------
+set_directory_properties(
+	PROPERTY ADDITIONAL_MAKE_CLEAN_FILES
+	${DOXYFILE_DEST}/html
+)
 
-## ==============================================================================
-## Create Doc Target
-## ==============================================================================
-#add_custom_target(
-#	doc
-#	DEPENDS
-#		"${CMAKE_SOURCE_DIR}/doc/html/index.html"
-#		# Switch off pdf generation
-#		#"${CMAKE_SOURCE_DIR}/doc/latex/refman.pdf"
-#		"${CMAKE_SOURCE_DIR}/doc/man" "${CMAKE_SOURCE_DIR}/.Doxyfile"
-#	WORKING_DIRECTORY
-#		"${CMAKE_SOURCE_DIR}"
-#)
+set_directory_properties(
+	PROPERTY ADDITIONAL_MAKE_CLEAN_FILES
+	${DOXYFILE_DEST}/latex
+)
 
-## ==============================================================================
-## Clean Directories
-## ==============================================================================
-#set_directory_properties(
-#	PROPERTY ADDITIONAL_MAKE_CLEAN_FILES
-#	"${CMAKE_CURRENT_SOURCE_DIR}/html;${CMAKE_CURRENT_SOURCE_DIR}/latex;${CMAKE_CURRENT_SOURCE_DIR}/man"
-#)
+set_directory_properties(
+	PROPERTY ADDITIONAL_MAKE_CLEAN_FILES
+	${DOXYFILE_DEST}/man
+)
 
-#if(DLS_INSTALL_DOCUMENTATION)
-
-#	install(
-#		DIRECTORY ${CMAKE_SOURCE_DIR}/doc/html
-#		DESTINATION ${DLS_INSTALL_DEVELOPMENT_DOCS_DIR}
-#	)
-#endif()
+# ------------------------------------------------------------------------------
+# Install
+# ------------------------------------------------------------------------------
+if(DLS_INSTALL_DEVELOPER_DOCUMENTATION)
+	install(
+		DIRECTORY ${DOXYFILE_DEST}/html
+		DESTINATION ${DLS_INSTALL_DEVELOPMENT_DOCS_DIR}
+	)
+endif()

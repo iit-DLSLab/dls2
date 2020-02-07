@@ -36,8 +36,8 @@ set(EIGEN_DIR /usr/include/eigen3
 # ==============================================================================
 # Documentation
 # ==============================================================================
-set(DLS_INSTALL_DOCUMENTATION On
-	CACHE BOOL "Whether to install documentation"
+set(DLS_INSTALL_DEVELOPER_DOCUMENTATION On
+	CACHE BOOL "Whether to install API documentation"
 )
 
 # ==============================================================================

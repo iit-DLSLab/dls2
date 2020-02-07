@@ -9,7 +9,6 @@ function(dls_install INSTALL_TARGET)
 		RUNTIME DESTINATION ${DLS_INSTALL_RUNTIME_DIR}
 		# PUBLIC_HEADER DESTINATION dls/include
 	)
-	message(WARNING "installing to ${DLS_INSTALL_RUNTIME_DIR}")
 endfunction()
 
 # Target to install only for debug builds, not in release
@@ -24,7 +23,6 @@ function(dls_install_debug INSTALL_TARGET)
 		RUNTIME DESTINATION ${DLS_INSTALL_RUNTIME_DIR}
 		# PUBLIC_HEADER DESTINATION dls/include
 	)
-	message(WARNING "installing to ${DLS_INSTALL_RUNTIME_DIR}")
 endfunction()
 
 # Header file installation
