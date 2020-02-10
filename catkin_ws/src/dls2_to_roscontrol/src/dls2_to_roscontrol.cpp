@@ -78,7 +78,7 @@ void Dls2ToRoscontrol::update(const ros::Time &time, const ros::Duration &period
 		{
 			double t = double(time.sec) + double(time.nsec)*1e-9;
 			//std::cout << t << " - " << pMsg->header().time().seconds() << std::endl
-			std::cout << (t-pMsg->header().time().seconds())*1000 << std::endl;
+			// std::cout << (t-pMsg->header().time().seconds())*1000 << std::endl;
 			for(size_t i = 0; i != 12; ++i)
 			{
 				joint_commands_[i].setCommand(pMsg->desired_torques()[i]);
