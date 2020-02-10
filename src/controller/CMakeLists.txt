@@ -1,4 +1,4 @@
-add_library(dls_controller
+add_library(dls_controller_interface
 	SHARED
 	controller.cpp
 	control_signal.cpp
@@ -6,8 +6,8 @@ add_library(dls_controller
 	# TODO this should be moved to the messaging library
 	${CMAKE_SOURCE_DIR}/src/fastrtps_wrappers/blind_state.cpp
 )
-dls_install(dls_controller)
-target_link_libraries(dls_controller dls_geometry)
+dls_install(dls_controller_interface)
+target_link_libraries(dls_controller_interface dls_geometry)
 
 add_library(dls_dummy_controller SHARED
 	dummy_controller.cpp

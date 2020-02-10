@@ -16,7 +16,7 @@ target_link_libraries(dls_controller_process
 	fastrtps
 	dl
 	dls_framework
-	dls_controller
+	dls_controller_interface
 	dls_gait_generator
 	dls_estimator
 
@@ -42,7 +42,7 @@ target_link_libraries(dls_gait_generator_process
 	fastcdr
 	fastrtps
 	dl
-	dls_controller
+	dls_controller_interface
 	dls_gait_generator
 	dls_estimator
 

@@ -187,7 +187,7 @@ target_link_libraries(
 	# note that the order of these is important
 	dls_framework
 	dls_estimator
-	dls_controller
+	dls_controller_interface
 	dls_gait_generator
 )
 
