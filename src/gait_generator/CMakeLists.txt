@@ -1,9 +1,11 @@
-add_library(
-	dls_gait_generator
+add_library(dls_gait_generator
 	SHARED
 	gait_generator.cpp
 	# TODO this should be moved to the messaging library
 	gait_signal.cpp
+
+	# TODO this should be moved to the messaging library
+	${CMAKE_SOURCE_DIR}/src/fastrtps_wrappers/blind_state.cpp
 )
 dls_install(dls_gait_generator)
 

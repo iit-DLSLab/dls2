@@ -54,6 +54,12 @@ void GaitGenerator::publishData(const GaitSignal &signal)
 	publisher.publish(p);
 }
 
+std::shared_ptr<BlindState> GaitGenerator::readBlindStateSignal() const
+{
+	std::lock_guard<std::mutex> lock(this->blind_state_signal_mutex);
+	return this->pBlind_state_signal;
+}
+
 // =============================================================================
 // FastRTPS
 // =============================================================================
