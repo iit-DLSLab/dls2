@@ -146,7 +146,6 @@ private:
 	} blind_state_listener;
 
 
-
 	const std::string control_signal_topic;
 	PublisherBase<ControlSignalMsgPubSubType> publisher;
 };
