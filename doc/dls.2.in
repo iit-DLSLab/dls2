@@ -15,9 +15,13 @@ dls - Dynamic Legged Systems software framework for the HyQ robot family.
 .BI dls_install_controller( controller )
 
 .B #include <dls2/controller/controller.hpp>
-.B #include <dls2/gait_generator/gait_generator.hpp>
-
+.B dls::Controller
+.B dls::ControlSignal
 .BI DLS_EXPORT_CONTROLLER( controller )
+
+.B #include <dls2/gait_generator/gait_generator.hpp>
+.B dls::GaitGenerator
+.B dls::GaitSignal
 .BI DLS_EXPORT_GAIT_GENERATOR( generator )
 
 .B #include <dls2/util/log/log.hpp>
@@ -26,6 +30,18 @@ dls - Dynamic Legged Systems software framework for the HyQ robot family.
 .B dls::logging::coutstream
 .B dls::logging::cerrstream
 .B dls::logging::cfatalstream
+
+.B #include <dls2/command/command.hpp>
+.BI "template " " " "<typename " "ret_t, " "typename... " "arg_ts" ">"
+.B void addCommand
+.B (
+.BI "	const" " " "std::string" " &owner,"
+.BI "	const" " " "std::string" " &command_name,"
+.BI "	const" " " "std::string" " &docstring,"
+.BI "	const" " " "std::function<ret_t(arg_ts...)>" " &f"
+.B );
+.B dls::ARGVOID
+
 .fi
 
 .\" ============================================================================
@@ -100,6 +116,77 @@ and its corresponding source file:
 @EXAMPLE_CONTROLLER_CPP@
 .fi
 .RE
+
+.SS Exposing Commands to the framework
+.\" ----------------------------------------------------------------------------
+.\" TODO Note: some of the text here is copy-pasted in main.md.in
+
+Commands are managed by `dls::CommandManager`. You can dynamically add commands
+to the `CommandManager` and it will take care of registering the commands
+dynamically with the rest of the framework. When the manager goes out of scope,
+it removes all of its commands from the framework. Consider the following simple
+example:
+
+.nf
+#include <dls2/command/command.hpp>
+#include <iostream>
+
+void foo();
+double bar(int);
+
+int main()
+{
+	using dls::ARGVOID;
+
+	dls::CommandManager command_manager;
+	command_manager.addCommand<void, ARGVOID>
+	(
+		// Owner of the command as seen by the framework
+		"example_command_project",
+		// Name of the command as seen by the framework
+		"foo",
+		// Documention of the command
+		"prints foo"
+		// Bind the command into the manager
+		std::function<void(ARGVOID)>
+		(
+			[&](ARGVOID)
+			{
+				foo();
+			}
+		)
+	);
+
+	command_manager.addCommand<double, int>
+	(
+		"example_command_project",
+		"bar"
+		"does nothing useful",
+		std::function<double(int)>
+		(
+			[&](int)
+			{
+				return bar();
+			}
+		)
+	);
+}
+
+void foo()
+{
+	std::cout << "foo" << std::endl;
+}
+
+double bar(int i)
+{
+	std::cout << "bar: " << i << std::endl;
+	return 20.0;
+}
+.fi
+
+`dls::ARGVOID` is only required in cases where the command takes no arguments.
+This is due to a limitation where C++ deviates from C.
+
 
 .SS Logging
 .\" ----------------------------------------------------------------------------

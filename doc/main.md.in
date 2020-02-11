@@ -22,6 +22,77 @@ write plugins for @CMAKE_PROJECT_NAME@.
 PROTIP: The source code here contains hyperlinks. Use it to jump to the
 documentation of a component.
 
+### Exposing Commands to the Framework
+
+
+<!-- TODO Note: some of the text here is copy-pasted in dls.2.in -->
+
+Commands are managed by `dls::CommandManager`. You can dynamically add commands
+to the `CommandManager` and it will take care of registering the commands
+dynamically with the rest of the framework. When the manager goes out of scope,
+it removes all of its commands from the framework. Consider the following simple
+example:
+
+```cpp
+#include <dls2/command/command.hpp>
+#include <iostream>
+
+void foo();
+double bar(int);
+
+int main()
+{
+	using dls::ARGVOID;
+
+	dls::CommandManager command_manager;
+	command_manager.addCommand<void, ARGVOID>
+	(
+		// Owner of the command as seen by the framework
+		"example_command_project",
+		// Name of the command as seen by the framework
+		"foo",
+		// Documention of the command
+		"prints foo"
+		// Bind the command into the manager
+		std::function<void(ARGVOID)>
+		(
+			[&](ARGVOID)
+			{
+				foo();
+			}
+		)
+	);
+
+	command_manager.addCommand<double, int>
+	(
+		"example_command_project",
+		"bar"
+		"does nothing useful",
+		std::function<double(int)>
+		(
+			[&](int)
+			{
+				return bar();
+			}
+		)
+	);
+}
+
+void foo()
+{
+	std::cout << "foo" << std::endl;
+}
+
+double bar(int i)
+{
+	std::cout << "bar: " << i << std::endl;
+	return 20.0;
+}
+```
+
+`dls::ARGVOID` is only required in cases where the command takes no arguments.
+This is due to a limitation where C++ deviates from C.
+
 ### Logging
 
 <!-- TODO NOTE, some of the text here is copy-pasted in dls.2.in -->
