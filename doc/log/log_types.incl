@@ -1,0 +1,5 @@
+dls::logging::cdbgstream
+dls::logging::clogstream
+dls::logging::coutstream
+dls::logging::cerrstream
+dls::logging::cfatalstream

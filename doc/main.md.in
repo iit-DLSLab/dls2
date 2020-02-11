@@ -22,6 +22,36 @@ write plugins for @CMAKE_PROJECT_NAME@.
 PROTIP: The source code here contains hyperlinks. Use it to jump to the
 documentation of a component.
 
+### Logging
+
+<!-- TODO NOTE, some of the text here is copy-pasted in dls.2.in -->
+Logging in the framework is achieved through the usage of predetermined log
+streams. There are streams available for debugging, system logs, user
+communication, error messages and fatal error messages.  These classes have the
+same interface as `std::cout`, with the difference that they do not print to
+stdout, but instead automatically publish their messages to the framework. They
+publish as soon as they are passed `std::endl`.
+
+The classes for logging are:
+
+```cpp
+@LOG_TYPES_INCL@
+```
+
+Example usage:
+
+```cpp
+@LOG_EXAMPLE_CPP_INCL@
+```
+
+The user may then run the log layer:
+
+```txt
+$ dls -llog
+```
+
+and filter out interesting logs using tools such as grep and awk
+
 ### Building a new controller
 
 Consider the header file:

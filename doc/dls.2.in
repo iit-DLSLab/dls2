@@ -19,6 +19,13 @@ dls - Dynamic Legged Systems software framework for the HyQ robot family.
 
 .BI DLS_EXPORT_CONTROLLER( controller )
 .BI DLS_EXPORT_GAIT_GENERATOR( generator )
+
+.B #include <dls2/util/log/log.hpp>
+.B dls::logging::cdbgstream
+.B dls::logging::clogstream
+.B dls::logging::coutstream
+.B dls::logging::cerrstream
+.B dls::logging::cfatalstream
 .fi
 
 .\" ============================================================================
@@ -94,6 +101,38 @@ and its corresponding source file:
 .fi
 .RE
 
+.SS Logging
+.\" ----------------------------------------------------------------------------
+
+.\" TODO Note: some of the text here is copy-pasted in main.md.in
+
+Logging in the framework is achieved through the usage of predetermined log
+streams. There are streams available for debugging, system logs, user
+communication, error messages and fatal error messages.  These classes have the
+same interface as `std::cout`, with the difference that they do not print to
+stdout, but instead automatically publish their messages to the framework. They
+publish as soon as they are passed `std::endl`.
+
+The classes for logging are:
+
+.nf
+@LOG_TYPES_INCL@
+.fi
+
+Example usage:
+
+.nf
+@LOG_EXAMPLE_CPP_INCL@
+.fi
+
+The user may then run the log layer:
+
+.nf
+dls -llog
+.fi
+
+and filter out interesting logs using tools such as grep and awk
+
 .SS Installing
 .\" ----------------------------------------------------------------------------
 
@@ -131,3 +170,5 @@ hendrik.debruin@iit.it
 .SH SEE ALSO
 .\" ============================================================================
 dls(1)
+grep(1)
+awk(1)
