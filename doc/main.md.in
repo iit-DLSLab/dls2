@@ -24,7 +24,6 @@ documentation of a component.
 
 ### Exposing Commands to the Framework
 
-
 <!-- TODO Note: some of the text here is copy-pasted in dls.2.in -->
 
 Commands are managed by `dls::CommandManager`. You can dynamically add commands
