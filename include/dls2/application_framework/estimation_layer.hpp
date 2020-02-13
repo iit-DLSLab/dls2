@@ -32,7 +32,10 @@
 
 namespace dls
 {
-// TODO("Document this class")
+// TODO build and document this class
+/// Estimation layer
+///
+/// Manages estimators
 class EstimationLayer : public AppLayer
 {
 public:

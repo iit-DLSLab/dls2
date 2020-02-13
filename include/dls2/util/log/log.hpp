@@ -53,6 +53,9 @@ private:
 	const std::string prefix;
 };
 
+/// Debug log stream
+///
+/// Use this log stream to log debugging data
 class cdbgstream : public std::ostream
 {
 public:
@@ -60,6 +63,10 @@ public:
 	~cdbgstream();
 };
 
+/// Log log stream
+///
+/// Use this stream to log system events, such as 'controller loaded', 'gait
+/// generator exited' etc.
 class clogstream : public std::ostream
 {
 public:
@@ -67,6 +74,9 @@ public:
 	~clogstream();
 };
 
+/// Print log stream
+///
+/// Use this class to log messages that should also be shown to the user
 class coutstream : public std::ostream
 {
 public:
@@ -74,6 +84,11 @@ public:
 	~coutstream();
 };
 
+/// Error log stream
+///
+/// Use this log stream to report errors that occurred, but from which the
+/// system can recover. Also log possible future fatal errors for the operator's
+/// attention here.
 class cerrstream : public std::ostream
 {
 public:
@@ -81,6 +96,10 @@ public:
 	~cerrstream();
 };
 
+/// Fatal error log stream
+///
+/// Log fatal errors that occured here. These should be errors from which the
+/// system cannot recover without operator intervention.
 class cfatalstream : public std::ostream
 {
 public:

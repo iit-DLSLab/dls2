@@ -27,6 +27,10 @@
 // =============================================================================
 namespace dls
 {
+/// static class representing the version of the framework
+///
+/// This class makes it possilbe to change the version number without having to
+/// recompile everything
 class VersionInfo
 {
 public:

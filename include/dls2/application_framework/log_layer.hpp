@@ -36,10 +36,12 @@
 #include <mutex>
 #include <condition_variable>
 
-/// THIS class is in a very hackish copy-paste state at the moment. It will be
-/// made better
 namespace dls
 {
+// TODO this class was built with a lot of copy-pasting. Make it more elegant
+
+/// Class responsible for handling the logging of the framework
+///
 class LogLayer : public AppLayer
 {
 public:

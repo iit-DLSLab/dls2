@@ -41,13 +41,13 @@ struct GaitSignal
 
 	// TODO can I use Pose class for velocities and accelerations?
 	// TODO handle default initialisations here
-	Pose desired_com_pose_world;			///< The desired pose of the center of mass frame
-	Screw desired_com_velocity_world;		///< The desired velocity of the center of mass frame
-	Screw desired_com_acceleration_world;	///< The desired accleration of the center of mass frame
+	Pose desired_com_pose_world;            ///< The desired pose of the center of mass frame
+	Screw desired_com_velocity_world;        ///< The desired velocity of the center of mass frame
+	Screw desired_com_acceleration_world;    ///< The desired accleration of the center of mass frame
 
-	Pose desired_base_pose_world;			///< The desired pose of the base frame
-	Screw desired_base_velocity_world;		///< The desired velocity of the base frame
-	Screw desired_base_acceleration_world;	///< The desired acceleration of the base frame
+	Pose desired_base_pose_world;            ///< The desired pose of the base frame
+	Screw desired_base_velocity_world;        ///< The desired velocity of the base frame
+	Screw desired_base_acceleration_world;    ///< The desired acceleration of the base frame
 
 	/// The desired joint state
 	///

@@ -29,21 +29,29 @@
 
 namespace dls
 {
+/// An application layer
+///
+/// A layer can be launched and managed by the main application
 class AppLayer
 {
 public:
 	using pComponent_t = std::shared_ptr<AppLayerComponent>;
+
+	/// The status of this layer
+	///
 	enum class Status
 	{
-		INITIALISING,
-		RUNNING,
-		FATAL_ERROR,
-		E_STOP,
-		SUCCESS,
-		STOP
+		INITIALISING, ///< Layer is initialising
+		RUNNING,      ///< Layer is running normally
+		FATAL_ERROR,  ///< Layer has encountered a fatal error
+		E_STOP,       ///< Layer has performed an emergency stop
+		SUCCESS,      ///< Layer has executed succesfully
+		STOP          ///< Layer has been stopped
 	};
 
+	// TODO remove this
 	AppLayer(const std::initializer_list<pComponent_t>&);
+
 	AppLayer();
 	virtual ~AppLayer() = default;
 
@@ -52,12 +60,26 @@ public:
 	/// If a layer does not override this function, it defaults to the layer's
 	/// shutdown function
 	virtual Status eStop();
-	Status getStatus() const;
-	// TODO ("Make protected")
-	void setStatus(Status);
 
-	// TODO ("These should probably only be accessible from HyQApp")
+
+	/// Get the status of the layer
+	///
+	/// @ret the layer's status
+	Status getStatus() const;
+
+	// TODO Make protected
+	/// Set the status of the layer
+	///
+	/// @param status the status
+	void setStatus(Status status);
+
+	// TODO These should probably only be accessible from HyQApp
+	/// Runs the layer
+	///
 	virtual Status run() = 0;
+
+	/// Kills the layer
+	///
 	virtual Status shutdown() = 0;
 
 protected:
@@ -74,7 +96,7 @@ private:
 	// END critical section
 
 protected:
-	// TODO ("remove this")
+	// TODO remove this
 	std::function<Status(void)> main;
 };
 } // end namespace dls

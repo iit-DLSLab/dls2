@@ -55,6 +55,9 @@
 // =============================================================================
 namespace dls
 {
+/// Control layer
+///
+/// Responsible for managing controllers and gait generators
 class ControlLayer : public AppLayer
 {
 public:
@@ -205,7 +208,5 @@ private:
 	logging::cfatalstream cfatal;
 };
 } // end namespace dls
-
-#include "dls2/application_framework/control_layer.tpp"
 
 #endif /* end of include guard: CONTROL_LAYER_HPP_YCHFNYBM */

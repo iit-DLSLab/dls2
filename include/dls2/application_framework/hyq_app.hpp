@@ -31,6 +31,9 @@
 
 namespace dls
 {
+/// Class encapsulating the framework
+///
+/// This class can dynamically launch different layers
 class HyQApp
 {
 	using pLayer_t = std::shared_ptr<AppLayer>;

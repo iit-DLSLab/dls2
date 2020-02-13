@@ -29,20 +29,44 @@
 
 namespace dls
 {
+/// Periodic component
+///
+/// This class automatically calls its own run function at a given period
 class PeriodicAppLayerComponent : public AppLayerComponent
 {
 	friend class ClockSubscriber;
 public:
 	typedef std::chrono::duration<double, std::ratio<1, 1'000'000>> period_t;
 public:
-	PeriodicAppLayerComponent(const ID_t&,const period_t&);
 
+	/// Constructor
+	///
+	/// @param ID the name of this component
+	/// @parma period the period length of each run epoch
+	PeriodicAppLayerComponent(const ID_t &ID,const period_t &period);
+
+	/// Runs the component
+	///
+	/// Automatically calls the abstract run function at the correct frequency
 	Status run() override;
+
+	/// Stops this component
+	///
 	Status stop() override;
+
+	/// Virtual run function
+	///
+	/// Overwrite this function with the function that needs to be called at the
+	/// correct rate
 	virtual void run(const std::chrono::system_clock::time_point&) = 0;
 
 private:
+	/// The period of this component
+	///
 	const period_t period;
+
+	/// Used to determine whether the periodic run function should be called
+	///
 	std::atomic_bool should_run;
 
 };

@@ -23,6 +23,7 @@
 #include <memory>
 
 /// Utility class that simplifies loading shared objects into classes
+///
 namespace dls
 {
 class ClassLoader

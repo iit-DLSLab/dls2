@@ -24,32 +24,53 @@
 
 namespace dls
 {
+/// A component that can be launched inside of an application layer
+///
 class AppLayerComponent
 {
 public:
 	using ID_t = std::string;
-	AppLayerComponent(const ID_t&);
+
+	/// Constructor
+	/// @parm ID the name of this component
+	AppLayerComponent(const ID_t &ID);
+
 	virtual ~AppLayerComponent() = default;
 
+	/// Status of this component
+	///
 	enum class Status
 	{
-		UNCONSTRUCTED,
-		RUNNING,
-		FATAL_ERROR,
-		E_STOP,
-		SUCCESS,
-		FAIL,
-		STOPPED,
-		BREAKING_REALTIME
+		UNCONSTRUCTED,    ///< Component has not been built
+		RUNNING,          ///< Component is running normally
+		FATAL_ERROR,      ///< Component has had a fatal error
+		E_STOP,           ///< Component has performed an emergency stop
+		SUCCESS,          ///< Component finshed succesfully
+		FAIL,             ///< Componnent failed
+		STOPPED,          ///< Component stopped
+		BREAKING_REALTIME ///< Component is breaking realtime
 	};
 
 	// TODO perhaps add stop, pause functions?
+
+	/// Runs this compoent
+	///
 	virtual Status run() = 0;
+
 	//virtual Status shutdown() = 0;
+
+	/// Emergency stop for this component
+	///
 	virtual Status eStop() = 0;
+
+	/// Normal stop for this component
+	///
 	virtual Status stop() = 0;
 	//virtual Status pause() = 0;
 
+	/// Return the status of this component
+	///
+	/// @ret the component's status
 	Status getStatus();
 
 	/// Returns the ID of this component
@@ -58,14 +79,18 @@ public:
 	ID_t getID();
 
 protected:
-	void setStatus(Status);
+
+	/// Sets the status of this component
+	///
+	/// @param status the status to set
+	void setStatus(Status status);
 
 private:
 	// BEGIN critical section
-		Status status;
-		std::mutex status_mutex;
+		Status status;           ///< The status of this  component
+		std::mutex status_mutex; ///< Status mutex
 	// END critical section
-	const ID_t ID;								///< The ID of this gait generator
+	const ID_t ID; ///< The ID of this component
 };
 } // end namespace dls
 

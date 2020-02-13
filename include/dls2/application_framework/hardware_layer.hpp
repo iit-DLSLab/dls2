@@ -24,6 +24,7 @@
 #include "dls2/util/log/log.hpp"
 #include <unistd.h>
 
+// TODO build this class
 namespace dls
 {
 class HardwareLayer : public AppLayer

@@ -41,7 +41,7 @@ struct ControlSignal
 		// IMPULSE
 	} signal_reconstruction_method;
 	double time;
-	
+
 	// =============================== Fastrtps ================================
 	// TODO ("Figure out if this should be const or reference or whatever")
 	ControlSignal();
