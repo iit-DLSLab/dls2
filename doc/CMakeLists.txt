@@ -1,16 +1,23 @@
 # ==============================================================================
+# URL of example repository
+# ==============================================================================
+execute_process(
+	COMMAND
+		git config --get remote.origin.url
+	WORKING_DIRECTORY
+		${CMAKE_CURRENT_SOURCE_DIR}/dls2_examples
+	OUTPUT_VARIABLE
+		DLS_EXAMPLES_REPOSITORY
+)
+message(STATUS "Example repository located at: ${DLS_EXAMPLES_REPOSITORY}")
+
+# ==============================================================================
 # Read Include Files
 # ==============================================================================
 # ------------------------------------------------------------------------------
 # Flow chart
 # ------------------------------------------------------------------------------
-file(READ flow_chart.incl FLOW_CHART_INCL)
-
-# ------------------------------------------------------------------------------
-# Logging
-# ------------------------------------------------------------------------------
-file(READ log/log_example.cpp.incl LOG_EXAMPLE_CPP_INCL)
-file(READ log/log_types.incl LOG_TYPES_INCL)
+file(READ include/flow_chart.incl FLOW_CHART_INCL)
 
 # ------------------------------------------------------------------------------
 # Example Controller
@@ -42,9 +49,31 @@ file(READ dls2_examples/example_gait_generator/include/example_gait_generator.hp
 file(READ dls2_examples/example_gait_generator/src/example_gait_generator.cpp
 	EXAMPLE_GAIT_GENERATOR_CPP
 )
+
+# Generator CMake
 file(READ dls2_examples/example_gait_generator/src/CMakeLists.txt
 	EXAMPLE_GAIT_GENERATOR_CMAKE
 )
+
+# ------------------------------------------------------------------------------
+# Logging
+# ------------------------------------------------------------------------------
+file(READ dls2_examples/example_log/src/main.cpp
+	EXAMPLE_LOG_MAIN_CPP
+)
+
+dls_configure_atonly(include/logging.md.in LOGGING_MD_FILE)
+file(READ ${LOGGING_MD_FILE} LOGGING_MD)
+
+# ------------------------------------------------------------------------------
+# Commands
+# ------------------------------------------------------------------------------
+file(READ dls2_examples/example_command/src/main.cpp
+	EXAMPLE_COMMAND_MAIN_CPP
+)
+
+dls_configure_atonly(include/command.md.in COMMAND_MD_FILE)
+file(READ ${COMMAND_MD_FILE} COMMAND_MD)
 
 # ==============================================================================
 # Man Pages
@@ -52,6 +81,24 @@ file(READ dls2_examples/example_gait_generator/src/CMakeLists.txt
 # ------------------------------------------------------------------------------
 # Configuration
 # ------------------------------------------------------------------------------
+# convert LOGGING_MD_FILE to a man page
+dls_configure_destination(include/logging.md.in LOGGING_MD_DEST)
+set(LOGGING_MD_MAN_FILE ${LOGGING_MD_DEST}/logging.man.incl)
+execute_process(
+	COMMAND
+		pandoc ${LOGGING_MD_FILE} -t man -o ${LOGGING_MD_MAN_FILE}
+)
+file(READ ${LOGGING_MD_MAN_FILE} LOGGING_MD_MAN)
+
+# Convert COMMAND_MD_FILE to man page
+dls_configure_destination(include/command.md.in COMMAND_MD_DEST)
+set(COMMAND_MD_MAN_FILE ${COMMAND_MD_DEST}/command.man.incl)
+execute_process(
+	COMMAND
+		pandoc ${COMMAND_MD_FILE} -t man -o ${COMMAND_MD_MAN_FILE}
+)
+file(READ ${COMMAND_MD_MAN_FILE} COMMAND_MD_MAN)
+
 dls_configure_atonly(dls.1.in DLS_1)
 dls_configure_atonly(dls.2.in DLS_2)
 dls_configure_destination(dls.1.in DLS_1_DEST)
@@ -66,6 +113,7 @@ add_custom_target(man
 	DEPENDS
 		${DLS_1_DEST}/dls.1.gz
 		${DLS_2_DEST}/dls.2.gz
+		${LOGGING_MD_MAN_FILE}
 )
 
 # Build manpages
@@ -98,9 +146,18 @@ endif()
 # Doxyfile.in contains @DOXYFILE_DEST@ as ouput directory. Set its value here
 dls_configure_destination(Doxyfile.in DOXYFILE_DEST)
 
-# Configure the main page and set @MAIN_MD@ read by doxygen
-dls_configure_atonly(main.md.in MAIN_MD)
-# message(FATAL_ERROR "MAIN MD ${MAIN_MD}")
+# Configure the main page
+dls_configure_atonly(main.pre.md.in MAIN_MD_NO_TOC)
+dls_configure_destination(main.pre.md.in MAIN_MD_NO_TOC_DEST)
+set(MAIN_MD ${MAIN_MD_NO_TOC_DEST}/main.md)
+
+# Generate the table of contents. @MAIN_MD@ is read by .Doxyfile
+# execute_process(
+# 	COMMAND
+# 		pandoc ${MAIN_MD_NO_TOC} --table-of-contents --standalone -o ${MAIN_MD}
+# )
+dls_configure_atonly(main.pre.md.in MAIN_MD)
+
 
 # Now run the configure with that value set
 dls_configure_atonly(Doxyfile.in DOXYFILE)

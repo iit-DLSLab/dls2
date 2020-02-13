@@ -1,0 +1,78 @@
+# Introduction
+
+This is the API description of @CMAKE_PROJECT_NAME@ version
+@CMAKE_PROJECT_VERSION@. For usage of the framework, refer to:
+
+```txt
+$ man 1 dls
+```
+
+For quick reference, the following manual page is also available:
+
+```txt
+$ man 2 dls
+```
+
+The software framework is split into different layers. While not strictly
+necessary to understand the information flow in order to build a plugin, it is
+briefly shown in the following diagram:
+
+```txt
+@FLOW_CHART_INCL@
+```
+
+# Quick Start
+
+The following shows an extract from an example project and illustrates how to
+write plugins for @CMAKE_PROJECT_NAME@. The examples here may be found in the
+repository listed at:
+
+	@DLS_EXAMPLES_REPOSITORY@
+
+PRO TIP: The source code here contains hyperlinks. Use it to jump to the
+documentation of a component.
+
+## Exposing Commands to the Framework
+
+@COMMAND_MD@
+
+## Logging
+
+@LOGGING_MD@
+
+## Building a new controller
+
+Consider the header file:
+
+```cpp
+@EXAMPLE_CONTROLLER_HPP@
+```
+And its source file:
+
+```cpp
+@EXAMPLE_CONTROLLER_CPP@
+```
+To build and install it:
+
+<!-- Figure out how to highlight this -->
+```txt
+@EXAMPLE_CONTROLLER_CMAKE@
+```
+## Building a new generator
+
+Consider the header file:
+
+```cpp
+@EXAMPLE_GAIT_GENERATOR_HPP@
+```
+And its source file:
+
+```cpp
+@EXAMPLE_GAIT_GENERATOR_CPP@
+```
+To build and install it:
+
+<!-- Figure out how to highlight this -->
+```txt
+@EXAMPLE_GAIT_GENERATOR_CMAKE@
+```

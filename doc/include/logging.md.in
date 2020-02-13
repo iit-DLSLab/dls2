@@ -1,0 +1,28 @@
+Logging in the framework is achieved through the usage of predetermined log
+streams. There are streams available for debugging, system logs, user
+communication, error messages and fatal error messages.  These classes have the
+same interface as `std::cout`, with the difference that they do not print to
+stdout, but instead automatically publish their messages to the framework. They
+publish as soon as they are passed `std::endl`, or when their buffer is full.
+See the class documentation for information on how to set the buffer size.
+
+```cpp
+@EXAMPLE_LOG_MAIN_CPP@
+```
+
+The log can be viewed in real-time by calling
+
+```txt
+$ dls -llog
+```
+
+For this example program you won't be able to see your logs as they will be
+drowned out by the noise of other components. To filter out what you want to
+see, simply use standard Unix tools. For instance, the following commands may be
+useful:
+
+```txt
+$ dls -llog | grep example_logging
+$ dls -llog | grep INFO
+$ dls -llog | grep DEBUG | grep example_logging
+```

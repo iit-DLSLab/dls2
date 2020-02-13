@@ -1,3 +1,4 @@
+@COMMAND_MD_MAN@
 .TH dls 1 "Build date: @DLS_COMPILE_DATE@" "version @PROJECT_VERSION@" "Dynamic Legged Systems Framework"
 
 .\" ============================================================================
@@ -191,59 +192,7 @@ This is due to a limitation where C++ deviates from C.
 .SS Logging
 .\" ----------------------------------------------------------------------------
 
-.\" TODO Note: some of the text here is copy-pasted in main.md.in
-
-Logging in the framework is achieved through the usage of predetermined log
-streams. There are streams available for debugging, system logs, user
-communication, error messages and fatal error messages.  These classes have the
-same interface as `std::cout`, with the difference that they do not print to
-stdout, but instead automatically publish their messages to the framework. They
-publish as soon as they are passed `std::endl`.
-
-The classes for logging are:
-
-.nf
-@LOG_TYPES_INCL@
-.fi
-
-Example usage:
-
-.nf
-@LOG_EXAMPLE_CPP_INCL@
-.fi
-
-The user may then run the log layer:
-
-.nf
-dls -llog
-.fi
-
-and filter out interesting logs using tools such as grep and awk
-
-.SS Installing
-.\" ----------------------------------------------------------------------------
-
-The framework will look for controllers and generators in predefined
-installation directories.
-
-
-To install them to the correct directories, use the following CMake code for a
-gait generator:
-
-.RS
-.nf
-@EXAMPLE_GAIT_GENERATOR_CMAKE@
-.fi
-.RE
-
-The following may be used for a controller:
-
-.RS
-.nf
-@EXAMPLE_CONTROLLER_CMAKE@
-.fi
-.RE
-
+@LOGGING_MD_MAN@
 
 .\" ============================================================================
 .SH AUTHOR
