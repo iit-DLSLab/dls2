@@ -1,3 +1,5 @@
+include(dls_docs)
+
 # ==============================================================================
 # URL of example repository
 # ==============================================================================
@@ -37,6 +39,9 @@ file(READ dls2_examples/example_controller/src/CMakeLists.txt
 	EXAMPLE_CONTROLLER_CMAKE
 )
 
+dls_configure_atonly(include/controller.md.in CONTROLLER_MD_FILE)
+file(READ ${CONTROLLER_MD_FILE} CONTROLLER_MD)
+
 # ------------------------------------------------------------------------------
 # Example Generator
 # ------------------------------------------------------------------------------
@@ -54,6 +59,9 @@ file(READ dls2_examples/example_gait_generator/src/example_gait_generator.cpp
 file(READ dls2_examples/example_gait_generator/src/CMakeLists.txt
 	EXAMPLE_GAIT_GENERATOR_CMAKE
 )
+
+dls_configure_atonly(include/gait_generator.md.in GAIT_GENERATOR_MD_FILE)
+file(READ ${GAIT_GENERATOR_MD_FILE} GAIT_GENERATOR_MD)
 
 # ------------------------------------------------------------------------------
 # Logging
@@ -81,23 +89,23 @@ file(READ ${COMMAND_MD_FILE} COMMAND_MD)
 # ------------------------------------------------------------------------------
 # Configuration
 # ------------------------------------------------------------------------------
-# convert LOGGING_MD_FILE to a man page
+# logging.md.in
 dls_configure_destination(include/logging.md.in LOGGING_MD_DEST)
-set(LOGGING_MD_MAN_FILE ${LOGGING_MD_DEST}/logging.man.incl)
-execute_process(
-	COMMAND
-		pandoc ${LOGGING_MD_FILE} -t man -o ${LOGGING_MD_MAN_FILE}
-)
+dls_markdown_to_man(${LOGGING_MD_FILE} LOGGING_MD_MAN_FILE)
 file(READ ${LOGGING_MD_MAN_FILE} LOGGING_MD_MAN)
 
-# Convert COMMAND_MD_FILE to man page
+# command.md.in
 dls_configure_destination(include/command.md.in COMMAND_MD_DEST)
-set(COMMAND_MD_MAN_FILE ${COMMAND_MD_DEST}/command.man.incl)
-execute_process(
-	COMMAND
-		pandoc ${COMMAND_MD_FILE} -t man -o ${COMMAND_MD_MAN_FILE}
-)
+dls_markdown_to_man(${COMMAND_MD_FILE} COMMAND_MD_MAN_FILE)
 file(READ ${COMMAND_MD_MAN_FILE} COMMAND_MD_MAN)
+
+# controller.md.in
+dls_markdown_to_man(${CONTROLLER_MD_FILE} CONTROLLER_MD_MAN_FILE)
+file(READ ${CONTROLLER_MD_MAN_FILE} CONTROLLER_MD_MAN)
+
+# gait_generator.md.in
+dls_markdown_to_man(${GAIT_GENERATOR_MD_FILE} GAIT_GENERATOR_MD_MAN_FILE)
+file(READ ${GAIT_GENERATOR_MD_MAN_FILE} GAIT_GENERATOR_MD_MAN)
 
 dls_configure_atonly(dls.1.in DLS_1)
 dls_configure_atonly(dls.2.in DLS_2)

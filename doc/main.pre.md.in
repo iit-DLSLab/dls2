@@ -42,37 +42,8 @@ documentation of a component.
 
 ## Building a new controller
 
-Consider the header file:
+@CONTROLLER_MD@
 
-```cpp
-@EXAMPLE_CONTROLLER_HPP@
-```
-And its source file:
-
-```cpp
-@EXAMPLE_CONTROLLER_CPP@
-```
-To build and install it:
-
-<!-- Figure out how to highlight this -->
-```txt
-@EXAMPLE_CONTROLLER_CMAKE@
-```
 ## Building a new generator
 
-Consider the header file:
-
-```cpp
-@EXAMPLE_GAIT_GENERATOR_HPP@
-```
-And its source file:
-
-```cpp
-@EXAMPLE_GAIT_GENERATOR_CPP@
-```
-To build and install it:
-
-<!-- Figure out how to highlight this -->
-```txt
-@EXAMPLE_GAIT_GENERATOR_CMAKE@
-```
+@GAIT_GENERATOR_MD@

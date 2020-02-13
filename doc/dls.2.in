@@ -1,4 +1,3 @@
-@COMMAND_MD_MAN@
 .TH dls 1 "Build date: @DLS_COMPILE_DATE@" "version @PROJECT_VERSION@" "Dynamic Legged Systems Framework"
 
 .\" ============================================================================
@@ -56,23 +55,6 @@ framework to write a plugin for it, as this is hiden by the API. However, a
 high-level overview of the information flow in the framework is reported in the
 following diagram:
 
-.\" +------------+
-.\" | Low Level  |
-.\" | Estimator  |
-.\" +------------+
-.\" +------------+
-.\" | High Level |
-.\" | Estimator  |
-.\" +------------+
-.\" +------------+
-.\" | Gait       |
-.\" | Generator  |
-.\" +------------+
-.\" +------------+
-.\" | Controller |
-.\" | 1          |
-.\" +------------+
-
 .nf
 @FLOW_CHART_INCL@
 .fi
@@ -80,114 +62,19 @@ following diagram:
 .SS Creating a New Gait Generator
 .\" ----------------------------------------------------------------------------
 
-A gait generator is created by inheriting from the gait generator base class.
-Consider the example header file:
-
-.RS
-.nf
-@EXAMPLE_GAIT_GENERATOR_HPP@
-.fi
-.RE
-
-and its corresponding source file
-
-.RS
-.nf
-@EXAMPLE_GAIT_GENERATOR_CPP@
-.fi
-.RE
+@GAIT_GENERATOR_MD_MAN@
 
 
 .SS Creating a New Controller
 .\" ----------------------------------------------------------------------------
 
-A controller may be created by inheriting from the controller base class.
-Consider the header file:
+@CONTROLLER_MD_MAN@
 
-.RS
-.nf
-@EXAMPLE_CONTROLLER_HPP@
-.fi
-.RE
-
-and its corresponding source file:
-
-.RS
-.nf
-@EXAMPLE_CONTROLLER_CPP@
-.fi
-.RE
 
 .SS Exposing Commands to the framework
 .\" ----------------------------------------------------------------------------
-.\" TODO Note: some of the text here is copy-pasted in main.md.in
 
-Commands are managed by `dls::CommandManager`. You can dynamically add commands
-to the `CommandManager` and it will take care of registering the commands
-dynamically with the rest of the framework. When the manager goes out of scope,
-it removes all of its commands from the framework. Consider the following simple
-example:
-
-.nf
-#include <dls2/command/command.hpp>
-#include <iostream>
-
-void foo();
-double bar(int);
-
-int main()
-{
-	using dls::ARGVOID;
-
-	dls::CommandManager command_manager;
-	command_manager.addCommand<void, ARGVOID>
-	(
-		// Owner of the command as seen by the framework
-		"example_command_project",
-		// Name of the command as seen by the framework
-		"foo",
-		// Documention of the command
-		"prints foo"
-		// Bind the command into the manager
-		std::function<void(ARGVOID)>
-		(
-			[&](ARGVOID)
-			{
-				foo();
-			}
-		)
-	);
-
-	command_manager.addCommand<double, int>
-	(
-		"example_command_project",
-		"bar"
-		"does nothing useful",
-		std::function<double(int)>
-		(
-			[&](int)
-			{
-				return bar();
-			}
-		)
-	);
-}
-
-void foo()
-{
-	std::cout << "foo" << std::endl;
-}
-
-double bar(int i)
-{
-	std::cout << "bar: " << i << std::endl;
-	return 20.0;
-}
-.fi
-
-`dls::ARGVOID` is only required in cases where the command takes no arguments.
-This is due to a limitation where C++ deviates from C.
-
+@COMMAND_MD_MAN@
 
 .SS Logging
 .\" ----------------------------------------------------------------------------
