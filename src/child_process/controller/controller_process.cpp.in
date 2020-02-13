@@ -24,13 +24,13 @@
 #include <csignal>
 #include <sstream>
 
-#include "dls2/util/class_loader.hpp"
+#include "dls2/util/class_loader.phpp"
 #include "dls2/controller/controller.hpp"
 #include "dls2/util/debug/debug.hpp"
 #include "dls2/util/log/log.hpp"
 #include "dls2/util/debug/debug.hpp"
 
-#include "dls2/path_prefixes/path_prefixes.hpp"
+#include "dls2/path_prefixes/path_prefixes.phpp"
 #include "dls2/util/time/time.hpp"
 
 #include <doglib/factory/robot_factory.hpp>

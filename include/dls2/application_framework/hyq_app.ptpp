@@ -17,30 +17,38 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-#ifndef HARDWARE_LAYER_HPP_64INVL3T
-#define HARDWARE_LAYER_HPP_64INVL3T
+#ifndef HYQ_APP_TPP_LJR4CEH3
+#define HYQ_APP_TPP_LJR4CEH3
 
-#include "dls2/application_framework/app_layer.hpp"
-#include "dls2/util/log/log.hpp"
-#include <unistd.h>
+#include "dls2/application_framework/hyq_app.phpp"
 
-// TODO build this class
 namespace dls
 {
-class HardwareLayer : public AppLayer
+template <typename layer_t>
+bool HyQApp::addLayer(std::shared_ptr<layer_t> pLayer)
 {
-public:
-	HardwareLayer();
-	~HardwareLayer();
+	static_assert
+	(
+		std::is_base_of<AppLayer, layer_t>::value,
+		"Error: argument must point to an instance of AppLayer"
+	);
 
-	Status run() override;
-	Status shutdown() override;
+	std::lock_guard<std::mutex> lock(this->layers_mutex);
 
-private:
-	pid_t xenomotor_pid;
-	pid_t xenorostask_pid;
-	logging::coutstream scout;
-};
-} // end namespace dls
+	// loop through all the layers and check their types
+	auto it = this->layers.begin();
+	for(; it != this->layers.end(); it += 1)
+	{
+		// If a layer of this type is already active in the architecture
+		if(std::dynamic_pointer_cast<layer_t>(*it))
+		{
+			return false;
+		}
+	}
 
-#endif /* end of include guard: HARDWARE_LAYER_HPP_64INVL3T */
+	this->layers.push_back(pLayer);
+	return true;
+}
+} // end namespace dls;
+
+#endif /* end of include guard: HYQ_APP_TPP_LJR4CEH3 */

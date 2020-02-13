@@ -17,7 +17,7 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-#include "dls2/application_framework/app_layer.hpp"
+#include "dls2/application_framework/app_layer.phpp"
 #include "dls2/util/debug/debug.hpp"
 
 using namespace dls;

@@ -17,7 +17,7 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-#include "dls2/application_framework/console_layer.hpp"
+#include "dls2/application_framework/console_layer.phpp"
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <cstring>

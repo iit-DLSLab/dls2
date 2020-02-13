@@ -23,7 +23,7 @@
 // Includes
 // =============================================================================
 // framework
-#include "dls2/application_framework/app_layer.hpp"
+#include "dls2/application_framework/app_layer.phpp"
 
 // messaging
 #include "dls2/util/messaging/publisher_base.hpp"

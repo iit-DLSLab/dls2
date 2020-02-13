@@ -17,7 +17,7 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-#include "dls2/application_framework/hyq_app.hpp"
+#include "dls2/application_framework/hyq_app.phpp"
 #include "dls2/util/debug/debug.hpp"
 
 #include "todo.h"

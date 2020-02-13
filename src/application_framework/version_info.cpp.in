@@ -21,7 +21,7 @@
 // Includes
 // =============================================================================
 #include <string>
-#include "dls2/application_framework/version_info.hpp"
+#include "dls2/application_framework/version_info.phpp"
 
 using namespace dls;
 

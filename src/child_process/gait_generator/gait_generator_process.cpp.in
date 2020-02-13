@@ -24,10 +24,10 @@
 #include <csignal>
 #include <sstream>
 
-#include "dls2/util/class_loader.hpp"
+#include "dls2/util/class_loader.phpp"
 #include "dls2/gait_generator/gait_generator.hpp"
 #include "dls2/util/debug/debug.hpp"
-#include "dls2/path_prefixes/path_prefixes.hpp"
+#include "dls2/path_prefixes/path_prefixes.phpp"
 #include "dls2/util/log/log.hpp"
 #include "dls2/util/debug/debug.hpp"
 
