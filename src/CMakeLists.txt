@@ -191,15 +191,6 @@ target_link_libraries(
 	dls_gait_generator
 )
 
-# Count TODOs after build
-if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-	add_custom_command(
-		TARGET dynamic_legged_systems_framework
-		POST_BUILD
-		COMMAND ${CMAKE_SOURCE_DIR}/build_tools/list_todos
-		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-	)
-endif()
 # ==============================================================================
 # Convencience Targets
 # ==============================================================================
