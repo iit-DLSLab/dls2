@@ -27,7 +27,12 @@ include_directories(
 	SYSTEM
 	${catkin_INCLUDE_DIRS}
 	)
-link_directories(BEFORE ${ROOT_PROJECT_DIRECTORY}/bin/debug/)
+link_directories(BEFORE 
+	${ROOT_PROJECT_DIRECTORY}/bin/debug/
+	${ROOT_PROJECT_DIRECTORY}/bin/release/
+	${ROOT_PROJECT_DIRECTORY}/bin/Debug/
+	${ROOT_PROJECT_DIRECTORY}/bin/Release/
+)
 message(WARNING "linking to debug build of libraries")
 
 

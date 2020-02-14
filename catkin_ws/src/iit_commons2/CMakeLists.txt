@@ -42,6 +42,12 @@ catkin_package(
    DEPENDS
 )
 
+set(ROOT_PROJECT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../..")
+include_directories(
+	SYSTEM
+	${ROOT_PROJECT_DIR}/3rd_party/doglib/include
+)
+
 set(SOURCES #src/hydraulics.cpp 
 	#src/fbl/four_bar_linkage.cpp
             src/control/VirtualModel.cpp)

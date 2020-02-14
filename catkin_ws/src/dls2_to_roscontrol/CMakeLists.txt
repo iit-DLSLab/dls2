@@ -30,7 +30,12 @@ catkin_package(
 )
 
 include_directories(${PROJECT_SOURCE_DIR}/include SYSTEM ${catkin_INCLUDE_DIRS} ${ROOT_PROJECT_DIRECTORY}/gen/include)
-link_directories(BEFORE ${ROOT_PROJECT_DIRECTORY}/bin/debug)
+link_directories(BEFORE 
+	${ROOT_PROJECT_DIRECTORY}/bin/debug
+	${ROOT_PROJECT_DIRECTORY}/bin/release
+	${ROOT_PROJECT_DIRECTORY}/bin/Debug
+	${ROOT_PROJECT_DIRECTORY}/bin/Release
+)
 
 add_library(${PROJECT_NAME} src/dls2_to_roscontrol.cpp)
 

@@ -66,15 +66,15 @@ void Dls2ToRoscontrol::update(const ros::Time &time, const ros::Duration &period
 		// for (auto jc : joint_commands_)
 		//std::vector<double> vec = pMsg->desired_torques();
 		
-		if (pMsg->desired_torques().size()!=12)
-		{
-			std::cout << "Desired torque vector size error (" << pMsg->desired_torques().size() << ").  Writing 0 torque" << std::endl;
-			for(size_t i = 0; i != 12; ++i)
-			{
-				joint_commands_[i].setCommand(0.0);
-			}
-		}
-		else
+		// if (pMsg->desired_torques().size()!=12)
+		// {
+		// 	std::cout << "Desired torque vector size error (" << pMsg->desired_torques().size() << ").  Writing 0 torque" << std::endl;
+		// 	for(size_t i = 0; i != 12; ++i)
+		// 	{
+		// 		joint_commands_[i].setCommand(0.0);
+		// 	}
+		// }
+		// else
 		{
 			double t = double(time.sec) + double(time.nsec)*1e-9;
 			//std::cout << t << " - " << pMsg->header().time().seconds() << std::endl
