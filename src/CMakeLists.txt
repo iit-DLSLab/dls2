@@ -194,9 +194,10 @@ target_link_libraries(
 # ==============================================================================
 # Convencience Targets
 # ==============================================================================
+string(REPLACE " " ";" MAKE_RUN_ARGS ${DLS_BUILD_MAKE_RUN_FLAGS})
 add_custom_target(
 	run
-	COMMAND ./dynamic_legged_systems_framework ${DLS_BUILD_MAKE_RUN_FLAGS}
+	COMMAND ./dynamic_legged_systems_framework ${MAKE_RUN_ARGS}
 	DEPENDS
 		dynamic_legged_systems_framework
 		dls_dummy_controller
