@@ -43,6 +43,6 @@ set(DLS_INSTALL_DEVELOPER_DOCUMENTATION On
 # ==============================================================================
 # Convencience Targets
 # ==============================================================================
-set(DLS_BUILD_MAKE_RUN_FLAGS "--robot-hyq --core"
+set(DLS_BUILD_MAKE_RUN_FLAGS "--robot=hyq --core --layers=control,console"
 	CACHE STRING "Flags to pass to framework when calling 'make run'"
 )
