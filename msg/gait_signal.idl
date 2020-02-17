@@ -39,4 +39,6 @@ struct GaitSignalMsg
 	JointStateMsg desired_joint_state;
 
 	sequence<boolean> stance_feet;
+
+	ScrewMsg desired_base_wrench;
 };
