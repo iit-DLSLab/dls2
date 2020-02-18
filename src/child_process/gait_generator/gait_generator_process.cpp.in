@@ -118,29 +118,3 @@ void signal_handler(int signal)
 		exit(static_cast<int>(exit_status));
 	}
 }
-
-// If this class isn't delcared, the linker will link the whole class away, then
-// the call to loadClass will fail
-class VoidGaitGenerator : public GaitGenerator
-{
-public:
-	VoidGaitGenerator
-	(
-	) :
-		GaitGenerator
-		(
-			nullptr,
-			"dummy_controller",
-			std::chrono::duration<double>(1)
-		)
-	{ }
-
-	~VoidGaitGenerator() = default;
-
-	void run(const std::chrono::system_clock::time_point &time)override
-	{
-		time.time_since_epoch();
-	};
-
-	Status eStop() override { return getStatus(); }
-}voidGaitGenerator;

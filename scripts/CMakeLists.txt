@@ -9,6 +9,8 @@ install(FILES ${LAUNCH_FRAMEWORK}
 		OWNER_READ OWNER_WRITE
 		DESTINATION ${DLS_INSTALL_LAUNCH_RUNTIME_DIR}
 	RENAME dls
+	COMPONENT
+		"dls_runtime"
 )
 
 # ==============================================================================
@@ -16,11 +18,15 @@ install(FILES ${LAUNCH_FRAMEWORK}
 # ==============================================================================
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/dls-completion.bash
 	DESTINATION /etc/bash_completion.d
+	COMPONENT
+		"dls_runtime"
 )
 
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/dls-completion.zsh
 	DESTINATION /usr/share/zsh/vendor-completions
 	RENAME _dls
+	COMPONENT
+		"dls_runtime"
 )
 
 # ==============================================================================
@@ -31,6 +37,8 @@ install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/xdg-open
 	PERMISSIONS
 		WORLD_EXECUTE WORLD_READ
 		OWNER_READ OWNER_WRITE
+	COMPONENT
+		"dls_runtime"
 )
 
 # ==============================================================================
@@ -41,4 +49,6 @@ dls_configure_atonly(dls_install.cmake.in DLS_INSTALL_CMAKE)
 install(FILES ${DLS_INSTALL_CMAKE}
 	DESTINATION lib/cmake/dls
 	RENAME dlsConfig.cmake
+	COMPONENT
+		"dls_dev"
 )

@@ -5,7 +5,7 @@ add_library(dls_gait_generator
 	gait_signal.cpp
 
 	# TODO this should be moved to the messaging library
-	${CMAKE_SOURCE_DIR}/src/fastrtps_wrappers/blind_state.cpp
+	${PROJECT_SOURCE_DIR}/src/fastrtps_wrappers/blind_state.cpp
 )
 dls_install(dls_gait_generator)
 
@@ -21,11 +21,3 @@ dls_install_debug(dls_dummy_gait_generator)
 target_link_libraries(dls_dummy_gait_generator
 	doglib
 )
-
-add_library(
-	dls_prep_gait_generator
-	SHARED
-	prep_gait_generator.cpp
-)
-add_dependencies(dls_prep_gait_generator messagelib doglib)
-dls_install(dls_prep_gait_generator)

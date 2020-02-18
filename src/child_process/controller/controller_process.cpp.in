@@ -119,30 +119,3 @@ void signal_handler(int signal)
 		exit(static_cast<int>(exit_status));
 	}
 }
-
-// If this class isn't delcared, the linker will link the whole class away, then
-// the call to loadClass will fail
-class VoidController : public Controller
-{
-public:
-	VoidController
-	(
-	) :
-		Controller
-		(
-			nullptr,
-			"void_controller",
-			std::chrono::duration<double>(1),
-			ControlSignal::SignalReconstructionMethod::ZERO_ORDER_HOLD
-		)
-	{ }
-
-	~VoidController() = default;
-
-	void run(const std::chrono::system_clock::time_point &time)override
-	{
-		time.time_since_epoch();
-	};
-
-	Status eStop() override { return getStatus(); }
-}voidController;

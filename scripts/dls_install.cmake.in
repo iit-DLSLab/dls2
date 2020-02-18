@@ -8,10 +8,17 @@ function(dls_enforce_shared_lib target)
 	endif()
 endfunction()
 
+# TODO make these install scripts more DRY
 function(dls_install_controller controller)
 	dls_enforce_shared_lib(${controller})
 	install(TARGETS ${controller}
 		LIBRARY DESTINATION @DLS_INSTALL_CONTROLLER_DIR@
+		COMPONENT "PLUGIN-${PROJECT_NAME}-${controller}"
+	)
+	cpack_add_component_group(${controller})
+	cpack_add_component(${controller}
+		DISPLAY_NAME "PLUGIN-${PROJECT_NAME}-${controller}"
+		GROUP "PLUGIN-${PROJECT_NAME}-${controller}"
 	)
 endfunction()
 
@@ -19,6 +26,12 @@ function(dls_install_gait_generator generator)
 	dls_enforce_shared_lib(${generator})
 	install(TARGETS ${generator}
 		LIBRARY DESTINATION @DLS_INSTALL_GAIT_GENERATOR_DIR@
+		COMPONENT "PLUGIN-${PROJECT_NAME}-${generator}"
+	)
+	cpack_add_component_group(${generator})
+	cpack_add_component(${generator}
+		DISPLAY_NAME "PLUGIN-${PROJECT_NAME}-${generator}"
+		GROUP "PLUGIN-${PROJECT_NAME}-${controller}"
 	)
 endfunction()
 
@@ -26,5 +39,11 @@ function(dls_install_estimator estimator)
 	dls_enforce_shared_lib(${estimator})
 	install(TARGETS ${estimator}
 		LIBRARY DESTINATION @DLS_INSTALL_GAIT_GENERATOR_DIR@
+		COMPONENT "PLUGIN-${PROJECT_NAME}-${estimator}"
+	)
+	cpack_add_component_group(${estimator})
+	cpack_add_component(${estimator}
+		DISPLAY_NAME "PLUGIN-${PROJECT_NAME}-${estimator}"
+		GROUP "PLUGIN-${PROJECT_NAME}-${controller}"
 	)
 endfunction()

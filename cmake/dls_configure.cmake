@@ -21,11 +21,11 @@ function(dls_configure_destination INFILE OUTPATH)
 	get_filename_component(FULLPATH ${RESOLVED_PATH} DIRECTORY)
 
 	# Get the path relative to the root of the project directory
-	string(REPLACE ${CMAKE_SOURCE_DIR}/ "" ROOT_RELATIVE_PATH ${FULLPATH})
+	string(REPLACE ${PROJECT_SOURCE_DIR}/ "" ROOT_RELATIVE_PATH ${FULLPATH})
 
 	# Put the relative directory inside the build location
 	set(${OUTPATH}
-		${CMAKE_BINARY_DIR}/${ROOT_RELATIVE_PATH}
+		${PROJECT_BINARY_DIR}/${ROOT_RELATIVE_PATH}
 		PARENT_SCOPE
 	)
 endfunction()

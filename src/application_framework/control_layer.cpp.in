@@ -30,6 +30,7 @@
 #include "dls2/util/class_loader.phpp"
 #include "dls2/msg/control_signalPubSubTypes.h"
 #include "dls2/topics/desired_torques.hpp"
+#include "dls2/topics/control_signal_base.hpp"
 #include "dls2/path_prefixes/path_prefixes.phpp"
 #include "dls2/util/time/time.hpp"
 
@@ -367,7 +368,7 @@ bool ControlLayer::activateController(const Controller::ID_t &ID)
 			std::make_shared<ControlSubListener>
 			(
 				// TODO("This should be done by a static function in Controller")
-				std::string("control_signal_") + ID
+				std::string(topics::control_signal_base) + ID
 			);
 
 		this->controllers_b.emplace

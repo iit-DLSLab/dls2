@@ -29,13 +29,13 @@ dls_install(dls_time)
 # ==============================================================================
 add_executable(topic_info
 	EXCLUDE_FROM_ALL
-	${CMAKE_SOURCE_DIR}/src/util/topic_info/topic_info.cpp
-	${CMAKE_SOURCE_DIR}/src/util/topic_info/topic_info_main.cpp
+	${PROJECT_SOURCE_DIR}/src/util/topic_info/topic_info.cpp
+	${PROJECT_SOURCE_DIR}/src/util/topic_info/topic_info_main.cpp
 
 	# TODO this should be put into the dls_messaging library and just linked
 	# into this executable. It should NOT be recompiled here, it should only be
 	# compiled in the library
-	${CMAKE_SOURCE_DIR}/src/controller/control_signal.cpp
+	${PROJECT_SOURCE_DIR}/src/controller/control_signal.cpp
 )
 target_link_libraries(topic_info
 	fastcdr

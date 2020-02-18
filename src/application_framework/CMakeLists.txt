@@ -22,7 +22,7 @@ add_library(dls_framework
 	components/periodic_app_layer_component.cpp
 
 	# TODO remove this and instead link to the library
-	${CMAKE_SOURCE_DIR}/src/util/string/string.cpp
+	${PROJECT_SOURCE_DIR}/src/util/string/string.cpp
 )
 target_link_libraries(dls_framework
 	PRIVATE

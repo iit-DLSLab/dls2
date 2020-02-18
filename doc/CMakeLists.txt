@@ -1,5 +1,4 @@
 include(dls_docs)
-
 # ==============================================================================
 # URL of example repository
 # ==============================================================================
@@ -137,11 +136,13 @@ add_custom_command(
 # Install manpages
 install(FILES ${DLS_1_DEST}/dls.1.gz
 	DESTINATION /usr/man/man1
+	COMPONENT "dls_docs"
 )
 
 if(DLS_INSTALL_DEVELOPER_DOCUMENTATION)
 	install(FILES ${DLS_2_DEST}/dls.2.gz
 		DESTINATION /usr/man/man2
+		COMPONENT "dls_docs"
 	)
 endif()
 
@@ -187,7 +188,7 @@ add_custom_target(doxygen
 	COMMAND
 		doxygen ${DOXYFILE}
 	WORKING_DIRECTORY
-		${CMAKE_SOURCE_DIR}
+		${PROJECT_SOURCE_DIR}
 )
 
 # ------------------------------------------------------------------------------
@@ -201,7 +202,7 @@ add_custom_command(
 	COMMAND
 		doxygen ${DOXYFILE}
 	WORKING_DIRECTORY
-		${CMAKE_SOURCE_DIR}
+		${PROJECT_SOURCE_DIR}
 )
 
 # ------------------------------------------------------------------------------
@@ -243,5 +244,6 @@ if(DLS_INSTALL_DEVELOPER_DOCUMENTATION)
 	install(
 		DIRECTORY ${DOXYFILE_DEST}/html
 		DESTINATION ${DLS_INSTALL_DEVELOPMENT_DOCS_DIR}
+		COMPONENT "dls_docs"
 	)
 endif()

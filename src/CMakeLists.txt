@@ -2,8 +2,8 @@ include(dls_include_paths)
 # ==============================================================================
 # Output Directories and CMake Variables
 # ==============================================================================
-set(EXECUTABLE_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}")
-set(LIBRARY_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}")
+set(EXECUTABLE_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}")
+set(LIBRARY_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}")
 
 # ==============================================================================
 # Global Compilation Options
@@ -25,7 +25,7 @@ add_compile_options(
 
 	# Custom defintions
 	-DSOURCE_PATH_SIZE=${SOURCE_PATH_SIZE}
-	-include ${CMAKE_SOURCE_DIR}/include/dls2/util/debug/debug.hpp
+	-include ${PROJECT_SOURCE_DIR}/include/dls2/util/debug/debug.hpp
 )
 
 add_subdirectory(application_framework)
@@ -41,7 +41,7 @@ add_subdirectory(util)
 # Forward declaration of main executable
 # ==============================================================================
 configure_file(
-	${CMAKE_SOURCE_DIR}/src/main.cpp.in
+	${PROJECT_SOURCE_DIR}/src/main.cpp.in
 	${CMAKE_BINARY_DIR}/src/main.cpp
 )
 # add_executable(dynamic_legged_systems_framework main.cpp)
@@ -66,21 +66,21 @@ set(MESSAGE_SOURCES "")
 macro(add_message msg)
 	add_custom_command(
 		OUTPUT
-			${CMAKE_SOURCE_DIR}/gen/include/dls2/msg/${msg}.cxx
-			${CMAKE_SOURCE_DIR}/gen/include/dls2/msg/${msg}.h
-			${CMAKE_SOURCE_DIR}/gen/include/dls2/msg/${msg}PubSubTypes.cxx
-			${CMAKE_SOURCE_DIR}/gen/include/dls2/msg/${msg}PubSubTypes.h
+			${PROJECT_SOURCE_DIR}/gen/include/dls2/msg/${msg}.cxx
+			${PROJECT_SOURCE_DIR}/gen/include/dls2/msg/${msg}.h
+			${PROJECT_SOURCE_DIR}/gen/include/dls2/msg/${msg}PubSubTypes.cxx
+			${PROJECT_SOURCE_DIR}/gen/include/dls2/msg/${msg}PubSubTypes.h
 		COMMAND
-			[ -d ${CMAKE_SOURCE_DIR}/gen/include/dls2/msg ] || mkdir --parents ${CMAKE_SOURCE_DIR}/gen/include/dls2/msg
+			[ -d ${PROJECT_SOURCE_DIR}/gen/include/dls2/msg ] || mkdir --parents ${PROJECT_SOURCE_DIR}/gen/include/dls2/msg
 		COMMAND
-			fastrtpsgen -replace ${CMAKE_SOURCE_DIR}/msg/${msg}.idl -d ${CMAKE_SOURCE_DIR}/gen/include/dls2/msg
+			fastrtpsgen -replace ${PROJECT_SOURCE_DIR}/msg/${msg}.idl -d ${PROJECT_SOURCE_DIR}/gen/include/dls2/msg
 		COMMENT
 			"Generating message files for ${msg}.idl"
 		DEPENDS
-			${CMAKE_SOURCE_DIR}/msg/${msg}.idl
+			${PROJECT_SOURCE_DIR}/msg/${msg}.idl
 	)
-	list(APPEND MESSAGE_SOURCES ${CMAKE_SOURCE_DIR}/gen/include/dls2/msg/${msg}.cxx)
-	list(APPEND MESSAGE_SOURCES ${CMAKE_SOURCE_DIR}/gen/include/dls2/msg/${msg}PubSubTypes.cxx)
+	list(APPEND MESSAGE_SOURCES ${PROJECT_SOURCE_DIR}/gen/include/dls2/msg/${msg}.cxx)
+	list(APPEND MESSAGE_SOURCES ${PROJECT_SOURCE_DIR}/gen/include/dls2/msg/${msg}PubSubTypes.cxx)
 endmacro()
 
 add_message(hello_world)
@@ -121,9 +121,9 @@ add_library(dls_messaging
 	${MESSAGE_SOURCES}
 
 	# generic wrappers
-	${CMAKE_SOURCE_DIR}/src/msg_wrappers/screw.cpp
-	${CMAKE_SOURCE_DIR}/src/msg_wrappers/joint_state.cpp
-	${CMAKE_SOURCE_DIR}/src/controller/control_signal.cpp
+	${PROJECT_SOURCE_DIR}/src/msg_wrappers/screw.cpp
+	${PROJECT_SOURCE_DIR}/src/msg_wrappers/joint_state.cpp
+	${PROJECT_SOURCE_DIR}/src/controller/control_signal.cpp
 )
 target_compile_options(
 	dls_messaging
@@ -144,10 +144,10 @@ add_library(dls_reflex
 # ==============================================================================
 # Roscontrol Tranlsation Block
 # ==============================================================================
-set(CATKIN_WORKSPACE ${CMAKE_SOURCE_DIR}/catkin_ws)
+set(CATKIN_WORKSPACE ${PROJECT_SOURCE_DIR}/catkin_ws)
 add_custom_target(dls2_to_roscontrol
 	COMMAND catkin_make
-	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/catkin_ws
+	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/catkin_ws
 	COMMENT "Building dls2_to_roscontrol subproject"
 )
 add_custom_command(
@@ -159,7 +159,7 @@ add_custom_command(
 
 set_property(
 	DIRECTORY
-		${CMAKE_SOURCE_DIR}
+		${PROJECT_SOURCE_DIR}
 	PROPERTY ADDITIONAL_MAKE_CLEAN_FILES
 		${CATKIN_WORKSPACE}/build
 		${CATKIN_WORKSPACE}/devel
