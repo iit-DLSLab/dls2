@@ -136,12 +136,14 @@ add_custom_command(
 # Install manpages
 install(FILES ${DLS_1_DEST}/dls.1.gz
 	DESTINATION /usr/man/man1
-	COMPONENT "dls_docs"
+	# usage documentation should be available to everyone
+	COMPONENT "dls_runtime"
 )
 
 if(DLS_INSTALL_DEVELOPER_DOCUMENTATION)
 	install(FILES ${DLS_2_DEST}/dls.2.gz
 		DESTINATION /usr/man/man2
+		# development documentation should only be made available to devs
 		COMPONENT "dls_docs"
 	)
 endif()
