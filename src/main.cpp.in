@@ -121,6 +121,20 @@ int main(int argc, char **argv)
 		std::cout << "Debug build" << std::endl;
 	#endif
 
+	// When the user presses CTRL-C, make sure that all child processes are
+	// killed. If this is not done, the child processes will inherit from the
+	// base process and continue to run even if the framework exits.
+	signal
+	(
+		SIGINT,
+		[&](int)
+		{
+			for(auto &el : child_datas)
+			{
+				kill(el.first, SIGTERM);
+			}
+		}
+	);
 	// Ignore cntrl-C
 	//
 	// To exit the framework, an exit command is registered later
@@ -383,7 +397,8 @@ void forkRosCore()
 		if(pid == 0)
 		{
 			change_process_name(Options::argv, "roscore");
-			auto ret = system("roscore > /dev/null");
+			// auto ret = system("roscore > /dev/null");
+			auto ret = system("roscore");
 			_exit(ret);
 		}
 		child_datas.emplace

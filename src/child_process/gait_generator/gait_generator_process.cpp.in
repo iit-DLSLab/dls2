@@ -48,8 +48,9 @@ auto process_handle = "controller_child_process_launcher";
 int main(int argc, char **argv)
 {
 	ros::init(argc, argv, argv[1]);
-
+	logging::coutstream s(process_handle);
 	std::cout << "WARNING: currently hardcoded to HyQ" << std::endl;
+	s << "WARNING: currently hardcoded to HyQ" << std::endl;
 	auto pRobot = dls::dog::RobotFactory::buildRobot
 	(
 		dls::dog::RobotFactory::RobotType::HyQ
@@ -71,7 +72,10 @@ int main(int argc, char **argv)
 				std::string("./lib") + argv[1] + ".so",
 				pRobot
 			);
+
 		std::cout << "Loaded gait generator from local directory" << std::endl;
+		s << "Loaded gait generator " << pGaitGenerator->getID()
+			<< " from local directory" << std::endl;
 	}
 	catch(const std::exception&)
 	{
@@ -83,20 +87,18 @@ int main(int argc, char **argv)
 					std::string("${DLS_INSTALL_GAIT_GENERATOR_DIR}/lib") + argv[1] + ".so",
 					pRobot
 				);
-			std::cout << "Loaded gait generator from installed directory" << std::endl;
+
+			s << "Loaded controller " << pGaitGenerator->getID() << std::endl;
 		}
 		catch(const std::exception&)
 		{
-			DMSG("ADFSLFSDJLSDJFLSJFD");
-			logging::cfatalstream s(process_handle);
-			s << "Gait generator not found" << std::endl;
+			// logging::cfatalstream s(process_handle);
+			s << "Gait Generator not found" << std::endl;
 			exit((int)GaitGenerator::Status::FATAL_ERROR);
 		}
 	}
 
 	std::signal(SIGTERM, signal_handler);
-	logging::coutstream s(process_handle);
-	s << "Gait generator loaded" << std::endl;
 	pGaitGenerator->run();
 
 	return static_cast<int>(pGaitGenerator->getStatus());

@@ -48,15 +48,16 @@ auto process_handle = "controller_child_process_launcher";
 
 int main(int argc, char **argv)
 {
-
 	ros::init(argc, argv, argv[1]);
+	logging::coutstream s(process_handle);
 	std::cout << "WARNING: currently hardcoded to HyQ" << std::endl;
+	s << "WARNING: currently hardcoded to HyQ" << std::endl;
 	auto pRobot = dls::dog::RobotFactory::buildRobot
 	(
 		dls::dog::RobotFactory::RobotType::HyQ
 	);
-
 	Time::set_use_simulated_time(true);
+	DMSG("USING SIMULATED TIME");
 	if(argc != 2)
 	{
 		std::cerr << "Usage: " << argv[0] << " <controller_name>" << std::endl;
@@ -74,6 +75,8 @@ int main(int argc, char **argv)
 			);
 
 		std::cout << "Loaded controller from local directory" << std::endl;
+		s << "Loaded controller " << pController->getID()
+			<< " from local directory" << std::endl;
 	}
 	catch(const std::exception&)
 	{
@@ -85,19 +88,18 @@ int main(int argc, char **argv)
 					std::string("${DLS_INSTALL_CONTROLLER_DIR}/lib") + argv[1] + ".so",
 					pRobot
 				);
-			std::cout << "Loaded controller from installed directory" << std::endl;
+
+			s << "Loaded controller " << pController->getID() << std::endl;
 		}
 		catch(const std::exception&)
 		{
-			logging::cfatalstream s(process_handle);
+			// logging::cfatalstream s(process_handle);
 			s << "Controller not found" << std::endl;
 			exit((int)Controller::Status::FATAL_ERROR);
 		}
 	}
 
 	std::signal(SIGTERM, signal_handler);
-	logging::coutstream s(process_handle);
-	s << "controller " << pController->getID() << " loaded" << std::endl;
 	pController->run();
 
 	return static_cast<int>(pController->getStatus());
