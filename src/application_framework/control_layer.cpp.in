@@ -33,6 +33,7 @@
 #include "dls2/topics/control_signal_base.hpp"
 #include "dls2/path_prefixes/path_prefixes.phpp"
 #include "dls2/util/time/time.hpp"
+#include "dls2/application_framework/options.phpp"
 
 #include <string.h>
 #include <errno.h>
@@ -355,7 +356,39 @@ bool ControlLayer::activateController(const Controller::ID_t &ID)
 			//
 			// since its premultiplier is initially set to zero, this will have
 			// no effect on the robot until the spline in is run later
-			execl("${DLS_INSTALL_RUNTIME_DIR}/dls_controller_process", ID.c_str(), ID.c_str(), (char *)NULL);
+			std::string robot_name = "hyq";
+			if(Options::robot == dls::dog::RobotFactory::RobotType::HyQ)
+			{
+				robot_name == "hyq";
+			}
+			else// if(Options::robot == dls::dog::RobotFactory::RobotType::HyQReal)
+			{
+				robot_name == "hyqreal";
+			}
+
+			std::string launch_mode = "hyqreal";
+			if(Options::simulation_mode)
+			{
+				launch_mode = "simulated";
+			}
+			else
+			{
+				launch_mode = "hardware";
+			}
+
+			std::cout << "launching controller: " <<  ID.c_str() << " for "
+				<< robot_name.c_str() << " in " << launch_mode << " mode" << std::endl;
+
+			execl
+			(
+				"${DLS_INSTALL_RUNTIME_DIR}/child_process_launcher", // binary location
+				"controller",                                        // component to launch
+				ID.c_str(),                                          // name of the component
+				robot_name.c_str(),
+				launch_mode.c_str(),
+				nullptr
+			);
+
 			cfatal << "Controller process failed to launch" << std::endl;
 			DMSG(strerror(errno));
 			// TODO("handle errors");
@@ -481,8 +514,37 @@ bool ControlLayer::activateGaitGenerator(const GaitGenerator::ID_t &ID)
 	this->pGait_generator_data->gait_generator_pid = fork();
 	if(this->pGait_generator_data->gait_generator_pid == 0)
 	{
-		// TODO("error checking")
-		execl("${DLS_INSTALL_RUNTIME_DIR}/dls_gait_generator_process", ID.c_str(), ID.c_str(), (char *)NULL);
+			std::string robot_name = "hyq";
+			if(Options::robot == dls::dog::RobotFactory::RobotType::HyQ)
+			{
+				robot_name == "hyq";
+			}
+			else// if(Options::robot == dls::dog::RobotFactory::RobotType::HyQReal)
+			{
+				robot_name == "hyqreal";
+			}
+
+			std::string launch_mode;
+			if(Options::simulation_mode)
+			{
+				launch_mode = "simulated";
+			}
+			else
+			{
+				launch_mode = "hardware";
+			}
+
+			std::cout << "launching generator: " << ID.c_str() << " for "
+				<< robot_name.c_str() << " in " << launch_mode << " mode" << std::endl;
+			execl
+			(
+				"${DLS_INSTALL_RUNTIME_DIR}/child_process_launcher", // binary location
+				"gait_generator",                                    // component to launch
+				ID.c_str(),                                          // name of the component
+				robot_name.c_str(),
+				launch_mode.c_str(),
+				nullptr
+			);
 		cfatal << "Failed to launch gait generator process" << std::endl;
 	}
 

@@ -9,15 +9,15 @@ set(DLS_INSTALL_RUNTIME_DIR /usr/bin/dls2
 	CACHE STRING "Directory where framework executables are stored"
 )
 
-set(DLS_INSTALL_GAIT_GENERATOR_DIR /usr/lib/dls2
+set(DLS_INSTALL_GAIT_GENERATOR_DIR /usr/lib/dls2/gait_generators
 	CACHE STRING "Directory where shared object libraries for gait generators are stored"
 )
 
-set(DLS_INSTALL_CONTROLLER_DIR /usr/lib/dls2
+set(DLS_INSTALL_CONTROLLER_DIR /usr/lib/dls2/controllers
 	CACHE STRING "Directory where shared object libraries for controllers are stored"
 )
 
-set(DLS_INSTALL_ESTIMATOR_DIR /usr/lib/dls2
+set(DLS_INSTALL_ESTIMATOR_DIR /usr/lib/dls2/estimators
 	CACHE STRING "Directory where shared object libraries for estimators are stored"
 )
 

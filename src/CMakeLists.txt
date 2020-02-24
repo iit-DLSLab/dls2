@@ -172,8 +172,9 @@ add_dependencies(dls2_to_roscontrol dls_framework dls_messaging)
 
 add_dependencies(dynamic_legged_systems_framework
 	messagelib
-	dls_controller_process
-	dls_gait_generator_process
+	# dls_controller_process
+	# dls_gait_generator_process
+	child_process_launcher
 	dls2_to_roscontrol
 )
 

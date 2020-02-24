@@ -2,16 +2,9 @@ find_package(roscpp REQUIRED)
 find_package(std_msgs REQUIRED)
 include_directories(SYSTEM ${roscpp_INCLUDE_DIRS})
 
-# ==============================================================================
-# Child Processes
-# ==============================================================================
-dls_configure(controller/controller_process.cpp.in CONTROLLER_PROCESS_CPP)
-
-add_executable( dls_controller_process
-	${CONTROLLER_PROCESS_CPP}
-)
-
-target_link_libraries(dls_controller_process
+dls_configure(child_process_launcher.cpp.in CHILD_PROCESS_CPP)
+add_executable(child_process_launcher ${CHILD_PROCESS_CPP})
+target_link_libraries(child_process_launcher
 	fastcdr
 	fastrtps
 	dl
@@ -25,30 +18,4 @@ target_link_libraries(dls_controller_process
 	doglib
 	${roscpp_LIBRARIES}
 )
-dls_install(dls_controller_process)
-
-configure_file(gait_generator/gait_generator_process.cpp.in
-	${CMAKE_BINARY_DIR}/src/child_process/gait_generator_process.cpp
-)
-dls_configure(gait_generator/gait_generator_process.cpp.in
-	GAIT_GENERATOR_CPP)
-
-add_executable(dls_gait_generator_process
-	${GAIT_GENERATOR_CPP}
-)
-
-target_link_libraries(dls_gait_generator_process
-	dls_framework
-	fastcdr
-	fastrtps
-	dl
-	dls_controller_interface
-	dls_gait_generator
-	dls_estimator
-
-	#PRIVATE
-	dls_time
-
-	${roscpp_LIBRARIES}
-)
-dls_install(dls_gait_generator_process)
+dls_install(child_process_launcher)
