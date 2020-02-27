@@ -382,7 +382,7 @@ bool ControlLayer::activateController(const Controller::ID_t &ID)
 			execl
 			(
 				#ifndef NDEBUG
-				"${CMAKE_CURRENT_BINARY_DIR}/child_process_launcher",
+				"${EXECUTABLE_OUTPUT_PATH}/child_process_launcher",
 				#else
 				"${DLS_INSTALL_RUNTIME_DIR}/child_process_launcher", // binary location
 				#endif
@@ -543,7 +543,7 @@ bool ControlLayer::activateGaitGenerator(const GaitGenerator::ID_t &ID)
 			execl
 			(
 				#ifndef NDEBUG
-				"${CMAKE_CURRENT_BINARY_DIR}/child_process_launcher",
+				"${EXECUTABLE_OUTPUT_PATH}/child_process_launcher",
 				#else
 				"${DLS_INSTALL_RUNTIME_DIR}/child_process_launcher", // binary location
 				#endif
