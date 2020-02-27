@@ -138,24 +138,34 @@ int main(int argc, char **argv)
 	#ifndef NDEBUG
 		std::cout << "Process launcher debug build"  << std::endl;
 	#endif
+	std::cout << "PROCESS LAUNCHER assert args" << std::endl;
 	assert_valid_args(argc, argv);
 
 	// The controllers are currently dependant on ros, so launch it here
+	std::cout << "PROCESS LAUNCHER ros init" << std::endl;
 	ros::init(argc, argv, argv[0]);
 
 	// If simulation mode specified, use simulated sleep
+	std::cout << "PROCESS LAUNCHER sim time" << std::endl;
 	Time::set_use_simulated_time
 	(
 		std::strcmp(argv[3], "simulated") == 0
 	);
 
 	// load the library
+	std::cout << "PROCESS LAUNCHER  load component" << std::endl;
 	pComponent = load_component(argc, argv);
 
 	// regiser stopping interface
+	std::cout << "PROCESS LAUNCHER  register signal" << std::endl;
 	std::signal(SIGTERM, signal_handler);
 
 	// run the library until stop request
+	std::cout << "PROCESS LAUNCHER  run" << std::endl;
+	if(pComponent == nullptr)
+	{
+		std::cout << "PROCESS LAUNCHER nullptr component" << std::endl;
+	}
 	pComponent->run();
 
 	return EXIT_SUCCESS;
