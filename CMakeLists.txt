@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5.1)
-project(dls2 VERSION 0.0.0)
+project(dls2 VERSION 0.0.1)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
