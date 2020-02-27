@@ -381,9 +381,13 @@ bool ControlLayer::activateController(const Controller::ID_t &ID)
 
 			execl
 			(
+				#ifndef NDEBUG
+				"${CMAKE_CURRENT_BINARY_DIR}/child_process_launcher",
+				#else
 				"${DLS_INSTALL_RUNTIME_DIR}/child_process_launcher", // binary location
-				"controller",                                        // component to launch
+				#endif
 				ID.c_str(),                                          // name of the component
+				"controller",                                        // component to launch
 				robot_name.c_str(),
 				launch_mode.c_str(),
 				nullptr
@@ -538,9 +542,13 @@ bool ControlLayer::activateGaitGenerator(const GaitGenerator::ID_t &ID)
 				<< robot_name.c_str() << " in " << launch_mode << " mode" << std::endl;
 			execl
 			(
+				#ifndef NDEBUG
+				"${CMAKE_CURRENT_BINARY_DIR}/child_process_launcher",
+				#else
 				"${DLS_INSTALL_RUNTIME_DIR}/child_process_launcher", // binary location
-				"gait_generator",                                    // component to launch
+				#endif
 				ID.c_str(),                                          // name of the component
+				"gait_generator",                                    // component to launch
 				robot_name.c_str(),
 				launch_mode.c_str(),
 				nullptr

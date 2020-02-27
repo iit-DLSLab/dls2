@@ -30,10 +30,13 @@
 // The arguments passed to this program from elsewhere in the framework are, in
 // order:
 //
-// * controller | gait_generator | estimator -- the component type to launch
 // * <component-name>                        -- the name of the library, not
 //                                              including leading "lib" or
 //                                              trailing ".so"
+//                                              (needs to be first so that the
+//                                              name of this component is shown
+//                                              in tools such as htop)
+// * controller | gait_generator | estimator -- the component type to launch
 // * hyq | hyqreal                           -- the robot to launch on
 // * simulated | hardware                    -- whether simulation or hardware
 //
@@ -130,10 +133,13 @@ void error();
 // remove the magic numbers into the argv array
 int main(int argc, char **argv)
 {
+	#ifndef NDEBUG
+		std::cout << "Process launcher debug build"  << std::endl;
+	#endif
 	assert_valid_args(argc, argv);
 
 	// The controllers are currently dependant on ros, so launch it here
-	ros::init(argc, argv, argv[1]);
+	ros::init(argc, argv, argv[0]);
 
 	// If simulation mode specified, use simulated sleep
 	Time::set_use_simulated_time
@@ -169,7 +175,7 @@ void assert_valid_args(int argc, char **argv)
 		error();
 	}
 
-	std::string component_type(argv[0]);
+	std::string component_type(argv[1]);
 	if
 	(
 		component_type != "controller"
@@ -178,7 +184,7 @@ void assert_valid_args(int argc, char **argv)
 		// && component_type != "estimator"
 	)
 	{
-		std::cerr << "component name" << std::endl;
+		std::cerr << "got component name: " << argv[1] << std::endl;
 		error();
 	}
 
@@ -189,7 +195,7 @@ void assert_valid_args(int argc, char **argv)
 		&& robot_name != "hyqreal"
 	)
 	{
-		std::cerr << "robot name" << std::endl;
+		std::cerr << "got robot name: " << argv[2] << std::endl;
 		error();
 	}
 
@@ -200,7 +206,7 @@ void assert_valid_args(int argc, char **argv)
 		&& mode != "hardware"
 	)
 	{
-		std::cerr << "mode" << std::endl;
+		std::cerr << "got mode " << argv[3] << std::endl;
 		error();
 	}
 
@@ -252,27 +258,27 @@ std::shared_ptr<PeriodicAppLayerComponent> load_component
 	std::shared_ptr<PeriodicAppLayerComponent> component;
 	try // load library -- first try from the local directory
 	{
-		if(std::strcmp(argv[0], "controller") == 0)
+		if(std::strcmp(argv[1], "controller") == 0)
 		{
 			component = ClassLoader::loadClass<Controller, std::shared_ptr<dog::Dog>>
 			(
-				std::string("./lib") + argv[1] + ".so",
+				std::string("./lib") + argv[0] + ".so",
 				pRobot
 			);
 		}
-		else if(std::strcmp(argv[0], "gait_generator") == 0)
+		else if(std::strcmp(argv[1], "gait_generator") == 0)
 		{
 			component = ClassLoader::loadClass<GaitGenerator, std::shared_ptr<dog::Dog>>
 			(
-				std::string("./lib") + argv[1] + ".so",
+				std::string("./lib") + argv[0] + ".so",
 				pRobot
 			);
 		}
-		// else//(std::strcmp(argv[0], "estimator") == 0)
+		// else//(std::strcmp(argv[1], "estimator") == 0)
 		// {
 		// 	component = ClassLoader::loadClass<Estimator, std::shared_ptr<dog::Dog>>
 		// 	(
-		// 		std::string("./lib") + argv[1] + ".so",
+		// 		std::string("./lib") + argv[0] + ".so",
 		// 		pRobot
 		// 	);
 		// }
@@ -282,35 +288,35 @@ std::shared_ptr<PeriodicAppLayerComponent> load_component
 	{
 		try
 		{
-			if(std::strcmp(argv[0], "controller") == 0)
+			if(std::strcmp(argv[1], "controller") == 0)
 			{
 				component = ClassLoader::loadClass<Controller, std::shared_ptr<dog::Dog>>
 				(
-					std::string("${DLS_INSTALL_CONTROLLER_DIR}/lib") + argv[1] + ".so",
+					std::string("${DLS_INSTALL_CONTROLLER_DIR}/lib") + argv[0] + ".so",
 					pRobot
 				);
 			}
-			else if(std::strcmp(argv[0], "gait_generator") == 0)
+			else if(std::strcmp(argv[1], "gait_generator") == 0)
 			{
 				component = ClassLoader::loadClass<GaitGenerator, std::shared_ptr<dog::Dog>>
 				(
-					std::string("${DLS_INSTALL_GAIT_GENERATOR_DIR}/lib") + argv[1] + ".so",
+					std::string("${DLS_INSTALL_GAIT_GENERATOR_DIR}/lib") + argv[0] + ".so",
 					pRobot
 				);
 			}
-			// else//(std::strcmp(argv[0], "estimator") == 0)
+			// else//(std::strcmp(argv[1], "estimator") == 0)
 			// {
 			// 	component = ClassLoader::loadClass<Estimator, std::shared_ptr<dog::Dog>>
 			// 	(
-			// 		std::string("${DLS_INSTALL_ESTIMATOR_DIR}/lib") + argv[1] + ".so",
+			// 		std::string("${DLS_INSTALL_ESTIMATOR_DIR}/lib") + argv[0] + ".so",
 			// 		pRobot
 			// 	);
 			// }
 		}
 		catch(const std::exception&)
 		{
-			s << argv[1] << " of type " << argv[0] << " not found" << std::endl;
-			std::cerr << argv[1] << " of type " << argv[0] << " not found" << std::endl;
+			s << argv[0] << " of type " << argv[1] << " not found" << std::endl;
+			std::cerr << argv[0] << " of type " << argv[1] << " not found" << std::endl;
 			exit(EXIT_FAILURE);
 		}
 	}
