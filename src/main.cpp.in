@@ -20,8 +20,6 @@
 // =============================================================================
 // Includes
 // =============================================================================
-#include <execinfo.h>
-#include <unistd.h>
 #include "todo.h"
 #include <memory>
 #include <signal.h>
@@ -361,20 +359,13 @@ void forkLayer(const std::string &process_name, char **argv)
 		signal
 		(
 			SIGSEGV,
-			[&](int sig)
+			[&](int)
 			{
 				pApp->panic();
 				std::cout << "framework level segfault detected" << std::endl;
 
 				// remove segfault signal handler
 				signal(SIGSEGV, SIG_DFL);
-
-				static constexpr size_t max_backtrace_length = 40;
-				void *array[max_backtrace_length];
-				size_t size;
-				size = backtrace(array, max_backtrace_length);
-				std::cerr << "Error: signal " << sig << std::endl;
-				backtrace_symbols_fd(array, size, STDERR_FILENO);
 
 				// force segfault now that it is handled in this process. This
 				// will signal the monitor procss that a segfault occured here
@@ -383,7 +374,6 @@ void forkLayer(const std::string &process_name, char **argv)
 				// alternatively, could exit like this:
 				// exit(SOME_SEGFAULT_ENUM);
 				// then, the monitor would have to respond to that exit value
-				// TODO this is probably the better method. Migrate to that
 			}
 		);
 

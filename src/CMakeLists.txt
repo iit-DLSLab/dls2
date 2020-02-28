@@ -26,10 +26,6 @@ add_compile_options(
 	# Custom defintions
 	-DSOURCE_PATH_SIZE=${SOURCE_PATH_SIZE}
 	-include ${PROJECT_SOURCE_DIR}/include/dls2/util/debug/debug.hpp
-
-	# For debugging segfaults -- needed by backtrace() in execinfo.h
-	-g
-	-rdynamic
 )
 
 add_subdirectory(application_framework)
@@ -176,7 +172,8 @@ add_dependencies(dls2_to_roscontrol dls_framework dls_messaging)
 
 add_dependencies(dynamic_legged_systems_framework
 	messagelib
-	child_process_launcher
+	dls_controller_process
+	dls_gait_generator_process
 	dls2_to_roscontrol
 )
 

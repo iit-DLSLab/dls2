@@ -1,0 +1,123 @@
+/*******************************************************************************
+*                                                       ,----,                 *
+*                                                     .'   .' \                *
+*                                                   ,----,'    |               *
+*               ________  ___       ________        |    :  .  ;               *
+*              |\   ___ \|\  \     |\   ____\       ;    |.'  /                *
+*              \ \  \_|\ \ \  \    \ \  \___|_      `----'/  ;                 *
+*               \ \  \ \\ \ \  \    \ \_____  \       /  ;  /                  *
+*                \ \  \_\\ \ \  \____\|____|\  \     ;  /  /-,                 *
+*                 \ \_______\ \_______\____\_\  \   /  /  /.`|                 *
+*                  \|_______|\|_______|\_________\./__;      :                 *
+*                                     \|_________||   :    .'                  *
+*                                                 ;   | .'                     *
+*                                                 `---'                        *
+********************************************************************************
+* Author:            Hendrik de Bruin                                          *
+* Maintainer:        Hendrik de Bruin                                          *
+* author email:      hendrik.debruin@iit.it                                    *
+*******************************************************************************/
+#include <iostream>
+#include <cstdlib>
+#include <memory>
+#include <string>
+#include <csignal>
+#include <sstream>
+
+#include "dls2/util/class_loader.phpp"
+#include "dls2/controller/controller.hpp"
+#include "dls2/util/debug/debug.hpp"
+#include "dls2/util/log/log.hpp"
+#include "dls2/util/debug/debug.hpp"
+
+#include "dls2/path_prefixes/path_prefixes.phpp"
+#include "dls2/util/time/time.hpp"
+
+#include <doglib/factory/robot_factory.hpp>
+
+// TODO remove this include
+// This is put here because the controllers in the old framework are entwined
+// with ros to an egregious extent. When they have been disentangled, this, as
+// well as the call to ros::init, may be removed
+#include <ros/ros.h>
+using namespace dls;
+std::shared_ptr<Controller> pController;
+void signal_handler(int signal);
+
+auto process_handle = "controller_child_process_launcher";
+
+int main(int argc, char **argv)
+{
+	ros::init(argc, argv, argv[1]);
+	logging::coutstream s(process_handle);
+	std::cout << "WARNING: currently hardcoded to HyQ" << std::endl;
+	s << "WARNING: currently hardcoded to HyQ" << std::endl;
+	auto pRobot = dls::dog::RobotFactory::buildRobot
+	(
+		dls::dog::RobotFactory::RobotType::HyQ
+	);
+	Time::set_use_simulated_time(true);
+	DMSG("USING SIMULATED TIME");
+	if(argc != 2)
+	{
+		std::cerr << "Usage: " << argv[0] << " <controller_name>" << std::endl;
+		std::cerr << "argc: " << argc << std::endl;
+		exit(EXIT_FAILURE);
+	}
+
+	try
+	{
+		pController =
+			ClassLoader::loadClass<Controller, std::shared_ptr<dls::dog::Dog>>
+			(
+				std::string("./lib") + argv[1] + ".so",
+				pRobot
+			);
+
+		std::cout << "Loaded controller from local directory" << std::endl;
+		s << "Loaded controller " << pController->getID()
+			<< " from local directory" << std::endl;
+	}
+	catch(const std::exception&)
+	{
+		try
+		{
+			pController =
+				ClassLoader::loadClass<Controller, std::shared_ptr<dls::dog::Dog>>
+				(
+					std::string("${DLS_INSTALL_CONTROLLER_DIR}/lib") + argv[1] + ".so",
+					pRobot
+				);
+
+			s << "Loaded controller " << pController->getID() << std::endl;
+		}
+		catch(const std::exception&)
+		{
+			// logging::cfatalstream s(process_handle);
+			s << "Controller not found" << std::endl;
+			exit((int)Controller::Status::FATAL_ERROR);
+		}
+	}
+
+	std::signal(SIGTERM, signal_handler);
+	pController->run();
+
+	return static_cast<int>(pController->getStatus());
+}
+
+void signal_handler(int signal)
+{
+	if(signal == SIGTERM)
+	{
+		pController->stop();
+
+		logging::coutstream s(process_handle);
+		s << pController->getID() << " received kill request" << std::endl;
+		auto exit_status = pController->getStatus();
+		pController = nullptr;
+
+		// give fastrtps a moment to send its message
+		std::this_thread::sleep_for(std::chrono::milliseconds(300));
+		exit(static_cast<int>(exit_status));
+	}
+}
