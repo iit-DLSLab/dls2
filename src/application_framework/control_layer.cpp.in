@@ -99,11 +99,6 @@ ControlLayer::ControlLayer() :
 	default_duration_seconds(2),
 
 	command_manager(),
-	// TODO("These are temporary until a proper console is developed")
-	// activate_gait_generator_listener(topics::activate_gait_generator, *this),
-	// deactivate_gait_generator_listener(topics::deactivate_gait_generator, *this),
-	// activate_controller_listener(topics::activate_controller, *this),
-	// deactivate_controller_listener(topics::deactivate_controller, *this),
 	scout("control_layer"),
 	clog("control_layer"),
 	cfatal("control_layer")
@@ -202,7 +197,7 @@ ControlLayer::ControlLayer() :
 					std::lock_guard<std::mutex> lock(this->gait_generators_mutex);
 					if(this->pGait_generator_data)
 					{
-						scout << this->pGait_generator_data->gait_generator_pid
+						scout << this->pGait_generator_data->ID
 							<< std::endl;
 					}
 				}
@@ -495,6 +490,7 @@ bool ControlLayer::activateGaitGenerator(const GaitGenerator::ID_t &ID)
 	}
 	// launch a gait generator and register it with the architecture
 	this->pGait_generator_data = std::make_shared<GaitGeneratorData>();
+	this->pGait_generator_data->ID = ID;
 	this->pGait_generator_data->gait_generator_pid = fork();
 	if(this->pGait_generator_data->gait_generator_pid == 0)
 	{
