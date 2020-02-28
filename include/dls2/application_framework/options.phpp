@@ -75,6 +75,7 @@ public:
 	static bool is_core;
 
 	static dls::dog::RobotFactory::RobotType robot;
+	static std::string robot_name;
 
 	// launch browser for documentation
 	static bool show_docs;

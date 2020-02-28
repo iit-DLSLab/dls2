@@ -45,6 +45,8 @@
 #include "dls2/util/log/log.hpp"
 #endif
 
+#include "dls2/application_framework/options.phpp"
+
 // The current release of Eigen defines in the file `Eigen_Colamd.h` the macro:
 // # define ALIVE (0)
 // This macro seems to be refered to in only that file. Being a very generic
@@ -355,7 +357,22 @@ bool ControlLayer::activateController(const Controller::ID_t &ID)
 			//
 			// since its premultiplier is initially set to zero, this will have
 			// no effect on the robot until the spline in is run later
-			execl("${DLS_INSTALL_RUNTIME_DIR}/dls_controller_process", ID.c_str(), ID.c_str(), (char *)NULL);
+			std::cout << "WARNING hardcoded to hyq" << std::endl;
+			execl
+			(
+				#ifndef NDEBUG
+					"${EXECUTABLE_OUTPUT_PATH}/child_process_launcher",
+				#else
+					"${DLS_INSTALL_RUNTIME_DIR}/child_process_launcher",
+				#endif
+				ID.c_str(),
+				"controller",
+				"hyq",
+				// Options::robot_name,
+				(Options::simulation_mode?"sim":"live"),
+				nullptr
+			);
+			// execl("${DLS_INSTALL_RUNTIME_DIR}/dls_controller_process", ID.c_str(), ID.c_str(), (char *)NULL);
 			cfatal << "Controller process failed to launch" << std::endl;
 			DMSG(strerror(errno));
 			// TODO("handle errors");
@@ -482,7 +499,26 @@ bool ControlLayer::activateGaitGenerator(const GaitGenerator::ID_t &ID)
 	if(this->pGait_generator_data->gait_generator_pid == 0)
 	{
 		// TODO("error checking")
-		execl("${DLS_INSTALL_RUNTIME_DIR}/dls_gait_generator_process", ID.c_str(), ID.c_str(), (char *)NULL);
+		// launch the controller
+		//
+		// since its premultiplier is initially set to zero, this will have
+		// no effect on the robot until the spline in is run later
+		std::cout << "WARNING hardcoded to hyq" << std::endl;
+		execl
+		(
+			#ifndef NDEBUG
+				"${EXECUTABLE_OUTPUT_PATH}/child_process_launcher",
+			#else
+				"${DLS_INSTALL_RUNTIME_DIR}/child_process_launcher",
+			#endif
+			ID.c_str(),
+			"gait_generator",
+			"hyq",
+			// Options::robot_name,
+			(Options::simulation_mode?"sim":"live"),
+			nullptr
+		);
+		// execl("${DLS_INSTALL_RUNTIME_DIR}/dls_gait_generator_process", ID.c_str(), ID.c_str(), (char *)NULL);
 		cfatal << "Failed to launch gait generator process" << std::endl;
 	}
 

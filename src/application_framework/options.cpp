@@ -38,27 +38,28 @@ using namespace dls;
 // =============================================================================
 // Default Initial Values
 // =============================================================================
-char  **Options::argv  =  nullptr;
-int   Options::argc    =  0;
+char **Options::argv                        = nullptr;
+int  Options::argc                          = 0;
 
 // layers to launch
-bool  Options::launch_estimation  =      true;
-bool  Options::launch_hardware    =      false;
-bool  Options::launch_control     =      true;
-bool  Options::launch_console     =      true;
-bool  Options::launch_log         =      false;
+bool Options::launch_estimation             = true;
+bool Options::launch_hardware               = false;
+bool Options::launch_control                = true;
+bool Options::launch_console                = true;
+bool Options::launch_log                    = false;
 
 // real robot or simulation mode
-bool  Options::simulation_mode    =      true;
+bool Options::simulation_mode               = true;
 
 // if this is the core
-bool  Options::is_core            =      false;
+bool Options::is_core                       = false;
 
 // show the documentation in a browser
-bool Options::show_docs = false;
+bool Options::show_docs                     = false;
 
 dog::RobotFactory::RobotType Options::robot = dog::RobotFactory::RobotType::HyQ;
-static bool robot_is_specified = false;
+std::string Options::robot_name             = "UNSPECIFIED_ROBOT_NAME";
+static bool robot_is_specified              = false;
 
 // =============================================================================
 // Class Implementation
@@ -105,10 +106,12 @@ void Options::parseArgs(int argc, char **argv)
 				if(std::strcmp(optarg, "hyq") == 0)
 				{
 					Options::robot = dls::dog::RobotFactory::RobotType::HyQ;
+					Options::robot_name = "hyq";
 				}
 				else if(std::strcmp(optarg, "hyqreal") == 0)
 				{
 					Options::robot = dls::dog::RobotFactory::RobotType::HyQReal;
+					Options::robot_name = "hyqreal";
 				}
 				else
 				{

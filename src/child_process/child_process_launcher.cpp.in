@@ -17,63 +17,30 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-// This program cannot be run from the command line, as it intentionally does
-// not follow the unix command line convention of having the first argument be
-// the name of the program.
-//
-// Instead, this program can be launched from the control layer or the
-// estimation layer to put a component in a separate process. This is
-// beneficial, since many of these components are experimental, non-robust code
-// that may crash at any time. Having them in separate processess means that the
-// framework can recover elegantly from such crashes.
-//
-// The arguments passed to this program from elsewhere in the framework are, in
-// order:
-//
-// * <component-name>                        -- the name of the library, not
-//                                              including leading "lib" or
-//                                              trailing ".so"
-//                                              (needs to be first so that the
-//                                              name of this component is shown
-//                                              in tools such as htop)
-// * controller | gait_generator | estimator -- the component type to launch
-// * hyq | hyqreal                           -- the robot to launch on
-// * simulated | hardware                    -- whether simulation or hardware
-//
-// The lifetime of this program is managed by the component in the framework
-// that launched it. That component is responsible for monitoring any crashes in
-// the libraries that are loaded here. The calling component is also responsible
-// for requesting that this component cease execution. This is achieved by
-// sending SIGTERM, which is caught and handled by this program to properly stop
-// the libraries loaded here.
-//
-// Should the expermental libraries loaded herein be unable to close properly,
-// it is possible to force kill this program and all of its decendants using
-// tools such as htop and sending SIGKILL to the entire descendant tree.
 // =============================================================================
 // Includes
 // =============================================================================
-// =================================== stdlb ===================================
+// arguments to this program are:
+//
+// * component name                - name of the component to load
+// * <controller | gait_generator> - the type of the component to load A
+// * <hyq | hyqreal>               - the robot for which this component is loaded
+// * <sim | live>                  - whether it is simulated or live
 #include <iostream>
 #include <cstdlib>
 #include <memory>
 #include <string>
 #include <csignal>
 #include <sstream>
-#include <cstring>
 
-// =================================== libs ====================================
-#include <execinfo.h>
-#include <unistd.h>
-
-// ================================== project ==================================
 #include "dls2/util/class_loader.phpp"
-#include "dls2/controller/controller.hpp"
 #include "dls2/gait_generator/gait_generator.hpp"
-#include "dls2/estimator/estimator.hpp"
+#include "dls2/controller/controller.hpp"
+#include "dls2/util/debug/debug.hpp"
+#include "dls2/path_prefixes/path_prefixes.phpp"
 #include "dls2/util/log/log.hpp"
+#include "dls2/util/debug/debug.hpp"
 
-// ==================================== tmp ====================================
 #include "dls2/util/time/time.hpp"
 #include <doglib/factory/robot_factory.hpp>
 // TODO remove this include
@@ -88,291 +55,216 @@
 using namespace dls;
 
 // =============================================================================
-// Prototypes
-// =============================================================================
-/// Checks whether the arguments given to the program are valid. Exits the
-/// program early if they are invalid
-///
-/// The valid arguments are described in the top of the source file containing
-/// this function
-void assert_valid_args(int argc, char **argv);
-
-/// Launches the requested component
-///
-/// @ret a shared pointer to the component
-std::shared_ptr<PeriodicAppLayerComponent> load_component
-(
-	int argc,
-	char **argv
-);
-
-/// Properly stops the loaded library on SIGTERM and exits this program with the
-/// exit code of that library
-void signal_handler(int signal);
-
-// =============================================================================
 // Globals
 // =============================================================================
-/// The name of the launcher as reported in the logs of the framework
-///
-auto process_handle = "controller_child_process_launcher";
-
-/// The component to be launched by this program
-///
-/// This is made global so that the signal handler can see it. Refactor this if
-/// scope creep occurs
+// required to be global for visibility from signal handler
 std::shared_ptr<PeriodicAppLayerComponent> pComponent;
 
-/// Prints the error message and exits the program
+// =============================================================================
+// Classes
+// =============================================================================
+struct Args
+{
+	Args() :
+		component_name(),
+		component_type(),
+		robot_name(),
+		launch_mode()
+	{ }
+
+	std::string component_name;
+	std::string component_type;
+	std::string robot_name;
+	std::string launch_mode;
+};
+
+const static auto process_handle = "process_launcher";
+
+/// Parses the args and exits if the program if they are invalid
 ///
-void error();
+Args parse_args(int argc, char **argv);
+
+/// Handles killing the component
+///
+void signal_handler(int signal);
 
 // =============================================================================
 // Main
 // =============================================================================
-// note that the arguments are currently handled in a kind of dirty, brittle
-// way. If scope creep occurs, refactor the argument handling into something
-// more robust, also from the side of the rest of the framework that needs to
-// call this program. The firs thing that would need to be improved would be to
-// remove the magic numbers into the argv array
 int main(int argc, char **argv)
 {
 	#ifndef NDEBUG
-		std::cout << "Process launcher debug build"  << std::endl;
+		std::cout << "Debug build" << std::endl;
 	#endif
-	std::cout << "PROCESS LAUNCHER assert args" << std::endl;
-	assert_valid_args(argc, argv);
 
-	// Install a backtrace printer in case of segfault
-	std::signal
-	(
-		SIGSEGV,
-		[](int sig)
-		{
-			static constexpr size_t max_backtrace_length = 40;
-			void *array[max_backtrace_length];
-			size_t size;
-			size = backtrace(array, max_backtrace_length);
-			std::cerr << "Error: signal " << sig << std::endl;
-			backtrace_symbols_fd(array, size, STDERR_FILENO);
-			exit(EXIT_FAILURE);
-		}
-	);
+	// assert proper args
+	Args args = parse_args(argc, argv);
 
-	// The controllers are currently dependant on ros, so launch it here
-	std::cout << "PROCESS LAUNCHER ros init" << std::endl;
-	ros::init(argc, argv, argv[0]);
-
-	// If simulation mode specified, use simulated sleep
-	std::cout << "PROCESS LAUNCHER sim time" << std::endl;
-	Time::set_use_simulated_time
-	(
-		std::strcmp(argv[3], "simulated") == 0
-	);
-
-	// load the library
-	std::cout << "PROCESS LAUNCHER  load component" << std::endl;
-	pComponent = load_component(argc, argv);
-
-	// regiser stopping interface
-	std::cout << "PROCESS LAUNCHER  register signal" << std::endl;
-	std::signal(SIGTERM, signal_handler);
-
-	// run the library until stop request
-	std::cout << "PROCESS LAUNCHER  run" << std::endl;
-	if(pComponent == nullptr)
-	{
-		std::cout << "PROCESS LAUNCHER nullptr component" << std::endl;
-	}
-	pComponent->run();
-
-	return EXIT_SUCCESS;
-}
-
-// =============================================================================
-// Local Functions
-// =============================================================================
-void assert_valid_args(int argc, char **argv)
-{
-	for(int i = 0; i != 4; ++i)
-	{
-		std::cout << argv[i] << std::endl;
-	}
-	std::cout <<  "===" << std::endl;
-	if(argc != 4)
-	{
-		std::cerr << "arg number" << std::endl;
-		error();
-	}
-
-	std::string component_type(argv[1]);
-	if
-	(
-		component_type != "controller"
-		&& component_type != "gait_generator"
-		// note also the estimator launch code is commented out below
-		// && component_type != "estimator"
-	)
-	{
-		std::cerr << "got component name: " << argv[1] << std::endl;
-		error();
-	}
-
-	std::string robot_name(argv[2]);
-	if
-	(
-		robot_name != "hyq"
-		&& robot_name != "hyqreal"
-	)
-	{
-		std::cerr << "got robot name: " << argv[2] << std::endl;
-		error();
-	}
-
-	std::string mode(argv[3]);
-	if
-	(
-		mode != "simulated"
-		&& mode != "hardware"
-	)
-	{
-		std::cerr << "got mode " << argv[3] << std::endl;
-		error();
-	}
-
-	// if we get here the arguments are valid, just return
-}
-
-void error()
-{
-	std::cerr <<
-		"Error. Call convention not honoured.\n"
-		"Note that this program must not be manually called by the user. It is "
-		"called by the framework"
-	<< std::endl;
-
+	// logging stream
 	logging::coutstream s(process_handle);
-	s <<
-		"Error. Call convention not honoured.\n"
-		"Note that this program must not be manually called by the user. It is "
-		"called by the framework"
-	<< std::endl;
-	exit(EXIT_FAILURE);
-}
 
-std::shared_ptr<PeriodicAppLayerComponent> load_component
-(
-	int /*argc*/,
-	char **argv
-)
-{
-	// Build robot
+	// start ros
+	ros::init(argc, argv, argv[1]);
+
+	// build the robot model
 	std::shared_ptr<dog::Dog> pRobot;
-	if(strcmp(argv[2], "hyq") == 0)
+	if(args.robot_name == "hyq")
 	{
-		pRobot = dog::RobotFactory::buildRobot
+		pRobot = dls::dog::RobotFactory::buildRobot
 		(
-			dog::RobotFactory::RobotType::HyQ
+			dls::dog::RobotFactory::RobotType::HyQ
 		);
+	}
+	else if(args.robot_name == "hyqreal")
+	{
+		pRobot = dls::dog::RobotFactory::buildRobot
+		(
+			dls::dog::RobotFactory::RobotType::HyQReal
+		);
+
 	}
 	else
 	{
-		pRobot = dog::RobotFactory::buildRobot
-		(
-			dog::RobotFactory::RobotType::HyQReal
-		);
+		std::cerr << "Error, robot not yet implemented" << std::endl;
+		exit(EXIT_FAILURE);
 	}
 
-	logging::coutstream s(process_handle);
-
-	std::shared_ptr<PeriodicAppLayerComponent> component;
-	try // load library -- first try from the local directory
+	// set simulated time
+	if(args.launch_mode == "sim")
 	{
-		if(std::strcmp(argv[1], "controller") == 0)
-		{
-			component = ClassLoader::loadClass<Controller, std::shared_ptr<dog::Dog>>
-			(
-				std::string("./lib") + argv[0] + ".so",
-				pRobot
-			);
-		}
-		else if(std::strcmp(argv[1], "gait_generator") == 0)
-		{
-			component = ClassLoader::loadClass<GaitGenerator, std::shared_ptr<dog::Dog>>
-			(
-				std::string("./lib") + argv[0] + ".so",
-				pRobot
-			);
-		}
-		// else//(std::strcmp(argv[1], "estimator") == 0)
-		// {
-		// 	component = ClassLoader::loadClass<Estimator, std::shared_ptr<dog::Dog>>
-		// 	(
-		// 		std::string("./lib") + argv[0] + ".so",
-		// 		pRobot
-		// 	);
-		// }
-		s << "WARNING: loaded component from a local directory" << std::endl;
+		Time::set_use_simulated_time(true);
 	}
-	catch(const std::exception&) // next, try from the installed directories
+
+	// Load the component
+	try
 	{
+		// first try loading from the local directory
+		pComponent =
+			ClassLoader::loadClass<Controller, std::shared_ptr<dls::dog::Dog>>
+			(
+				std::string("./lib") + args.component_name + ".so",
+				pRobot
+			);
+
+		std::cout << "Loaded component from local directory" << std::endl;
+		s << "Loaded component " << pComponent->getID()
+			<< " from local directory" << std::endl;
+	}
+	catch(const std::exception&)
+	{
+		// next, try loading from the installed directory
 		try
 		{
-			if(std::strcmp(argv[1], "controller") == 0)
+
+			if(args.component_type == "controller")
 			{
-				component = ClassLoader::loadClass<Controller, std::shared_ptr<dog::Dog>>
-				(
-					std::string("${DLS_INSTALL_CONTROLLER_DIR}/lib") + argv[0] + ".so",
-					pRobot
-				);
+				pComponent =
+					ClassLoader::loadClass<Controller, std::shared_ptr<dls::dog::Dog>>
+					(
+						std::string("${DLS_INSTALL_CONTROLLER_DIR}/lib") + args.component_name + ".so",
+						pRobot
+					);
 			}
-			else if(std::strcmp(argv[1], "gait_generator") == 0)
+			else if(args.component_type == "gait_generator")
 			{
-				component = ClassLoader::loadClass<GaitGenerator, std::shared_ptr<dog::Dog>>
-				(
-					std::string("${DLS_INSTALL_GAIT_GENERATOR_DIR}/lib") + argv[0] + ".so",
-					pRobot
-				);
+				pComponent =
+					ClassLoader::loadClass<Controller, std::shared_ptr<dls::dog::Dog>>
+					(
+						std::string("${DLS_INSTALL_GAIT_GENERATOR_DIR}/lib") + args.component_name + ".so",
+						pRobot
+					);
 			}
-			// else//(std::strcmp(argv[1], "estimator") == 0)
-			// {
-			// 	component = ClassLoader::loadClass<Estimator, std::shared_ptr<dog::Dog>>
-			// 	(
-			// 		std::string("${DLS_INSTALL_ESTIMATOR_DIR}/lib") + argv[0] + ".so",
-			// 		pRobot
-			// 	);
-			// }
+			else
+			{
+				std::cerr << "component loading not yet implemented" << std::endl;
+				exit(EXIT_FAILURE);
+			}
+
+			s << "Loaded component " << pComponent->getID() << std::endl;
 		}
 		catch(const std::exception&)
 		{
-			s << argv[0] << " of type " << argv[1] << " not found" << std::endl;
-			std::cerr << argv[0] << " of type " << argv[1] << " not found" << std::endl;
+			// logging::cfatalstream s(process_handle);
+			s << "Component not found" << std::endl;
 			exit(EXIT_FAILURE);
 		}
 	}
 
-	return component;
+	// Register signal handler
+	std::signal(SIGTERM, signal_handler);
+
+	std::cout << "running component" << std::endl;
+	pComponent->run();
+	return 0;
+}
+
+Args parse_args(int argc, char **argv)
+{
+	if(argc != 4)
+	{
+		std::cerr << "Error: incorrect number of arguments" << std::endl;
+		exit(EXIT_FAILURE);
+	}
+	for(size_t i = 0; i != 4; ++i)
+	{
+		std::cout << "arg " << i << ": " << argv[i] << std::endl;
+	}
+
+	Args args;
+	args.component_name = argv[0];
+	args.component_type = argv[1];
+	args.robot_name     = argv[2];
+	args.launch_mode    = argv[3];
+
+	if
+	(
+		args.component_type != "controller" &&
+		args.component_type != "gait_generator"
+	)
+	{
+		std::cerr << "Error: unknown component type '" <<
+			args.component_type << "'" << std::endl;
+		exit(EXIT_FAILURE);
+	}
+
+	if
+	(
+		args.robot_name != "hyq" &&
+		args.robot_name != "hyqreal"
+	)
+	{
+		std::cerr << "Error: unknown robot '"
+			<< args.robot_name << "'" << std::endl;
+		exit(EXIT_FAILURE);
+	}
+
+	if
+	(
+		args.launch_mode != "sim" &&
+		args.launch_mode != "live"
+	)
+	{
+		std::cerr << "Error: unknown launch mode: '" <<
+			args.launch_mode << "'" << std::endl;
+		exit(EXIT_FAILURE);
+	}
+
+	return args;
 }
 
 void signal_handler(int signal)
 {
 	if(signal == SIGTERM)
 	{
-		// ask the component to stop nicely
 		pComponent->stop();
 
-		// inform the user
 		logging::coutstream s(process_handle);
 		s << pComponent->getID() << " received kill request" << std::endl;
-
 		auto exit_status = pComponent->getStatus();
-
-		// make sure the destructor is run properly and give fastrtps a moment
-		// to send its messages
 		pComponent = nullptr;
-		std::this_thread::sleep_for(std::chrono::milliseconds(300));
 
-		// exit the program with the exit status of the component
+		// give fastrtps a moment to send its message
+		std::this_thread::sleep_for(std::chrono::milliseconds(300));
 		exit(static_cast<int>(exit_status));
 	}
 }
