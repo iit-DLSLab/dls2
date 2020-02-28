@@ -185,7 +185,10 @@ int main(int argc, char **argv)
 		catch(const std::exception&)
 		{
 			// logging::cfatalstream s(process_handle);
-			s << "Component not found" << std::endl;
+			s << "Component '" << args.component_name << "' of type '"
+				<< args.component_type << "' not found" << std::endl;
+			std::cout << "Component '" << args.component_name << "' of type '"
+				<< args.component_type << "' not found" << std::endl;
 			exit(EXIT_FAILURE);
 		}
 	}

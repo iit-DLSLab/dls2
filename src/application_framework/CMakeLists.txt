@@ -1,5 +1,6 @@
 dls_configure(control_layer.cpp.in CONTROL_LAYER_CPP)
 dls_configure(version_info.cpp.in VERSION_INFO_CPP)
+dls_configure(console_layer.cpp.in CONSOLE_LAYER_CPP)
 
 add_library(dls_framework
 
@@ -11,7 +12,7 @@ add_library(dls_framework
 	hyq_app_libraries.cpp
 	${CONTROL_LAYER_CPP}
 	${VERSION_INFO_CPP}
-	console_layer.cpp
+	${CONSOLE_LAYER_CPP}
 	estimation_layer.cpp
 	log_layer.cpp
 

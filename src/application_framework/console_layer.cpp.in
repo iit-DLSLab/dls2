@@ -640,7 +640,9 @@ char *dls::arg_completion(const char * text, int state)
 			}
 		};
 		gen("./");
-		gen("/usr/lib/dls2");
+		gen("${DLS_INSTALL_GAIT_GENERATOR_DIR}");
+		gen("${DLS_INSTALL_CONTROLLER_DIR}");
+		gen("${DLS_INSTALL_ESTIMATOR_DIR}");
 		// REMOVE UP TO HERE WHEN USING A PROPER C++17 compiler
 
 	}
