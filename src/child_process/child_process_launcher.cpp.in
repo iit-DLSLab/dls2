@@ -63,11 +63,8 @@
 #include <cstring>
 
 // =================================== libs ====================================
-// TODO remove this include
-// This is put here because the controllers in the old framework are entwined
-// with ros to an egregious extent. When they have been disentangled, this, as
-// well as the call to ros::init, may be removed
-#include <ros/ros.h>
+#include <execinfo.h>
+#include <unistd.h>
 
 // ================================== project ==================================
 #include "dls2/util/class_loader.phpp"
@@ -79,6 +76,11 @@
 // ==================================== tmp ====================================
 #include "dls2/util/time/time.hpp"
 #include <doglib/factory/robot_factory.hpp>
+// TODO remove this include
+// This is put here because the controllers in the old framework are entwined
+// with ros to an egregious extent. When they have been disentangled, this, as
+// well as the call to ros::init, may be removed
+#include <ros/ros.h>
 
 // =============================================================================
 // Using Declarations
@@ -140,6 +142,22 @@ int main(int argc, char **argv)
 	#endif
 	std::cout << "PROCESS LAUNCHER assert args" << std::endl;
 	assert_valid_args(argc, argv);
+
+	// Install a backtrace printer in case of segfault
+	std::signal
+	(
+		SIGSEGV,
+		[](int sig)
+		{
+			static constexpr size_t max_backtrace_length = 40;
+			void *array[max_backtrace_length];
+			size_t size;
+			size = backtrace(array, max_backtrace_length);
+			std::cerr << "Error: signal " << sig << std::endl;
+			backtrace_symbols_fd(array, size, STDERR_FILENO);
+			exit(EXIT_FAILURE);
+		}
+	);
 
 	// The controllers are currently dependant on ros, so launch it here
 	std::cout << "PROCESS LAUNCHER ros init" << std::endl;
