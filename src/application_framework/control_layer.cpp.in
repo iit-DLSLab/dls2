@@ -138,14 +138,14 @@ ControlLayer::ControlLayer() :
 
 	// TODO template system can't currently handle no arguments -- this is just
 	// a temporary workaround by passing an unnecessary string
-	command_manager.addCommand<void, std::string>
+	command_manager.addCommand<void, ARGVOID>
 	(
 		"control_layer",
 		"deactivateGaitGenerators",
 		"stops all running gait generators",
-		std::function<void(std::string)>
+		std::function<void(ARGVOID)>
 		(
-			[&](std::string)
+			[&](ARGVOID)
 			{
 				this->deactivateGaitGenerators();
 			}
