@@ -346,7 +346,32 @@ std::set<std::string> RemoteCommandManager::getCurrentlyRegisteredOwners()
 void RemoteCommandManager::addCommand(std::shared_ptr<RemoteCommand> pCommand)
 {
 	std::lock_guard<std::mutex> lock(this->remote_commands_mutex);
-	this->remote_commands.push_back(pCommand);
+	// check whether the command that is being registered has already been
+	// registered. This can happen, for instance, if the user force quits a
+	// layer. In that case, the layer will not be able to publish that it is
+	// removing its commands. When the layer is restarted, it will try to
+	// reregister all of its commands. Do not accept the duplicates.
+	bool already_exists = false;
+
+
+	// This loop is not the most effective way to do this, but it's the simplest
+	// and this is not performance-critical code
+	for(const auto &command : this->remote_commands)
+	{
+		if
+		(
+			command->owner        == pCommand->owner &&
+			command->command_name == pCommand->command_name
+		)
+		{
+			already_exists = true;
+			break;
+		}
+	}
+	if(!already_exists)
+	{
+		this->remote_commands.push_back(pCommand);
+	}
 
 	if(this->onNewCommand)
 	{
