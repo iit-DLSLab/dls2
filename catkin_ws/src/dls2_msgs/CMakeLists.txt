@@ -51,4 +51,4 @@ message_runtime
 
 include_directories(include ${catkin_INCLUDE_DIRS})
 
-install(DIRECTORY include/${PROJECT_NAME}/ DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
+install(DIRECTORY msg DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
