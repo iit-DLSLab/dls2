@@ -1,0 +1,5 @@
+geometry_msgs/Pose pose
+---
+bool result
+---
+geometry_msgs/Pose[] path

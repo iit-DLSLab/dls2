@@ -1,0 +1,273 @@
+/*******************************************************************************
+*                                                       ,----,                 *
+*                                                     .'   .' \                *
+*                                                   ,----,'    |               *
+*               ________  ___       ________        |    :  .  ;               *
+*              |\   ___ \|\  \     |\   ____\       ;    |.'  /                *
+*              \ \  \_|\ \ \  \    \ \  \___|_      `----'/  ;                 *
+*               \ \  \ \\ \ \  \    \ \_____  \       /  ;  /                  *
+*                \ \  \_\\ \ \  \____\|____|\  \     ;  /  /-,                 *
+*                 \ \_______\ \_______\____\_\  \   /  /  /.`|                 *
+*                  \|_______|\|_______|\_________\./__;      :                 *
+*                                     \|_________||   :    .'                  *
+*                                                 ;   | .'                     *
+*                                                 `---'                        *
+********************************************************************************
+* Author:            Hendrik de Bruin                                          *
+* Maintainer:        Hendrik de Bruin                                          *
+* author email:      hendrik.debruin@iit.it                                    *
+*******************************************************************************/
+// =============================================================================
+// Includes
+// =============================================================================
+// arguments to this program are:
+//
+// * component name                - name of the component to load
+// * <controller | gait_generator> - the type of the component to load A
+// * <hyq | hyqreal>               - the robot for which this component is loaded
+// * <sim | live>                  - whether it is simulated or live
+#include <iostream>
+#include <cstdlib>
+#include <memory>
+#include <string>
+#include <csignal>
+#include <sstream>
+
+#include "dls2/util/class_loader.phpp"
+#include "dls2/gait_generator/gait_generator.hpp"
+#include "dls2/controller/controller.hpp"
+#include "dls2/util/debug/debug.hpp"
+#include "dls2/path_prefixes/path_prefixes.phpp"
+#include "dls2/util/log/log.hpp"
+#include "dls2/util/debug/debug.hpp"
+
+#include "dls2/util/time/time.hpp"
+#include <doglib/factory/robot_factory.hpp>
+// TODO remove this include
+// This is put here because the controllers in the old framework are entwined
+// with ros to an egregious extent. When they have been disentangled, this, as
+// well as the call to ros::init, may be removed
+#include <ros/ros.h>
+
+// =============================================================================
+// Using Declarations
+// =============================================================================
+using namespace dls;
+
+// =============================================================================
+// Globals
+// =============================================================================
+// required to be global for visibility from signal handler
+std::shared_ptr<PeriodicAppLayerComponent> pComponent;
+
+// =============================================================================
+// Classes
+// =============================================================================
+struct Args
+{
+	Args() :
+		component_name(),
+		component_type(),
+		robot_name(),
+		launch_mode()
+	{ }
+
+	std::string component_name;
+	std::string component_type;
+	std::string robot_name;
+	std::string launch_mode;
+};
+
+const static auto process_handle = "process_launcher";
+
+/// Parses the args and exits if the program if they are invalid
+///
+Args parse_args(int argc, char **argv);
+
+/// Handles killing the component
+///
+void signal_handler(int signal);
+
+// =============================================================================
+// Main
+// =============================================================================
+int main(int argc, char **argv)
+{
+	#ifndef NDEBUG
+		std::cout << "Debug build" << std::endl;
+	#endif
+
+	// assert proper args
+	Args args = parse_args(argc, argv);
+
+	// logging stream
+	logging::coutstream s(process_handle);
+
+	// start ros
+	ros::init(argc, argv, argv[1]);
+
+	// build the robot model
+	std::shared_ptr<dog::Dog> pRobot;
+	if(args.robot_name == "hyq")
+	{
+		pRobot = dls::dog::RobotFactory::buildRobot
+		(
+			dls::dog::RobotFactory::RobotType::HyQ
+		);
+	}
+	else if(args.robot_name == "hyqreal")
+	{
+		pRobot = dls::dog::RobotFactory::buildRobot
+		(
+			dls::dog::RobotFactory::RobotType::HyQReal
+		);
+
+	}
+	else
+	{
+		std::cerr << "Error, robot not yet implemented" << std::endl;
+		exit(EXIT_FAILURE);
+	}
+
+	// set simulated time
+	if(args.launch_mode == "sim")
+	{
+		Time::set_use_simulated_time(true);
+	}
+
+	// Load the component
+	try
+	{
+		// first try loading from the local directory
+		pComponent =
+			ClassLoader::loadClass<Controller, std::shared_ptr<dls::dog::Dog>>
+			(
+				std::string("./lib") + args.component_name + ".so",
+				pRobot
+			);
+
+		std::cout << "Loaded component from local directory" << std::endl;
+		s << "Loaded component " << pComponent->getID()
+			<< " from local directory" << std::endl;
+	}
+	catch(const std::exception&)
+	{
+		// next, try loading from the installed directory
+		try
+		{
+
+			if(args.component_type == "controller")
+			{
+				pComponent =
+					ClassLoader::loadClass<Controller, std::shared_ptr<dls::dog::Dog>>
+					(
+						std::string("/usr/lib/dls2/controllers/lib") + args.component_name + ".so",
+						pRobot
+					);
+			}
+			else if(args.component_type == "gait_generator")
+			{
+				pComponent =
+					ClassLoader::loadClass<Controller, std::shared_ptr<dls::dog::Dog>>
+					(
+						std::string("/usr/lib/dls2/gait_generators/lib") + args.component_name + ".so",
+						pRobot
+					);
+			}
+			else
+			{
+				std::cerr << "component loading not yet implemented" << std::endl;
+				exit(EXIT_FAILURE);
+			}
+
+			s << "Loaded component " << pComponent->getID() << std::endl;
+		}
+		catch(const std::exception&)
+		{
+			// logging::cfatalstream s(process_handle);
+			s << "Component '" << args.component_name << "' of type '"
+				<< args.component_type << "' not found" << std::endl;
+			std::cout << "Component '" << args.component_name << "' of type '"
+				<< args.component_type << "' not found" << std::endl;
+			exit(EXIT_FAILURE);
+		}
+	}
+
+	// Register signal handler
+	std::signal(SIGTERM, signal_handler);
+
+	std::cout << "running component" << std::endl;
+	pComponent->run();
+	return 0;
+}
+
+Args parse_args(int argc, char **argv)
+{
+	if(argc != 4)
+	{
+		std::cerr << "Error: incorrect number of arguments" << std::endl;
+		exit(EXIT_FAILURE);
+	}
+	for(size_t i = 0; i != 4; ++i)
+	{
+		std::cout << "arg " << i << ": " << argv[i] << std::endl;
+	}
+
+	Args args;
+	args.component_name = argv[0];
+	args.component_type = argv[1];
+	args.robot_name     = argv[2];
+	args.launch_mode    = argv[3];
+
+	if
+	(
+		args.component_type != "controller" &&
+		args.component_type != "gait_generator"
+	)
+	{
+		std::cerr << "Error: unknown component type '" <<
+			args.component_type << "'" << std::endl;
+		exit(EXIT_FAILURE);
+	}
+
+	if
+	(
+		args.robot_name != "hyq" &&
+		args.robot_name != "hyqreal"
+	)
+	{
+		std::cerr << "Error: unknown robot '"
+			<< args.robot_name << "'" << std::endl;
+		exit(EXIT_FAILURE);
+	}
+
+	if
+	(
+		args.launch_mode != "sim" &&
+		args.launch_mode != "live"
+	)
+	{
+		std::cerr << "Error: unknown launch mode: '" <<
+			args.launch_mode << "'" << std::endl;
+		exit(EXIT_FAILURE);
+	}
+
+	return args;
+}
+
+void signal_handler(int signal)
+{
+	if(signal == SIGTERM)
+	{
+		pComponent->stop();
+
+		logging::coutstream s(process_handle);
+		s << pComponent->getID() << " received kill request" << std::endl;
+		auto exit_status = pComponent->getStatus();
+		pComponent = nullptr;
+
+		// give fastrtps a moment to send its message
+		std::this_thread::sleep_for(std::chrono::milliseconds(300));
+		exit(static_cast<int>(exit_status));
+	}
+}

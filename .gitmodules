@@ -10,3 +10,15 @@
 [submodule "doc/dls2_examples"]
 	path = doc/dls2_examples
 	url = https://gitlab.advr.iit.it/hdebruin/dls2_examples
+[submodule "catkin_ws/src/dls_mapping"]
+	path = catkin_ws/src/dls_mapping
+	url = git@gitlab.advr.iit.it:dls-lab/dls_mapping.git
+[submodule "catkin_ws/src/liblocomotionutils"]
+	path = catkin_ws/src/liblocomotionutils
+	url = git@gitlab.advr.iit.it:dls-lab/liblocomotionutils.git
+[submodule "catkin_ws/src/iit-commons"]
+	path = catkin_ws/src/iit-commons
+	url = git@gitlab.advr.iit.it:dls-lab/iit-commons.git
+[submodule "catkin_ws/src/common_utilities"]
+	path = catkin_ws/src/common_utilities
+	url = git@gitlab.advr.iit.it:dls-lab/common_utilities.git
