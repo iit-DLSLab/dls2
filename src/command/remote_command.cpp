@@ -20,20 +20,22 @@
 // =============================================================================
 // Includes
 // =============================================================================
-#include "dls2/command/remote_command.hpp"
-#include "dls2/topics/command_register.hpp"
+#include <iostream>
 #include <vector>
+
+#include "dls2/topics/command_register.hpp"
+#include "dls2/command/remote_command.hpp"
 #include "dls2/topics/command_call.hpp"
 
-#include <fastrtps/Domain.h>
-#include <fastrtps/types/DynamicData.h>
 #include <fastrtps/types/DynamicTypeBuilderFactory.h>
-#include <fastrtps/types/DynamicDataFactory.h>
-#include <fastrtps/types/DynamicTypeBuilder.h>
-#include <fastrtps/types/DynamicTypeBuilderPtr.h>
-#include <fastrtps/types/DynamicType.h>
-#include <fastrtps/publisher/Publisher.h>
 #include <fastrtps/attributes/PublisherAttributes.h>
+#include <fastrtps/types/DynamicTypeBuilderPtr.h>
+#include <fastrtps/types/DynamicTypeBuilder.h>
+#include <fastrtps/types/DynamicDataFactory.h>
+#include <fastrtps/publisher/Publisher.h>
+#include <fastrtps/types/DynamicType.h>
+#include <fastrtps/types/DynamicData.h>
+#include <fastrtps/Domain.h>
 
 // =============================================================================
 // Using Declarations
@@ -243,6 +245,16 @@ RemoteCommand::RemoteCommandPublisher::RemoteCommandPublisher
 }
 
 // =============================================================================
+// Remote Command Callable
+// =============================================================================
+// -----------------------------------------------------------------------------
+// Constructors
+// -----------------------------------------------------------------------------
+RemoteCommandCallable::RemoteCommandCallable() :
+	pRemote_command(nullptr)
+{ }
+
+// =============================================================================
 // Remote Command Manager
 // =============================================================================
 // -----------------------------------------------------------------------------
@@ -255,6 +267,7 @@ RemoteCommandManager::RemoteCommandManager
 ) :
 	remote_commands_mutex(),
 	remote_commands(),
+	command_added(),
 	registration_listener(*this),
 	onNewCommand(onNewCommand_),
 	onRemoveCommand(onRemoveCommand_)
@@ -371,6 +384,7 @@ void RemoteCommandManager::addCommand(std::shared_ptr<RemoteCommand> pCommand)
 	if(!already_exists)
 	{
 		this->remote_commands.push_back(pCommand);
+		this->command_added.notify_all();
 	}
 
 	if(this->onNewCommand)
@@ -398,6 +412,34 @@ void RemoteCommandManager::removeCommand(const CommandRegisterMsg &msg)
 			break;
 		}
 	}
+}
+
+RemoteCommandCallable RemoteCommandManager::makeCallable
+(
+	const std::string &owner,
+	const std::string &name
+) const
+{
+	std::shared_ptr<const RemoteCommand> pCommand;
+	do
+	{
+		pCommand = this->find
+		(
+			owner,
+			name
+		);
+		if(!pCommand)
+		{
+			std::cout << "Command '" << name << "' for '" << owner <<
+				"' not yet registered. Blocking" << std::endl;
+			std::unique_lock<std::mutex> lock(this->remote_commands_mutex);
+			this->command_added.wait(lock);
+		}
+	}while(pCommand == nullptr);
+
+	RemoteCommandCallable callable;
+	callable.pRemote_command = pCommand;
+	return callable;
 }
 
 // -----------------------------------------------------------------------------
