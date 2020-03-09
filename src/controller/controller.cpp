@@ -58,7 +58,10 @@ Controller::Controller
 	blind_state_listener(std::shared_ptr<Controller>(this,[](Controller*){})),
 	control_signal_topic(std::string(topics::control_signal_base) + name_),
 	publisher(control_signal_topic)
-{ }
+{
+	std::cout << "controller is publishing on topic: '"
+		<< topics::control_signal_base + name_ << "'" << std::endl;
+}
 
 // =============================================================================
 // Implementation

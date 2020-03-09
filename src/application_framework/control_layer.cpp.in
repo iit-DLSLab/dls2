@@ -383,6 +383,9 @@ bool ControlLayer::activateController(const Controller::ID_t &ID)
 				std::string(topics::control_signal_base) + ID
 			);
 
+		std::cout << "control layer is listening for controller on topic '"
+			<< topics::control_signal_base + ID << "'" << std::endl;
+
 		this->controllers_b.emplace
 		(
 			std::pair<Controller::ID_t, std::shared_ptr<ControllerData>>
