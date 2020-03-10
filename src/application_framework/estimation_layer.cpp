@@ -30,6 +30,7 @@ using namespace dls;
 // Constructors
 // =============================================================================
 EstimationLayer::EstimationLayer() :
+	AppLayer("estimation_layer"),
 	estimators(),
 	estimator_threads(),
 	estimators_mutex(),

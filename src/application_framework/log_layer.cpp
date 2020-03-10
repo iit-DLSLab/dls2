@@ -44,6 +44,7 @@
 
 using namespace dls;
 LogLayer::LogLayer() :
+	AppLayer("log_layer"),
 	debug_listener(),
 	info_listener(),
 	warn_listener(),

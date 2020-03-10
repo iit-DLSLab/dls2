@@ -50,6 +50,8 @@ public:
 	Status run() override;
 	Status shutdown() override;
 
+	std::string where() override {return "not yet implemented"; }
+
 private:
 	static std::string get_current_time();
 	class DebugListener : public SubscriberBase<StringMsgPubSubType>

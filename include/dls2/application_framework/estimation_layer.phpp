@@ -54,6 +54,8 @@ public:
 	bool activateEstimator(const Estimator::ID_t&);
 	bool deactivateEstimator(const Estimator::ID_t);
 
+	std::string where() override {return "not yet implemented"; }
+
 private:
 	// BEGIN critical section
 		std::map<Estimator::ID_t, std::shared_ptr<Estimator>> estimators;

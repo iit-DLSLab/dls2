@@ -74,6 +74,7 @@ ConsoleLayer *pInstance = nullptr;
 // Constructors
 // =============================================================================
 ConsoleLayer::ConsoleLayer() :
+	AppLayer("console_layer"),
 	remote_command_manager(),
 	string_listener(*this),
 	command_manager(),

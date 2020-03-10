@@ -18,6 +18,7 @@
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
 #include "dls2/application_framework/control_layer.phpp"
+#include <sstream>
 #include <Eigen/Dense>
 #include <tuple>
 
@@ -66,10 +67,22 @@
 #endif
 
 using namespace dls;
+
+// =============================================================================
+// Globals
+// =============================================================================
+// TODO either move this into the class itself, or do not report it in the
+// `where` command
+// BEGIN critical section
+std::mutex last_published_desired_torques_mutex;
+Eigen::VectorXd last_published_desired_torques;
+// END critical section
+
 // =============================================================================
 // Constructors
 // =============================================================================
 ControlLayer::ControlLayer() :
+	AppLayer("control_layer"),
 	controllers_b(),
 	controllers_mutex_b(),
 	// generators(),
@@ -261,7 +274,13 @@ ControlLayer::Status ControlLayer::run()
 		}
 
 		// Send the desired torques to HAL
-		publishDesiredTorques(saturateTorques(desired_torques),time);
+		{
+			std::lock_guard<std::mutex>
+				lock(last_published_desired_torques_mutex);
+			last_published_desired_torques =
+				saturateTorques(desired_torques);
+			publishDesiredTorques(last_published_desired_torques, time);
+		}
 
 		// std::stringstream ss;
 		// ss << "Control layer published torques: " << desired_torques.transpose() << std::endl;
@@ -320,6 +339,49 @@ ControlLayer::Status ControlLayer::shutdown()
 	return getStatus();
 }
 
+std::string ControlLayer::where()
+{
+	std::stringstream ss;
+
+	// Where Controllers
+	{
+		std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
+		if(controllers_b.size() > 0)
+		{
+			ss << "Active controllers:\n";
+			for(const auto &pair : this->controllers_b)
+			{
+				ss << pair.second->ID << "\n";
+			}
+		}
+		else
+		{
+			ss << "No controllers running\n";
+		}
+	}
+	// Where Gait Generators
+	{
+		std::lock_guard<std::mutex> lock(this->gait_generators_mutex);
+		if(this->pGait_generator_data)
+		{
+			ss << "Active Gait Generator:\n";
+			ss << pGait_generator_data->ID << "\n";
+		}
+		else
+		{
+			ss << "no gait generator running\n";
+		}
+	}
+	// Where Desired Torque
+	{
+		std::lock_guard<std::mutex> lock(last_published_desired_torques_mutex);
+		ss << "Last published torque: "
+			<< last_published_desired_torques.transpose();
+	}
+
+	return ss.str();
+
+}
 // =============================================================================
 // Class Implementation Functions
 // =============================================================================

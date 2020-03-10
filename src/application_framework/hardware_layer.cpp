@@ -27,6 +27,7 @@ using namespace dls;
 // Constructors
 // =============================================================================
 HardwareLayer::HardwareLayer() :
+	AppLayer("hardware_layer"),
 	xenomotor_pid(0),
 	xenorostask_pid(0),
 	scout("hardware_layer")

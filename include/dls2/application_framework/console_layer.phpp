@@ -75,6 +75,14 @@ public:
 	/// Will cause `run` to stop running
 	Status shutdown() override;
 
+	/// Print the state of this layer
+	///
+	/// prints:
+	/// * active controllers
+	/// * active gait generator
+	/// * published torque
+	std::string where() override{return "not yet implemented";}
+
 private:
 	/// Generates the console prompt
 	///

@@ -99,6 +99,7 @@ public:
 	/// Deactivates the current gait generator
 	void deactivateGaitGenerators();
 
+	std::string where() override;
 private:
 
 	// TODO("This should be put in the robot class")

@@ -17,6 +17,8 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
+#include <iostream>
+
 #include "dls2/application_framework/app_layer.phpp"
 #include "dls2/util/debug/debug.hpp"
 
@@ -24,21 +26,42 @@ using namespace dls;
 // =============================================================================
 // Constructors
 // =============================================================================
-AppLayer::AppLayer() :
+AppLayer::AppLayer
+(
+	const std::string &ID_
+) :
 	components_mutex(),
 	components({}),
+	ID(ID_),
+	command_manager(),
 	status_mutex(),
 	status(Status::INITIALISING),
+	scout(ID_),
 	main(0)
-{ }
+{
+	command_manager.addCommand<void, ARGVOID>
+	(
+		this->ID,
+		"where",
+		std::string("Prints the state of ") + this->ID,
+		std::function<void(ARGVOID)>
+		(
+			[&](ARGVOID)
+			{
+				std::cout << where() << std::endl;
+				scout << where() << std::endl;
+			}
+		)
+	);
+}
 
-AppLayer::AppLayer(const std::initializer_list<pComponent_t> &_components) :
-	components_mutex(),
-	components(_components),
-	status_mutex(),
-	status(Status::INITIALISING),
-	main(0)
-{ }
+// AppLayer::AppLayer(const std::initializer_list<pComponent_t> &_components) :
+// 	components_mutex(),
+// 	components(_components),
+// 	status_mutex(),
+// 	status(Status::INITIALISING),
+// 	main(0)
+// { }
 
 // =============================================================================
 // Member Functions

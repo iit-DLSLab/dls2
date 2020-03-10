@@ -26,6 +26,8 @@
 #include <mutex>
 
 #include "dls2/application_framework/components/app_layer_component.hpp"
+#include "dls2/command/command.hpp"
+#include "dls2/util/log/log.hpp"
 
 namespace dls
 {
@@ -50,9 +52,9 @@ public:
 	};
 
 	// TODO remove this
-	AppLayer(const std::initializer_list<pComponent_t>&);
+	// AppLayer(const std::initializer_list<pComponent_t>&);
 
-	AppLayer();
+	AppLayer(const std::string &ID);
 	virtual ~AppLayer() = default;
 
 	/// Emergency stop
@@ -82,6 +84,10 @@ public:
 	///
 	virtual Status shutdown() = 0;
 
+	/// Prints the state of the layer
+	///
+	virtual std::string where() = 0;
+
 protected:
 	// TODO ("remove this")
 	// BEGIN critical section
@@ -90,10 +96,18 @@ protected:
 	// END critical section
 
 private:
+	/// The ID of this layer
+	///
+	const std::string ID;
+
+	CommandManager command_manager;
+
 	// BEGIN critical section
 		mutable std::mutex status_mutex;
 		Status status;
 	// END critical section
+
+	logging::coutstream scout;
 
 protected:
 	// TODO remove this
