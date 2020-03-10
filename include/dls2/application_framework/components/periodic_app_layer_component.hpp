@@ -21,11 +21,15 @@
 #define PERIODIC_APP_LAYER_COMPONENT_HPP_RY9LWBZG
 
 #include "dls2/application_framework/components/app_layer_component.hpp"
-#include "dls2/msg/timePubSubTypes.h"
 #include "dls2/util/messaging/subscriber_base.hpp"
+#include "dls2/msg/timePubSubTypes.h"
+#include "dls2/command/command.hpp"
+#include "dls2/util/log/log.hpp"
 
+#include <condition_variable>
 #include <chrono>
 #include <atomic>
+#include <mutex>
 
 namespace dls
 {
@@ -69,6 +73,24 @@ private:
 	///
 	std::atomic_bool should_run;
 
+	// BEGIN critical section
+	/// mutex handling pausing and unpausing
+	///
+	std::mutex pause_mutex;
+		/// Used to check whether execution should be paused (false until
+		/// specified by the user)
+		bool is_paused;
+
+		/// Condition variable tracking whether a pause request was made or not
+		///
+		std::condition_variable pause_request;
+	// END critical section
+
+	/// Commands to pause/continue this component
+	///
+	CommandManager command_manager;
+
+	logging::coutstream scout;
 };
 } // end namespace dls
 

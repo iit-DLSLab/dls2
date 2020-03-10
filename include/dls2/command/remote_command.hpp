@@ -208,6 +208,17 @@ public:
 	///
 	std::set<std::string> getCurrentlyRegisteredOwners();
 
+	/// Generates a RemoteCommandCallable for a given command
+	///
+	/// @param owner the name of the component that registers the command
+	/// @param name the name of the command registered by that component
+	/// @return a functor representing the command
+	RemoteCommandCallable makeCallable
+	(
+		const std::string &owner,
+		const std::string &name
+	) const;
+
 private:
 	// begin critical section
 		/// Mutex protecting the `remote_commands` vector
@@ -261,16 +272,6 @@ private:
 	///
 	void removeCommand(const CommandRegisterMsg &msg);
 
-	/// Generates a RemoteCommandCallable for a given command
-	///
-	/// @param owner the name of the component that registers the command
-	/// @param name the name of the command registered by that component
-	/// @return a functor representing the command
-	RemoteCommandCallable makeCallable
-	(
-		const std::string &owner,
-		const std::string &name
-	) const;
 };
 } // end namespace dls
 

@@ -17,6 +17,7 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
+#include <iostream>
 #include <thread>
 #include <chrono>
 #include "dls2/application_framework/components/periodic_app_layer_component.hpp"
@@ -35,8 +36,49 @@ using namespace dls;
 PeriodicAppLayerComponent::PeriodicAppLayerComponent(const ID_t &ID, const period_t &inPeriod) :
 	AppLayerComponent(ID),
 	period(inPeriod),
-	should_run(false)
-{ }
+	should_run(false),
+	pause_mutex(),
+	is_paused(false),
+	pause_request(),
+	command_manager(),
+	scout(ID)
+{
+	this->command_manager.addCommand<void, ARGVOID>
+	(
+		this->getID(),
+		std::string("pause"),
+		std::string("Pause the execution of ") + this->getID(),
+		std::function<void(ARGVOID)>
+		(
+			[&](ARGVOID)
+			{
+				std::lock_guard<std::mutex> lock(this->pause_mutex);
+				this->is_paused = true;
+				this->pause_request.notify_all();
+				std::cout << this->getID() << " paused execution" << std::endl;
+				scout << this->getID() << " paused execution" << std::endl;
+			}
+		)
+	);
+
+	this->command_manager.addCommand<void, ARGVOID>
+	(
+		this->getID(),
+		"continue",
+		std::string("Continue the execution of ") + this->getID(),
+		std::function<void(ARGVOID)>
+		(
+			[&](ARGVOID)
+			{
+				std::lock_guard<std::mutex> lock(this->pause_mutex);
+				this->is_paused = false;
+				this->pause_request.notify_all();
+				std::cout << this->getID() << " continued execution" << std::endl;
+				scout << this->getID() << " continued execution" << std::endl;
+			}
+		)
+	);
+}
 
 // =============================================================================
 // Interface Override Functions
@@ -81,7 +123,7 @@ AppLayerComponent::Status PeriodicAppLayerComponent::run()
 		// 		<< useconds << " useconds " << std::endl;
 		// 	logging::cdbg << ss.str() << std::endl;
 		// }
-		// #endif
+		// #/hondif
 
 		// Check realtime
 		if(Time::now() > next_loop_time)
@@ -109,6 +151,19 @@ AppLayerComponent::Status PeriodicAppLayerComponent::run()
 		// }
 		// #endif
 
+		// Pause execution if a pause request was made
+		{
+			std::unique_lock<std::mutex> lock(this->pause_mutex);
+			if(this->is_paused)
+			{
+				this->pause_request.wait
+				(
+					lock,
+					[&]{ return !this->is_paused; }
+				);
+			}
+		}
+
 	}while(this->should_run);
 
 	return this->getStatus();
@@ -116,7 +171,16 @@ AppLayerComponent::Status PeriodicAppLayerComponent::run()
 
 AppLayerComponent::Status PeriodicAppLayerComponent::stop()
 {
+	// inform the component that it should exit at the end of the epoch
 	this->should_run = false;
+
+	// unpause the component if it has been paused
+	{
+		std::lock_guard<std::mutex> lock(this->pause_mutex);
+		this->is_paused = false;
+		this->pause_request.notify_all();
+	}
+
 	this->setStatus(Status::STOPPED);
 	return this->getStatus();
 }
