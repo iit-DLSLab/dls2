@@ -22,6 +22,9 @@
 
 #include <mutex>
 
+#include "dls2/command/command.hpp"
+#include "dls2/util/log/log.hpp"
+
 namespace dls
 {
 /// A component that can be launched inside of an application layer
@@ -78,6 +81,10 @@ public:
 	/// @ret the ID
 	ID_t getID();
 
+	/// Prints the state of this component
+	///
+	virtual std::string where() = 0;
+
 protected:
 
 	/// Sets the status of this component
@@ -91,6 +98,14 @@ private:
 		std::mutex status_mutex; ///< Status mutex
 	// END critical section
 	const ID_t ID; ///< The ID of this component
+
+	/// Command manager for commands that all components must have
+	///
+	CommandManager command_manager;
+
+	/// Print stream
+	///
+	logging::coutstream scout;
 };
 } // end namespace dls
 

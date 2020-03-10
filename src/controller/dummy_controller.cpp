@@ -87,6 +87,11 @@ DummyController::DummyController
 DummyController::~DummyController()
 { }
 
+std::string DummyController::where()
+{
+	return "why are you asking me that?";
+}
+
 void DummyController::run(const std::chrono::system_clock::time_point &time)
 {
 	// Command<int, int> command("dummy", "help", foo);

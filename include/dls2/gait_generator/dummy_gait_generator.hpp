@@ -35,6 +35,8 @@ public:
 	void run(const std::chrono::system_clock::time_point&) override;
 	AppLayerComponent::Status eStop() override {return getStatus();}
 
+	std::string where() override;
+
 private:
 	logging::coutstream scout;
 	logging::clogstream sclog;

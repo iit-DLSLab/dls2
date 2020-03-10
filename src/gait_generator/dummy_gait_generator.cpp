@@ -57,6 +57,11 @@ void DummyGaitGenerator::run(const std::chrono::system_clock::time_point &time)
 	time.time_since_epoch();
 }
 
+std::string DummyGaitGenerator::where()
+{
+	return "You really want to know the status of this?";
+}
+
 extern "C" GaitGenerator *create()
 {
 	using dls::dog::RobotFactory;

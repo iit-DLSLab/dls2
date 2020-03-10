@@ -47,6 +47,8 @@ public:
 	// Status stop() override { return getStatus(); }
 	Status eStop() override { return getStatus(); }
 
+	std::string where() override;
+
 private:
 	CommandManager command_manager;
 	logging::coutstream outstream;

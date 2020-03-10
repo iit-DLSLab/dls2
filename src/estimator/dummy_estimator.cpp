@@ -28,6 +28,11 @@ DummyEstimator::DummyEstimator() :
 void DummyEstimator::run(const std::chrono::system_clock::time_point&)
 { }
 
+std::string DummyEstimator::where()
+{
+	return "Dude, don't ask me that";
+}
+
 extern "C" Estimator *create()
 {
 	auto p = new DummyEstimator;
