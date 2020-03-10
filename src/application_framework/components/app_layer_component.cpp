@@ -34,8 +34,8 @@ AppLayerComponent::AppLayerComponent(const ID_t &ID_) :
 {
 	this->command_manager.addCommand<void, ARGVOID>
 	(
-		"where",
 		this->getID(),
+		"where",
 		std::string("Prints the state of ") + this->getID(),
 
 		std::function<void(ARGVOID)>
