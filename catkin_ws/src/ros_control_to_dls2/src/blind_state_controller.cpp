@@ -1,10 +1,56 @@
 #include "ros_control_to_dls2/blind_state_controller.hpp"
+#include <algorithm>
+#include <iostream>
 
 namespace ros_control_to_dls2 {
 
-BlindStateController::BlindStateController()
+BlindStateController::BlindStateController() :
+	command_manager_(),
+	scout("blind_state")
 {
-	
+	std::cout << "Constructed BlindStateController" << std::endl;
+	command_manager_.addCommand<void, dls::ARGVOID>
+	(
+		"blind_state",
+		"where",
+		"Displays the joint state",
+		std::function<void(dls::ARGVOID)>
+		(
+			[&](dls::ARGVOID)
+			{
+				std::lock_guard<std::mutex> lock(this->blind_state_msg_mutex_);
+				this->scout << "Joint Position: ";
+				std::copy
+				(
+					this->blind_state_msg_.joint_state().position().begin(),
+					this->blind_state_msg_.joint_state().position().end(),
+					std::ostream_iterator<double>(this->scout, " ")
+				);
+				this->scout << "\nJoint Velocity: ";
+				std::copy
+				(
+					this->blind_state_msg_.joint_state().velocity().begin(),
+					this->blind_state_msg_.joint_state().velocity().end(),
+					std::ostream_iterator<double>(this->scout, " ")
+				);
+				this->scout << "\nJoint Acceleration: ";
+				std::copy
+				(
+					this->blind_state_msg_.joint_state().acceleration().begin(),
+					this->blind_state_msg_.joint_state().acceleration().end(),
+					std::ostream_iterator<double>(this->scout, " ")
+				);
+				this->scout << "\nJoint Effort: ";
+				std::copy
+				(
+					this->blind_state_msg_.joint_state().effort().begin(),
+					this->blind_state_msg_.joint_state().effort().end(),
+					std::ostream_iterator<double>(this->scout, " ")
+				);
+				this->scout << std::endl;
+			}
+		)
+	);
 }
 
 bool BlindStateController::init(hardware_interface::BlindStateInterface *pBlind_state_interface, ros::NodeHandle &root_nh, ros::NodeHandle &controller_nh)
@@ -14,7 +60,7 @@ bool BlindStateController::init(hardware_interface::BlindStateInterface *pBlind_
 		ROS_ERROR("BlindStateInterface is a null pointer");
 		return false;
 	}
-	
+	std::lock_guard<std::mutex> lock(this->blind_state_msg_mutex_);
 	pBlind_state_pub_ = std::make_shared<dls::PublisherBase<BlindStateMsgPubSubType>> (dls::topics::low_level_estimation::blind_state);
 	seq_=0;
 	blind_state_msg_.joint_state().position().resize(12);
@@ -27,6 +73,7 @@ bool BlindStateController::init(hardware_interface::BlindStateInterface *pBlind_
 
 void BlindStateController::update(const ros::Time &time, const ros::Duration &period)
 {
+	std::lock_guard<std::mutex> lock(this->blind_state_msg_mutex_);
 	blind_state_msg_.header().time().seconds() = double(time.sec)+double(time.nsec)/1e9;
 	blind_state_msg_.header().seq() = seq_++;
 	for (int i=0;i<12;i++)

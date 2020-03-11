@@ -12,6 +12,9 @@
 #include "dls2/msg/timePubSubTypes.h"
 #include "dls2/topics/low_level_estimation/blind_state.hpp"
 #include "dls2/topics/simulation_time.hpp"
+#include "dls2/command/command.hpp"
+#include "dls2/util/log/log.hpp"
+#include <mutex>
 
 #include <dls2_msgs/BlindState.h>
 #include <rosgraph_msgs/Clock.h>
@@ -29,7 +32,12 @@ public:
 private:
 	hardware_interface::BlindStateHandle blind_state_;
 	std::shared_ptr<dls::PublisherBase<BlindStateMsgPubSubType>> pBlind_state_pub_;
-	BlindStateMsg blind_state_msg_;
+	// BEGIN critical section
+	std::mutex blind_state_msg_mutex_;
+		BlindStateMsg blind_state_msg_;
+	// END critical section
+	dls::CommandManager command_manager_;
+	dls::logging::coutstream scout;
 	uint32_t seq_;
 };
 
