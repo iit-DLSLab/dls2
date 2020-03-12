@@ -10,5 +10,5 @@ add_library(
 	SHARED
 	dummy_estimator.cpp
 )
-add_dependencies(dls_dummy_estimator messagelib doglib)
+# add_dependencies(dls_dummy_estimator messagelib doglib)
 dls_install_debug(dls_dummy_estimator)

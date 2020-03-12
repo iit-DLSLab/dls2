@@ -15,7 +15,7 @@ add_library(
 	SHARED
 	dummy_gait_generator.cpp
 )
-add_dependencies(dls_dummy_gait_generator messagelib)
+# add_dependencies(dls_dummy_gait_generator messagelib)
 
 dls_install_debug(dls_dummy_gait_generator)
 target_link_libraries(dls_dummy_gait_generator

@@ -3,31 +3,11 @@ include(dls_include_paths)
 # Output Directories and CMake Variables
 # ==============================================================================
 set(EXECUTABLE_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}")
-set(LIBRARY_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}")
+set(LIBRARY_OUTPUT_PATH    "${PROJECT_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}")
 
 # ==============================================================================
 # Global Compilation Options
 # ==============================================================================
-add_compile_options(
-	# Standards
-	-std=c++14
-
-	# Warnings
-	-Wall
-	-Wextra
-	-pedantic
-	-Weffc++
-
-	# Elevate warnings to errors
-	-Werror
-
-	# TODO optimistation options
-
-	# Custom defintions
-	-DSOURCE_PATH_SIZE=${SOURCE_PATH_SIZE}
-	-include ${PROJECT_SOURCE_DIR}/include/dls2/util/debug/debug.hpp
-)
-
 add_subdirectory(application_framework)
 add_subdirectory(child_process)
 add_subdirectory(command)
@@ -62,52 +42,52 @@ endmacro()
 # ==============================================================================
 # Message Generation
 # ==============================================================================
-set(MESSAGE_SOURCES "")
-macro(add_message msg)
-	add_custom_command(
-		OUTPUT
-			${PROJECT_SOURCE_DIR}/gen/include/dls2/msg/${msg}.cxx
-			${PROJECT_SOURCE_DIR}/gen/include/dls2/msg/${msg}.h
-			${PROJECT_SOURCE_DIR}/gen/include/dls2/msg/${msg}PubSubTypes.cxx
-			${PROJECT_SOURCE_DIR}/gen/include/dls2/msg/${msg}PubSubTypes.h
-		COMMAND
-			[ -d ${PROJECT_SOURCE_DIR}/gen/include/dls2/msg ] || mkdir --parents ${PROJECT_SOURCE_DIR}/gen/include/dls2/msg
-		COMMAND
-			fastrtpsgen -replace ${PROJECT_SOURCE_DIR}/msg/${msg}.idl -d ${PROJECT_SOURCE_DIR}/gen/include/dls2/msg
-		COMMENT
-			"Generating message files for ${msg}.idl"
-		DEPENDS
-			${PROJECT_SOURCE_DIR}/msg/${msg}.idl
-	)
-	list(APPEND MESSAGE_SOURCES ${PROJECT_SOURCE_DIR}/gen/include/dls2/msg/${msg}.cxx)
-	list(APPEND MESSAGE_SOURCES ${PROJECT_SOURCE_DIR}/gen/include/dls2/msg/${msg}PubSubTypes.cxx)
-endmacro()
+# set(MESSAGE_SOURCES "")
+# macro(add_message msg)
+# 	add_custom_command(
+# 		OUTPUT
+# 			${PROJECT_SOURCE_DIR}/gen/include/dls2/msg/${msg}.cxx
+# 			${PROJECT_SOURCE_DIR}/gen/include/dls2/msg/${msg}.h
+# 			${PROJECT_SOURCE_DIR}/gen/include/dls2/msg/${msg}PubSubTypes.cxx
+# 			${PROJECT_SOURCE_DIR}/gen/include/dls2/msg/${msg}PubSubTypes.h
+# 		COMMAND
+# 			[ -d ${PROJECT_SOURCE_DIR}/gen/include/dls2/msg ] || mkdir --parents ${PROJECT_SOURCE_DIR}/gen/include/dls2/msg
+# 		COMMAND
+# 			fastrtpsgen -replace ${PROJECT_SOURCE_DIR}/msg/${msg}.idl -d ${PROJECT_SOURCE_DIR}/gen/include/dls2/msg
+# 		COMMENT
+# 			"Generating message files for ${msg}.idl"
+# 		DEPENDS
+# 			${PROJECT_SOURCE_DIR}/msg/${msg}.idl
+# 	)
+# 	list(APPEND MESSAGE_SOURCES ${PROJECT_SOURCE_DIR}/gen/include/dls2/msg/${msg}.cxx)
+# 	list(APPEND MESSAGE_SOURCES ${PROJECT_SOURCE_DIR}/gen/include/dls2/msg/${msg}PubSubTypes.cxx)
+# endmacro()
 
-add_message(hello_world)
-add_message(pose)
-add_message(gait_signal)
-add_message(control_signal)
-add_message(desired_torques)
-add_message(stringmsg)
-add_message(joint_state)
-add_message(imu)
-add_message(vec3)
-add_message(screw)
-add_message(blind_state)
-add_message(console_command)
-add_message(header)
-add_message(time)
-add_message(bool)
-add_message(command_register)
-add_message(el3104)
-add_message(hpu)
-add_message(pcb)
-add_message(psb)
-add_message(smart_actuator)
-add_message(battery)
-add_message(heatsink)
-add_message(leg_raw)
-add_message(hyqreal_raw)
+# add_message(hello_world)
+# add_message(pose)
+# add_message(gait_signal)
+# add_message(control_signal)
+# add_message(desired_torques)
+# add_message(stringmsg)
+# add_message(joint_state)
+# add_message(imu)
+# add_message(vec3)
+# add_message(screw)
+# add_message(blind_state)
+# add_message(console_command)
+# add_message(header)
+# add_message(time)
+# add_message(bool)
+# add_message(command_register)
+# add_message(el3104)
+# add_message(hpu)
+# add_message(pcb)
+# add_message(psb)
+# add_message(smart_actuator)
+# add_message(battery)
+# add_message(heatsink)
+# add_message(leg_raw)
+# add_message(hyqreal_raw)
 
 # ==============================================================================
 # Libraries
@@ -118,21 +98,24 @@ add_library(dls_messaging
 	SHARED
 
 	# fastrtps
-	${MESSAGE_SOURCES}
+	# ${MESSAGE_SOURCES}
 
 	# generic wrappers
 	${PROJECT_SOURCE_DIR}/src/msg_wrappers/screw.cpp
 	${PROJECT_SOURCE_DIR}/src/msg_wrappers/joint_state.cpp
 	${PROJECT_SOURCE_DIR}/src/controller/control_signal.cpp
 )
-target_compile_options(
-	dls_messaging
+target_compile_options(dls_messaging
 	PRIVATE
 	-w # Suppress all warnings, this library's code is auto-generated
 )
+target_link_libraries(dls_messaging
+	PUBLIC
+	dls_${PROJECT_NAME}_messaging
+)
 # list(APPEND PROJECT_TARGETS dls_messaging)
 dls_install(dls_messaging)
-add_custom_target(messagelib DEPENDS ${MESSAGE_SOURCES})
+# add_custom_target(messagelib DEPENDS ${MESSAGE_SOURCES})
 
 # ============================ Controller Modules ==============================
 add_library(dls_reflex
@@ -171,13 +154,14 @@ add_dependencies(dls2_to_roscontrol dls_framework dls_messaging)
 # ==============================================================================
 
 add_dependencies(dynamic_legged_systems_framework
-	messagelib
+	# messagelib
 	child_process_launcher
 	dls2_to_roscontrol
 )
 
 target_link_libraries(
 	dynamic_legged_systems_framework
+	dls_${PROJECT_NAME}_messaging
 
 	# fastrtps
 	fastcdr

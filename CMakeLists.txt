@@ -9,11 +9,35 @@ message(STATUS "Build type is ${CMAKE_BUILD_TYPE}")
 # move this below the includes
 add_subdirectory(3rd_party)
 
-include(dls_options)
 include(dls_configure)
+include(dls_options)
 include(dls_globals)
 include(dls_deploy)
 
+include(dls_message) # depends on dls_deploy, do not include before it
+
+add_compile_options(
+	# Standards
+	-std=c++14
+
+	# Warnings
+	-Wall
+	-Wextra
+	-pedantic
+	-Weffc++
+
+	# Elevate warnings to errors
+	-Werror
+
+	# TODO optimistation options
+
+	# Custom defintions
+	-DSOURCE_PATH_SIZE=${SOURCE_PATH_SIZE}
+	-include ${PROJECT_SOURCE_DIR}/include/dls2/util/debug/debug.hpp
+)
+
+
+add_subdirectory(msg)
 add_subdirectory(src)
 add_subdirectory(scripts)
 # add_subdirectory(test)

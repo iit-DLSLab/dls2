@@ -5,4 +5,9 @@ add_library(dls_command
 	command_base.cpp
 	command.cpp
 )
+
+target_link_libraries(dls_command
+	dls_messaging
+	dls_${PROJECT_NAME}_messaging
+)
 dls_install(dls_command)
