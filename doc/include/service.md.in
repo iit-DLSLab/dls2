@@ -1,0 +1,13 @@
+Services use the same message classes as publishers and subscribers. The
+following program shows a simple way that a service may be written:
+
+```cpp
+@EXAMPLE_SERVICE_SERVER_CPP@
+```
+
+To interact with this service, a service client need to be written. A simple
+blocking client is shown in the following program:
+
+```cpp
+@EXAMPLE_SERVICE_CLIENT_CPP@
+```

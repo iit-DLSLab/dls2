@@ -1,4 +1,11 @@
 include(dls_include_paths)
+
+get_property(dirs DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
+foreach(dir ${dirs})
+	message(STATUS "from src:dir=${dir}")
+endforeach()
+message(STATUS "location=${dls_${PROJECT_NAME}_msg_includes}")
+# message(FATAL_ERROR "end")
 # ==============================================================================
 # Output Directories and CMake Variables
 # ==============================================================================
@@ -127,12 +134,15 @@ add_library(dls_reflex
 # ==============================================================================
 # Roscontrol Tranlsation Block
 # ==============================================================================
+# START
 set(CATKIN_WORKSPACE ${PROJECT_SOURCE_DIR}/catkin_ws)
 add_custom_target(dls2_to_roscontrol
 	COMMAND catkin_make
 	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/catkin_ws
 	COMMENT "Building dls2_to_roscontrol subproject"
 )
+# END
+
 # add_custom_command(
 # 	TARGET dls2_to_roscontrol
 # 	POST_BUILD

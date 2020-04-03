@@ -1,4 +1,39 @@
-# include(dls_deploy)
+# The variable DLS_MESSAGE_HEADER_DESTINATION sets where the current project
+# should place the generated message header files, as well as where to install
+# them. This variable should not be modified by client code. The variable is
+# intended to make it possible to give each client the ability to generate
+# messages without having to worry about whether they are overwriting other
+# third party messages.
+#
+# This variable is currently set in the following locations:
+#
+# * When compiling the main framework, it is set in the toplevel CMakeLists.txt
+# * When compiling a plugin, it is set inside dls_install.cmake.in
+#
+# This variable should be treated as a constant
+if(NOT DLS_MESSAGE_HEADER_DESTINATION)
+	message(FATAL_ERROR
+		"The variable 'DLS_MESSAGE_HEADER_DESTINATION' must be set before "
+		"including the file 'dls_message.cmake'. "
+		"This is an internal variable "
+		"to the framework. If you are compiling client code and see this error, "
+		"please contact the maintainer. If you are compiling the framework, see "
+		"the documentation at the source location of this error message"
+	)
+endif()
+# ==============================================================================
+# Configure message installation groups
+# ==============================================================================
+cpack_add_component("dls_${PROJECT_NAME}_messaging"
+	DISPLAY_NAME "${PROJECT_NAME}_messaging"
+	# GROUP "dls_framework"
+	GROUP "dls_${PROJECT_NAME}_messaging"
+	DESCRIPTIONS "Messaging libraries"
+)
+
+# ==============================================================================
+# Generation of messages
+# ==============================================================================
 # Generate message files
 #
 # This command generates a new shared library named
@@ -23,51 +58,70 @@
 #
 # @param msg the name of a message file, without the `.idl` suffix
 function(dls_add_message msg)
-	# add the messaging library for this project if it has not yet been added
+	# On the first call of this function, do the following:
+	#
+	# * create the messaging library for this project
+	# * set its compile options to supress warnings
+	# * mark it for installation using as part of the proper group
 	if(NOT TARGET dls_${PROJECT_NAME}_messaging)
 		add_library(dls_${PROJECT_NAME}_messaging SHARED)
 		target_compile_options(dls_${PROJECT_NAME}_messaging
 			PRIVATE
 			-w # Suppress all warnings, this library's code is auto-generated
 		)
-		# TODO this won't work for third parties using this library since they
-		# don't have access to dls_depoy
-		dls_install(dls_${PROJECT_NAME}_messaging)
+		install(
+			TARGETS dls_${PROJECT_NAME}_messaging
+			LIBRARY
+				DESTINATION ${DLS_INSTALL_MESSAGES_DIR}
+				COMPONENT dls_${PROJECT_NAME}_messaging
+		)
 	endif()
 
-	# generate the message files for the given idl file
 	set(generated_source
-		"${CMAKE_CURRENT_BINARY_DIR}/gen/include/dls2/msg/${msg}.cxx;${CMAKE_CURRENT_BINARY_DIR}/gen/include/dls2/msg/${msg}PubSubTypes.cxx"
+		"${CMAKE_CURRENT_BINARY_DIR}/gen/include/${DLS_MESSAGE_HEADER_DESTINATION}/${msg}.cxx;${CMAKE_CURRENT_BINARY_DIR}/gen/include/${DLS_MESSAGE_HEADER_DESTINATION}/${msg}PubSubTypes.cxx"
 	)
+	set(generated_headers
+		"${CMAKE_CURRENT_BINARY_DIR}/gen/include/${DLS_MESSAGE_HEADER_DESTINATION}/${msg}.h;${CMAKE_CURRENT_BINARY_DIR}/gen/include/${DLS_MESSAGE_HEADER_DESTINATION}/${msg}PubSubTypes.h"
+	)
+
+	# use fastrtpsgen to generate the message source and header files
 	add_custom_command(
 		OUTPUT
-			# ${CMAKE_CURRENT_BINARY_DIR}/gen/include/dls2/msg/${msg}.cxx
-			${CMAKE_CURRENT_BINARY_DIR}/gen/include/dls2/msg/${msg}.h
-			# ${CMAKE_CURRENT_BINARY_DIR}/gen/include/dls2/msg/${msg}PubSubTypes.cxx
-			${CMAKE_CURRENT_BINARY_DIR}/gen/include/dls2/msg/${msg}PubSubTypes.h
 			${generated_source}
+			${generated_headers}
 		COMMAND
-			[ -d ${CMAKE_CURRENT_BINARY_DIR}/gen/include/dls2/msg ] || mkdir --parents ${CMAKE_CURRENT_BINARY_DIR}/gen/include/dls2/msg
+			[ -d ${CMAKE_CURRENT_BINARY_DIR}/gen/include/${DLS_MESSAGE_HEADER_DESTINATION}] || mkdir --parents ${CMAKE_CURRENT_BINARY_DIR}/gen/include/${DLS_MESSAGE_HEADER_DESTINATION}
 		COMMAND
-			fastrtpsgen -replace ${CMAKE_CURRENT_SOURCE_DIR}/${msg}.idl -d ${CMAKE_CURRENT_BINARY_DIR}/gen/include/dls2/msg
+			fastrtpsgen -replace ${CMAKE_CURRENT_SOURCE_DIR}/${msg}.idl -d ${CMAKE_CURRENT_BINARY_DIR}/gen/include/${DLS_MESSAGE_HEADER_DESTINATION}
 		COMMENT
 			"Generating message files for ${msg}.idl"
 		DEPENDS
 			${msg}.idl
 	)
 
+	# add the generated source files to the library
 	target_sources(dls_${PROJECT_NAME}_messaging
 		PRIVATE
 		${generated_source}
-		# ${CMAKE_CURRENT_BINARY_DIR}/gen/include/dls2/msg/${msg}.cxx
-		# ${CMAKE_CURRENT_BINARY_DIR}/gen/include/dsl2/msg/${msg}PubSubTypes.cxx
 	)
+
+	install(FILES ${generated_headers}
+		DESTINATION include/${DLS_MESSAGE_HEADER_DESTINATION}
+		COMPONENT dls_${PROJECT_NAME}_messaging
+	)
+
+	set(dls_${PROJECT_NAME}_msg_includes
+		"${CMAKE_CURRENT_BINARY_DIR}/gen/include"
+		CACHE STRING "project message dir"
+	)
+	# message(STATUS "setting variable dls_${PROJECT_NAME}_msg_includes=${CMAKE_CURRENT_BINARY_DIR}/gen/include/dls2/msg")
 endfunction()
 
 # Define the include path for the messages
-if(NOT dls_${PROJECT_NAME}_messaging)
-	set(dls_${PROJECT_NAME}_msg_includes
-		"${CMAKE_CURRENT_BINARY_DIR}/gen/include/dls2/msg"
-		PARENT_SCOPE
-	)
-endif()
+# if(NOT dls_${PROJECT_NAME}_messaging)
+# 	set(dls_${PROJECT_NAME}_msg_includes
+# 		"${CMAKE_CURRENT_BINARY_DIR}/gen/include/dls2/msg"
+# 		PARENT_SCOPE
+# 	)
+# 	message(STATUS "setting variable dls_${PROJECT_NAME}_msg_includes=${CMAKE_CURRENT_BINARY_DIR}/gen/include/dls2/msg")
+# endif()

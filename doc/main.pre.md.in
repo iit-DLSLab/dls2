@@ -2,6 +2,9 @@
 * [Quick Start](#quick-start)
 	* [Exposing Commands to the Framework](#exposing-commands-to-the-framework)
 	* [Logging](#logging)
+	* [Writing a Publisher and Subscriber](#pubsub)
+	* [Writing a Service](#service)
+	* [Generating a New Message Type](#msggen)
 	* [Building a new controller](#building-a-new-controller)
 	* [Building a new generator](#building-a-new-generator)
 
@@ -53,6 +56,21 @@ documentation of a component.
 ## Logging
 
 @LOGGING_MD@
+
+<a name="pubsub"></a>
+## Writing a publisher and subscriber
+
+@PUB_SUB_MD@
+
+<a name="service"></a>
+## Writing a service
+
+@SERVICE_MD@
+
+<a name="msggen">
+## Generating a New Message Type
+
+@MESSAGE_GENERATION_MD@
 
 <a name="building-a-new-controller"></a>
 ## Building a new controller

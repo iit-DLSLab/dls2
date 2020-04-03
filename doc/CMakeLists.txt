@@ -82,6 +82,72 @@ file(READ dls2_examples/example_command/src/main.cpp
 dls_configure_atonly(include/command.md.in COMMAND_MD_FILE)
 file(READ ${COMMAND_MD_FILE} COMMAND_MD)
 
+# ------------------------------------------------------------------------------
+# PubSub
+# ------------------------------------------------------------------------------
+file(READ dls2_examples/example_pubsub/src/example_publisher.cpp
+	EXAMPLE_PUBLISHER_CPP
+)
+
+file(READ dls2_examples/example_pubsub/src/example_subscriber.cpp
+	EXAMPLE_SUBSCRIBER_CPP
+)
+
+dls_configure_atonly(include/pub_sub.md.in PUB_SUB_MD_FILE)
+file(READ ${PUB_SUB_MD_FILE} PUB_SUB_MD)
+
+# ------------------------------------------------------------------------------
+# Service
+# ------------------------------------------------------------------------------
+file(READ dls2_examples/example_service/src/example_service_server.cpp
+	EXAMPLE_SERVICE_SERVER_CPP
+)
+
+file(READ dls2_examples/example_service/src/example_service_client.cpp
+	EXAMPLE_SERVICE_CLIENT_CPP
+)
+
+dls_configure_atonly(include/service.md.in SERVICE_MD_FILE)
+file(READ ${SERVICE_MD_FILE} SERVICE_MD)
+
+# ------------------------------------------------------------------------------
+# Message Generation
+# ------------------------------------------------------------------------------
+# Build the graphical representation of the project tree
+execute_process(
+	COMMAND
+		tree --noreport
+	WORKING_DIRECTORY
+		${CMAKE_CURRENT_SOURCE_DIR}/dls2_examples/example_message_generation
+	OUTPUT_VARIABLE
+		EXAMPLE_MESSAGE_GENERATION_PROJECT_TREE
+)
+
+file(READ dls2_examples/example_message_generation/CMakeLists.txt
+	EXAMPLE_MESSAGE_GENERATION_TOP_LEVEL_CMAKELSTS_TXT
+)
+
+file(READ dls2_examples/example_message_generation/msg/bool.idl
+	EXAMPLE_MESSAGE_GENERATiON_BOOL_IDL
+)
+
+file(READ dls2_examples/example_message_generation/msg/CMakeLists.txt
+	EXAMPLE_MESSAGE_GENERATION_MSG_CMAKELISTS_TXT
+)
+
+file(READ
+	dls2_examples/example_message_generation/src/example_message_generation.cpp
+	EXAMPLE_MESSAGE_GENERATiON_SRC_EXAMPLE_MESSAGE_GENERATION_CPP
+)
+
+file(READ
+	dls2_examples/example_message_generation/src/CMakeLists.txt
+	EXAMPLE_MESSAGE_GENERATION_SRC_CMAKELISTS_TXT
+)
+
+dls_configure_atonly(include/message_generation.md.in MESSAGE_GENERATION_MD_FILE)
+file(READ ${MESSAGE_GENERATION_MD_FILE} MESSAGE_GENERATION_MD)
+
 # ==============================================================================
 # Man Pages
 # ==============================================================================
@@ -105,6 +171,14 @@ file(READ ${CONTROLLER_MD_MAN_FILE} CONTROLLER_MD_MAN)
 # gait_generator.md.in
 dls_markdown_to_man(${GAIT_GENERATOR_MD_FILE} GAIT_GENERATOR_MD_MAN_FILE)
 file(READ ${GAIT_GENERATOR_MD_MAN_FILE} GAIT_GENERATOR_MD_MAN)
+
+# pub_sub.md.in
+dls_markdown_to_man(${PUB_SUB_MD_FILE} PUB_SUB_MD_MAN_FILE)
+file(READ ${PUB_SUB_MD_MAN_FILE} PUB_SUB_MD_MAN)
+
+# service.md.in
+dls_markdown_to_man(${SERVICE_MD_FILE} SERVICE_MD_MAN_FILE)
+file(READ ${SERVICE_MD_MAN_FILE} SERVICE_MD_MAN)
 
 dls_configure_atonly(dls.1.in DLS_1)
 dls_configure_atonly(dls.2.in DLS_2)
@@ -154,7 +228,6 @@ endif()
 # ------------------------------------------------------------------------------
 # Configure
 # ------------------------------------------------------------------------------
-# Doxyfile.in contains @DOXYFILE_DEST@ as ouput directory. Set its value here
 dls_configure_destination(Doxyfile.in DOXYFILE_DEST)
 
 # Configure the main page

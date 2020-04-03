@@ -44,6 +44,7 @@ install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/xdg-open
 # ==============================================================================
 # CMake Macros for 3rd party plugins
 # ==============================================================================
+file(READ ${PROJECT_SOURCE_DIR}/cmake/dls_message.cmake DLS_MESSAGE_CMAKE)
 dls_configure_atonly(dls_install.cmake.in DLS_INSTALL_CMAKE)
 
 install(FILES ${DLS_INSTALL_CMAKE}

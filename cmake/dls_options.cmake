@@ -21,6 +21,10 @@ set(DLS_INSTALL_ESTIMATOR_DIR /usr/lib/dls2/estimators
 	CACHE STRING "Directory where shared object libraries for estimators are stored"
 )
 
+set(DLS_INSTALL_MESSAGES_DIR /usr/lib/dls2/messages
+	CACHE STRING "Directory where shared object libraries for messages are stored"
+)
+
 set(DLS_INSTALL_SCRIPTS_DIR /usr/bin/dls2/scripts
 	CACHE STRING "Directory where executable scripts are stored"
 )

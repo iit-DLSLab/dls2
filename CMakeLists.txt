@@ -14,7 +14,8 @@ include(dls_options)
 include(dls_globals)
 include(dls_deploy)
 
-include(dls_message) # depends on dls_deploy, do not include before it
+set(DLS_MESSAGE_HEADER_DESTINATION dls2/msg)
+include(dls_message)       # depends on dls_deploy, do not include before it
 
 add_compile_options(
 	# Standards
@@ -24,7 +25,7 @@ add_compile_options(
 	-Wall
 	-Wextra
 	-pedantic
-	-Weffc++
+	# -Weffc++
 
 	# Elevate warnings to errors
 	-Werror
@@ -42,3 +43,4 @@ add_subdirectory(src)
 add_subdirectory(scripts)
 # add_subdirectory(test)
 add_subdirectory(doc)
+# add_subdirectory(catkin_ws)

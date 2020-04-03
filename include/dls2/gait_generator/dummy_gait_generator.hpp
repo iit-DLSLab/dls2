@@ -23,6 +23,8 @@
 #include "dls2/gait_generator/gait_generator.hpp"
 #include "dls2/util/debug/debug.hpp"
 #include "dls2/util/log/log.hpp"
+#include "dls2/msg/stringmsgPubSubTypes.h"
+#include "dls2/util/service/service.hpp"
 
 namespace dls
 {
@@ -40,6 +42,7 @@ public:
 private:
 	logging::coutstream scout;
 	logging::clogstream sclog;
+	ServiceClient<StringMsgPubSubType, StringMsgPubSubType> service_client;
 };
 } // end namespace dls
 

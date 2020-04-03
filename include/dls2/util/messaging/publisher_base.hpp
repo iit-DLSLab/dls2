@@ -20,7 +20,6 @@
 #ifndef PUBLISHER_BASE_HPP_MFE9PIJK
 #define PUBLISHER_BASE_HPP_MFE9PIJK
 
-#include <memory>
 #include <fastrtps/fastrtps_fwd.h>
 #include <fastrtps/publisher/PublisherListener.h>
 
@@ -29,18 +28,26 @@ namespace dls
 	template <class PubSub_t>
 	class PublisherBase : public eprosima::fastrtps::PublisherListener
 	{
+		template <typename T, typename U> friend class Service;
+		template <typename T, typename U> friend class ServiceClient;
 	public:
 		PublisherBase(const std::string &topic);
-		// virtual ~PublisherBase() = default;
 		virtual ~PublisherBase();
 
 		void publish(typename PubSub_t::type &msg) const;
 
 	private:
-		std::shared_ptr<eprosima::fastrtps::Participant> pParticipant;
-		std::shared_ptr<eprosima::fastrtps::Publisher> pPublisher;
+		eprosima::fastrtps::Participant *pParticipant;
+		eprosima::fastrtps::Publisher *pPublisher;
 
 		/*static*/ PubSub_t rtps_type;
+
+		/// Returns the underlying fastrtps guid of this publisher
+		///
+		/// This should _not_ be exposed to third party clients. This is used
+		/// only for identification of a specific publisher in the Service and
+		/// ServiceClient implementations. This can be removed without warning
+		eprosima::fastrtps::rtps::GUID_t getGuid() const;
 
 		// TODO temp, remove
 		const std::string temp_topic;

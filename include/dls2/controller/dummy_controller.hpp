@@ -20,10 +20,14 @@
 #ifndef DUMMY_CONTROLLER_HPP_YGHMJHQN
 #define DUMMY_CONTROLLER_HPP_YGHMJHQN
 
-#include "dls2/controller/controller.hpp"
 #include <iostream>
-#include "dls2/util/log/log.hpp"
+
+#include "dls2/controller/controller.hpp"
+#include "dls2/util/service/service.hpp"
 #include "dls2/command/command.hpp"
+#include "dls2/util/log/log.hpp"
+
+#include "dls2/msg/stringmsgPubSubTypes.h"
 
 #include <doglib/base/dog.hpp>
 
@@ -53,6 +57,8 @@ private:
 	CommandManager command_manager;
 	logging::coutstream outstream;
 	logging::clogstream logstream;
+
+	Service<StringMsgPubSubType, StringMsgPubSubType> service;
 };
 } // end namespace dls
 

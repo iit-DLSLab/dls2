@@ -9,7 +9,7 @@
 	url = git@gitlab.advr.iit.it:hdebruin/doglib.git
 [submodule "doc/dls2_examples"]
 	path = doc/dls2_examples
-	url = https://gitlab.advr.iit.it/hdebruin/dls2_examples
+	url = git@gitlab.advr.iit.it:hdebruin/dls2_examples.git
 [submodule "catkin_ws/src/dls_mapping"]
 	path = catkin_ws/src/dls_mapping
 	url = git@gitlab.advr.iit.it:dls-lab/dls_mapping.git
@@ -22,3 +22,6 @@
 [submodule "catkin_ws/src/common_utilities"]
 	path = catkin_ws/src/common_utilities
 	url = git@gitlab.advr.iit.it:dls-lab/common_utilities.git
+[submodule "catkin_ws/src/hyq-commons"]
+	path = catkin_ws/src/hyq-commons
+	url = git@gitlab.advr.iit.it:dls-lab/hyq-commons.git

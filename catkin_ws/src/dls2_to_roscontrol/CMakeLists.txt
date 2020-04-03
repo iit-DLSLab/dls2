@@ -5,6 +5,7 @@ message(WARNING "using a hack to point to root directory")
 # This is a hack until the catkin_ws can be properly integrated with the rest of
 # the project
 set(ROOT_PROJECT_DIRECTORY "${CMAKE_SOURCE_DIR}/../..")
+set(ROOT_DEPPLOY_PROJECT_DIRECTORY "${ROOT_PROJECT_DIRECTORY}/..")
 include_directories(
 	${ROOT_PROJECT_DIRECTORY}/include
 	${ROOT_PROJECT_DIRECTORY}/build_tools/include
@@ -24,13 +25,21 @@ find_package(catkin REQUIRED
 	)
 
 catkin_package(
-  INCLUDE_DIRS include 
+  INCLUDE_DIRS include
  CATKIN_DEPENDS roscpp controller_interface hardware_interface dls2_hardware_interface
   DEPENDS
 )
 
-include_directories(${PROJECT_SOURCE_DIR}/include SYSTEM ${catkin_INCLUDE_DIRS} ${ROOT_PROJECT_DIRECTORY}/gen/include)
-link_directories(BEFORE 
+include_directories(
+	${PROJECT_SOURCE_DIR}/include
+	SYSTEM
+	${catkin_INCLUDE_DIRS}
+	${ROOT_PROJECT_DIRECTORY}/gen/include
+	${ROOT_PROJECT_DIRECTORY}/build/dls2/msg/gen/include
+	${ROOT_DEPPLOY_PROJECT_DIRECTORY}/build/dls2/msg/gen/include
+)
+
+link_directories(BEFORE
 	${ROOT_PROJECT_DIRECTORY}/bin/debug
 	${ROOT_PROJECT_DIRECTORY}/bin/release
 	${ROOT_PROJECT_DIRECTORY}/bin/Debug
@@ -39,7 +48,7 @@ link_directories(BEFORE
 
 add_library(${PROJECT_NAME} src/dls2_to_roscontrol.cpp)
 
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} fastrtps fastcdr dls_messaging) #dynamic_legged_systems_framework 
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} fastrtps fastcdr dls_messaging) #dynamic_legged_systems_framework
 
 install(TARGETS ${PROJECT_NAME}
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
@@ -47,7 +56,7 @@ install(TARGETS ${PROJECT_NAME}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
   )
 
-install(FILES dls2_to_roscontrol_plugin.xml DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})  
+install(FILES dls2_to_roscontrol_plugin.xml DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
 install(DIRECTORY launch/ DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch)
 

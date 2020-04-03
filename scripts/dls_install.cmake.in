@@ -1,3 +1,7 @@
+set(DLS_MESSAGE_HEADER_DESTINATION dls2/msg/${PROJECT_NAME})
+@DLS_MESSAGE_CMAKE@
+list(APPEND CMAKE_LIBRARY_PATH @DLS_INSTALL_MESSAGES_DIR@)
+
 # ==============================================================================
 # Functions to install plugins to correct directories automatically
 # ==============================================================================

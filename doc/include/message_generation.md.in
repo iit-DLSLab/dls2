@@ -1,0 +1,41 @@
+For an example of how to generate new message types, consider the following
+project tree:
+
+```txt
+@EXAMPLE_MESSAGE_GENERATION_PROJECT_TREE@
+```
+
+The top-level `CMakeLists.txt` file contains the following:
+
+```txt
+@EXAMPLE_MESSAGE_GENERATION_TOP_LEVEL_CMAKELSTS_TXT@
+```
+
+To generate a message, you need to write a `.idl` file. A simple example is
+shown in `bool.idl` here:
+
+```idl
+@EXAMPLE_MESSAGE_GENERATiON_BOOL_IDL@
+```
+
+This `.idl` file needs to be converted into a source and header file. This is
+done in `msg/CMakeLists.txt`:
+
+```txt
+@EXAMPLE_MESSAGE_GENERATION_MSG_CMAKELISTS_TXT@
+```
+
+A simple way this message can be used is shown in the file
+`src/example_message_generation.cpp`:
+
+```cpp
+@EXAMPLE_MESSAGE_GENERATiON_SRC_EXAMPLE_MESSAGE_GENERATION_CPP@
+```
+
+To compile it, you need to tell CMake where the generated header files for the
+new messages are. You also need to link the executable to the newly generated
+message library. This is shown inside of `src/CMakeLists.txt`:
+
+```txt
+@EXAMPLE_MESSAGE_GENERATION_SRC_CMAKELISTS_TXT@
+```

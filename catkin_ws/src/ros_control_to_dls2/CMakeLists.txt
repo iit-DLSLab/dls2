@@ -3,6 +3,7 @@ project(ros_control_to_dls2)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 set(ROOT_PROJECT_DIRECTORY "${CMAKE_SOURCE_DIR}/../..")
+set(ROOT_DEPPLOY_PROJECT_DIRECTORY "${ROOT_PROJECT_DIRECTORY}/..")
 
 find_package(catkin REQUIRED
 	roscpp
@@ -26,6 +27,7 @@ include_directories(
 	${ROOT_PROJECT_DIRECTORY}/build_tools/include
 	SYSTEM
 	${catkin_INCLUDE_DIRS}
+	${ROOT_DEPPLOY_PROJECT_DIRECTORY}/build/dls2/msg/gen/include
 	)
 link_directories(BEFORE 
 	${ROOT_PROJECT_DIRECTORY}/bin/debug/
@@ -35,6 +37,10 @@ link_directories(BEFORE
 )
 message(WARNING "linking to debug build of libraries")
 
+# message(FATAL_ERROR
+# 	"root project directory: ${ROOT_PROJECT_DIRECTORY}\n
+# 	root project deploy directory ${ROOT_DEPPLOY_PROJECT_DIRECTORY}\n"
+# )
 
 add_library(${PROJECT_NAME}_joint_state_controller src/joint_state_controller.cpp)
 add_library(${PROJECT_NAME}_blind_state_controller src/blind_state_controller.cpp)

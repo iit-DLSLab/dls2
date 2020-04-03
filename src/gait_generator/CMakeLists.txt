@@ -17,7 +17,16 @@ add_library(
 )
 # add_dependencies(dls_dummy_gait_generator messagelib)
 
-dls_install_debug(dls_dummy_gait_generator)
+# dls_install_debug(dls_dummy_gait_generator)
+set(DLS_INSTALL_DUMMY_GAIT_GENERATOR ON
+	CACHE BOOL "whether to install the dummy gait generator"
+)
+if(DLS_INSTALL_DUMMY_GAIT_GENERATOR)
+	install(TARGETS dls_dummy_gait_generator
+		LIBRARY DESTINATION ${DLS_INSTALL_GAIT_GENERATOR_DIR}
+		# COMPONENT "PLUGIN-${PROJECT_NAME}-dls_dummy_gait_generator"
+	)
+endif()
 target_link_libraries(dls_dummy_gait_generator
 	doglib
 )

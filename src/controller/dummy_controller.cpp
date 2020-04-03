@@ -39,7 +39,21 @@ DummyController::DummyController
 	),
 	command_manager(),
 	outstream(getID()),
-	logstream(getID())
+	logstream(getID()),
+	service
+	(
+		"dls_dummy_controller_service",
+		[](StringMsg msg)
+		{
+			std::cout << "Dummy controller got service call with msg: "
+                      << msg.msg() << std::endl;
+			std::cout << "Dummy controller responding with the message modified"
+                      << std::endl;
+			msg.msg() = std::string("returned from DummyController: ") + msg.msg();
+			std::cout << "Dummy controller exiting callback" << std::endl;
+			return msg;
+		}
+	)
 {
 	outstream << "dummy controller launched" << std::endl;
 
@@ -96,6 +110,7 @@ void DummyController::run(const std::chrono::system_clock::time_point &time)
 {
 	// Command<int, int> command("dummy", "help", foo);
 	logstream << "Dummy Controller Epoch" << std::endl;
+	// std::cout << "Dummy Controller Epoch" << std::endl;
 	auto pGait_signal = this->readGaitSignal();
 
 	ControlSignal s;

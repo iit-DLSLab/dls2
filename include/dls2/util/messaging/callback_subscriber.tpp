@@ -17,40 +17,61 @@
 * Maintainer:        Hendrik de Bruin                                          *
 * author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-#ifndef SUBSCRIBER_BASE_HPP_XPACOJJI
-#define SUBSCRIBER_BASE_HPP_XPACOJJI
+#ifndef CALLBACK_SUBSCRIBER_TPP_E9ANNCP0
+#define CALLBACK_SUBSCRIBER_TPP_E9ANNCP0
 
-// #include <memory>
-#include <fastrtps/fastrtps_fwd.h>
-#include <fastrtps/subscriber/SubscriberListener.h>
-#include <fastrtps/subscriber/SampleInfo.h>
-#include <fastrtps/participant/Participant.h>
-#include <mutex>
+#include "dls2/util/messaging/callback_subscriber.hpp"
+
+// TODO temp include
+#include <iostream>
 
 namespace dls
 {
 	template <class PubSub_t>
-	class SubscriberBase : public eprosima::fastrtps::SubscriberListener
+	CallbackSubscriber<PubSub_t>::CallbackSubscriber
+	(
+		const std::string &topic,
+		callback_t callback_
+	) :
+		SubscriberBase<PubSub_t>(topic),
+		callback(callback_),
+		callback_impl(nullptr)
+	{ }
+
+	template <class PubSub_t>
+	CallbackSubscriber<PubSub_t>::CallbackSubscriber
+	(
+		const std::string &topic,
+		callback_impl_t callback_
+	) :
+		SubscriberBase<PubSub_t>(topic),
+		callback(nullptr),
+		callback_impl(callback_)
+	{ }
+
+	template <class PubSub_t>
+	void CallbackSubscriber<PubSub_t>::onNewDataMessage
+	(
+		eprosima::fastrtps::Subscriber *sub
+	)
 	{
-	public:
-		SubscriberBase(const std::string &topic);
-		virtual ~SubscriberBase();
+		if(callback_impl)
+		{
+			callback_impl(sub);
+		}
+		else
+		{
+			typename PubSub_t::type msg;
+			eprosima::fastrtps::SampleInfo_t info;
+			if(sub->takeNextData((void*)&msg, &info))
+			{
+				// if(info.sampleKind == eprosima::fastrtps::rtps::ALIVE)
+				// {
+					callback(msg);
+				// }
+			}
+		}
+	}
+} // end namespace dls
 
-	private:
-		// std::shared_ptr<eprosima::fastrtps::Participant> pParticipant;
-		// std::shared_ptr<eprosima::fastrtps::Subscriber> pSubscriber;
-		eprosima::fastrtps::Participant *pParticipant;
-		eprosima::fastrtps::Subscriber *pSubscriber;
-
-		static PubSub_t rtps_type;
-
-		// begin critical section
-			// static std::mutex ID_mutex;
-			// static size_t ID;
-		// end critical section
-	};
-}
-
-#include "dls2/util/messaging/subscriber_base.tpp"
-
-#endif /* end of include guard: SUBSCRIBER_BASE_HPP_XPACOJJI */
+#endif /* end of include guard: CALLBACK_SUBSCRIBER_TPP_E9ANNCP0 */

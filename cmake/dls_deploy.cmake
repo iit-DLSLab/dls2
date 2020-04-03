@@ -85,7 +85,7 @@ endfunction()
 install(
 	DIRECTORY
 		${PROJECT_SOURCE_DIR}/include/dls2/
-		${PROJECT_SOURCE_DIR}/gen/include/dls2/
+		# ${PROJECT_SOURCE_DIR}/gen/include/dls2/
 	DESTINATION
 		include/dls2
 	COMPONENT
