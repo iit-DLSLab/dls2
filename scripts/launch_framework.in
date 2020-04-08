@@ -1,5 +1,11 @@
 #!/bin/bash
 
+source /opt/dls2/dls2_ws/setup.bash 2>/dev/null
+if [ ! $? -eq 0 ]; then
+	echo "Error: dls2 catkin workspace not found. Be sure to install it first"
+	exit -1
+fi
+
 export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:/usr/share
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:/usr/lib/dls2
 
