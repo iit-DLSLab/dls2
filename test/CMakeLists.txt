@@ -1,36 +1,36 @@
-enable_testing()
-# Target to invoke to build tests
-add_custom_target(tests)
-add_compile_options(
-	# Standards
-	-std=c++17
+include(dls_include_paths)
+
+include_directories(
+	SYSTEM
+	include
 )
 
-function(create_test NAME SRC LINK)
-	# Output directory of executable should mirror their location in source tree
-	string(REGEX MATCH "/[^/]*$" PATH ${CMAKE_CURRENT_SOURCE_DIR})
-	set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}/test${PATH}/ PARENT_SCOPE)
-	message("building test ${NAME} at ${EXECUTABLE_OUTPUT_PATH}")
+add_custom_target(tests)
+function(create_test TEST_NAME)
 
-	# create the executable
-	add_executable("${NAME}" "${SRC}")
-	target_link_libraries("${NAME}" "${LINK}")
+	set(prefix       create_test)
+	set(noValues)     # unused
+	set(singleValues) # unused
+	set(multiValues  SOURCE LINK)
 
-	# do not build the test by default
-	set_target_properties("${NAME}" PROPERTIES EXCLUDE_FROM_ALL 1)
-
-	# but build it if we want to build all the tests
-	add_dependencies("tests" "${NAME}")
-
-	# register this test with CTest
-	add_test(
-		NAME ${NAME}
-		COMMAND ${NAME}
-		WORKING_DIRECTORY ${EXECUTABLE_OUTPUT_PATH}
+	cmake_parse_arguments(
+		${prefix}
+		"${noValues}"
+		"${singleValues}"
+		"${multiValues}"
+		${ARGN}
 	)
+
+	add_executable(${TEST_NAME} ${${prefix}_SOURCE})
+	set_target_properties(${TEST_NAME} PROPERTIES EXCLUDE_FROM_ALL 1)
+	target_link_libraries(${TEST_NAME} ${${prefix}_LINK})
+	add_dependencies("tests" ${TEST_NAME})
+	add_test(
+		NAME              ${TEST_NAME}
+		COMMAND           ${TEST_NAME}
+		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+	)
+
 endfunction()
 
-# add_subdirectory(geometry)
-# add_subdirectory(msg_wrappers)
-# add_subdirectory(util)
-add_subdirectory(command)
+add_subdirectory(src)

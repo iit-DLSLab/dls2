@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.5.1)
 project(dls2 VERSION 0.0.0)
+enable_testing()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
@@ -41,6 +42,6 @@ add_compile_options(
 add_subdirectory(msg)
 add_subdirectory(src)
 add_subdirectory(scripts)
-# add_subdirectory(test)
+add_subdirectory(test)
 add_subdirectory(doc)
 # add_subdirectory(catkin_ws)

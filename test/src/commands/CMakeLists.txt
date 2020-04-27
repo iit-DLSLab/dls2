@@ -1,0 +1,9 @@
+create_test(test_commands
+	SOURCE
+		commands.cpp
+	LINK
+		dls_command
+		fastrtps
+		fastcdr
+		catch2
+)
