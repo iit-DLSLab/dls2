@@ -1,4 +1,4 @@
-create_test(test_commands
+create_test(commands
 	SOURCE
 		commands.cpp
 	LINK

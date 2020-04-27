@@ -1,0 +1,9 @@
+create_test(pubsub
+	SOURCE
+		pubsub.cpp
+	LINK
+		dls_messaging
+		fastrtps
+		fastcdr
+		catch2
+)

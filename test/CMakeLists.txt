@@ -5,6 +5,7 @@ include(dls_include_paths)
 include_directories(
 	SYSTEM
 	include
+	dls_${PROJECT_NAME}_msg_includes
 )
 
 # Create a custom target that builds all tests
@@ -17,7 +18,10 @@ add_custom_target(tests)
 #
 # Test are not built by default. They are built when invoking `make tests`. The
 # tests can be run with CTest with `make test`.
+#
+# The test name is prefixed with `test`
 function(create_test TEST_NAME)
+	set(TARGET_NAME "test_${TEST_NAME}")
 
 	set(prefix       create_test)
 	set(noValues)     # unused
@@ -32,14 +36,14 @@ function(create_test TEST_NAME)
 		${ARGN}
 	)
 
-	add_executable(${TEST_NAME}        ${${prefix}_SOURCE})
-	set_target_properties(${TEST_NAME} PROPERTIES EXCLUDE_FROM_ALL 1)
-	target_link_libraries(${TEST_NAME} ${${prefix}_LINK})
-	add_dependencies("tests"           ${TEST_NAME})
+	add_executable(${TARGET_NAME}        ${${prefix}_SOURCE})
+	set_target_properties(${TARGET_NAME} PROPERTIES EXCLUDE_FROM_ALL 1)
+	target_link_libraries(${TARGET_NAME} ${${prefix}_LINK})
+	add_dependencies("tests"             ${TARGET_NAME})
 
 	add_test(
 		NAME              ${TEST_NAME}
-		COMMAND           ${TEST_NAME}
+		COMMAND           ${TARGET_NAME}
 		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 	)
 endfunction()
