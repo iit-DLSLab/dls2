@@ -168,7 +168,7 @@ Command<ret_t, arg_ts...>::CommandCallListener::CommandCallListener
 	pData(nullptr)
 {
 	eprosima::fastrtps::ParticipantAttributes participant_attributes;
-	participant_attributes.rtps.builtin.domainId = 0;
+	// participant_attributes.rtps.builtin.domainId = 0;
 	participant_attributes.rtps.setName
 	(
 		(

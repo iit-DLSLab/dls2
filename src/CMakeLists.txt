@@ -5,7 +5,7 @@ foreach(dir ${dirs})
 	message(STATUS "from src:dir=${dir}")
 endforeach()
 message(STATUS "location=${dls_${PROJECT_NAME}_msg_includes}")
-# message(FATAL_ERROR "end")
+
 # ==============================================================================
 # Output Directories and CMake Variables
 # ==============================================================================
@@ -31,11 +31,11 @@ configure_file(
 	${PROJECT_SOURCE_DIR}/src/main.cpp.in
 	${CMAKE_BINARY_DIR}/src/main.cpp
 )
+
 # add_executable(dynamic_legged_systems_framework main.cpp)
 add_executable(dynamic_legged_systems_framework
 	${CMAKE_BINARY_DIR}/src/main.cpp
 )
-# list(APPEND PROJECT_TARGETS dynamic_legged_systems_framework)
 dls_install(dynamic_legged_systems_framework)
 
 # ==============================================================================
@@ -47,59 +47,8 @@ macro(export_header header)
 endmacro()
 
 # ==============================================================================
-# Message Generation
-# ==============================================================================
-# set(MESSAGE_SOURCES "")
-# macro(add_message msg)
-# 	add_custom_command(
-# 		OUTPUT
-# 			${PROJECT_SOURCE_DIR}/gen/include/dls2/msg/${msg}.cxx
-# 			${PROJECT_SOURCE_DIR}/gen/include/dls2/msg/${msg}.h
-# 			${PROJECT_SOURCE_DIR}/gen/include/dls2/msg/${msg}PubSubTypes.cxx
-# 			${PROJECT_SOURCE_DIR}/gen/include/dls2/msg/${msg}PubSubTypes.h
-# 		COMMAND
-# 			[ -d ${PROJECT_SOURCE_DIR}/gen/include/dls2/msg ] || mkdir --parents ${PROJECT_SOURCE_DIR}/gen/include/dls2/msg
-# 		COMMAND
-# 			fastrtpsgen -replace ${PROJECT_SOURCE_DIR}/msg/${msg}.idl -d ${PROJECT_SOURCE_DIR}/gen/include/dls2/msg
-# 		COMMENT
-# 			"Generating message files for ${msg}.idl"
-# 		DEPENDS
-# 			${PROJECT_SOURCE_DIR}/msg/${msg}.idl
-# 	)
-# 	list(APPEND MESSAGE_SOURCES ${PROJECT_SOURCE_DIR}/gen/include/dls2/msg/${msg}.cxx)
-# 	list(APPEND MESSAGE_SOURCES ${PROJECT_SOURCE_DIR}/gen/include/dls2/msg/${msg}PubSubTypes.cxx)
-# endmacro()
-
-# add_message(hello_world)
-# add_message(pose)
-# add_message(gait_signal)
-# add_message(control_signal)
-# add_message(desired_torques)
-# add_message(stringmsg)
-# add_message(joint_state)
-# add_message(imu)
-# add_message(vec3)
-# add_message(screw)
-# add_message(blind_state)
-# add_message(console_command)
-# add_message(header)
-# add_message(time)
-# add_message(bool)
-# add_message(command_register)
-# add_message(el3104)
-# add_message(hpu)
-# add_message(pcb)
-# add_message(psb)
-# add_message(smart_actuator)
-# add_message(battery)
-# add_message(heatsink)
-# add_message(leg_raw)
-# add_message(hyqreal_raw)
-
-# ==============================================================================
 # Libraries
 # ==============================================================================
-
 # ================================== messages ==================================
 add_library(dls_messaging
 	SHARED
@@ -120,9 +69,8 @@ target_link_libraries(dls_messaging
 	PUBLIC
 	dls_${PROJECT_NAME}_messaging
 )
-# list(APPEND PROJECT_TARGETS dls_messaging)
+
 dls_install(dls_messaging)
-# add_custom_target(messagelib DEPENDS ${MESSAGE_SOURCES})
 
 # ============================ Controller Modules ==============================
 add_library(dls_reflex
@@ -137,18 +85,11 @@ add_library(dls_reflex
 # START
 set(CATKIN_WORKSPACE ${PROJECT_SOURCE_DIR}/catkin_ws)
 add_custom_target(dls2_to_roscontrol
-	COMMAND catkin_make
+	COMMAND catkin_make -j1
 	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/catkin_ws
 	COMMENT "Building dls2_to_roscontrol subproject"
 )
 # END
-
-# add_custom_command(
-# 	TARGET dls2_to_roscontrol
-# 	POST_BUILD
-# 	COMMAND cp ${CATKIN_WORKSPACE}/devel/lib/dls_hal/xenomotor ${EXECUTABLE_OUTPUT_PATH}
-# 	COMMAND cp ${CATKIN_WORKSPACE}/devel/lib/dls_hal/xenorostask ${EXECUTABLE_OUTPUT_PATH}
-# )
 
 set_property(
 	DIRECTORY

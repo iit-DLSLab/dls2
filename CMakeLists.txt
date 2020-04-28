@@ -8,6 +8,7 @@ message(STATUS "Build type is ${CMAKE_BUILD_TYPE}")
 
 # 3rd party libs do not use variables defined by cmake include targets. Do not
 # move this below the includes
+include_directories(SYSTEM /opt/ros/kinetic/include)
 add_subdirectory(3rd_party)
 
 include(dls_configure)

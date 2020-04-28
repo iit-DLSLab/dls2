@@ -1,0 +1,90 @@
+# ==============================================================================
+# Environment setup
+# ==============================================================================
+image: server-gitlab-runner:5000/dls2-framework-dev:latest
+
+before_script:
+  - source /root/dls_gitlab_ci/gitlab-script.sh
+  - source /opt/ros/kinetic/setup.bash
+
+# ==============================================================================
+# Stages
+# ==============================================================================
+stages:
+  - build
+  - test
+  - deploy
+
+# ------------------------------------------------------------------------------
+# Build Stage
+# ------------------------------------------------------------------------------
+# Print versions of installed programmes on the docker image. This is helpful
+# for a quick sanity check when things break
+display_versions:
+  stage: build
+  tags:
+    - dls2
+  script:
+    - cmake --version
+
+# Build the framework
+build_dls2:
+  stage: build
+  tags:
+    - dls2
+  script:
+    - git submodule update --init --recursive
+    - mkdir build
+    - cd build
+    - cmake ..
+    - make
+  artifacts:
+    untracked: true
+
+# ------------------------------------------------------------------------------
+# Test Stage
+# ------------------------------------------------------------------------------
+# Run the test cases that have been developed for the framework
+test_dls2:
+  stage: test
+  dependencies:
+    - build_dls2
+  tags:
+    - dls2
+  script:
+    - cd build
+    - make tests
+    - make test
+
+# Build the example projects. If these projects do not compile, then something
+# has changed in the API of the project. Since the documentation is built from
+# these example projects, this would mean that the documentation that ships with
+# the framework is now out of date. In such cases you should either rever the
+# API changes, or fix the example projects to reflect the new API. That way
+# users will always have the latest documenatation on their machines,
+test_docs:
+  stage: test
+  dependencies:
+    - build_dls2
+  tags:
+    - dls2
+  script:
+    - cd build
+    - make install
+    - cd ..
+    - cd doc/dls2_examples
+    - mkdir build
+    - cd build
+    - cmake ..
+    - make
+
+
+# ------------------------------------------------------------------------------
+# Deploy Stage
+# ------------------------------------------------------------------------------
+deploy_dls2:
+  stage: deploy
+  tags:
+    - dls2
+  script:
+    - echo "deployment still needs to be set up"

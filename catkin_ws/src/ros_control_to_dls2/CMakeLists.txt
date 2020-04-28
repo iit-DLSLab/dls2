@@ -23,6 +23,7 @@ include_directories(
 	include/${PROJECT_NAME}
 	${PROJECT_SOURCE_DIR}/include 
 	${ROOT_PROJECT_DIRECTORY}/include
+	${ROOT_PROJECT_DIRECTORY}/build/msg/gen/include
 	${ROOT_PROJECT_DIRECTORY}/gen/include
 	${ROOT_PROJECT_DIRECTORY}/build_tools/include
 	SYSTEM
@@ -30,6 +31,7 @@ include_directories(
 	${ROOT_DEPPLOY_PROJECT_DIRECTORY}/build/dls2/msg/gen/include
 	)
 link_directories(BEFORE 
+	${ROOT_PROJECT_DIRECTORY}/bin/
 	${ROOT_PROJECT_DIRECTORY}/bin/debug/
 	${ROOT_PROJECT_DIRECTORY}/bin/release/
 	${ROOT_PROJECT_DIRECTORY}/bin/Debug/

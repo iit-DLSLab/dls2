@@ -52,7 +52,7 @@ namespace dls
 		participant_attr.rtps.builtin.discovery_config.use_SIMPLE_EndpointDiscoveryProtocol                   = true;
 		participant_attr.rtps.builtin.discovery_config.m_simpleEDP.use_PublicationReaderANDSubscriptionWriter = true;
 		participant_attr.rtps.builtin.discovery_config.m_simpleEDP.use_PublicationWriterANDSubscriptionReader = true;
-		participant_attr.rtps.builtin.domainId                                                                = 0;
+		// participant_attr.rtps.builtin.domainId                                                                = 0;
 		participant_attr.rtps.builtin.discovery_config.leaseDuration                                          = eprosima::fastrtps::c_TimeInfinite;
 		participant_attr.rtps.setName("Participant_pub");
 

@@ -90,7 +90,7 @@ function(dls_add_message msg)
 			${generated_source}
 			${generated_headers}
 		COMMAND
-			[ -d ${CMAKE_CURRENT_BINARY_DIR}/gen/include/${DLS_MESSAGE_HEADER_DESTINATION}] || mkdir --parents ${CMAKE_CURRENT_BINARY_DIR}/gen/include/${DLS_MESSAGE_HEADER_DESTINATION}
+			[ -d ${CMAKE_CURRENT_BINARY_DIR}/gen/include/${DLS_MESSAGE_HEADER_DESTINATION} ] || mkdir --parents ${CMAKE_CURRENT_BINARY_DIR}/gen/include/${DLS_MESSAGE_HEADER_DESTINATION}
 		COMMAND
 			fastrtpsgen -replace ${CMAKE_CURRENT_SOURCE_DIR}/${msg}.idl -d ${CMAKE_CURRENT_BINARY_DIR}/gen/include/${DLS_MESSAGE_HEADER_DESTINATION}
 		COMMENT

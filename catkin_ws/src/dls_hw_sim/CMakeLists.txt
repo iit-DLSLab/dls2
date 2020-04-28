@@ -49,6 +49,7 @@ include_directories(
 	${ROOT_PROJECT_DIRECTORY}/gen/include
 )
 link_directories( 
+	${ROOT_PROJECT_DIRECTORY}/bin
 	${ROOT_PROJECT_DIRECTORY}/bin/debug
 	${ROOT_PROJECT_DIRECTORY}/bin/release
 	${ROOT_PROJECT_DIRECTORY}/bin/Debug
