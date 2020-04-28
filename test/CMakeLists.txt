@@ -11,6 +11,13 @@ include_directories(
 # Create a custom target that builds all tests
 add_custom_target(tests)
 
+add_custom_target(check
+	COMMAND make test
+	DEPENDS tests
+	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+	COMMENT "Running tests..."
+)
+
 # Function to register a test
 #
 # Usage: create_test(<name_of_test> SOURCE <list of source files> LINK <list of
