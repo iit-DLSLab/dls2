@@ -39,10 +39,31 @@ add_compile_options(
 	-include ${PROJECT_SOURCE_DIR}/include/dls2/util/debug/debug.hpp
 )
 
-
 add_subdirectory(msg)
 add_subdirectory(src)
 add_subdirectory(scripts)
 add_subdirectory(test)
 add_subdirectory(doc)
 # add_subdirectory(catkin_ws)
+
+# ==============================================================================
+# Debian Packaging Settings
+# ==============================================================================
+#include(InstallRequiredSystemLibraries)
+# General package settings
+set(CPACK_PACKAGE_NAME          "dls2")
+set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VESRION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR ${PROJECT_VESRION_MINOR})
+set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VESRION_PATCH})
+set(CPACK_PACKAGE_VENDOR        "dlslab")
+set(CPACK_PACKAGE_CONTACT       "dlslab")
+set(CPACK_VERBATIM_VARIABLES    ON)
+
+# Debian settings
+set(CPACK_GENERATOR                       "DEB")
+set(CPACK_DEB_COMPONENT_INSTALL           ON)
+set(CPACK_DEBIAN_DOGLIB_FILE_NAME         "dls2-doglib-${PROJECT_VERSION}.deb")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER       "dlslab")
+set(CPACK_DEBIAN_PACKAGE_NAME             "dls2")
+set(CPACK_DEBIAN_ENABLE_COMPONENT_DEPENDS ON)
+include(CPack)

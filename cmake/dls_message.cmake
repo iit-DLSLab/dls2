@@ -24,12 +24,18 @@ endif()
 # ==============================================================================
 # Configure message installation groups
 # ==============================================================================
-cpack_add_component("dls_${PROJECT_NAME}_messaging"
-	DISPLAY_NAME "${PROJECT_NAME}_messaging"
-	# GROUP "dls_framework"
-	GROUP "dls_${PROJECT_NAME}_messaging"
-	DESCRIPTIONS "Messaging libraries"
-)
+function(dls_register_message_component_impl)
+	string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UPPER)
+	# cpack_add_component("dls2_${PROJECT_NAME}_messaging"
+	# 	DISPLAY_NAME "${PROJECT_NAME}_messaging"
+	# 	DESCRIPTIONS "Messaging libraries"
+	# )
+	set(CPACK_DEBIAN_DLS2_${PROJECT_NAME_UPPER}_MESSAGING_FILE_NAME
+		"dls2-${PROJECT_NAME}-messaging-${PROJECT_VERSION}.deb"
+		PARENT_SCOPE
+	)
+endfunction()
+dls_register_message_component_impl()
 
 # ==============================================================================
 # Generation of messages
@@ -73,7 +79,7 @@ function(dls_add_message msg)
 			TARGETS dls_${PROJECT_NAME}_messaging
 			LIBRARY
 				DESTINATION ${DLS_INSTALL_MESSAGES_DIR}
-				COMPONENT dls_${PROJECT_NAME}_messaging
+				COMPONENT dls2_${PROJECT_NAME}_messaging
 		)
 	endif()
 
@@ -107,7 +113,7 @@ function(dls_add_message msg)
 
 	install(FILES ${generated_headers}
 		DESTINATION include/${DLS_MESSAGE_HEADER_DESTINATION}
-		COMPONENT dls_${PROJECT_NAME}_messaging
+		COMPONENT dls2_${PROJECT_NAME}_messaging
 	)
 
 	set(dls_${PROJECT_NAME}_msg_includes

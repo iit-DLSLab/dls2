@@ -211,14 +211,14 @@ add_custom_command(
 install(FILES ${DLS_1_DEST}/dls.1.gz
 	DESTINATION /usr/man/man1
 	# usage documentation should be available to everyone
-	COMPONENT "dls_runtime"
+	COMPONENT dls_runtime
 )
 
 if(DLS_INSTALL_DEVELOPER_DOCUMENTATION)
 	install(FILES ${DLS_2_DEST}/dls.2.gz
 		DESTINATION /usr/man/man2
 		# development documentation should only be made available to devs
-		COMPONENT "dls_docs"
+		COMPONENT dls_docs
 	)
 endif()
 
@@ -319,6 +319,6 @@ if(DLS_INSTALL_DEVELOPER_DOCUMENTATION)
 	install(
 		DIRECTORY ${DOXYFILE_DEST}/html
 		DESTINATION ${DLS_INSTALL_DEVELOPMENT_DOCS_DIR}
-		COMPONENT "dls_docs"
+		COMPONENT dls_docs
 	)
 endif()

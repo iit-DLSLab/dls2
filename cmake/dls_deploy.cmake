@@ -1,49 +1,40 @@
 # ==============================================================================
-# Debian Packaging Settings
-# ==============================================================================
-include(InstallRequiredSystemLibraries)
-set(CPACK_GENERATOR "DEB")
-set(CPACK_PACKAGE_VENDOR "dlslab")
-set(CPACK_PACKAGE_CONTACT "dlslab")
-set(CPACK_DEBIAN_PACKAGE_MAINTAINER "dlslab")
-set(CPACK_DEBIAN_PACKAGE_NAME "dls")
-set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VESRION_MAJOR})
-set(CPACK_PACKAGE_VERSION_MINOR ${PROJECT_VESRION_MINOR})
-set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VESRION_PATCH})
-set(CPACK_DEB_COMPONENT_INSTALL ON)
-set(CPACK_CMAKE_GENERTOR Ninja) # make CPack not rebuild everything
-include(CPack)
-
-# ==============================================================================
 # Target Installation
 # ==============================================================================
 # ------------------------------------------------------------------------------
 # Componenets
 # ------------------------------------------------------------------------------
-cpack_add_component_group("dls_framework")
-cpack_add_component_group("dls_docs")
-cpack_add_component_group("dls_dev")
+function(register_component COMPONENT_NAME)
+	string(TOUPPER ${COMPONENT_NAME} COMPONENT_NAME_UPPER)
 
-cpack_add_component("dls_runtime"
-	DISPLAY_NAME "runtime"
-	# GROUP "dls_framework"
-	GROUP "dls_runtime"
-	DESCRIPTIONS "Binaries and executable scripts"
-)
+	# Assert that the component name starts with "dls_"
+	string(FIND ${COMPONENT_NAME} "dls_" DLS_SUBSTRING_INDEX)
+	if(NOT DLS_SUBSTRING_INDEX EQUAL 0)
+		message(FATAL_ERROR "COMPONENT_NAME '${COMPONENT_NAME}' must start with 'dls_'")
+	endif()
 
-cpack_add_component("dls_dev"
-	DISPLAY_NAME "development files"
-	# GROUP "dls_framework"
-	GROUP "dls_dev"
-	DESCRIPTIONS "Files for development of plugins"
-)
+	# Extract the name without the "dls_" prefix, convert it to upper case
+	string(SUBSTRING ${COMPONENT_NAME} 4 -1 COMPONENT_NAME_BARE)
 
-cpack_add_component("dls_docs"
-	DISPLAY_NAME "docs"
-	# GROUP "dls_framework"
-	GROUP "dls_docs"
-	DESCRIPTIONS "Development documentation"
-)
+	# Register the component -- requires CPack to already be included
+	# also, seems to not be necessary unless we want complex dependencies
+	# cpack_add_component(${COMPONENT_NAME}
+	# 	# DISPLAY_NAME ${COMPONENT_NAME_BARE}
+	# 	# DESCRIPTION  ${${prefix}_DESCRIPTION}
+	# 	# DEPENDS      ${${prefix}_DEPENDS}
+	# )
+
+	# Register the debian name for this component -- requries CPack to not be
+	# included yet
+	set(CPACK_DEBIAN_${COMPONENT_NAME_UPPER}_FILE_NAME
+		"dls2-${COMPONENT_NAME_BARE}-${PROJECT_VERSION}.deb"
+		PARENT_SCOPE
+	)
+endfunction()
+
+register_component(dls_dev)
+register_component(dls_docs)
+register_component(dls_runtime)
 
 # ------------------------------------------------------------------------------
 # Functions
@@ -53,14 +44,15 @@ function(dls_install INSTALL_TARGET)
 	install(TARGETS ${INSTALL_TARGET}
 		LIBRARY
 			DESTINATION lib/dls2
-			COMPONENT "dls_runtime"
+			COMPONENT dls_runtime
 		ARCHIVE
 			DESTINATION lib
-			COMPONENT "dls_runtime"
+			COMPONENT dls_runtime
 		RUNTIME
 			DESTINATION ${DLS_INSTALL_RUNTIME_DIR}
-			COMPONENT "dls_runtime"
+			COMPONENT dls_runtime
 	)
+	message("Installing target ${INSTALL_TARGET}")
 endfunction()
 
 # Target to install only for debug builds, not in release
@@ -69,14 +61,15 @@ function(dls_install_debug INSTALL_TARGET)
 		CONFIGURATIONS Debug
 		LIBRARY
 			DESTINATION lib/dls2
-			COMPONENT "dls_runtime"
+			COMPONENT dls_runtime
 		ARCHIVE
 			DESTINATION lib
-			COMPONENT "dls_runtime"
+			COMPONENT dls_runtime
 		RUNTIME
 			DESTINATION ${DLS_INSTALL_RUNTIME_DIR}
-			COMPONENT "dls_runtime"
+			COMPONENT dls_runtime
 	)
+	message("Installing target ${INSTALL_TARGET}")
 endfunction()
 
 # ------------------------------------------------------------------------------
@@ -89,7 +82,7 @@ install(
 	DESTINATION
 		include/dls2
 	COMPONENT
-		"dls_dev"
+		dls_dev
 	FILES_MATCHING
 		PATTERN "*.h"
 		PATTERN "*.hpp"

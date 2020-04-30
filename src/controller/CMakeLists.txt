@@ -17,7 +17,7 @@ target_link_libraries(dls_dummy_controller
 )
 # add_dependencies(dls_dummy_controller messagelib)
 # dls_install_debug(dls_dummy_controller)
-set(DLS_INSTALL_DUMMY_CONTROLLER ON
+set(DLS_INSTALL_DUMMY_CONTROLLER OFF
 	CACHE BOOL "whether to install the dummy controller"
 )
 if(DLS_INSTALL_DUMMY_CONTROLLER)
