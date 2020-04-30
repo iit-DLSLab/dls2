@@ -72,12 +72,10 @@ test_docs:
     - cd build
     - make install
     - cd ..
-    - cd doc/dls2_examples
-    - mkdir build
-    - cd build
+    - mkdir doc/dls2_examples/build
+    - cd doc/dls2_examples/build
     - cmake ..
     - make
-
 
 # ------------------------------------------------------------------------------
 # Deploy Stage
@@ -87,4 +85,8 @@ deploy_dls2:
   tags:
     - dls2
   script:
-    - echo "deployment still needs to be set up"
+    - cd build
+    - make package
+  artifacts:
+    paths:
+      - build/*.deb
