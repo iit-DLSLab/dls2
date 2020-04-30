@@ -20,7 +20,7 @@ stages:
 # ------------------------------------------------------------------------------
 # Print versions of installed programmes on the docker image. This is helpful
 # for a quick sanity check when things break
-display_versions:
+display:versions:
   stage: build
   tags:
     - dls2
@@ -28,7 +28,7 @@ display_versions:
     - cmake --version
 
 # Build the framework
-build_dls2:
+build:dls2:
   stage: build
   tags:
     - dls2
@@ -40,15 +40,16 @@ build_dls2:
     - make
   artifacts:
     untracked: true
+    expire_in: 3 hrs
 
 # ------------------------------------------------------------------------------
 # Test Stage
 # ------------------------------------------------------------------------------
 # Run the test cases that have been developed for the framework
-test_dls2:
+test:dls2:
   stage: test
   dependencies:
-    - build_dls2
+    - build:dls2
   tags:
     - dls2
   script:
@@ -62,10 +63,10 @@ test_dls2:
 # the framework is now out of date. In such cases you should either rever the
 # API changes, or fix the example projects to reflect the new API. That way
 # users will always have the latest documenatation on their machines,
-test_docs:
+test:docs:
   stage: test
   dependencies:
-    - build_dls2
+    - build:dls2
   tags:
     - dls2
   script:
@@ -80,7 +81,7 @@ test_docs:
 # ------------------------------------------------------------------------------
 # Deploy Stage
 # ------------------------------------------------------------------------------
-deploy_dls2:
+deploy:dls2:
   stage: deploy
   tags:
     - dls2
@@ -90,3 +91,6 @@ deploy_dls2:
   artifacts:
     paths:
       - build/*.deb
+    expire_in: 1 week
+  dependencies:
+    - build:dls2
