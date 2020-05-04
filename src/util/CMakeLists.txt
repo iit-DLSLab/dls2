@@ -24,6 +24,9 @@ add_library(dls_time
 )
 dls_install(dls_time)
 
+add_dependencies(dls_logging dls_dls2_messaging)
+add_dependencies(dls_time dls_dls2_messaging)
+
 # ==============================================================================
 # Tools
 # ==============================================================================

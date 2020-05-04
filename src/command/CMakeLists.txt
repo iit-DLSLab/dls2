@@ -11,3 +11,5 @@ target_link_libraries(dls_command
 	dls_${PROJECT_NAME}_messaging
 )
 dls_install(dls_command)
+
+add_dependencies(dls_command dls_dls2_messaging)

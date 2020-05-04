@@ -15,6 +15,8 @@ add_library(dls_dummy_controller SHARED
 target_link_libraries(dls_dummy_controller
 	doglib
 )
+
+add_dependencies(dls_controller_interface dls_dls2_messaging)
 # add_dependencies(dls_dummy_controller messagelib)
 # dls_install_debug(dls_dummy_controller)
 set(DLS_INSTALL_DUMMY_CONTROLLER OFF

@@ -69,6 +69,7 @@ target_link_libraries(dls_messaging
 	PUBLIC
 	dls_${PROJECT_NAME}_messaging
 )
+add_dependencies(dls_messaging dls_dls2_messaging)
 
 dls_install(dls_messaging)
 

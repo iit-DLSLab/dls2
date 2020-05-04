@@ -42,3 +42,5 @@ target_link_libraries(dls_framework
 		dls_command
 )
 dls_install(dls_framework)
+
+add_dependencies(dls_framework dls_dls2_messaging)

@@ -37,9 +37,11 @@ build:dls2:
     - mkdir build
     - cd build
     - cmake ..
-    - make
+    - make -j$(nproc)
   artifacts:
-    untracked: true
+    paths:
+      - build/*
+      - bin/*
     expire_in: 3 hrs
 
 # ------------------------------------------------------------------------------
@@ -54,8 +56,11 @@ test:dls2:
     - dls2
   script:
     - cd build
-    - make tests
+    - make -j$(nproc) tests
     - make test
+  only:
+    - master
+    - devel
 
 # Build the example projects. If these projects do not compile, then something
 # has changed in the API of the project. Since the documentation is built from
@@ -73,10 +78,13 @@ test:docs:
     - cd build
     - make install
     - cd ..
-    - mkdir doc/dls2_examples/build
+    - "[ -d doc/dls2_examples/build ] || mkdir doc/dls2_examples/build"
     - cd doc/dls2_examples/build
     - cmake ..
-    - make
+    - make -j$(nproc)
+  only:
+    - master
+    - devel
 
 # ------------------------------------------------------------------------------
 # Deploy Stage
@@ -88,9 +96,13 @@ deploy:dls2:
   script:
     - cd build
     - make package
+    - source /root/dls_gitlab_ci/make-json.bash $DLSUSER_TOKEN $CI_PROJECT_ID $CI_COMMIT_BRANCH $CI_JOB_ID > out.json
+    - 'curl -X post -H "Content-Type: application/json" -d @out.json http://server-ubuntu18:9000/hooks/deploy-apt'
   artifacts:
     paths:
       - build/*.deb
     expire_in: 1 week
   dependencies:
     - build:dls2
+  only:
+    - master
