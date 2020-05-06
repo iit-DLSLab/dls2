@@ -26,10 +26,6 @@ endif()
 # ==============================================================================
 function(dls_register_message_component_impl)
 	string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UPPER)
-	# cpack_add_component("dls2_${PROJECT_NAME}_messaging"
-	# 	DISPLAY_NAME "${PROJECT_NAME}_messaging"
-	# 	DESCRIPTIONS "Messaging libraries"
-	# )
 	set(CPACK_DEBIAN_DLS2_${PROJECT_NAME_UPPER}_MESSAGING_FILE_NAME
 		"dls2-${PROJECT_NAME}-messaging-${PROJECT_VERSION}.deb"
 		PARENT_SCOPE

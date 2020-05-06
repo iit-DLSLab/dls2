@@ -19,11 +19,6 @@ function(dls_install_controller controller)
 		LIBRARY DESTINATION @DLS_INSTALL_CONTROLLER_DIR@
 		COMPONENT "PLUGIN-${PROJECT_NAME}-${controller}"
 	)
-	cpack_add_component_group(${controller})
-	cpack_add_component(${controller}
-		DISPLAY_NAME "PLUGIN-${PROJECT_NAME}-${controller}"
-		GROUP "PLUGIN-${PROJECT_NAME}-${controller}"
-	)
 endfunction()
 
 function(dls_install_gait_generator generator)
@@ -32,11 +27,6 @@ function(dls_install_gait_generator generator)
 		LIBRARY DESTINATION @DLS_INSTALL_GAIT_GENERATOR_DIR@
 		COMPONENT "PLUGIN-${PROJECT_NAME}-${generator}"
 	)
-	cpack_add_component_group(${generator})
-	cpack_add_component(${generator}
-		DISPLAY_NAME "PLUGIN-${PROJECT_NAME}-${generator}"
-		GROUP "PLUGIN-${PROJECT_NAME}-${controller}"
-	)
 endfunction()
 
 function(dls_install_estimator estimator)
@@ -44,10 +34,5 @@ function(dls_install_estimator estimator)
 	install(TARGETS ${estimator}
 		LIBRARY DESTINATION @DLS_INSTALL_GAIT_GENERATOR_DIR@
 		COMPONENT "PLUGIN-${PROJECT_NAME}-${estimator}"
-	)
-	cpack_add_component_group(${estimator})
-	cpack_add_component(${estimator}
-		DISPLAY_NAME "PLUGIN-${PROJECT_NAME}-${estimator}"
-		GROUP "PLUGIN-${PROJECT_NAME}-${controller}"
 	)
 endfunction()
