@@ -148,6 +148,11 @@ file(READ
 dls_configure_atonly(include/message_generation.md.in MESSAGE_GENERATION_MD_FILE)
 file(READ ${MESSAGE_GENERATION_MD_FILE} MESSAGE_GENERATION_MD)
 
+# ------------------------------------------------------------------------------
+# Packaging
+# ------------------------------------------------------------------------------
+file(READ include/packaging.md PACKAGING_MD)
+
 # ==============================================================================
 # Man Pages
 # ==============================================================================

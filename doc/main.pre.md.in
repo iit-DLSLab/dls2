@@ -7,6 +7,7 @@
 	* [Generating a New Message Type](#msggen)
 	* [Building a new controller](#building-a-new-controller)
 	* [Building a new generator](#building-a-new-generator)
+	* [Packaging](#packaging)
 
 <a name="introduction"></a>
 # Introduction
@@ -81,3 +82,8 @@ documentation of a component.
 ## Building a new generator
 
 @GAIT_GENERATOR_MD@
+
+<a name="packaging"></a>
+## Packaging
+
+@PACKAGING_MD@
