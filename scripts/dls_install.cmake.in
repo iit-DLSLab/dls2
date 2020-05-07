@@ -19,6 +19,11 @@ function(dls_install_controller controller)
 		LIBRARY DESTINATION @DLS_INSTALL_CONTROLLER_DIR@
 		COMPONENT "PLUGIN-${PROJECT_NAME}-${controller}"
 	)
+	set(
+		${controller}_COMPONENT_NAME
+		"PLUGIN-${PROJECT_NAME}-${controller}"
+		PARENT_SCOPE
+	)
 endfunction()
 
 function(dls_install_gait_generator generator)
@@ -27,6 +32,11 @@ function(dls_install_gait_generator generator)
 		LIBRARY DESTINATION @DLS_INSTALL_GAIT_GENERATOR_DIR@
 		COMPONENT "PLUGIN-${PROJECT_NAME}-${generator}"
 	)
+	set(
+		${generator}_COMPONENT_NAME
+		"PLUGIN-${PROJECT_NAME}-${generator}"
+		PARENT_SCOPE
+	)
 endfunction()
 
 function(dls_install_estimator estimator)
@@ -34,5 +44,10 @@ function(dls_install_estimator estimator)
 	install(TARGETS ${estimator}
 		LIBRARY DESTINATION @DLS_INSTALL_GAIT_GENERATOR_DIR@
 		COMPONENT "PLUGIN-${PROJECT_NAME}-${estimator}"
+	)
+	set(
+		${estimator}_COMPONENT_NAME
+		"PLUGIN-${PROJECT_NAME}-${estimator}"
+		PARENT_SCOPE
 	)
 endfunction()
