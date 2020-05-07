@@ -111,7 +111,7 @@ deploy:dls2:
     - mv catkin_ws/packaging/dls2_ws.deb build/dls2_ws.deb
 
     # sync to server
-    - source /root/dls_gitlab_ci/make-json.bash $DLSUSER_TOKEN $CI_PROJECT_ID $CI_COMMIT_BRANCH $CI_JOB_ID > out.json
+    - source /root/dls_gitlab_ci/make-json.bash token=$DLSUSER_TOKEN project=$CI_PROJECT_ID branch=$CI_COMMIT_BRANCH job=$CI_JOB_ID tag=latest > out.json
     - 'curl -X post -H "Content-Type: application/json" -d @out.json http://server-ubuntu18:9000/hooks/deploy-apt'
   artifacts:
     paths:
