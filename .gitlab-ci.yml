@@ -80,8 +80,8 @@ test:docs:
     - cd ..
     - "[ -d doc/dls2_examples/build ] || mkdir doc/dls2_examples/build"
     - cd doc/dls2_examples/build
-#    - cmake ..
-#    - make -j$(nproc)
+    - cmake ..
+    - make -j$(nproc)
   only:
     - master
     - devel
