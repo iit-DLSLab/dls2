@@ -1,9 +1,3 @@
-# Keep list of all elements built by this project. These will be needed when
-# creating the debians
-set(DLS_LIST_OF_GAIT_GENERATORS "")
-set(DLS_LIST_OF_CONTROLLERS     "")
-set(DLS_LIST_OF_ESTIMATORS      "")
-
 set(DLS_MESSAGE_HEADER_DESTINATION dls2/msg/${PROJECT_NAME})
 @DLS_MESSAGE_CMAKE@
 list(APPEND CMAKE_LIBRARY_PATH @DLS_INSTALL_MESSAGES_DIR@)
@@ -18,47 +12,80 @@ function(dls_enforce_shared_lib target)
 	endif()
 endfunction()
 
-# TODO make these install scripts more DRY
-macro(dls_install_controller controller)
-	dls_enforce_shared_lib(${controller})
-	install(TARGETS ${controller}
-		LIBRARY DESTINATION @DLS_INSTALL_CONTROLLER_DIR@
-		COMPONENT "PLUGIN-${PROJECT_NAME}-${controller}"
-	)
-	set(
-		${controller}_COMPONENT_NAME
-		"PLUGIN-${PROJECT_NAME}-${controller}"
-	)
-	list(APPEND DLS_LIST_OF_CONTROLLERS ${controller})
-endmacro()
+function(dls_install_plugin plugin)
 
-macro(dls_install_gait_generator generator)
-	dls_enforce_shared_lib(${generator})
-	install(TARGETS ${generator}
-		LIBRARY DESTINATION @DLS_INSTALL_GAIT_GENERATOR_DIR@
-		COMPONENT "PLUGIN-${PROJECT_NAME}-${generator}"
-	)
-	set(
-		${generator}_COMPONENT_NAME
-		"PLUGIN-${PROJECT_NAME}-${generator}"
+	# Parse input
+	include(CMakeParseArguments)
+	set(prefix       ARG)
+	set(noValues     "")
+	set(singleValues TYPE DISPLAY_NAME)
+	set(multiValues  "")
+	cmake_parse_arguments(
+		${prefix}
+		"${noValues}"
+		"${singleValues}"
+		"${multiValues}"
+		${ARGN}
 	)
 
-	list(APPEND DLS_LIST_OF_GAIT_GENERATORS ${generator})
-endmacro()
+	# Install locations for each plugin type
+	set(known_types            gaitgen controller estimator)
+	set(controller_install_dir @DLS_INSTALL_CONTROLLER_DIR@)
+	set(estimator_install_dir  @DLS_INSTALL_ESTIMATOR_DIR@)
+	set(gaitgen_install_dir    @DLS_INSTALL_GAIT_GENERATOR_DIR@)
 
-macro(dls_install_estimator estimator)
-	dls_enforce_shared_lib(${estimator})
-	install(TARGETS ${estimator}
-		LIBRARY DESTINATION @DLS_INSTALL_GAIT_GENERATOR_DIR@
-		COMPONENT "PLUGIN-${PROJECT_NAME}-${estimator}"
-	)
-	set(
-		${estimator}_COMPONENT_NAME
-		"PLUGIN-${PROJECT_NAME}-${estimator}"
+	# Input sanitation
+	if(NOT ${prefix}_TYPE)
+		message(FATAL_ERROR "Error: TYPE was not specified")
+	endif()
+	list(FIND known_types ${${prefix}_TYPE} type_index)
+	if(${type_index} EQUAL -1)
+		message(FATAL_ERROR "Error: TYPE must be one of '${known_types}'")
+	endif()
+	if(NOT ${prefix}_DISPLAY_NAME)
+		set(${prefix}_DISPLAY_NAME ${plugin})
+	endif()
+
+	# Install the plugin
+	dls_enforce_shared_lib(${plugin})
+	set(component_name "dls-plugin-${plugin}")
+	install(
+		TARGETS             ${plugin}
+		LIBRARY DESTINATION ${${${prefix}_TYPE}_install_dir}
+		COMPONENT           ${component_name}
 	)
 
-	list(APPEND DLS_LIST_OF_ESTIMATORS ${estimator})
-endmacro()
+	# Register the type of the plugin
+	set_property(
+		TARGET   ${plugin}
+		PROPERTY "DLS_TARGET_TYPE" ${${prefix}_TYPE}
+	)
+
+	# Register under which component this plugin is installed
+	set_property(
+		TARGET   ${plugin}
+		PROPERTY "DLS_TARGET_COMPONENT_NAME" ${component_name}
+	)
+
+	# Register the display name to use when packaging this plugin
+	set_property(
+		TARGET   ${plugin}
+		PROPERTY "DLS_TARGET_DISPLAY_NAME" ${${prefix}_DISPLAY_NAME}
+	)
+
+	# Keep track of all the plugins that are installed by this project
+	get_property(
+		list_of_plugins
+		GLOBAL
+		PROPERTY "DLS_LIST_OF_PLUGINS"
+	)
+	list(APPEND list_of_plugins ${plugin})
+	set_property(
+		GLOBAL
+		PROPERTY "DLS_LIST_OF_PLUGINS" ${list_of_plugins}
+	)
+
+endfunction()
 
 function(dls_deploy_package)
 
@@ -101,14 +128,36 @@ function(dls_deploy_package)
 
 	# generate the file name and package name for everything developed in this
 	# project
-	foreach(element IN LISTS
-		DLS_LIST_OF_GAIT_GENERATORS
-		DLS_LIST_OF_CONTROLLERS
-		DLS_LIST_OF_ESTIMATORS
+	get_property(
+		list_of_plugins
+		GLOBAL
+		PROPERTY "DLS_LIST_OF_PLUGINS"
 	)
-		string(TOUPPER ${${element}_COMPONENT_NAME} CUR_ELEMENT_COMPONENT_NAME)
-		set(CPACK_DEBIAN_${CUR_ELEMENT_COMPONENT_NAME}_PACKAGE_NAME "dls2_${element}")
-		set(CPACK_DEBIAN_${CUR_ELEMENT_COMPONENT_NAME}_FILE_NAME    "dls2_${element}-${PROJECT_VERSION}.deb")
+	foreach(plugin IN LISTS list_of_plugins)
+		get_property(dls_target_type
+			TARGET   ${plugin}
+			PROPERTY "DLS_TARGET_TYPE"
+		)
+		get_property(plugin_component_name
+			TARGET ${plugin}
+			PROPERTY "DLS_TARGET_COMPONENT_NAME"
+		)
+
+		get_property(plugin_display_name
+			TARGET ${plugin}
+			PROPERTY "DLS_TARGET_DISPLAY_NAME"
+		)
+
+		string(TOUPPER ${plugin_component_name} plugin_component_name_upper)
+
+		set(
+			CPACK_DEBIAN_${plugin_component_name_upper}_PACKAGE_NAME
+			"dls2-${dls_target_type}-${plugin_display_name}"
+		)
+		set(
+			CPACK_DEBIAN_${plugin_component_name_upper}_FILE_NAME
+			"dls2-${dls_target_type}-${plugin_display_name}-${PROJECT_VERSION}.deb"
+		)
 	endforeach()
 
 	get_cmake_property(CPACK_COMPONENTS_ALL COMPONENTS)
