@@ -103,7 +103,7 @@ deploy:dls2:
     - cd catkin_ws
     - catkin_make install
     - mkdir --parents packaging/dls2_ws/opt/dls2/dls2_ws
-    - cp -r install/* packaging/dls2_ws/opt/dls2/dls2_ws
+    - cp -r install packaging/dls2_ws/opt/dls2/dls2_ws
     - cd packaging
     - chmod -R 755 dls2_ws
     - dpkg-deb --build dls2_ws
