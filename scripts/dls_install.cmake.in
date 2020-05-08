@@ -1,3 +1,9 @@
+# Keep list of all elements built by this project. These will be needed when
+# creating the debians
+set(DLS_LIST_OF_GAIT_GENERATORS "")
+set(DLS_LIST_OF_CONTROLLERS     "")
+set(DLS_LIST_OF_ESTIMATORS      "")
+
 set(DLS_MESSAGE_HEADER_DESTINATION dls2/msg/${PROJECT_NAME})
 @DLS_MESSAGE_CMAKE@
 list(APPEND CMAKE_LIBRARY_PATH @DLS_INSTALL_MESSAGES_DIR@)
@@ -13,7 +19,7 @@ function(dls_enforce_shared_lib target)
 endfunction()
 
 # TODO make these install scripts more DRY
-function(dls_install_controller controller)
+macro(dls_install_controller controller)
 	dls_enforce_shared_lib(${controller})
 	install(TARGETS ${controller}
 		LIBRARY DESTINATION @DLS_INSTALL_CONTROLLER_DIR@
@@ -22,11 +28,11 @@ function(dls_install_controller controller)
 	set(
 		${controller}_COMPONENT_NAME
 		"PLUGIN-${PROJECT_NAME}-${controller}"
-		PARENT_SCOPE
 	)
-endfunction()
+	list(APPEND DLS_LIST_OF_CONTROLLERS ${controller})
+endmacro()
 
-function(dls_install_gait_generator generator)
+macro(dls_install_gait_generator generator)
 	dls_enforce_shared_lib(${generator})
 	install(TARGETS ${generator}
 		LIBRARY DESTINATION @DLS_INSTALL_GAIT_GENERATOR_DIR@
@@ -35,11 +41,12 @@ function(dls_install_gait_generator generator)
 	set(
 		${generator}_COMPONENT_NAME
 		"PLUGIN-${PROJECT_NAME}-${generator}"
-		PARENT_SCOPE
 	)
-endfunction()
 
-function(dls_install_estimator estimator)
+	list(APPEND DLS_LIST_OF_GAIT_GENERATORS ${generator})
+endmacro()
+
+macro(dls_install_estimator estimator)
 	dls_enforce_shared_lib(${estimator})
 	install(TARGETS ${estimator}
 		LIBRARY DESTINATION @DLS_INSTALL_GAIT_GENERATOR_DIR@
@@ -48,6 +55,63 @@ function(dls_install_estimator estimator)
 	set(
 		${estimator}_COMPONENT_NAME
 		"PLUGIN-${PROJECT_NAME}-${estimator}"
-		PARENT_SCOPE
 	)
+
+	list(APPEND DLS_LIST_OF_ESTIMATORS ${estimator})
+endmacro()
+
+function(dls_deploy_package)
+
+	# Parse arguments
+	include(CMakeParseArguments)
+	set(prefix       ARG)
+	set(noValues     "")
+	set(singleValues MAINTAINER MAINTAINER_CONTACT VENDOR)
+	set(multiValues  "")
+	cmake_parse_arguments(
+		${prefix}
+		"${noValues}"
+		"${singleValues}"
+		"${multiValues}"
+		${ARGN}
+	)
+
+	# Sanitise input
+	if(NOT ${prefix}_MAINTAINER)
+		message(FATAL_ERROR "Error: 'MAINTAINER' not specified")
+	endif()
+	if(NOT ${prefix}_MAINTAINER_CONTACT)
+		message(FATAL_ERROR "Error: 'MAINTAINER_CONTACT' not specified")
+	endif()
+	if(NOT ${prefix}_VENDOR)
+		set(${prefix}_VENDOR "dlslab")
+	endif()
+
+	# set CPack variables
+	set(CPACK_PACKAGE_NAME              ${PROJECT_NAME})
+	set(CPACK_PACKAGE_VERSION_MAJOR     ${PROJECT_VERSION_MAJOR})
+	set(CPACK_PACKAGE_VERSION_MINOR     ${PROJECT_VERSION_MINOR})
+	set(CPACK_PACKAGE_VERSION_PATCH     ${PROJECT_VERSION_PATCH})
+	set(CPACK_PACKAGE_VENDOR            ${${prefix}_VENDOR})
+	set(CPACK_PACKAGE_CONTACT           ${${prefix}_MAINTAINER_CONTACT})
+	set(CPACK_VERBATIM_VARIABLES        ON)
+	set(CPACK_GENERATOR                 "DEB")
+	set(CPACK_DEBIAN_PACKAGE_MAINTAINER ${${prefix}_MAINTAINER})
+	set(CPACK_DEB_COMPONENT_INSTALL     ON)
+
+	# generate the file name and package name for everything developed in this
+	# project
+	foreach(element IN LISTS
+		DLS_LIST_OF_GAIT_GENERATORS
+		DLS_LIST_OF_CONTROLLERS
+		DLS_LIST_OF_ESTIMATORS
+	)
+		string(TOUPPER ${${element}_COMPONENT_NAME} CUR_ELEMENT_COMPONENT_NAME)
+		set(CPACK_DEBIAN_${CUR_ELEMENT_COMPONENT_NAME}_PACKAGE_NAME "dls2_${element}")
+		set(CPACK_DEBIAN_${CUR_ELEMENT_COMPONENT_NAME}_FILE_NAME    "dls2_${element}-${PROJECT_VERSION}.deb")
+	endforeach()
+
+	get_cmake_property(CPACK_COMPONENTS_ALL COMPONENTS)
+	list(REMOVE_ITEM CPACK_COMPONENTS_ALL "Unspecified")
+	include(CPack)
 endfunction()
