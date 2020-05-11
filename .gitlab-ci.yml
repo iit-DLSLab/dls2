@@ -105,7 +105,7 @@ deploy:dls2:
     - rm -rf packaging/dls2_ws/opt
     - mkdir --parents packaging/dls2_ws/opt/dls2
     - cp -r install packaging/dls2_ws/opt/dls2/
-    - mv packaging/dls2_ws/opt/dls2/install packaging/dls2_ws/opt/dls2/dls2_ws 
+    - mv packaging/dls2_ws/opt/dls2/install packaging/dls2_ws/opt/dls2/dls2_ws
     - cd packaging
     - chmod -R 755 dls2_ws
     - dpkg-deb --build dls2_ws

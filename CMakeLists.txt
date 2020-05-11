@@ -1,7 +1,57 @@
 cmake_minimum_required(VERSION 3.5.1)
-project(dls2 VERSION 0.0.0)
+project(dls2)
 enable_testing()
 
+# ==============================================================================
+# Calculate correct project version number
+# ==============================================================================
+# Read in the current version
+file(READ version.txt PROJECT_VERSION)
+
+# create array of version strings
+string(REPLACE "." ";" VERSION_ARRAY ${PROJECT_VERSION})
+# ------------------------------------------------------------------------------
+# Major, Minor, Patch numbers
+# ------------------------------------------------------------------------------
+# set corresponding cmake version variables
+list(POP_FRONT VERSION_ARRAY
+	PROJECT_VERSION_MAJOR
+	PROJECT_VERSION_MINOR
+	PROJECT_VERSION_PATCH
+)
+# Remove the trailing newline from the patch number
+string(REPLACE "\n" "" PROJECT_VERSION_PATCH ${PROJECT_VERSION_PATCH})
+# ------------------------------------------------------------------------------
+# Tweak number
+# ------------------------------------------------------------------------------
+# This number is generated from the current commit hash
+execute_process(
+	COMMAND         git rev-parse HEAD
+	OUTPUT_VARIABLE PROJECT_VERSION_TWEAK
+)
+# Remove the trailing newline from the tweak number
+string(REPLACE "\n" "" PROJECT_VERSION_TWEAK ${PROJECT_VERSION_TWEAK})
+
+# ------------------------------------------------------------------------------
+# Full version number
+# ------------------------------------------------------------------------------
+# Rebuild the project version including the current commit hash
+string(JOIN "." PROJECT_VERSION
+	${PROJECT_VERSION_MAJOR}
+	${PROJECT_VERSION_MINOR}
+	${PROJECT_VERSION_PATCH}
+	${PROJECT_VERSION_TWEAK}
+)
+unset(VERSION_ARRAY) # delete aray of version strings
+message(STATUS "PROJECT_VERSION ${PROJECT_VERSION}")
+message(STATUS "PROJECT_VERSION_MAJOR ${PROJECT_VERSION_MAJOR}")
+message(STATUS "PROJECT_VERSION_MINOR ${PROJECT_VERSION_MINOR}")
+message(STATUS "PROJECT_VERSION_PATCH ${PROJECT_VERSION_PATCH}")
+message(STATUS "PROJECT_VERSION_TWEAK ${PROJECT_VERSION_TWEAK}")
+
+# ==============================================================================
+# Project-Wide Settings
+# ==============================================================================
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 message(STATUS "Build type is ${CMAKE_BUILD_TYPE}")

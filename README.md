@@ -26,6 +26,10 @@ Building
 Development
 --------------------------------------------------------------------------------
 
+First, setup the git hooks:
+
+	$ ./setup.sh
+
 Build the debug project using:
 
 	$ mkdir Debug

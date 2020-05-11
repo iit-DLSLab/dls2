@@ -32,27 +32,17 @@ endfunction()
 
 # Calls configure_file, and automatically puts the file in the correct location
 function(dls_configure INFILE OUTNAME)
-	message("CONFIGURE1 ${INFILE}")
 	dls_configure_name(${INFILE} CONFIGURE_NAME)
-	message("CONFIGURe2")
 	dls_configure_destination(${INFILE} CONFIGURE_DESTINATION)
-	message("CONFIGURE3")
 	configure_file(${INFILE} ${CONFIGURE_DESTINATION}/${CONFIGURE_NAME})
-	message("cOnFigure4")
 	set(${OUTNAME} ${CONFIGURE_DESTINATION}/${CONFIGURE_NAME} PARENT_SCOPE)
-	message("ConfigureEND ${INFILE} ${CONFIGURE_DESTINATION}/${CONFIGURE_NAME}")
 endfunction()
 
 # Calls configure_file with @ONLY, and automatically puts the file in the
 # correct location
 function(dls_configure_atonly INFILE OUTNAME)
-	message("CONFIGUATONLY1 ${INFILE}")
 	dls_configure_name(${INFILE} CONFIGURE_NAME)
-	message("CONFIGUATONLY2")
 	dls_configure_destination(${INFILE} CONFIGURE_DESTINATION)
-	message("CONFIGUATONLY3")
 	configure_file(${INFILE} ${CONFIGURE_DESTINATION}/${CONFIGURE_NAME} @ONLY)
-	message("CONFIGUATONLY4")
 	set(${OUTNAME} ${CONFIGURE_DESTINATION}/${CONFIGURE_NAME} PARENT_SCOPE)
-	message("CONFIGUATONLY END ${INFILE} ${CONFIGURE_DESTINATION}/${CONFIGURE_NAME}")
 endfunction()
