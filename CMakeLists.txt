@@ -1,6 +1,15 @@
 cmake_minimum_required(VERSION 3.5.1)
 project(dls2)
 enable_testing()
+# ==============================================================================
+# Setup the repository
+# ==============================================================================
+# This will perfom task such as setting up the git hooks for anyone who uses
+# this project
+execute_process(
+	COMMAND           ./setup.sh
+	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
 # ==============================================================================
 # Calculate correct project version number

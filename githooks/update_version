@@ -8,7 +8,6 @@ if [ "$git_branch" = "master" ]; then
 	# Project Root
 	# ==========================================================================
 	project_root=$(git rev-parse --show-toplevel)
-	echo "project_root $project_root"
 
 	# ==========================================================================
 	# Get the current version
