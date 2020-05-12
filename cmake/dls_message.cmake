@@ -25,11 +25,26 @@ endif()
 # Configure message installation groups
 # ==============================================================================
 function(dls_register_message_component_impl)
-	string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UPPER)
-	set(CPACK_DEBIAN_DLS2_${PROJECT_NAME_UPPER}_MESSAGING_FILE_NAME
-		"dls2-${PROJECT_NAME}-messaging-${PROJECT_VERSION}.deb"
-		PARENT_SCOPE
-	)
+	if(NOT ${PROJECT_NAME} STREQUAL "dls2")
+		string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UPPER)
+		set(CPACK_DEBIAN_DLS2_${PROJECT_NAME_UPPER}_MESSAGING_FILE_NAME
+			"dls2-${PROJECT_NAME}-messaging-${PROJECT_VERSION}.deb"
+			PARENT_SCOPE
+		)
+		set(CPACK_DEBIAN_${PROJECT_NAME_UPPER}_MESSAGING_PACKAGE_NAME
+			"dls2-${PROJECT_NAME}-messaging.deb"
+			PARENT_SCOPE
+		)
+	else()
+		set(CPACK_DEBIAN_DLS2_DLS2_MESSAGING_FILE_NAME
+			"dls2-messaging-${PROJECT_VERSION}.deb"
+			PARENT_SCOPE
+		)
+		set(CPACK_DEBIAN_DLS2_DLS2_MESSAGING_PACKAGE_NAME
+			"dls2-messaging.deb"
+			PARENT_SCOPE
+		)
+	endif()
 endfunction()
 dls_register_message_component_impl()
 
