@@ -46,6 +46,10 @@ A convenience run target is available:
 
 	$ make run
 
+There is also a target to attach a debugger:
+
+	$ make debug
+
 Release
 --------------------------------------------------------------------------------
 

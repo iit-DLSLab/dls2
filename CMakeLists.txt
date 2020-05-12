@@ -87,6 +87,7 @@ add_compile_options(
 	-Wextra
 	-pedantic
 	# -Weffc++
+	-g
 
 	# Elevate warnings to errors
 	-Werror

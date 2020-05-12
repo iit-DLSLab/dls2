@@ -222,20 +222,6 @@ int main(int argc, char **argv)
 				}
 			)
 		);
-
-		command_manager.addCommand<void, ARGVOID>
-		(
-			"HyQApp_server",
-			"void",
-			"voids",
-			std::function<void(ARGVOID)>
-			(
-				[&](ARGVOID)
-				{
-					std::cout << "voided" << std::endl;
-				}
-			)
-		);
 	}
 
 	if(Options::simulation_mode && Options::is_core)

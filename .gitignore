@@ -17,3 +17,4 @@ build-release
 install
 catkin_ws/packaging/dls2_ws/DEBIAN/control
 .setup.lock
+catkin_ws/packaging/dls2_ws.deb

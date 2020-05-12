@@ -39,6 +39,16 @@ add_executable(dynamic_legged_systems_framework
 dls_install(dynamic_legged_systems_framework)
 
 # ==============================================================================
+# Debugger
+# ==============================================================================
+add_custom_target(debug
+	COMMAND           gdb ${EXECUTABLE_OUTPUT_PATH}/dynamic_legged_systems_framework
+	DEPENDS           dynamic_legged_systems_framework
+	WORKING_DIRECTORY ${EXECUTABLE_OUTPUT_PATH}
+	COMMENT           "Launching debugger"
+)
+
+# ==============================================================================
 # Header Export
 # ==============================================================================
 set(EXPORT_HEADERS "")
