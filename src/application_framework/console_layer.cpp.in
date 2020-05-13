@@ -145,6 +145,38 @@ ConsoleLayer::ConsoleLayer() :
 			}
 		}
 	);
+
+	command_manager.addCommand<void, ARGVOID>
+	(
+		"console_layer",
+		"whereAll",
+		"prints the status of each active component",
+		std::function<void(ARGVOID)>
+		{
+			[&](ARGVOID)
+			{
+				auto where_commands =
+					this->remote_command_manager.findByName("where");
+				for(const auto &where_command : where_commands)
+				{
+					if(where_command->owner != "console_layer")
+					{
+						std::cout << where_command->owner << std::endl;
+						std::cout << "============================" << std::endl;
+						where_command->call();
+						std::cout << "\n" << std::endl;
+						// TODO this is not the most elegant solution. A better
+						// way would be for "where" of each component to return
+						// a string directly here. This has not been implemented
+						// since at the time of that writing the functionality
+						// of this function was not yet required. At some point
+						// that will have to be refactored too.
+						std::this_thread::sleep_for(std::chrono::seconds(1));
+					}
+				}
+			}
+		}
+	);
 }
 
 // =============================================================================
