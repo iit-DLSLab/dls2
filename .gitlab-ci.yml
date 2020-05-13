@@ -42,6 +42,9 @@ build:dls2:
     paths:
       - build/*
       - bin/*
+      - catkin_ws/build/*
+      - catkin_ws/devel/*
+      - catkin_ws/install/*
     expire_in: 3 hrs
 
 # ------------------------------------------------------------------------------
