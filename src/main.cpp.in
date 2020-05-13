@@ -340,7 +340,11 @@ void forkLayer(const std::string &process_name, char **argv)
 		signal
 		(
 			SIGTERM,
-			[&](int){pApp->stop();}
+			[&](int)
+			{
+				pApp->stop();
+				exit(EXIT_SUCCESS);
+			}
 		);
 		signal
 		(
