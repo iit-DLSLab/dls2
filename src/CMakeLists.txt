@@ -96,9 +96,9 @@ add_library(dls_reflex
 # START
 set(CATKIN_WORKSPACE ${PROJECT_SOURCE_DIR}/catkin_ws)
 add_custom_target(dls2_to_roscontrol
-	COMMAND catkin_make -j1
+	COMMAND           catkin_make -j1 install
 	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/catkin_ws
-	COMMENT "Building dls2_to_roscontrol subproject"
+	COMMENT           "Building dls2_to_roscontrol subproject"
 )
 install(
 	DIRECTORY              ${CATKIN_WORKSPACE}/install
