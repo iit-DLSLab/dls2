@@ -100,6 +100,20 @@ add_custom_target(dls2_to_roscontrol
 	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/catkin_ws
 	COMMENT "Building dls2_to_roscontrol subproject"
 )
+install(
+	DIRECTORY              ${CATKIN_WORKSPACE}/install
+	DESTINATION            ${DLS_CATKIN_WORKSPACE_DIR}
+	COMPONENT              dls_ws
+	USE_SOURCE_PERMISSIONS
+)
+set(CPACK_DEBIAN_DLS_WS_FILE_NAME
+	"dls2-workspace-${PROJECT_VERSION}.deb"
+	PARENT_SCOPE
+)
+set(CPACK_DEBIAN_DLS_WS_PACKAGE_NAME
+	"dls2-workspace"
+	PARENT_SCOPE
+)
 # END
 
 set_property(
@@ -108,6 +122,7 @@ set_property(
 	PROPERTY ADDITIONAL_MAKE_CLEAN_FILES
 		${CATKIN_WORKSPACE}/build
 		${CATKIN_WORKSPACE}/devel
+		${CATKIN_WORKSPACE}/install
 )
 add_dependencies(dls2_to_roscontrol dls_framework dls_messaging)
 

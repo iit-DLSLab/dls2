@@ -1,7 +1,0 @@
-Package:      dls2-ws
-Version:      @PROJECT_VERSION@
-Section:      base
-Priority:     optional
-Architecture: all
-Maintainer:   dls_lab
-Description:  catkin_ws of dls2

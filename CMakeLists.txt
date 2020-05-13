@@ -109,13 +109,6 @@ add_subdirectory(doc)
 # ==============================================================================
 # Debian Packaging Settings
 # ==============================================================================
-# The dls_ws is packaged manually, since it is a catkin_ws, configure it here.
-configure_file(
-	${CMAKE_CURRENT_SOURCE_DIR}/catkin_ws/packaging/dls2_ws/DEBIAN/control.in
-	${CMAKE_CURRENT_SOURCE_DIR}/catkin_ws/packaging/dls2_ws/DEBIAN/control
-	@ONLY
-)
-
 #include(InstallRequiredSystemLibraries)
 # General package settings
 set(CPACK_PACKAGE_NAME          "dls2")
