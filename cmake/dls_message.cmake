@@ -41,7 +41,7 @@ function(dls_register_message_component_impl)
 			PARENT_SCOPE
 		)
 		set(CPACK_DEBIAN_DLS2_DLS2_MESSAGING_PACKAGE_NAME
-			"dls2-messaging.deb"
+			"dls2-messaging"
 			PARENT_SCOPE
 		)
 	endif()

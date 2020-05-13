@@ -13,21 +13,18 @@ function(register_component COMPONENT_NAME)
 		message(FATAL_ERROR "COMPONENT_NAME '${COMPONENT_NAME}' must start with 'dls_'")
 	endif()
 
-	# Extract the name without the "dls_" prefix, convert it to upper case
+	# Extract the name without the "dls_" prefix
 	string(SUBSTRING ${COMPONENT_NAME} 4 -1 COMPONENT_NAME_BARE)
 
-	# Register the component -- requires CPack to already be included
-	# also, seems to not be necessary unless we want complex dependencies
-	# cpack_add_component(${COMPONENT_NAME}
-	# 	# DISPLAY_NAME ${COMPONENT_NAME_BARE}
-	# 	# DESCRIPTION  ${${prefix}_DESCRIPTION}
-	# 	# DEPENDS      ${${prefix}_DEPENDS}
-	# )
 
 	# Register the debian name for this component -- requries CPack to not be
 	# included yet
 	set(CPACK_DEBIAN_${COMPONENT_NAME_UPPER}_FILE_NAME
 		"dls2-${COMPONENT_NAME_BARE}-${PROJECT_VERSION}.deb"
+		PARENT_SCOPE
+	)
+	set(CPACK_DEBIAN_${COMPONENT_NAME_UPPER}_PACKAGE_NAME
+		"dls2-${COMPONENT_NAME_BARE}"
 		PARENT_SCOPE
 	)
 endfunction()
