@@ -6,6 +6,7 @@
 #include "dls2/topics/joint_states.hpp"
 #include "dls2/controller/control_signal.hpp"
 
+
 // TODO remove all ROS_ERROR for new logging
 
 #include "dls2/topics/desired_torques.hpp"
@@ -14,10 +15,15 @@ namespace dls2_to_roscontrol {
 
 Dls2ToRoscontrol::Dls2ToRoscontrol() :
 	joint_state_pub_(dls::topics::joint_states)
-{ }
+{
+	joint_state_msg.position().resize(12);
+	joint_state_msg.velocity().resize(12);
+	joint_state_msg.effort().resize(12);
+}
 
 bool Dls2ToRoscontrol::init(hardware_interface::EffortJointInterface *pEffort_joint_interface, ros::NodeHandle &root_nh, ros::NodeHandle &controller_nh)
 {
+
 	if (!pEffort_joint_interface)
 	{
 		ROS_ERROR("EffortJointInterface is a null pointer");
@@ -38,17 +44,14 @@ bool Dls2ToRoscontrol::init(hardware_interface::EffortJointInterface *pEffort_jo
 		}
 
 	}
+
 	return true;
 }
 
 void Dls2ToRoscontrol::update(const ros::Time &time, const ros::Duration &period)
 {
-	//READ
-	JointStateMsg joint_state_msg;
-	joint_state_msg.position().resize(12);
-	joint_state_msg.velocity().resize(12);
-	joint_state_msg.effort().resize(12);
 
+	//READ
 	for(size_t i = 0; i != 12; ++i)
 	{
 		joint_state_msg.position().push_back(joint_commands_[i].getPosition());
@@ -59,13 +62,13 @@ void Dls2ToRoscontrol::update(const ros::Time &time, const ros::Duration &period
 
 
 	//WRITE
-	if(auto pMsg = this->control_signal_listener.getSignal())
+	/*if(auto pMsg = this->control_signal_listener.getSignal())
 	{
 		// dls::ControlSignal s; // *pMsg
 		// message received from framework
 		// for (auto jc : joint_commands_)
 		//std::vector<double> vec = pMsg->desired_torques();
-		
+
 		// if (pMsg->desired_torques().size()!=12)
 		// {
 		// 	std::cout << "Desired torque vector size error (" << pMsg->desired_torques().size() << ").  Writing 0 torque" << std::endl;
@@ -85,7 +88,7 @@ void Dls2ToRoscontrol::update(const ros::Time &time, const ros::Duration &period
 			}
 		}
 	}
-	else
+	else*/
 	{
 		std::cout << "No Control signal. Writing 0 torque." << std::endl;
 		for(size_t i = 0; i != 12; ++i)

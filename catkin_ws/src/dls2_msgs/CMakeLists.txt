@@ -17,6 +17,9 @@ add_message_files(
 	Pose.msg
 	Screw.msg
 	SensorsCombined.msg
+	HyqRaw.msg
+	ImuKvh.msg
+	ImuMgx.msg
 )
 
 # add_service_files(

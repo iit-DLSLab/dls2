@@ -19,6 +19,6 @@
 	<!-- Start the DLS2 <- - -> Ros Control bridge -->
 	<rosparam file="$(find ros_control_to_dls2)/config/$(arg robot_name)_control_params.yaml" command="load"/>
 	<rosparam file="$(find dls2_to_roscontrol)/config/$(arg robot_name)_control_params.yaml" command="load"/>
-	<node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" ns="/$(arg robot_name)" args="JointStateController BlindStateController dls2_to_roscontrol"/>
-			
+	<node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" ns="/$(arg robot_name)" args="JointStateController BlindStateController ImuSensorController dls2_to_roscontrol"/>
+
 </launch>

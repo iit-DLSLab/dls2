@@ -12,15 +12,12 @@
 *                                     \|_________||   :    .'                  *
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
-********************************************************************************
-* Author:            Hendrik de Bruin                                          *
-* Maintainer:        Hendrik de Bruin                                          *
-* author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-struct JointStateMsg
+struct ImuMgxMsg
 {
-	sequence<double> position;		// rad
-	sequence<double> velocity;		// rad/s
-	sequence<double> acceleration;		// rad/s^2
-	sequence<double> effort;		// Nm
+	float angular_velocity[3];
+	float specific_force[3];
+	float quaternion[4];
+	unsigned long time_stamp;
+	unsigned short temperature;
 };
