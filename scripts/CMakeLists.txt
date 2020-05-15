@@ -1,6 +1,17 @@
 # ==============================================================================
 # Framework Launching
 # ==============================================================================
+# Collect all the paths where different parts of the Framework are installed,
+# remove any duplicates and add them to the dynamic link path of the framework
+list(APPEND DLS_LD_LIBRARY_PATH
+	${DLS_INSTALL_GAIT_GENERATOR_DIR}
+	${DLS_INSTALL_CONTROLLER_DIR}
+	${DLS_INSTALL_ESTIMATOR_DIR}
+	${DLS_INSTALL_MESSAGES_DIR}
+)
+list(REMOVE_DUPLICATES DLS_LD_LIBRARY_PATH)
+list(JOIN DLS_LD_LIBRARY_PATH ":" DLS_LD_LIBRARY_PATH)
+
 dls_configure(launch_framework.in LAUNCH_FRAMEWORK)
 
 install(FILES ${LAUNCH_FRAMEWORK}
