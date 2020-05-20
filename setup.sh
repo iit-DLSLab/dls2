@@ -17,6 +17,13 @@ echo -- Installing githooks
 rm -r .git/hooks
 ln -sf ../githooks .git/hooks
 
+# Do not run fast-forward commits on master, but instead create a proper merge
+# commit with a commit message
+#
+# If a fast-forward is performed, then the commit hooks are not run. This will
+# prevent auto-increment of version numbers
+git config branch.master.mergeoptions "--no-ff"
+
 # ==============================================================================
 # Create Lock File
 # ==============================================================================
