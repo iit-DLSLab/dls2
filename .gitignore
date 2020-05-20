@@ -18,3 +18,4 @@ install
 catkin_ws/packaging/dls2_ws/DEBIAN/control
 .setup.lock
 catkin_ws/packaging/dls2_ws.deb
+catkin_ws/dls2_ws
