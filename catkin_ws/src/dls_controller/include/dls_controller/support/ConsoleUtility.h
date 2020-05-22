@@ -26,6 +26,8 @@ void getDouble(std::string comment, double defaultvalue, double& value);
 
 void getInt(std::string comment, int defaultvalue, int& value);
 
+void getBool(std::string comment, bool defaultvalue, bool &value);
+
 void getString(std::string comment, std::string defaultvalue, std::string& value);
 
 void consoleCleanUp();
