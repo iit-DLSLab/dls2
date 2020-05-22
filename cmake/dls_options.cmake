@@ -37,7 +37,7 @@ set(EIGEN_DIR /usr/include/eigen3
 	CACHE STRING "Directory where Eigen is installed"
 )
 
-set(DLS_CATKIN_WORKSPACE_DIR /opt/dls2/dls2_ws
+set(DLS_CATKIN_WORKSPACE_DIR /opt/dls2
 	CACHE STRING "Directory where catkin workspace is installed to"
 )
 
