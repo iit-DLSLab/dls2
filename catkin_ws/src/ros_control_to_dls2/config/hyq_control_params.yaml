@@ -44,3 +44,9 @@ hyq:
   ImuSensorController:
     type: ros_control_to_dls2/ImuSensorController
     publish_rate: 250
+  ImuMgxController:
+    type: ros_control_to_dls2/ImuMgxController
+    publish_rate: 250
+  ImuKvhController:
+    type: ros_control_to_dls2/ImuKvhController
+    publish_rate: 250

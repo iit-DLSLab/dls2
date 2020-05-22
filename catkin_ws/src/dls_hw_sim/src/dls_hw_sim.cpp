@@ -226,7 +226,7 @@ bool DlsRobotHwSim::initSim(
 
 	freeze_cmd_=true;
 	freeze_state_=false;
-    freeze_base_srv_ = model_nh.advertiseService("freeze_base", &DlsRobotHwSim::freezeBase, this);
+  freeze_base_srv_ = model_nh.advertiseService("freeze_base", &DlsRobotHwSim::freezeBase, this);
 
 	return true;
 }
@@ -408,19 +408,31 @@ void DlsRobotHwSim::fillHyqRawInterface(ros::Time time)
 {
 	//hyq_raw_imu_kvh; // filled by IMU KVH Interface
 	//hyq_raw_imu_mgx; // filled by IMU MGX Interface
+
+	double dtmp,dtmp2;
 	for (int i=0;i<12;i++) {
-		// TODO Magic getNumber
-		//651 = 4096 bits / (2*Pi)
-		hyq_raw_msg_.abs_enc[i] = (uint32_t)round(joint_position_[i]*651.89919754);
+		// TODO Magic Numbers
+		dtmp = joint_position_[i];
+		if (dtmp < 0) dtmp += 6.28318; // 2*Pi
+		dtmp *=651.89919754; //651 = 4096 bits / (2*Pi)
+		hyq_abs_enc_[i] = (uint32_t)round(dtmp);
 		//12732 = 80000 bits / (2*Pi)
-		hyq_raw_msg_.rel_enc[i] = (uint32_t)round((joint_position_[i]-joint_position_prev_[i])*12732.406202);
+
+		dtmp  = joint_position_[i];
+		dtmp2 = joint_position_prev_[i];
+		if (dtmp<0) dtmp += 6.28318;
+		if (dtmp2<0) dtmp2 += 6.28318;
+		dtmp -= dtmp2;
+		dtmp *=12732.406201955;
+
+		hyq_rel_enc_[i] = (uint32_t)round(dtmp);
 	}
 	for (int i=0;i<4;i++) {
 		// TODO torque per volt
-		hyq_raw_msg_.torque_sensor_haa[i] = (uint16_t)joint_effort_[i];
+		hyq_torque_sensor_haa_[i] = (uint16_t)joint_effort_[i*3];
 		// TODO newton per volt AND Inverse Lever Arm calculation!
-		hyq_raw_msg_.load_cell_hfe[i+4] = (uint16_t)joint_effort_[i+4];
-		hyq_raw_msg_.load_cell_kfe[i+8] = (uint16_t)joint_effort_[i+8];
+		hyq_load_cell_hfe_[i] = (uint16_t)joint_effort_[i*3+1];
+		hyq_load_cell_kfe_[i] = (uint16_t)joint_effort_[i*3+2];
 	}
 }
 
@@ -524,17 +536,19 @@ void DlsRobotHwSim::fillImuMgxMsg(ros::Time time) //TODO Copy data from interfac
 
 void DlsRobotHwSim::fillHyqRawMsg(ros::Time time) //TODO Copy data from interface
 {
+
 	hyq_raw_msg_.imu_kvh = imu_kvh_msg_;
 	hyq_raw_msg_.imu_mgx = imu_mgx_msg_;
 	for (int i=0;i<12;i++) {
-		hyq_raw_msg_.abs_enc[i] = 0;
-		hyq_raw_msg_.rel_enc[i] = 0;
+		hyq_raw_msg_.abs_enc[i] = hyq_abs_enc_[i];
+		hyq_raw_msg_.rel_enc[i] = hyq_rel_enc_[i];
 	}
 	for (int i=0;i<4;i++) {
-		hyq_raw_msg_.torque_sensor_haa[i] = 0;
-		hyq_raw_msg_.load_cell_hfe[i] = 0;
-		hyq_raw_msg_.load_cell_kfe[i] = 0;
+		hyq_raw_msg_.torque_sensor_haa[i] = hyq_torque_sensor_haa_[i];
+		hyq_raw_msg_.load_cell_hfe[i] = hyq_load_cell_hfe_[i];
+		hyq_raw_msg_.load_cell_kfe[i] = hyq_load_cell_kfe_[i];
 	}
+
 }
 
 void DlsRobotHwSim::fillImuKvhMsgAndPublish(ros::Time time){
