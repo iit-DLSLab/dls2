@@ -83,6 +83,25 @@ void getInt(std::string comment, int defaultvalue, int &value)
     }
 }
 
+void getBool(std::string comment, bool defaultvalue, bool &value)
+{
+    std::string input = "";
+
+    while(true){
+        std::cout << comment << "[" << defaultvalue << "]:";
+        getline(std::cin, input);
+        if(input == ""){ //If user doesnt give input, use current
+            value = defaultvalue;
+            break;
+        }
+        // This code converts from string to number safely.
+        std::stringstream myStream(input);
+        if (myStream >> value)
+            break;
+        std::cout << "Invalid number, please try again" << std::endl;
+    }
+}
+
 void getString(std::string comment, std::string defaultvalue, std::string &value)
 {
     std::string input = "";
@@ -91,8 +110,9 @@ void getString(std::string comment, std::string defaultvalue, std::string &value
     getline(std::cin, input);
     if(input == ""){ //If user doesnt give input, use current
         value = defaultvalue;
+    } else{
+        value = input;
     }
-    value = input;
 }
 
 void consoleCleanUp(void)
