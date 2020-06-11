@@ -6,6 +6,6 @@ if [ ! $? -eq 0 ]; then
 	exit -1
 fi
 
-LD_LIBRARY_PATH=@DLS_LD_LIBRARY_PATH@:$LD_LIBRARY_PATH
+LD_LIBRARY_PATH=/usr/lib/dls2:@DLS_LD_LIBRARY_PATH@:$LD_LIBRARY_PATH
 
 @DLS_INSTALL_RUNTIME_DIR@/dynamic_legged_systems_framework "$@"
