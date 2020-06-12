@@ -61,40 +61,34 @@ void Dls2ToRoscontrol::update(const ros::Time &time, const ros::Duration &period
 	joint_state_pub_.publish(joint_state_msg);
 
 
-	//WRITE
-	/*if(auto pMsg = this->control_signal_listener.getSignal())
-	{
-		// dls::ControlSignal s; // *pMsg
-		// message received from framework
-		// for (auto jc : joint_commands_)
-		//std::vector<double> vec = pMsg->desired_torques();
 
-		// if (pMsg->desired_torques().size()!=12)
-		// {
-		// 	std::cout << "Desired torque vector size error (" << pMsg->desired_torques().size() << ").  Writing 0 torque" << std::endl;
-		// 	for(size_t i = 0; i != 12; ++i)
-		// 	{
-		// 		joint_commands_[i].setCommand(0.0);
-		// 	}
-		// }
-		// else
+	//WRITE
+	std::shared_ptr<DesiredTorquesMsg> pMsg = this->control_signal_listener.getSignal();
+	if(pMsg)
+	{
+		if (pMsg->desired_torques().size()==12)
 		{
-			double t = double(time.sec) + double(time.nsec)*1e-9;
-			//std::cout << t << " - " << pMsg->header().time().seconds() << std::endl
-			// std::cout << (t-pMsg->header().time().seconds())*1000 << std::endl;
-			for(size_t i = 0; i != 12; ++i)
-			{
+			for(size_t i = 0; i != 12; ++i) {
 				joint_commands_[i].setCommand(pMsg->desired_torques()[i]);
 			}
+		} else {
+			writeZeroTorques(time,"Desired torque vector size error.  Writing 0 torque");
 		}
 	}
-	else*/
+	else
 	{
-		std::cout << "No Control signal. Writing 0 torque." << std::endl;
-		for(size_t i = 0; i != 12; ++i)
-		{
-			joint_commands_[i].setCommand(0.0);
-		}
+		writeZeroTorques(time,"No Control signal. Writing 0 torque.");
+	}
+}
+
+void Dls2ToRoscontrol::writeZeroTorques(const ros::Time& time,std::string msg) {
+	if (time-previous_warning_time_>ros::Duration(30.0)) {
+		std::cout << msg << std::endl;
+		previous_warning_time_ = time;
+	}
+	for(size_t i = 0; i != 12; ++i)
+	{
+		joint_commands_[i].setCommand(0.0);
 	}
 }
 

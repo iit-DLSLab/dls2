@@ -52,6 +52,8 @@ private:
 	} control_signal_listener;
 
 	dls::PublisherBase<JointStateMsgPubSubType> joint_state_pub_;
+	ros::Time previous_warning_time_;
+	void writeZeroTorques(const ros::Time& time,std::string msg);
 };
 
 //PLUGINLIB_DECLARE_CLASS(dls2_to_roscontrol, Dls2ToRoscontrol, dls2_to_roscontrol::Dls2ToRoscontrol, controller_interface::ControllerBase);
