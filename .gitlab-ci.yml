@@ -79,7 +79,9 @@ test:docs:
     - dls2
   script:
     - cd build
-    - make install
+    # - make install
+    - make package
+    - dpkg -i *deb
     - cd ..
     - "[ -d doc/dls2_examples/build ] || mkdir doc/dls2_examples/build"
     - cd doc/dls2_examples/build
