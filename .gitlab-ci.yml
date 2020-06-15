@@ -37,6 +37,7 @@ build:dls2:
     - mkdir build
     - cd build
     - cmake -DCMAKE_BUILD_TYPE=Release ..
+    - echo nproc=$(nproc)
     - make -j$(nproc)
   artifacts:
     paths:
