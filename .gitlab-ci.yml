@@ -36,7 +36,8 @@ build:dls2:
     - git submodule update --init --recursive
     - mkdir build
     - cd build
-    - cmake ..
+    - cmake -DCMAKE_BUILD_TYPE=Release ..
+    - echo nproc=$(nproc)
     - make -j$(nproc)
   artifacts:
     paths:
@@ -85,7 +86,7 @@ test:docs:
     - cd ..
     - "[ -d doc/dls2_examples/build ] || mkdir doc/dls2_examples/build"
     - cd doc/dls2_examples/build
-    - cmake ..
+    - cmake -DCMAKE_BUILD_TYPE=Release ..
     - make -j$(nproc)
   only:
     - master

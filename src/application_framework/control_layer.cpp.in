@@ -415,13 +415,16 @@ bool ControlLayer::activateController(const Controller::ID_t &ID)
 			// since its premultiplier is initially set to zero, this will have
 			// no effect on the robot until the spline in is run later
 			std::cout << "WARNING hardcoded to hyq" << std::endl;
+			const char *path;
+			#ifndef NDEBUG
+				path="${EXECUTABLE_OUTPUT_PATH}/child_process_launcher";
+			#else
+				path="${DLS_INSTALL_RUNTIME_DIR}/child_process_launcher";
+			#endif	
+			std::cout << path << std::endl;		
 			execl
 			(
-				#ifndef NDEBUG
-					"${EXECUTABLE_OUTPUT_PATH}/child_process_launcher",
-				#else
-					"${DLS_INSTALL_RUNTIME_DIR}/child_process_launcher",
-				#endif
+				path,
 				ID.c_str(),
 				"controller",
 				"hyq",
