@@ -101,7 +101,7 @@ function(dls_add_message msg)
 		"${CMAKE_CURRENT_BINARY_DIR}/gen/include/${DLS_MESSAGE_HEADER_DESTINATION}/${msg}.h;${CMAKE_CURRENT_BINARY_DIR}/gen/include/${DLS_MESSAGE_HEADER_DESTINATION}/${msg}PubSubTypes.h"
 	)
 
-	# use fastrtpsgen to generate the message source and header files
+	# use fastddsgen to generate the message source and header files
 	add_custom_command(
 		OUTPUT
 			${generated_source}
@@ -109,7 +109,7 @@ function(dls_add_message msg)
 		COMMAND
 			[ -d ${CMAKE_CURRENT_BINARY_DIR}/gen/include/${DLS_MESSAGE_HEADER_DESTINATION} ] || mkdir --parents ${CMAKE_CURRENT_BINARY_DIR}/gen/include/${DLS_MESSAGE_HEADER_DESTINATION}
 		COMMAND
-			fastrtpsgen -replace ${CMAKE_CURRENT_SOURCE_DIR}/${msg}.idl -d ${CMAKE_CURRENT_BINARY_DIR}/gen/include/${DLS_MESSAGE_HEADER_DESTINATION}
+			fastddsgen -replace ${CMAKE_CURRENT_SOURCE_DIR}/${msg}.idl -d ${CMAKE_CURRENT_BINARY_DIR}/gen/include/${DLS_MESSAGE_HEADER_DESTINATION}
 		COMMENT
 			"Generating message files for ${msg}.idl"
 		DEPENDS

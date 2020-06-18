@@ -7,12 +7,6 @@ endforeach()
 message(STATUS "location=${dls_${PROJECT_NAME}_msg_includes}")
 
 # ==============================================================================
-# Output Directories and CMake Variables
-# ==============================================================================
-set(EXECUTABLE_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}")
-set(LIBRARY_OUTPUT_PATH    "${PROJECT_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}")
-
-# ==============================================================================
 # Global Compilation Options
 # ==============================================================================
 add_subdirectory(application_framework)
@@ -156,10 +150,14 @@ target_link_libraries(
 # ==============================================================================
 # Convencience Targets
 # ==============================================================================
+get_property(LAUNCH_FRAMEOWRK_FROM_SRC_TREE
+	TARGET   launch_framework_from_src_tree
+	PROPERTY INTERFACE_SOURCES
+)
 string(REPLACE " " ";" MAKE_RUN_ARGS ${DLS_BUILD_MAKE_RUN_FLAGS})
 add_custom_target(
 	run
-	COMMAND ./dynamic_legged_systems_framework ${MAKE_RUN_ARGS}
+	COMMAND bash ${LAUNCH_FRAMEOWRK_FROM_SRC_TREE} ${MAKE_RUN_ARGS}
 	DEPENDS
 		dynamic_legged_systems_framework
 		dls_dummy_controller
