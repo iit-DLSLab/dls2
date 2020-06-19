@@ -22,7 +22,7 @@ public:
 			base_velocity_world(nullptr),
 			base_acceleration_world(nullptr)
 		{}
-		
+
 		std::string name;
 		double *joint_position;
 		double *joint_velocity;
@@ -32,7 +32,7 @@ public:
 		double *base_velocity_world;
 		double *base_acceleration_world;
 	};
-	
+
 	BlindStateHandle(const Data &data = Data()) :
 		name_(data.name),
 		joint_position_(data.joint_position),
@@ -43,7 +43,7 @@ public:
 		base_velocity_world_(data.base_velocity_world),
 		base_acceleration_world_(data.base_acceleration_world)
 	{}
-	
+
 	std::string getName() const { return name_; }
 	const double *getJointPosition() const { return joint_position_; }
 	const double *getJointVelocity() const { return joint_velocity_; }
@@ -52,7 +52,7 @@ public:
 	const double *getBasePoseWorld() const { return base_pose_world_; }
 	const double *getBaseVelocityWorld() const { return base_velocity_world_; }
 	const double *getBaseAccelerationWorld() const { return base_acceleration_world_; }
-	
+
 private:
 	std::string name_;
 	double *joint_position_;
@@ -69,5 +69,3 @@ class BlindStateInterface : public HardwareResourceManager<BlindStateHandle> {};
 }
 
 #endif // BLIND_STATE_INTERFACE_H
-		
-	

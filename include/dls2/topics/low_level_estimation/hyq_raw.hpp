@@ -12,15 +12,19 @@
 *                                     \|_________||   :    .'                  *
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
-********************************************************************************
-* Author:            Hendrik de Bruin                                          *
-* Maintainer:        Hendrik de Bruin                                          *
-* author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-struct JointStateMsg
+#ifndef HYQ_RAW_HPP_VREU5PR4
+#define HYQ_RAW_HPP_VREU5PR4
+
+namespace dls
 {
-	sequence<double> position;		// rad
-	sequence<double> velocity;		// rad/s
-	sequence<double> acceleration;		// rad/s^2
-	sequence<double> effort;		// Nm
-};
+	namespace topics
+	{
+		namespace low_level_estimation
+		{
+			constexpr auto hyq_raw = "low_level_estimation/hyq_raw";
+		}
+	}
+}
+
+#endif /* end of include guard: HYQ_RAW_HPP_VREU5PR4 */

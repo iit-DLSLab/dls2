@@ -12,15 +12,19 @@
 *                                     \|_________||   :    .'                  *
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
-********************************************************************************
-* Author:            Hendrik de Bruin                                          *
-* Maintainer:        Hendrik de Bruin                                          *
-* author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-struct JointStateMsg
+#include "header.idl"
+#include "imu_kvh.idl"
+#include "imu_mgx.idl"
+
+struct HyQRawMsg
 {
-	sequence<double> position;		// rad
-	sequence<double> velocity;		// rad/s
-	sequence<double> acceleration;		// rad/s^2
-	sequence<double> effort;		// Nm
+	HeaderMsg header;
+	ImuKvhMsg imu_kvh;
+	ImuMgxMsg imu_mgx;
+	unsigned long abs_enc[12]; // 0-4096 (counts)
+	unsigned long rel_enc[12]; // 0-80000 (counts)
+	unsigned short torque_sensor_haa[4]; // 0-2^16-1 = 0-4V
+	unsigned short load_cell_hfe[4]; // 0-2^16-1 = 0-4V
+	unsigned short load_cell_kfe[4]; // 0-2^16-1 = 0-4V
 };

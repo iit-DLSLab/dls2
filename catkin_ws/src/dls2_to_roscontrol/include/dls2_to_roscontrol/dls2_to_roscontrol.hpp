@@ -16,6 +16,8 @@
 // #include "msg/control_signalPubSubTypes.h"
 #include "dls2/msg/desired_torquesPubSubTypes.h"
 #include "dls2/msg/joint_statePubSubTypes.h"
+#include "dls2/msg/hyq_raw.h"
+
 #include <mutex>
 #include <memory>
 
@@ -31,6 +33,8 @@ public:
 	void update(const ros::Time& time, const ros::Duration& period);
 private:
 	std::vector<hardware_interface::JointHandle> joint_commands_;
+	JointStateMsg joint_state_msg;
+	HyQRawMsg hyq_raw_msg;
 
 	class ControlMsgListener : public dls::SubscriberBase<DesiredTorquesMsgPubSubType>
 	{
@@ -48,6 +52,8 @@ private:
 	} control_signal_listener;
 
 	dls::PublisherBase<JointStateMsgPubSubType> joint_state_pub_;
+	ros::Time previous_warning_time_;
+	void writeZeroTorques(const ros::Time& time,std::string msg);
 };
 
 //PLUGINLIB_DECLARE_CLASS(dls2_to_roscontrol, Dls2ToRoscontrol, dls2_to_roscontrol::Dls2ToRoscontrol, controller_interface::ControllerBase);

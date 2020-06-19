@@ -12,15 +12,16 @@
 *                                     \|_________||   :    .'                  *
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
-********************************************************************************
-* Author:            Hendrik de Bruin                                          *
-* Maintainer:        Hendrik de Bruin                                          *
-* author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-struct JointStateMsg
+#ifndef IMU_HPP_NA5WOVDU
+#define IMU_HPP_NA5WOVDU
+
+namespace dls
 {
-	sequence<double> position;		// rad
-	sequence<double> velocity;		// rad/s
-	sequence<double> acceleration;		// rad/s^2
-	sequence<double> effort;		// Nm
-};
+	namespace  topics
+	{
+			constexpr auto imu = "imu";
+	}
+}
+
+#endif /* end of include guard: IMU_HPP_NA5WOVDU */
