@@ -2,6 +2,12 @@ cmake_minimum_required(VERSION 3.5.1)
 project(dls2)
 enable_testing()
 # ==============================================================================
+# Output Directories and CMake Variables
+# ==============================================================================
+set(EXECUTABLE_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}")
+set(LIBRARY_OUTPUT_PATH    "${PROJECT_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}")
+
+# ==============================================================================
 # Setup the repository
 # ==============================================================================
 # This will perfom task such as setting up the git hooks for anyone who uses
@@ -118,8 +124,8 @@ add_compile_options(
 )
 
 add_subdirectory(msg)
-add_subdirectory(src)
 add_subdirectory(scripts)
+add_subdirectory(src)
 add_subdirectory(test)
 add_subdirectory(doc)
 # add_subdirectory(catkin_ws)

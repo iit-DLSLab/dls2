@@ -46,6 +46,8 @@
 #include "dls2/util/log/log.hpp"
 #endif
 
+#include <cstdlib>
+
 #include "dls2/application_framework/options.phpp"
 
 // The current release of Eigen defines in the file `Eigen_Colamd.h` the macro:
@@ -415,16 +417,19 @@ bool ControlLayer::activateController(const Controller::ID_t &ID)
 			// since its premultiplier is initially set to zero, this will have
 			// no effect on the robot until the spline in is run later
 			std::cout << "WARNING hardcoded to hyq" << std::endl;
-			const char *path;
-			#ifndef NDEBUG
-				path="${EXECUTABLE_OUTPUT_PATH}/child_process_launcher";
-			#else
-				path="${DLS_INSTALL_RUNTIME_DIR}/child_process_launcher";
-			#endif	
-			std::cout << path << std::endl;		
+			char *child_process_launcher = std::getenv("DLS_CHILD_PROCESS_LAUNCHER");
+			if(!child_process_launcher)
+			{
+				std::cerr <<
+					"ERROR: env variable DLS_CHILD_PROCESS_LAUNCHER not "
+					"defined.  This is probably an error with the launch script"
+				<< std::endl;
+				return false;
+			}
+			std::cout << "Launching: child_process_launcher" << std::endl;
 			execl
 			(
-				path,
+				child_process_launcher,
 				ID.c_str(),
 				"controller",
 				"hyq",
