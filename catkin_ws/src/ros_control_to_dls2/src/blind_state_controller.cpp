@@ -47,6 +47,47 @@ BlindStateController::BlindStateController() :
 					this->blind_state_msg_.joint_state().effort().end(),
 					std::ostream_iterator<double>(this->scout, " ")
 				);
+				this->scout << "\nBase Position: ";
+				std::copy
+				(
+					this->blind_state_msg_.base_pose_world().position().begin(),
+					this->blind_state_msg_.base_pose_world().position().end(),
+					std::ostream_iterator<double>(this->scout, " ")
+				);
+				this->scout << "\nBase Quaternion: ";
+				std::copy
+				(
+					this->blind_state_msg_.base_pose_world().quaternion().begin(),
+					this->blind_state_msg_.base_pose_world().quaternion().end(),
+					std::ostream_iterator<double>(this->scout, " ")
+				);
+				this->scout << "\nBase Velocity: ";
+				std::copy
+				(
+					this->blind_state_msg_.base_velocity_world().linear().begin(),
+					this->blind_state_msg_.base_velocity_world().linear().end(),
+					std::ostream_iterator<double>(this->scout, " ")
+				);
+				std::copy
+				(
+					this->blind_state_msg_.base_velocity_world().angular().begin(),
+					this->blind_state_msg_.base_velocity_world().angular().end(),
+					std::ostream_iterator<double>(this->scout, " ")
+				);
+
+				this->scout << "\nBase Acceleration: ";
+				std::copy
+				(
+					this->blind_state_msg_.base_acceleration_world().linear().begin(),
+					this->blind_state_msg_.base_acceleration_world().linear().end(),
+					std::ostream_iterator<double>(this->scout, " ")
+				);
+				std::copy
+				(
+					this->blind_state_msg_.base_acceleration_world().angular().begin(),
+					this->blind_state_msg_.base_acceleration_world().angular().end(),
+					std::ostream_iterator<double>(this->scout, " ")
+				);				
 				this->scout << std::endl;
 			}
 		)
