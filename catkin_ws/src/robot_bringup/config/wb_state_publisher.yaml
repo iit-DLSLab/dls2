@@ -1,0 +1,4 @@
+# Publish the whole-body state -----------------------------------
+wb_state_publisher:
+  type: wb_state_publisher/WholeBodyStatePublisherController
+  publish_rate: 200

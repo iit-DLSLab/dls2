@@ -17,9 +17,14 @@
 	</group>
 
 	<!-- Start the DLS2 <- - -> Ros Control bridge -->
+
 	<rosparam file="$(find ros_control_to_dls2)/config/$(arg robot_name)_control_params.yaml" command="load"/>
 	<rosparam file="$(find dls2_to_roscontrol)/config/$(arg robot_name)_control_params.yaml" command="load"/>
+
+	<rosparam file="$(find robot_bringup)/config/joint_state_publisher.yaml" ns="/$(arg robot_name)" command="load"/>
+	<rosparam file="$(find robot_bringup)/config/wb_state_publisher.yaml" ns="/$(arg robot_name)" command="load"/>
+
 	<node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" ns="/$(arg robot_name)"
-		args="JointStateController BlindStateController ImuSensorController ImuMgxController ImuKvhController dls2_to_roscontrol"/>
+		args="JointStateController BlindStateController ImuSensorController ImuMgxController ImuKvhController dls2_to_roscontrol joint_state_publisher wb_state_publisher"/>
 
 </launch>
