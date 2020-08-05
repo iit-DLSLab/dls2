@@ -7,3 +7,23 @@ create_test(pubsub
 		fastcdr
 		catch2
 )
+
+create_test(pub_multisub
+	SOURCE
+		pub_multisub.cpp
+	LINK
+		dls_messaging
+		fastrtps
+		fastcdr
+		catch2
+)
+
+create_test(pub_multisub_multiprocess
+	SOURCE
+		pub_multisub_multiprocess.cpp
+	LINK
+		dls_messaging
+		fastrtps
+		fastcdr
+		catch2
+)

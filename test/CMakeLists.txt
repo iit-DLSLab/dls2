@@ -44,6 +44,7 @@ function(create_test TEST_NAME)
 	)
 
 	add_executable(${TARGET_NAME}        ${${prefix}_SOURCE})
+	target_compile_options(${TARGET_NAME} PRIVATE "-g")
 	set_target_properties(${TARGET_NAME} PROPERTIES EXCLUDE_FROM_ALL 1)
 	target_link_libraries(${TARGET_NAME} ${${prefix}_LINK})
 	add_dependencies("tests"             ${TARGET_NAME})
