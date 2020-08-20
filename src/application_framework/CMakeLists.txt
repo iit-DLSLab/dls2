@@ -1,13 +1,14 @@
 dls_configure(control_layer.cpp.in CONTROL_LAYER_CPP)
 dls_configure(version_info.cpp.in VERSION_INFO_CPP)
 dls_configure(console_layer.cpp.in CONSOLE_LAYER_CPP)
+dls_configure(app_layer.cpp.in APP_LAYER_CPP)
 
 add_library(dls_framework
 
 	SHARED
 	# Framework Classes
 	hyq_app.cpp
-	app_layer.cpp
+	${APP_LAYER_CPP}
 	hardware_layer.cpp
 	hyq_app_libraries.cpp
 	${CONTROL_LAYER_CPP}

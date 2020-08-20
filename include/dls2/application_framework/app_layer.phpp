@@ -94,18 +94,23 @@ protected:
 	///
 	/// @param name the name of the component
 	/// @param component a pointer to the component
-	void add_component(const std::string &name, pComponent_t component);
+	void addComponent(const std::string &name, pComponent_t component);
+
+	/// Reads a component from the install path of this layer and loads it
+	///
+	/// @param name the name of the component
+	void loadComponentFromDisk(const std::string &name);
 
 	/// Remove a component from this layer
 	///
 	/// @param name the name of the component
-	void remove_component(const std::string &name);
+	void removeComponent(const std::string &name);
 
 	/// Get the status of a component inside of this layer
 	///
 	/// @return the status of the component, or UNCONSTRUCTED if it does not
 	/// exist
-	AppLayerComponent::Status get_component_status(const std::string &name);
+	AppLayerComponent::Status getComponentStatus(const std::string &name);
 
 	// BEGIN critical section
 		mutable std::mutex components_mutex;

@@ -21,6 +21,7 @@
 
 #include "dls2/application_framework/app_layer.phpp"
 #include "dls2/util/debug/debug.hpp"
+#include "dls2/util/class_loader.phpp"
 
 using namespace dls;
 // =============================================================================
@@ -42,7 +43,7 @@ AppLayer::AppLayer
 	command_manager.addCommand<void, ARGVOID>
 	(
 		this->ID,
-		"where",
+		std::string("where"),
 		std::string("Prints the state of ") + this->ID,
 		std::function<void(ARGVOID)>
 		(
@@ -50,6 +51,48 @@ AppLayer::AppLayer
 			{
 				std::cout << where() << std::endl;
 				scout << where() << std::endl;
+			}
+		)
+	);
+
+	command_manager.addCommand<void, std::string>
+	(
+		this->ID,
+		std::string("addComponent"),
+		std::string("loads a component into ") + this->ID,
+		std::function<void(std::string)>
+		(
+			[&](std::string name)
+			{
+				this->loadComponentFromDisk(name);
+			}
+		)
+	);
+
+	command_manager.addCommand<void, std::string>
+	(
+		this->ID,
+		std::string("removeComponent"),
+		std::string("removes a component from ") + this->ID,
+		std::function<void(std::string)>
+		(
+			[&](std::string name)
+			{
+				this->removeComponent(name);
+			}
+		)
+	);
+
+	command_manager.addCommand<int, std::string>
+	(
+		this->ID,
+		std::string("getComponentStatus"),
+		std::string("gets the status of a component running inside ") + this->ID,
+		std::function<int(std::string)>
+		(
+			[&](std::string name)
+			{
+				return static_cast<int>(this->getComponentStatus(name));
 			}
 		)
 	);
@@ -94,19 +137,19 @@ AppLayer::Status AppLayer::eStop()
 	// return this->status;
 }
 
-void AppLayer::add_component(const std::string &name, pComponent_t component)
+void AppLayer::addComponent(const std::string &name, pComponent_t component)
 {
 	std::lock_guard<std::mutex> lock(this->components_mutex);
 	this->components[name] = component;
 }
 
-void AppLayer::remove_component(const std::string &name)
+void AppLayer::removeComponent(const std::string &name)
 {
 	std::lock_guard<std::mutex> lock(this->components_mutex);
 	this->components.erase(name);
 }
 
-AppLayerComponent::Status AppLayer::get_component_status(const std::string &name)
+AppLayerComponent::Status AppLayer::getComponentStatus(const std::string &name)
 {
 	std::lock_guard<std::mutex> lock(this->components_mutex);
 	auto it = this->components.find(name);
@@ -119,4 +162,41 @@ AppLayerComponent::Status AppLayer::get_component_status(const std::string &name
 	{
 		return AppLayerComponent::Status::UNCONSTRUCTED;
 	}
+}
+
+void AppLayer::loadComponentFromDisk(const std::string &name)
+{
+
+	std::shared_ptr<AppLayerComponent> component;
+	// First try from the current directory
+	try
+	{
+		component = ClassLoader::loadClass<AppLayerComponent>
+		(
+			std::string("./lib") + name + ".so",
+			name
+		);
+	}
+	catch (const std::exception &e)
+	{
+		// Try from install location of this layer
+		try
+		{
+			component = ClassLoader::loadClass<AppLayerComponent>
+			(
+				std::string("@DLS_INSTALL_COMPONENT_BASE_DIR@") + "/" + this->ID + "/" + name + ".so",
+				name
+			);
+		}
+		catch (const std::exception &e)
+		{
+			std::cerr << "Error: " << name << " not found" << std::endl;
+		}
+	}
+
+	if (component)
+	{
+		this->addComponent(name, component);
+	}
+
 }
