@@ -93,3 +93,30 @@ AppLayer::Status AppLayer::eStop()
 	// this->status = Status::E_STOP;
 	// return this->status;
 }
+
+void AppLayer::add_component(const std::string &name, pComponent_t component)
+{
+	std::lock_guard<std::mutex> lock(this->components_mutex);
+	this->components[name] = component;
+}
+
+void AppLayer::remove_component(const std::string &name)
+{
+	std::lock_guard<std::mutex> lock(this->components_mutex);
+	this->components.erase(name);
+}
+
+AppLayerComponent::Status AppLayer::get_component_status(const std::string &name)
+{
+	std::lock_guard<std::mutex> lock(this->components_mutex);
+	auto it = this->components.find(name);
+
+	if(it != this->components.end())
+	{
+		return it->second->getStatus();
+	}
+	else
+	{
+		return AppLayerComponent::Status::UNCONSTRUCTED;
+	}
+}
