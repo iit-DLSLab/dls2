@@ -17,8 +17,8 @@ public:
 	{
 		Data():
 			name(),
-      imu_mgx(),
-      imu_kvh(),
+      		imu_mgx(nullptr),
+      		imu_kvh(nullptr),
 			abs_enc(nullptr),
 			rel_enc(nullptr),
 			torque_sensor_haa(nullptr),
@@ -27,8 +27,8 @@ public:
 		{}
 
 		std::string name;
-    ImuMgxHandle::Data *imu_mgx;
-    ImuKvhHandle::Data *imu_kvh;
+    	ImuMgxHandle::Data *imu_mgx;
+    	ImuKvhHandle::Data *imu_kvh;
 		uint32_t *abs_enc;
 		uint32_t *rel_enc;
 		uint16_t *torque_sensor_haa;
@@ -58,13 +58,13 @@ public:
 
 private:
 	std::string name_;
-  ImuMgxHandle::Data *imu_mgx_;
-  ImuKvhHandle::Data *imu_kvh_;
-  uint32_t *abs_enc_;
-  uint32_t *rel_enc_;
-  uint16_t *torque_sensor_haa_;
-  uint16_t *load_cell_hfe_;
-  uint16_t *load_cell_kfe_;
+	ImuMgxHandle::Data *imu_mgx_;
+	ImuKvhHandle::Data *imu_kvh_;
+	uint32_t *abs_enc_;
+	uint32_t *rel_enc_;
+	uint16_t *torque_sensor_haa_;
+	uint16_t *load_cell_hfe_;
+	uint16_t *load_cell_kfe_;
 };
 
 class HyqRawInterface : public HardwareResourceManager<HyqRawHandle> {};

@@ -33,13 +33,6 @@ BlindStateController::BlindStateController() :
 					this->blind_state_msg_.joint_state().velocity().end(),
 					std::ostream_iterator<double>(this->scout, " ")
 				);
-				this->scout << "\nJoint Acceleration: ";
-				std::copy
-				(
-					this->blind_state_msg_.joint_state().acceleration().begin(),
-					this->blind_state_msg_.joint_state().acceleration().end(),
-					std::ostream_iterator<double>(this->scout, " ")
-				);
 				this->scout << "\nJoint Effort: ";
 				std::copy
 				(
@@ -106,7 +99,6 @@ bool BlindStateController::init(hardware_interface::BlindStateInterface *pBlind_
 	seq_=0;
 	blind_state_msg_.joint_state().position().resize(12);
 	blind_state_msg_.joint_state().velocity().resize(12);
-	blind_state_msg_.joint_state().acceleration().resize(12);
 	blind_state_msg_.joint_state().effort().resize(12);
 	blind_state_ = pBlind_state_interface->getHandle("blind_state");
 	return true;
@@ -121,7 +113,6 @@ void BlindStateController::update(const ros::Time &time, const ros::Duration &pe
 	{
 		blind_state_msg_.joint_state().position()[i] = blind_state_.getJointPosition()[i];
 		blind_state_msg_.joint_state().velocity()[i] = blind_state_.getJointVelocity()[i];;
-		blind_state_msg_.joint_state().acceleration()[i] = blind_state_.getJointAcceleration()[i];
 		blind_state_msg_.joint_state().effort()[i] = blind_state_.getJointEffort()[i];
 	}
 	for (int i=0;i<3;i++)

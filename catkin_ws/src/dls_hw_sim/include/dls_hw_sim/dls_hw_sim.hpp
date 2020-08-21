@@ -3,43 +3,29 @@
 
 // ROS includes
 #include <ros/ros.h>
-#include <std_srvs/Empty.h>
-#include <angles/angles.h>
+#include <std_srvs/Empty.h> // freeze base service
 #include <pluginlib/class_list_macros.h>
-#include <realtime_tools/realtime_publisher.h>
+
 
 // Gazebo includes
 #include <gazebo/common/common.hh>
 #include <gazebo/physics/physics.hh>
 #include <gazebo/gazebo.hh>
-#include <gazebo/sensors/ImuSensor.hh>
-#include <gazebo/sensors/ContactSensor.hh>
-#include <gazebo_msgs/ContactsState.h>
-#include <std_msgs/Float64.h>
 
 // Gazebo ros control include
 #include <gazebo_ros_control/robot_hw_sim.h>
-#include <hardware_interface/robot_hw.h>
-#include <hardware_interface/force_torque_sensor_interface.h>
-#include <hardware_interface/imu_sensor_interface.h>
-#include <hardware_interface/joint_state_interface.h>
 
-#include <dls2_hardware_interface/imu_kvh_interface.h>
-#include <dls2_hardware_interface/imu_mgx_interface.h>
-#include <dls2_hardware_interface/hyq_raw_interface.h>
 #include <dls2_hardware_interface/dls2_robot_hw.h>
 
-#include <dls2_msgs/BlindState.h>
-#include <dls2_msgs/HyqRaw.h>
-#include <dls2_msgs/ImuKvh.h>
-#include <dls2_msgs/ImuMgx.h>
-#include <sensor_msgs/JointState.h>
-#include <nav_msgs/Odometry.h>
+#include "dls_hw_sim/gazebo_hardware_interface.hpp"
+#include "dls_hw_sim/interfaces/imu_kvh.hpp"
+#include "dls_hw_sim/interfaces/imu_mgx.hpp"
+#include "dls_hw_sim/interfaces/joint_state.hpp"
+#include "dls_hw_sim/interfaces/imu_sensor.hpp"
+#include "dls_hw_sim/interfaces/blind_state.hpp"
+#include "dls_hw_sim/interfaces/hyq_raw.hpp"
+#include "dls_hw_sim/interfaces/odometry.hpp"
 
-
-// URDF include
-#include <urdf/model.h>
-void callback_pause(bool);
 
 namespace dls_hw_sim
 {
@@ -94,50 +80,20 @@ public:
 
 private:
 
-	ros::Publisher joint_state_pub_;
-	ros::Publisher odometry_pub_;
-	ros::Publisher blind_state_pub_;
-  ros::Publisher hyq_raw_pub_;
-  ros::Publisher imu_kvh_pub_;
-  ros::Publisher imu_mgx_pub_;
+  DlsGazeboImuKvh dls_gazebo_imu_kvh_;
+  DlsGazeboImuMgx dls_gazebo_imu_mgx_;
+  DlsGazeboImuSensor dls_gazebo_imu_sensor_;
+  DlsGazeboJointState dls_gazebo_joint_state_;
+  DlsGazeboBlindState dls_gazebo_blind_state_;
+  DlsGazeboHyqRaw dls_gazebo_hyq_raw_;
+  DlsGazeboOdometry dls_gazebo_odometry_;
 
-	sensor_msgs::JointState joint_state_msg_;
-	nav_msgs::Odometry odometry_msg_;
-	dls2_msgs::BlindState blind_state_msg_;
-  dls2_msgs::HyqRaw hyq_raw_msg_;
-  dls2_msgs::ImuKvh imu_kvh_msg_;
-  dls2_msgs::ImuMgx imu_mgx_msg_;
-
-  void fillJointStateInterface(ros::Time time);
-  void fillImuSensorInterface(ros::Time time);
-  void fillBlindStateInterface(ros::Time time);
-  void fillImuKvhInterface(ros::Time time);
-  void fillImuMgxInterface(ros::Time time);
-  void fillHyqRawInterface(ros::Time time);
-
-
-  void fillJointStateMsg(ros::Time time);
-	void fillOdometryMsg(ros::Time time);
-	void fillBlindStateMsg(ros::Time time);
-  void fillHyqRawMsg(ros::Time time);
-  void fillImuKvhMsg(ros::Time time);
-  void fillImuMgxMsg(ros::Time time);
-
-  void fillJointStateMsgAndPublish(ros::Time time);
-	void fillOdometryMsgAndPublish(ros::Time time);
-	void fillBlindStateMsgAndPublish(ros::Time time);
-  void fillHyqRawMsgAndPublish(ros::Time time);
-  void fillImuKvhMsgAndPublish(ros::Time time);
-  void fillImuMgxMsgAndPublish(ros::Time time);
 
   unsigned int n_dof_;
 
   std::vector<std::string> joint_name_;
 
-  std::vector<double> joint_position_prev_; // Needed for relative encoder calculation of Hyq Green
-
-
-  std::shared_ptr<gazebo::sensors::ImuSensor> imu_sensor_;
+  
   std::vector<gazebo::physics::JointPtr> sim_joints_;
   gazebo::physics::ModelPtr sim_model_;
   gazebo::math::Pose initial_pose_;
@@ -146,11 +102,8 @@ private:
   bool freeze_state_;
   ros::ServiceServer freeze_base_srv_;
 
-	decltype(gazebo::event::Events::ConnectPause(std::function<void(bool)>(callback_pause))) pause_connection;
 
 };
-
-typedef std::shared_ptr<DlsRobotHwSim> DlsRobotHwSimPtr;
 
 }
 
