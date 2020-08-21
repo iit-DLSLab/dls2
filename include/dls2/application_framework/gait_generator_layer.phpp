@@ -12,23 +12,29 @@
 *                                     \|_________||   :    .'                  *
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
-********************************************************************************
-* Author:            Hendrik de Bruin                                          *
-* Maintainer:        Hendrik de Bruin                                          *
-* author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-#ifndef GAIT_SIGNAL_HPP_DQFN1IAQ
-#define GAIT_SIGNAL_HPP_DQFN1IAQ
+#ifndef GAIT_GENERATOR_LAYER_PHPP_6bf82ff6_8192_4ed8_abd5_ac9d0b5328c1
+#define GAIT_GENERATOR_LAYER_PHPP_6bf82ff6_8192_4ed8_abd5_ac9d0b5328c1
+// =============================================================================
+// Includes
+// =============================================================================
+#include "dls2/application_framework/app_layer.phpp"
+#include "dls2/util/messaging/publisher_base.hpp"
+#include "dls2/util/messaging/callback_subscriber.hpp"
 
+#include "dls2/msg/gait_signalPubSubTypes.h"
 
 namespace dls
 {
-	namespace topics
+	class GaitLayer : public AppLayer
 	{
-		/// The topic where gait signals are published
-		constexpr auto gait_signal = "GaitSignal";
-		constexpr auto gait_layer  = "GaitSignalLayer";
-	}
+	public:
+		GaitLayer();
+
+	private:
+		PublisherBase<GaitSignalMsgPubSubType> pub;
+		CallbackSubscriber<GaitSignalMsgPubSubType> sub;
+	};
 }
 
-#endif /* end of include guard: GAIT_SIGNAL_HPP_DQFN1IAQ */
+#endif // GAIT_GENERATOR_LAYER_PHPP_6bf82ff6_8192_4ed8_abd5_ac9d0b5328c1

@@ -98,7 +98,7 @@ std::string Controller::getControlSignalTopic() const
 // FastRTPS
 // =============================================================================
 Controller::GaitListener::GaitListener(std::shared_ptr<Controller> p) :
-	SubscriberBase<GaitSignalMsgPubSubType>(topics::gait_signal),
+	SubscriberBase<GaitSignalMsgPubSubType>(topics::gait_layer),
 	pOwner(p),
 	info()
 { }

@@ -12,23 +12,26 @@
 *                                     \|_________||   :    .'                  *
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
-********************************************************************************
-* Author:            Hendrik de Bruin                                          *
-* Maintainer:        Hendrik de Bruin                                          *
-* author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
-#ifndef GAIT_SIGNAL_HPP_DQFN1IAQ
-#define GAIT_SIGNAL_HPP_DQFN1IAQ
+#include "dls2/application_framework/gait_generator_layer.phpp"
+#include "dls2/topics/gait_signal.hpp"
+
+using namespace dls;
 
 
-namespace dls
-{
-	namespace topics
-	{
-		/// The topic where gait signals are published
-		constexpr auto gait_signal = "GaitSignal";
-		constexpr auto gait_layer  = "GaitSignalLayer";
-	}
-}
+GaitLayer::GaitLayer() :
+	AppLayer("gait_layer"),
 
-#endif /* end of include guard: GAIT_SIGNAL_HPP_DQFN1IAQ */
+	// publisher publishes to "gait_layer" topic
+	pub(dls::topics::gait_layer),
+
+	// Subscriber listens for "gait_signal" as published by gait generators
+	sub
+	(
+		dls::topics::gait_signal,
+		[&](GaitSignalMsg msg)
+		{
+			this->pub.publish(msg);
+		}
+	)
+{ }
