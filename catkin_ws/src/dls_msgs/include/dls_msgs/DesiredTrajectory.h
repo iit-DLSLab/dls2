@@ -75,7 +75,6 @@ public:
     void setEta(double roll, double pitch, double yaw) { eta_[0]=roll; eta_[1]=pitch; eta_[2]=yaw;}
     void setQ(double q0, double q1, double q2, double q3) { q_[0]=q0; q_[1]=q1; q_[2]=q2; q_[3]=q3;}
     
-    const 
     ~DesiredPose() {}
 private:
     double p_[3];
@@ -120,7 +119,6 @@ public:
     void setQDot(double q0dot, double q1dot, double q2dot, double q3dot) { qdot_[0]=q0dot; qdot_[1]=q1dot; qdot_[2]=q2dot; qdot_[3]=q3dot;}
     void setQDDot(double q0ddot, double q1ddot, double q2ddot, double q3ddot) { qddot_[0]=q0ddot; qddot_[1]=q1ddot; qddot_[2]=q2ddot; qddot_[3]=q3ddot;}
     
-    const 
     ~DesiredTrajectory() {}
 private:
     double p_[3], pdot_[3], pddot_[3];
