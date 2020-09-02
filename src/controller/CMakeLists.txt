@@ -22,8 +22,35 @@ add_dependencies(dls_controller_interface dls_dls2_messaging)
 set(DLS_INSTALL_DUMMY_CONTROLLER OFF
 	CACHE BOOL "whether to install the dummy controller"
 )
+
+
+
+add_library(dls_dummy_controller2 SHARED
+	dummy_controller2.cpp
+)
+target_link_libraries(dls_dummy_controller2
+	doglib
+)
+add_library(dls_dummy_controller3 SHARED
+	dummy_controller3.cpp
+)
+target_link_libraries(dls_dummy_controller3
+	doglib
+)
+add_library(dls_dummy_controller4 SHARED
+	dummy_controller4.cpp
+)
+target_link_libraries(dls_dummy_controller4
+	doglib
+)
+
+
 if(DLS_INSTALL_DUMMY_CONTROLLER)
-	install(TARGETS dls_dummy_controller
+	install(TARGETS
+		dls_dummy_controller
+		dls_dummy_controller2
+		dls_dummy_controller3
+		dls_dummy_controller4
 		LIBRARY DESTINATION ${DLS_INSTALL_CONTROLLER_DIR}
 		# COMPONENT "PLUGIN-${PROJECT_NAME}-dls_dummy_controller"
 	)

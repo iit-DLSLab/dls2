@@ -115,11 +115,11 @@ void DummyController::run(const std::chrono::system_clock::time_point &time)
 	auto pBlind_state = this->readBlindStateSignal();
 	if(!pBlind_state)
 	{
-		std::cout << "dummy controller did not get blind state" << std::endl;
+		std::cout << "dummy controller 4 did not get blind state" << std::endl;
 	}
 	else
 	{
-		std::cout << "dummy controller got blind state" << std::endl;
+		std::cout << "dummy controller 4 got blind state" << std::endl;
 	}
 
 	ControlSignal s;
