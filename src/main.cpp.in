@@ -110,6 +110,42 @@ void forkRosCore();
 void launchSim();
 
 // =============================================================================
+// Signal Handlers
+// =============================================================================
+// These used to be lambdas, but it seems not all compilers can install a lambda
+// as a signal handler
+void kill_children(int)
+{
+	for(auto &el : child_datas)
+	{
+		kill(el.first, SIGTERM);
+	}
+}
+
+void stop_app_handler(int)
+{
+	pApp->stop();
+	exit(EXIT_SUCCESS);
+}
+
+void app_panic_handler(int)
+{
+	pApp->panic();
+	std::cout << "framework level segfault detected" << std::endl;
+
+	// remove segfault signal handler
+	signal(SIGSEGV, SIG_DFL);
+
+	// force segfault now that it is handled in this process. This
+	// will signal the monitor procss that a segfault occured here
+	kill(getpid(), SIGSEGV);
+
+	// alternatively, could exit like this:
+	// exit(SOME_SEGFAULT_ENUM);
+	// then, the monitor would have to respond to that exit value
+}
+
+// =============================================================================
 // Main Logic
 // =============================================================================
 int main(int argc, char **argv)
@@ -127,13 +163,7 @@ int main(int argc, char **argv)
 	signal
 	(
 		SIGINT,
-		[&](int)
-		{
-			for(auto &el : child_datas)
-			{
-				kill(el.first, SIGTERM);
-			}
-		}
+		kill_children
 	);
 	// Ignore cntrl-C
 	//
@@ -340,31 +370,12 @@ void forkLayer(const std::string &process_name, char **argv)
 		signal
 		(
 			SIGTERM,
-			[&](int)
-			{
-				pApp->stop();
-				exit(EXIT_SUCCESS);
-			}
+			stop_app_handler
 		);
 		signal
 		(
 			SIGSEGV,
-			[&](int)
-			{
-				pApp->panic();
-				std::cout << "framework level segfault detected" << std::endl;
-
-				// remove segfault signal handler
-				signal(SIGSEGV, SIG_DFL);
-
-				// force segfault now that it is handled in this process. This
-				// will signal the monitor procss that a segfault occured here
-				kill(getpid(), SIGSEGV);
-
-				// alternatively, could exit like this:
-				// exit(SOME_SEGFAULT_ENUM);
-				// then, the monitor would have to respond to that exit value
-			}
+			app_panic_handler
 		);
 
 		pApp->run();

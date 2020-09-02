@@ -348,6 +348,7 @@ void ConsoleLayer::callCommand
 			{
 				ARGVOID v;
 				command.pushArg<ARGVOID>(v);
+				break;
 			}
 			case CommandBase::ArgumentType::CHAR:
 			{
