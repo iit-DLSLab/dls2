@@ -63,3 +63,12 @@ target_link_libraries(bare_dummy_controller
 	fastrtps
 	fastcdr
 )
+
+create_test(multi_pubsub_one_to_one
+	SOURCE
+		multi_pubsub_one_to_one.cpp
+	LINK
+		dls_messaging
+		fastrtps
+		fastcdr
+)
