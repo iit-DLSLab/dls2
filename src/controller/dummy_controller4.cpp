@@ -119,7 +119,7 @@ void DummyController::run(const std::chrono::system_clock::time_point &time)
 	}
 	else
 	{
-		std::cout << "dummy controller 4 got blind state" << std::endl;
+		std::cout << "DUMMY CONTROLLER 4 GOT BLIND STATE" << std::endl;
 	}
 
 	ControlSignal s;

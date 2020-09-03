@@ -57,20 +57,20 @@ DummyController::DummyController
 {
 	outstream << "dummy controller launched" << std::endl;
 
-	command_manager.addCommand<double, double, double>
-	(
-		getID(),
-		"addTwoDoubles",
-		"adds two doubles",
-		std::function<double(double,double)>
-		{
-			[](double a, double b) ->double
-			{
-				std::cout << a + b << std::endl;
-				return a + b;
-			}
-		}
-	);
+	// command_manager.addCommand<double, double, double>
+	// (
+	// 	getID(),
+	// 	"addTwoDoubles",
+	// 	"adds two doubles",
+	// 	std::function<double(double,double)>
+	// 	{
+	// 		[](double a, double b) ->double
+	// 		{
+	// 			std::cout << a + b << std::endl;
+	// 			return a + b;
+	// 		}
+	// 	}
+	// );
 
 	// std::cout << "creating free standing command" << std::endl;
 	// Command<double, double, double>
@@ -119,7 +119,7 @@ void DummyController::run(const std::chrono::system_clock::time_point &time)
 	}
 	else
 	{
-		std::cout << "dummy controller got blind state" << std::endl;
+		std::cout << "DUMMY CONTROLLER GOT BLIND STATE" << std::endl;
 	}
 
 	ControlSignal s;
