@@ -7,7 +7,7 @@
 
 int main()
 {
-	dls::CallbackSubscriber<BlindStateMsgPubSubType>
+	dls::CallbackSubscriber<BlindStateMsgPubSubType> sub
 	(
 		dls::topics::low_level_estimation::blind_state,
 		[&](BlindStateMsg)
