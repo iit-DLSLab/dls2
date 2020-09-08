@@ -164,6 +164,8 @@ namespace dls
 			this->participant = eprosima::fastdds::dds::DomainParticipantFactory::
 				get_instance()->create_participant(0, participantQos);
 
+			this->type.register_type(this->participant);
+
 			if(this->participant == nullptr)
 			{
 				throw std::runtime_error
