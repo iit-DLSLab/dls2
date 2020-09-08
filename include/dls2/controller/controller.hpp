@@ -134,17 +134,18 @@ private:
 		eprosima::fastrtps::SampleInfo_t info;
 	} gait_listener;
 
-	class BlindStateListener : public SubscriberBase<BlindStateMsgPubSubType>
-	{
-	public:
-		BlindStateListener(std::shared_ptr<Controller>);
-		~BlindStateListener() = default;
-		void onNewDataMessage(eprosima::fastrtps::Subscriber*) override;
-	private:
-		const std::shared_ptr<Controller> pOwner;
-		eprosima::fastrtps::SampleInfo_t info;
-	} blind_state_listener;
+	// class BlindStateListener : public SubscriberBase<BlindStateMsgPubSubType>
+	// {
+	// public:
+	// 	BlindStateListener(std::shared_ptr<Controller>);
+	// 	~BlindStateListener() = default;
+	// 	void onNewDataMessage(eprosima::fastrtps::Subscriber*) override;
+	// private:
+	// 	const std::shared_ptr<Controller> pOwner;
+	// 	eprosima::fastrtps::SampleInfo_t info;
+	// } blind_state_listener;
 
+	dls::version2::Subscriber<BlindStateMsgPubSubType> blind_state_listener;
 
 	const std::string control_signal_topic;
 	PublisherBase<ControlSignalMsgPubSubType> publisher;
@@ -153,14 +154,14 @@ private:
 
 /// Export the controller for loading into the framework
 ///
-#define DLS_EXPORT_CONTROLLER(controller) \
-extern "C" dls::Controller *create(std::shared_ptr<dls::dog::Dog> pDog) \
-{ \
-	return new controller(pDog); \
-} \
-extern "C" void destroy(dls::Controller *p) \
-{ \
-	delete p; \
+#define DLS_EXPORT_CONTROLLER(controller)                                      \
+extern "C" dls::Controller *create(std::shared_ptr<dls::dog::Dog> pDog)        \
+{                                                                              \
+	return new controller(pDog);                                               \
+}                                                                              \
+extern "C" void destroy(dls::Controller *p)                                    \
+{                                                                              \
+	delete p;                                                                  \
 }
 
 #endif /* end of include guard: CONTROLLER_HPP_RSFU8GQS */

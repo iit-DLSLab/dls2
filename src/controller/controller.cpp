@@ -55,7 +55,14 @@ Controller::Controller
 	blind_state_signal_mutex(),
 	should_run(false),
 	gait_listener(std::shared_ptr<Controller>(this,[](Controller*){})),
-	blind_state_listener(std::shared_ptr<Controller>(this,[](Controller*){})),
+	blind_state_listener
+	(
+		topics::low_level_estimation::blind_state,
+		[&](BlindStateMsg msg)
+		{
+			this->pBlind_state_signal = std::make_shared<BlindState>(msg);
+		}
+	),
 	control_signal_topic(std::string(topics::control_signal_base) + name_),
 	publisher(control_signal_topic)
 {
@@ -114,19 +121,19 @@ void Controller::GaitListener::onNewDataMessage(eprosima::fastrtps::Subscriber *
 	}
 }
 
-Controller::BlindStateListener::BlindStateListener(std::shared_ptr<Controller> p) :
-	SubscriberBase<BlindStateMsgPubSubType>(topics::low_level_estimation::blind_state),
-	pOwner(p),
-	info()
-{ }
+// Controller::BlindStateListener::BlindStateListener(std::shared_ptr<Controller> p) :
+// 	SubscriberBase<BlindStateMsgPubSubType>(topics::low_level_estimation::blind_state),
+// 	pOwner(p),
+// 	info()
+// { }
 
-void Controller::BlindStateListener::onNewDataMessage(eprosima::fastrtps::Subscriber *pSub)
-{
-	BlindStateMsg bs;
-	if(pSub->takeNextData(&bs, &info))
-	{
-		std::lock_guard<std::mutex> lock(pOwner->blind_state_signal_mutex);
-		// TODO do not reassign memory, just reset it
-		pOwner->pBlind_state_signal = std::make_shared<BlindState>(bs);
-	}
-}
+// void Controller::BlindStateListener::onNewDataMessage(eprosima::fastrtps::Subscriber *pSub)
+// {
+// 	BlindStateMsg bs;
+// 	if(pSub->takeNextData(&bs, &info))
+// 	{
+// 		std::lock_guard<std::mutex> lock(pOwner->blind_state_signal_mutex);
+// 		// TODO do not reassign memory, just reset it
+// 		pOwner->pBlind_state_signal = std::make_shared<BlindState>(bs);
+// 	}
+// }
