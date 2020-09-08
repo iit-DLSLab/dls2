@@ -20,6 +20,9 @@
 #ifndef PUBLISHER_BASE_TPP_I5UWXWN8
 #define PUBLISHER_BASE_TPP_I5UWXWN8
 
+// =============================================================================
+// Old Includes -- to be removed
+// =============================================================================
 #include "dls2/util/messaging/publisher_base.hpp"
 
 #include <fastrtps/transport/UDPv4TransportDescriptor.h>
@@ -34,6 +37,27 @@
 
 #include "dls2/util/debug/debug.hpp"
 
+// =============================================================================
+// New Includes
+// =============================================================================
+#include "dls2/util/messaging/publisher_base.hpp"
+
+#include <fastrtps/transport/UDPv4TransportDescriptor.h>
+#include <fastrtps/attributes/ParticipantAttributes.h>
+#include <fastrtps/attributes/PublisherAttributes.h>
+#include <fastrtps/participant/Participant.h>
+#include <fastrtps/publisher/Publisher.h>
+#include <fastrtps/TopicDataType.h>
+#include <fastrtps/Domain.h>
+
+#include <stdexcept>
+
+#include "dls2/util/debug/debug.hpp"
+
+
+// =============================================================================
+// Old Version -- to be removed
+// =============================================================================
 namespace dls
 {
 	// template <class PubSub_t>
@@ -120,4 +144,145 @@ namespace dls
 	}
 } // end namespace dls
 
+// =============================================================================
+// New Version
+// =============================================================================
+/// \cond doxygen_namespace_dls
+namespace dls
+{
+	/// \cond doxygen_namespace_version2
+	///
+	/// Temporary namespace until the old publishers and subscribers are
+	/// refactored into those contained here, then this namespace will be
+	/// removed and its contents lifted to the dls namespace
+	namespace version2
+	{
+		template <class PubSub_t>
+		Publisher<PubSub_t>::Publisher(const std::string &topic) :
+			participant(nullptr),
+			publisher(nullptr),
+			topic(nullptr),
+			writer(nullptr),
+			type(new PubSub_t())
+		{
+			eprosima::fastdds::dds::DomainParticipantQos participantQos;
+			participantQos.name("Participant_publisher");
+			this->participant =
+				eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->
+				create_participant(0, participantQos);
+
+			if(this->participant == nullptr)
+			{
+				throw std::runtime_error
+				(
+				 "Error: could not create publisher participant"
+				);
+			}
+
+			this->type.register_type(this->participant);
+			this->topic = this->participant->create_topic
+			(
+				topic,
+				rtps_type.getName(),
+				eprosima::fastdds::dds::TOPIC_QOS_DEFAULT
+			);
+
+			if(this->topic == nullptr)
+			{
+				throw std::runtime_error
+				(
+					"Error: could not create publisher topic"
+				);
+			}
+
+			this->publisher = this->participant->
+				create_publisher
+				(
+					eprosima::fastdds::dds::PUBLISHER_QOS_DEFAULT,
+					nullptr
+				);
+
+			if(this->publisher == nullptr)
+			{
+				throw std::runtime_error
+				(
+					"Error: could not create publisher"
+				);
+			}
+
+			this->writer = this->publisher->create_datawriter
+			(
+				this->topic,
+				eprosima::fastdds::dds::DATAWRITER_QOS_DEFAULT,
+				&publisher_listener
+			);
+
+			if(this->writer == nullptr)
+			{
+				throw std::runtime_error
+				(
+					"Error: could not create publisher writer"
+				);
+			}
+		}
+
+		template<class PubSub_t>
+		Publisher<PubSub_t>::~Publisher()
+		{
+			if(this->writer != nullptr)
+			{
+				this->publisher->delete_datawriter(this->writer);
+			}
+			if(this->publisher != nullptr)
+			{
+				this->participant->delete_publisher(this->publisher);
+			}
+			if(this->topic != nullptr)
+			{
+				this->participant->delete_topic(this->topic);
+			}
+			eprosima::fastdds::dds::DomainParticipantFactory::
+				get_instance()->delete_participant(this->participant);
+		}
+
+		template<class PubSub_t>
+		void Publisher<PubSub_t>::publish(typename PubSub_t::type &msg) const
+		{
+			if(publisher_listener.matched_count > 0)
+			{
+				this->writer->write(&msg);
+			}
+		}
+
+		// =====================================================================
+		// Helper Listener Class
+		// =====================================================================
+		template <class PubSub_t>
+		Publisher<PubSub_t>::PublisherListener::PublisherListener()
+		{ }
+
+		template <class PubSub_t>
+		void Publisher<PubSub_t>::PublisherListener::on_publication_matched
+		(
+			eprosima::fastdds::dds::DataWriter*,
+			const eprosima::fastdds::dds::PublicationMatchedStatus &info
+		)
+		{
+			if(info.current_count_change == 1)
+			{
+				// publisher matched
+				this->matched_count = info.total_count;
+			}
+			else if(info.current_count_change == -1)
+			{
+				// publisher unmatched
+				this->matched_count = info.total_count;
+			}
+			else
+			{
+				// invalid
+			}
+		}
+	} /// \endcond namespace version2
+} /// \endcond namespace dls
 #endif /* end of include guard: PUBLISHER_BASE_TPP_I5UWXWN8 */
