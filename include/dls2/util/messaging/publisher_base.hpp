@@ -12,10 +12,6 @@
 *                                     \|_________||   :    .'                  *
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
-********************************************************************************
-* Author:            Hendrik de Bruin                                          *
-* Maintainer:        Hendrik de Bruin                                          *
-* author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
 #ifndef PUBLISHER_BASE_HPP_MFE9PIJK
 #define PUBLISHER_BASE_HPP_MFE9PIJK

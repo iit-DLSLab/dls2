@@ -12,10 +12,6 @@
 *                                     \|_________||   :    .'                  *
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
-********************************************************************************
-* Author:            Hendrik de Bruin                                          *
-* Maintainer:        Hendrik de Bruin                                          *
-* author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
 #ifndef HYQREAL_RAW_HPP_NA5WOVDU
 #define HYQREAL_RAW_HPP_NA5WOVDU

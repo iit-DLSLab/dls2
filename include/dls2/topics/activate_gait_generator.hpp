@@ -12,10 +12,6 @@
 *                                     \|_________||   :    .'                  *
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
-********************************************************************************
-* Author:            Hendrik de Bruin                                          *
-* Maintainer:        Hendrik de Bruin                                          *
-* author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
 #ifndef ACTIVATE_GAIT_GENERATOR_HPP_AXQBHCZG
 #define ACTIVATE_GAIT_GENERATOR_HPP_AXQBHCZG

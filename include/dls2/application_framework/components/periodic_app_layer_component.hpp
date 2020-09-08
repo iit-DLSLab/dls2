@@ -12,10 +12,6 @@
 *                                     \|_________||   :    .'                  *
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
-********************************************************************************
-* Author:            Hendrik de Bruin                                          *
-* Maintainer:        Hendrik de Bruin                                          *
-* author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
 #ifndef PERIODIC_APP_LAYER_COMPONENT_HPP_RY9LWBZG
 #define PERIODIC_APP_LAYER_COMPONENT_HPP_RY9LWBZG
