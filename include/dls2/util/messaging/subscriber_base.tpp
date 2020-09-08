@@ -154,8 +154,8 @@ namespace dls
 		) :
 			participant(nullptr),
 			subscriber(nullptr),
-			topic(nullptr),
 			reader(nullptr),
+			topic(nullptr),
 			type(new PubSub_t()),
 			subscriber_listener(callback)
 		{
@@ -175,7 +175,7 @@ namespace dls
 			this->topic = this->participant->create_topic
 			(
 				topic,
-				this->rtyps_type->getName(),
+				this->rtps_type.getName(),
 				eprosima::fastdds::dds::TOPIC_QOS_DEFAULT
 			);
 
@@ -205,7 +205,7 @@ namespace dls
 			(
 				this->topic,
 				eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT,
-				&this->listener
+				&this->subscriber_listener
 			);
 
 			if(this->reader == nullptr)
@@ -241,8 +241,9 @@ namespace dls
 		// =====================================================================
 		template <class PubSub_t>
 		Subscriber<PubSub_t>::SubListener::SubListener(callback_t callback_) :
+			sample_count(0),
 			callback(callback_),
-			sample_count(0)
+			msg()
 		{ }
 
 		template <class PubSub_t>

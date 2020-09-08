@@ -117,9 +117,9 @@ namespace dls
 				) override;
 
 				callback_t callback;
+				typename PubSub_t::type msg;
 			} subscriber_listener;
 
-			typename PubSub_t::type msg;
 			PubSub_t rtps_type;
 		};
 	} /// \endcond namespace version2
