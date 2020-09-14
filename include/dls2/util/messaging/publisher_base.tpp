@@ -166,6 +166,9 @@ namespace dls
 			type(new PubSub_t())
 		{
 			eprosima::fastdds::dds::DomainParticipantQos participantQos;
+			participantQos.wire_protocol().builtin.discovery_config.initial_announcements.count = 20;
+			participantQos.wire_protocol().builtin.discovery_config.initial_announcements.period = eprosima::fastdds::Duration_t(0, 100000000u);
+
 			participantQos.name("Participant_publisher");
 			this->participant =
 				eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->
