@@ -3,6 +3,11 @@
 namespace dls_hw_sim
 {
 
+DlsRobotHwSim::DlsRobotHwSim() :
+	gazebo::ModelPlugin(),
+	blind_state_pub_(dls::topics::low_level_estimation::blind_state)
+{ }
+
 void DlsRobotHwSim::Load
 (
 	gazebo::physics::ModelPtr model,
@@ -14,6 +19,15 @@ void DlsRobotHwSim::Load
 	(
 		std::bind(&DlsRobotHwSim::onGazeboUpdate, this)
 	);
+}
+
+void DlsRobotHwSim::onGazeboUpdate()
+{
+	ros::Time t = ros::Time::now();
+	ros::Duration d; // unused in the functions
+
+	readSim(t, d);
+	writeSim(t, d);
 }
 
 bool DlsRobotHwSim::initSim(
@@ -76,8 +90,6 @@ bool DlsRobotHwSim::initSim(
 		//IMPORTANT TODO FIX
 		// IMPORTANT - Joint Order depends on the proper joint order in the urdf!
 		if (transmissions[j].actuators_[0].hardware_interfaces_.size()>0) {
-			const std::string &hardware_interface = transmissions[j].actuators_[0].hardware_interfaces_[0];
-			ROS_ERROR_STREAM("Loading joint '" << joint_name_[j] << "' of type '" << hardware_interface << "'");
 		}
 
 
@@ -137,26 +149,65 @@ bool DlsRobotHwSim::initSim(
 
 void DlsRobotHwSim::readSim(ros::Time time, ros::Duration period)
 {
-	ROS_ERROR_STREAM("READSIM");
-	// Fill ROS Control Interfaces
-	ros::Time t = ros::Time::now();
+	//ROS_ERROR_STREAM("READSIM");
+	//// Fill ROS Control Interfaces
+	//ros::Time t = ros::Time::now();
 
-	//Fill ROS Control
-	dls_gazebo_joint_state_.fillJointStateInterface(t);
-	dls_gazebo_imu_kvh_.fillImuKvhInterface(t);
-	dls_gazebo_imu_mgx_.fillImuMgxInterface(t);
-	dls_gazebo_blind_state_.fillBlindStateInterface(t);
-	//dls_gazebo_hyq_raw_.fillHyqRawInterface(t);
+	////Fill ROS Control
+	//dls_gazebo_joint_state_.fillJointStateInterface(t);
+	//dls_gazebo_imu_kvh_.fillImuKvhInterface(t);
+	//dls_gazebo_imu_mgx_.fillImuMgxInterface(t);
+	//dls_gazebo_blind_state_.fillBlindStateInterface(t);
+	////dls_gazebo_hyq_raw_.fillHyqRawInterface(t);
 
-	// Fill ROS Messages
-	//dls_gazebo_hyq_raw_.fillAndPublish();
-	dls_gazebo_blind_state_.fillAndPublish();
-	dls_gazebo_imu_mgx_.fillAndPublish();
-	dls_gazebo_imu_kvh_.fillAndPublish();
-	dls_gazebo_joint_state_.fillAndPublish();
-	dls_gazebo_imu_sensor_.fillAndPublish();
-	dls_gazebo_odometry_.fillAndPublish();
+	//// Fill ROS Messages
+	////dls_gazebo_hyq_raw_.fillAndPublish();
+	//dls_gazebo_blind_state_.fillAndPublish();
+	//dls_gazebo_imu_mgx_.fillAndPublish();
+	//dls_gazebo_imu_kvh_.fillAndPublish();
+	//dls_gazebo_joint_state_.fillAndPublish();
+	//dls_gazebo_imu_sensor_.fillAndPublish();
+	//dls_gazebo_odometry_.fillAndPublish();
 
+	publish_blind_state();
+}
+
+void DlsRobotHwSim::publish_blind_state()
+{
+	// this->blind_state_msg_.header().stamp = ros::Time::now();
+	for (int i=0;i<12;i++)
+	{
+		// TODO where to get the joint state?
+		// this->blind_state_msg_.joint_state().position()[i] += angles::shortest_angular_distance(this->blind_state_msg_.joint_state().position()[i],joint_[i]->GetAngle(0).Radian());
+		// this->blind_state_msg_.joint_state().velocity()[i] = joint_[i]->GetVelocity(0);
+		// this->blind_state_msg_.joint_state().effort()[i] = joint_[i]->GetForce(0);
+	}
+
+	this->blind_state_msg_.base_pose_world().position()[0] = sim_model_->GetWorldPose().pos.x;
+	this->blind_state_msg_.base_pose_world().position()[1] = sim_model_->GetWorldPose().pos.y;
+	this->blind_state_msg_.base_pose_world().position()[2] = sim_model_->GetWorldPose().pos.z;
+
+	// Filled in order x y z w to conform to Eigen's internal representation
+	this->blind_state_msg_.base_pose_world().quaternion()[0] = sim_model_->GetWorldPose().rot.x;
+	this->blind_state_msg_.base_pose_world().quaternion()[1] = sim_model_->GetWorldPose().rot.y;
+	this->blind_state_msg_.base_pose_world().quaternion()[2] = sim_model_->GetWorldPose().rot.z;
+	this->blind_state_msg_.base_pose_world().quaternion()[3] = sim_model_->GetWorldPose().rot.w;
+
+	this->blind_state_msg_.base_velocity_world().linear()[0] = sim_model_->GetWorldLinearVel().x;
+	this->blind_state_msg_.base_velocity_world().linear()[1] = sim_model_->GetWorldLinearVel().y;
+	this->blind_state_msg_.base_velocity_world().linear()[2] = sim_model_->GetWorldLinearVel().z;
+	this->blind_state_msg_.base_velocity_world().angular()[0] = sim_model_->GetWorldAngularVel().x;
+	this->blind_state_msg_.base_velocity_world().angular()[1] = sim_model_->GetWorldAngularVel().y;
+	this->blind_state_msg_.base_velocity_world().angular()[2] = sim_model_->GetWorldAngularVel().z;
+
+	this->blind_state_msg_.base_acceleration_world().linear()[0] = sim_model_->GetWorldLinearAccel().x;
+	this->blind_state_msg_.base_acceleration_world().linear()[1] = sim_model_->GetWorldLinearAccel().y;
+	this->blind_state_msg_.base_acceleration_world().linear()[2] = sim_model_->GetWorldLinearAccel().z;
+	this->blind_state_msg_.base_acceleration_world().angular()[0] = sim_model_->GetWorldLinearAccel().x;
+	this->blind_state_msg_.base_acceleration_world().angular()[1] = sim_model_->GetWorldLinearAccel().y;
+	this->blind_state_msg_.base_acceleration_world().angular()[2] = sim_model_->GetWorldLinearAccel().z;
+
+	this->blind_state_pub_.publish(this->blind_state_msg_);
 }
 
 bool DlsRobotHwSim::freezeBase(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res)

@@ -26,6 +26,15 @@
 #include "dls_hw_sim/interfaces/hyq_raw.hpp"
 #include "dls_hw_sim/interfaces/odometry.hpp"
 
+#include "dls2/util/messaging/publisher_base.hpp"
+#include "dls2/msg/blind_statePubSubTypes.h"
+#include "dls2/msg/timePubSubTypes.h"
+#include "dls2/topics/low_level_estimation/blind_state.hpp"
+#include "dls2/topics/simulation_time.hpp"
+#include "dls2/command/command.hpp"
+#include "dls2/util/log/log.hpp"
+#include <mutex>
+
 
 namespace dls_hw_sim
 {
@@ -38,6 +47,7 @@ namespace dls_hw_sim
 class DlsRobotHwSim : public gazebo::ModelPlugin //public gazebo_ros_control::RobotHWSim, public hardware_interface::DlsRobotHwInterface
 {
 public:
+	DlsRobotHwSim();
 
 	void Load
 	(
@@ -86,6 +96,8 @@ public:
 
   bool checkForConflict(const std::list<hardware_interface::ControllerInfo>& info) const;
 
+  void publish_blind_state();
+
 private:
 
   DlsGazeboImuKvh dls_gazebo_imu_kvh_;
@@ -95,6 +107,8 @@ private:
   DlsGazeboBlindState dls_gazebo_blind_state_;
   DlsGazeboHyqRaw dls_gazebo_hyq_raw_;
   DlsGazeboOdometry dls_gazebo_odometry_;
+  BlindStateMsg blind_state_msg_;
+  dls::PublisherBase<BlindStateMsgPubSubType> blind_state_pub_;
 
 
   unsigned int n_dof_;
