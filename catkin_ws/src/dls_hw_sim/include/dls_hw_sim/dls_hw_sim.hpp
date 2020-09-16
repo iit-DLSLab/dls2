@@ -35,9 +35,17 @@ namespace dls_hw_sim
  * @brief This hardware interface is loaded to Gazebo using gazebo_ros_control plugin
  * which required the initSim, readSim and writeSim methods override in this class.
  */
-class DlsRobotHwSim : public gazebo_ros_control::RobotHWSim, public hardware_interface::DlsRobotHwInterface
+class DlsRobotHwSim : public gazebo::ModelPlugin //public gazebo_ros_control::RobotHWSim, public hardware_interface::DlsRobotHwInterface
 {
 public:
+
+	void Load
+	(
+		gazebo::physics::ModelPtr,
+		sdf::ElementPtr
+	) override;
+
+	void onGazeboUpdate();
   /**
      * @brief Initializes the Hy2Max hardware interface by reading the urdf file
      * @param const std::string& robot_namespace Robot namespace
@@ -93,9 +101,10 @@ private:
 
   std::vector<std::string> joint_name_;
 
-  
+
   std::vector<gazebo::physics::JointPtr> sim_joints_;
   gazebo::physics::ModelPtr sim_model_;
+  gazebo::event::ConnectionPtr update_connection;
   gazebo::math::Pose initial_pose_;
 
   bool freeze_cmd_;
@@ -105,6 +114,7 @@ private:
 
 };
 
+	GZ_REGISTER_MODEL_PLUGIN(DlsRobotHwSim);
 }
 
 #endif

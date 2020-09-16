@@ -1,10 +1,20 @@
 #include "dls_hw_sim/dls_hw_sim.hpp"
 
-PLUGINLIB_EXPORT_CLASS(dls_hw_sim::DlsRobotHwSim, gazebo_ros_control::RobotHWSim)
-
-
 namespace dls_hw_sim
 {
+
+void DlsRobotHwSim::Load
+(
+	gazebo::physics::ModelPtr model,
+	sdf::ElementPtr
+)
+{
+	this->sim_model_ = model;
+	this->update_connection = gazebo::event::Events::ConnectWorldUpdateBegin
+	(
+		std::bind(&DlsRobotHwSim::onGazeboUpdate, this)
+	);
+}
 
 bool DlsRobotHwSim::initSim(
 	const std::string& robot_namespace,
@@ -27,13 +37,13 @@ bool DlsRobotHwSim::initSim(
 	// Resize vectors to our DOF
 	n_dof_ = transmissions.size();
 	joint_name_.resize(n_dof_);
-	joint_types_.resize(n_dof_);
-	joint_lower_limits_.resize(n_dof_);
-	joint_upper_limits_.resize(n_dof_);
-	joint_effort_limits_.resize(n_dof_);
-	
-	
-	joint_effort_command_.resize(n_dof_);
+	// joint_types_.resize(n_dof_);
+	// joint_lower_limits_.resize(n_dof_);
+	// joint_upper_limits_.resize(n_dof_);
+	// joint_effort_limits_.resize(n_dof_);
+
+
+	// joint_effort_command_.resize(n_dof_);
 
 
 	// Initialize values
@@ -60,7 +70,7 @@ bool DlsRobotHwSim::initSim(
 
 		// Add data from transmission
 		joint_name_[j] = transmissions[j].joints_[0].name_;
-		joint_effort_command_[j] = 0.0;
+		// joint_effort_command_[j] = 0.0;
 
 
 		//IMPORTANT TODO FIX
@@ -70,17 +80,17 @@ bool DlsRobotHwSim::initSim(
 			ROS_ERROR_STREAM("Loading joint '" << joint_name_[j] << "' of type '" << hardware_interface << "'");
 		}
 
-		
-		joint_state_interface_.registerHandle(
-			hardware_interface::JointStateHandle(
-				dls_gazebo_joint_state_.name_[j],
-				&dls_gazebo_joint_state_.position_[j],
-				&dls_gazebo_joint_state_.velocity_[j],
-				&dls_gazebo_joint_state_.effort_[j]
-			)
-		);
 
-		joint_command_interface_.registerHandle(hardware_interface::JointHandle(joint_state_interface_.getHandle(joint_name_[j]), &joint_effort_command_[j]));
+		// joint_state_interface_.registerHandle(
+		// 	hardware_interface::JointStateHandle(
+		// 		dls_gazebo_joint_state_.name_[j],
+		// 		&dls_gazebo_joint_state_.position_[j],
+		// 		&dls_gazebo_joint_state_.velocity_[j],
+		// 		&dls_gazebo_joint_state_.effort_[j]
+		// 	)
+		// );
+
+		// joint_command_interface_.registerHandle(hardware_interface::JointHandle(joint_state_interface_.getHandle(joint_name_[j]), &joint_effort_command_[j]));
 
 		gazebo::physics::JointPtr joint = parent_model->GetJoint(joint_name_[j]);
 		if (!joint) {
@@ -88,33 +98,33 @@ bool DlsRobotHwSim::initSim(
 			return false;
 		} else {
 			sim_joints_.push_back(joint);
-			joint_effort_limits_[j] = joint->GetEffortLimit(0);
-			joint->SetEffortLimit(0,joint_effort_limits_[j]); // TODO this set is useless:
+			// joint_effort_limits_[j] = joint->GetEffortLimit(0);
+			// joint->SetEffortLimit(0,joint_effort_limits_[j]); // TODO this set is useless:
 		}
 
 	}
 
 
 	initial_pose_ = sim_model_->GetWorldPose();
-	robot_name_ = sim_model_->GetName();
-
-	
-	imu_kvh_interface_.registerHandle(hardware_interface::ImuKvhHandle(dls_gazebo_imu_kvh_.data_));
-	imu_mgx_interface_.registerHandle(hardware_interface::ImuMgxHandle(dls_gazebo_imu_mgx_.data_));
-	imu_sensor_interface_.registerHandle(hardware_interface::ImuSensorHandle(dls_gazebo_imu_sensor_.data_));
-	blind_state_interface_.registerHandle(hardware_interface::BlindStateHandle(dls_gazebo_blind_state_.data_));
-	hyq_raw_interface_.registerHandle(hardware_interface::HyqRawHandle(dls_gazebo_hyq_raw_.data_));
+	// robot_name_ = sim_model_->GetName();
 
 
+	// imu_kvh_interface_.registerHandle(hardware_interface::ImuKvhHandle(dls_gazebo_imu_kvh_.data_));
+	// imu_mgx_interface_.registerHandle(hardware_interface::ImuMgxHandle(dls_gazebo_imu_mgx_.data_));
+	// imu_sensor_interface_.registerHandle(hardware_interface::ImuSensorHandle(dls_gazebo_imu_sensor_.data_));
+	// blind_state_interface_.registerHandle(hardware_interface::BlindStateHandle(dls_gazebo_blind_state_.data_));
+	// hyq_raw_interface_.registerHandle(hardware_interface::HyqRawHandle(dls_gazebo_hyq_raw_.data_));
 
-	// Register interfaces
-	registerInterface(&joint_command_interface_);
-	registerInterface(&joint_state_interface_);
-	registerInterface(&imu_sensor_interface_);
-	registerInterface(&blind_state_interface_);
-	registerInterface(&imu_kvh_interface_);
-	registerInterface(&imu_mgx_interface_);
-	registerInterface(&hyq_raw_interface_);
+
+
+	// // Register interfaces
+	// registerInterface(&joint_command_interface_);
+	// registerInterface(&joint_state_interface_);
+	// registerInterface(&imu_sensor_interface_);
+	// registerInterface(&blind_state_interface_);
+	// registerInterface(&imu_kvh_interface_);
+	// registerInterface(&imu_mgx_interface_);
+	// registerInterface(&hyq_raw_interface_);
 
 	freeze_cmd_=true;
 	freeze_state_=false;
@@ -135,18 +145,18 @@ void DlsRobotHwSim::readSim(ros::Time time, ros::Duration period)
 	dls_gazebo_joint_state_.fillJointStateInterface(t);
 	dls_gazebo_imu_kvh_.fillImuKvhInterface(t);
 	dls_gazebo_imu_mgx_.fillImuMgxInterface(t);
-	dls_gazebo_blind_state_.fillBlindStateInterface(t); 
-	//dls_gazebo_hyq_raw_.fillHyqRawInterface(t); 
+	dls_gazebo_blind_state_.fillBlindStateInterface(t);
+	//dls_gazebo_hyq_raw_.fillHyqRawInterface(t);
 
 	// Fill ROS Messages
-	//dls_gazebo_hyq_raw_.fillAndPublish(); 
+	//dls_gazebo_hyq_raw_.fillAndPublish();
 	dls_gazebo_blind_state_.fillAndPublish();
 	dls_gazebo_imu_mgx_.fillAndPublish();
 	dls_gazebo_imu_kvh_.fillAndPublish();
 	dls_gazebo_joint_state_.fillAndPublish();
 	dls_gazebo_imu_sensor_.fillAndPublish();
 	dls_gazebo_odometry_.fillAndPublish();
-	
+
 }
 
 bool DlsRobotHwSim::freezeBase(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res)
@@ -158,7 +168,7 @@ bool DlsRobotHwSim::freezeBase(std_srvs::Empty::Request& req, std_srvs::Empty::R
 void DlsRobotHwSim::writeSim(ros::Time time, ros::Duration period)
 {
  	for (unsigned int i=0; i < sim_joints_.size(); i++) {
- 	        sim_joints_[i]->SetForce(0, joint_effort_command_[i]);
+ 	        // sim_joints_[i]->SetForce(0, joint_effort_command_[i]);
  	}
 	if (freeze_cmd_!=freeze_state_)
 	{
@@ -188,7 +198,7 @@ void DlsRobotHwSim::writeSim(ros::Time time, ros::Duration period)
 
 		}
 	}
-	
+
 }
 
 bool DlsRobotHwSim::checkForConflict(const std::list<hardware_interface::ControllerInfo>& info) const
