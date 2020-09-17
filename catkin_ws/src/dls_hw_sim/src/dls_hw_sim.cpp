@@ -1,4 +1,7 @@
 #include "dls_hw_sim/dls_hw_sim.hpp"
+#include <ros/ros.h>
+#include <urdf/model.h>
+#include <transmission_interface/transmission_parser.h>
 
 namespace dls_hw_sim
 {
@@ -11,13 +14,61 @@ DlsRobotHwSim::DlsRobotHwSim() :
 void DlsRobotHwSim::Load
 (
 	gazebo::physics::ModelPtr model,
-	sdf::ElementPtr
+	sdf::ElementPtr element
 )
 {
+	std::cout << "LOADING DLS_HW_SIM PLUGIN" << std::endl;
+	if (!model)
+	{
+		ROS_ERROR_STREAM_NAMED("loadThread","parent model is NULL");
+		return;
+	}
+
+	if(!ros::isInitialized())
+	{
+		ROS_FATAL_STREAM_NAMED
+		(
+			"dls_hw_sim",
+			" A ROS node for Gazebo has not been initialized, unable to load"
+			" plugin."
+		);
+		return;
+	}
+
+	auto robot_namespace = model->GetName();
+	auto robot_description = "robot_description";
+
+	ros::Duration gazebo_period(model->GetWorld()->GetPhysicsEngine()->GetMaxStepSize());
+
+	ros::NodeHandle node_handle(robot_namespace);
+
+	/*const*/ std::string urdf_string;
+	node_handle.getParam("/robot_description", urdf_string);
+
+	urdf::Model urdf_model;
+    const urdf::Model *const urdf_model_ptr = urdf_model.initString(urdf_string) ? &urdf_model : NULL;
+
+	transmission_interface::TransmissionParser::parse(urdf_string, transmissions_);
+	if
+	(
+		!this->initSim
+		(
+			robot_namespace,
+			node_handle,
+			model,
+			urdf_model_ptr,
+			transmissions_
+		)
+	)
+	{
+		ROS_FATAL_NAMED("gazebo_ros_control","Could not initialize robot simulation interface");
+		return;
+	}
+
 	this->sim_model_ = model;
 	this->update_connection = gazebo::event::Events::ConnectWorldUpdateBegin
 	(
-		std::bind(&DlsRobotHwSim::onGazeboUpdate, this)
+		 std::bind(&DlsRobotHwSim::onGazeboUpdate, this)
 	);
 }
 
@@ -31,11 +82,11 @@ void DlsRobotHwSim::onGazeboUpdate()
 }
 
 bool DlsRobotHwSim::initSim(
-	const std::string& robot_namespace,
-	ros::NodeHandle model_nh,
-	gazebo::physics::ModelPtr parent_model,
-	const urdf::Model *const urdf_model,
-	std::vector<transmission_interface::TransmissionInfo> transmissions)
+		const std::string& robot_namespace,
+		ros::NodeHandle model_nh,
+		gazebo::physics::ModelPtr parent_model,
+		const urdf::Model *const urdf_model,
+		std::vector<transmission_interface::TransmissionInfo> transmissions)
 {
 	sim_model_ = parent_model;
 
@@ -161,13 +212,13 @@ void DlsRobotHwSim::readSim(ros::Time time, ros::Duration period)
 	////dls_gazebo_hyq_raw_.fillHyqRawInterface(t);
 
 	//// Fill ROS Messages
-	////dls_gazebo_hyq_raw_.fillAndPublish();
-	//dls_gazebo_blind_state_.fillAndPublish();
-	//dls_gazebo_imu_mgx_.fillAndPublish();
-	//dls_gazebo_imu_kvh_.fillAndPublish();
-	//dls_gazebo_joint_state_.fillAndPublish();
-	//dls_gazebo_imu_sensor_.fillAndPublish();
-	//dls_gazebo_odometry_.fillAndPublish();
+	dls_gazebo_hyq_raw_.fillAndPublish();
+	dls_gazebo_blind_state_.fillAndPublish();
+	dls_gazebo_imu_mgx_.fillAndPublish();
+	dls_gazebo_imu_kvh_.fillAndPublish();
+	dls_gazebo_joint_state_.fillAndPublish();
+	dls_gazebo_imu_sensor_.fillAndPublish();
+	dls_gazebo_odometry_.fillAndPublish();
 
 	publish_blind_state();
 }
@@ -212,15 +263,15 @@ void DlsRobotHwSim::publish_blind_state()
 
 bool DlsRobotHwSim::freezeBase(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res)
 {
-    freeze_cmd_=!freeze_state_;
-    return true;
+	freeze_cmd_=!freeze_state_;
+	return true;
 }
 
 void DlsRobotHwSim::writeSim(ros::Time time, ros::Duration period)
 {
- 	for (unsigned int i=0; i < sim_joints_.size(); i++) {
- 	        // sim_joints_[i]->SetForce(0, joint_effort_command_[i]);
- 	}
+	for (unsigned int i=0; i < sim_joints_.size(); i++) {
+		// sim_joints_[i]->SetForce(0, joint_effort_command_[i]);
+	}
 	if (freeze_cmd_!=freeze_state_)
 	{
 		freeze_state_ = freeze_cmd_;

@@ -109,6 +109,7 @@ private:
   DlsGazeboOdometry dls_gazebo_odometry_;
   BlindStateMsg blind_state_msg_;
   dls::PublisherBase<BlindStateMsgPubSubType> blind_state_pub_;
+  std::vector<transmission_interface::TransmissionInfo> transmissions_;
 
 
   unsigned int n_dof_;

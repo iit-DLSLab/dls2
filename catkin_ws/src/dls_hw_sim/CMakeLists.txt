@@ -61,16 +61,16 @@ link_directories(
 	${ROOT_PROJECT_DIRECTORY}/bin/release
 	${ROOT_PROJECT_DIRECTORY}/bin/Debug
 	${ROOT_PROJECT_DIRECTORY}/bin/Release
-g
 )
 ## Libraries
-add_library(dls_hw_sim src/dls_hw_sim.cpp)
+add_library(dls_hw_sim SHARED src/dls_hw_sim.cpp)
 target_link_libraries(dls_hw_sim ${catkin_LIBRARIES} 
                       ${GAZEBO_LIBRARIES}
 	
 	fastcdr
 	fastrtps
 	dls_messaging
+	dls_dls2_messaging
                       )
 
 install(DIRECTORY include/${PROJECT_NAME}/

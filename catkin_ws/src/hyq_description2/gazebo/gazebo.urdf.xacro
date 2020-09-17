@@ -4,12 +4,16 @@
 <xacro:arg name="task_period" default="0.001"/>
 
 	<gazebo>
-		<plugin name="gazebo_ros_controller_manager" filename="libgazebo_ros_control.so">
-			<robotNamespace>/hyq</robotNamespace>
-			<robotSimType>dls_hw_sim/DlsRobotHwSim</robotSimType> 
-			<controlPeriod>$(arg task_period)</controlPeriod>
-		</plugin>
-
+		<!-- <plugin name="gazebo_ros_controller_manager" filename="libgazebo_ros_control.so"> -->
+		<!-- 	<robotNamespace>/hyq</robotNamespace> -->
+		<!-- 	<robotSimType>dls_hw_sim/DlsRobotHwSim</robotSimType> -->
+		<!-- 	<controlPeriod>$(arg task_period)</controlPeriod> -->
+		<!-- </plugin> -->
+	<plugin
+		name="dls_hw_sim"
+		filename="libdls_hw_sim.so"
+	>
+	</plugin>
 	</gazebo>
 
 </robot>
