@@ -136,6 +136,7 @@ void BlindStateController::update(const ros::Time &time, const ros::Duration &pe
 	{
 		blind_state_msg_.base_pose_world().quaternion()[i] = blind_state_.getBasePoseWorld()[i+3];
 	}
+	++(this->blind_state_msg_.header().seq());
 	pBlind_state_pub_->publish(blind_state_msg_);
 }
 
