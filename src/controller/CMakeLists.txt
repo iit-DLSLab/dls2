@@ -43,6 +43,36 @@ add_library(dls_dummy_controller4 SHARED
 target_link_libraries(dls_dummy_controller4
 	doglib
 )
+add_library(dls_dummy_controller5 SHARED
+	dummy_controller5.cpp
+)
+target_link_libraries(dls_dummy_controller5
+	doglib
+)
+add_library(dls_dummy_controller6 SHARED
+	dummy_controller6.cpp
+)
+target_link_libraries(dls_dummy_controller6
+	doglib
+)
+add_library(dls_dummy_controller7 SHARED
+	dummy_controller7.cpp
+)
+target_link_libraries(dls_dummy_controller7
+	doglib
+)
+add_library(dls_dummy_controller8 SHARED
+	dummy_controller8.cpp
+)
+target_link_libraries(dls_dummy_controller8
+	doglib
+)
+add_library(dls_dummy_controller9 SHARED
+	dummy_controller9.cpp
+)
+target_link_libraries(dls_dummy_controller9
+	doglib
+)
 
 
 if(DLS_INSTALL_DUMMY_CONTROLLER)
@@ -51,6 +81,11 @@ if(DLS_INSTALL_DUMMY_CONTROLLER)
 		dls_dummy_controller2
 		dls_dummy_controller3
 		dls_dummy_controller4
+		dls_dummy_controller5
+		dls_dummy_controller6
+		dls_dummy_controller7
+		dls_dummy_controller8
+		dls_dummy_controller9
 		LIBRARY DESTINATION ${DLS_INSTALL_CONTROLLER_DIR}
 		# COMPONENT "PLUGIN-${PROJECT_NAME}-dls_dummy_controller"
 	)

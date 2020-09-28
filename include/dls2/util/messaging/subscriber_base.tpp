@@ -160,8 +160,10 @@ namespace dls
 			subscriber_listener(callback)
 		{
 			eprosima::fastdds::dds::DomainParticipantQos participantQos;
-			participantQos.wire_protocol().builtin.discovery_config.initial_announcements.count = 20;
-			participantQos.wire_protocol().builtin.discovery_config.initial_announcements.period = eprosima::fastrtps::Duration_t(0, 100000000u);
+			participantQos.wire_protocol().builtin.discovery_config.discoveryProtocol = eprosima::fastrtps::rtps::DiscoveryProtocol_t::SIMPLE;
+			participantQos.wire_protocol().builtin.discovery_config.leaseDuration_announcementperiod = eprosima::fastrtps::Duration_t(1, 2);
+			// participantQos.wire_protocol().builtin.discovery_config.initial_announcements.count = 2000;
+			// participantQos.wire_protocol().builtin.discovery_config.initial_announcements.period = eprosima::fastrtps::Duration_t(0, 100000000u);
 
 			participantQos.name("Participant_subscriber");
 			this->participant = eprosima::fastdds::dds::DomainParticipantFactory::

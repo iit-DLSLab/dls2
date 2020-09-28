@@ -88,9 +88,9 @@ private:
 
 	/// Commands to pause/continue this component
 	///
-	CommandManager command_manager;
+	// CommandManager command_manager;
 
-	logging::coutstream scout;
+	// logging::coutstream scout;
 };
 } // end namespace dls
 

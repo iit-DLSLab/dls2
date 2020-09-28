@@ -97,7 +97,7 @@ int main(int argc, char **argv)
 	Args args = parse_args(argc, argv);
 
 	// logging stream
-	logging::coutstream s(process_handle);
+	// logging::coutstream s(process_handle);
 
 	// start ros
 	ros::init(argc, argv, argv[1]);
@@ -143,8 +143,8 @@ int main(int argc, char **argv)
 			);
 
 		std::cout << "Loaded component from local directory" << std::endl;
-		s << "Loaded component " << pComponent->getID()
-			<< " from local directory" << std::endl;
+		// s << "Loaded component " << pComponent->getID()
+		// 	<< " from local directory" << std::endl;
 	}
 	catch(const std::exception&)
 	{
@@ -176,13 +176,13 @@ int main(int argc, char **argv)
 				exit(EXIT_FAILURE);
 			}
 
-			s << "Loaded component " << pComponent->getID() << std::endl;
+			// s << "Loaded component " << pComponent->getID() << std::endl;
 		}
 		catch(const std::exception&)
 		{
 			// logging::cfatalstream s(process_handle);
-			s << "Component '" << args.component_name << "' of type '"
-				<< args.component_type << "' not found" << std::endl;
+			// s << "Component '" << args.component_name << "' of type '"
+			// 	<< args.component_type << "' not found" << std::endl;
 			std::cout << "Component '" << args.component_name << "' of type '"
 				<< args.component_type << "' not found" << std::endl;
 			exit(EXIT_FAILURE);
@@ -257,8 +257,8 @@ void signal_handler(int signal)
 	{
 		pComponent->stop();
 
-		logging::coutstream s(process_handle);
-		s << pComponent->getID() << " received kill request" << std::endl;
+		// logging::coutstream s(process_handle);
+		// s << pComponent->getID() << " received kill request" << std::endl;
 		auto exit_status = pComponent->getStatus();
 		pComponent = nullptr;
 
