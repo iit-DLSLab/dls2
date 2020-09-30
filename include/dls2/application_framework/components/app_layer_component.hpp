@@ -97,11 +97,11 @@ private:
 
 	/// Command manager for commands that all components must have
 	///
-	CommandManager command_manager;
+	// CommandManager command_manager;
 
 	/// Print stream
 	///
-	logging::coutstream scout;
+	// logging::coutstream scout;
 };
 } // end namespace dls
 

@@ -12,6 +12,10 @@
 *                                     \|_________||   :    .'                  *
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
+********************************************************************************
+* Author:            Hendrik de Bruin                                          *
+* Maintainer:        Hendrik de Bruin                                          *
+* author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
 #include "dls2/controller/dummy_controller.hpp"
 #include "dls2/util/debug/debug.hpp"
@@ -30,7 +34,7 @@ DummyController::DummyController
 		dog,
 		"dls_dummy_controller",
 		// std::chrono::duration<double, std::ratio<1, 1'000'000'000>>(1),
-		std::chrono::duration<double, std::ratio<1, 1>>(1),
+		std::chrono::duration<double, std::ratio<1, 1>>(3),
 		ControlSignal::SignalReconstructionMethod::ZERO_ORDER_HOLD
 	)//,
 	// command_manager(),
@@ -111,11 +115,11 @@ void DummyController::run(const std::chrono::system_clock::time_point &time)
 	auto pBlind_state = this->readBlindStateSignal();
 	if(!pBlind_state)
 	{
-		std::cout << "dummy controller did not get blind state" << std::endl;
+		std::cout << "dummy controller 3 did not get blind state" << std::endl;
 	}
 	else
 	{
-		std::cout << "DUMMY CONTROLLER GOT BLIND STATE" << std::endl;
+		std::cout << "DUMMY CONTROLLER 3 GOT BLIND STATE" << std::endl;
 	}
 
 	ControlSignal s;

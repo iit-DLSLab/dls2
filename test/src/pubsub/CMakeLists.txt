@@ -27,3 +27,48 @@ create_test(pub_multisub_multiprocess
 		fastcdr
 		catch2
 )
+
+add_executable(dummy_blind_state_publisher
+	blind_state_test.cpp
+)
+
+target_link_libraries(dummy_blind_state_publisher
+	dls_messaging
+	fastrtps
+	fastcdr
+)
+
+add_executable(dummy_blind_state_subscriber
+	blind_state_sub.cpp
+)
+
+target_link_libraries(dummy_blind_state_subscriber
+	dls_messaging
+	fastrtps
+	fastcdr
+)
+
+add_executable(bare_dummy_controller
+	bare_dummy_controller.cpp
+)
+target_link_libraries(bare_dummy_controller
+	dls_dummy_controller
+	dls_controller_interface
+	dls_dls2_messaging
+	dls_gait_generator
+	dls_command
+	dls_messaging
+	dls_logging
+	dls_framework
+	fastrtps
+	fastcdr
+)
+
+create_test(multi_pubsub_one_to_one
+	SOURCE
+		multi_pubsub_one_to_one.cpp
+	LINK
+		dls_messaging
+		fastrtps
+		fastcdr
+)

@@ -50,11 +50,11 @@ public:
 	std::string where() override;
 
 private:
-	CommandManager command_manager;
-	logging::coutstream outstream;
-	logging::clogstream logstream;
+	// CommandManager command_manager;
+	// logging::coutstream outstream;
+	// logging::clogstream logstream;
 
-	Service<StringMsgPubSubType, StringMsgPubSubType> service;
+	// Service<StringMsgPubSubType, StringMsgPubSubType> service;
 };
 } // end namespace dls
 

@@ -35,45 +35,45 @@ PeriodicAppLayerComponent::PeriodicAppLayerComponent(const ID_t &ID, const perio
 	should_run(false),
 	pause_mutex(),
 	is_paused(false),
-	pause_request(),
-	command_manager(),
-	scout(ID)
+	pause_request()//,
+	// command_manager(),
+	// scout(ID)
 {
-	this->command_manager.addCommand<void, ARGVOID>
-	(
-		this->getID(),
-		std::string("pause"),
-		std::string("Pause the execution of ") + this->getID(),
-		std::function<void(ARGVOID)>
-		(
-			[&](ARGVOID)
-			{
-				std::lock_guard<std::mutex> lock(this->pause_mutex);
-				this->is_paused = true;
-				this->pause_request.notify_all();
-				std::cout << this->getID() << " paused execution" << std::endl;
-				scout << this->getID() << " paused execution" << std::endl;
-			}
-		)
-	);
+	// this->command_manager.addCommand<void, ARGVOID>
+	// (
+	// 	this->getID(),
+	// 	std::string("pause"),
+	// 	std::string("Pause the execution of ") + this->getID(),
+	// 	std::function<void(ARGVOID)>
+	// 	(
+	// 		[&](ARGVOID)
+	// 		{
+	// 			std::lock_guard<std::mutex> lock(this->pause_mutex);
+	// 			this->is_paused = true;
+	// 			this->pause_request.notify_all();
+	// 			std::cout << this->getID() << " paused execution" << std::endl;
+	// 			// scout << this->getID() << " paused execution" << std::endl;
+	// 		}
+	// 	)
+	// );
 
-	this->command_manager.addCommand<void, ARGVOID>
-	(
-		this->getID(),
-		"continue",
-		std::string("Continue the execution of ") + this->getID(),
-		std::function<void(ARGVOID)>
-		(
-			[&](ARGVOID)
-			{
-				std::lock_guard<std::mutex> lock(this->pause_mutex);
-				this->is_paused = false;
-				this->pause_request.notify_all();
-				std::cout << this->getID() << " continued execution" << std::endl;
-				scout << this->getID() << " continued execution" << std::endl;
-			}
-		)
-	);
+	// this->command_manager.addCommand<void, ARGVOID>
+	// (
+	// 	this->getID(),
+	// 	"continue",
+	// 	std::string("Continue the execution of ") + this->getID(),
+	// 	std::function<void(ARGVOID)>
+	// 	(
+	// 		[&](ARGVOID)
+	// 		{
+	// 			std::lock_guard<std::mutex> lock(this->pause_mutex);
+	// 			this->is_paused = false;
+	// 			this->pause_request.notify_all();
+	// 			std::cout << this->getID() << " continued execution" << std::endl;
+	// 			// scout << this->getID() << " continued execution" << std::endl;
+	// 		}
+	// 	)
+	// );
 }
 
 // =============================================================================
