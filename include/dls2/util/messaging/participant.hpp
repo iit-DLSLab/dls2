@@ -1,0 +1,36 @@
+/*******************************************************************************
+*                                                       ,----,                 *
+*                                                     .'   .' \                *
+*                                                   ,----,'    |               *
+*               ________  ___       ________        |    :  .  ;               *
+*              |\   ___ \|\  \     |\   ____\       ;    |.'  /                *
+*              \ \  \_|\ \ \  \    \ \  \___|_      `----'/  ;                 *
+*               \ \  \ \\ \ \  \    \ \_____  \       /  ;  /                  *
+*                \ \  \_\\ \ \  \____\|____|\  \     ;  /  /-,                 *
+*                 \ \_______\ \_______\____\_\  \   /  /  /.`|                 *
+*                  \|_______|\|_______|\_________\./__;      :                 *
+*                                     \|_________||   :    .'                  *
+*                                                 ;   | .'                     *
+*                                                 `---'                        *
+*******************************************************************************/
+#ifndef PARTICIPANT_HPP_4d198a8c_fdc4_4c7d_8be9_6d4b7e6bd7d2
+#define PARTICIPANT_HPP_4d198a8c_fdc4_4c7d_8be9_6d4b7e6bd7d2
+
+#include <fastdds/dds/domain/DomainParticipantFactory.hpp>
+#include <fastdds/dds/domain/DomainParticipant.hpp>
+
+/// \cond doxygen_namespace_dls
+namespace dls
+{
+	/// \cond doxygen_namespace_impl
+	namespace impl
+	{
+		void initFastdds();
+		auto getFastddsParticipant() -> eprosima::fastdds::dds::DomainParticipant *;
+		void closeFastdds();
+	} // namespace impl
+	/// \endcond
+} // namespace dls
+/// \endcond
+
+#endif // PARTICIPANT_HPP_4d198a8c_fdc4_4c7d_8be9_6d4b7e6bd7d2

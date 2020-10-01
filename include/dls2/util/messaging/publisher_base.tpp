@@ -36,6 +36,7 @@
 // =============================================================================
 // New Includes
 // =============================================================================
+#include "dls2/util/messaging/participant.hpp"
 #include "dls2/util/messaging/publisher_base.hpp"
 
 #include <fastrtps/transport/UDPv4TransportDescriptor.h>
@@ -155,34 +156,14 @@ namespace dls
 	{
 		template <class PubSub_t>
 		Publisher<PubSub_t>::Publisher(const std::string &topic) :
-			participant(nullptr),
+			// participant(nullptr),
 			publisher(nullptr),
 			topic(nullptr),
 			writer(nullptr),
 			type(new PubSub_t())
 		{
-			eprosima::fastdds::dds::DomainParticipantQos participantQos;
-			participantQos.wire_protocol().builtin.discovery_config.discoveryProtocol = eprosima::fastrtps::rtps::DiscoveryProtocol_t::SIMPLE;
-			participantQos.wire_protocol().builtin.discovery_config.leaseDuration_announcementperiod = eprosima::fastrtps::Duration_t(1, 2);
-
-			// participantQos.wire_protocol().builtin.discovery_config.initial_announcements.count = 2000;
-			// participantQos.wire_protocol().builtin.discovery_config.initial_announcements.period = eprosima::fastrtps::Duration_t(0, 100000000u);
-
-			participantQos.name("Participant_publisher");
-			this->participant =
-				eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->
-				create_participant(0, participantQos);
-
-			if(this->participant == nullptr)
-			{
-				throw std::runtime_error
-				(
-				 "Error: could not create publisher participant"
-				);
-			}
-
-			this->type.register_type(this->participant);
-			this->topic = this->participant->create_topic
+			this->type.register_type(dls::impl::getFastddsParticipant());
+			this->topic = dls::impl::getFastddsParticipant()->create_topic
 			(
 				topic,
 				rtps_type.getName(),
@@ -197,7 +178,7 @@ namespace dls
 				);
 			}
 
-			this->publisher = this->participant->
+			this->publisher = dls::impl::getFastddsParticipant()->
 				create_publisher
 				(
 					eprosima::fastdds::dds::PUBLISHER_QOS_DEFAULT,
@@ -237,14 +218,12 @@ namespace dls
 			}
 			if(this->publisher != nullptr)
 			{
-				this->participant->delete_publisher(this->publisher);
+				dls::impl::getFastddsParticipant()->delete_publisher(this->publisher);
 			}
 			if(this->topic != nullptr)
 			{
-				this->participant->delete_topic(this->topic);
+				dls::impl::getFastddsParticipant()->delete_topic(this->topic);
 			}
-			eprosima::fastdds::dds::DomainParticipantFactory::
-				get_instance()->delete_participant(this->participant);
 		}
 
 		template<class PubSub_t>

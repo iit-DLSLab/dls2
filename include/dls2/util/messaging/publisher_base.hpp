@@ -92,7 +92,7 @@ namespace dls
 			void publish(typename PubSub_t::type &msg) const;
 
 		private:
-			eprosima::fastdds::dds::DomainParticipant *participant;
+			// eprosima::fastdds::dds::DomainParticipant *participant;
 			eprosima::fastdds::dds::Publisher         *publisher;
 			eprosima::fastdds::dds::Topic             *topic;
 			eprosima::fastdds::dds::DataWriter        *writer;

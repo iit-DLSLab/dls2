@@ -62,6 +62,7 @@ target_link_libraries(${PROJECT_NAME}_joint_state_controller
 	)
 
 target_link_libraries(${PROJECT_NAME}_blind_state_controller
+	dls_pubsub
 	${catkin_LIBRARIES}
 	dls_framework
 	dls_messaging

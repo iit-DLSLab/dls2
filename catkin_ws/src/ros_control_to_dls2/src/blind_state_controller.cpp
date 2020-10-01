@@ -2,6 +2,8 @@
 #include <algorithm>
 #include <iostream>
 
+#include "dls2/util/messaging/participant.hpp"
+
 namespace ros_control_to_dls2 {
 
 BlindStateController::BlindStateController() :
@@ -96,6 +98,7 @@ BlindStateController::BlindStateController() :
 
 bool BlindStateController::init(hardware_interface::BlindStateInterface *pBlind_state_interface, ros::NodeHandle &root_nh, ros::NodeHandle &controller_nh)
 {
+	dls::impl::initFastdds();
 	if (!pBlind_state_interface)
 	{
 		ROS_ERROR("BlindStateInterface is a null pointer");

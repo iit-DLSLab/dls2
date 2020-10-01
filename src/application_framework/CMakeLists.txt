@@ -15,6 +15,7 @@ add_library(dls_framework
 	${CONSOLE_LAYER_CPP}
 	estimation_layer.cpp
 	log_layer.cpp
+	init.cpp
 
 	options.cpp
 
@@ -31,6 +32,7 @@ target_link_libraries(dls_framework
 		fastcdr
 		fastrtps
 		dls_time
+		dls_pubsub
 
 	PUBLIC # TODO fix this
 	#dls_string_util TODO link to this library and remove the source above
