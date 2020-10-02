@@ -16,9 +16,17 @@
 #include "dls2/application_framework/init.hpp"
 #include "dls2/util/messaging/participant.hpp"
 
-using namespace dls::impl;
-
-void initFramework()
+/// \cond doxygen_namespace_dls
+namespace dls
 {
-	initFastdds();
-}
+	/// \cond doxygen_namespace_impl
+	namespace impl
+	{
+		void initFramework()
+		{
+			initFastdds();
+		}
+	} // namespace impl
+	/// \endcond
+} // namespace dls
+/// \endcond

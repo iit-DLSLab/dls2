@@ -3,6 +3,8 @@ create_test(pubsub
 		pubsub.cpp
 	LINK
 		dls_messaging
+		dls_pubsub
+		dls_framework
 		fastrtps
 		fastcdr
 		catch2
