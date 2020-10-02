@@ -6,94 +6,94 @@
 
 namespace ros_control_to_dls2 {
 
-BlindStateController::BlindStateController() :
-	command_manager_(),
-	scout("blind_state")
+BlindStateController::BlindStateController()// :
+	// command_manager_(),
+	// scout("blind_state")
 {
 	std::cout << "Constructed BlindStateController" << std::endl;
-	command_manager_.addCommand<void, dls::ARGVOID>
-	(
-		"blind_state",
-		"where",
-		"Displays the joint state",
-		std::function<void(dls::ARGVOID)>
-		(
-			[&](dls::ARGVOID)
-			{
-				std::lock_guard<std::mutex> lock(this->blind_state_msg_mutex_);
-				this->scout << "Joint Position: ";
-				std::copy
-				(
-					this->blind_state_msg_.joint_state().position().begin(),
-					this->blind_state_msg_.joint_state().position().end(),
-					std::ostream_iterator<double>(this->scout, " ")
-				);
-				this->scout << "\nJoint Velocity: ";
-				std::copy
-				(
-					this->blind_state_msg_.joint_state().velocity().begin(),
-					this->blind_state_msg_.joint_state().velocity().end(),
-					std::ostream_iterator<double>(this->scout, " ")
-				);
-				this->scout << "\nJoint Acceleration: ";
-				std::copy
-				(
-					this->blind_state_msg_.joint_state().acceleration().begin(),
-					this->blind_state_msg_.joint_state().acceleration().end(),
-					std::ostream_iterator<double>(this->scout, " ")
-				);
-				this->scout << "\nJoint Effort: ";
-				std::copy
-				(
-					this->blind_state_msg_.joint_state().effort().begin(),
-					this->blind_state_msg_.joint_state().effort().end(),
-					std::ostream_iterator<double>(this->scout, " ")
-				);
-				this->scout << "\nBase Position: ";
-				std::copy
-				(
-					this->blind_state_msg_.base_pose_world().position().begin(),
-					this->blind_state_msg_.base_pose_world().position().end(),
-					std::ostream_iterator<double>(this->scout, " ")
-				);
-				this->scout << "\nBase Quaternion: ";
-				std::copy
-				(
-					this->blind_state_msg_.base_pose_world().quaternion().begin(),
-					this->blind_state_msg_.base_pose_world().quaternion().end(),
-					std::ostream_iterator<double>(this->scout, " ")
-				);
-				this->scout << "\nBase Velocity: ";
-				std::copy
-				(
-					this->blind_state_msg_.base_velocity_world().linear().begin(),
-					this->blind_state_msg_.base_velocity_world().linear().end(),
-					std::ostream_iterator<double>(this->scout, " ")
-				);
-				std::copy
-				(
-					this->blind_state_msg_.base_velocity_world().angular().begin(),
-					this->blind_state_msg_.base_velocity_world().angular().end(),
-					std::ostream_iterator<double>(this->scout, " ")
-				);
+	// command_manager_.addCommand<void, dls::ARGVOID>
+	// (
+	// 	"blind_state",
+	// 	"where",
+	// 	"Displays the joint state",
+	// 	std::function<void(dls::ARGVOID)>
+	// 	(
+	// 		[&](dls::ARGVOID)
+	// 		{
+	// 			std::lock_guard<std::mutex> lock(this->blind_state_msg_mutex_);
+	// 			this->scout << "Joint Position: ";
+	// 			std::copy
+	// 			(
+	// 				this->blind_state_msg_.joint_state().position().begin(),
+	// 				this->blind_state_msg_.joint_state().position().end(),
+	// 				std::ostream_iterator<double>(this->scout, " ")
+	// 			);
+	// 			this->scout << "\nJoint Velocity: ";
+	// 			std::copy
+	// 			(
+	// 				this->blind_state_msg_.joint_state().velocity().begin(),
+	// 				this->blind_state_msg_.joint_state().velocity().end(),
+	// 				std::ostream_iterator<double>(this->scout, " ")
+	// 			);
+	// 			this->scout << "\nJoint Acceleration: ";
+	// 			std::copy
+	// 			(
+	// 				this->blind_state_msg_.joint_state().acceleration().begin(),
+	// 				this->blind_state_msg_.joint_state().acceleration().end(),
+	// 				std::ostream_iterator<double>(this->scout, " ")
+	// 			);
+	// 			this->scout << "\nJoint Effort: ";
+	// 			std::copy
+	// 			(
+	// 				this->blind_state_msg_.joint_state().effort().begin(),
+	// 				this->blind_state_msg_.joint_state().effort().end(),
+	// 				std::ostream_iterator<double>(this->scout, " ")
+	// 			);
+	// 			this->scout << "\nBase Position: ";
+	// 			std::copy
+	// 			(
+	// 				this->blind_state_msg_.base_pose_world().position().begin(),
+	// 				this->blind_state_msg_.base_pose_world().position().end(),
+	// 				std::ostream_iterator<double>(this->scout, " ")
+	// 			);
+	// 			this->scout << "\nBase Quaternion: ";
+	// 			std::copy
+	// 			(
+	// 				this->blind_state_msg_.base_pose_world().quaternion().begin(),
+	// 				this->blind_state_msg_.base_pose_world().quaternion().end(),
+	// 				std::ostream_iterator<double>(this->scout, " ")
+	// 			);
+	// 			this->scout << "\nBase Velocity: ";
+	// 			std::copy
+	// 			(
+	// 				this->blind_state_msg_.base_velocity_world().linear().begin(),
+	// 				this->blind_state_msg_.base_velocity_world().linear().end(),
+	// 				std::ostream_iterator<double>(this->scout, " ")
+	// 			);
+	// 			std::copy
+	// 			(
+	// 				this->blind_state_msg_.base_velocity_world().angular().begin(),
+	// 				this->blind_state_msg_.base_velocity_world().angular().end(),
+	// 				std::ostream_iterator<double>(this->scout, " ")
+	// 			);
 
-				this->scout << "\nBase Acceleration: ";
-				std::copy
-				(
-					this->blind_state_msg_.base_acceleration_world().linear().begin(),
-					this->blind_state_msg_.base_acceleration_world().linear().end(),
-					std::ostream_iterator<double>(this->scout, " ")
-				);
-				std::copy
-				(
-					this->blind_state_msg_.base_acceleration_world().angular().begin(),
-					this->blind_state_msg_.base_acceleration_world().angular().end(),
-					std::ostream_iterator<double>(this->scout, " ")
-				);				
-				this->scout << std::endl;
-			}
-		)
-	);
+	// 			this->scout << "\nBase Acceleration: ";
+	// 			std::copy
+	// 			(
+	// 				this->blind_state_msg_.base_acceleration_world().linear().begin(),
+	// 				this->blind_state_msg_.base_acceleration_world().linear().end(),
+	// 				std::ostream_iterator<double>(this->scout, " ")
+	// 			);
+	// 			std::copy
+	// 			(
+	// 				this->blind_state_msg_.base_acceleration_world().angular().begin(),
+	// 				this->blind_state_msg_.base_acceleration_world().angular().end(),
+	// 				std::ostream_iterator<double>(this->scout, " ")
+	// 			);				
+	// 			this->scout << std::endl;
+	// 		}
+	// 	)
+	// );
 }
 
 bool BlindStateController::init(hardware_interface::BlindStateInterface *pBlind_state_interface, ros::NodeHandle &root_nh, ros::NodeHandle &controller_nh)

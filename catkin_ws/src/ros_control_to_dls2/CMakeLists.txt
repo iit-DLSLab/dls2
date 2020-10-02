@@ -66,6 +66,7 @@ target_link_libraries(${PROJECT_NAME}_blind_state_controller
 	${catkin_LIBRARIES}
 	dls_framework
 	dls_messaging
+	dls_dls2_messaging
 	dls_command
 	dls_logging
 	fastrtps

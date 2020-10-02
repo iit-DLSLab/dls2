@@ -36,8 +36,8 @@ private:
 	std::mutex blind_state_msg_mutex_;
 		BlindStateMsg blind_state_msg_;
 	// END critical section
-	dls::CommandManager command_manager_;
-	dls::logging::coutstream scout;
+	// dls::CommandManager command_manager_;
+	// dls::logging::coutstream scout;
 	uint32_t seq_;
 };
 
