@@ -31,7 +31,7 @@ bool ImuSensorController::init(hardware_interface::ImuSensorInterface *pImu_sens
 		return false;
 	}
 	std::lock_guard<std::mutex> lock(this->imu_msg_mutex_);
-	pImu_sensor_pub_ = std::make_shared<dls::PublisherBase<ImuMsgPubSubType>>(dls::topics::imu);
+	pImu_sensor_pub_ = std::make_shared<dls::version2::PublisherBase<ImuMsgPubSubType>>(dls::topics::imu);
 	seq_=0;
 	imu_sensor_ = pImu_sensor_interface->getHandle("trunk_imu");
 	return true;

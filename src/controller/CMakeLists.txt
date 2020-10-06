@@ -30,48 +30,56 @@ add_library(dls_dummy_controller2 SHARED
 )
 target_link_libraries(dls_dummy_controller2
 	doglib
+	dls_pubsub
 )
 add_library(dls_dummy_controller3 SHARED
 	dummy_controller3.cpp
 )
 target_link_libraries(dls_dummy_controller3
 	doglib
+	dls_pubsub
 )
 add_library(dls_dummy_controller4 SHARED
 	dummy_controller4.cpp
 )
 target_link_libraries(dls_dummy_controller4
 	doglib
+	dls_pubsub
 )
 add_library(dls_dummy_controller5 SHARED
 	dummy_controller5.cpp
 )
 target_link_libraries(dls_dummy_controller5
 	doglib
+	dls_pubsub
 )
 add_library(dls_dummy_controller6 SHARED
 	dummy_controller6.cpp
 )
 target_link_libraries(dls_dummy_controller6
 	doglib
+	dls_pubsub
 )
 add_library(dls_dummy_controller7 SHARED
 	dummy_controller7.cpp
 )
 target_link_libraries(dls_dummy_controller7
 	doglib
+	dls_pubsub
 )
 add_library(dls_dummy_controller8 SHARED
 	dummy_controller8.cpp
 )
 target_link_libraries(dls_dummy_controller8
 	doglib
+	dls_pubsub
 )
 add_library(dls_dummy_controller9 SHARED
 	dummy_controller9.cpp
 )
 target_link_libraries(dls_dummy_controller9
 	doglib
+	dls_pubsub
 )
 
 

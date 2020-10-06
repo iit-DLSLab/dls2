@@ -52,10 +52,10 @@ using namespace dls;
 #endif
 
 // needs to be a pointer, else it crashes at launch
-std::shared_ptr<PublisherBase<BlindStateMsgPubSubType>>
+std::shared_ptr<version2::PublisherBase<BlindStateMsgPubSubType>>
 	pState_pub;
 
-std::shared_ptr<PublisherBase<TimeMsgPubSubType>>
+std::shared_ptr<version2::PublisherBase<TimeMsgPubSubType>>
 	pClock_pub;
 
 void callback
@@ -71,11 +71,11 @@ void clock_callback
 int main(int argc, char** argv)
 {
 
-	pState_pub = std::make_shared<PublisherBase<BlindStateMsgPubSubType>>
+	pState_pub = std::make_shared<version2::PublisherBase<BlindStateMsgPubSubType>>
 		(topics::low_level_estimation::blind_state);
 
 
-	pClock_pub = std::make_shared<PublisherBase<TimeMsgPubSubType>>
+	pClock_pub = std::make_shared<version2::PublisherBase<TimeMsgPubSubType>>
 		(topics::simulation_time);
 
 	ros::init(argc, argv, "roscontrol_to_dls2");

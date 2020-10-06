@@ -73,7 +73,7 @@ int main()
 // --------------------------------- publisher ---------------------------------
 int run_publisher()
 {
-	dls::PublisherBase<StringMsgPubSubType> publisher(topic);
+	dls::version2::PublisherBase<StringMsgPubSubType> publisher(topic);
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 
 	for(size_t i = 0; i != number_of_messages_to_send; ++i)

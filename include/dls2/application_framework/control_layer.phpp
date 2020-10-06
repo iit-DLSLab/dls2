@@ -176,7 +176,7 @@ private:
 		std::shared_ptr<GaitGeneratorData> pGait_generator_data;
 		std::mutex gait_generators_mutex;
 	// END critical section
-	PublisherBase<DesiredTorquesMsgPubSubType> publisher;
+		version2::PublisherBase<DesiredTorquesMsgPubSubType> publisher;
 
 	std::atomic_bool should_quit;
 

@@ -43,7 +43,7 @@ private:
 	int sync() override;
 	bool flush_buffer();
 	std::string topic;
-	std::shared_ptr<PublisherBase<StringMsgPubSubType>> pPublisher;
+	std::shared_ptr<version2::PublisherBase<StringMsgPubSubType>> pPublisher;
 
 	char *buf;
 	const std::string prefix;

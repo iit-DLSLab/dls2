@@ -144,7 +144,7 @@ private:
 	dls::version2::Subscriber<BlindStateMsgPubSubType> blind_state_listener;
 
 	const std::string control_signal_topic;
-	PublisherBase<ControlSignalMsgPubSubType> publisher;
+	version2::PublisherBase<ControlSignalMsgPubSubType> publisher;
 };
 } // end namespace dls
 

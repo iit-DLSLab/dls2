@@ -35,6 +35,7 @@ add_executable(dummy_blind_state_publisher
 )
 
 target_link_libraries(dummy_blind_state_publisher
+	dls_pubsub
 	dls_messaging
 	fastrtps
 	fastcdr

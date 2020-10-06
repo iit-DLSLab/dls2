@@ -235,6 +235,15 @@ namespace dls
 			}
 		}
 
+		template<class PubSub_t>
+		auto Publisher<PubSub_t>::getGuid() const -> eprosima::fastrtps::rtps::GUID_t
+		{
+			std::vector<eprosima::fastdds::dds::DataWriter*> writers;
+			this->publisher->get_datawriters(writers);
+			assert(!writers.empty());
+			return writers[0]->guid();
+		}
+
 		// =====================================================================
 		// Helper Listener Class
 		// =====================================================================

@@ -15,7 +15,7 @@ size_t number_of_messages_to_send = 100;
 int main()
 {
 	std::vector<CallbackSubscriber<StringMsgPubSubType>*> subscribers;
-	std::vector<PublisherBase<StringMsgPubSubType>*>      publishers;
+	std::vector<version2::PublisherBase<StringMsgPubSubType>*>      publishers;
 	std::vector<size_t>                                  count_received_messages;
 
 	count_received_messages.resize(num_pubsub_pairs);
@@ -34,7 +34,7 @@ int main()
 		topic_ss << topic_base << i;
 
 		// build the publisher for this pair
-		auto pub = new PublisherBase<StringMsgPubSubType>(topic_ss.str());
+		auto pub = new version2::PublisherBase<StringMsgPubSubType>(topic_ss.str());
 		publishers.push_back(pub);
 
 		// build the subscriber for this pair

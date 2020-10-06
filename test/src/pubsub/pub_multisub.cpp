@@ -16,7 +16,7 @@ TEST_CASE("A single publisher can publish to multiple subscribers", "[pubsub]")
 	std::string topic("topic_pub_multisub");
 	std::string send_message("this is the message that needs to be sent");
 
-	dls::PublisherBase<StringMsgPubSubType> publisher(topic);
+	dls::version2::PublisherBase<StringMsgPubSubType> publisher(topic);
 	std::vector
 	<
 		dls::CallbackSubscriber<StringMsgPubSubType>

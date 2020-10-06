@@ -31,7 +31,7 @@ public:
 	void update(const ros::Time& time, const ros::Duration& period);
 private:
 	hardware_interface::HyqRawHandle hyq_raw_;
-	std::shared_ptr<dls::PublisherBase<HyQRawMsgPubSubType>> pHyq_raw_pub_;
+	std::shared_ptr<dls::version2::PublisherBase<HyQRawMsgPubSubType>> pHyq_raw_pub_;
 	//BEGIN critcal section
 	std::mutex hyq_raw_msg_mutex_;
 	HyQRawMsg hyq_raw_msg_;
