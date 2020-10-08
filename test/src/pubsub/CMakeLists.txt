@@ -8,6 +8,16 @@ create_test(multiple_pub_sub_with_single_participant_to_same_topic
 		fastcdr
 		dls_framework
 )
+create_test(high_frequency_test
+	SOURCE
+		high_frequency_test.cpp
+	LINK
+		dls_messaging
+		dls_pubsub
+		fastrtps
+		fastcdr
+		dls_framework
+)
 
 create_test(pubsub
 	SOURCE
