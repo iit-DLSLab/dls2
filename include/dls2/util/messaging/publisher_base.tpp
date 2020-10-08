@@ -207,10 +207,10 @@ namespace dls
 			{
 				dls::impl::getFastddsParticipant()->delete_publisher(this->publisher);
 			}
-			if(this->topic != nullptr)
-			{
-				dls::impl::getFastddsParticipant()->delete_topic(this->topic);
-			}
+			// if(this->topic != nullptr)
+			// {
+			// 	dls::impl::getFastddsParticipant()->delete_topic(this->topic);
+			// }
 		}
 
 		template<class PubSub_t>

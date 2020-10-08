@@ -73,7 +73,9 @@ namespace dls
 
 		// registers the topic, else returns an already existing topic. This is
 		// because fastdds crashes if you register the same topic name twice
-		auto registerFastddsTopic(const std::string &topic_name, const std::string &rtps_type_name) -> eprosima::fastdds::dds::Topic*
+		auto registerFastddsTopic(const std::string &topic_name,
+		                          const std::string &rtps_type_name)
+		    -> eprosima::fastdds::dds::Topic *
 		{
 			std::lock_guard<std::mutex> lock(registered_topics_mutex);
 			auto it = registered_topics.find(topic_name);
