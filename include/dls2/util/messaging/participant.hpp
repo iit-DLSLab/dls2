@@ -18,6 +18,8 @@
 
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/domain/DomainParticipant.hpp>
+#include <map>
+#include <string>
 
 /// \cond doxygen_namespace_dls
 namespace dls
@@ -28,6 +30,7 @@ namespace dls
 		void initFastdds();
 		auto getFastddsParticipant() -> eprosima::fastdds::dds::DomainParticipant *;
 		void closeFastdds();
+		auto registerFastddsTopic(const std::string &topic_name, const std::string &rtps_type_name) -> eprosima::fastdds::dds::Topic*;
 	} // namespace impl
 	/// \endcond
 } // namespace dls

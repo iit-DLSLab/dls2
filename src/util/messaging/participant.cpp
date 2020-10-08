@@ -27,6 +27,13 @@ namespace dls
 		eprosima::fastdds::dds::DomainParticipant *fastdds_participant =
 		    nullptr;
 
+		static std::mutex registered_topics_mutex;
+		static std::map
+		<
+			std::string,
+			eprosima::fastdds::dds::Topic*
+		> registered_topics;
+
 		void initFastdds()
 		{
 			std::cout << "start init fastdds" << std::endl;
@@ -62,6 +69,37 @@ namespace dls
 		{
 			eprosima::fastdds::dds::DomainParticipantFactory::get_instance()
 			    ->delete_participant(dls::impl::fastdds_participant);
+		}
+
+		// registers the topic, else returns an already existing topic. This is
+		// because fastdds crashes if you register the same topic name twice
+		auto registerFastddsTopic(const std::string &topic_name, const std::string &rtps_type_name) -> eprosima::fastdds::dds::Topic*
+		{
+			std::lock_guard<std::mutex> lock(registered_topics_mutex);
+			auto it = registered_topics.find(topic_name);
+
+			// if the topic is already registred, return it
+			if(it != registered_topics.end())
+			{
+				return it->second;
+			}
+
+			// else, register the topic, save it and return it
+			auto *dds_topic = dls::impl::getFastddsParticipant()->create_topic
+			(
+				topic_name,
+				rtps_type_name,
+				eprosima::fastdds::dds::TOPIC_QOS_DEFAULT
+			);
+			if(dds_topic == nullptr)
+			{
+				throw std::runtime_error
+				(
+					"Error: could not create publisher topic"
+				);
+			}
+			registered_topics[topic_name] = dds_topic;
+			return dds_topic;
 		}
 	} // namespace impl
 	  /// \endcond

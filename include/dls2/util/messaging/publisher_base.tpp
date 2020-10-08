@@ -163,20 +163,7 @@ namespace dls
 			type(new PubSub_t())
 		{
 			this->type.register_type(dls::impl::getFastddsParticipant());
-			this->topic = dls::impl::getFastddsParticipant()->create_topic
-			(
-				topic,
-				rtps_type.getName(),
-				eprosima::fastdds::dds::TOPIC_QOS_DEFAULT
-			);
-
-			if(this->topic == nullptr)
-			{
-				throw std::runtime_error
-				(
-					"Error: could not create publisher topic"
-				);
-			}
+			auto *dds_topic = dls::impl::registerFastddsTopic(topic, rtps_type.getName());
 
 			this->publisher = dls::impl::getFastddsParticipant()->
 				create_publisher
@@ -195,7 +182,7 @@ namespace dls
 
 			this->writer = this->publisher->create_datawriter
 			(
-				this->topic,
+				dds_topic,
 				eprosima::fastdds::dds::DATAWRITER_QOS_DEFAULT,
 				&publisher_listener
 			);

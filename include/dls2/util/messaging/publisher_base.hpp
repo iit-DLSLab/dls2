@@ -32,6 +32,10 @@
 #include <fastdds/dds/publisher/DataWriter.hpp>
 #include <fastdds/dds/publisher/DataWriterListener.hpp>
 
+#include <map>
+#include <mutex>
+#include <string>
+
 // =============================================================================
 // Old Version -- to be removed
 // =============================================================================
