@@ -3,6 +3,7 @@ create_test(commands
 		commands.cpp
 	LINK
 		dls_command
+		dls_framework
 		fastrtps
 		fastcdr
 		catch2
