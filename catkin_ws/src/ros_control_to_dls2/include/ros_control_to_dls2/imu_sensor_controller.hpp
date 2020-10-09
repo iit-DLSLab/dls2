@@ -31,7 +31,7 @@ public:
 	void update(const ros::Time& time, const ros::Duration& period);
 private:
 	hardware_interface::ImuSensorHandle imu_sensor_;
-	std::shared_ptr<dls::version2::PublisherBase<ImuMsgPubSubType>> pImu_sensor_pub_;
+	std::shared_ptr<dls::PublisherBase<ImuMsgPubSubType>> pImu_sensor_pub_;
 	// BEGIN critical section
 	std::mutex imu_msg_mutex_;
 	ImuMsg imu_sensor_msg_;

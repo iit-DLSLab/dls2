@@ -174,7 +174,7 @@ namespace dls
 		/// specified in the constructor
 		// DO NOT put this after response_subscriber. response_subscriber
 		// depends on request_publisher in the constructor initializer list
-		version2::PublisherBase<req_pubsub_t>      request_publisher;
+		PublisherBase<req_pubsub_t>      request_publisher;
 
 		/// Subscriber that receives the response from the server
 		///

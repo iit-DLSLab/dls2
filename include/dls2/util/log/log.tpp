@@ -78,7 +78,7 @@
 // 				if(!LogStream<loglevel>::pPublisher)
 // 				{
 // 					LogStream<loglevel>::pPublisher =
-// 						std::make_shared<version2::PublisherBase<StringMsgPubSubType>>
+// 						std::make_shared<PublisherBase<StringMsgPubSubType>>
 // 						(
 // 							LogStream<loglevel>::topic
 // 						);

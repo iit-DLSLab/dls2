@@ -41,7 +41,7 @@ LogStreamBuffer::LogStreamBuffer
 	const std::string &prefix_
 ) :
 	topic(topic_),
-	pPublisher(std::make_shared<version2::PublisherBase<StringMsgPubSubType>>(topic_)),
+	pPublisher(std::make_shared<PublisherBase<StringMsgPubSubType>>(topic_)),
 	buf(new char[buffer_size]),
 	prefix(prefix_)
 {
@@ -80,7 +80,7 @@ bool LogStreamBuffer::flush_buffer()
 	// cerr, cfatal classes, then fastrtps complains
 	// if(pPublisher == nullptr)
 	// {
-	// 	pPublisher = std::make_shared<dls::version2::PublisherBase<StringMsgPubSubType>>(this->topic);
+	// 	pPublisher = std::make_shared<dls::PublisherBase<StringMsgPubSubType>>(this->topic);
 	// }
 	pPublisher->publish(msg);
 	// std::cout << std::string(buf, pptr());

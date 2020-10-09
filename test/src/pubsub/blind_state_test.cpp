@@ -6,7 +6,7 @@
 
 int main()
 {
-	dls::version2::PublisherBase<BlindStateMsgPubSubType> blind_state_pub
+	dls::PublisherBase<BlindStateMsgPubSubType> blind_state_pub
 	(
 		"low_level_estimation/blind_state"
 	);

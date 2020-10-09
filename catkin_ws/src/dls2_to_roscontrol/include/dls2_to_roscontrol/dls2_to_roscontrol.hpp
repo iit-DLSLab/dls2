@@ -51,7 +51,7 @@ private:
 		// END Critical section
 	} control_signal_listener;
 
-	dls::version2::PublisherBase<JointStateMsgPubSubType> joint_state_pub_;
+	dls::PublisherBase<JointStateMsgPubSubType> joint_state_pub_;
 	ros::Time previous_warning_time_;
 	void writeZeroTorques(const ros::Time& time,std::string msg);
 };

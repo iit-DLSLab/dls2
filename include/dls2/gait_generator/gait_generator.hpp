@@ -97,7 +97,7 @@ private:
 		mutable std::mutex blind_state_signal_mutex;
 	// END crital section
 
-		version2::PublisherBase<GaitSignalMsgPubSubType> publisher;
+	PublisherBase<GaitSignalMsgPubSubType> publisher;
 
 	class BlindStateListener : public SubscriberBase<BlindStateMsgPubSubType>
 	{

@@ -114,7 +114,7 @@ private:
 
 	/// Publisher used to register the command with the rest of the framework
 	///
-	version2::PublisherBase<CommandRegisterMsgPubSubType> publisher;
+	PublisherBase<CommandRegisterMsgPubSubType> publisher;
 
 	/// Subscriber listening for requests to call this command
 	///

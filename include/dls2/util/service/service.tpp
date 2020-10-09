@@ -67,7 +67,7 @@ namespace dls
 							// ============== Process the request ==============
 							res_t response = this->callback(request);
 
-							version2::PublisherBase<res_pubsub_t> response_publisher
+							PublisherBase<res_pubsub_t> response_publisher
 							(
 								out_topic_stream.str()
 							);
