@@ -21,6 +21,14 @@
 #include <map>
 #include <string>
 
+namespace eprosima
+{
+	namespace fastrtps
+	{
+		class Participant;
+	}
+}
+
 /// \cond doxygen_namespace_dls
 namespace dls
 {
@@ -28,9 +36,25 @@ namespace dls
 	namespace impl
 	{
 		void initFastdds();
-		auto getFastddsParticipant() -> eprosima::fastdds::dds::DomainParticipant *;
+
+		auto getFastddsParticipant()
+		    -> eprosima::fastdds::dds::DomainParticipant *;
+
 		void closeFastdds();
-		auto registerFastddsTopic(const std::string &topic_name, const std::string &rtps_type_name) -> eprosima::fastdds::dds::Topic*;
+
+		auto registerFastddsTopic(const std::string &topic_name,
+		                          const std::string &rtps_type_name)
+		    -> eprosima::fastdds::dds::Topic *;
+
+		/// \cond doxygen_namespace_legacy
+		namespace legacy
+		{
+			/// This function should be removed once the old publishers and
+			/// subscribers are taken out
+			auto getFastrtpsLegacyParticipant()
+			    -> eprosima::fastrtps::Participant *;
+		} /// \endcond namespace legacy
+
 	} // namespace impl
 	/// \endcond
 } // namespace dls
