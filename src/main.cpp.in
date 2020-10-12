@@ -360,6 +360,7 @@ void forkLayer(const std::string &process_name, char **argv)
 	else if(pid == 0)
 	{
 		change_process_name(argv, process_name);
+		impl::initFramework();
 		std::shared_ptr<layer_t> pLayer = std::make_shared<layer_t>();
 		pApp->addLayer(pLayer);
 
