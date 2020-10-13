@@ -29,6 +29,7 @@
 #include <csignal>
 #include <sstream>
 
+#include "dls2/application_framework/init.hpp"
 #include "dls2/util/class_loader.phpp"
 #include "dls2/gait_generator/gait_generator.hpp"
 #include "dls2/controller/controller.hpp"
@@ -95,6 +96,7 @@ int main(int argc, char **argv)
 
 	// assert proper args
 	Args args = parse_args(argc, argv);
+	dls::impl::initFramework();
 
 	// logging stream
 	// logging::coutstream s(process_handle);
@@ -131,22 +133,24 @@ int main(int argc, char **argv)
 		Time::set_use_simulated_time(true);
 	}
 
-	// Load the component
-	try
-	{
-		// first try loading from the local directory
-		pComponent =
-			ClassLoader::loadClass<Controller, std::shared_ptr<dls::dog::Dog>>
-			(
-				std::string("./lib") + args.component_name + ".so",
-				pRobot
-			);
+	std::cout << "=== TRYING TO LOAD CONTROLLER ===" << std::endl;
 
-		std::cout << "Loaded component from local directory" << std::endl;
-		// s << "Loaded component " << pComponent->getID()
-		// 	<< " from local directory" << std::endl;
-	}
-	catch(const std::exception&)
+	// // Load the component
+	// try
+	// {
+	// 	// first try loading from the local directory
+	// 	pComponent =
+	// 		ClassLoader::loadClass<Controller, std::shared_ptr<dls::dog::Dog>>
+	// 		(
+	// 			std::string("./lib") + args.component_name + ".so",
+	// 			pRobot
+	// 		);
+
+	// 	std::cout << "Loaded component from local directory" << std::endl;
+	// 	// s << "Loaded component " << pComponent->getID()
+	// 	// 	<< " from local directory" << std::endl;
+	// }
+	// catch(const std::exception&)
 	{
 		// next, try loading from the installed directory
 		try
@@ -183,8 +187,8 @@ int main(int argc, char **argv)
 			// logging::cfatalstream s(process_handle);
 			// s << "Component '" << args.component_name << "' of type '"
 			// 	<< args.component_type << "' not found" << std::endl;
-			std::cout << "Component '" << args.component_name << "' of type '"
-				<< args.component_type << "' not found" << std::endl;
+			std::cout << "Could not load component '" << args.component_name
+			          << "' of type '" << args.component_type << std::endl;
 			exit(EXIT_FAILURE);
 		}
 	}

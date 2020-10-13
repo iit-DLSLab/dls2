@@ -32,6 +32,10 @@
 #include <fastdds/dds/publisher/DataWriter.hpp>
 #include <fastdds/dds/publisher/DataWriterListener.hpp>
 
+#include <map>
+#include <mutex>
+#include <string>
+
 // =============================================================================
 // Old Version -- to be removed
 // =============================================================================
@@ -59,7 +63,7 @@ namespace dls
 		/// This should _not_ be exposed to third party clients. This is used
 		/// only for identification of a specific publisher in the Service and
 		/// ServiceClient implementations. This can be removed without warning
-		eprosima::fastrtps::rtps::GUID_t getGuid() const;
+		auto getGuid() const -> eprosima::fastrtps::rtps::GUID_t;
 
 		// TODO temp, remove
 		const std::string temp_topic;
@@ -88,11 +92,12 @@ namespace dls
 		public:
 			Publisher(const std::string &topic);
 			virtual ~Publisher();
+			auto getGuid() const -> eprosima::fastrtps::rtps::GUID_t;
 
 			void publish(typename PubSub_t::type &msg) const;
 
 		private:
-			eprosima::fastdds::dds::DomainParticipant *participant;
+			// eprosima::fastdds::dds::DomainParticipant *participant;
 			eprosima::fastdds::dds::Publisher         *publisher;
 			eprosima::fastdds::dds::Topic             *topic;
 			eprosima::fastdds::dds::DataWriter        *writer;
@@ -114,6 +119,9 @@ namespace dls
 
 			PubSub_t rtps_type;
 		};
+
+		template <class PubSub_t>
+		using PublisherBase = Publisher<PubSub_t>;
 	} /// \endcond namespace version2
 } /// \endcond namespace dls
 

@@ -130,18 +130,18 @@ private:
 		eprosima::fastrtps::SampleInfo_t info;
 	} gait_listener;
 
-	// class BlindStateListener : public SubscriberBase<BlindStateMsgPubSubType>
-	// {
-	// public:
-	// 	BlindStateListener(std::shared_ptr<Controller>);
-	// 	~BlindStateListener() = default;
-	// 	void onNewDataMessage(eprosima::fastrtps::Subscriber*) override;
-	// private:
-	// 	const std::shared_ptr<Controller> pOwner;
-	// 	eprosima::fastrtps::SampleInfo_t info;
-	// } blind_state_listener;
+	class BlindStateListener : public SubscriberBase<BlindStateMsgPubSubType>
+	{
+	public:
+		BlindStateListener(std::shared_ptr<Controller>);
+		~BlindStateListener() = default;
+		void onNewDataMessage(eprosima::fastrtps::Subscriber*) override;
+	private:
+		const std::shared_ptr<Controller> pOwner;
+		eprosima::fastrtps::SampleInfo_t info;
+	} blind_state_listener;
 
-	dls::version2::Subscriber<BlindStateMsgPubSubType> blind_state_listener;
+	// dls::version2::Subscriber<BlindStateMsgPubSubType> blind_state_listener;
 
 	const std::string control_signal_topic;
 	PublisherBase<ControlSignalMsgPubSubType> publisher;

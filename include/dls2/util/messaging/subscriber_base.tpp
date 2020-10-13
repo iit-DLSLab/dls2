@@ -36,6 +36,7 @@
 // New Includes
 // =============================================================================
 #include "dls2/util/messaging/subscriber_base.hpp"
+#include "dls2/util/messaging/participant.hpp"
 
 #include <fastrtps/transport/UDPv4TransportDescriptor.h>
 #include <fastrtps/attributes/ParticipantAttributes.h>
@@ -175,20 +176,7 @@ namespace dls
 				);
 			}
 
-			this->topic = this->participant->create_topic
-			(
-				topic,
-				this->rtps_type.getName(),
-				eprosima::fastdds::dds::TOPIC_QOS_DEFAULT
-			);
-
-			if(this->topic == nullptr)
-			{
-				throw std::runtime_error
-				(
-					"Error: could not create subscriber topic"
-				);
-			}
+			auto *dds_topic = dls::impl::registerFastddsTopic(topic, rtps_type.getName());
 
 			this->subscriber = this->participant->create_subscriber
 			(
@@ -206,7 +194,7 @@ namespace dls
 
 			this->reader = this->subscriber->create_datareader
 			(
-				this->topic,
+				dds_topic,
 				eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT,
 				&this->subscriber_listener
 			);
@@ -227,10 +215,10 @@ namespace dls
 			{
 				this->subscriber->delete_datareader(this->reader);
 			}
-			if(this->topic != nullptr)
-			{
-				this->participant->delete_topic(this->topic);
-			}
+			// if(this->topic != nullptr)
+			// {
+			// 	this->participant->delete_topic(this->topic);
+			// }
 			if(this->subscriber != nullptr)
 			{
 				this->participant->delete_subscriber(this->subscriber);

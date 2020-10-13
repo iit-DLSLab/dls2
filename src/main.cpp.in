@@ -38,6 +38,7 @@
 #include "dls2/application_framework/console_layer.phpp"
 #include "dls2/application_framework/options.phpp"
 #include "dls2/application_framework/version_info.phpp"
+#include "dls2/application_framework/init.hpp"
 
 #include "dls2/util/debug/debug.hpp"
 #include "dls2/util/log/log.hpp"
@@ -146,9 +147,9 @@ void app_panic_handler(int)
 // =============================================================================
 int main(int argc, char **argv)
 {
-
 	// Runtime Configuration
 	Options::init(argc, argv);
+	impl::initFramework();
 	#ifndef NDEBUG
 		std::cout << "Debug build" << std::endl;
 	#endif
@@ -359,6 +360,7 @@ void forkLayer(const std::string &process_name, char **argv)
 	else if(pid == 0)
 	{
 		change_process_name(argv, process_name);
+		impl::initFramework();
 		std::shared_ptr<layer_t> pLayer = std::make_shared<layer_t>();
 		pApp->addLayer(pLayer);
 

@@ -5,18 +5,22 @@
 #include <string>
 #include <chrono>
 
+#include "dls2/application_framework/init.hpp"
+
 TEST_CASE("Messages can be published and received via topics", "[pubsub]")
 {
 	std::string topic("this_is_a_pubsub_test_topic_a1212j3jL@#@!jfsxzc");
 	std::string send_message("this is the message that needs to be sent");
+
+	dls::impl::initFramework();
 
 	SECTION("A message is sent and received")
 	{
 		std::string received_message("garbage aslkdfjskldafjsklafjlskajfd");
 		REQUIRE(received_message != send_message);
 
-		dls::PublisherBase<StringMsgPubSubType> publisher(topic);
-		dls::CallbackSubscriber<StringMsgPubSubType> subscriber
+		dls::version2::Publisher<StringMsgPubSubType> publisher(topic);
+		dls::version2::Subscriber<StringMsgPubSubType> subscriber
 		(
 			topic,
 			[&](StringMsg &msg)

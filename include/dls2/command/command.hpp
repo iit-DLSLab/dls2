@@ -135,10 +135,6 @@ private:
 		///
 		Command<ret_t, arg_ts...> &owner;
 
-		/// The fastrtps participant
-		///
-		std::shared_ptr<eprosima::fastrtps::Participant> pParticipant;
-
 		/// The fastrtps subscriber
 		///
 		std::shared_ptr<eprosima::fastrtps::Subscriber> pSubscriber;
