@@ -1,9 +1,10 @@
-create_test(commands
-	SOURCE
-		commands.cpp
-	LINK
-		dls_command
-		fastrtps
-		fastcdr
-		catch2
-)
+# create_test(commands
+# 	SOURCE
+# 		commands.cpp
+# 	LINK
+# 		dls_command
+# 		dls_framework
+# 		fastrtps
+# 		fastcdr
+# 		catch2
+# )

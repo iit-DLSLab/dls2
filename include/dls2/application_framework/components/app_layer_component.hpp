@@ -12,10 +12,6 @@
 *                                     \|_________||   :    .'                  *
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
-********************************************************************************
-* Author:            Hendrik de Bruin                                          *
-* Maintainer:        Hendrik de Bruin                                          *
-* author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
 #ifndef APP_LAYER_COMPONENT_HPP_B4KVSXQY
 #define APP_LAYER_COMPONENT_HPP_B4KVSXQY
@@ -101,11 +97,11 @@ private:
 
 	/// Command manager for commands that all components must have
 	///
-	CommandManager command_manager;
+	// CommandManager command_manager;
 
 	/// Print stream
 	///
-	logging::coutstream scout;
+	// logging::coutstream scout;
 };
 } // end namespace dls
 

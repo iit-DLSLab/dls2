@@ -12,10 +12,6 @@
 *                                     \|_________||   :    .'                  *
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
-********************************************************************************
-* Author:            Hendrik de Bruin                                          *
-* Maintainer:        Hendrik de Bruin                                          *
-* author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
 #ifndef COMMAND_HPP_RSTXNA3I
 #define COMMAND_HPP_RSTXNA3I
@@ -138,10 +134,6 @@ private:
 		/// A reference to the command object that owns this listener
 		///
 		Command<ret_t, arg_ts...> &owner;
-
-		/// The fastrtps participant
-		///
-		std::shared_ptr<eprosima::fastrtps::Participant> pParticipant;
 
 		/// The fastrtps subscriber
 		///

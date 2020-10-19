@@ -12,10 +12,6 @@
 *                                     \|_________||   :    .'                  *
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
-********************************************************************************
-* Author:            Hendrik de Bruin                                          *
-* Maintainer:        Hendrik de Bruin                                          *
-* author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
 #ifndef CLASS_LOADER_TPP_TDR8ZWLX
 #define CLASS_LOADER_TPP_TDR8ZWLX
@@ -36,8 +32,8 @@ std::shared_ptr<T> ClassLoader::loadClass
 )
 {
 	// std::cout << name << std::endl;
-	//void *T_lib = dlopen(name.c_str(), RTLD_NOW);
-	 void *T_lib = dlopen(name.c_str(), RTLD_LAZY);
+	// void *T_lib = dlopen(name.c_str(), RTLD_NOW);
+	void *T_lib = dlopen(name.c_str(), RTLD_LAZY);
 	if(!T_lib)
 	{
 		std::stringstream ss;

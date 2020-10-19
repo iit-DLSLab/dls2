@@ -12,10 +12,6 @@
 *                                     \|_________||   :    .'                  *
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
-********************************************************************************
-* Author:            Hendrik de Bruin                                          *
-* Maintainer:        Hendrik de Bruin                                          *
-* author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
 #ifndef COMMAND_TPP_OVALZHX0
 #define COMMAND_TPP_OVALZHX0
@@ -30,6 +26,8 @@
 #include <fastrtps/types/DynamicDataFactory.h>
 #include <fastrtps/types/DynamicData.h>
 #include <iostream>
+
+#include "dls2/util/messaging/participant.hpp"
 
 // The current release of Eigen defines in the file `Eigen_Colamd.h` the macro:
 // # define ALIVE (0)
@@ -162,35 +160,10 @@ Command<ret_t, arg_ts...>::CommandCallListener::CommandCallListener
 	Command<ret_t, arg_ts...> &owner_
 ) :
 	owner(owner_),
-	pParticipant(nullptr),
 	pSubscriber(nullptr),
 	dynamic_type(),
 	pData(nullptr)
 {
-	eprosima::fastrtps::ParticipantAttributes participant_attributes;
-	// participant_attributes.rtps.builtin.domainId = 0;
-	participant_attributes.rtps.setName
-	(
-		(
-			std::string(topics::command_call) + "_" +
-			this->owner.owner + "_" + this->owner.command_name +
-			"_sub_participant"
-		)
-		.c_str()
-	);
-
-	pParticipant.reset
-	(
-		eprosima::fastrtps::Domain::createParticipant(participant_attributes),
-		// TODO add proper deleter here
-		[](eprosima::fastrtps::Participant*){}
-	);
-
-	if(!pParticipant)
-	{
-		// TODO do something better here
-		std::cout << "ERROR:: could not create dynamic participant" << std::endl;
-	}
 
 	eprosima::fastrtps::types::DynamicTypeBuilder_ptr struct_type_builder =
 		eprosima::fastrtps::types::DynamicTypeBuilderFactory::get_instance()->
@@ -220,7 +193,7 @@ Command<ret_t, arg_ts...>::CommandCallListener::CommandCallListener
 
 	eprosima::fastrtps::Domain::registerDynamicType
 	(
-		this->pParticipant.get(),
+		dls::impl::legacy::getFastrtpsLegacyParticipant(),
 		&this->dynamic_type
 	);
 
@@ -237,7 +210,7 @@ Command<ret_t, arg_ts...>::CommandCallListener::CommandCallListener
 	(
 		eprosima::fastrtps::Domain::createSubscriber
 		(
-			this->pParticipant.get(),
+			dls::impl::legacy::getFastrtpsLegacyParticipant(),
 			subscriber_attributes,
 			this
 		),

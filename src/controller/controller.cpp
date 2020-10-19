@@ -12,10 +12,6 @@
 *                                     \|_________||   :    .'                  *
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
-********************************************************************************
-* Author:            Hendrik de Bruin                                          *
-* Maintainer:        Hendrik de Bruin                                          *
-* author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
 #include <thread>
 #include "dls2/controller/controller.hpp"
@@ -56,6 +52,14 @@ Controller::Controller
 	should_run(false),
 	gait_listener(std::shared_ptr<Controller>(this,[](Controller*){})),
 	blind_state_listener(std::shared_ptr<Controller>(this,[](Controller*){})),
+	// blind_state_listener
+	// (
+	// 	topics::low_level_estimation::blind_state,
+	// 	[&](BlindStateMsg msg)
+	// 	{
+	// 		this->pBlind_state_signal = std::make_shared<BlindState>(msg);
+	// 	}
+	// ),
 	control_signal_topic(std::string(topics::control_signal_base) + name_),
 	publisher(control_signal_topic)
 {

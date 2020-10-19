@@ -12,10 +12,6 @@
 *                                     \|_________||   :    .'                  *
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
-********************************************************************************
-* Author:            Hendrik de Bruin                                          *
-* Maintainer:        Hendrik de Bruin                                          *
-* author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
 #ifndef DUMMY_CONTROLLER_HPP_YGHMJHQN
 #define DUMMY_CONTROLLER_HPP_YGHMJHQN
@@ -54,11 +50,11 @@ public:
 	std::string where() override;
 
 private:
-	CommandManager command_manager;
-	logging::coutstream outstream;
-	logging::clogstream logstream;
+	// CommandManager command_manager;
+	// logging::coutstream outstream;
+	// logging::clogstream logstream;
 
-	Service<StringMsgPubSubType, StringMsgPubSubType> service;
+	// Service<StringMsgPubSubType, StringMsgPubSubType> service;
 };
 } // end namespace dls
 

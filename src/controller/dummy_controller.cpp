@@ -12,10 +12,6 @@
 *                                     \|_________||   :    .'                  *
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
-********************************************************************************
-* Author:            Hendrik de Bruin                                          *
-* Maintainer:        Hendrik de Bruin                                          *
-* author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
 #include "dls2/controller/dummy_controller.hpp"
 #include "dls2/util/debug/debug.hpp"
@@ -36,41 +32,41 @@ DummyController::DummyController
 		// std::chrono::duration<double, std::ratio<1, 1'000'000'000>>(1),
 		std::chrono::duration<double, std::ratio<1, 1>>(1),
 		ControlSignal::SignalReconstructionMethod::ZERO_ORDER_HOLD
-	),
-	command_manager(),
-	outstream(getID()),
-	logstream(getID()),
-	service
-	(
-		"dls_dummy_controller_service",
-		[](StringMsg msg)
-		{
-			std::cout << "Dummy controller got service call with msg: "
-                      << msg.msg() << std::endl;
-			std::cout << "Dummy controller responding with the message modified"
-                      << std::endl;
-			msg.msg() = std::string("returned from DummyController: ") + msg.msg();
-			std::cout << "Dummy controller exiting callback" << std::endl;
-			return msg;
-		}
-	)
+	)//,
+	// command_manager(),
+	// outstream(getID()),
+	// logstream(getID()),
+	// service
+	// (
+	// 	"dls_dummy_controller_service",
+	// 	[](StringMsg msg)
+	// 	{
+	// 		std::cout << "Dummy controller got service call with msg: "
+                      // << msg.msg() << std::endl;
+	// 		std::cout << "Dummy controller responding with the message modified"
+                      // << std::endl;
+	// 		msg.msg() = std::string("returned from DummyController: ") + msg.msg();
+	// 		std::cout << "Dummy controller exiting callback" << std::endl;
+	// 		return msg;
+	// 	}
+	// )
 {
-	outstream << "dummy controller launched" << std::endl;
+	// outstream << "dummy controller launched" << std::endl;
 
-	command_manager.addCommand<double, double, double>
-	(
-		getID(),
-		"addTwoDoubles",
-		"adds two doubles",
-		std::function<double(double,double)>
-		{
-			[](double a, double b) ->double
-			{
-				std::cout << a + b << std::endl;
-				return a + b;
-			}
-		}
-	);
+	// command_manager.addCommand<double, double, double>
+	// (
+	// 	getID(),
+	// 	"addTwoDoubles",
+	// 	"adds two doubles",
+	// 	std::function<double(double,double)>
+	// 	{
+	// 		[](double a, double b) ->double
+	// 		{
+	// 			std::cout << a + b << std::endl;
+	// 			return a + b;
+	// 		}
+	// 	}
+	// );
 
 	// std::cout << "creating free standing command" << std::endl;
 	// Command<double, double, double>
@@ -109,9 +105,18 @@ std::string DummyController::where()
 void DummyController::run(const std::chrono::system_clock::time_point &time)
 {
 	// Command<int, int> command("dummy", "help", foo);
-	logstream << "Dummy Controller Epoch" << std::endl;
+	// logstream << "Dummy Controller Epoch" << std::endl;
 	// std::cout << "Dummy Controller Epoch" << std::endl;
 	auto pGait_signal = this->readGaitSignal();
+	auto pBlind_state = this->readBlindStateSignal();
+	if(!pBlind_state)
+	{
+		std::cout << "dummy controller did not get blind state" << std::endl;
+	}
+	else
+	{
+		std::cout << "DUMMY CONTROLLER GOT BLIND STATE" << std::endl;
+	}
 
 	ControlSignal s;
 	s.torques.resize(12);

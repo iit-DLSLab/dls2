@@ -12,10 +12,6 @@
 *                                     \|_________||   :    .'                  *
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
-********************************************************************************
-* Author:            Hendrik de Bruin                                          *
-* Maintainer:        Hendrik de Bruin                                          *
-* author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
 #ifndef PERIODIC_APP_LAYER_COMPONENT_HPP_RY9LWBZG
 #define PERIODIC_APP_LAYER_COMPONENT_HPP_RY9LWBZG
@@ -88,9 +84,9 @@ private:
 
 	/// Commands to pause/continue this component
 	///
-	CommandManager command_manager;
+	// CommandManager command_manager;
 
-	logging::coutstream scout;
+	// logging::coutstream scout;
 };
 } // end namespace dls
 

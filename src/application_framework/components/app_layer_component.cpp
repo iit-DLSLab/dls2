@@ -12,10 +12,6 @@
 *                                     \|_________||   :    .'                  *
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
-********************************************************************************
-* Author:            Hendrik de Bruin                                          *
-* Maintainer:        Hendrik de Bruin                                          *
-* author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
 #include <iostream>
 #include "dls2/application_framework/components/app_layer_component.hpp"
@@ -28,26 +24,26 @@ using namespace dls;
 AppLayerComponent::AppLayerComponent(const ID_t &ID_) :
 	status(Status::UNCONSTRUCTED),
 	status_mutex(),
-	ID(ID_),
-	command_manager(),
-	scout(ID_)
+	ID(ID_)//,
+	// command_manager(),
+	// scout(ID_)
 {
-	this->command_manager.addCommand<void, ARGVOID>
-	(
-		this->getID(),
-		"where",
-		std::string("Prints the state of ") + this->getID(),
+	// this->command_manager.addCommand<void, ARGVOID>
+	// (
+	// 	this->getID(),
+	// 	"where",
+	// 	std::string("Prints the state of ") + this->getID(),
 
-		std::function<void(ARGVOID)>
-		(
-			[&](ARGVOID)
-			{
-				auto s = where();
-				std::cout << s << std::endl;
-				scout     << s << std::endl;
-			}
-		)
-	);
+	// 	std::function<void(ARGVOID)>
+	// 	(
+	// 		[&](ARGVOID)
+	// 		{
+	// 			auto s = where();
+	// 			std::cout << s << std::endl;
+	// 			scout     << s << std::endl;
+	// 		}
+	// 	)
+	// );
 }
 
 // =============================================================================
