@@ -31,7 +31,7 @@ public:
 	void update(const ros::Time& time, const ros::Duration& period);
 private:
 	hardware_interface::BlindStateHandle blind_state_;
-	std::shared_ptr<dls::version2::Publisher<BlindStateMsgPubSubType>> pBlind_state_pub_;
+	std::shared_ptr<dls::PublisherBase<BlindStateMsgPubSubType>> pBlind_state_pub_;
 	// BEGIN critical section
 	std::mutex blind_state_msg_mutex_;
 		BlindStateMsg blind_state_msg_;

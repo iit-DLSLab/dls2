@@ -105,7 +105,7 @@ bool BlindStateController::init(hardware_interface::BlindStateInterface *pBlind_
 		return false;
 	}
 	std::lock_guard<std::mutex> lock(this->blind_state_msg_mutex_);
-	pBlind_state_pub_ = std::make_shared<dls::version2::Publisher<BlindStateMsgPubSubType>> (dls::topics::low_level_estimation::blind_state);
+	this->pBlind_state_pub_ = std::make_shared<dls::PublisherBase<BlindStateMsgPubSubType>> (dls::topics::low_level_estimation::blind_state);
 	seq_=0;
 	blind_state_msg_.joint_state().position().resize(12);
 	blind_state_msg_.joint_state().velocity().resize(12);
