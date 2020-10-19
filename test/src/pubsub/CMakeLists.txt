@@ -1,23 +1,24 @@
-create_test(multiple_pub_sub_with_single_participant_to_same_topic
-	SOURCE
-		multiple_pub_sub_with_single_participant_to_same_topic.cpp
-	LINK
-		dls_messaging
-		dls_pubsub
-		fastrtps
-		fastcdr
-		dls_framework
-)
-create_test(high_frequency_test
-	SOURCE
-		high_frequency_test.cpp
-	LINK
-		dls_messaging
-		dls_pubsub
-		fastrtps
-		fastcdr
-		dls_framework
-)
+# create_test(multiple_pub_sub_with_single_participant_to_same_topic
+# 	SOURCE
+# 		multiple_pub_sub_with_single_participant_to_same_topic.cpp
+# 	LINK
+# 		dls_messaging
+# 		dls_pubsub
+# 		fastrtps
+# 		fastcdr
+# 		dls_framework
+# )
+
+# create_test(high_frequency_test
+# 	SOURCE
+# 		high_frequency_test.cpp
+# 	LINK
+# 		dls_messaging
+# 		dls_pubsub
+# 		fastrtps
+# 		fastcdr
+# 		dls_framework
+# )
 
 create_test(pubsub
 	SOURCE
@@ -42,16 +43,16 @@ create_test(pub_multisub
 		catch2
 )
 
-create_test(pub_multisub_multiprocess
-	SOURCE
-		pub_multisub_multiprocess.cpp
-	LINK
-		dls_framework
-		dls_messaging
-		fastrtps
-		fastcdr
-		catch2
-)
+# create_test(pub_multisub_multiprocess
+# 	SOURCE
+# 		pub_multisub_multiprocess.cpp
+# 	LINK
+# 		dls_framework
+# 		dls_messaging
+# 		fastrtps
+# 		fastcdr
+# 		catch2
+# )
 
 add_executable(dummy_blind_state_publisher
 	blind_state_test.cpp
@@ -92,12 +93,12 @@ target_link_libraries(bare_dummy_controller
 	fastcdr
 )
 
-create_test(multi_pubsub_one_to_one
-	SOURCE
-		multi_pubsub_one_to_one.cpp
-	LINK
-		dls_framework
-		dls_messaging
-		fastrtps
-		fastcdr
-)
+# create_test(multi_pubsub_one_to_one
+# 	SOURCE
+# 		multi_pubsub_one_to_one.cpp
+# 	LINK
+# 		dls_framework
+# 		dls_messaging
+# 		fastrtps
+# 		fastcdr
+# )

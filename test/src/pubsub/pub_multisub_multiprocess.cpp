@@ -23,6 +23,7 @@ int run_subscriber(int sub_id);
 // =================================== Main ====================================
 int main()
 {
+	dls::impl::initFastdds();
 	auto publisher_pid = fork();
 	if(publisher_pid == 0)
 	{
