@@ -29,6 +29,9 @@ class AppLayerComponent
 {
 public:
 	using ID_t = std::string;
+	typedef AppLayerComponent *create_t(const ID_t&);
+	typedef void destroy_t(AppLayerComponent*);
+
 
 	/// Constructor
 	/// @parm ID the name of this component

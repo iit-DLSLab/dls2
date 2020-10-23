@@ -1,6 +1,10 @@
 # ==============================================================================
 # PATHS
 # ==============================================================================
+set(DLS_INSTALL_COMPONENT_BASE_DIR /usr/lib/dls2/components
+	CACHE STRING "Base directory for layer components. Each layer adds a subdirectory to this path"
+)
+
 set(DLS_INSTALL_LAUNCH_RUNTIME_DIR /usr/bin
 	CACHE STRING "Directory where the launch script is installed to"
 )
