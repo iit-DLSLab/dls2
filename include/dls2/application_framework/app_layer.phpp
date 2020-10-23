@@ -18,7 +18,7 @@
 
 #include <functional>
 #include <memory>
-#include <vector>
+#include <map>
 #include <mutex>
 
 #include "dls2/application_framework/components/app_layer_component.hpp"
@@ -84,11 +84,33 @@ public:
 	///
 	virtual std::string where() = 0;
 
+
 protected:
-	// TODO ("remove this")
+	/// Adds a component to this layer
+	///
+	/// @param name the name of the component
+	/// @param component a pointer to the component
+	void addComponent(const std::string &name, pComponent_t component);
+
+	/// Reads a component from the install path of this layer and loads it
+	///
+	/// @param name the name of the component
+	void loadComponentFromDisk(const std::string &name);
+
+	/// Remove a component from this layer
+	///
+	/// @param name the name of the component
+	void removeComponent(const std::string &name);
+
+	/// Get the status of a component inside of this layer
+	///
+	/// @return the status of the component, or UNCONSTRUCTED if it does not
+	/// exist
+	AppLayerComponent::Status getComponentStatus(const std::string &name);
+
 	// BEGIN critical section
 		mutable std::mutex components_mutex;
-		std::vector<pComponent_t> components;
+		std::map<std::string, pComponent_t> components;
 	// END critical section
 
 private:
