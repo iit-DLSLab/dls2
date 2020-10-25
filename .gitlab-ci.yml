@@ -1,7 +1,7 @@
 # ==============================================================================
 # Environment setup
 # ==============================================================================
-image: server-gitlab-runner:5000/dls2-framework-dev:latest
+image: server-harbor:80/dls2/dls2-framework-dev:latest
 
 before_script:
   - source /root/dls_gitlab_ci/gitlab-script.sh
