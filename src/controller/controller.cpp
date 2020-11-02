@@ -102,7 +102,7 @@ std::string Controller::getControlSignalTopic() const
 // FastRTPS
 // =============================================================================
 Controller::GaitListener::GaitListener(std::shared_ptr<Controller> p) :
-	SubscriberBase<GaitSignalMsgPubSubType>(topics::gait_layer),
+	SubscriberBase<GaitSignalMsgPubSubType>(topics::gait_signal),
 	pOwner(p),
 	info()
 { }
@@ -114,6 +114,7 @@ void Controller::GaitListener::onNewDataMessage(eprosima::fastrtps::Subscriber *
 	{
 		std::lock_guard<std::mutex> lock(pOwner->gait_signal_mutex);
 		// TODO do not reassign memory, just reset it
+		// std::cout << "received a gait signal" << std::endl;
 		pOwner->pGait_signal = std::make_shared<const GaitSignal>(st);
 	}
 }

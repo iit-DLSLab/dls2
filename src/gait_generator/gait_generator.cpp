@@ -20,6 +20,7 @@
 
 #include <chrono>
 #include <thread>
+#include <iostream>
 
 using namespace dls;
 // =============================================================================
@@ -73,5 +74,7 @@ void GaitGenerator::BlindStateListener::onNewDataMessage(eprosima::fastrtps::Sub
 		std::lock_guard<std::mutex> lock(pOwner->blind_state_signal_mutex);
 		// TODO do not reassign memory, just reset it
 		pOwner->pBlind_state_signal = std::make_shared<BlindState>(bs);
+		// std::cout << "received a blind state message of size: "
+		//           << bs.joint_state().position().size() << std::endl;
 	}
 }

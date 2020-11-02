@@ -112,14 +112,14 @@ private:
 };
 } // end namespace dls
 
-#define DLS_EXPORT_GAIT_GENERATOR(generator) \
+#define DLS_EXPORT_GAIT_GENERATOR(generator)                               \
 extern "C" dls::GaitGenerator *create(std::shared_ptr<dls::dog::Dog> pDog) \
-{ \
-	return new generator(pDog); \
-} \
-extern "C" void destroy(dls::GaitGenerator *p) \
-{ \
-	delete p; \
+{                                                                          \
+	return new generator(pDog);                                            \
+}                                                                          \
+extern "C" void destroy(dls::GaitGenerator *p)                             \
+{                                                                          \
+	delete p;                                                              \
 }
 
 #endif /* end of include guard: GAIT_GENERATOR_HPP_5MDX0BG2 */

@@ -3,6 +3,9 @@
 #include <urdf/model.h>
 #include <transmission_interface/transmission_parser.h>
 
+#include <sstream>
+#include <iostream>
+
 namespace dls_hw_sim
 {
 
@@ -21,6 +24,7 @@ void DlsRobotHwSim::Load
 	if (!model)
 	{
 		ROS_ERROR_STREAM_NAMED("loadThread","parent model is NULL");
+		std::cerr << "Parent model is NULL" << std::endl;;
 		return;
 	}
 
@@ -32,13 +36,16 @@ void DlsRobotHwSim::Load
 			" A ROS node for Gazebo has not been initialized, unable to load"
 			" plugin."
 		);
+		std::cerr << "Ros node has not been initialized, unable to laod plugin"
+			      << std::endl;
 		return;
 	}
 
 	auto robot_namespace = model->GetName();
 	auto robot_description = "robot_description";
 
-	ros::Duration gazebo_period(model->GetWorld()->GetPhysicsEngine()->GetMaxStepSize());
+	ros::Duration gazebo_period(
+		model->GetWorld()->GetPhysicsEngine()->GetMaxStepSize());
 
 	ros::NodeHandle node_handle(robot_namespace);
 
@@ -46,7 +53,8 @@ void DlsRobotHwSim::Load
 	node_handle.getParam("/robot_description", urdf_string);
 
 	urdf::Model urdf_model;
-    const urdf::Model *const urdf_model_ptr = urdf_model.initString(urdf_string) ? &urdf_model : NULL;
+	const urdf::Model *const urdf_model_ptr =
+		urdf_model.initString(urdf_string) ? &urdf_model : NULL;
 
 	transmission_interface::TransmissionParser::parse(urdf_string, transmissions_);
 	if
@@ -62,6 +70,8 @@ void DlsRobotHwSim::Load
 	)
 	{
 		ROS_FATAL_NAMED("gazebo_ros_control","Could not initialize robot simulation interface");
+		std::cerr << "COULD NOT INITIALIZE ROBOGT SIMULATION INTERFACE"
+			      << std::endl;
 		return;
 	}
 
@@ -102,6 +112,9 @@ bool DlsRobotHwSim::initSim(
 	// Resize vectors to our DOF
 	n_dof_ = transmissions.size();
 	joint_name_.resize(n_dof_);
+	this->blind_state_msg_.joint_state().position().resize(12);
+	this->blind_state_msg_.joint_state().velocity().resize(12);
+	this->blind_state_msg_.joint_state().effort().resize(12);
 	// joint_types_.resize(n_dof_);
 	// joint_lower_limits_.resize(n_dof_);
 	// joint_upper_limits_.resize(n_dof_);
@@ -225,13 +238,13 @@ void DlsRobotHwSim::readSim(ros::Time time, ros::Duration period)
 
 void DlsRobotHwSim::publish_blind_state()
 {
+
 	// this->blind_state_msg_.header().stamp = ros::Time::now();
-	for (int i=0;i<12;i++)
+	for(int i = 0; i < 12; i++)
 	{
-		// TODO where to get the joint state?
-		// this->blind_state_msg_.joint_state().position()[i] += angles::shortest_angular_distance(this->blind_state_msg_.joint_state().position()[i],joint_[i]->GetAngle(0).Radian());
-		// this->blind_state_msg_.joint_state().velocity()[i] = joint_[i]->GetVelocity(0);
-		// this->blind_state_msg_.joint_state().effort()[i] = joint_[i]->GetForce(0);
+		this->blind_state_msg_.joint_state().position()[i] = sim_joints_[i]->GetAngle(0).Radian();
+		this->blind_state_msg_.joint_state().velocity()[i] = sim_joints_[i]->GetVelocity(0);
+		this->blind_state_msg_.joint_state().effort()[i]   = sim_joints_[i]->GetForce(0);
 	}
 
 	this->blind_state_msg_.base_pose_world().position()[0] = sim_model_->GetWorldPose().pos.x;
@@ -244,19 +257,82 @@ void DlsRobotHwSim::publish_blind_state()
 	this->blind_state_msg_.base_pose_world().quaternion()[2] = sim_model_->GetWorldPose().rot.z;
 	this->blind_state_msg_.base_pose_world().quaternion()[3] = sim_model_->GetWorldPose().rot.w;
 
-	this->blind_state_msg_.base_velocity_world().linear()[0] = sim_model_->GetWorldLinearVel().x;
-	this->blind_state_msg_.base_velocity_world().linear()[1] = sim_model_->GetWorldLinearVel().y;
-	this->blind_state_msg_.base_velocity_world().linear()[2] = sim_model_->GetWorldLinearVel().z;
+	this->blind_state_msg_.base_velocity_world().linear()[0]  = sim_model_->GetWorldLinearVel().x;
+	this->blind_state_msg_.base_velocity_world().linear()[1]  = sim_model_->GetWorldLinearVel().y;
+	this->blind_state_msg_.base_velocity_world().linear()[2]  = sim_model_->GetWorldLinearVel().z;
 	this->blind_state_msg_.base_velocity_world().angular()[0] = sim_model_->GetWorldAngularVel().x;
 	this->blind_state_msg_.base_velocity_world().angular()[1] = sim_model_->GetWorldAngularVel().y;
 	this->blind_state_msg_.base_velocity_world().angular()[2] = sim_model_->GetWorldAngularVel().z;
 
-	this->blind_state_msg_.base_acceleration_world().linear()[0] = sim_model_->GetWorldLinearAccel().x;
-	this->blind_state_msg_.base_acceleration_world().linear()[1] = sim_model_->GetWorldLinearAccel().y;
-	this->blind_state_msg_.base_acceleration_world().linear()[2] = sim_model_->GetWorldLinearAccel().z;
+	this->blind_state_msg_.base_acceleration_world().linear()[0]  = sim_model_->GetWorldLinearAccel().x;
+	this->blind_state_msg_.base_acceleration_world().linear()[1]  = sim_model_->GetWorldLinearAccel().y;
+	this->blind_state_msg_.base_acceleration_world().linear()[2]  = sim_model_->GetWorldLinearAccel().z;
 	this->blind_state_msg_.base_acceleration_world().angular()[0] = sim_model_->GetWorldLinearAccel().x;
 	this->blind_state_msg_.base_acceleration_world().angular()[1] = sim_model_->GetWorldLinearAccel().y;
 	this->blind_state_msg_.base_acceleration_world().angular()[2] = sim_model_->GetWorldLinearAccel().z;
+
+	// TEMPORARY PRINT OUT THE BLIND STATE TO THE CONSOLE
+	// {
+		// std::stringstream ss;
+
+		// ss << "===============================================================";
+
+		// ss << "position: ";
+
+		// std::copy(std::cbegin(blind_state_msg_.joint_state().position()),
+		// 	      std::cend(blind_state_msg_.joint_state().position()),
+		// 	      std::ostream_iterator<double>(ss, ", "));
+
+		// ss << "\nVelocity: ";
+
+		// std::copy(std::cbegin(blind_state_msg_.joint_state().velocity()),
+		// 	      std::cend(blind_state_msg_.joint_state().velocity()),
+		// 	      std::ostream_iterator<double>(ss, ", "));
+
+		// ss << "\nEffort: ";
+
+		// std::copy(std::cbegin(blind_state_msg_.joint_state().effort()),
+		// 	      std::cend(blind_state_msg_.joint_state().effort()),
+		// 	      std::ostream_iterator<double>(ss, ", "));
+
+		// ss << "\nPosition: ";
+
+		// std::copy(std::cbegin(blind_state_msg_.base_pose_world().position()),
+		// 	      std::cend(blind_state_msg_.base_pose_world().position()),
+		// 	      std::ostream_iterator<double>(ss, ", "));
+
+		// ss << "\nOrientation: ";
+
+		// std::copy(std::cbegin(blind_state_msg_.base_pose_world().quaternion()),
+		// 	      std::cend(blind_state_msg_.base_pose_world().quaternion()),
+		// 	      std::ostream_iterator<double>(ss, ", "));
+
+		// ss << "\nVelocity: ";
+
+		// std::copy(std::cbegin(blind_state_msg_.base_velocity_world().linear()),
+		// 	      std::cend(blind_state_msg_.base_velocity_world().linear()),
+		// 	      std::ostream_iterator<double>(ss, ", "));
+
+		// std::copy(std::cbegin(blind_state_msg_.base_velocity_world().angular()),
+		// 	      std::cend(blind_state_msg_.base_velocity_world().angular()),
+		// 	      std::ostream_iterator<double>(ss, ", "));
+
+		// ss << "\nAcceleration: ";
+
+		// std::copy(
+		// 	std::cbegin(blind_state_msg_.base_acceleration_world().linear()),
+		// 	std::cend(blind_state_msg_.base_acceleration_world().linear()),
+		// 	std::ostream_iterator<double>(ss, ", "));
+
+		// std::copy(
+		// 	std::cbegin(blind_state_msg_.base_acceleration_world().angular()),
+		// 	std::cend(blind_state_msg_.base_acceleration_world().angular()),
+		// 	std::ostream_iterator<double>(ss, ", "));
+
+		// ss << "\n===============================================================";
+		// std::cout << ss.str() << std::endl;
+	// }
+
 
 	this->blind_state_pub_.publish(this->blind_state_msg_);
 }
