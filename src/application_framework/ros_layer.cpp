@@ -17,6 +17,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/prctl.h>
+#include <ros/ros.h>
 #include <ros/master.h>
 
 using namespace dls;
@@ -30,8 +31,6 @@ RosLayer::RosLayer() :
     scout("ros_layer"),
     command_manager()
 {
-    scout << "hello" << std::endl;
-    std::cout << "ELLO" << std::endl;
     forkRosCore();
     command_manager.addCommand<void, ARGVOID>
     (
@@ -46,6 +45,9 @@ RosLayer::RosLayer() :
             }
         )
     );
+    ros::init(Options::argc,Options::argv,"DLS2_ROS_Layer",ros::init_options::NoSigintHandler);
+    ros::NodeHandle node;
+    ros::spin();
 }
 
 RosLayer::~RosLayer()
@@ -64,6 +66,7 @@ RosLayer::Status RosLayer::run()
 
 RosLayer::Status RosLayer::shutdown()
 {
+    ros::shutdown();
     return getStatus();
 }
 
@@ -87,14 +90,16 @@ void change_process_name(char **argv, const std::string &name)
 
 void RosLayer::forkRosCore()
 {
-        this->roscore_pid = fork(); // TODO error handling on fork
-        if(this->roscore_pid == 0)
-        {
-            change_process_name(Options::argv, "roscore");
-            // auto ret = system("roscore > /dev/null");
-            auto ret = system("roscore");
-            _exit(ret);
-        }
+    pid_t pid = fork(); // TODO error handling on fork
+    if(pid == 0)
+    {
+        change_process_name(Options::argv, "roscore");
+        // auto ret = system("roscore > /dev/null");
+        auto ret = system("roscore");
+        _exit(ret);
+    } else {
+        this->roscore_pid=pid;
+    }
 }
 
 
