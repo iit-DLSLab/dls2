@@ -16,6 +16,7 @@ add_library(dls_framework
 	${CONSOLE_LAYER_CPP}
 	estimation_layer.cpp
 	log_layer.cpp
+	ros_layer.cpp
 	init.cpp
 
 	options.cpp
