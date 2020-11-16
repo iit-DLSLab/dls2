@@ -27,15 +27,20 @@
 #include "dls_hw_sim/interfaces/odometry.hpp"
 
 #include "dls2/util/messaging/publisher_base.hpp"
+#include "dls2/util/messaging/callback_subscriber.hpp"
 #include "dls2/msg/blind_statePubSubTypes.h"
 #include "dls2/msg/timePubSubTypes.h"
 #include "dls2/topics/low_level_estimation/blind_state.hpp"
 #include "dls2/topics/simulation_time.hpp"
 #include "dls2/command/command.hpp"
 #include "dls2/util/log/log.hpp"
+#include "dls2/msg/desired_torquesPubSubTypes.h"
 #include <mutex>
 
 
+#include "dls2/util/messaging/publisher_base.hpp"
+#include "dls2/msg/desired_torquesPubSubTypes.h"
+#include "dls2/topics/desired_torques.hpp"
 namespace dls_hw_sim
 {
 
@@ -110,6 +115,9 @@ private:
   BlindStateMsg blind_state_msg_;
   dls::PublisherBase<BlindStateMsgPubSubType> blind_state_pub_;
   std::vector<transmission_interface::TransmissionInfo> transmissions_;
+
+  dls::CallbackSubscriber<DesiredTorquesMsgPubSubType> torque_sub;
+  DesiredTorquesMsg desired_torques;
 
 
   unsigned int n_dof_;

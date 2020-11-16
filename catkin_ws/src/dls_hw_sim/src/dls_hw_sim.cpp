@@ -11,7 +11,13 @@ namespace dls_hw_sim
 
 DlsRobotHwSim::DlsRobotHwSim() :
 	gazebo::ModelPlugin(),
-	blind_state_pub_(dls::topics::low_level_estimation::blind_state)
+	blind_state_pub_(dls::topics::low_level_estimation::blind_state),
+	torque_sub(dls::topics::desired_torques,
+			[&](DesiredTorquesMsg msg)
+			{
+				this->desired_torques = msg;
+			}
+		)
 { }
 
 void DlsRobotHwSim::Load
@@ -114,6 +120,7 @@ bool DlsRobotHwSim::initSim(
 	joint_name_.resize(n_dof_);
 	this->blind_state_msg_.joint_state().position().resize(12);
 	this->blind_state_msg_.joint_state().velocity().resize(12);
+	this->blind_state_msg_.joint_state().acceleration().resize(12);
 	this->blind_state_msg_.joint_state().effort().resize(12);
 	// joint_types_.resize(n_dof_);
 	// joint_lower_limits_.resize(n_dof_);
@@ -242,9 +249,10 @@ void DlsRobotHwSim::publish_blind_state()
 	// this->blind_state_msg_.header().stamp = ros::Time::now();
 	for(int i = 0; i < 12; i++)
 	{
-		this->blind_state_msg_.joint_state().position()[i] = sim_joints_[i]->GetAngle(0).Radian();
-		this->blind_state_msg_.joint_state().velocity()[i] = sim_joints_[i]->GetVelocity(0);
-		this->blind_state_msg_.joint_state().effort()[i]   = sim_joints_[i]->GetForce(0);
+		this->blind_state_msg_.joint_state().position()[i]     = sim_joints_[i]->GetAngle(0).Radian();
+		this->blind_state_msg_.joint_state().velocity()[i]     = sim_joints_[i]->GetVelocity(0);
+		this->blind_state_msg_.joint_state().acceleration()[i] = 0;
+		this->blind_state_msg_.joint_state().effort()[i]       = sim_joints_[i]->GetForce(0);
 	}
 
 	this->blind_state_msg_.base_pose_world().position()[0] = sim_model_->GetWorldPose().pos.x;
@@ -346,7 +354,7 @@ bool DlsRobotHwSim::freezeBase(std_srvs::Empty::Request& req, std_srvs::Empty::R
 void DlsRobotHwSim::writeSim(ros::Time time, ros::Duration period)
 {
 	for (unsigned int i=0; i < sim_joints_.size(); i++) {
-		// sim_joints_[i]->SetForce(0, joint_effort_command_[i]);
+		sim_joints_[i]->SetForce(0, desired_torques.desired_torques()[i]);
 	}
 	if (freeze_cmd_!=freeze_state_)
 	{
