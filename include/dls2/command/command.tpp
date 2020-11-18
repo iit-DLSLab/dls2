@@ -26,6 +26,8 @@
 #include <fastrtps/types/DynamicDataFactory.h>
 #include <fastrtps/types/DynamicData.h>
 #include <iostream>
+#include <thread>
+#include <chrono>
 
 #include "dls2/util/messaging/participant.hpp"
 
@@ -122,6 +124,7 @@ void Command<ret_t, arg_ts...>::requestRegistration()
 	auto msg = this->msg;
 	msg.register_nremove() = true;
 	this->publisher.publish(msg);
+	std::this_thread::sleep_for(std::chrono::milliseconds(10));
 }
 
 template <typename ret_t, typename...arg_ts>
