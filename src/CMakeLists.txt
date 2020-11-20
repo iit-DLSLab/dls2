@@ -83,19 +83,17 @@ add_library(dls_reflex
 	${CMAKE_CURRENT_SOURCE_DIR}/reflex/reflex
 )
 
-# ==================================== Time ====================================
 # ==============================================================================
-# Roscontrol Tranlsation Block
+# Catkin
 # ==============================================================================
-# START
 set(CATKIN_WORKSPACE ${PROJECT_SOURCE_DIR}/catkin_ws)
 add_custom_target(dls2_to_roscontrol
-	COMMAND           catkin_make -j1 install && cp -r ${CATKIN_WORKSPACE}/install ${CATKIN_WORKSPACE}/dls2_ws
+	COMMAND           catkin_make install
 	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/catkin_ws
 	COMMENT           "Building dls2_to_roscontrol subproject"
 )
 install(
-	DIRECTORY              ${CATKIN_WORKSPACE}/dls2_ws/install
+	DIRECTORY              ${CATKIN_WORKSPACE}/install/
 	DESTINATION            ${DLS_CATKIN_WORKSPACE_DIR}
 	COMPONENT              dls_ws
 	USE_SOURCE_PERMISSIONS
@@ -109,16 +107,14 @@ set(CPACK_DEBIAN_DLS_WS_PACKAGE_NAME
 	"dls2-workspace"
 	PARENT_SCOPE
 )
-# END
 
 set_property(
 	DIRECTORY
 		${PROJECT_SOURCE_DIR}
-	PROPERTY ADDITIONAL_MAKE_CLEAN_FILES
+	PROPERTY ADDITIONAL_CLEAN_FILES
 		${CATKIN_WORKSPACE}/build
 		${CATKIN_WORKSPACE}/devel
 		${CATKIN_WORKSPACE}/install
-		${CATKIN_WORKSPACE}/dls2_ws
 )
 add_dependencies(dls2_to_roscontrol dls_framework dls_messaging)
 
