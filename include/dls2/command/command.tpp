@@ -43,8 +43,7 @@
 //
 // For this message, and other similar issues, refer to the wiki page `Software
 // Issues`
-//
-//                                                                     - Hendrik
+
 // #ifdef ALIVE
 // #undef ALIVE
 // #endif

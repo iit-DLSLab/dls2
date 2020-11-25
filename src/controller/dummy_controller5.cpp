@@ -11,11 +11,6 @@
 *                  \|_______|\|_______|\_________\./__;      :                 *
 *                                     \|_________||   :    .'                  *
 *                                                 ;   | .'                     *
-*                                                 `---'                        *
-********************************************************************************
-* Author:            Hendrik de Bruin                                          *
-* Maintainer:        Hendrik de Bruin                                          *
-* author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
 #include "dls2/controller/dummy_controller.hpp"
 #include "dls2/util/debug/debug.hpp"

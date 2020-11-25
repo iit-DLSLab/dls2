@@ -12,10 +12,6 @@
 *                                     \|_________||   :    .'                  *
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
-********************************************************************************
-* Author:            Hendrik de Bruin                                          *
-* Maintainer:        Hendrik de Bruin                                          *
-* author email:      hendrik.debruin@iit.it                                    *
 *******************************************************************************/
 #include "dls2/application_framework/control_layer.phpp"
 #include <Eigen/Dense>
@@ -59,8 +55,6 @@
 //
 // For this message, and other similar issues, refer to the wiki page `Software
 // Issues`
-//
-//                                                                     - Hendrik
 #ifdef ALIVE
 #undef ALIVE
 #endif
