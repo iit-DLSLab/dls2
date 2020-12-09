@@ -13,8 +13,8 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef SIMULATION_PAUSE_HPP_DU9LCRAP
-#define SIMULATION_PAUSE_HPP_DU9LCRAP
+#ifndef SIMULATION_PAUSE_HPP_DU9LCRAD
+#define SIMULATION_PAUSE_HPP_DU9LCRAD
 
 namespace dls
 {
@@ -24,4 +24,4 @@ namespace dls
 	}
 }
 
-#endif /* end of include guard: SIMULATION_PAUSE_HPP_DU9LCRAP */
+#endif /* end of include guard: SIMULATION_PAUSE_HPP_DU9LCRAD */
