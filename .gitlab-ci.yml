@@ -25,7 +25,6 @@ display:versions:
   tags:
     - dls2
   script:
-    - docker info
     - cmake --version
     - gcc --version
     - g++ --version
