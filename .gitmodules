@@ -25,3 +25,6 @@
 [submodule "catkin_ws/src/hyq-commons"]
 	path = catkin_ws/src/hyq-commons
 	url  = git@gitlab.advr.iit.it:dls-lab/hyq-commons.git
+[submodule "3rd_party/param-server"]
+	path = 3rd_party/param-server
+	url = git@gitlab.advr.iit.it:dls-lab/param-server.git
