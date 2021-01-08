@@ -135,5 +135,4 @@ function(dls_add_message msg)
 		"${CMAKE_CURRENT_BINARY_DIR}/gen/include"
 		CACHE STRING "project message dir"
 	)
-	# message(STATUS "setting variable dls_${PROJECT_NAME}_msg_includes=${CMAKE_CURRENT_BINARY_DIR}/gen/include/dls2/msg")
 endfunction()

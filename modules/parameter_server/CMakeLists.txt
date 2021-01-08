@@ -1,4 +1,4 @@
-set(CMAKE_CXX_STANDARD 14)
+add_subdirectory(msg)
 add_library(dls_parameter_server
 	src/parameter_server.cpp
 )
@@ -12,4 +12,5 @@ target_link_libraries(dls_parameter_server
 	PRIVATE
 	parameter_store
 	dls_framework
+	param_server_msgs
 )
