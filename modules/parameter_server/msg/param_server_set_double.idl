@@ -15,5 +15,6 @@
 *******************************************************************************/
 struct ParamServerSetDouble
 {
-	// double value;
+	string key;
+	double value;
 };

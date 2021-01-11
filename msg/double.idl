@@ -13,10 +13,7 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#include "control_signal.idl"
-
-struct StringMsg
+struct DoubleMsg
 {
-	string msg;
-	// ControlSignalMsg sig;
+	double val;
 };

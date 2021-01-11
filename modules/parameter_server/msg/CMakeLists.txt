@@ -1,7 +1,11 @@
 add_library(param_server_msgs SHARED)
+target_compile_options(param_server_msgs
+	PRIVATE
+	-w
+)
 
 function(param_server_gen_message msg)
-	set(DDS_DIR ${CMAKE_CURRENT_BINARY_DIR}/include/dls2)
+	set(DDS_DIR ${CMAKE_CURRENT_BINARY_DIR}/include/dls2/msg)
 
 	set(MSG_SOURCES
 		${DDS_DIR}/${msg}.h
@@ -29,6 +33,10 @@ function(param_server_gen_message msg)
 		PRIVATE
 		${DDS_DIR}/${msg}.cxx
 		${DDS_DIR}/${msg}PubSubTypes.cxx
+	)
+	target_include_directories(param_server_msgs
+		PUBLIC
+		${CMAKE_CURRENT_BINARY_DIR}/include
 	)
 endfunction()
 

@@ -13,10 +13,5 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#include "control_signal.idl"
-
-struct StringMsg
-{
-	string msg;
-	// ControlSignalMsg sig;
-};
+struct EmptyMsg
+{ };

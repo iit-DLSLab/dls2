@@ -86,6 +86,10 @@ function(dls_add_message msg)
 			PRIVATE
 			-w # Suppress all warnings, this library's code is auto-generated
 		)
+		target_include_directories(dls_${PROJECT_NAME}_messaging
+			PUBLIC
+			${CMAKE_CURRENT_BINARY_DIR}/gen/include
+		)
 		install(
 			TARGETS dls_${PROJECT_NAME}_messaging
 			LIBRARY
