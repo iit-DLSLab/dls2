@@ -2,7 +2,6 @@
 #define PARAMETER_SERVER_HPP_05f2fd08_3966_43ee_b7c8_5c344e7afd3f
 
 #include <memory>
-#include "dls2/util/service/service.hpp"
 
 namespace dls
 {
