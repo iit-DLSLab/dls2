@@ -37,6 +37,8 @@ namespace dls
 		pimpl(std::make_unique<impl::ParameterServerClientImpl>())
 	{ }
 
+	ParameterServerClient::~ParameterServerClient() { }
+
 	// ============================= Param Server ==============================
 	void ParameterServerClient::setDouble(std::string const &key, double d)
 	{
