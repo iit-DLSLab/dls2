@@ -1,0 +1,47 @@
+/*******************************************************************************
+*                                                       ,----,                 *
+*                                                     .'   .' \                *
+*                                                   ,----,'    |               *
+*               ________  ___       ________        |    :  .  ;               *
+*              |\   ___ \|\  \     |\   ____\       ;    |.'  /                *
+*              \ \  \_|\ \ \  \    \ \  \___|_      `----'/  ;                 *
+*               \ \  \ \\ \ \  \    \ \_____  \       /  ;  /                  *
+*                \ \  \_\\ \ \  \____\|____|\  \     ;  /  /-,                 *
+*                 \ \_______\ \_______\____\_\  \   /  /  /.`|                 *
+*                  \|_______|\|_______|\_________\./__;      :                 *
+*                                     \|_________||   :    .'                  *
+*                                                 ;   | .'                     *
+*                                                 `---'                        *
+*******************************************************************************/
+#ifndef ROS_LAYER_HPP
+#define ROS_LAYER_HPP
+
+#include "dls2/application_framework/app_layer.phpp"
+#include "dls2/application_framework/options.phpp"
+#include "dls2/command/command.hpp"
+#include "dls2/util/log/log.hpp"
+#include <unistd.h>
+
+// TODO build this class
+namespace dls
+{
+class RosLayer : public AppLayer
+{
+public:
+	RosLayer();
+	~RosLayer();
+
+	Status run() override;
+	Status shutdown() override;
+
+	std::string where() override;
+
+private:
+    pid_t roscore_pid;
+	logging::coutstream scout;
+	CommandManager command_manager;
+	void forkRosCore();
+};
+} // end namespace dls
+
+#endif /* end of include guard: ROS_LAYER_HPP */

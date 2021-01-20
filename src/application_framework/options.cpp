@@ -43,6 +43,7 @@ bool Options::launch_hardware               = false;
 bool Options::launch_control                = true;
 bool Options::launch_console                = true;
 bool Options::launch_log                    = false;
+bool Options::launch_ros                    = false;
 
 // real robot or simulation mode
 bool Options::simulation_mode               = true;
@@ -135,6 +136,7 @@ void Options::parseArgs(int argc, char **argv)
 				Options::launch_control     =  false;
 				Options::launch_console     =  false;
 				Options::launch_log         =  false;
+                		Options::launch_ros         =  false;
 
 				char * const tokens []
 				{
@@ -143,6 +145,7 @@ void Options::parseArgs(int argc, char **argv)
 					const_cast<char*>("console"),
 					const_cast<char*>("log"),
 					const_cast<char*>("estimation"),
+                			const_cast<char*>("ros"),
 					nullptr
 				};
 				char *value;
@@ -174,6 +177,10 @@ void Options::parseArgs(int argc, char **argv)
 						else if(std::strcmp(layer, "estimation") == 0)
 						{
 							Options::launch_estimation = true;
+						}
+						else if(std::strcmp(layer, "ros") == 0)
+						{
+							Options::launch_ros = true;
 						}
 					}
 					else

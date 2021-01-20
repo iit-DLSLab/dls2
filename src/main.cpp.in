@@ -36,6 +36,7 @@
 #include "dls2/application_framework/estimation_layer.phpp"
 #include "dls2/application_framework/log_layer.phpp"
 #include "dls2/application_framework/console_layer.phpp"
+#include "dls2/application_framework/ros_layer.phpp"
 #include "dls2/application_framework/options.phpp"
 #include "dls2/application_framework/version_info.phpp"
 #include "dls2/application_framework/init.hpp"
@@ -97,10 +98,6 @@ void change_process_name(char **argv, const std::string &name);
 ///
 template <class layer_t>
 void forkLayer(const std::string &process_name, char **argv);
-
-/// Forks and launches roscore
-///
-void forkRosCore();
 
 /// Forks and launches simulation
 ///
@@ -187,6 +184,7 @@ int main(int argc, char **argv)
 	}
 	if(Options::launch_hardware) forkLayer<HardwareLayer>("hardware_layer", argv);
 	if(Options::launch_control) forkLayer<ControlLayer>("control_layer", argv);
+    if(Options::launch_ros) forkLayer<RosLayer>("ros_layer",argv);
 
 	logging::coutstream outstream("framework_monitor");
 	logging::cfatalstream sfatal("framework_monitor");
@@ -196,20 +194,6 @@ int main(int argc, char **argv)
 
 	if(Options::is_core)
 	{
-		forkRosCore();
-		command_manager.addCommand<void, ARGVOID>
-		(
-			"HyQApp_server",
-			"launchRosCore",
-			"Launches the ros core",
-			std::function<void(ARGVOID)>
-			(
-				[&](ARGVOID)
-				{
-					forkRosCore();
-				}
-			)
-		);
 		command_manager.addCommand<void, ARGVOID>
 		(
 			"HyQApp_server",
@@ -236,7 +220,8 @@ int main(int argc, char **argv)
 			"* hardware\n"
 			"* console\n"
 			"* control\n"
-			"* log",
+            "* log\n"
+            "* ros",
 
 			std::function<void(std::string)>
 			(
@@ -246,6 +231,7 @@ int main(int argc, char **argv)
 					else if(s == "console") forkLayer<ConsoleLayer>("console_layer", argv);
 					else if(s == "control") forkLayer<ControlLayer>("control_layer", argv);
 					else if(s == "log") forkLayer<LogLayer>("log_layer", argv);
+                    			else if(s == "ros") forkLayer<RosLayer>("ros_layer", argv);
 				}
 			)
 		);
@@ -388,24 +374,6 @@ void forkLayer(const std::string &process_name, char **argv)
 			std::forward_as_tuple(process_name, pid)
 		);
 	}
-}
-
-void forkRosCore()
-{
-		const pid_t pid = fork(); // TODO error handling on fork
-		if(pid == 0)
-		{
-			change_process_name(Options::argv, "roscore");
-			// auto ret = system("roscore > /dev/null");
-			auto ret = system("roscore");
-			_exit(ret);
-		}
-		child_datas.emplace
-		(
-			std::piecewise_construct,
-			std::forward_as_tuple(pid),
-			std::forward_as_tuple("roscore", pid)
-		);
 }
 
 void launchSim()
