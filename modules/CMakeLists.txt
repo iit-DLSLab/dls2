@@ -1,3 +1,4 @@
 add_subdirectory(core_framework)
 add_subdirectory(command)
 add_subdirectory(log_trace)
+add_subdirectory(child_process)
