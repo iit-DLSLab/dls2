@@ -13,39 +13,33 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-// =============================================================================
-// Includes
-// =============================================================================
-#include <string>
-#include "dls2/application_framework/version_info.phpp"
+#ifndef ESTIMATION_LAYER_TPP_XGOZ3KJ8
+#define ESTIMATION_LAYER_TPP_XGOZ3KJ8
 
-using namespace dls;
+// Include for benefit of IDEs, not necessary
+#include "dls2/application_framework/estimation_layer.hpp"
 
-#ifndef NDEBUG
-static std::string version_string = "@PROJECT_VERSION@-Debug";
-#else
-static std::string version_string = "@PROJECT_VERSION@";
-#endif
-static int version_major = @PROJECT_VERSION_MAJOR@;
-static int version_minor = @PROJECT_VERSION_MINOR@;
-static int version_patch = @PROJECT_VERSION_PATCH@;
-
-std::string VersionInfo::getVersionString()
+namespace dls
 {
-	return version_string;
-}
-
-int VersionInfo::getVersionMajor()
+template <typename estimator_t>
+void EstimationLayer::addEstimator(const std::shared_ptr<estimator_t> &pEstimator)
 {
-	return version_major;
-}
+	static_assert
+	(
+		std::is_base_of<Estimator, estimator_t>::value,
+		"Error, estimator_t must inherit from Estimator"
+	);
 
-int VersionInfo::getVersionMinor()
-{
-	return version_minor;
+	std::lock_guard<std::mutex> lock(this->estimators_mutex);
+	this->estimators.insert
+	(
+		std::pair<Estimator::ID_t, std::shared_ptr<Estimator>>
+		(
+			pEstimator->getID(),
+			pEstimator
+		)
+	);
 }
+} // end namespace dls
 
-int VersionInfo::getVersionPatch()
-{
-	return version_patch;
-}
+#endif /* end of include guard: ESTIMATION_LAYER_TPP_XGOZ3KJ8 */

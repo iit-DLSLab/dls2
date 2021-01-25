@@ -15,9 +15,9 @@
 *******************************************************************************/
 #include <iostream>
 
-#include "dls2/application_framework/app_layer.phpp"
+#include "dls2/application_framework/app_layer.hpp"
 #include "dls2/util/debug/debug.hpp"
-#include "dls2/util/class_loader.phpp"
+#include "dls2/util/class_loader.hpp"
 
 using namespace dls;
 // =============================================================================

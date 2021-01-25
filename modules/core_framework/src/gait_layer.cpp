@@ -13,16 +13,25 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#include "dls2/application_framework/hyq_app.phpp"
-#include "dls2/util/time/time.hpp"
+#include "dls2/application_framework/gait_generator_layer.hpp"
+#include "dls2/topics/gait_signal.hpp"
 
 using namespace dls;
-void HyQApp::init_libraries()
-{
-	// Time::set_use_simulated_time(true);
-}
 
-void HyQApp::close_libraries()
-{
 
-}
+GaitLayer::GaitLayer() :
+	AppLayer("gait_layer"),
+
+	// publisher publishes to "gait_layer" topic
+	pub(dls::topics::gait_layer),
+
+	// Subscriber listens for "gait_signal" as published by gait generators
+	sub
+	(
+		dls::topics::gait_signal,
+		[&](GaitSignalMsg msg)
+		{
+			this->pub.publish(msg);
+		}
+	)
+{ }

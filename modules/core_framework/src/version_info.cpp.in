@@ -13,28 +13,39 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef GAIT_GENERATOR_LAYER_PHPP_6bf82ff6_8192_4ed8_abd5_ac9d0b5328c1
-#define GAIT_GENERATOR_LAYER_PHPP_6bf82ff6_8192_4ed8_abd5_ac9d0b5328c1
 // =============================================================================
 // Includes
 // =============================================================================
-#include "dls2/application_framework/app_layer.phpp"
-#include "dls2/util/messaging/publisher_base.hpp"
-#include "dls2/util/messaging/callback_subscriber.hpp"
+#include <string>
+#include "dls2/application_framework/version_info.hpp"
 
-#include "dls2/msg/gait_signalPubSubTypes.h"
+using namespace dls;
 
-namespace dls
+#ifndef NDEBUG
+static std::string version_string = "@PROJECT_VERSION@-Debug";
+#else
+static std::string version_string = "@PROJECT_VERSION@";
+#endif
+static int version_major = @PROJECT_VERSION_MAJOR@;
+static int version_minor = @PROJECT_VERSION_MINOR@;
+static int version_patch = @PROJECT_VERSION_PATCH@;
+
+std::string VersionInfo::getVersionString()
 {
-	class GaitLayer : public AppLayer
-	{
-	public:
-		GaitLayer();
-
-	private:
-		PublisherBase<GaitSignalMsgPubSubType> pub;
-		CallbackSubscriber<GaitSignalMsgPubSubType> sub;
-	};
+	return version_string;
 }
 
-#endif // GAIT_GENERATOR_LAYER_PHPP_6bf82ff6_8192_4ed8_abd5_ac9d0b5328c1
+int VersionInfo::getVersionMajor()
+{
+	return version_major;
+}
+
+int VersionInfo::getVersionMinor()
+{
+	return version_minor;
+}
+
+int VersionInfo::getVersionPatch()
+{
+	return version_patch;
+}

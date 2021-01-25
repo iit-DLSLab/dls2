@@ -13,7 +13,7 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#include "dls2/application_framework/hardware_layer.phpp"
+#include "dls2/application_framework/hardware_layer.hpp"
 #include <sys/types.h>
 #include <sys/wait.h>
 

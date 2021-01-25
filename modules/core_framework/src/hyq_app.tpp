@@ -13,25 +13,38 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#include "dls2/application_framework/gait_generator_layer.phpp"
-#include "dls2/topics/gait_signal.hpp"
+#ifndef HYQ_APP_TPP_LJR4CEH3
+#define HYQ_APP_TPP_LJR4CEH3
 
-using namespace dls;
+#include "dls2/application_framework/hyq_app.hpp"
 
-
-GaitLayer::GaitLayer() :
-	AppLayer("gait_layer"),
-
-	// publisher publishes to "gait_layer" topic
-	pub(dls::topics::gait_layer),
-
-	// Subscriber listens for "gait_signal" as published by gait generators
-	sub
+namespace dls
+{
+template <typename layer_t>
+bool HyQApp::addLayer(std::shared_ptr<layer_t> pLayer)
+{
+	static_assert
 	(
-		dls::topics::gait_signal,
-		[&](GaitSignalMsg msg)
+		std::is_base_of<AppLayer, layer_t>::value,
+		"Error: argument must point to an instance of AppLayer"
+	);
+
+	std::lock_guard<std::mutex> lock(this->layers_mutex);
+
+	// loop through all the layers and check their types
+	auto it = this->layers.begin();
+	for(; it != this->layers.end(); it += 1)
+	{
+		// If a layer of this type is already active in the architecture
+		if(std::dynamic_pointer_cast<layer_t>(*it))
 		{
-			this->pub.publish(msg);
+			return false;
 		}
-	)
-{ }
+	}
+
+	this->layers.push_back(pLayer);
+	return true;
+}
+} // end namespace dls;
+
+#endif /* end of include guard: HYQ_APP_TPP_LJR4CEH3 */

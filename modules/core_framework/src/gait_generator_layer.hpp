@@ -13,38 +13,28 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef HYQ_APP_TPP_LJR4CEH3
-#define HYQ_APP_TPP_LJR4CEH3
+#ifndef GAIT_GENERATOR_LAYER_PHPP_6bf82ff6_8192_4ed8_abd5_ac9d0b5328c1
+#define GAIT_GENERATOR_LAYER_PHPP_6bf82ff6_8192_4ed8_abd5_ac9d0b5328c1
+// =============================================================================
+// Includes
+// =============================================================================
+#include "dls2/application_framework/app_layer.hpp"
+#include "dls2/util/messaging/publisher_base.hpp"
+#include "dls2/util/messaging/callback_subscriber.hpp"
 
-#include "dls2/application_framework/hyq_app.phpp"
+#include "dls2/msg/gait_signalPubSubTypes.h"
 
 namespace dls
 {
-template <typename layer_t>
-bool HyQApp::addLayer(std::shared_ptr<layer_t> pLayer)
-{
-	static_assert
-	(
-		std::is_base_of<AppLayer, layer_t>::value,
-		"Error: argument must point to an instance of AppLayer"
-	);
-
-	std::lock_guard<std::mutex> lock(this->layers_mutex);
-
-	// loop through all the layers and check their types
-	auto it = this->layers.begin();
-	for(; it != this->layers.end(); it += 1)
+	class GaitLayer : public AppLayer
 	{
-		// If a layer of this type is already active in the architecture
-		if(std::dynamic_pointer_cast<layer_t>(*it))
-		{
-			return false;
-		}
-	}
+	public:
+		GaitLayer();
 
-	this->layers.push_back(pLayer);
-	return true;
+	private:
+		PublisherBase<GaitSignalMsgPubSubType> pub;
+		CallbackSubscriber<GaitSignalMsgPubSubType> sub;
+	};
 }
-} // end namespace dls;
 
-#endif /* end of include guard: HYQ_APP_TPP_LJR4CEH3 */
+#endif // GAIT_GENERATOR_LAYER_PHPP_6bf82ff6_8192_4ed8_abd5_ac9d0b5328c1

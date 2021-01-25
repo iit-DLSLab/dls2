@@ -24,5 +24,6 @@ add_subdirectory(scripts)
 add_subdirectory(src)
 add_subdirectory(test)
 add_subdirectory(doc)
+add_subdirectory(modules)
 
 include(dls_debian_settings)

@@ -1,11 +1,5 @@
 include(dls_include_paths)
 
-get_property(dirs DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
-foreach(dir ${dirs})
-	message(STATUS "from src:dir=${dir}")
-endforeach()
-message(STATUS "location=${dls_${PROJECT_NAME}_msg_includes}")
-
 # ==============================================================================
 # Global Compilation Options
 # ==============================================================================

@@ -22,7 +22,7 @@
 #include <thread>
 #include <mutex>
 
-#include "dls2/application_framework/app_layer.phpp"
+#include "dls2/application_framework/app_layer.hpp"
 #include "dls2/util/log/log.hpp"
 
 namespace dls
@@ -111,6 +111,6 @@ private:
 };
 } // end namespace dls
 
-#include "dls2/application_framework/hyq_app.ptpp"
+#include "dls2/application_framework/hyq_app.tpp"
 
 #endif /* end of include guard: HYQ_APP_HPP_2AEPZMMN */

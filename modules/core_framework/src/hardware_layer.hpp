@@ -13,55 +13,32 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef ESTIMATION_LAYER_HPP_3QHYDR67
-#define ESTIMATION_LAYER_HPP_3QHYDR67
+#ifndef HARDWARE_LAYER_HPP_64INVL3T
+#define HARDWARE_LAYER_HPP_64INVL3T
 
-#include <memory>
-#include <map>
-#include <mutex>
-#include <atomic>
-#include <string>
-#include <thread>
+#include "dls2/application_framework/app_layer.hpp"
+#include "dls2/util/log/log.hpp"
+#include <unistd.h>
 
-#include "dls2/application_framework/app_layer.phpp"
-#include "dls2/estimator/estimator.hpp"
-
+// TODO build this class
 namespace dls
 {
-// TODO build and document this class
-/// Estimation layer
-///
-/// Manages estimators
-class EstimationLayer : public AppLayer
+class HardwareLayer : public AppLayer
 {
 public:
-	EstimationLayer();
-	~EstimationLayer();
+	HardwareLayer();
+	~HardwareLayer();
 
 	Status run() override;
 	Status shutdown() override;
 
-	template <typename estimator_t>
-	void addEstimator(const std::shared_ptr<estimator_t>&);
-
-	void loadEstimator(const std::string&);
-
-	//TODO("These two should probably return bool")
-	bool activateEstimator(const Estimator::ID_t&);
-	bool deactivateEstimator(const Estimator::ID_t);
-
-	std::string where() override {return "not yet implemented"; }
+	std::string where() override { return "not yet implemented";}
 
 private:
-	// BEGIN critical section
-		std::map<Estimator::ID_t, std::shared_ptr<Estimator>> estimators;
-		std::map<Estimator::ID_t, std::thread> estimator_threads;
-		std::mutex estimators_mutex;
-	// END critical section
-	std::atomic_bool should_run;
+	pid_t xenomotor_pid;
+	pid_t xenorostask_pid;
+	logging::coutstream scout;
 };
 } // end namespace dls
 
-#include "dls2/application_framework/estimation_layer.ptpp"
-
-#endif /* end of include guard: ESTIMATION_LAYER_HPP_3QHYDR67 */
+#endif /* end of include guard: HARDWARE_LAYER_HPP_64INVL3T */

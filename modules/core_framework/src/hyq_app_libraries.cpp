@@ -13,32 +13,16 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef HARDWARE_LAYER_HPP_64INVL3T
-#define HARDWARE_LAYER_HPP_64INVL3T
+#include "dls2/application_framework/hyq_app.hpp"
+#include "dls2/util/time/time.hpp"
 
-#include "dls2/application_framework/app_layer.phpp"
-#include "dls2/util/log/log.hpp"
-#include <unistd.h>
-
-// TODO build this class
-namespace dls
+using namespace dls;
+void HyQApp::init_libraries()
 {
-class HardwareLayer : public AppLayer
+	// Time::set_use_simulated_time(true);
+}
+
+void HyQApp::close_libraries()
 {
-public:
-	HardwareLayer();
-	~HardwareLayer();
 
-	Status run() override;
-	Status shutdown() override;
-
-	std::string where() override { return "not yet implemented";}
-
-private:
-	pid_t xenomotor_pid;
-	pid_t xenorostask_pid;
-	logging::coutstream scout;
-};
-} // end namespace dls
-
-#endif /* end of include guard: HARDWARE_LAYER_HPP_64INVL3T */
+}

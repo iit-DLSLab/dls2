@@ -1,12 +1,10 @@
 dls_configure(control_layer.cpp.in CONTROL_LAYER_CPP)
-dls_configure(version_info.cpp.in VERSION_INFO_CPP)
+dls_configure(version_info.cpp.in  VERSION_INFO_CPP)
 dls_configure(console_layer.cpp.in CONSOLE_LAYER_CPP)
-dls_configure(app_layer.cpp.in APP_LAYER_CPP)
+dls_configure(app_layer.cpp.in     APP_LAYER_CPP)
 
-add_library(dls_framework
-
-	SHARED
-	# Framework Classes
+message(WARNING "core framework module is not a module yet -- it is still taking file from elsewhere")
+add_library(dls_framework SHARED
 	hyq_app.cpp
 	${APP_LAYER_CPP}
 	hardware_layer.cpp
@@ -17,16 +15,18 @@ add_library(dls_framework
 	estimation_layer.cpp
 	log_layer.cpp
 	init.cpp
-
 	options.cpp
-
-	# Components
 	components/app_layer_component.cpp
 	components/periodic_app_layer_component.cpp
 
 	# TODO remove this and instead link to the library
 	${PROJECT_SOURCE_DIR}/src/util/string/string.cpp
 )
+target_include_directories(dls_framework
+	PUBLIC include
+	PRIVATE src
+)
+
 target_link_libraries(dls_framework
 	PRIVATE
 		readline # for console_layer

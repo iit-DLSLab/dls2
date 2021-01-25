@@ -13,33 +13,55 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef ESTIMATION_LAYER_TPP_XGOZ3KJ8
-#define ESTIMATION_LAYER_TPP_XGOZ3KJ8
+#ifndef ESTIMATION_LAYER_HPP_3QHYDR67
+#define ESTIMATION_LAYER_HPP_3QHYDR67
 
-// Include for benefit of IDEs, not necessary
-#include "dls2/application_framework/estimation_layer.phpp"
+#include <memory>
+#include <map>
+#include <mutex>
+#include <atomic>
+#include <string>
+#include <thread>
+
+#include "dls2/application_framework/app_layer.hpp"
+#include "dls2/estimator/estimator.hpp"
 
 namespace dls
 {
-template <typename estimator_t>
-void EstimationLayer::addEstimator(const std::shared_ptr<estimator_t> &pEstimator)
+// TODO build and document this class
+/// Estimation layer
+///
+/// Manages estimators
+class EstimationLayer : public AppLayer
 {
-	static_assert
-	(
-		std::is_base_of<Estimator, estimator_t>::value,
-		"Error, estimator_t must inherit from Estimator"
-	);
+public:
+	EstimationLayer();
+	~EstimationLayer();
 
-	std::lock_guard<std::mutex> lock(this->estimators_mutex);
-	this->estimators.insert
-	(
-		std::pair<Estimator::ID_t, std::shared_ptr<Estimator>>
-		(
-			pEstimator->getID(),
-			pEstimator
-		)
-	);
-}
+	Status run() override;
+	Status shutdown() override;
+
+	template <typename estimator_t>
+	void addEstimator(const std::shared_ptr<estimator_t>&);
+
+	void loadEstimator(const std::string&);
+
+	//TODO("These two should probably return bool")
+	bool activateEstimator(const Estimator::ID_t&);
+	bool deactivateEstimator(const Estimator::ID_t);
+
+	std::string where() override {return "not yet implemented"; }
+
+private:
+	// BEGIN critical section
+		std::map<Estimator::ID_t, std::shared_ptr<Estimator>> estimators;
+		std::map<Estimator::ID_t, std::thread> estimator_threads;
+		std::mutex estimators_mutex;
+	// END critical section
+	std::atomic_bool should_run;
+};
 } // end namespace dls
 
-#endif /* end of include guard: ESTIMATION_LAYER_TPP_XGOZ3KJ8 */
+#include "dls2/application_framework/estimation_layer.tpp"
+
+#endif /* end of include guard: ESTIMATION_LAYER_HPP_3QHYDR67 */

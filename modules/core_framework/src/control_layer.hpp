@@ -19,7 +19,7 @@
 // =============================================================================
 // Includes
 // =============================================================================
-#include "dls2/application_framework/app_layer.phpp"
+#include "dls2/application_framework/app_layer.hpp"
 #include "dls2/controller/controller.hpp"
 #include "dls2/gait_generator/gait_generator.hpp"
 
