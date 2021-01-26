@@ -8,12 +8,13 @@ include(dls_setup) # set githooks, project version
 
 add_subdirectory(3rd_party) # Some legacy and external code TODO move into better locations
 
-include(dls_configure) # some utility functions
-include(dls_globals)   # global project settings and definitions
-include(dls_options)   # compile-time options
-include(dls_deploy)    # installation functions
+include(dls_configure)     # some utility functions
+include(dls_globals)       # global project settings and definitions
+include(dls_options)       # compile-time options
+include(dls_deploy)        # installation functions
 set(DLS_MESSAGE_HEADER_DESTINATION dls2/msg)
-include(dls_message)   # message generation functions
+include(dls_message)       # message generation functions
+include(dls_include_paths) # directories of global libraries
 
 add_subdirectory(msg)     # generate dds message types used in the project
 add_subdirectory(scripts) # bash completion and launch scripts

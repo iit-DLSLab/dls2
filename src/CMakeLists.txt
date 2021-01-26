@@ -33,30 +33,6 @@ endmacro()
 # ==============================================================================
 # Libraries
 # ==============================================================================
-# ================================== messages ==================================
-add_library(dls_messaging
-	SHARED
-
-	# fastrtps
-	# ${MESSAGE_SOURCES}
-
-	# generic wrappers
-	${PROJECT_SOURCE_DIR}/src/msg_wrappers/screw.cpp
-	${PROJECT_SOURCE_DIR}/src/msg_wrappers/joint_state.cpp
-	${PROJECT_SOURCE_DIR}/src/controller/control_signal.cpp
-)
-target_compile_options(dls_messaging
-	PRIVATE
-	-w # Suppress all warnings, this library's code is auto-generated
-)
-target_link_libraries(dls_messaging
-	PUBLIC
-	dls_${PROJECT_NAME}_messaging
-)
-add_dependencies(dls_messaging dls_dls2_messaging)
-
-dls_install(dls_messaging)
-
 # ============================ Controller Modules ==============================
 add_library(dls_reflex
 	SHARED

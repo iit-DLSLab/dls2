@@ -1,3 +1,4 @@
+add_subdirectory(message_wrappers)
 # add_subdirectory(gait_generator)
 # add_subdirectory(core_framework)
 # add_subdirectory(child_process)
