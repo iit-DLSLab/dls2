@@ -43,7 +43,6 @@ target_link_libraries(dls_framework
 		dls_messaging
 		pthread
 		dl
-		dls_debug
 		dls_command
 )
 dls_install(dls_framework)
