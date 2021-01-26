@@ -1,18 +1,17 @@
 configure_file(
-	${PROJECT_SOURCE_DIR}/src/main.cpp.in
-	${CMAKE_BINARY_DIR}/src/main.cpp
+	src/main.cpp.in
+	${CMAKE_CURRENT_BINARY_DIR}/src/main.cpp
 )
 
-# add_executable(dynamic_legged_systems_framework main.cpp)
 add_executable(dynamic_legged_systems_framework
-	${CMAKE_BINARY_DIR}/src/main.cpp
+	${CMAKE_CURRENT_BINARY_DIR}/src/main.cpp
 )
 dls_install(dynamic_legged_systems_framework)
 
 add_dependencies(dynamic_legged_systems_framework
 	# messagelib
 	child_process_launcher
-	dls2_to_roscontrol
+	# dls2_to_roscontrol
 )
 
 target_link_libraries(
@@ -26,7 +25,7 @@ target_link_libraries(
 	# note that the order of these is important
 	dls_framework
 	dls_estimator
-	dls_controller_interface
+	dls_controller
 	dls_gait_generator
 )
 

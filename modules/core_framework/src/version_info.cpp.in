@@ -17,7 +17,7 @@
 // Includes
 // =============================================================================
 #include <string>
-#include "version_info.hpp"
+#include "dls2/application_framework/version_info.hpp"
 
 using namespace dls;
 

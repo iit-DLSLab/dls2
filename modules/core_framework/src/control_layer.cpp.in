@@ -13,7 +13,7 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#include "control_layer.hpp"
+#include "dls2/application_framework/control_layer.hpp"
 #include <sstream>
 #include <Eigen/Dense>
 #include <tuple>
@@ -43,7 +43,7 @@
 
 #include <cstdlib>
 
-#include "options.hpp"
+#include "dls2/application_framework/options.hpp"
 
 // The current release of Eigen defines in the file `Eigen_Colamd.h` the macro:
 // # define ALIVE (0)

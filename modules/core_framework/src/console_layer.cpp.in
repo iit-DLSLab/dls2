@@ -13,7 +13,7 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#include "console_layer.hpp"
+#include "dls2/application_framework/console_layer.hpp"
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <cstring>
