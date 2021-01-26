@@ -5,14 +5,15 @@
 #include <sstream>
 
 #ifndef NDEBUG
-#define DLS_TRACE(...)                         \
-{                                              \
-	std::stringstream ss;                      \
-	dls::log_trace::trace(ss, __VA_ARGS__);    \
-	std::cout << ss.str() << std::endl;        \
-}
+	#define DLS_TRACE(...)                         \
+	{                                              \
+		std::stringstream ss;                      \
+		dls::log_trace::trace(ss, __VA_ARGS__);    \
+		ss << " " << __PRETTY_FUNCTION__;          \
+		std::cout << ss.str() << std::endl;        \
+	}
 #else
-#define DLS_TRACE(...)
+	#define DLS_TRACE(...)
 #endif
 
 namespace dls
