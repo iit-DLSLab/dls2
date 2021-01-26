@@ -1,29 +1,25 @@
 cmake_minimum_required(VERSION 3.15)
 project(dls2)
 enable_testing()
-# ==============================================================================
-# Project-Wide Settings
-# ==============================================================================
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
-# run basic project setup
-include(dls_setup)
+include(dls_setup) # set githooks, project version
 
-add_subdirectory(3rd_party)
+add_subdirectory(3rd_party) # Some legacy and external code TODO move into better locations
 
-include(dls_configure)
-include(dls_globals) # global project settings and definitions
-include(dls_options) # compile-time options
-include(dls_deploy)  # installation functions
+include(dls_configure) # some utility functions
+include(dls_globals)   # global project settings and definitions
+include(dls_options)   # compile-time options
+include(dls_deploy)    # installation functions
 set(DLS_MESSAGE_HEADER_DESTINATION dls2/msg)
-include(dls_message) # message generation
+include(dls_message)   # message generation functions
 
-add_subdirectory(msg)
-add_subdirectory(scripts)
-add_subdirectory(src)
-add_subdirectory(test)
-add_subdirectory(doc)
-add_subdirectory(modules)
+add_subdirectory(msg)     # generate dds message types used in the project
+add_subdirectory(scripts) # bash completion and launch scripts
+# add_subdirectory(src)     # compilation TODO move remaining parts into modules/
+# add_subdirectory(test)    # TODO move tests to their respective modules
+# add_subdirectory(doc)     # generate and install documentation
+add_subdirectory(modules) # build framework, libraries and tools
 
-include(dls_debian_settings)
+include(dls_debian_settings) # configure installation of the framework

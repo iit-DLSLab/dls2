@@ -1,3 +1,5 @@
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # Compilation time
 string(TIMESTAMP DLS_COMPILE_DATE "%d-%m-%Y")
 
