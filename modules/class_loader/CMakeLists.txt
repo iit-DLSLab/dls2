@@ -1,0 +1,2 @@
+add_library(dls_class_loader INTERFACE)
+target_include_directories(dls_class_loader INTERFACE include)

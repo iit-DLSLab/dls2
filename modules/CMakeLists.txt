@@ -1,6 +1,7 @@
 # add_subdirectory(gait_generator)
 # add_subdirectory(core_framework)
 # add_subdirectory(child_process)
+# add_subdirectory(class_loader)
 # add_subdirectory(controller)
 # add_subdirectory(topic_info)
 # add_subdirectory(estimator)
