@@ -13,9 +13,7 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-// TODO this is a tool that needs to be made into a separate project and made
-// more sophisticated
-
+// TODO this is a tool that needs to be made more sophisticated
 #include "dls2/util/topic_info/topic_info.hpp"
 #include <thread>
 
