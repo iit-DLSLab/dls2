@@ -23,7 +23,7 @@
 #include <string>
 #include <thread>
 
-#include "dls2/application_framework/app_layer.hpp"
+#include "app_layer.hpp"
 #include "dls2/estimator/estimator.hpp"
 
 namespace dls
@@ -62,6 +62,6 @@ private:
 };
 } // end namespace dls
 
-#include "dls2/application_framework/estimation_layer.tpp"
+#include "estimation_layer.tpp"
 
 #endif /* end of include guard: ESTIMATION_LAYER_HPP_3QHYDR67 */

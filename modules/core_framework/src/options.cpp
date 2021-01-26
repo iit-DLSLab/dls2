@@ -23,8 +23,8 @@
 #include <getopt.h>
 
 // project includes
-#include "dls2/application_framework/options.hpp"
-#include "dls2/application_framework/version_info.hpp"
+#include "options.hpp"
+#include "version_info.hpp"
 
 // =============================================================================
 // Using Declarations

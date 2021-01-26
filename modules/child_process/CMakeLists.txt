@@ -21,6 +21,7 @@ target_link_libraries(child_process_launcher
 	dls_class_loader
 
 	#PRIVATE
+	dls_path_prefixes
 	dls_time
 	doglib
 	${roscpp_LIBRARIES}

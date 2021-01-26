@@ -15,9 +15,9 @@
 *******************************************************************************/
 #include <iostream>
 
-#include "dls2/application_framework/app_layer.hpp"
+#include "app_layer.hpp"
 #include "dls2/util/debug/debug.hpp"
-#include "dls2/util/class_loader.hpp"
+#include "dls2/class_loader.hpp"
 
 using namespace dls;
 // =============================================================================

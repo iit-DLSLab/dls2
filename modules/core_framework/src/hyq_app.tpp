@@ -16,7 +16,7 @@
 #ifndef HYQ_APP_TPP_LJR4CEH3
 #define HYQ_APP_TPP_LJR4CEH3
 
-#include "dls2/application_framework/hyq_app.hpp"
+#include "hyq_app.hpp"
 
 namespace dls
 {

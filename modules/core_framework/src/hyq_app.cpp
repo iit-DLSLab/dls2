@@ -13,15 +13,13 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#include "dls2/application_framework/hyq_app.hpp"
+#include "hyq_app.hpp"
 #include "dls2/util/debug/debug.hpp"
 
-#include "todo.h"
 using namespace dls;
 // =============================================================================
 // Constructors
 // =============================================================================
-// TODO("Make these constructors DRY")
 HyQApp::HyQApp() :
 	layers(),
 	layer_threads(),
@@ -99,7 +97,6 @@ void HyQApp::run()
 		std::lock_guard<std::mutex> lock(this->layers_mutex);
 		for(const auto &pLayer : this->layers)
 		{
-			TODO("Set this thread to realtime thread priority")
 			this->layer_threads.emplace_back(&AppLayer::run, &(*pLayer));
 		}
 	}

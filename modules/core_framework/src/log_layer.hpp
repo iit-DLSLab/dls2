@@ -16,7 +16,7 @@
 #ifndef LOG_LAYER_HPP_IAHZ5BZG
 #define LOG_LAYER_HPP_IAHZ5BZG
 
-#include "dls2/application_framework/app_layer.hpp"
+#include "app_layer.hpp"
 #include "dls2/util/messaging/subscriber_base.hpp"
 #include "dls2/msg/stringmsgPubSubTypes.h"
 #include "dls2/msg/hyqreal_rawPubSubTypes.h"

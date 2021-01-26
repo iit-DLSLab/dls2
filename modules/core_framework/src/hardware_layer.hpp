@@ -16,7 +16,7 @@
 #ifndef HARDWARE_LAYER_HPP_64INVL3T
 #define HARDWARE_LAYER_HPP_64INVL3T
 
-#include "dls2/application_framework/app_layer.hpp"
+#include "app_layer.hpp"
 #include "dls2/util/log/log.hpp"
 #include <unistd.h>
 

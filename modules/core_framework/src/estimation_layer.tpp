@@ -17,7 +17,7 @@
 #define ESTIMATION_LAYER_TPP_XGOZ3KJ8
 
 // Include for benefit of IDEs, not necessary
-#include "dls2/application_framework/estimation_layer.hpp"
+#include "estimation_layer.hpp"
 
 namespace dls
 {
