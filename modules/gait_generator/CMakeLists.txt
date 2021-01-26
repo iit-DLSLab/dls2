@@ -1,20 +1,21 @@
+message(WARNING "This module is not modular -- it still takes a file from elsewhere")
 add_library(dls_gait_generator
 	SHARED
-	gait_generator.cpp
+	src/gait_generator.cpp
 	# TODO this should be moved to the messaging library
-	gait_signal.cpp
+	src/gait_signal.cpp
 
 	# TODO this should be moved to the messaging library
 	${PROJECT_SOURCE_DIR}/src/fastrtps_wrappers/blind_state.cpp
 )
+target_include_directories(dls_gait_generator PUBLIC include)
 dls_install(dls_gait_generator)
 
 target_link_libraries(dls_gait_generator dls_geometry doglib)
-add_library(
-	dls_dummy_gait_generator
-	SHARED
-	dummy_gait_generator.cpp
+add_library(dls_dummy_gait_generator
+	SHARED src/dummy_gait_generator.cpp
 )
+target_include_directories(dls_dummy_gait_generator PUBLIC include)
 add_dependencies(dls_gait_generator dls_dls2_messaging)
 # add_dependencies(dls_dummy_gait_generator messagelib)
 
