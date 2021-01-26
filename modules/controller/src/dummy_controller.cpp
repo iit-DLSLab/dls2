@@ -14,7 +14,6 @@
 *                                                 `---'                        *
 *******************************************************************************/
 #include "dls2/controller/dummy_controller.hpp"
-#include "dls2/util/debug/debug.hpp"
 #include "dls2/util/log/log.hpp"
 #include <doglib/factory/robot_factory.hpp>
 

@@ -22,7 +22,6 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-#include "dls2/util/debug/debug.hpp"
 #include "dls2/robot/robot.hpp"
 #include "dls2/class_loader.hpp"
 #include "dls2/msg/control_signalPubSubTypes.h"
@@ -236,7 +235,6 @@ ControlLayer::Status ControlLayer::run()
 	// TODO THIS NEEDS to be moved to the library initialisation of hyq_app.
 	// However, there is something going wrong with the fastrtps subscriber if
 	// it is done there. For now, this call has been placed here
-	DMSG("using simulated time");
 	Time::set_use_simulated_time(true);
 
 	// TODO("spawn nonrealtime thread for user interaction")
@@ -433,8 +431,6 @@ bool ControlLayer::activateController(const Controller::ID_t &ID)
 			);
 			// execl("${DLS_INSTALL_RUNTIME_DIR}/dls_controller_process", ID.c_str(), ID.c_str(), (char *)NULL);
 			cfatal << "Controller process failed to launch" << std::endl;
-			DMSG(strerror(errno));
-			// TODO("handle errors");
 			_exit(0);
 		}
 
@@ -538,7 +534,6 @@ bool ControlLayer::deactivateController(const Controller::ID_t &ID)
 // TODO("remove this function")
 void ControlLayer::loadController(const Controller::ID_t &name)
 {
-	DMSG("Deprecated function call does nothing");
 	name.c_str();
 }
 

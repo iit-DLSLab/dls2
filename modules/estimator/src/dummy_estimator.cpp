@@ -14,7 +14,6 @@
 *                                                 `---'                        *
 *******************************************************************************/
 #include "dls2/estimator/dummy_estimator.hpp"
-#include "dls2/util/debug/debug.hpp"
 
 using namespace dls;
 DummyEstimator::DummyEstimator() :

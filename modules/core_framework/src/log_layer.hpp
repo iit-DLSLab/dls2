@@ -27,7 +27,6 @@
 #include "dls2/topics/fatal_log_stream.hpp"
 #include "dls2/topics/info_log_stream.hpp"
 #include "dls2/topics/warn_log_stream.hpp"
-#include "dls2/util/debug/debug.hpp"
 
 #include <mutex>
 #include <condition_variable>

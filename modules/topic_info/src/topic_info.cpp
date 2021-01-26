@@ -39,7 +39,6 @@
 #include "dls2/msg/vec3PubSubTypes.h"
 
 
-#include "dls2/util/debug/debug.hpp"
 
 using namespace dls;
 

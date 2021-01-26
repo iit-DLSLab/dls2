@@ -15,7 +15,6 @@
 *******************************************************************************/
 #include <thread>
 #include "dls2/controller/controller.hpp"
-#include "dls2/util/debug/debug.hpp"
 #include "dls2/topics/gait_signal.hpp"
 #include "dls2/fastrtps_wrappers/blind_state.hpp"
 #include "dls2/topics/control_signal_base.hpp"

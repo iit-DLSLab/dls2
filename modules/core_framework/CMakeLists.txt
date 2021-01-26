@@ -30,8 +30,8 @@ target_include_directories(dls_framework
 target_link_libraries(dls_framework
 	PRIVATE
 		readline # for console_layer
-		fastcdr
-		fastrtps
+		fastcdr  # TODO use a wrapper library
+		fastrtps # TODO use a wrapper library
 		dls_time
 		dls_pubsub
 		dls_class_loader

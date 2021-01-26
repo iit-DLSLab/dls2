@@ -15,7 +15,6 @@
 *******************************************************************************/
 #include <iostream>
 #include "dls2/gait_generator/dummy_gait_generator.hpp"
-#include "dls2/util/debug/debug.hpp"
 #include "dls2/geometry/pose.hpp"
 #include "dls2/util/log/log.hpp"
 #include <doglib/factory/robot_factory.hpp>

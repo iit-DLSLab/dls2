@@ -15,7 +15,7 @@ target_link_libraries(child_process_launcher
 	fastrtps # TODO link to project lib instead
 	dl
 	dls_framework
-	dls_controller_interface
+	dls_controller
 	dls_gait_generator
 	dls_estimator
 	dls_class_loader

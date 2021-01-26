@@ -14,7 +14,6 @@
 *                                                 `---'                        *
 *******************************************************************************/
 #include "dls2/gait_generator/gait_generator.hpp"
-#include "dls2/util/debug/debug.hpp"
 #include "dls2/topics/gait_signal.hpp"
 #include "dls2/topics/low_level_estimation/blind_state.hpp"
 

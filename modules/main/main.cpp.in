@@ -40,7 +40,6 @@
 #include "dls2/application_framework/version_info.phpp"
 #include "dls2/application_framework/init.hpp"
 
-#include "dls2/util/debug/debug.hpp"
 #include "dls2/util/log/log.hpp"
 #include "dls2/command/command.hpp"
 

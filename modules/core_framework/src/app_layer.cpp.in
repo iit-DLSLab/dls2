@@ -16,7 +16,6 @@
 #include <iostream>
 
 #include "app_layer.hpp"
-#include "dls2/util/debug/debug.hpp"
 #include "dls2/class_loader.hpp"
 
 using namespace dls;
