@@ -26,30 +26,3 @@ dls_install(dls_time)
 
 add_dependencies(dls_logging dls_dls2_messaging)
 add_dependencies(dls_time dls_dls2_messaging)
-
-# ==============================================================================
-# Tools
-# ==============================================================================
-add_executable(topic_info
-	EXCLUDE_FROM_ALL
-	${PROJECT_SOURCE_DIR}/src/util/topic_info/topic_info.cpp
-	${PROJECT_SOURCE_DIR}/src/util/topic_info/topic_info_main.cpp
-
-	# TODO this should be put into the dls_messaging library and just linked
-	# into this executable. It should NOT be recompiled here, it should only be
-	# compiled in the library
-	${PROJECT_SOURCE_DIR}/src/controller/control_signal.cpp
-)
-target_link_libraries(topic_info
-	fastcdr
-	fastrtps
-	dls_messaging
-	dls_debug
-
-	# TODO this should be removed when the gait signal and contro lsignal
-	# wrappers are moved to the messaging library
-	# dls_gait_generator
-	# dls_controlinterface
-	# dls_estimator
-	# dls_framework
-)
