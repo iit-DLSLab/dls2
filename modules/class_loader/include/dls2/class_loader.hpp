@@ -37,6 +37,6 @@ public:
 };
 } // end namespace dls
 
-#include "dls2/util/class_loader.tpp"
+#include "dls2/class_loader.tpp"
 
 #endif /* end of include guard: CLASS_LOADER_HPP_S3OYPT1Z */
