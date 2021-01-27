@@ -24,3 +24,11 @@ add_subdirectory(scripts) # bash completion and launch scripts
 add_subdirectory(modules) # build framework, libraries and tools
 
 include(dls_debian_settings) # configure installation of the framework
+
+# TODO move this into doc/ subdirectory when things have been cleaned up over
+# there
+add_custom_target(graph
+	COMMAND           ${CMAKE_COMMAND} "--graphviz=dependency_graph.dot" ${CMAKE_SOURCE_DIR}
+	COMMAND           dot -Tpng dependency_graph.dot -o dependency_graph.png
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
