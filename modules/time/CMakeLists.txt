@@ -7,5 +7,6 @@ target_link_libraries(dls_time
 	PUBLIC
 	dls_pubsub
 	dls_topics
+	dls_dls2_messaging
 )
 dls_install(dls_time)

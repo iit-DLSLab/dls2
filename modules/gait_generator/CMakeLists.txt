@@ -8,7 +8,7 @@ dls_install(dls_gait_generator)
 target_link_libraries(dls_gait_generator
 	dls_geometry
 	doglib
-	dls_framework
+	# dls_framework
 	dls_logging
 	dls_framework_components
 	dls_gait_signal

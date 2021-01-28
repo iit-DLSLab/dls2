@@ -43,6 +43,8 @@ target_link_libraries(dls_framework
 		dl
 		dls_command
 		dls_estimator
+		dls_gait_generator
+		dls_math
 )
 dls_install(dls_framework)
 

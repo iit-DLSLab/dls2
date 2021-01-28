@@ -11,4 +11,5 @@ target_link_libraries(dls_gait_signal
 		dls_geometry
 		dls_robot
 		dls_messaging
+		doglib
 )

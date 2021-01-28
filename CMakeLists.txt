@@ -17,7 +17,6 @@ include(dls_dependency_graph) # `make graph` target to generate dependency graph
 # ================================= Compilation ================================
 add_subdirectory(msg)       # generate dds message types used in the project
 add_subdirectory(scripts)   # bash completion and launch scripts
-# add_subdirectory(src)     # compilation TODO move remaining parts into modules/
 # add_subdirectory(test)    # TODO move tests to their respective modules
 # add_subdirectory(doc)     # generate and install documentation
 add_subdirectory(modules)   # build framework, libraries and tools
