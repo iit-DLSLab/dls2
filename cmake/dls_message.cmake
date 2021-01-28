@@ -92,6 +92,10 @@ function(dls_add_message msg)
 				DESTINATION ${DLS_INSTALL_MESSAGES_DIR}
 				COMPONENT dls2_${PROJECT_NAME}_messaging
 		)
+		target_include_directories(dls_${PROJECT_NAME}_messaging
+			PUBLIC
+			${CMAKE_CURRENT_BINARY_DIR}/gen/include
+		)
 	endif()
 
 	set(generated_source

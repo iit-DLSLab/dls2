@@ -1,0 +1,15 @@
+add_library(dls_framework_components SHARED
+	src/app_layer_component.cpp
+	src/periodic_app_layer_component.cpp
+)
+
+target_include_directories(dls_framework_components PUBLIC include)
+
+target_link_libraries(dls_framework_components
+	PUBLIC
+	dls_command
+	dls_logging
+	dls_time
+)
+
+# target_compile_options(dls_framework_components PRIVATE -fPIC)

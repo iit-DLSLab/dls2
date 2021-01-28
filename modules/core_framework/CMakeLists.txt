@@ -16,12 +16,8 @@ add_library(dls_framework SHARED
 	src/log_layer.cpp
 	src/init.cpp
 	src/options.cpp
-	src/components/app_layer_component.cpp
-	src/components/periodic_app_layer_component.cpp
-
-	# TODO remove this and instead link to the library
-	# ${PROJECT_SOURCE_DIR}/src/util/string/string.cpp
 )
+# target_compile_options(dls_framework PRIVATE -fPIC)
 target_include_directories(dls_framework
 	PUBLIC include
 	PRIVATE src
@@ -36,6 +32,8 @@ target_link_libraries(dls_framework
 		dls_pubsub
 		dls_class_loader
 		dls_path_prefixes
+		dls_framework_components
+		dls_controller
 
 	PUBLIC # TODO fix this
 	#dls_string_util TODO link to this library and remove the source above
@@ -44,6 +42,7 @@ target_link_libraries(dls_framework
 		pthread
 		dl
 		dls_command
+		dls_estimator
 )
 dls_install(dls_framework)
 
