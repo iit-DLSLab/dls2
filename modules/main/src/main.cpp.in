@@ -39,14 +39,14 @@
 #include "dls2/application_framework/version_info.hpp"
 #include "dls2/application_framework/init.hpp"
 
-#include "dls2/util/log/log.hpp"
+#include "dls2/log/log.hpp"
 #include "dls2/command/command.hpp"
 
 #include <thread>
 
 #include "dls2/geometry/pose.hpp"
 
-#include "dls2/util/log/log.hpp"
+#include "dls2/log/log.hpp"
 
 #include <doglib/factory/robot_factory.hpp>
 

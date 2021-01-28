@@ -23,7 +23,7 @@
 #include <mutex>
 
 #include "app_layer.hpp"
-#include "dls2/util/log/log.hpp"
+#include "dls2/log/log.hpp"
 
 namespace dls
 {

@@ -20,7 +20,7 @@
 #include "dls2/util/messaging/subscriber_base.hpp"
 #include "dls2/msg/timePubSubTypes.h"
 #include "dls2/command/command.hpp"
-#include "dls2/util/log/log.hpp"
+#include "dls2/log/log.hpp"
 
 #include <condition_variable>
 #include <chrono>

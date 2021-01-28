@@ -19,7 +19,7 @@
 #include <mutex>
 
 #include "dls2/command/command.hpp"
-#include "dls2/util/log/log.hpp"
+#include "dls2/log/log.hpp"
 
 namespace dls
 {

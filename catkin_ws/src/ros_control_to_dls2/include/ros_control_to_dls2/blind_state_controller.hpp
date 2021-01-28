@@ -13,7 +13,7 @@
 #include "dls2/topics/low_level_estimation/blind_state.hpp"
 #include "dls2/topics/simulation_time.hpp"
 #include "dls2/command/command.hpp"
-#include "dls2/util/log/log.hpp"
+#include "dls2/log/log.hpp"
 #include <mutex>
 
 #include <dls2_msgs/BlindState.h>

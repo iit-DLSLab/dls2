@@ -21,7 +21,7 @@
 #include "dls2/controller/controller.hpp"
 #include "dls2/util/service/service.hpp"
 #include "dls2/command/command.hpp"
-#include "dls2/util/log/log.hpp"
+#include "dls2/log/log.hpp"
 
 #include "dls2/msg/stringmsgPubSubTypes.h"
 

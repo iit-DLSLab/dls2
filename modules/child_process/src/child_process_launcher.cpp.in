@@ -34,7 +34,7 @@
 #include "dls2/gait_generator/gait_generator.hpp"
 #include "dls2/controller/controller.hpp"
 #include "dls2/path_prefixes.hpp"
-// #include "dls2/util/log/log.hpp"
+// #include "dls2/log/log.hpp"
 
 #include "dls2/util/time/time.hpp"
 #include <doglib/factory/robot_factory.hpp>

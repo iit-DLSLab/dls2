@@ -6,6 +6,7 @@ add_library(dls_messaging
 	src/joint_state.cpp
 	# src/control_signal.cpp
 )
+target_include_directories(dls_messaging PUBLIC include)
 target_compile_options(dls_messaging
 	PRIVATE
 	-w
@@ -13,6 +14,7 @@ target_compile_options(dls_messaging
 target_link_libraries(dls_messaging
 	PUBLIC
 	dls_${PROJECT_NAME}_messaging
+	dls_robot
 )
 target_include_directories(dls_messaging
 	PUBLIC include

@@ -23,7 +23,7 @@
 
 #include "dls2/application_framework/components/app_layer_component.hpp"
 #include "dls2/command/command.hpp"
-#include "dls2/util/log/log.hpp"
+#include "dls2/log/log.hpp"
 
 namespace dls
 {

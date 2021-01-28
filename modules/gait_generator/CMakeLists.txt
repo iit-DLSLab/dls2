@@ -11,7 +11,12 @@ add_library(dls_gait_generator
 target_include_directories(dls_gait_generator PUBLIC include)
 dls_install(dls_gait_generator)
 
-target_link_libraries(dls_gait_generator dls_geometry doglib)
+target_link_libraries(dls_gait_generator
+	dls_geometry
+	doglib
+	dls_framework
+	dls_logging
+)
 add_library(dls_dummy_gait_generator
 	SHARED src/dummy_gait_generator.cpp
 )

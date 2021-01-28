@@ -44,7 +44,7 @@
 #include "dls2/topics/deactivate_controller.hpp"
 #include "dls2/topics/activate_gait_generator.hpp"
 #include "dls2/topics/deactivate_gait_generator.hpp"
-#include "dls2/util/log/log.hpp"
+#include "dls2/log/log.hpp"
 
 // =============================================================================
 // Class Interface

@@ -43,7 +43,7 @@ std::shared_ptr<ros::Publisher> pEmpty_pub;
 using namespace dls;
 
 #ifndef NDEBUG
-#include "dls2/util/log/log.hpp"
+#include "dls2/log/log.hpp"
 #include <sstream>
 #endif
 

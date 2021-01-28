@@ -20,7 +20,7 @@
 #include <dlfcn.h>
 #include <sstream>
 #include "dls2/class_loader.hpp"
-#include "dls2/util/log/log.hpp"
+#include "dls2/log/log.hpp"
 
 namespace dls
 {

@@ -22,7 +22,7 @@
 #ifndef NDEBUG
 #include <sstream>
 #include <chrono>
-#include "dls2/util/log/log.hpp"
+#include "dls2/log/log.hpp"
 #endif
 
 using namespace dls;

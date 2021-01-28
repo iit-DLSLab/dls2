@@ -17,7 +17,7 @@
 #define HARDWARE_LAYER_HPP_64INVL3T
 
 #include "app_layer.hpp"
-#include "dls2/util/log/log.hpp"
+#include "dls2/log/log.hpp"
 #include <unistd.h>
 
 // TODO build this class

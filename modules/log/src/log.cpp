@@ -13,7 +13,7 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#include "dls2/util/log/log.hpp"
+#include "dls2/log/log.hpp"
 #include "dls2/util/messaging/publisher_base.hpp"
 #include "dls2/msg/stringmsgPubSubTypes.h"
 

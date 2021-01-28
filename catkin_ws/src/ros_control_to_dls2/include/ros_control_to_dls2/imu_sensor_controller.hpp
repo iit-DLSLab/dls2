@@ -14,7 +14,7 @@
 #include "dls2/topics/imu.hpp"
 #include "dls2/topics/simulation_time.hpp"
 #include "dls2/command/command.hpp"
-#include "dls2/util/log/log.hpp"
+#include "dls2/log/log.hpp"
 #include <mutex>
 
 #include <rosgraph_msgs/Clock.h>
