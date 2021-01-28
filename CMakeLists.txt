@@ -15,13 +15,13 @@ include(dls_message)       # message generation functions
 include(dls_include_paths) # directories of global libraries
 
 # ================================= Compilation ================================
-add_subdirectory(msg)     # generate dds message types used in the project
-add_subdirectory(scripts) # bash completion and launch scripts
+add_subdirectory(msg)       # generate dds message types used in the project
+add_subdirectory(scripts)   # bash completion and launch scripts
 # add_subdirectory(src)     # compilation TODO move remaining parts into modules/
 # add_subdirectory(test)    # TODO move tests to their respective modules
 # add_subdirectory(doc)     # generate and install documentation
-add_subdirectory(modules) # build framework, libraries and tools
-include(dls_catkin_ws)    # legacy code and code to interact with legacy code
+add_subdirectory(modules)   # build framework, libraries and tools
+include(dls_catkin_ws)      # legacy code and code to interact with legacy code
 add_subdirectory(3rd_party) # Some legacy and external code TODO move into better locations
 
 include(dls_debian_settings) # configure installation of the framework
