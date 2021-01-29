@@ -1,8 +1,3 @@
-# include_directories(
-# 	${PROJECT_SOURCE_DIR}/include
-# 	${PROJECT_SOURCE_DIR}/build_tools/include
-# )
-
 include_directories(
 	SYSTEM
 	${EIGEN_DIR}
