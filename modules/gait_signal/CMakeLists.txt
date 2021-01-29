@@ -7,7 +7,8 @@ add_library(dls_gait_signal SHARED
 target_include_directories(dls_gait_signal PUBLIC include)
 
 target_link_libraries(dls_gait_signal
-	PUBLIC
+	PRIVATE
 		dls_messaging
+	PUBLIC
 		doglib
 )

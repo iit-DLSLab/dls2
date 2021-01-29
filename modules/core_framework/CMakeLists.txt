@@ -26,16 +26,16 @@ target_include_directories(dls_framework
 target_link_libraries(dls_framework
 	PRIVATE
 		readline # for console_layer
-		dls_controller
+		dls_math
 
-	PUBLIC # TODO fix this
-		dls_path_prefixes
-		dls_class_loader
+	PUBLIC
 		pthread
-		dl
+		dls_path_prefixes
+		dls_controller
 		dls_estimator
 		dls_gait_generator
-		dls_math
+		dl
+		dls_class_loader
 )
 dls_install(dls_framework)
 

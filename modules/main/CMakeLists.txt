@@ -9,9 +9,7 @@ add_executable(dynamic_legged_systems_framework
 dls_install(dynamic_legged_systems_framework)
 
 add_dependencies(dynamic_legged_systems_framework
-	# messagelib
 	child_process_launcher
-	# dls2_to_roscontrol
 )
 
 target_link_libraries(
