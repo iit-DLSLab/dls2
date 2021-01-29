@@ -10,9 +10,7 @@ target_include_directories(dls_command
 
 target_link_libraries(dls_command
 	dls_messaging
-	dls_${PROJECT_NAME}_messaging
 	dls_topics
-	dls_pubsub
 )
 
 add_dependencies(dls_command dls_dls2_messaging)

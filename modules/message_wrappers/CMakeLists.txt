@@ -14,7 +14,6 @@ target_compile_options(dls_messaging
 )
 target_link_libraries(dls_messaging
 	PUBLIC
-	dls_${PROJECT_NAME}_messaging
 	dls_robot
 	dls_geometry
 )

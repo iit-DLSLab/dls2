@@ -8,8 +8,6 @@ target_include_directories(dls_gait_signal PUBLIC include)
 
 target_link_libraries(dls_gait_signal
 	PUBLIC
-		dls_geometry
-		dls_robot
 		dls_messaging
 		doglib
 )

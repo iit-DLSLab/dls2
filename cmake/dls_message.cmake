@@ -137,12 +137,3 @@ function(dls_add_message msg)
 	)
 	# message(STATUS "setting variable dls_${PROJECT_NAME}_msg_includes=${CMAKE_CURRENT_BINARY_DIR}/gen/include/dls2/msg")
 endfunction()
-
-# Define the include path for the messages
-# if(NOT dls_${PROJECT_NAME}_messaging)
-# 	set(dls_${PROJECT_NAME}_msg_includes
-# 		"${CMAKE_CURRENT_BINARY_DIR}/gen/include/dls2/msg"
-# 		PARENT_SCOPE
-# 	)
-# 	message(STATUS "setting variable dls_${PROJECT_NAME}_msg_includes=${CMAKE_CURRENT_BINARY_DIR}/gen/include/dls2/msg")
-# endif()

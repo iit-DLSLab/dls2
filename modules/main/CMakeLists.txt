@@ -16,11 +16,6 @@ add_dependencies(dynamic_legged_systems_framework
 
 target_link_libraries(
 	dynamic_legged_systems_framework
-	dls_${PROJECT_NAME}_messaging
-
-	# fastrtps
-	fastcdr
-	fastrtps
 
 	# note that the order of these is important
 	dls_framework

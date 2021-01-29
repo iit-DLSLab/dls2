@@ -12,8 +12,6 @@ target_include_directories(dls_controller
 		include
 )
 target_link_libraries(dls_controller
-	dls_geometry
-	dls_dls2_messaging
 	dls_framework_components
 	dls_gait_signal
 )

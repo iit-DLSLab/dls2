@@ -26,14 +26,11 @@ target_include_directories(dls_framework
 target_link_libraries(dls_framework
 	PRIVATE
 		readline # for console_layer
-		dls_pubsub
-		dls_class_loader
-		dls_path_prefixes
 		dls_controller
 
 	PUBLIC # TODO fix this
-	#dls_string_util TODO link to this library and remove the source above
-		dls_messaging
+		dls_path_prefixes
+		dls_class_loader
 		pthread
 		dl
 		dls_estimator

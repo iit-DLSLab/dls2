@@ -8,7 +8,6 @@ target_link_libraries(dls_logging
 		fastcdr  # TODO use the wrapped library
 		fastrtps # TODO use the wrapped library
 	PUBLIC
-		dls_pubsub
 		dls_topics
 		dls_dls2_messaging
 )
