@@ -26,22 +26,16 @@ target_include_directories(dls_framework
 target_link_libraries(dls_framework
 	PRIVATE
 		readline # for console_layer
-		fastcdr  # TODO use a wrapper library
-		fastrtps # TODO use a wrapper library
-		dls_time
 		dls_pubsub
 		dls_class_loader
 		dls_path_prefixes
-		dls_framework_components
 		dls_controller
 
 	PUBLIC # TODO fix this
 	#dls_string_util TODO link to this library and remove the source above
-		dls_logging
 		dls_messaging
 		pthread
 		dl
-		dls_command
 		dls_estimator
 		dls_gait_generator
 		dls_math
