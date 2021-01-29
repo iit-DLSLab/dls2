@@ -18,5 +18,4 @@ add_compile_options(
 
 	# Custom defintions
 	-DSOURCE_PATH_SIZE=${SOURCE_PATH_SIZE}
-	-include ${PROJECT_SOURCE_DIR}/include/dls2/util/debug/debug.hpp
 )

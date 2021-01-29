@@ -24,9 +24,6 @@ target_link_libraries(
 
 	# note that the order of these is important
 	dls_framework
-	dls_estimator
-	dls_controller
-	dls_gait_generator
 )
 
 string(REPLACE " " ";" MAKE_RUN_ARGS ${DLS_BUILD_MAKE_RUN_FLAGS})
