@@ -7,6 +7,8 @@
 
 #include "dls/parameter_server_client.hpp"
 
+namespace servimpl = dls::parameter_server::impl;
+
 namespace dls
 {
 	// =========================================================================
@@ -17,15 +19,42 @@ namespace dls
 		// ============================ Declaration ============================
 		struct ParameterServerClientImpl
 		{
-			ParameterServerClientImpl();
-			dls::ServiceClient<ParamServerSetDoublePubSubType, EmptyMsgPubSubType>  add_double;
-			dls::ServiceClient<StringMsgPubSubType,            DoubleMsgPubSubType> get_double;
+			ParameterServerClientImpl(std::string const &server_namespace);
+
+			dls::ServiceClient
+			<
+				ParamServerSetDoublePubSubType,
+				EmptyMsgPubSubType
+			> add_double;
+
+			dls::ServiceClient
+			<
+				StringMsgPubSubType,
+				DoubleMsgPubSubType
+			> get_double;
 		};
 
 		// ========================== Implementation ===========================
-		ParameterServerClientImpl::ParameterServerClientImpl() :
-			add_double(dls::parameter_server::impl::topics::add_double),
-			get_double(dls::parameter_server::impl::topics::get_double)
+		ParameterServerClientImpl::ParameterServerClientImpl
+		(
+			std::string const &server_namespace
+		) :
+			add_double
+			(
+				servimpl::buildFullTopicFromNamespace
+				(
+					server_namespace,
+					servimpl::topics::add_double
+				)
+			),
+			get_double
+			(
+				servimpl::buildFullTopicFromNamespace
+				(
+					server_namespace,
+					servimpl::topics::get_double
+				)
+			)
 		{ }
 	}
 
@@ -33,8 +62,8 @@ namespace dls
 	// Main Class Implementation
 	// =========================================================================
 	// ============================= constructors ==============================
-	ParameterServerClient::ParameterServerClient() :
-		pimpl(std::make_unique<impl::ParameterServerClientImpl>())
+	ParameterServerClient::ParameterServerClient(std::string const & ns) :
+		pimpl(std::make_unique<impl::ParameterServerClientImpl>(ns))
 	{ }
 
 	ParameterServerClient::~ParameterServerClient() { }

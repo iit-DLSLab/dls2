@@ -16,6 +16,7 @@ static struct Opts
 struct Command
 {
 	virtual void execute(dls::ParameterServerClient &c) = 0;
+	std::string namespace_;
 };
 
 struct SetCommand : public Command
@@ -42,22 +43,19 @@ Command     *parseCommand();
 Command     *parseSetCommand();
 Command     *parseGetCommand();
 
-
 // =================================== Main ====================================
 int main(int argc, char **argv)
 {
 	opts.argc = argc;
 	opts.argv = argv;
 
-	if(argc != 4 && argc != 5)
+	if(argc != 5 && argc != 6)
 	{
 		exitError();
 	}
 
-	dls::ParameterServerClient client;
-
-
 	Command *command = parseCommand();
+	dls::ParameterServerClient client(command->namespace_);
 	command->execute(client);
 	return EXIT_SUCCESS;
 }
@@ -67,8 +65,8 @@ std::string getHelpString()
 {
 	std::string name = opts.argv[0];
 	std::string help_string =
-		name + "set <type> <key> <value>\n" +
-		name + "get <type> <key>\n" +
+		name + "<namespace> set <type> <key> <value>\n" +
+		name + "<namespace> get <type> <key>\n" +
 		"------------------------" +
 		"Where <type> is one of [double]";
 
@@ -77,11 +75,11 @@ std::string getHelpString()
 
 Command *parseCommand()
 {
-	if(opts.argv[1] == std::string("set"))
+	if(opts.argv[2] == std::string("set"))
 	{
 		return parseSetCommand();
 	}
-	else if(opts.argv[1] == std::string("get"))
+	else if(opts.argv[2] == std::string("get"))
 	{
 		return parseGetCommand();
 	}
@@ -94,9 +92,10 @@ Command *parseCommand()
 Command *parseSetCommand()
 {
 	SetCommand *c = new SetCommand();
-	c->type       = opts.argv[2];
-	c->key        = opts.argv[3];
-	c->value      = opts.argv[4];
+	c->namespace_ = opts.argv[1];
+	c->type       = opts.argv[3];
+	c->key        = opts.argv[4];
+	c->value      = opts.argv[5];
 
 	return c;
 }
@@ -104,8 +103,9 @@ Command *parseSetCommand()
 Command *parseGetCommand()
 {
 	GetCommand *c = new GetCommand();
-	c->type       = opts.argv[2];
-	c->key        = opts.argv[3];
+	c->namespace_ = opts.argv[1];
+	c->type       = opts.argv[3];
+	c->key        = opts.argv[4];
 	return c;
 }
 

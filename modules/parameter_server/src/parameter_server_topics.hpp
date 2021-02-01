@@ -13,6 +13,15 @@ namespace dls
 				std::string const add_double = "DLS_PARAMETER_SERVER_ADD_DOUBLE_6dce8d43_0f85_409f_865c_4752b0ec1fce";
 				std::string const get_double = "DLS_PARAMETER_SERVER_GET_DOUBLE_cc5f67a7_feec_43da_b583_e6710559d761";
 			}
+
+			inline std::string buildFullTopicFromNamespace
+			(
+				std::string const & _namespace,
+				std::string const &topic
+			)
+			{
+				return _namespace + topic;
+			}
 		}
 	}
 }

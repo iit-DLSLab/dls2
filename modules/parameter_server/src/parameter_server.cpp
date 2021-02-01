@@ -12,6 +12,7 @@
 #include <mutex>
 #include <string>
 
+namespace servimpl = dls::parameter_server::impl;
 
 namespace dls
 {
@@ -29,7 +30,8 @@ namespace dls
 		class ParameterServerImpl
 		{
 		public:
-			ParameterServerImpl();
+			ParameterServerImpl(std::string const & server_namespace);
+
 		private:
 			std::mutex param_store_mutex;
 			dls::ParameterStore param_store;
@@ -41,20 +43,27 @@ namespace dls
 	}
 
 	// ====================== Public class implementation ======================
-	ParameterServer::ParameterServer() :
-		pimpl(std::make_unique<impl::ParameterServerImpl>())
+	ParameterServer::ParameterServer(std::string const & ns) :
+		pimpl(std::make_unique<impl::ParameterServerImpl>(ns))
 	{ }
 
 	// ========================= Pimpl Implementation ==========================
 	namespace impl
 	{
-		ParameterServerImpl::ParameterServerImpl() :
+		ParameterServerImpl::ParameterServerImpl
+		(
+			std::string const &server_namespace
+		) :
 			param_store_mutex(),
 			param_store(),
 			add_double
 			(
-				dls::parameter_server::impl::topics::add_double,
-				[&](ParamServerSetDouble msg) -> EmptyMsg
+				servimpl::buildFullTopicFromNamespace
+				(
+					server_namespace,
+					servimpl::topics::add_double
+				),
+				[this](ParamServerSetDouble msg) -> EmptyMsg
 				{
 					std::lock_guard<std::mutex> lock(this->param_store_mutex);
 					this->param_store.add(msg.key(), msg.value());
@@ -63,8 +72,12 @@ namespace dls
 			),
 			get_double
 			(
-				dls::parameter_server::impl::topics::get_double,
-				[&](StringMsg msg) -> DoubleMsg
+				servimpl::buildFullTopicFromNamespace
+				(
+					server_namespace,
+					servimpl::topics::get_double
+				),
+				[this](StringMsg msg) -> DoubleMsg
 				{
 					std::lock_guard<std::mutex> lock(this->param_store_mutex);
 					auto ret = this->param_store.get<double>(msg.msg());

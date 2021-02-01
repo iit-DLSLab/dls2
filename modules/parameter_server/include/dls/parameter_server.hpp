@@ -2,6 +2,7 @@
 #define PARAMETER_SERVER_HPP_05f2fd08_3966_43ee_b7c8_5c344e7afd3f
 
 #include <memory>
+#include <string>
 
 namespace dls
 {
@@ -12,7 +13,7 @@ namespace dls
 	class ParameterServer
 	{
 	public:
-		ParameterServer();
+		ParameterServer(std::string const & server_namespace );
 
 	private:
 		std::unique_ptr<impl::ParameterServerImpl> pimpl;
