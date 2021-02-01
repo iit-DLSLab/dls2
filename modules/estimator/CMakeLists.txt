@@ -12,8 +12,4 @@ target_link_libraries(dls_estimator
 		dls_framework_components
 )
 
-add_dependencies(dls_estimator
-	dls_dls2_messaging
-)
-
 dls_install(dls_estimator)

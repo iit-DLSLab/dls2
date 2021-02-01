@@ -73,7 +73,7 @@ target_link_libraries(dls_hw_sim ${catkin_LIBRARIES}
 	
 	fastcdr
 	fastrtps
-	dls_messaging
+	dls_message_wrappers
 	dls_dls2_messaging
                       )
 

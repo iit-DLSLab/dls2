@@ -1,6 +1,5 @@
 add_library(dls_gait_generator
-	SHARED
-		src/gait_generator.cpp
+	src/gait_generator.cpp
 )
 
 target_include_directories(dls_gait_generator

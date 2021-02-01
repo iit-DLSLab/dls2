@@ -1,4 +1,4 @@
-add_library(dls_framework_components SHARED
+add_library(dls_framework_components
 	src/app_layer_component.cpp
 	src/periodic_app_layer_component.cpp
 )

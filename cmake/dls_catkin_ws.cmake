@@ -32,6 +32,6 @@ set_property(
 		${CATKIN_WORKSPACE}/install
 )
 
-add_dependencies(dls_framework
-	dls2_to_roscontrol
+add_dependencies(dls2_to_roscontrol
+	dls_framework
 )

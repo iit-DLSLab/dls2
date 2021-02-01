@@ -6,8 +6,6 @@ add_executable(topic_info
 
 target_link_libraries(topic_info
 	PRIVATE
-		fastcdr
-		fastrtps
-		dls_messaging
+		dls_pubsub
 		dls_debug
 )

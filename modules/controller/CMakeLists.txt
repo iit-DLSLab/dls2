@@ -1,7 +1,6 @@
 add_library(dls_controller
-	SHARED
-		src/controller.cpp
-		src/control_signal.cpp
+	src/controller.cpp
+	src/control_signal.cpp
 )
 
 target_include_directories(dls_controller

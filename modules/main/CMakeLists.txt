@@ -14,7 +14,7 @@ target_link_libraries(dynamic_legged_systems_framework
 dls_install(dynamic_legged_systems_framework)
 
 add_dependencies(dynamic_legged_systems_framework
-	child_process_launcher
+	dls2_to_roscontrol
 )
 
 string(REPLACE " " ";" MAKE_RUN_ARGS ${DLS_BUILD_MAKE_RUN_FLAGS})

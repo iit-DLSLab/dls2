@@ -11,6 +11,10 @@ target_link_libraries(dls_pubsub
 	INTERFACE
 		fastcdr
 		fastrtps
+		dls_topics
+		dls_service
+		dls_dls2_messaging
+		dls_message_wrappers
 )
 
 dls_install(dls_pubsub)

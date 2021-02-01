@@ -169,7 +169,7 @@ target_link_libraries(${PROJECT_NAME}_node
 	fastrtps
 	fastcdr
 	${catkin_LIBRARIES}
-	dls_messaging
+	dls_message_wrappers
 	dls_geometry
 	dls_logging
 )

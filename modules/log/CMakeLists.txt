@@ -1,4 +1,4 @@
-add_library(dls_logging SHARED
+add_library(dls_logging
 	src/log.cpp
 )
 
@@ -8,14 +8,8 @@ target_include_directories(dls_logging
 )
 
 target_link_libraries(dls_logging
-	PRIVATE
-		fastcdr  # TODO use the wrapped library
-		fastrtps # TODO use the wrapped library
 	PUBLIC
-		dls_topics
-		dls_dls2_messaging
+		dls_pubsub
 )
-
-add_dependencies(dls_logging dls_dls2_messaging)
 
 dls_install(dls_logging)

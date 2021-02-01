@@ -1,22 +1,18 @@
-add_library(dls_messaging SHARED
+add_library(dls_message_wrappers
 	src/screw.cpp
 	src/joint_state.cpp
 	src/blind_state.cpp
 )
 
-target_include_directories(dls_messaging
+target_include_directories(dls_message_wrappers
 	PUBLIC
 		include
 )
 
-target_link_libraries(dls_messaging
+target_link_libraries(dls_message_wrappers
 	PUBLIC
 		dls_robot
 		dls_geometry
 )
 
-add_dependencies(dls_messaging
-	dls_dls2_messaging
-)
-
-dls_install(dls_messaging)
+dls_install(dls_message_wrappers)

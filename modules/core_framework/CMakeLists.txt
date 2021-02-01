@@ -3,7 +3,7 @@ dls_configure(src/version_info.cpp.in  VERSION_INFO_CPP)
 dls_configure(src/console_layer.cpp.in CONSOLE_LAYER_CPP)
 dls_configure(src/app_layer.cpp.in     APP_LAYER_CPP)
 
-add_library(dls_framework SHARED
+add_library(dls_framework
 	src/hyq_app.cpp
 	${APP_LAYER_CPP}
 	src/hardware_layer.cpp
@@ -37,10 +37,6 @@ target_link_libraries(dls_framework
 		dls_gait_generator
 		dl
 		dls_class_loader
-)
-
-add_dependencies(dls_framework
-	dls_dls2_messaging
 )
 
 dls_install(dls_framework)

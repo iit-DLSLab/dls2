@@ -13,18 +13,17 @@ add_library(dls_parameter_server
 
 target_include_directories(dls_parameter_server
 	PUBLIC
-	include
+		include
 	PRIVATE
-hsrc
+		src
 )
 
 target_link_libraries(dls_parameter_server
 	PRIVATE
-	parameter_store
-	dls_framework
-	param_server_msgs
-	fastcdr
-	fastrtps
+		parameter_store
+		param_server_msgs
+		dls_pubsub
+
 )
 
 # ==============================================================================
