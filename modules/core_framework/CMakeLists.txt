@@ -3,7 +3,6 @@ dls_configure(src/version_info.cpp.in  VERSION_INFO_CPP)
 dls_configure(src/console_layer.cpp.in CONSOLE_LAYER_CPP)
 dls_configure(src/app_layer.cpp.in     APP_LAYER_CPP)
 
-message(WARNING "core framework module is not a module yet -- it is still taking file from elsewhere")
 add_library(dls_framework SHARED
 	src/hyq_app.cpp
 	${APP_LAYER_CPP}
@@ -17,18 +16,20 @@ add_library(dls_framework SHARED
 	src/init.cpp
 	src/options.cpp
 )
-# target_compile_options(dls_framework PRIVATE -fPIC)
+
 target_include_directories(dls_framework
-	PUBLIC include
-	PRIVATE src
+	PUBLIC
+		include
+	PRIVATE
+		src
 )
 
 target_link_libraries(dls_framework
 	PRIVATE
 		readline # for console_layer
-		dls_math
 
 	PUBLIC
+		dls_math
 		pthread
 		dls_path_prefixes
 		dls_controller
@@ -37,6 +38,9 @@ target_link_libraries(dls_framework
 		dl
 		dls_class_loader
 )
-dls_install(dls_framework)
 
-add_dependencies(dls_framework dls_dls2_messaging)
+add_dependencies(dls_framework
+	dls_dls2_messaging
+)
+
+dls_install(dls_framework)

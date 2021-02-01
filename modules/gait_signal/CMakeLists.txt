@@ -4,7 +4,10 @@ add_library(dls_gait_signal SHARED
 	src/gait_signal.cpp
 )
 
-target_include_directories(dls_gait_signal PUBLIC include)
+target_include_directories(dls_gait_signal
+	PUBLIC
+		include
+)
 
 target_link_libraries(dls_gait_signal
 	PRIVATE
@@ -12,3 +15,5 @@ target_link_libraries(dls_gait_signal
 	PUBLIC
 		doglib
 )
+
+dls_install(dls_gait_signal)

@@ -1,22 +1,20 @@
-configure_file(
-	src/main.cpp.in
+configure_file(src/main.cpp.in
 	${CMAKE_CURRENT_BINARY_DIR}/src/main.cpp
 )
 
 add_executable(dynamic_legged_systems_framework
 	${CMAKE_CURRENT_BINARY_DIR}/src/main.cpp
 )
+
+target_link_libraries(dynamic_legged_systems_framework
+	PRIVATE
+		dls_framework
+)
+
 dls_install(dynamic_legged_systems_framework)
 
 add_dependencies(dynamic_legged_systems_framework
 	child_process_launcher
-)
-
-target_link_libraries(
-	dynamic_legged_systems_framework
-
-	# note that the order of these is important
-	dls_framework
 )
 
 string(REPLACE " " ";" MAKE_RUN_ARGS ${DLS_BUILD_MAKE_RUN_FLAGS})
