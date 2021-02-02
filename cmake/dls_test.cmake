@@ -52,4 +52,9 @@ function(dls_register_test TEST_NAME)
 
 	add_dependencies(tests ${TARGET_NAME})
 
+	add_test(
+		NAME    ${TEST_NAME}
+		COMMAND ${TARGET_NAME}
+	)
+
 endfunction()
