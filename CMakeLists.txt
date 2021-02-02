@@ -13,11 +13,12 @@ set(DLS_MESSAGE_HEADER_DESTINATION dls2/msg)
 include(dls_message)          # message generation functions
 include(dls_include_paths)    # directories of global libraries
 include(dls_dependency_graph) # `make graph` target to generate dependency graph
+include(dls_test)             # functions to register unit tests
 
 # ================================= Compilation ================================
 add_subdirectory(msg)       # generate dds message types used in the project
 add_subdirectory(scripts)   # bash completion and launch scripts
-# add_subdirectory(test)    # TODO move tests to their respective modules
+add_subdirectory(test)      # Test libraries and frameworks. Actual unit tests are in their respective moduels
 # add_subdirectory(doc)     # generate and install documentation
 add_subdirectory(modules)   # build framework, libraries and tools
 include(dls_catkin_ws)      # legacy code and code to interact with legacy code
