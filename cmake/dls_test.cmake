@@ -19,8 +19,6 @@ include(CMakeParseArguments)
 #
 # The test name is prefixed with `test`
 function(dls_register_test TEST_NAME)
-	set(TARGET_NAME "test_${TEST_NAME}")
-
 	set(prefix       create_test         )
 	set(noValues     ""                  )
 	set(singleValues ""                  )
@@ -33,6 +31,14 @@ function(dls_register_test TEST_NAME)
 		"${multiValues}"
 		${ARGN}
 	)
+
+	if(NOT DLS_TEST_SCOPE)
+		message(FATAL_ERROR
+			"Need to set variable DLS_TEST_SCOPE before calling dls_register_test"
+		)
+	endif()
+
+	set(TARGET_NAME "test_${DLS_TEST_SCOPE}_${TEST_NAME}")
 
 	add_executable(${TARGET_NAME}
 		EXCLUDE_FROM_ALL
@@ -53,7 +59,7 @@ function(dls_register_test TEST_NAME)
 	add_dependencies(tests ${TARGET_NAME})
 
 	add_test(
-		NAME    ${TEST_NAME}
+		NAME    ${DLS_TEST_SCOPE}_${TEST_NAME}
 		COMMAND ${TARGET_NAME}
 	)
 

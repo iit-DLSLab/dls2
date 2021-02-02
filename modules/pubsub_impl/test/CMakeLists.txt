@@ -1,3 +1,5 @@
+set(DLS_TEST_SCOPE pubsub_impl)
+
 dls_register_test(pubsub
 	LINK
 		dls_pubsub_impl
