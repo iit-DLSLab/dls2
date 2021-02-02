@@ -21,3 +21,12 @@ dls_register_test(multipub_multisub
 	SOURCE
 		multipub_multisub.cpp
 )
+
+dls_register_test(high_frequency
+	LINK
+		dls_pubsub_impl
+		dls_dls2_messaging
+		pthread
+	SOURCE
+		high_frequency.cpp
+)
