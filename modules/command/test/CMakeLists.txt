@@ -6,3 +6,10 @@ dls_register_test(command_manager
 	LINK
 		dls_command
 )
+
+dls_register_test(command
+	SOURCE
+		command.cpp
+	LINK
+		dls_command
+)
