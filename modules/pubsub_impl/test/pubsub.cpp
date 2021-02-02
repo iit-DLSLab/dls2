@@ -12,7 +12,7 @@ TEST_CASE("Messages can be published and received via topics", "[pubsub]")
 	std::string topic("this_is_a_pubsub_test_topic_a1212j3jL@#@!jfsxzc");
 	std::string send_message("this is the message that needs to be sent");
 
-	dls::impl::initFramework();
+	dls::impl::initFastdds();
 
 	SECTION("A message is sent and received")
 	{

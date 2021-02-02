@@ -24,3 +24,8 @@ add_custom_target(
 		dls_dummy_estimator
 	WORKING_DIRECTORY ${EXECUTABLE_OUTPUT_PATH}
 )
+
+add_dependencies(dynamic_legged_systems_framework
+	child_process_launcher
+	dls2_communication_bridges
+)

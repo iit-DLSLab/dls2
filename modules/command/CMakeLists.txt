@@ -15,3 +15,5 @@ target_link_libraries(dls_command
 )
 
 dls_install(dls_command)
+
+add_subdirectory(test)
