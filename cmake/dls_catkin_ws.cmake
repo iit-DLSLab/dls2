@@ -1,9 +1,9 @@
 set(CATKIN_WORKSPACE ${PROJECT_SOURCE_DIR}/catkin_ws)
 
-add_custom_target(dls2_to_roscontrol
+add_custom_target(dls2_communication_bridges
 	COMMAND           catkin_make install
 	WORKING_DIRECTORY ${CATKIN_WORKSPACE}
-	COMMENT           "Building dls2_to_roscontrol subproject"
+	COMMENT           "Building dls2_communication_bridges subproject"
 )
 
 install(
@@ -32,6 +32,6 @@ set_property(
 		${CATKIN_WORKSPACE}/install
 )
 
-add_dependencies(dls2_to_roscontrol
+add_dependencies(dls2_communication_bridges
 	dls_framework
 )
