@@ -24,6 +24,7 @@ using namespace dls;
 // initial direction for investigation.
 TEST_CASE("Creating a layer works", "[layer]")
 {
+	dls::impl::initFramework();
 	ConsoleLayer    layer1;
 	ControlLayer    layer2;
 	EstimationLayer layer3;
