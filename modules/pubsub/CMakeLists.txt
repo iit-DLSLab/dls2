@@ -20,3 +20,5 @@ target_link_libraries(dls_pubsub
 dls_install(dls_pubsub)
 
 set_property(TARGET dls_pubsub PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+
+add_subdirectory(test)
