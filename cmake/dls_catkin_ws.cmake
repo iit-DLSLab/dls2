@@ -31,7 +31,3 @@ set_property(
 		${CATKIN_WORKSPACE}/devel
 		${CATKIN_WORKSPACE}/install
 )
-
-add_dependencies(dls2_communication_bridges
-	dls_framework
-)

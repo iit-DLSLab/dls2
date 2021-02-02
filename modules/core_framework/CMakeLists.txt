@@ -39,4 +39,8 @@ target_link_libraries(dls_framework
 		dls_class_loader
 )
 
+add_dependencies(dls_framework
+	dls2_communication_bridges
+)
+
 dls_install(dls_framework)
