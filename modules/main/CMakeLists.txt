@@ -27,4 +27,5 @@ add_custom_target(
 
 add_dependencies(dynamic_legged_systems_framework
 	child_process_launcher
+	dls2_communication_bridges
 )
