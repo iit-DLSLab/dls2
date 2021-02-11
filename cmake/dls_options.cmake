@@ -67,3 +67,5 @@ set(DLS_INSTALL_DEVELOPER_DOCUMENTATION On
 set(DLS_BUILD_MAKE_RUN_FLAGS "--robot=hyq --core --layers=control,console"
 	CACHE STRING "Flags to pass to framework when calling 'make run'"
 )
+
+add_compile_options(-fPIC)

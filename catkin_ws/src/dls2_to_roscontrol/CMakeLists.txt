@@ -12,7 +12,7 @@ include_directories(
 	${ROOT_PROJECT_DIRECTORY}/build_tools/include
 	${ROOT_PROJECT_DIRECTORY}/build/msg/gen/include
 	${ROOT_PROJECT_DIRECTORY}/modules/controller/include
-	${ROOT_PROJECT_DIRECTORY}/modules/pubsub/include
+	${ROOT_PROJECT_DIRECTORY}/modules/pubsub_impl/include
 	${ROOT_PROJECT_DIRECTORY}/modules/topics/include
 )
 include_directories(

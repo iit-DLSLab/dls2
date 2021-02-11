@@ -7,4 +7,9 @@ target_include_directories(dls_geometry
 		include
 )
 
+target_link_libraries(dls_geometry
+	PUBLIC
+		dls_dls2_messaging
+)
+
 dls_install(dls_geometry)

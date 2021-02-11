@@ -26,7 +26,7 @@ include_directories(
 	${ROOT_PROJECT_DIRECTORY}/build/msg/gen/include
 	${ROOT_PROJECT_DIRECTORY}/gen/include
 	${ROOT_PROJECT_DIRECTORY}/build_tools/include
-	${ROOT_PROJECT_DIRECTORY}/modules/pubsub/include
+	${ROOT_PROJECT_DIRECTORY}/modules/pubsub_impl/include
 	${ROOT_PROJECT_DIRECTORY}/modules/topics/include
 	${ROOT_PROJECT_DIRECTORY}/modules/command/include
 	${ROOT_PROJECT_DIRECTORY}/modules/log/include
@@ -66,7 +66,7 @@ target_link_libraries(${PROJECT_NAME}_joint_state_controller
 	)
 
 target_link_libraries(${PROJECT_NAME}_blind_state_controller
-	dls_pubsub
+	dls_pubsub_impl
 	${catkin_LIBRARIES}
 	dls_framework
 	dls_message_wrappers

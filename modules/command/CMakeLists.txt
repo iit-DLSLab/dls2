@@ -16,4 +16,9 @@ target_link_libraries(dls_command
 
 dls_install(dls_command)
 
+target_compile_options(dls_command
+	PRIVATE
+		-fPIC
+)
+
 add_subdirectory(test)
