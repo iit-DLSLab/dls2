@@ -68,32 +68,6 @@ test:dls2:
     - master
     - devel
 
-# Build the example projects. If these projects do not compile, then something
-# has changed in the API of the project. Since the documentation is built from
-# these example projects, this would mean that the documentation that ships with
-# the framework is now out of date. In such cases you should either rever the
-# API changes, or fix the example projects to reflect the new API. That way
-# users will always have the latest documenatation on their machines,
-test:docs:
-  stage: test
-  dependencies:
-    - build:dls2
-  tags:
-    - dls2
-  script:
-    - cd build
-    # - make install
-    - make package
-    - dpkg -i *deb
-    - cd ..
-    - "[ -d doc/dls2_examples/build ] || mkdir doc/dls2_examples/build"
-    - cd doc/dls2_examples/build
-    - cmake -DCMAKE_BUILD_TYPE=Release ..
-    - make -j$(nproc)
-  only:
-    - master
-    - devel
-
 # ------------------------------------------------------------------------------
 # Deploy Stage
 # ------------------------------------------------------------------------------
