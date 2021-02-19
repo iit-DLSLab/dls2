@@ -15,12 +15,10 @@ install(
 
 set(CPACK_DEBIAN_DLS_WS_FILE_NAME
 	"dls2-workspace-${PROJECT_VERSION}.deb"
-	PARENT_SCOPE
 )
 
 set(CPACK_DEBIAN_DLS_WS_PACKAGE_NAME
 	"dls2-workspace"
-	PARENT_SCOPE
 )
 
 set_property(
