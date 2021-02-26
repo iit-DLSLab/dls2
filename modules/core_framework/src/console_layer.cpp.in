@@ -111,21 +111,6 @@ ConsoleLayer::ConsoleLayer() :
 		)
 	);
 
-	command_manager.addCommand<double, double, double>
-	(
-		"console_layer",
-		"addTwoDoubles",
-		"adds two doubles",
-		std::function<double(double,double)>
-		{
-			[](double a, double b) ->double
-			{
-				std::cout << "Console layer: " << a + b << std::endl;
-				return a + b;
-			}
-		}
-	);
-
 	command_manager.addCommand<void, ARGVOID>
 	(
 		"console_layer",
