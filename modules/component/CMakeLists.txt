@@ -3,6 +3,8 @@ add_library(dls_framework_components
 	src/periodic_app_layer_component.cpp
 )
 
+set_property(TARGET dls_framework_components PROPERTY POSITION_INDEPENDENT_CODE ON)
+
 target_include_directories(dls_framework_components
 	PUBLIC
 		include
