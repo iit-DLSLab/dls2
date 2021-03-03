@@ -43,3 +43,5 @@ target_include_directories(dls_parameter_server_cli
 	include
 	src
 )
+
+dls_install(dls_parameter_server)

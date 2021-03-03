@@ -6,3 +6,5 @@ target_link_libraries(dls_class_loader
 	INTERFACE
 		dls_logging
 )
+
+dls_install(dls_class_loader)

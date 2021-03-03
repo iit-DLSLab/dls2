@@ -7,3 +7,5 @@ target_link_libraries(dls_pubsub
 		dls_dls2_messaging
 		dls_message_wrappers
 )
+
+dls_install(dls_pubsub)

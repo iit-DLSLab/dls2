@@ -1,2 +1,4 @@
 add_library(dls_robot INTERFACE)
 target_include_directories(dls_robot INTERFACE include)
+
+dls_install(dls_robot)
