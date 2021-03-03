@@ -4,6 +4,7 @@ dls_configure(src/console_layer.cpp.in CONSOLE_LAYER_CPP)
 dls_configure(src/app_layer.cpp.in     APP_LAYER_CPP)
 
 add_library(dls_framework
+	SHARED
 	src/hyq_app.cpp
 	${APP_LAYER_CPP}
 	src/hardware_layer.cpp
@@ -16,6 +17,8 @@ add_library(dls_framework
 	src/init.cpp
 	src/options.cpp
 )
+
+set_property(TARGET dls_framework PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 target_include_directories(dls_framework
 	PUBLIC

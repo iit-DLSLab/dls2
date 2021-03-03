@@ -3,6 +3,8 @@ add_library(dls_controller
 	src/control_signal.cpp
 )
 
+set_property(TARGET dls_controller PROPERTY POSITION_INDEPENDENT_CODE ON)
+
 target_include_directories(dls_controller
 	PUBLIC
 		include
