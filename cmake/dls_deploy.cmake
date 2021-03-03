@@ -49,6 +49,18 @@ function(dls_install INSTALL_TARGET)
 			DESTINATION ${DLS_INSTALL_RUNTIME_DIR}
 			COMPONENT dls_runtime
 	)
+	install(
+		DIRECTORY
+			include/
+		DESTINATION
+			include
+		COMPONENT
+			dls_dev
+		FILES_MATCHING
+			PATTERN "*.h"
+			PATTERN "*.hpp"
+			PATTERN "*.tpp"
+	)
 	message("Installing target ${INSTALL_TARGET}")
 endfunction()
 
@@ -85,3 +97,5 @@ install(
 		PATTERN "*.hpp"
 		PATTERN "*.tpp"
 )
+
+
