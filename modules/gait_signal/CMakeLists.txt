@@ -4,6 +4,8 @@ add_library(dls_gait_signal
 	src/gait_signal.cpp
 )
 
+set_property(TARGET dls_gait_signal PROPERTY POSITION_INDEPENDENT_CODE ON)
+
 target_include_directories(dls_gait_signal
 	PUBLIC
 		include

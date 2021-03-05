@@ -4,6 +4,8 @@ add_library(dls_message_wrappers
 	src/blind_state.cpp
 )
 
+set_property(TARGET dls_message_wrappers PROPERTY POSITION_INDEPENDENT_CODE ON)
+
 target_include_directories(dls_message_wrappers
 	PUBLIC
 		include
