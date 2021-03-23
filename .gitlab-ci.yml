@@ -37,6 +37,7 @@ build:dls2:
   script:
     - git submodule update --init --recursive
     - mv catkin_ws/src/dls2_to_roscontrol/ .
+    - mv catkin_ws/src/robot_bringup/ .
     - mkdir build
     - cd build
     - cmake -DCMAKE_BUILD_TYPE=Release ..
@@ -44,6 +45,7 @@ build:dls2:
     - make -j$(nproc)
     - make install
     - mv ../dls2_to_roscontrol/ ../catkin_ws/src
+    - mv ../robot_bringup/ ../catkin_ws/src
     - make -j$(nproc)
   artifacts:
     paths:
