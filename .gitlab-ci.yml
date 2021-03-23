@@ -45,7 +45,8 @@ build:dls2:
     - cmake -DCMAKE_BUILD_TYPE=Release ..
     - echo nproc=$(nproc)
     - make -j$(nproc)
-    - make install
+    - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(readlink -f ../bin)
+    - echo $LD_LIBRARY_PATH
     - mv ../dls2_to_roscontrol/ ../catkin_ws/src
     - mv ../robot_bringup/ ../catkin_ws/src
     - mv ../ros_control_to_dls2/ ../catkin_ws/src
