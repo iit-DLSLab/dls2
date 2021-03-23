@@ -28,9 +28,9 @@ target_include_directories(dls_framework
 )
 
 target_link_options(dls_framework PUBLIC
--Wl,--whole-archive ../../../bin/libdls_controller.a -Wl,--no-whole-archive
--Wl,--whole-archive ../../../bin/libdls_estimator.a -Wl,--no-whole-archive
--Wl,--whole-archive ../../../bin/libdls_gait_generator.a -Wl,--no-whole-archive
+-Wl,--whole-archive ../../../bin/Release/libdls_controller.a -Wl,--no-whole-archive
+-Wl,--whole-archive ../../../bin/Release/libdls_estimator.a -Wl,--no-whole-archive
+-Wl,--whole-archive ../../../bin/Release/libdls_gait_generator.a -Wl,--no-whole-archive
 )
 
 target_link_libraries(dls_framework
