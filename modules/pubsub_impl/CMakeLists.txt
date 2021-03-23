@@ -17,4 +17,4 @@ set_property(TARGET dls_pubsub_impl PROPERTY POSITION_INDEPENDENT_CODE TRUE)
 
 dls_install(dls_pubsub_impl)
 
-add_subdirectory(test)
+#add_subdirectory(test)
