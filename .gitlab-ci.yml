@@ -36,10 +36,14 @@ build:dls2:
     - dls2
   script:
     - git submodule update --init --recursive
+    - mv catkin_ws/src/dls2_to_roscontrol/ .
     - mkdir build
     - cd build
     - cmake -DCMAKE_BUILD_TYPE=Release ..
     - echo nproc=$(nproc)
+    - make -j$(nproc)
+    - make install
+    - mv ../dls2_to_roscontrol/ ../catkin_ws/src
     - make -j$(nproc)
   artifacts:
     paths:
