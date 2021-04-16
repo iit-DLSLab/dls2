@@ -118,11 +118,15 @@ function(dls_add_message msg)
 			[ -d ${CMAKE_CURRENT_BINARY_DIR}/gen/include/${DLS_MESSAGE_HEADER_DESTINATION} ] || mkdir --parents ${CMAKE_CURRENT_BINARY_DIR}/gen/include/${DLS_MESSAGE_HEADER_DESTINATION}
 		COMMAND
 			fastddsgen -replace ${CMAKE_CURRENT_SOURCE_DIR}/${msg}.idl -d ${CMAKE_CURRENT_BINARY_DIR}/gen/include/${DLS_MESSAGE_HEADER_DESTINATION}
+		COMMAND
+			${PROJECT_SOURCE_DIR}/scripts/fix_msg.bash ${CMAKE_CURRENT_BINARY_DIR}/gen/include/${DLS_MESSAGE_HEADER_DESTINATION} ${msg}
 		COMMENT
 			"Generating message files for ${msg}.idl"
 		DEPENDS
 			${msg}.idl
 	)
+
+
 
 	# add the generated source files to the library
 	target_sources(dls_${PROJECT_NAME}_messaging

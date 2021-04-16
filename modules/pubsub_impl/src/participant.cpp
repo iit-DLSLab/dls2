@@ -132,7 +132,7 @@ namespace dls
 			// else, register the topic, save it and return it
 			auto *dds_topic = dls::impl::getFastddsParticipant()->create_topic
 			(
-				topic_name,
+				std::string("rt/")+topic_name,
 				rtps_type_name,
 				eprosima::fastdds::dds::TOPIC_QOS_DEFAULT
 			);
