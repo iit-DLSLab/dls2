@@ -89,6 +89,7 @@ deploy:dls2:
     - dls2
   script:
     # build the debians set up by cmake
+    - touch catkin_ws/src/common_utilities/CATKIN_IGNORE
     - cd build
     - make package
     - cd ..
