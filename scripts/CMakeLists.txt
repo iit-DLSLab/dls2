@@ -83,3 +83,15 @@ install(FILES ${DLS_INSTALL_CMAKE}
 	COMPONENT
 		dls_dev
 )
+
+# ==============================================================================
+# fix_msg
+# ==============================================================================
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/fix-msg.bash
+	DESTINATION ${DLS_INSTALL_SCRIPTS_DIR}
+	PERMISSIONS
+		WORLD_EXECUTE WORLD_READ
+		OWNER_READ OWNER_WRITE
+	COMPONENT
+		dls_runtime
+)
