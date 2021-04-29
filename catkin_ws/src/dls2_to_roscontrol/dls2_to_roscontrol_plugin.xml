@@ -1,8 +1,0 @@
-<library path="libdls2_to_roscontrol">
-	<class name="dls2_to_roscontrol/Dls2ToRoscontrol"
-		   type="dls2_to_roscontrol::Dls2ToRoscontrol"
-		   base_class_type="controller_interface::ControllerBase">
-		<description>
-		</description>
-	</class>
-</library>

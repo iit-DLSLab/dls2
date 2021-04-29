@@ -36,10 +36,6 @@ build:dls2:
     - dls2
   script:
     - git submodule update --init --recursive
-    - mv catkin_ws/src/dls2_to_roscontrol/ .
-    - mv catkin_ws/src/robot_bringup/ .
-    - mv catkin_ws/src/ros_control_to_dls2/ .
-    - mv catkin_ws/src/ros_topic_to_dls2/ . 
     - mkdir build
     - cd build
     - cmake -DCMAKE_BUILD_TYPE=Release ..
@@ -47,10 +43,6 @@ build:dls2:
     - make -j$(nproc)
     - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(readlink -f ../bin)
     - echo $LD_LIBRARY_PATH
-    - mv ../dls2_to_roscontrol/ ../catkin_ws/src
-    - mv ../robot_bringup/ ../catkin_ws/src
-    - mv ../ros_control_to_dls2/ ../catkin_ws/src
-    - mv ../ros_topic_to_dls2/ ../catkin_ws/src
     - make -j$(nproc)
   artifacts:
     paths:
