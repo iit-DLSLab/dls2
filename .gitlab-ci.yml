@@ -36,7 +36,6 @@ build:dls2:
     - dls2
   script:
     - git submodule update --init --recursive
-    - touch catkin_ws/src/common_utilities/CATKIN_IGNORE
     - mv catkin_ws/src/dls2_to_roscontrol/ .
     - mv catkin_ws/src/robot_bringup/ .
     - mv catkin_ws/src/ros_control_to_dls2/ .
@@ -89,7 +88,6 @@ deploy:dls2:
     - dls2
   script:
     # build the debians set up by cmake
-    - touch catkin_ws/src/common_utilities/CATKIN_IGNORE
     - cd build
     - make package
     - cd ..
