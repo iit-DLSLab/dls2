@@ -15,9 +15,9 @@
 #include <dwl/model/FloatingBaseSystem.h>
 #include <dwl/model/WholeBodyKinematics.h>
 #include <dwl/model/WholeBodyDynamics.h>
-#include <terrain_server/TerrainMapInterface.h>
+//#include <terrain_server/TerrainMapInterface.h>
 #include <dwl_rviz_plugin/DisplayInterface.h>
-#include <dls_map_interface/GridMapInterface.hpp>
+//#include <dls_map_interface/GridMapInterface.hpp>
 #include <dls_msgs/DesiredTrajectory.h>
 #include <geometry_msgs/WrenchStamped.h>
 
@@ -131,9 +131,9 @@ public:
 	 *  This method includes routines for getting the terrain data
 	 * @param terrain_server::TerrainMapInterface& Terrain interface
 	 **/
-	void setTerrainInterface(terrain_server::TerrainMapInterface& terrain);
+    //void setTerrainInterface(terrain_server::TerrainMapInterface& terrain);
 
-        void setGridMapTerrain(dls::perception::TerrainInterface &terrain);
+        //void setGridMapTerrain(dls::perception::TerrainInterface &terrain);
 
             /**
              * @brief Sets the display interface
@@ -278,11 +278,11 @@ protected:
 
 	// Console commands
 	void manPrint();
-	void resetTerrainMap();
+    /*void resetTerrainMap();
 	void terrainData();
 	void terrainCost();
 	void terrainHeight();
-	void terrainNormal();
+    void terrainNormal();*/
 
         void set_vm_lin_gains();
 
@@ -401,9 +401,9 @@ protected:
 	std::shared_ptr<dwl::model::WholeBodyDynamics> wdyn_;
 
 	/** @brief Terrain map interface */
-	std::shared_ptr<terrain_server::TerrainMapInterface> terrain_;
+    //std::shared_ptr<terrain_server::TerrainMapInterface> terrain_;
 
-        std::shared_ptr<dls::perception::TerrainInterface> grid_map_terrain_;
+        //std::shared_ptr<dls::perception::TerrainInterface> grid_map_terrain_;
 
 	/** @brief Display interface */
 	std::shared_ptr<dwl_rviz_plugin::DisplayInterface> display_;

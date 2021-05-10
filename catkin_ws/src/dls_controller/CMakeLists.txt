@@ -4,19 +4,28 @@ project(dls_controller)
 find_package(catkin REQUIRED
   roscpp
   dwl
-  terrain_server
+#  terrain_server
   dwl_rviz_plugin
   dwl_msgs
   dls_msgs
   pluginlib
-  dls_map_interface
+#  dls_map_interface
   locomotion_utils
   iit_commons)
 
 catkin_package(
   INCLUDE_DIRS include ${dwl_INCLUDE_DIRS} 
   LIBRARIES ${PROJECT_NAME} 
-  CATKIN_DEPENDS roscpp dwl terrain_server dwl_rviz_plugin dwl_msgs dls_msgs pluginlib dls_map_interface locomotion_utils iit_commons
+  CATKIN_DEPENDS
+    roscpp
+    dwl
+#    terrain_server
+    dwl_rviz_plugin
+    dwl_msgs dls_msgs
+    pluginlib
+    #dls_map_interface
+    locomotion_utils
+    iit_commons
   DEPENDS
 )
 

@@ -15,8 +15,8 @@ Controller::Controller() : controllerName("Controller"), taskServoRate(0),
 	fbs_.reset(new dwl::model::FloatingBaseSystem());
 	wkin_.reset(new dwl::model::WholeBodyKinematics());
 	wdyn_.reset(new dwl::model::WholeBodyDynamics());
-	terrain_.reset(new terrain_server::TerrainMapInterface());
-	display_.reset(new dwl_rviz_plugin::DisplayInterface());
+//	terrain_.reset(new terrain_server::TerrainMapInterface());
+//	display_.reset(new dwl_rviz_plugin::DisplayInterface());
         log_.reset(new Logger());
     execute_plan.reset(new bool);
   supervisorClient = false;
@@ -26,7 +26,7 @@ Controller::Controller() : controllerName("Controller"), taskServoRate(0),
 	addConsoleFunction("man",
 					   "This function prints menu options",
 					   &Controller::manPrint, this);
-	addConsoleFunction("resetTerrainMap",
+        /*addConsoleFunction("resetTerrainMap",
 					   "This function resets the terrain map",
 					   &Controller::resetTerrainMap, this);
 	addConsoleFunction("terrainData",
@@ -41,7 +41,7 @@ Controller::Controller() : controllerName("Controller"), taskServoRate(0),
 	addConsoleFunction("terrainNormal",
 					   "This function gets the terrain normal given a position",
 						&Controller::terrainNormal, this);
-
+*/
     addConsoleFunction("changeMinGoal",
                        "change minimization goal",
                        &Controller::toggle_min_goal, this);
@@ -117,7 +117,7 @@ void Controller::setTrunkController(TrunkController::Ptr &trunk_ctrl){
     grForces = Vector3d::Zero();
 }
 
-void Controller::setTerrainInterface(terrain_server::TerrainMapInterface& terrain)
+/*void Controller::setTerrainInterface(terrain_server::TerrainMapInterface& terrain)
 {
 	terrain_.reset(&terrain);
 }
@@ -125,7 +125,7 @@ void Controller::setTerrainInterface(terrain_server::TerrainMapInterface& terrai
 void Controller::setGridMapTerrain(dls::perception::TerrainInterface& terrain)
 {
     grid_map_terrain_.reset(&terrain);
-}
+}*/
 
 
 void Controller::setDisplayInterface(dwl_rviz_plugin::DisplayInterface& display)
@@ -487,7 +487,7 @@ void Controller::manPrint()
 }
 
 
-void Controller::resetTerrainMap()
+/*void Controller::resetTerrainMap()
 {
 	terrain_->resetTerrainMap();
 }
@@ -539,7 +539,7 @@ void Controller::terrainNormal()
 			normal(dwl::rbd::X),
 			normal(dwl::rbd::Y),
 			normal(dwl::rbd::Z));
-}
+}*/
 
 
 void Controller::set_vm_lin_gains()
