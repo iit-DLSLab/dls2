@@ -3,10 +3,10 @@ project(dls_controller)
 
 find_package(catkin REQUIRED
   roscpp
-  dwl
+#  dwl
 #  terrain_server
-  dwl_rviz_plugin
-  dwl_msgs
+#  dwl_rviz_plugin
+#  dwl_msgs
   dls_msgs
   pluginlib
 #  dls_map_interface
@@ -18,16 +18,19 @@ catkin_package(
   LIBRARIES ${PROJECT_NAME} 
   CATKIN_DEPENDS
     roscpp
-    dwl
+#    dwl
 #    terrain_server
-    dwl_rviz_plugin
-    dwl_msgs dls_msgs
+#    dwl_rviz_plugin
+#    dwl_msgs dls_msgs
     pluginlib
     #dls_map_interface
     locomotion_utils
     iit_commons
   DEPENDS
 )
+
+find_package(PkgConfig)
+pkg_check_modules(EIGEN3 eigen3)
 
 # Setting flags for optimization
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++11")
@@ -36,9 +39,12 @@ set(CMAKE_BUILD_TYPE "Release")
 # Including the directories
 set(INCLUDE_DIRS  ${PROJECT_SOURCE_DIR}/include
           ${catkin_INCLUDE_DIRS}
-          ${dwl_INCLUDE_DIRS}
+          #${dwl_INCLUDE_DIRS}
 	  ${dls_msgs_INCLUDE_DIRS}
+          ${EIGEN3_INCLUDE_DIRS}
 	  )
+
+
 include_directories(${INCLUDE_DIRS})
 
 ## Declare a cpp library

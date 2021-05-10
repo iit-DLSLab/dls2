@@ -11,12 +11,12 @@
 #include <dls_controller/FTSensorData.h>
 #include <dls_controller/ContactSensorData.h>
 #include <dls_controller/ShinSensorData.h>
-#include <dwl/WholeBodyState.h>
-#include <dwl/model/FloatingBaseSystem.h>
-#include <dwl/model/WholeBodyKinematics.h>
-#include <dwl/model/WholeBodyDynamics.h>
+//#include <dwl/WholeBodyState.h>
+//#include <dwl/model/FloatingBaseSystem.h>
+//#include <dwl/model/WholeBodyKinematics.h>
+//#include <dwl/model/WholeBodyDynamics.h>
 //#include <terrain_server/TerrainMapInterface.h>
-#include <dwl_rviz_plugin/DisplayInterface.h>
+//#include <dwl_rviz_plugin/DisplayInterface.h>
 //#include <dls_map_interface/GridMapInterface.hpp>
 #include <dls_msgs/DesiredTrajectory.h>
 #include <geometry_msgs/WrenchStamped.h>
@@ -30,6 +30,8 @@
 
  // Boost includes
 #include <boost/shared_ptr.hpp>
+
+#include "ros/ros.h"
 
 
 namespace dls_controller
@@ -82,14 +84,14 @@ public:
 	 *  ids, joint limits, contact names, etc.
 	 * @param dwl::model::FloatingBaseSystem& Floating-base system reference
 	 **/
-	void setFloatingBaseSystem(dwl::model::FloatingBaseSystem& fbs);
+    //void setFloatingBaseSystem(dwl::model::FloatingBaseSystem& fbs);
 
 	/**
 	 * @brief Sets the whole-body kinematics
 	 *  This method includes routine for kinematic computation
 	 * @param dwl::model::WholeBodyKinematics& Whole-body kinematics reference
 	 **/
-	void setWholeBodyKinematics(dwl::model::WholeBodyKinematics& wkin);
+    //void setWholeBodyKinematics(dwl::model::WholeBodyKinematics& wkin);
 
         /**
          * @brief setInverseKinematics This function resets the Inverse Kinematics
@@ -124,7 +126,7 @@ public:
 	 *  This method includes routine for dynamics computation
 	 * @param dwl::model::WholeBodyDynamics& Whole-body dynamics reference
 	 **/
-	void setWholeBodyDynamics(dwl::model::WholeBodyDynamics& wdyn);
+    //void setWholeBodyDynamics(dwl::model::WholeBodyDynamics& wdyn);
 
 	/**
 	 * @brief Sets the terrain map interface
@@ -141,7 +143,7 @@ public:
              *  spheres, cones, etc.
              * @param dwl_rviz_plugin::DisplayInterface& Display interface
              **/
-        void setDisplayInterface(dwl_rviz_plugin::DisplayInterface& display);
+        //void setDisplayInterface(dwl_rviz_plugin::DisplayInterface& display);
 
 
         void readInJointDataFromRobot(const std::vector<double> &actual_q,
@@ -150,10 +152,10 @@ public:
         void readInDesiredJointData(const std::vector<double> read_desired_q,
                                     const std::vector<double> read_desired_qd,
                                     const std::vector<double> read_desired_tau);
-        void readInActualWholeBodyState(const dwl::WholeBodyState &actual_state);
-        void readInPlannedWholeBodyState(const dwl::WholeBodyState &planned_state);
-        void resetInitialPlan(const dwl::WholeBodyState& plan);
-        void checkResetPlan(dwl::WholeBodyState & planned_ws);
+        //void readInActualWholeBodyState(const dwl::WholeBodyState &actual_state);
+        //void readInPlannedWholeBodyState(const dwl::WholeBodyState &planned_state);
+        //void resetInitialPlan(const dwl::WholeBodyState& plan);
+        //void checkResetPlan(dwl::WholeBodyState & planned_ws);
 
         void readInExecutePlan(bool& execute_plan);
 
@@ -166,7 +168,7 @@ public:
         void readInFootContactDataFromRobot(const std::vector<bool> contact);
         void readInShinContactDataFromRobot(const std::vector<double> shin_contact_position);
 
-        void writeOutDesiredWholeBodyState(dwl::WholeBodyState& desired_state);
+        //void writeOutDesiredWholeBodyState(dwl::WholeBodyState& desired_state);
 	void writeOutJointDataToRobot(std::vector<double>& desired_q,
                                       std::vector<double>& desired_qd,
                                       std::vector<double>& desired_tau);
@@ -366,21 +368,21 @@ protected:
 	std::vector<std::string> joint_names;
 
 	/** @brief Actual whole-body state information */
-	std::shared_ptr<dwl::WholeBodyState> actual_ws;
+    //std::shared_ptr<dwl::WholeBodyState> actual_ws;
 
 	/** @brief Planned whole-body state information */
-	std::shared_ptr<dwl::WholeBodyState> planned_ws;
+    //std::shared_ptr<dwl::WholeBodyState> planned_ws;
 
 	/** @brief Desired whole-body state information */
-	std::shared_ptr<dwl::WholeBodyState> desired_ws;
+    //std::shared_ptr<dwl::WholeBodyState> desired_ws;
 
 	/** @brief Floating-base system information */
-	std::shared_ptr<dwl::model::FloatingBaseSystem> fbs_;
+    //std::shared_ptr<dwl::model::FloatingBaseSystem> fbs_;
 
 	/** @brief Whole-body kinematics */
-	std::shared_ptr<dwl::model::WholeBodyKinematics> wkin_;
+    //std::shared_ptr<dwl::model::WholeBodyKinematics> wkin_;
 	
-	std::shared_ptr<dls_msgs::DesiredTrajectory> desired_trajectory_;
+    std::shared_ptr<dls_msgs::DesiredTrajectory> desired_trajectory_;
 
 
         std::shared_ptr<iit::dog::InverseKinematics> ik_;
@@ -398,7 +400,7 @@ protected:
         std::shared_ptr<iit::dog::TrunkController> trunk_ctrl_;
 
 	/** @brief Whole-body dynamics */
-	std::shared_ptr<dwl::model::WholeBodyDynamics> wdyn_;
+    //std::shared_ptr<dwl::model::WholeBodyDynamics> wdyn_;
 
 	/** @brief Terrain map interface */
     //std::shared_ptr<terrain_server::TerrainMapInterface> terrain_;
@@ -406,7 +408,7 @@ protected:
         //std::shared_ptr<dls::perception::TerrainInterface> grid_map_terrain_;
 
 	/** @brief Display interface */
-	std::shared_ptr<dwl_rviz_plugin::DisplayInterface> display_;
+    //std::shared_ptr<dwl_rviz_plugin::DisplayInterface> display_;
 
     /** @brief Estimated groung reaction forces in the base frame*/
     iit::dog::LegDataMap<Eigen::Vector3d> grForces;

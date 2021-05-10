@@ -12,9 +12,9 @@ namespace dls_controller
 Controller::Controller() : controllerName("Controller"), taskServoRate(0),
 		robotName("Robot")
 {
-	fbs_.reset(new dwl::model::FloatingBaseSystem());
-	wkin_.reset(new dwl::model::WholeBodyKinematics());
-	wdyn_.reset(new dwl::model::WholeBodyDynamics());
+//	fbs_.reset(new dwl::model::FloatingBaseSystem());
+//	wkin_.reset(new dwl::model::WholeBodyKinematics());
+//	wdyn_.reset(new dwl::model::WholeBodyDynamics());
 //	terrain_.reset(new terrain_server::TerrainMapInterface());
 //	display_.reset(new dwl_rviz_plugin::DisplayInterface());
         log_.reset(new Logger());
@@ -90,7 +90,7 @@ Controller::Controller() : controllerName("Controller"), taskServoRate(0),
 }
 
 
-void Controller::setFloatingBaseSystem(dwl::model::FloatingBaseSystem& fbs)
+/*void Controller::setFloatingBaseSystem(dwl::model::FloatingBaseSystem& fbs)
 {
 	fbs_.reset(&fbs);
 }
@@ -105,7 +105,7 @@ void Controller::setWholeBodyKinematics(dwl::model::WholeBodyKinematics& wkin)
 void Controller::setWholeBodyDynamics(dwl::model::WholeBodyDynamics& wdyn)
 {
 	wdyn_.reset(&wdyn);
-}
+}*/
 
 void Controller::setInverseKinematics(std::shared_ptr<InverseKinematics>& ik){
     ik_= ik;
@@ -128,10 +128,10 @@ void Controller::setGridMapTerrain(dls::perception::TerrainInterface& terrain)
 }*/
 
 
-void Controller::setDisplayInterface(dwl_rviz_plugin::DisplayInterface& display)
+/*void Controller::setDisplayInterface(dwl_rviz_plugin::DisplayInterface& display)
 {
 	display_.reset(&display);
-}
+}*/
 
 
 void Controller::setRobotModels(std::shared_ptr<iit::dog::FeetJacobians>& feet_jacs,
@@ -182,13 +182,13 @@ bool Controller::initBase(int nJoints, int nFTSensors, int taskRate, std::string
 	footSensor.reset(new FTSensorData(nFTSensors));
 	contactSensor.reset(new ContactSensorData(nFTSensors));
 	shinSensor.reset(new ShinSensorData(nFTSensors)); //we assume one shin sensor per leg
-	actual_ws.reset(new dwl::WholeBodyState());
-	planned_ws.reset(new dwl::WholeBodyState());
-	desired_ws.reset(new dwl::WholeBodyState());
+        //actual_ws.reset(new dwl::WholeBodyState());
+        //planned_ws.reset(new dwl::WholeBodyState());
+        //desired_ws.reset(new dwl::WholeBodyState());
 	bs.reset(new BaseState());
 	bs_gt.reset(new BaseState());
-	actual_ws->setJointDoF(nDOF);
-	desired_ws->setJointDoF(nDOF);
+        //actual_ws->setJointDoF(nDOF);
+        //desired_ws->setJointDoF(nDOF);
 	joint_names.resize(nDOF);
 	input_reference_q.resize(nDOF);
 	input_reference_qd.resize(nDOF);
@@ -217,7 +217,7 @@ void Controller::readInJointDataFromRobot(const std::vector<double>& actual_q,
 }
 
 
-void Controller::readInActualWholeBodyState(const dwl::WholeBodyState& actual_ws)
+/*void Controller::readInActualWholeBodyState(const dwl::WholeBodyState& actual_ws)
 {
 	(*this->actual_ws) = actual_ws;
 }
@@ -241,7 +241,7 @@ void Controller::checkResetPlan(dwl::WholeBodyState & planned_ws){
         planned_ws = (*this->desired_ws);
         plan_update = false;
     }
-}
+}*/
 
 
 void Controller::readInExecutePlan(bool& execute_plan)
@@ -281,9 +281,9 @@ std::string Controller::getDWLJointName(const iit::dog::JointIdentifiers& joint_
     return ""; // if the joint is not found, we return an empty string
 }
 
-unsigned int Controller::getDWLJointId(const iit::dog::JointIdentifiers& joint_id) const{
+/*unsigned int Controller::getDWLJointId(const iit::dog::JointIdentifiers& joint_id) const{
     return fbs_->getJointId(getDWLJointName(joint_id));
-}
+}*/
 
 void Controller::readInDesiredJointData(const std::vector<double> read_desired_q,
 										const std::vector<double> read_desired_qd,
@@ -309,9 +309,10 @@ std::string Controller::getDWLLegName(const iit::dog::LegID& joint_id) const{
     }
     return ""; // if the leg is not found, we return an empty string
 }
-unsigned int Controller::getDWLLegId(const iit::dog::LegID& joint_id) const{
+
+/*unsigned int Controller::getDWLLegId(const iit::dog::LegID& joint_id) const{
     return fbs_->getEndEffectorId(getDWLLegName(joint_id));
-}
+}*/
 
 
 void Controller::readInStateDataFromRobot(const std::vector<double> orientation,
@@ -368,10 +369,10 @@ void Controller::readInShinContactDataFromRobot(const std::vector<double> shin_c
 	}
 }
 
-void Controller::writeOutDesiredWholeBodyState(dwl::WholeBodyState& desired_state)
+/*void Controller::writeOutDesiredWholeBodyState(dwl::WholeBodyState& desired_state)
 {
 	desired_state = (*this->desired_ws);
-}
+}*/
 
 
 void Controller::writeOutJointDataToRobot(std::vector<double>& desired_q,
@@ -439,7 +440,7 @@ void Controller::consoleCallFunction(std::string func_name)
 }
 
 
-Eigen::Vector2d Controller::readPosition()
+/*Eigen::Vector2d Controller::readPosition()
 {
 	std::string str;
 	Eigen::Vector2d position = Eigen::Vector2d::Zero();
@@ -452,8 +453,8 @@ Eigen::Vector2d Controller::readPosition()
 		try {
 			position(dwl::rbd::X) = std::stod(str);
 		} catch(std::invalid_argument& e) {
-            printf(YELLOW_ "Invalid argument: setting the default"
-                    " value\n" COLOR_RESET);
+            printf("Invalid argument: setting the default"
+                    " value\n");
 		}
 	}
 
@@ -470,7 +471,7 @@ Eigen::Vector2d Controller::readPosition()
 	}
 
 	return position;
-}
+}*/
 
 
 void Controller::manPrint()

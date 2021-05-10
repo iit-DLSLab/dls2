@@ -14,10 +14,10 @@
   <buildtool_depend>catkin</buildtool_depend>
 
   <depend>roscpp</depend>
-  <depend>dwl</depend>
+  <!--depend>dwl</depend-->
   <!--depend>terrain_server</depend-->
-  <depend>dwl_rviz_plugin</depend>
-  <depend>dwl_msgs</depend>
+  <!--depend>dwl_rviz_plugin</depend-->
+  <!--depend>dwl_msgs</depend-->
   <depend>pluginlib</depend>
   <depend>readline</depend>
   <!--depend>dls_map_interface</depend-->
