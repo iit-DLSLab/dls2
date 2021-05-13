@@ -1,11 +1,6 @@
 #!/usr/bin/env bash
 
 export DLS_CHILD_PROCESS_LAUNCHER=@DLS_CHILD_PROCESS_LAUNCHER@
-#source @DLS_CATKIN_WORKSPACE_SETUP_BASH@ 2>/dev/null
-#if [ ! $? -eq 0 ]; then
-#	echo "Error: dls2 catkin workspace not found. Be sure to install it first"
-#	exit -1
-#fi
 
 LD_LIBRARY_PATH=@DLS_LAUNCH_SCRIPT_LIBRARY_PATH@
 
