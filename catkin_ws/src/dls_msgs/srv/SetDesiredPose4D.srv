@@ -1,4 +1,0 @@
-geometry_msgs/Point point
-float64 yaw
----
-bool result

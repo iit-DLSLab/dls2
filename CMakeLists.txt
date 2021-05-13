@@ -21,7 +21,6 @@ add_subdirectory(scripts)   # bash completion and launch scripts
 add_subdirectory(test)      # Test libraries and frameworks. Actual unit tests are in their respective moduels
 # add_subdirectory(doc)     # generate and install documentation
 add_subdirectory(modules)   # build framework, libraries and tools
-include(dls_catkin_ws)      # legacy code and code to interact with legacy code
 add_subdirectory(3rd_party) # Some legacy and external code TODO move into better locations
 
 # ================================== Packaging =================================

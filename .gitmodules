@@ -1,9 +1,6 @@
 [submodule "3rd_party/iit-commons"]
 	path = 3rd_party/iit-commons
 	url  = git@gitlab.advr.iit.it:dls-lab/iit-commons.git
-[submodule "catkin_ws/src/dls-hal"]
-	path = catkin_ws/src/dls-hal
-	url  = git@gitlab.advr.iit.it:dls-lab/dls-hal.git
 [submodule "3rd_party/doglib"]
 	path = 3rd_party/doglib
 	url  = git@gitlab.advr.iit.it:dls-lab/doglib.git
@@ -11,10 +8,10 @@
 	path = doc/dls2_examples
 	url  = git@gitlab.advr.iit.it:dls-lab/dls2_examples.git
 [submodule "catkin_ws/src/liblocomotionutils"]
-	path = catkin_ws/src/liblocomotionutils
+	path = modules/liblocomotionutils
 	url  = git@gitlab.advr.iit.it:dls-lab/liblocomotionutils.git
 [submodule "catkin_ws/src/iit-commons"]
-	path = catkin_ws/src/iit-commons
+	path = modules/iit-commons
 	url  = git@gitlab.advr.iit.it:dls-lab/iit-commons.git
 [submodule "3rd_party/param-server"]
 	path = 3rd_party/param-server
