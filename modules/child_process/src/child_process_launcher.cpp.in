@@ -38,11 +38,6 @@
 
 #include "dls2/util/time/time.hpp"
 #include <doglib/factory/robot_factory.hpp>
-// TODO remove this include
-// This is put here because the controllers in the old framework are entwined
-// with ros to an egregious extent. When they have been disentangled, this, as
-// well as the call to ros::init, may be removed
-#include <ros/ros.h>
 
 // =============================================================================
 // Using Declarations
@@ -98,9 +93,6 @@ int main(int argc, char **argv)
 
 	// logging stream
 	// logging::coutstream s(process_handle);
-
-	// start ros
-	ros::init(argc, argv, argv[1]);
 
 	// build the robot model
 	std::shared_ptr<dog::Dog> pRobot;

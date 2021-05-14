@@ -1,6 +1,3 @@
-find_package(roscpp   REQUIRED)
-find_package(std_msgs REQUIRED)
-
 dls_configure(src/child_process_launcher.cpp.in CHILD_PROCESS_LAUNCHER)
 
 add_executable(child_process_launcher
