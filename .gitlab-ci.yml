@@ -115,4 +115,70 @@ display-versions:
   rules:
     - if: '$CI_COMMIT_MESSAGE =~ /\[exp\]/ && $CI_COMMIT_BRANCH == "master" && $RELEASE == "xenial"'
     - if: '$CI_COMMIT_MESSAGE =~ /\[exp\]/ && $CI_COMMIT_BRANCH == "master" && $RELEASE == "bionic"'
-    - if: '$CI_COMMIT_MESSAGE =~ /\[exp\]/ && $CI_COMMIT_BRANCH == "master" && $RELEASE == "focal"'    
+    - if: '$CI_COMMIT_MESSAGE =~ /\[exp\]/ && $CI_COMMIT_BRANCH == "master" && $RELEASE == "focal"'
+
+
+build:
+  stage: build
+  image: server-harbor:80/dls2/dls2-env:$RELEASE
+  tags:
+    - dls2
+  script:
+    - git submodule update --init --recursive
+    - mkdir build
+    - cd build
+    - cmake -DCMAKE_BUILD_TYPE=Release ..
+    - echo nproc=$(nproc)
+    - make -j$(nproc)
+    - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(readlink -f ../bin)
+    - echo $LD_LIBRARY_PATH
+    - make -j$(nproc)
+  artifacts:
+    paths:
+      - build/*
+      - bin/*
+    expire_in: 3 hrs
+  rules:
+    - if: '$CI_COMMIT_MESSAGE =~ /\[exp\]/ && $CI_COMMIT_BRANCH == "master" && $RELEASE == "xenial"'
+    - if: '$CI_COMMIT_MESSAGE =~ /\[exp\]/ && $CI_COMMIT_BRANCH == "master" && $RELEASE == "bionic"'
+    - if: '$CI_COMMIT_MESSAGE =~ /\[exp\]/ && $CI_COMMIT_BRANCH == "master" && $RELEASE == "focal"'
+
+test:
+  stage: test
+  image: server-harbor:80/dls2/dls2-env:$RELEASE
+  dependencies:
+    - build
+  tags:
+    - dls2
+  script:
+    - cd build
+    - make -j$(nproc) tests
+    - make test
+  rules:
+    - if: '$CI_COMMIT_MESSAGE =~ /\[exp\]/ && $CI_COMMIT_BRANCH == "master" && $RELEASE == "xenial"'
+    - if: '$CI_COMMIT_MESSAGE =~ /\[exp\]/ && $CI_COMMIT_BRANCH == "master" && $RELEASE == "bionic"'
+    - if: '$CI_COMMIT_MESSAGE =~ /\[exp\]/ && $CI_COMMIT_BRANCH == "master" && $RELEASE == "focal"'
+
+deploy:
+  stage: deploy
+  image: server-harbor:80/dls2/dls2-env:$RELEASE
+  tags:
+    - dls2
+  script:
+    # build the debians set up by cmake
+    - cd build
+    - make package
+    - cd ..
+    # sync to server
+    - source /root/dls_gitlab_ci/make-json.bash token=$DLSUSER_TOKEN project=$CI_PROJECT_ID branch=$CI_COMMIT_BRANCH job=$CI_JOB_ID tag=dls2 release=$RELEASE > out.json
+    - 'curl -X post -H "Content-Type: application/json" -d @out.json http://server-ubuntu18:9000/hooks/deploy-apt'
+  artifacts:
+    paths:
+      - build/*.deb
+    expire_in: 1 week
+  dependencies:
+    - build
+  rules:
+    - if: '$CI_COMMIT_MESSAGE =~ /\[exp\]/ && $CI_COMMIT_BRANCH == "master" && $RELEASE == "xenial"'
+    - if: '$CI_COMMIT_MESSAGE =~ /\[exp\]/ && $CI_COMMIT_BRANCH == "master" && $RELEASE == "bionic"'
+    - if: '$CI_COMMIT_MESSAGE =~ /\[exp\]/ && $CI_COMMIT_BRANCH == "master" && $RELEASE == "focal"'
