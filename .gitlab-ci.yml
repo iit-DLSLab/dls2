@@ -48,6 +48,9 @@ build:dls2:
       - build/*
       - bin/*
     expire_in: 3 hrs
+  rules:
+    - if: '$CI_COMMIT_MESSAGE =~ /\[exp\]/'
+      when: never    
 
 # ------------------------------------------------------------------------------
 # Test Stage
@@ -63,9 +66,10 @@ test:dls2:
     - cd build
     - make -j$(nproc) tests
     - make test
-  only:
-    - master
-    - devel
+  rules:
+    - if: '$CI_COMMIT_MESSAGE =~ /\[exp\]/'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "master"'   
 
 # ------------------------------------------------------------------------------
 # Deploy Stage
@@ -88,8 +92,10 @@ deploy:dls2:
     expire_in: 1 week
   dependencies:
     - build:dls2
-  only:
-    - master
+  rules:
+    - if: '$CI_COMMIT_MESSAGE =~ /\[exp\]/'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "master"'
     
 ###################################################################################################
 #
