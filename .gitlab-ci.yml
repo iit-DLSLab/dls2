@@ -90,3 +90,22 @@ deploy:dls2:
     - build:dls2
   only:
     - master
+    
+###################################################################################################
+#
+# EXPERIMENTAL
+#
+###################################################################################################
+    
+display-versions:
+  stage: build
+  image: server-harbor:80/dls2/dls2-env:$RELEASE
+    - dls2
+  script:
+    - cmake --version
+    - gcc --version
+    - g++ --version
+  rules:
+    - if: '$CI_COMMIT_MESSAGE =~ /\[exp\]/ && $CI_COMMIT_BRANCH == "master" && $RELEASE == "xenial"'
+    - if: '$CI_COMMIT_MESSAGE =~ /\[exp\]/ && $CI_COMMIT_BRANCH == "master" && $RELEASE == "bionic"'
+    - if: '$CI_COMMIT_MESSAGE =~ /\[exp\]/ && $CI_COMMIT_BRANCH == "master" && $RELEASE == "focal"'    
