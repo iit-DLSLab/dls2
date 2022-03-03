@@ -48,9 +48,7 @@ build:dls2:
       - build/*
       - bin/*
     expire_in: 3 hrs
-  rules:
-    - if: '$CI_COMMIT_MESSAGE =~ /\[exp\]/'
-      when: never    
+  
 
 # ------------------------------------------------------------------------------
 # Test Stage
