@@ -24,7 +24,7 @@ namespace dls
 			dls::ServiceClient
 			<
 				ParamServerSetDoublePubSubType,
-				EmptyMsgPubSubType
+				DoubleMsgPubSubType
 			> add_double;
 
 			dls::ServiceClient
@@ -72,7 +72,7 @@ namespace dls
 	void ParameterServerClient::setDouble(std::string const &key, double d)
 	{
 		ParamServerSetDouble req;
-		EmptyMsg             res;
+		DoubleMsg            res;
 
 		req.key()   = key;
 		req.value() = d;
