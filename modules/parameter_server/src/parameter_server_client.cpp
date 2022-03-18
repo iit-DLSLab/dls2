@@ -2,7 +2,6 @@
 #include "parameter_server_topics.hpp"
 #include "dls2/msg/param_server_set_doublePubSubTypes.h"
 #include "dls2/msg/doublePubSubTypes.h"
-#include "dls2/msg/emptyPubSubTypes.h"
 #include "dls2/msg/stringmsgPubSubTypes.h"
 
 #include "dls/parameter_server_client.hpp"
