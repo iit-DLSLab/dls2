@@ -38,23 +38,24 @@ namespace dls
 class Options
 {
 public:
+	/// Parses the arguments and updates the representations
 	/// Initialises the options static object
 	///
 	/// This must be called on startup of the framework with the arguments
 	/// passed to main. This will then build the internal representation of the
 	/// options for ease of use from the rest of the framework
-	static void init(int argc,  char **argv);
+	/// Return if the args are valid and if there is anything to do other than printing usage
+	static bool parseArgs(int argc, char **argv);
 
 	/// Prints the command-line usage of the framework
-	///
 	static void printUsage();
 
-	/// The raw argv as passed to main
-	///
-	static char **argv;
+	/// Informs if the system is running in simulation or not
+	/// ### It needs to be globally visible not only in options
+	static bool is_simulation();
 
-	/// The raw argc as passed to main
-	///
+	/// The raw argv and argc as passed to main
+	static char **argv;
 	static int argc;
 
 	// Layers to launch
@@ -77,13 +78,9 @@ public:
 	static bool show_docs;
 
 private:
-	/// Parses the arguments and updates the representations
-	///
-	static void parseArgs(int argc, char **argv);
-
 	/// Validates whether the command line arguments are correct. Exits the
 	/// program if they are not.
-	static void validate();
+	static bool validate();
 };
 
 } // end namespace dls

@@ -146,15 +146,16 @@ namespace dls
 		template <class PubSub_t>
 		Subscriber<PubSub_t>::Subscriber
 		(
-			const std::string &topic,
-			callback_t callback
+			const std::string &topic_
+			//,callback_t callback
 		) :
 			participant(nullptr),
 			subscriber(nullptr),
 			reader(nullptr),
 			topic(nullptr),
 			type(new PubSub_t()),
-			subscriber_listener(callback)
+			//subscriber_listener(callback)
+			subscriber_listener(nullptr)
 		{
 			eprosima::fastdds::dds::DomainParticipantQos participantQos;
 			participantQos.wire_protocol().builtin.discovery_config.discoveryProtocol = eprosima::fastrtps::rtps::DiscoveryProtocol_t::SIMPLE;
@@ -176,7 +177,7 @@ namespace dls
 				);
 			}
 
-			auto *dds_topic = dls::impl::registerFastddsTopic(topic, rtps_type.getName());
+			auto *dds_topic = dls::impl::registerFastddsTopic(topic_, rtps_type.getName());
 
 			this->subscriber = this->participant->create_subscriber
 			(
@@ -235,14 +236,13 @@ namespace dls
 			sample_count(0),
 			callback(callback_),
 			msg()
-		{ }
+		{ 
+		}
 
 		template <class PubSub_t>
-		void Subscriber<PubSub_t>::SubListener::on_subscription_matched
-		(
+		void Subscriber<PubSub_t>::SubListener::on_subscription_matched(
 			eprosima::fastdds::dds::DataReader*,
-			const eprosima::fastdds::dds::SubscriptionMatchedStatus &info
-		)
+			const eprosima::fastdds::dds::SubscriptionMatchedStatus &info)
 		{
 			if(info.current_count_change == 1)
 			{
@@ -259,23 +259,13 @@ namespace dls
 		}
 
 		template <class PubSub_t>
-		void Subscriber<PubSub_t>::SubListener::on_data_available
-		(
-			eprosima::fastdds::dds::DataReader *reader
-		)
+		void Subscriber<PubSub_t>::SubListener::on_data_available(
+			eprosima::fastdds::dds::DataReader *reader)
 		{
 			eprosima::fastdds::dds::SampleInfo info;
-			if
-			(
-				reader->take_next_sample
-				(
-					&this->msg,
-					&info
-				)
-				== /*eprosima::fastdds::dds::*/ReturnCode_t::RETCODE_OK
-			)
+			if (reader->take_next_sample(&this->msg, &info)	== /*eprosima::fastdds::dds::*/ReturnCode_t::RETCODE_OK)
 			{
-				if(info.instance_state == eprosima::fastdds::dds::ALIVE)
+				if(info.valid_data)
 				{
 					this->sample_count++;
 					this->callback(this->msg);

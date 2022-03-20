@@ -111,10 +111,12 @@ void launchSim();
 // as a signal handler
 void kill_children(int)
 {
+	std::cout << "\nShuttingdown processes" << std::endl;
 	for(auto &el : child_datas)
 	{
 		kill(el.first, SIGTERM);
 	}
+	kill(0, SIGTERM);
 }
 
 void stop_app_handler(int)
@@ -145,12 +147,14 @@ void app_panic_handler(int)
 // =============================================================================
 int main(int argc, char **argv)
 {
-	// Runtime Configuration
-	Options::init(argc, argv);
-	impl::initFramework();
 	#ifndef NDEBUG
 		std::cout << "Debug build" << std::endl;
 	#endif
+
+	// Parse arguments and verify if they are valid and if there is anything to 
+	// do or just print the usage
+	if (!Options::parseArgs(argc, argv))
+		return 0;
 
 	// When the user presses CTRL-C, make sure that all child processes are
 	// killed. If this is not done, the child processes will inherit from the
@@ -160,10 +164,9 @@ int main(int argc, char **argv)
 		SIGINT,
 		kill_children
 	);
-	// Ignore cntrl-C
-	//
-	// To exit the framework, an exit command is registered later
-	// signal(SIGINT, SIG_IGN);
+/*	
+	// Runtime Configuration	
+	impl::initFramework();
 
 	// Create application
 	pApp = std::make_shared<HyQApp>();
@@ -188,10 +191,27 @@ int main(int argc, char **argv)
 
 	logging::coutstream outstream("framework_monitor");
 	logging::cfatalstream sfatal("framework_monitor");
-
+*/
 	// Register an exit command to leave the framework
 	CommandManager command_manager;
 
+
+		command_manager.addCommand<void, ARGVOID>
+		(
+			"HyQApp_server",
+			"launchRosCore",
+			"Launches the ros core",
+			std::function<void(ARGVOID)>
+			(
+				[&](ARGVOID)
+				{
+					forkRosCore();
+				}
+			)
+		);
+
+	
+/*
 	if(Options::is_core)
 	{
 		forkRosCore();
@@ -279,15 +299,17 @@ int main(int argc, char **argv)
 			}
 		);
 	}
-
+*/
 	// Monitor the child processes
 	//
 	// loop is exited when there are no more children
 	while(true)
 	{
+		
 		std::stringstream ss;
 		int status;
 		pid_t child_pid = wait(&status);
+		/*
 		if(child_pid == -1)
 		{
 			// if no more children left
@@ -320,6 +342,7 @@ int main(int argc, char **argv)
 			ss.flush();
 		}
 		outstream << ss.str() << std::endl;
+		*/
 	}
 	return 0;
 }

@@ -65,17 +65,27 @@ Command<ret_t, arg_ts...>::Command
 	command_name(command_name_),
 	docstring(docstring_),
 	f(f_),
-	msg(buildMsg(owner_, command_name_, docstring_)),
-	publisher(topics::command_register),
-	command_call_listener(*this)
+	//msg(buildMsg(owner_, command_name_, docstring_)),
+	subscriber(
+			topics::command_register
+			/*,
+			std::function<void(CommandRegisterMsgPubSubType)>
+			(
+				[&](CommandRegisterMsgPubSubType tuple)
+				{
+					//do the magic here
+				}
+			)*/
+	)
+	//command_call_listener(*this)
 {
-	requestRegistration();
+	//requestRegistration();
 }
 
 template <typename ret_t, typename...arg_ts>
 Command<ret_t, arg_ts...>::~Command()
 {
-	requestDeregistration();
+	//requestDeregistration();
 }
 
 // -----------------------------------------------------------------------------
@@ -122,7 +132,7 @@ void Command<ret_t, arg_ts...>::requestRegistration()
 {
 	auto msg = this->msg;
 	msg.register_nremove() = true;
-	this->publisher.publish(msg);
+	//this->publisher.publish(msg);
 	std::this_thread::sleep_for(std::chrono::milliseconds(10));
 }
 
@@ -131,8 +141,9 @@ void Command<ret_t, arg_ts...>::requestDeregistration()
 {
 	auto msg = this->msg;
 	msg.register_nremove() = false;
-	this->publisher.publish(msg);
+	//this->publisher.publish(msg);
 }
+
 // -----------------------------------------------------------------------------
 // Calling
 // -----------------------------------------------------------------------------
@@ -153,6 +164,7 @@ ret_t Command<ret_t, arg_ts...>::call(std::tuple<arg_ts...> &t, std::index_seque
 // =============================================================================
 // Helper Classes
 // =============================================================================
+/*
 // -----------------------------------------------------------------------------
 // Command Call Listener Constructors
 // -----------------------------------------------------------------------------
@@ -226,6 +238,7 @@ Command<ret_t, arg_ts...>::CommandCallListener::CommandCallListener
 		std::cout << "ERROR: could not create dynamic subscriber" << std::endl;
 	}
 }
+*/
 
 // -----------------------------------------------------------------------------
 // Constructor Helpers
@@ -241,6 +254,7 @@ void buildDynamicType
 	buildDynamicType<arg2_t, arg_other_ts...>(builder, ++index);
 }
 
+/*
 // -----------------------------------------------------------------------------
 // Command Call Listener Implementation
 // -----------------------------------------------------------------------------
@@ -260,6 +274,7 @@ void Command<ret_t, arg_ts...>::CommandCallListener::onNewDataMessage
 		// }
 	}
 }
+
 
 // ========================== Argument Tuple Building ==========================
 template <typename ret_t, typename...arg_ts>
@@ -308,7 +323,7 @@ std::tuple<tuple_arg_t> Command<ret_t,
 
 	return t;
 }
-
+*/
 
 // =============================================================================
 // Command Manager Implementation

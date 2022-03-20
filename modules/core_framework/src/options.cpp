@@ -38,10 +38,10 @@ char **Options::argv                        = nullptr;
 int  Options::argc                          = 0;
 
 // layers to launch
-bool Options::launch_estimation             = true;
+bool Options::launch_estimation             = false;
 bool Options::launch_hardware               = false;
-bool Options::launch_control                = true;
-bool Options::launch_console                = true;
+bool Options::launch_control                = false;
+bool Options::launch_console                = false;
 bool Options::launch_log                    = false;
 
 // real robot or simulation mode
@@ -60,18 +60,13 @@ static bool robot_is_specified              = false;
 // =============================================================================
 // Class Implementation
 // =============================================================================
-void Options::init(int argc, char **argv)
+bool Options::parseArgs(int argc, char **argv)
 {
-	// Save command line flags
-	Options::argc = argc;
-	Options::argv = argv;
+	if (argc == 1){
+		Options::printUsage();
+		return false;
+	}
 
-	Options::parseArgs(argc, argv);
-	Options::validate();
-}
-
-void Options::parseArgs(int argc, char **argv)
-{
 	static struct option long_options[] =
 	{
 		//long_name    required?           return_short?  short_version
@@ -216,16 +211,25 @@ void Options::parseArgs(int argc, char **argv)
 		}
 	}
 
-	return;
+	// verify if the options are valid
+	if (!Options::validate()) 
+		return false;
+	
+	// Save command line flags
+	Options::argc = argc;
+	Options::argv = argv;
+
+	return true;
 
 invalid_command_line:
 	Options::printUsage();
 	exit(EXIT_FAILURE);
+	return false;
 }
 
 void Options::printUsage()
 {
-	std::cout << "USAGE: " << Options::argv[0] << " "
+	std::cout << "USAGE: dls "
 
 	"< -r <hyq|hyqreal> | --robot=<hyq|hyqreal> > "
 	"< --layers= | l ...> "
@@ -252,14 +256,17 @@ void Options::printUsage()
 	<< std::endl;
 }
 
-void Options::validate()
+bool Options::is_simulation(){
+	return simulation_mode;
+}
+
+bool Options::validate()
 {
+	// if show docs is enabled, main will just show the docs and exit
+	// Not doing more checks in that case
 	if(Options::show_docs)
-	{
-		// if show docs is enabled, main will just show the docs and exit
-		// Not doing more checks in that case
-		return;
-	}
+		return false;
+
 	if
 	(
 		(Options::launch_control || Options::launch_hardware) &&
@@ -269,5 +276,17 @@ void Options::validate()
 		std::cerr << "Error: robot not specified" << std::endl;
 		Options::printUsage();
 		exit(EXIT_FAILURE);
+		return false;
 	}
+
+	if(
+		!launch_estimation &&
+		!launch_hardware &&
+		!launch_control &&
+		!launch_console &&
+		!launch_log
+	)
+		return false;
+
+	return true;
 }

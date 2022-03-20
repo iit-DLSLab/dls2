@@ -72,7 +72,7 @@ public:
 	/// Removes this command from the framework
 	///
 	void requestDeregistration() override;
-
+	
 private:
 	// ========================== Constructor helpers ==========================
 	/// Constructor helper
@@ -112,10 +112,11 @@ private:
 	///
 	CommandRegisterMsg msg;
 
-	/// Publisher used to register the command with the rest of the framework
+	/// Subscriber used to register the command with the rest of the framework
 	///
-	PublisherBase<CommandRegisterMsgPubSubType> publisher;
+	version2::Subscriber<CommandRegisterMsgPubSubType> subscriber;
 
+/*
 	/// Subscriber listening for requests to call this command
 	///
 	class CommandCallListener : public eprosima::fastrtps::SubscriberListener
@@ -167,6 +168,7 @@ private:
 		);
 
 	} command_call_listener;
+	*/
 };
 // =============================================================================
 // Free Functions

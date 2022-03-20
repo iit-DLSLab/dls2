@@ -35,6 +35,7 @@ AppLayer::AppLayer
 	scout(ID_),
 	main(0)
 {
+	/*
 	command_manager.addCommand<void, ARGVOID>
 	(
 		this->ID,
@@ -91,6 +92,7 @@ AppLayer::AppLayer
 			}
 		)
 	);
+	*/
 }
 
 // AppLayer::AppLayer(const std::initializer_list<pComponent_t> &_components) :
