@@ -147,6 +147,7 @@ void app_panic_handler(int)
 // =============================================================================
 int main(int argc, char **argv)
 {
+	using namespace std::chrono_literals;
 	#ifndef NDEBUG
 		std::cout << "Debug build" << std::endl;
 	#endif
@@ -225,6 +226,16 @@ int main(int argc, char **argv)
 			}
 		)
 	);
+
+	std::this_thread::sleep_for(50ms);
+
+	//Picks a random participant of domain 0
+	auto randomPart = eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->lookup_participant(0);
+
+	//Print all participants names	
+	auto listNames = randomPart->get_participant_names();
+	for (auto name : listNames)
+    	std::cout << name << std::endl;
 	
 /*
 	if(Options::is_core)

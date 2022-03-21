@@ -67,7 +67,7 @@ Command<ret_t, arg_ts...>::Command
 	f(f_),
 	//msg(buildMsg(owner_, command_name_, docstring_)),
 	subscriber(
-			topics::command_register,
+			owner_,
 			command_name_,
 			version2::Subscriber<CommandRegisterMsgPubSubType>::CallbackType
 			(

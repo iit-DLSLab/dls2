@@ -157,28 +157,49 @@ namespace dls
 			type(new PubSub_t()),
 			subscriber_listener(callback)
 		{
-			
-			eprosima::fastdds::dds::DomainParticipantQos participantQos;
-			participantQos.wire_protocol().builtin.discovery_config.discoveryProtocol = eprosima::fastrtps::rtps::DiscoveryProtocol_t::SIMPLE;
-			participantQos.wire_protocol().builtin.discovery_config.leaseDuration_announcementperiod = eprosima::fastrtps::Duration_t(1, 2);
-			// participantQos.wire_protocol().builtin.discovery_config.initial_announcements.count = 2000;
-			// participantQos.wire_protocol().builtin.discovery_config.initial_announcements.period = eprosima::fastrtps::Duration_t(0, 100000000u);
 
+			//Find if a participant already exists
+			//Picks a random participant of domain 0
+			auto randomPart = eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->lookup_participant(0);
+			// If there is any participant find if the participant already exists
+			if (randomPart != nullptr){
+				//Get participants list
+				auto listPartNames = randomPart->get_participant_names();
 
-			participantQos.name(part_);
-			this->participant = eprosima::fastdds::dds::DomainParticipantFactory::
-				get_instance()->create_participant(0, participantQos);
+				//Search for the existence of the participant
+				auto partName = std::find(listPartNames.begin(), listPartNames.end(), part_);
 
-			if(this->participant == nullptr)
-			{
-				throw std::runtime_error
-				(
-					"Error: could not create subscriber participant"
-				);
+				//If the participant already exists just use it
+				if ( partName != listPartNames.end() ){
+					//find the instance of the participant
+					auto listPart = eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->lookup_participants(0);
+					for (auto part : listPart){
+						if(part->get_qos().name() == *partName){
+							this->participant = part;
+							break;
+						}
+					}
+				}
 			}
+				
+			//If the participant does not exists, create it
+			if (this->participant == nullptr){
+				eprosima::fastdds::dds::DomainParticipantQos participantQos;
+				participantQos.wire_protocol().builtin.discovery_config.discoveryProtocol = eprosima::fastrtps::rtps::DiscoveryProtocol_t::SIMPLE;
+				participantQos.wire_protocol().builtin.discovery_config.leaseDuration_announcementperiod = eprosima::fastrtps::Duration_t(1, 2);
+				// participantQos.wire_protocol().builtin.discovery_config.initial_announcements.count = 2000;
+				// participantQos.wire_protocol().builtin.discovery_config.initial_announcements.period = eprosima::fastrtps::Duration_t(0, 100000000u);
 
-			this->type.register_type(this->participant);
+				participantQos.name(part_);
+				this->participant = eprosima::fastdds::dds::DomainParticipantFactory::
+					get_instance()->create_participant(0, participantQos);
 
+				if(this->participant == nullptr){
+					throw std::runtime_error("Error: could not create subscriber participant");
+				}
+				this->type.register_type(this->participant);
+			}
+					
 			this->topic = this->participant->create_topic(topic_, rtps_type.getName(), eprosima::fastdds::dds::TOPIC_QOS_DEFAULT);
 
 			if(this->topic == nullptr)
