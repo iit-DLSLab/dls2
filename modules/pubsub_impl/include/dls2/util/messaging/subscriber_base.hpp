@@ -83,9 +83,11 @@ namespace dls
 		class Subscriber
 		{
 		public:
-			typedef std::function<void(typename PubSub_t::type&)> callback_t;
-			Subscriber(const std::string &topic_
-			//, callback_t callback
+			typedef std::function<void(typename PubSub_t::type&)> CallbackType;
+			Subscriber(
+				const std::string &part_,
+				const std::string &topic_,
+				CallbackType callback
 			);
 			virtual ~Subscriber();
 
@@ -100,7 +102,7 @@ namespace dls
 			class SubListener : public eprosima::fastdds::dds::DataReaderListener
 			{
 			public:
-				SubListener(callback_t callback_);
+				SubListener(CallbackType callback_);
 
 				void on_subscription_matched
 				(
@@ -114,7 +116,7 @@ namespace dls
 					eprosima::fastdds::dds::DataReader*
 				) override;
 
-				callback_t callback;
+				CallbackType callback;
 				typename PubSub_t::type msg;
 			} subscriber_listener;
 

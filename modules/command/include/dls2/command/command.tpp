@@ -67,17 +67,17 @@ Command<ret_t, arg_ts...>::Command
 	f(f_),
 	//msg(buildMsg(owner_, command_name_, docstring_)),
 	subscriber(
-			topics::command_register
-			/*,
-			std::function<void(CommandRegisterMsgPubSubType)>
+			topics::command_register,
+			command_name_,
+			version2::Subscriber<CommandRegisterMsgPubSubType>::CallbackType
 			(
-				[&](CommandRegisterMsgPubSubType tuple)
+				[&](CommandRegisterMsg tuple)
 				{
+					std::cout << " received data" << std::endl;
 					//do the magic here
 				}
-			)*/
+			)
 	)
-	//command_call_listener(*this)
 {
 	//requestRegistration();
 }
@@ -127,7 +127,7 @@ CommandRegisterMsg Command<ret_t, arg_ts...>::buildMsg
 // -----------------------------------------------------------------------------
 // Registration
 // -----------------------------------------------------------------------------
-template <typename ret_t, typename...arg_ts>
+/*template <typename ret_t, typename...arg_ts>
 void Command<ret_t, arg_ts...>::requestRegistration()
 {
 	auto msg = this->msg;
@@ -142,7 +142,7 @@ void Command<ret_t, arg_ts...>::requestDeregistration()
 	auto msg = this->msg;
 	msg.register_nremove() = false;
 	//this->publisher.publish(msg);
-}
+}*/
 
 // -----------------------------------------------------------------------------
 // Calling

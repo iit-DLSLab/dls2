@@ -85,11 +85,11 @@ protected:
 
 	/// Register this command with the framework
 	///
-	virtual void requestRegistration() = 0;
+	//virtual void requestRegistration() = 0;
 
 	/// Unregister this command with the framework
 	///
-	virtual void requestDeregistration() = 0;
+	//virtual void requestDeregistration() = 0;
 };
 } // end namespace dls
 

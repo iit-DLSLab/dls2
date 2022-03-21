@@ -195,21 +195,36 @@ int main(int argc, char **argv)
 	// Register an exit command to leave the framework
 	CommandManager command_manager;
 
-
-		command_manager.addCommand<void, ARGVOID>
+	command_manager.addCommand<void, ARGVOID>
+	(
+		"HyQApp_server",
+		"launchRosCore",
+		"Launches the ros core",
+		std::function<void(ARGVOID)>
 		(
-			"HyQApp_server",
-			"launchRosCore",
-			"Launches the ros core",
-			std::function<void(ARGVOID)>
-			(
-				[&](ARGVOID)
-				{
-					forkRosCore();
-				}
-			)
-		);
+			[&](ARGVOID)
+			{
+				forkRosCore();
+			}
+		)
+	);
 
+	command_manager.addCommand<void, ARGVOID>
+	(
+		"HyQApp_server",
+		"core_exit",
+		"exits the framework",
+		std::function<void(ARGVOID)>
+		(
+			[&](ARGVOID)
+			{
+				for(const auto &el : child_datas)
+				{
+					kill(el.second.pid, SIGTERM);
+				}
+			}
+		)
+	);
 	
 /*
 	if(Options::is_core)

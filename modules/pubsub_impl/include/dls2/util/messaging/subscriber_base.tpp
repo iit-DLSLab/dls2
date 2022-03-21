@@ -146,28 +146,28 @@ namespace dls
 		template <class PubSub_t>
 		Subscriber<PubSub_t>::Subscriber
 		(
-			const std::string &topic_
-			//,callback_t callback
+			const std::string &part_,
+			const std::string &topic_,
+			CallbackType callback
 		) :
 			participant(nullptr),
 			subscriber(nullptr),
 			reader(nullptr),
 			topic(nullptr),
 			type(new PubSub_t()),
-			//subscriber_listener(callback)
-			subscriber_listener(nullptr)
+			subscriber_listener(callback)
 		{
+			
 			eprosima::fastdds::dds::DomainParticipantQos participantQos;
 			participantQos.wire_protocol().builtin.discovery_config.discoveryProtocol = eprosima::fastrtps::rtps::DiscoveryProtocol_t::SIMPLE;
 			participantQos.wire_protocol().builtin.discovery_config.leaseDuration_announcementperiod = eprosima::fastrtps::Duration_t(1, 2);
 			// participantQos.wire_protocol().builtin.discovery_config.initial_announcements.count = 2000;
 			// participantQos.wire_protocol().builtin.discovery_config.initial_announcements.period = eprosima::fastrtps::Duration_t(0, 100000000u);
 
-			participantQos.name("Participant_subscriber");
+
+			participantQos.name(part_);
 			this->participant = eprosima::fastdds::dds::DomainParticipantFactory::
 				get_instance()->create_participant(0, participantQos);
-
-			this->type.register_type(this->participant);
 
 			if(this->participant == nullptr)
 			{
@@ -177,7 +177,17 @@ namespace dls
 				);
 			}
 
-			auto *dds_topic = dls::impl::registerFastddsTopic(topic_, rtps_type.getName());
+			this->type.register_type(this->participant);
+
+			this->topic = this->participant->create_topic(topic_, rtps_type.getName(), eprosima::fastdds::dds::TOPIC_QOS_DEFAULT);
+
+			if(this->topic == nullptr)
+			{
+				throw std::runtime_error
+				(
+					"Error: could not create publisher topic"
+				);
+			}
 
 			this->subscriber = this->participant->create_subscriber
 			(
@@ -195,7 +205,7 @@ namespace dls
 
 			this->reader = this->subscriber->create_datareader
 			(
-				dds_topic,
+				this->topic,
 				eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT,
 				&this->subscriber_listener
 			);
@@ -216,10 +226,10 @@ namespace dls
 			{
 				this->subscriber->delete_datareader(this->reader);
 			}
-			// if(this->topic != nullptr)
-			// {
-			// 	this->participant->delete_topic(this->topic);
-			// }
+			if(this->topic != nullptr)
+			{
+			 	this->participant->delete_topic(this->topic);
+			}
 			if(this->subscriber != nullptr)
 			{
 				this->participant->delete_subscriber(this->subscriber);
@@ -232,7 +242,8 @@ namespace dls
 		// Helper Listener Class
 		// =====================================================================
 		template <class PubSub_t>
-		Subscriber<PubSub_t>::SubListener::SubListener(callback_t callback_) :
+		Subscriber<PubSub_t>::SubListener::SubListener(
+			CallbackType callback_) :
 			sample_count(0),
 			callback(callback_),
 			msg()

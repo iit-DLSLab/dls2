@@ -116,8 +116,8 @@ private:
 		mutable size_t command_arg_index;
 	}remote_command_publisher;
 
-	void requestRegistration() override {}
-	void requestDeregistration() override {}
+	//void requestRegistration() override {}
+	//void requestDeregistration() override {}
 };
 
 // =============================================================================

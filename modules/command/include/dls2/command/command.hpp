@@ -67,11 +67,11 @@ public:
 
 	/// Registers this command with the framework
 	///
-	void requestRegistration() override;
+	//void requestRegistration() override;
 
 	/// Removes this command from the framework
 	///
-	void requestDeregistration() override;
+	//void requestDeregistration() override;
 	
 private:
 	// ========================== Constructor helpers ==========================
