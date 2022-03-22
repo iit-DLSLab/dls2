@@ -87,6 +87,7 @@ namespace dls
 			Subscriber(
 				const std::string &part_,
 				const std::string &topic_,
+				const unsigned int domain_,
 				CallbackType callback
 			);
 			virtual ~Subscriber();

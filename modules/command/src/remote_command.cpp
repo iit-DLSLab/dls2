@@ -44,200 +44,24 @@ using namespace dls;
 // -----------------------------------------------------------------------------
 // Constructors
 // -----------------------------------------------------------------------------
-RemoteCommand::RemoteCommand(CommandRegisterMsg &msg) :
+RemoteCommand::RemoteCommand(const std::string &topic_, CommandRegisterMsg &msg) :
 	owner(msg.owner()),
 	command_name(msg.command_name()),
 	docstring(msg.docstring()),
 	args(msg.arg_types()),
 	ret_type(msg.ret_type()),
-	remote_command_publisher(*this, msg)
+	remote_command_publisher(topic_)
 { }
 
 // -----------------------------------------------------------------------------
 // Implementation
 // -----------------------------------------------------------------------------
-void RemoteCommand::clearArgs() const
-{
-	// TODO implement
-	this->remote_command_publisher.command_arg_index = 0;
-}
 
 void RemoteCommand::call() const
 {
-	this->remote_command_publisher.pPublisher->write
-	(
-		(void*)this->remote_command_publisher.pData.get()
-	);
-	this->clearArgs();
-}
-
-// -----------------------------------------------------------------------------
-// Helper Classes
-// -----------------------------------------------------------------------------
-// =================== Remote Command Publisher Constructors ===================
-RemoteCommand::RemoteCommandPublisher::RemoteCommandPublisher
-(
-	RemoteCommand &owner_,
-	const CommandRegisterMsg &msg
-) :
-	dynamic_type(),
-	pData(nullptr),
-	pParticipant(nullptr),
-	pPublisher(nullptr),
-	command_arg_index(0)
-{
-	// create a builder
-	eprosima::fastrtps::types::DynamicTypeBuilder_ptr
-		struct_type_builder
-		(
-			eprosima::fastrtps::types::DynamicTypeBuilderFactory::get_instance()->
-				create_struct_builder()
-		);
-
-	// add members to the builder
-	for(size_t i = 0; i != msg.arg_types().size(); ++i)
-	{
-		eprosima::fastrtps::types::DynamicType_ptr pType;
-		auto pFactory = eprosima::fastrtps::types::DynamicTypeBuilderFactory::get_instance();
-
-		// Using a lambda because for some reasong this code won't work when
-		// just copying the contents of the lambda into its single call site at
-		// the end of this switch statement
-		auto add_member = [&]()
-		{
-			struct_type_builder->add_member
-			(
-				i,
-				std::string("field_") + std::to_string(i),
-				pType
-			);
-		};
-		switch(static_cast<CommandBase::ArgumentType>(msg.arg_types()[i]))
-		{
-			case CommandBase::ArgumentType::VOID:
-				continue;
-			case CommandBase::ArgumentType::CHAR:
-				pType = pFactory->create_char8_type();
-				break;
-			case CommandBase::ArgumentType::UINT8:
-				pType = pFactory->create_uint16_type();
-				break;
-			case CommandBase::ArgumentType::INT16:
-				pType = pFactory->create_int16_type();
-				break;
-			case CommandBase::ArgumentType::UINT16:
-				pType = pFactory->create_uint16_type();
-				break;
-			case CommandBase::ArgumentType::INT32:
-				pType = pFactory->create_int32_type();
-				break;
-			case CommandBase::ArgumentType::UINT32:
-				pType = pFactory->create_uint32_type();
-				break;
-			case CommandBase::ArgumentType::INT64:
-				pType = pFactory->create_int64_type();
-				break;
-			case CommandBase::ArgumentType::UINT64:
-				pType = pFactory->create_uint64_type();
-				break;
-			case CommandBase::ArgumentType::FLOAT:
-				pType = pFactory->create_float32_type();
-				break;
-			case CommandBase::ArgumentType::DOUBLE:
-				pType = pFactory->create_float64_type();
-				break;
-			case CommandBase::ArgumentType::LONG_DOUBLE:
-				pType = pFactory->create_float128_type();
-				break;
-			case CommandBase::ArgumentType::BOOL:
-				break;
-			case CommandBase::ArgumentType::STD_STRING:
-				pType = pFactory->create_string_type();
-				break;
-			default:
-				break;
-		}
-		add_member();
-	}
-
-	struct_type_builder->set_name
-	(
-		(
-			std::string(topics::command_call) + "_" + owner_.owner + "_" +
-			owner_.command_name + "_struct"
-		).c_str()
-	);
-
-	// create a struct from the builder
-	eprosima::fastrtps::types::DynamicType_ptr pDynamic_type =
-		struct_type_builder->build();
-
-	this->dynamic_type.SetDynamicType(pDynamic_type);
-	this->pData.reset
-	(
-		eprosima::fastrtps::types::DynamicDataFactory::get_instance()->
-			create_data(pDynamic_type),
-
-		// TODO add proper deleter here
-		[](eprosima::fastrtps::types::DynamicData*){}
-	);
-	// create participant
-	eprosima::fastrtps::ParticipantAttributes participant_attributes;
-	// participant_attributes.rtps.builtin.domainId = 0;
-	participant_attributes.rtps.setName
-	(
-		(
-			std::string(topics::command_call) + "_" + owner_.owner + "_" +
-			owner_.command_name + "_pub_participant"
-		).c_str()
-	);
-
-	// TODO add deleter
-	this->pParticipant.reset
-	(
-		eprosima::fastrtps::Domain::createParticipant
-		(
-			participant_attributes
-		),
-		// TODO add prper deleter here
-		[](eprosima::fastrtps::Participant*){}
-	);
-	if(!pParticipant)
-	{
-		// TODO do something more sensible here
-		std::cout << "ERROR: dynamic participant was not created" << std::endl;
-	}
-
-	// Register the type
-	eprosima::fastrtps::Domain::registerDynamicType
-	(
-		this->pParticipant.get(),
-		&(this->dynamic_type)
-	);
-
-	// Create the publisher
-	eprosima::fastrtps::PublisherAttributes publisher_attributes;
-	publisher_attributes.topic.topicKind = eprosima::fastrtps::rtps::NO_KEY;
-	publisher_attributes.topic.topicDataType = struct_type_builder->get_name();
-	publisher_attributes.topic.topicName =
-		std::string(topics::command_call) + "_" + owner_.owner + "_" +
-		owner_.command_name;
-	this->pPublisher.reset
-	(
-		eprosima::fastrtps::Domain::createPublisher
-		(
-			this->pParticipant.get(),
-			publisher_attributes
-		),
-		// TODO add proper deleter here
-		[](eprosima::fastrtps::Publisher*){}
-	);
-
-	if(!this->pPublisher)
-	{
-		// TODO do something better here
-		std::cout << "ERROR: dynamic publisher was not created" << std::endl;
-	}
+	CommandRegisterMsg msg;
+	//TBD put here the message to be send
+	this->remote_command_publisher.publish(msg);
 }
 
 // =============================================================================
@@ -264,7 +88,12 @@ RemoteCommandManager::RemoteCommandManager
 	remote_commands_mutex(),
 	remote_commands(),
 	command_added(),
-	registration_listener(*this),
+	registration_listener(
+		"remote_command_manager",
+		"command_registration",
+		dls::domains::command_domain,
+		nullptr //put here the callback for new commands from remote
+	),  
 	onNewCommand(onNewCommand_),
 	onRemoveCommand(onRemoveCommand_)
 { }
@@ -442,16 +271,10 @@ RemoteCommandCallable RemoteCommandManager::makeCallable
 // Subscriber Helper
 // -----------------------------------------------------------------------------
 // =============================== Constructors ================================
-RemoteCommandManager::RegistrationListener::RegistrationListener
-(
-	RemoteCommandManager &owner_
-) :
-	SubscriberBase<CommandRegisterMsgPubSubType>(topics::command_register),
-	owner(owner_)
-{ }
+
 
 // ============================== Implementation ===============================
-void RemoteCommandManager::RegistrationListener::onNewDataMessage
+void RemoteCommandManager::onNewDataMessage
 (
 	eprosima::fastrtps::Subscriber *sub
 )
@@ -465,166 +288,14 @@ void RemoteCommandManager::RegistrationListener::onNewDataMessage
 			std::shared_ptr<RemoteCommand> pCommand =
 				std::make_shared<RemoteCommand>
 				(
+					"new_command",
 					msg
 				);
-			owner.addCommand(pCommand);
+			this->addCommand(pCommand);
 		}
 		else
 		{
-			owner.removeCommand(msg);
+			this->removeCommand(msg);
 		}
 	}
 }
-
-// ============================== Push Arguments ===============================
-namespace dls
-{
-template <>
-void RemoteCommand::pushArg(ARGVOID) const
-{
-	this->remote_command_publisher.command_arg_index++;
-}
-template <>
-void RemoteCommand::pushArg(char c) const
-{
-	this->remote_command_publisher.pData->set_char8_value
-	(
-		c,
-		this->remote_command_publisher.command_arg_index
-	);
-
-	this->remote_command_publisher.command_arg_index++;
-}
-
-template <>
-void RemoteCommand::pushArg(uint8_t i) const
-{
-	this->remote_command_publisher.pData->set_uint8_value
-	(
-		i,
-		this->remote_command_publisher.command_arg_index
-	);
-
-	this->remote_command_publisher.command_arg_index++;
-}
-
-template <>
-void RemoteCommand::pushArg(int16_t i) const
-{
-	this->remote_command_publisher.pData->set_int16_value
-	(
-		i,
-		this->remote_command_publisher.command_arg_index
-	);
-
-	this->remote_command_publisher.command_arg_index++;
-}
-
-template <>
-void RemoteCommand::pushArg(uint16_t i) const
-{
-	this->remote_command_publisher.pData->set_uint16_value
-	(
-		i,
-		this->remote_command_publisher.command_arg_index
-	);
-
-	this->remote_command_publisher.command_arg_index++;
-}
-
-template <>
-void RemoteCommand::pushArg(int32_t i) const
-{
-	this->remote_command_publisher.pData->set_int32_value
-	(
-		i,
-		this->remote_command_publisher.command_arg_index
-	);
-
-	this->remote_command_publisher.command_arg_index++;
-}
-
-template <>
-void RemoteCommand::pushArg(uint32_t i) const
-{
-	this->remote_command_publisher.pData->set_uint32_value
-	(
-		i,
-		this->remote_command_publisher.command_arg_index
-	);
-
-	this->remote_command_publisher.command_arg_index++;
-}
-
-template <>
-void RemoteCommand::pushArg(int64_t i) const
-{
-	this->remote_command_publisher.pData->set_int64_value
-	(
-		i,
-		this->remote_command_publisher.command_arg_index
-	);
-
-	this->remote_command_publisher.command_arg_index++;
-}
-
-template <>
-void RemoteCommand::pushArg(float f) const
-{
-	this->remote_command_publisher.pData->set_float32_value
-	(
-		f,
-		this->remote_command_publisher.command_arg_index
-	);
-
-	this->remote_command_publisher.command_arg_index++;
-}
-
-template <>
-void RemoteCommand::pushArg(double d) const
-{
-	this->remote_command_publisher.pData->set_float64_value
-	(
-		d,
-		this->remote_command_publisher.command_arg_index
-	);
-
-	this->remote_command_publisher.command_arg_index++;
-}
-
-template <>
-void RemoteCommand::pushArg(long double ld) const
-{
-	this->remote_command_publisher.pData->set_float128_value
-	(
-		ld,
-		this->remote_command_publisher.command_arg_index
-	);
-
-	this->remote_command_publisher.command_arg_index++;
-}
-
-template <>
-void RemoteCommand::pushArg(bool b) const
-{
-	this->remote_command_publisher.pData->set_bool_value
-	(
-		b,
-		this->remote_command_publisher.command_arg_index
-	);
-
-	this->remote_command_publisher.command_arg_index++;
-}
-
-template <>
-void RemoteCommand::pushArg(/*const*/ std::string /*&*/s) const
-{
-	this->remote_command_publisher.pData->set_string_value
-	(
-		s,
-		this->remote_command_publisher.command_arg_index
-	);
-
-	this->remote_command_publisher.command_arg_index++;
-}
-} // end namespace dls

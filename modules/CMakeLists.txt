@@ -9,6 +9,7 @@ add_subdirectory(pubsub_impl)
 add_subdirectory(gait_signal)
 # add_subdirectory(topic_info) something is broken
 add_subdirectory(controller)
+add_subdirectory(domains)
 add_subdirectory(component)
 add_subdirectory(estimator)
 add_subdirectory(log_trace)

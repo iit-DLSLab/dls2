@@ -230,7 +230,7 @@ int main(int argc, char **argv)
 	std::this_thread::sleep_for(50ms);
 
 	//Picks a random participant of domain 0
-	auto randomPart = eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->lookup_participant(0);
+	auto randomPart = eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->lookup_participant(5);
 
 	//Print all participants names	
 	auto listNames = randomPart->get_participant_names();

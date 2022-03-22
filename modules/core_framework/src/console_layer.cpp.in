@@ -302,6 +302,7 @@ void ConsoleLayer::callCommand
 	const RemoteCommand &command, const std::vector<std::string> &args
 )
 {
+	/*
 	// Ensure args are correct size
 	if
 	(
@@ -427,6 +428,7 @@ void ConsoleLayer::callCommand
 
 	// call the command
 	command.call();
+	*/
 }
 
 // =============================================================================

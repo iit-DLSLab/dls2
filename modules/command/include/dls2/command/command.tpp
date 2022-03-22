@@ -69,6 +69,7 @@ Command<ret_t, arg_ts...>::Command
 	subscriber(
 			owner_,
 			command_name_,
+			dls::domains::command_domain,
 			version2::Subscriber<CommandRegisterMsgPubSubType>::CallbackType
 			(
 				[&](CommandRegisterMsg tuple)

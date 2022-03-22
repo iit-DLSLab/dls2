@@ -30,6 +30,7 @@
 #include <memory>
 #include <fastrtps/types/DynamicTypeBuilderPtr.h>
 #include <fastrtps/types/DynamicPubSubType.h>
+#include "dls2/domains/domains.hpp"
 
 namespace dls
 {

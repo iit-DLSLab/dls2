@@ -73,7 +73,6 @@ namespace dls
 		participant_attr.rtps.builtin.discovery_config.use_SIMPLE_EndpointDiscoveryProtocol                   = true;
 		participant_attr.rtps.builtin.discovery_config.m_simpleEDP.use_PublicationReaderANDSubscriptionWriter = true;
 		participant_attr.rtps.builtin.discovery_config.m_simpleEDP.use_PublicationWriterANDSubscriptionReader = true;
-		// participant_attr.rtps.builtin.domainId                                                                = 0;
 		participant_attr.rtps.builtin.discovery_config.leaseDuration                                          = eprosima::fastrtps::c_TimeInfinite;
 		participant_attr.rtps.setName("Participant_sub");
 
@@ -148,6 +147,7 @@ namespace dls
 		(
 			const std::string &part_,
 			const std::string &topic_,
+			const unsigned int domain_,
 			CallbackType callback
 		) :
 			participant(nullptr),
@@ -157,10 +157,9 @@ namespace dls
 			type(new PubSub_t()),
 			subscriber_listener(callback)
 		{
-
 			//Find if a participant already exists
 			//Picks a random participant of domain 0
-			auto randomPart = eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->lookup_participant(0);
+			auto randomPart = eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->lookup_participant(domain_);
 			// If there is any participant find if the participant already exists
 			if (randomPart != nullptr){
 				//Get participants list
@@ -172,7 +171,7 @@ namespace dls
 				//If the participant already exists just use it
 				if ( partName != listPartNames.end() ){
 					//find the instance of the participant
-					auto listPart = eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->lookup_participants(0);
+					auto listPart = eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->lookup_participants(domain_);
 					for (auto part : listPart){
 						if(part->get_qos().name() == *partName){
 							this->participant = part;
@@ -192,7 +191,7 @@ namespace dls
 
 				participantQos.name(part_);
 				this->participant = eprosima::fastdds::dds::DomainParticipantFactory::
-					get_instance()->create_participant(0, participantQos);
+					get_instance()->create_participant(domain_, participantQos);
 
 				if(this->participant == nullptr){
 					throw std::runtime_error("Error: could not create subscriber participant");
@@ -255,6 +254,8 @@ namespace dls
 			{
 				this->participant->delete_subscriber(this->subscriber);
 			}
+
+			//if the participant has any active entities it does not get deleted
 			eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->
 				delete_participant(this->participant);
 		}

@@ -29,8 +29,10 @@
 #include <fastrtps/types/DynamicPubSubType.h>
 #include <fastrtps/participant/Participant.h>
 
-#include "dls2/util/messaging/subscriber_base.hpp"
 #include "dls2/command/command_base.hpp"
+#include "dls2/util/messaging/publisher_base.hpp"
+#include "dls2/util/messaging/subscriber_base.hpp"
+#include "dls2/domains/domains.hpp"
 
 namespace dls
 {
@@ -51,7 +53,7 @@ class RemoteCommand : public CommandBase
 public:
 	/// Constructor
 	///
-	RemoteCommand(CommandRegisterMsg &msg);
+	RemoteCommand(const std::string &topic_, CommandRegisterMsg &msg);
 
 	template <typename T>
 	void pushArg(T t) const;
@@ -61,12 +63,6 @@ public:
 
 	void call() const;
 
-private:
-	void clearArgs() const;
-
-// private:
-// TODO make private again
-public:
 	/// The name of the component that owns the remote command
 	///
 	const std::string owner;
@@ -94,30 +90,10 @@ public:
 	ret_type;
 
 private:
-	/// Dynamic publisher helper class
-	///
-	/// Note that when a remote command is created, there will be a delay of
-	/// around 80ms (determined experimentally) before which it can be used. If
-	/// the command is called within this period, then it may be missed by the
-	/// rest of the framework
-	class RemoteCommandPublisher : public eprosima::fastrtps::PublisherListener
-	{
-	public:
-		RemoteCommandPublisher(RemoteCommand &owner, const CommandRegisterMsg &msg);
 
-		eprosima::fastrtps::types::DynamicPubSubType dynamic_type;
-		std::shared_ptr<eprosima::fastrtps::types::DynamicData> pData;
-		std::shared_ptr<eprosima::fastrtps::Participant> pParticipant;
-		std::shared_ptr<eprosima::fastrtps::Publisher> pPublisher;
-		// RemoteCommand &owner:
+	// Publisher to call remote commands
+	dls::version2::Publisher<CommandRegisterMsgPubSubType> remote_command_publisher;
 
-		/// The index of the next command to be pushed into the dynamic data
-		/// type pData
-		mutable size_t command_arg_index;
-	}remote_command_publisher;
-
-	//void requestRegistration() override {}
-	//void requestDeregistration() override {}
 };
 
 // =============================================================================
@@ -215,6 +191,8 @@ public:
 		const std::string &name
 	) const;
 
+	void onNewDataMessage(eprosima::fastrtps::Subscriber *sub);
+
 private:
 	// begin critical section
 		/// Mutex protecting the `remote_commands` vector
@@ -231,26 +209,9 @@ private:
 		mutable std::condition_variable command_added;
 	// end critical section
 
-	/// Helper Listener class
+	/// Subscriber to receive informations from the command dss domain
 	///
-	/// This class listens for remote commands to register themselves and
-	/// informs its owner RemoteCommandManager about their presence
-	class RegistrationListener : public SubscriberBase<CommandRegisterMsgPubSubType>
-	{
-	public:
-		/// Constructor
-		///
-		RegistrationListener(RemoteCommandManager &owner);
-	private:
-
-		/// Subscriber Callback
-		///
-		void onNewDataMessage(eprosima::fastrtps::Subscriber*) override;
-
-		/// Owner instance
-		///
-		RemoteCommandManager &owner;
-	} registration_listener;
+	version2::Subscriber<CommandRegisterMsgPubSubType> registration_listener;
 
 	/// Callback when a command is added to the framework
 	///
@@ -267,7 +228,6 @@ private:
 	/// Removes a command from the manager
 	///
 	void removeCommand(const CommandRegisterMsg &msg);
-
 };
 } // end namespace dls
 
