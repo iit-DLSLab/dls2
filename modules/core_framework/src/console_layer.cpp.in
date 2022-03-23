@@ -34,9 +34,6 @@
 #include "dls2/topics/deactivate_controller.hpp"
 #include "dls2/topics/activate_gait_generator.hpp"
 #include "dls2/topics/deactivate_gait_generator.hpp"
-#include "dls2/topics/warn_log_stream.hpp"
-#include "dls2/topics/info_log_stream.hpp" // TODO temp include
-#include "dls2/log/log.hpp"
 #include "dls2/topics/command_register.hpp"
 
 // =============================================================================
@@ -71,7 +68,32 @@ ConsoleLayer *pInstance = nullptr;
 ConsoleLayer::ConsoleLayer() :
 	AppLayer("console_layer"),
 	remote_command_manager(),
-	string_listener(*this),
+	string_listener(
+			"console_layer",
+			"console_layer",
+			dls::domains::command_domain,
+			version2::Subscriber<StringMsgPubSubType>::CallbackType
+			(
+				[&](StringMsg tuple)
+				{/*
+					eprosima::fastrtps::SampleInfo_t info;
+					StringMsg msg;
+					if(sub->takeNextData(&msg, &info))
+					{
+						// std::cout << "\n" << msg.msg() << std::flush;
+						// std::cout << owner.build_prompt() << " " << rl_line_buffer << std::flush;
+					{
+						std::lock_guard<std::mutex> lock(this->message_stack_mutex);
+						this->message_stack.push_back(msg.msg());
+					}
+						this->message_stack_ready.notify_one();
+					}
+				*/
+					std::cout << " received data" << std::endl;
+					//do the magic here
+				}
+			)
+	),
 	command_manager(),
 	should_quit(false)
 {
@@ -717,84 +739,4 @@ std::string &trim_inplace(std::string *const s)
 	s->erase(s->find_last_not_of(" \t\n\r\f\v") + 1);
 
 	return *s;
-}
-
-// =============================================================================
-// Subscribers
-// =============================================================================
-// -----------------------------------------------------------------------------
-// Strings
-// -----------------------------------------------------------------------------
-ConsoleLayer::StringListener::StringListener(ConsoleLayer &owner_) :
-	SubscriberBase<StringMsgPubSubType>(topics::warn_log_stream),
-	owner(owner_),
-	message_stack_mutex(),
-	message_stack_ready(),
-	message_stack(),
-	should_quit(false),
-	print_thread()
-{
-
-	std::thread t(&StringListener::aggregatePrint, this);
-
-	this->print_thread.swap(t);
-}
-
-ConsoleLayer::StringListener::~StringListener()
-{
-	std::lock_guard<std::mutex> lock(this->message_stack_mutex);
-	this->should_quit = true;
-	this->message_stack_ready.notify_one();
-	this->print_thread.join();
-}
-
-void ConsoleLayer::StringListener::aggregatePrint()
-{
-	while(true)
-	{
-		// wait for the condition variable
-		{
-			std::unique_lock<std::mutex> lock(this->message_stack_mutex);
-			this->message_stack_ready.wait
-			(
-				lock,
-				[&]()
-				{
-					return this->message_stack.size() > 0;
-				}
-			);
-			if(should_quit) return;
-		}
-
-		// Sleep to aggregate multiple messages sent in quick succession
-		std::this_thread::sleep_for(std::chrono::milliseconds(500));
-
-		// Print out the messages in one go
-		{
-			std::lock_guard<std::mutex> lock(this->message_stack_mutex);
-			std::cout << "\n" << std::endl;
-			for(const auto &el : message_stack)
-			{
-				std::cout << el << std::flush;
-			}
-			this->message_stack.clear();
-			std::cout << owner.build_prompt() << " " << rl_line_buffer << std::flush;
-		}
-	}
-}
-
-void ConsoleLayer::StringListener::onNewDataMessage(eprosima::fastrtps::Subscriber *sub)
-{
-	eprosima::fastrtps::SampleInfo_t info;
-	StringMsg msg;
-	if(sub->takeNextData(&msg, &info))
-	{
-		// std::cout << "\n" << msg.msg() << std::flush;
-		// std::cout << owner.build_prompt() << " " << rl_line_buffer << std::flush;
-		{
-			std::lock_guard<std::mutex> lock(this->message_stack_mutex);
-			this->message_stack.push_back(msg.msg());
-		}
-		this->message_stack_ready.notify_one();
-	}
 }

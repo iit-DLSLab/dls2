@@ -41,7 +41,13 @@ LogStreamBuffer::LogStreamBuffer
 	const std::string &prefix_
 ) :
 	topic(topic_),
-	pPublisher(std::make_shared<PublisherBase<StringMsgPubSubType>>(topic_)),
+	pPublisher(
+		std::make_shared<version2::PublisherBase<StringMsgPubSubType>>(
+			"LogStream",
+			topic_,
+			dls::domains::logging_domain
+		)
+	),
 	buf(new char[buffer_size]),
 	prefix(prefix_)
 {

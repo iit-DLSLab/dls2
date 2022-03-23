@@ -160,17 +160,19 @@ int main(int argc, char **argv)
 	// When the user presses CTRL-C, make sure that all child processes are
 	// killed. If this is not done, the child processes will inherit from the
 	// base process and continue to run even if the framework exits.
-	signal
-	(
-		SIGINT,
-		kill_children
-	);
-/*	
-	// Runtime Configuration	
-	impl::initFramework();
+	logging::coutstream outstream("framework_monitor");
+	logging::cfatalstream sfatal("framework_monitor");
+
+	// impl::initFramework();
 
 	// Create application
 	pApp = std::make_shared<HyQApp>();
+	
+	// Register an exit command to leave the framework
+	CommandManager command_manager;
+
+
+	/*		
 	if(Options::show_docs)
 	{
 		return system
@@ -182,60 +184,36 @@ int main(int argc, char **argv)
 
 	// Launch layers
 	if(Options::launch_log) forkLayer<LogLayer>("log_layer", argv);
-	if(Options::launch_console)
-	{
-			forkLayer<ConsoleLayer>("console_layer", argv);
-			std::this_thread::sleep_for(std::chrono::seconds(1));
-	}
+
 	if(Options::launch_hardware) forkLayer<HardwareLayer>("hardware_layer", argv);
 	if(Options::launch_control) forkLayer<ControlLayer>("control_layer", argv);
 
-	logging::coutstream outstream("framework_monitor");
-	logging::cfatalstream sfatal("framework_monitor");
 */
-	// Register an exit command to leave the framework
-	CommandManager command_manager;
 
-	command_manager.addCommand<void, ARGVOID>
-	(
-		"HyQApp_server",
-		"launchRosCore",
-		"Launches the ros core",
-		std::function<void(ARGVOID)>
-		(
-			[&](ARGVOID)
-			{
-				forkRosCore();
-			}
-		)
-	);
+	if(Options::launch_console)
+	{
+		forkLayer<ConsoleLayer>("console_layer", argv);
+		std::this_thread::sleep_for(std::chrono::seconds(1));
+	}
 
-	command_manager.addCommand<void, ARGVOID>
-	(
-		"HyQApp_server",
-		"core_exit",
-		"exits the framework",
-		std::function<void(ARGVOID)>
-		(
-			[&](ARGVOID)
-			{
-				for(const auto &el : child_datas)
-				{
-					kill(el.second.pid, SIGTERM);
-				}
-			}
-		)
-	);
+/*
+	///	DDS DEBUGIN CODE - TO BE DELETED
+	auto listPart = eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->
+		lookup_participants(0);
 
-	std::this_thread::sleep_for(50ms);
+	std::cout << "size " << listPart.size() << std::endl;
+	for(auto elem : listPart){
+		std::cout << elem->get_qos().name() << std::endl;
+		//eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->
+		//delete_participant(elem);
+	}
 
-	//Picks a random participant of domain 0
-	auto randomPart = eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->lookup_participant(5);
+	auto names = eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->lookup_participant(5)->get_participant_names();
+	std::cout << "size names" << names.size() << std::endl;
+	for(auto name : names)
+		std::cout << name << std::endl;
 
-	//Print all participants names	
-	auto listNames = randomPart->get_participant_names();
-	for (auto name : listNames)
-    	std::cout << name << std::endl;
+*/
 	
 /*
 	if(Options::is_core)
@@ -335,7 +313,7 @@ int main(int argc, char **argv)
 		std::stringstream ss;
 		int status;
 		pid_t child_pid = wait(&status);
-		/*
+		
 		if(child_pid == -1)
 		{
 			// if no more children left
@@ -368,7 +346,7 @@ int main(int argc, char **argv)
 			ss.flush();
 		}
 		outstream << ss.str() << std::endl;
-		*/
+		
 	}
 	return 0;
 }
@@ -407,7 +385,7 @@ void forkLayer(const std::string &process_name, char **argv)
 	else if(pid == 0)
 	{
 		change_process_name(argv, process_name);
-		impl::initFramework();
+		//impl::initFramework();
 		std::shared_ptr<layer_t> pLayer = std::make_shared<layer_t>();
 		pApp->addLayer(pLayer);
 

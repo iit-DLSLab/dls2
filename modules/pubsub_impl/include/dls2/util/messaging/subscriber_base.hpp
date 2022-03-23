@@ -37,6 +37,8 @@
 #include <fastdds/dds/subscriber/qos/DataReaderQos.hpp>
 #include <fastdds/dds/subscriber/SampleInfo.hpp>
 
+#include <boost/interprocess/sync/named_mutex.hpp>
+
 #include <functional>
 
 // =============================================================================
@@ -87,12 +89,14 @@ namespace dls
 			Subscriber(
 				const std::string &part_,
 				const std::string &topic_,
-				const unsigned int domain_,
+				const unsigned int &domain_,
 				CallbackType callback
 			);
 			virtual ~Subscriber();
 
 		private:
+			// interprocess mutex
+			boost::interprocess::named_mutex creationMutex{boost::interprocess::open_or_create, "creationMutex"};
 
 			eprosima::fastdds::dds::DomainParticipant *participant;
 			eprosima::fastdds::dds::Subscriber        *subscriber;

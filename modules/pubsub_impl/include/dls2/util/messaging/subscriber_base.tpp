@@ -147,7 +147,7 @@ namespace dls
 		(
 			const std::string &part_,
 			const std::string &topic_,
-			const unsigned int domain_,
+			const unsigned int &domain_,
 			CallbackType callback
 		) :
 			participant(nullptr),
@@ -157,6 +157,7 @@ namespace dls
 			type(new PubSub_t()),
 			subscriber_listener(callback)
 		{
+			//this->creationMutex.lock();
 			//Find if a participant already exists
 			//Picks a random participant of domain 0
 			auto randomPart = eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->lookup_participant(domain_);
@@ -188,8 +189,8 @@ namespace dls
 				participantQos.wire_protocol().builtin.discovery_config.leaseDuration_announcementperiod = eprosima::fastrtps::Duration_t(1, 2);
 				// participantQos.wire_protocol().builtin.discovery_config.initial_announcements.count = 2000;
 				// participantQos.wire_protocol().builtin.discovery_config.initial_announcements.period = eprosima::fastrtps::Duration_t(0, 100000000u);
-
 				participantQos.name(part_);
+
 				this->participant = eprosima::fastdds::dds::DomainParticipantFactory::
 					get_instance()->create_participant(domain_, participantQos);
 
@@ -199,7 +200,18 @@ namespace dls
 				this->type.register_type(this->participant);
 			}
 					
-			this->topic = this->participant->create_topic(topic_, rtps_type.getName(), eprosima::fastdds::dds::TOPIC_QOS_DEFAULT);
+			//search for existing topic
+			this->topic = this->participant->find_topic(topic_, eprosima::fastrtps::Duration_t(0, 1));
+
+			//if topic does not exists, create it
+			if(this->topic == nullptr){
+				this->topic = this->participant->create_topic(
+					topic_, 
+					rtps_type.getName(), 
+					eprosima::fastdds::dds::TOPIC_QOS_DEFAULT
+				);
+			}
+
 
 			if(this->topic == nullptr)
 			{
@@ -237,6 +249,7 @@ namespace dls
 					"Error: could not create subscriber reader"
 				);
 			}
+			//this->creationMutex.unlock();
 		}
 
 		template <class PubSub_t>

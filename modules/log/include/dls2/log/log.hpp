@@ -19,6 +19,7 @@
 #include <streambuf>
 #include "dls2/util/messaging/publisher_base.hpp"
 #include "dls2/msg/stringmsgPubSubTypes.h"
+#include "dls2/domains/domains.hpp"
 
 namespace dls
 {
@@ -43,7 +44,7 @@ private:
 	int sync() override;
 	bool flush_buffer();
 	std::string topic;
-	std::shared_ptr<PublisherBase<StringMsgPubSubType>> pPublisher;
+	std::shared_ptr<version2::Publisher<StringMsgPubSubType>> pPublisher;
 
 	char *buf;
 	const std::string prefix;

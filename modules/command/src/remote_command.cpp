@@ -50,7 +50,11 @@ RemoteCommand::RemoteCommand(const std::string &topic_, CommandRegisterMsg &msg)
 	docstring(msg.docstring()),
 	args(msg.arg_types()),
 	ret_type(msg.ret_type()),
-	remote_command_publisher(topic_)
+	remote_command_publisher(
+		"RemoteCommand",
+		topic_,
+		dls::domains::command_domain
+	)
 { }
 
 // -----------------------------------------------------------------------------

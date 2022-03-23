@@ -32,8 +32,8 @@
 #include <fastdds/dds/publisher/DataWriter.hpp>
 #include <fastdds/dds/publisher/DataWriterListener.hpp>
 
-#include <map>
-#include <mutex>
+#include <boost/interprocess/sync/named_mutex.hpp>
+
 #include <string>
 
 // =============================================================================
@@ -67,6 +67,7 @@ namespace dls
 
 		// TODO temp, remove
 		const std::string temp_topic;
+
 	};
 } // end namespace dls
 
@@ -90,14 +91,21 @@ namespace dls
 			template <typename T, typename U> friend class Service;
 			template <typename T, typename U> friend class ServiceClient;
 		public:
-			Publisher(const std::string &topic);
+			Publisher(
+				const std::string &part_,
+				const std::string &topic_,
+				const unsigned int &domain_
+			);
 			virtual ~Publisher();
 			auto getGuid() const -> eprosima::fastrtps::rtps::GUID_t;
 
 			void publish(typename PubSub_t::type &msg) const;
 
 		private:
-			// eprosima::fastdds::dds::DomainParticipant *participant;
+			// interprocess mutex
+			boost::interprocess::named_mutex creationMutex;
+
+			eprosima::fastdds::dds::DomainParticipant *participant;
 			eprosima::fastdds::dds::Publisher         *publisher;
 			eprosima::fastdds::dds::Topic             *topic;
 			eprosima::fastdds::dds::DataWriter        *writer;

@@ -23,7 +23,6 @@
 #include <mutex>
 
 #include "app_layer.hpp"
-#include "dls2/log/log.hpp"
 
 namespace dls
 {
@@ -107,7 +106,6 @@ private:
 		Status status;
 		std::mutex status_mutex;
 	// END critical section
-	logging::coutstream outstream;
 };
 } // end namespace dls
 

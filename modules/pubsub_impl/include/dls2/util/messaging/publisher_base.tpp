@@ -153,22 +153,86 @@ namespace dls
 	namespace version2
 	{
 		template <class PubSub_t>
-		Publisher<PubSub_t>::Publisher(const std::string &topic) :
-			// participant(nullptr),
+		Publisher<PubSub_t>::Publisher(
+			const std::string &part_,
+			const std::string &topic_,
+			const unsigned int &domain_
+		) :
+			participant(nullptr),
 			publisher(nullptr),
 			topic(nullptr),
 			writer(nullptr),
-			type(new PubSub_t())
+			type(new PubSub_t()),
+			creationMutex(boost::interprocess::open_or_create, "creationMutex")
 		{
-			this->type.register_type(dls::impl::getFastddsParticipant());
-			auto *dds_topic = dls::impl::registerFastddsTopic(topic, rtps_type.getName());
+			this->creationMutex.lock();
+			std::cout << "mutex lock" << part_ << "# " << topic << std::endl;
+			//Find if a participant already exists
+			//Picks a random participant of domain 0
+			auto randomPart = eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->lookup_participant(domain_);
+			// If there is any participant find if the participant already exists
+			if (randomPart != nullptr){
+				//Get participants list
+				auto listPartNames = randomPart->get_participant_names();
 
-			this->publisher = dls::impl::getFastddsParticipant()->
-				create_publisher
-				(
-					eprosima::fastdds::dds::PUBLISHER_QOS_DEFAULT,
-					nullptr
+				//Search for the existence of the participant
+				auto partName = std::find(listPartNames.begin(), listPartNames.end(), part_);
+
+				//If the participant already exists just use it
+				if ( partName != listPartNames.end() ){
+					//find the instance of the participant
+					auto listPart = eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->lookup_participants(domain_);
+					for (auto part : listPart){
+						if(part->get_qos().name() == *partName){
+							this->participant = part;
+							break;
+						}
+					}
+				}
+			}
+			
+			//If the participant does not exists, create it
+			if (this->participant == nullptr){
+				eprosima::fastdds::dds::DomainParticipantQos participantQos;
+				participantQos.wire_protocol().builtin.discovery_config.discoveryProtocol = eprosima::fastrtps::rtps::DiscoveryProtocol_t::SIMPLE;
+				participantQos.wire_protocol().builtin.discovery_config.leaseDuration_announcementperiod = eprosima::fastrtps::Duration_t(1, 2);
+				// participantQos.wire_protocol().builtin.discovery_config.initial_announcements.count = 2000;
+				// participantQos.wire_protocol().builtin.discovery_config.initial_announcements.period = eprosima::fastrtps::Duration_t(0, 100000000u);
+				participantQos.name(part_);
+
+				this->participant = eprosima::fastdds::dds::DomainParticipantFactory::
+					get_instance()->create_participant(domain_, participantQos);
+
+				if(this->participant == nullptr){
+					throw std::runtime_error("Error: could not create subscriber participant");
+				}
+				this->type.register_type(this->participant);
+			}
+
+			//search for existing topic
+			this->topic = this->participant->find_topic(topic_, eprosima::fastrtps::Duration_t(0, 1000));
+
+			//if topic does not exists, create it
+			if(this->topic == nullptr){
+				this->topic = this->participant->create_topic(
+					topic_, 
+					rtps_type.getName(), 
+					eprosima::fastdds::dds::TOPIC_QOS_DEFAULT
 				);
+			}
+
+			if(this->topic == nullptr)
+			{
+				throw std::runtime_error
+				(
+					"Error: could not create publisher topic"
+				);
+			}
+
+			this->publisher = this->participant->create_publisher(
+				eprosima::fastdds::dds::PUBLISHER_QOS_DEFAULT,
+				nullptr
+			);
 
 			if(this->publisher == nullptr)
 			{
@@ -180,9 +244,9 @@ namespace dls
 
 			this->writer = this->publisher->create_datawriter
 			(
-				dds_topic,
+				this->topic,
 				eprosima::fastdds::dds::DATAWRITER_QOS_DEFAULT,
-				&publisher_listener
+				&this->publisher_listener
 			);
 
 			if(this->writer == nullptr)
@@ -192,6 +256,7 @@ namespace dls
 					"Error: could not create publisher writer"
 				);
 			}
+			this->creationMutex.unlock();
 		}
 
 		template<class PubSub_t>
@@ -201,14 +266,18 @@ namespace dls
 			{
 				this->publisher->delete_datawriter(this->writer);
 			}
+			if(this->topic != nullptr)
+			{
+			 	this->participant->delete_topic(this->topic);
+			}			
 			if(this->publisher != nullptr)
 			{
-				dls::impl::getFastddsParticipant()->delete_publisher(this->publisher);
+				this->participant->delete_publisher(this->publisher);
 			}
-			// if(this->topic != nullptr)
-			// {
-			// 	dls::impl::getFastddsParticipant()->delete_topic(this->topic);
-			// }
+			
+			//if the participant has any active entities it does not get deleted
+			eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->
+				delete_participant(this->participant);
 		}
 
 		template<class PubSub_t>

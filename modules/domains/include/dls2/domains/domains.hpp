@@ -23,6 +23,7 @@ namespace dls
 		constexpr auto command_domain = 5;
 		constexpr auto control_domain = 6;
 		constexpr auto console_domain = 7;
+		constexpr auto logging_domain = 8;
 	}
 }
 

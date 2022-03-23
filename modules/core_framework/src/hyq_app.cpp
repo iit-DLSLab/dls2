@@ -24,8 +24,7 @@ HyQApp::HyQApp() :
 	layer_threads(),
 	layers_mutex(),
 	status(Status::INITIALISING),
-	status_mutex(),
-	outstream("HyQApp")
+	status_mutex()
 {
 	this->setStatus(Status::INITIALISING);
 	init_libraries();
@@ -37,8 +36,7 @@ HyQApp::HyQApp(const std::initializer_list<pLayer_t> &_layers) :
 	layer_threads(),
 	layers_mutex(),
 	status(Status::INITIALISING),
-	status_mutex(),
-	outstream("HyQApp")
+	status_mutex()
 {
 	this->setStatus(Status::INITIALISING);
 	init_libraries();
