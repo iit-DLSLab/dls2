@@ -2,6 +2,7 @@ add_library(dls_command SHARED
 	src/remote_command.cpp
 	src/command_base.cpp
 	src/command.cpp
+	src/command_manager.cpp
 )
 
 target_include_directories(dls_command

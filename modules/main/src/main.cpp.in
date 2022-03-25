@@ -160,9 +160,16 @@ int main(int argc, char **argv)
 	// When the user presses CTRL-C, make sure that all child processes are
 	// killed. If this is not done, the child processes will inherit from the
 	// base process and continue to run even if the framework exits.
-	logging::coutstream outstream("framework_monitor");
-	logging::cfatalstream sfatal("framework_monitor");
+	signal
+	(
+		SIGINT,
+		kill_children
+	);
 
+	// Initiate log streams
+	logging::coutstream outstream("fwkMonitorStream");
+	logging::cfatalstream sfatal("fwkMonitorFatal");
+	
 	// impl::initFramework();
 
 	// Create application

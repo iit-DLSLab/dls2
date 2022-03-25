@@ -66,12 +66,14 @@ ConsoleLayer *pInstance = nullptr;
 // Constructors
 // =============================================================================
 ConsoleLayer::ConsoleLayer() :
-	AppLayer("console_layer"),
+	AppLayer("console"),
 	remote_command_manager(),
+	command_manager(),
+	should_quit(false),
 	string_listener(
-			"console_layer",
-			"console_layer",
-			dls::domains::command_domain,
+			dls::domains::layer,
+			"consoleLayer",
+			"consoleFeedback",
 			version2::Subscriber<StringMsgPubSubType>::CallbackType
 			(
 				[&](StringMsg tuple)
@@ -93,9 +95,7 @@ ConsoleLayer::ConsoleLayer() :
 					//do the magic here
 				}
 			)
-	),
-	command_manager(),
-	should_quit(false)
+	)
 {
 	pInstance = this;
 

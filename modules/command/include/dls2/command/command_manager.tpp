@@ -13,19 +13,43 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef DOMAINS_HPP
-#define DOMAINS_HPP
+#ifndef COMMAND_MANAGER_TPP
+#define COMMAND_MANAGER_TPP
+
+// =============================================================================
+// Includes
+// =============================================================================
+#include "dls2/command/command_manager.hpp"
+
 
 namespace dls
 {
-	namespace domains
-	{
-		constexpr auto layer = 4;
-		constexpr auto command = 5;
-		constexpr auto control = 6;
-		constexpr auto console = 7;
-		constexpr auto logging = 8;
-	}
+// =============================================================================
+// Command Manager Implementation
+// =============================================================================
+// -----------------------------------------------------------------------------
+// Implementation
+// -----------------------------------------------------------------------------
+template <typename ret_t, typename... arg_ts>
+void CommandManager::addCommand
+(
+	const std::string &owner,
+	const std::string &command_name,
+	const std::string &docstring,
+	const std::function<ret_t(arg_ts...)> &f
+)
+{
+	this->commands.emplace_back
+	(
+		std::make_unique<Command<ret_t, arg_ts...>>
+		(
+			owner,
+			command_name,
+			docstring,
+			f
+		)
+	);
 }
 
-#endif /* end of include guard: DOMAINS_HPP */
+} // end namespace dls
+#endif /* end of include guard: COMMAND_TPP_MANAGER */

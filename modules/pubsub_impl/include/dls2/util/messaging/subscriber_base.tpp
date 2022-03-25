@@ -145,9 +145,9 @@ namespace dls
 		template <class PubSub_t>
 		Subscriber<PubSub_t>::Subscriber
 		(
+			const unsigned int &domain_,
 			const std::string &part_,
 			const std::string &topic_,
-			const unsigned int &domain_,
 			CallbackType callback
 		) :
 			participant(nullptr),
@@ -157,7 +157,6 @@ namespace dls
 			type(new PubSub_t()),
 			subscriber_listener(callback)
 		{
-			//this->creationMutex.lock();
 			//Find if a participant already exists
 			//Picks a random participant of domain 0
 			auto randomPart = eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->lookup_participant(domain_);
@@ -195,13 +194,13 @@ namespace dls
 					get_instance()->create_participant(domain_, participantQos);
 
 				if(this->participant == nullptr){
-					throw std::runtime_error("Error: could not create subscriber participant");
+					throw std::runtime_error("Error: could not create participant");
 				}
 				this->type.register_type(this->participant);
 			}
 					
 			//search for existing topic
-			this->topic = this->participant->find_topic(topic_, eprosima::fastrtps::Duration_t(0, 1));
+			this->topic = this->participant->find_topic(topic_, eprosima::fastrtps::Duration_t(0, 1000));
 
 			//if topic does not exists, create it
 			if(this->topic == nullptr){
@@ -249,7 +248,6 @@ namespace dls
 					"Error: could not create subscriber reader"
 				);
 			}
-			//this->creationMutex.unlock();
 		}
 
 		template <class PubSub_t>

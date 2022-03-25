@@ -66,16 +66,15 @@ Command<ret_t, arg_ts...>::Command
 	docstring(docstring_),
 	f(f_),
 	//msg(buildMsg(owner_, command_name_, docstring_)),
-	subscriber(
-			owner_,
+	commandSub(
+			dls::domains::command,
 			command_name_,
-			dls::domains::command_domain,
+			dls::topics::command_call,
 			version2::Subscriber<CommandRegisterMsgPubSubType>::CallbackType
 			(
 				[&](CommandRegisterMsg tuple)
 				{
-					std::cout << " received data" << std::endl;
-					//do the magic here
+					this->call(tuple);
 				}
 			)
 	)
@@ -162,119 +161,8 @@ ret_t Command<ret_t, arg_ts...>::call(std::tuple<arg_ts...> &t, std::index_seque
 	return this->f(std::get<I>(t)...);
 }
 
-// =============================================================================
-// Helper Classes
-// =============================================================================
-/*
-// -----------------------------------------------------------------------------
-// Command Call Listener Constructors
-// -----------------------------------------------------------------------------
-template <typename ret_t, typename...arg_ts>
-Command<ret_t, arg_ts...>::CommandCallListener::CommandCallListener
-(
-	Command<ret_t, arg_ts...> &owner_
-) :
-	owner(owner_),
-	pSubscriber(nullptr),
-	dynamic_type(),
-	pData(nullptr)
-{
-
-	eprosima::fastrtps::types::DynamicTypeBuilder_ptr struct_type_builder =
-		eprosima::fastrtps::types::DynamicTypeBuilderFactory::get_instance()->
-			create_struct_builder();
-
-	buildDynamicType<arg_ts...>(struct_type_builder);
-
-	struct_type_builder->set_name
-	(
-		(
-			std::string(topics::command_call) + "_" +
-			this->owner.owner + "_" + this->owner.command_name +
-			"_struct"
-		)
-		.c_str()
-	);
-
-	eprosima::fastrtps::types::DynamicType_ptr dtp = struct_type_builder->build();
-	this->dynamic_type.SetDynamicType(dtp);
-	this->pData.reset
-	(
-		eprosima::fastrtps::types::DynamicDataFactory::get_instance()->
-			create_data(dtp),
-		// TODO put proper deleter here
-		[](eprosima::fastrtps::types::DynamicData*){}
-	);
-
-	eprosima::fastrtps::Domain::registerDynamicType
-	(
-		dls::impl::legacy::getFastrtpsLegacyParticipant(),
-		&this->dynamic_type
-	);
-
-	eprosima::fastrtps::SubscriberAttributes subscriber_attributes;
-	subscriber_attributes.topic.topicKind = eprosima::fastrtps::rtps::NO_KEY;
-	subscriber_attributes.topic.topicDataType = struct_type_builder->get_name();
-	subscriber_attributes.topic.topicName =
-	(
-		std::string(topics::command_call) + "_" + this->owner.owner + "_" +
-		this->owner.command_name
-	);
-
-	this->pSubscriber.reset
-	(
-		eprosima::fastrtps::Domain::createSubscriber
-		(
-			dls::impl::legacy::getFastrtpsLegacyParticipant(),
-			subscriber_attributes,
-			this
-		),
-		// TODO put proper deleter here
-		[](eprosima::fastrtps::Subscriber*){}
-	);
-
-	if(!this->pSubscriber)
-	{
-		// TODO something more sensible here
-		std::cout << "ERROR: could not create dynamic subscriber" << std::endl;
-	}
-}
-*/
-
-// -----------------------------------------------------------------------------
-// Constructor Helpers
-// -----------------------------------------------------------------------------
-template <typename arg1_t, typename arg2_t, typename... arg_other_ts>
-void buildDynamicType
-(
-	eprosima::fastrtps::types::DynamicTypeBuilder_ptr &builder,
-	size_t index
-)
-{
-	buildDynamicType<arg1_t>(builder, index);
-	buildDynamicType<arg2_t, arg_other_ts...>(builder, ++index);
-}
 
 /*
-// -----------------------------------------------------------------------------
-// Command Call Listener Implementation
-// -----------------------------------------------------------------------------
-template <typename ret_t, typename...arg_ts>
-void Command<ret_t, arg_ts...>::CommandCallListener::onNewDataMessage
-(
-	eprosima::fastrtps::Subscriber *sub
-)
-{
-	eprosima::fastrtps::SampleInfo_t info;
-	if(sub->takeNextData((void*)this->pData.get(), &info))
-	{
-		// if(info.sampleKind == eprosima::fastrtps::rtps::ALIVE)
-		// {
-			std::tuple<arg_ts...> tuple = buildArgTuple<arg_ts...>(0);
-			owner.call(tuple);
-		// }
-	}
-}
 
 
 // ========================== Argument Tuple Building ==========================
@@ -325,33 +213,6 @@ std::tuple<tuple_arg_t> Command<ret_t,
 	return t;
 }
 */
-
-// =============================================================================
-// Command Manager Implementation
-// =============================================================================
-// -----------------------------------------------------------------------------
-// Implementation
-// -----------------------------------------------------------------------------
-template <typename ret_t, typename... arg_ts>
-void CommandManager::addCommand
-(
-	const std::string &owner,
-	const std::string &command_name,
-	const std::string &docstring,
-	const std::function<ret_t(arg_ts...)> &f
-)
-{
-	this->commands.emplace_back
-	(
-		std::make_unique<Command<ret_t, arg_ts...>>
-		(
-			owner,
-			command_name,
-			docstring,
-			f
-		)
-	);
-}
 
 } // end namespace dls
 #endif /* end of include guard: COMMAND_TPP_OVALZHX0 */

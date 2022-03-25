@@ -43,13 +43,13 @@ LogStreamBuffer::LogStreamBuffer
 	topic(topic_),
 	pPublisher(
 		std::make_shared<version2::PublisherBase<StringMsgPubSubType>>(
-			"LogStream",
-			topic_,
-			dls::domains::logging_domain
+			dls::domains::logging,
+			prefix_,
+			topic_
 		)
 	),
 	buf(new char[buffer_size]),
-	prefix(prefix_)
+	prefix(prefix_ + ": ")
 {
 	setp(buf, buf + buffer_size -1);
 }
@@ -108,7 +108,7 @@ cdbgstream::cdbgstream(const std::string &prefix, std::size_t buffer_size) :
 		(
 			dls::topics::debug_log_stream,
 			buffer_size,
-			prefix + ": "
+			prefix
 		)
 	)
 { }
@@ -127,7 +127,7 @@ clogstream::clogstream(const std::string &prefix, std::size_t buffer_size) :
 		(
 			dls::topics::info_log_stream,
 			buffer_size,
-			prefix + ": "
+			prefix
 		)
 	)
 { }
@@ -146,7 +146,7 @@ coutstream::coutstream(const std::string &prefix, std::size_t buffer_size) :
 		(
 			dls::topics::warn_log_stream,
 			buffer_size,
-			prefix + ": "
+			prefix
 		)
 	)
 { }
@@ -165,7 +165,7 @@ cerrstream::cerrstream(const std::string &prefix, std::size_t buffer_size) :
 		(
 			dls::topics::error_log_stream,
 			buffer_size,
-			prefix + ": "
+			prefix
 		)
 	)
 { }
@@ -184,7 +184,7 @@ cfatalstream::cfatalstream(const std::string &prefix, std::size_t buffer_size) :
 		(
 			dls::topics::fatal_log_stream,
 			buffer_size,
-			prefix + ": "
+			prefix
 		)
 	)
 { }

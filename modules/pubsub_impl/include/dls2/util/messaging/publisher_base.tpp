@@ -154,19 +154,16 @@ namespace dls
 	{
 		template <class PubSub_t>
 		Publisher<PubSub_t>::Publisher(
+			const unsigned int &domain_,
 			const std::string &part_,
-			const std::string &topic_,
-			const unsigned int &domain_
+			const std::string &topic_
 		) :
 			participant(nullptr),
 			publisher(nullptr),
 			topic(nullptr),
 			writer(nullptr),
-			type(new PubSub_t()),
-			creationMutex(boost::interprocess::open_or_create, "creationMutex")
+			type(new PubSub_t())
 		{
-			this->creationMutex.lock();
-			std::cout << "mutex lock" << part_ << "# " << topic << std::endl;
 			//Find if a participant already exists
 			//Picks a random participant of domain 0
 			auto randomPart = eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->lookup_participant(domain_);
@@ -204,7 +201,7 @@ namespace dls
 					get_instance()->create_participant(domain_, participantQos);
 
 				if(this->participant == nullptr){
-					throw std::runtime_error("Error: could not create subscriber participant");
+					throw std::runtime_error("Error: could not create participant");
 				}
 				this->type.register_type(this->participant);
 			}
@@ -256,7 +253,6 @@ namespace dls
 					"Error: could not create publisher writer"
 				);
 			}
-			this->creationMutex.unlock();
 		}
 
 		template<class PubSub_t>

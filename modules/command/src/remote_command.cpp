@@ -51,9 +51,9 @@ RemoteCommand::RemoteCommand(const std::string &topic_, CommandRegisterMsg &msg)
 	args(msg.arg_types()),
 	ret_type(msg.ret_type()),
 	remote_command_publisher(
+		dls::domains::command,
 		"RemoteCommand",
-		topic_,
-		dls::domains::command_domain
+		topic_
 	)
 { }
 
@@ -93,9 +93,9 @@ RemoteCommandManager::RemoteCommandManager
 	remote_commands(),
 	command_added(),
 	registration_listener(
+		dls::domains::command,
 		"remote_command_manager",
 		"command_registration",
-		dls::domains::command_domain,
 		nullptr //put here the callback for new commands from remote
 	),  
 	onNewCommand(onNewCommand_),

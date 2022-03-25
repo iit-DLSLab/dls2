@@ -22,7 +22,7 @@
 #include <mutex>
 
 #include "dls2/application_framework/components/app_layer_component.hpp"
-#include "dls2/command/command.hpp"
+#include "dls2/command/command_manager.hpp"
 
 namespace dls
 {

@@ -13,19 +13,25 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef DOMAINS_HPP
-#define DOMAINS_HPP
+// =============================================================================
+// Includes
+// =============================================================================
+#include "dls2/command/command_manager.hpp"
 
 namespace dls
 {
-	namespace domains
-	{
-		constexpr auto layer = 4;
-		constexpr auto command = 5;
-		constexpr auto control = 6;
-		constexpr auto console = 7;
-		constexpr auto logging = 8;
-	}
-}
 
-#endif /* end of include guard: DOMAINS_HPP */
+// =============================================================================
+// Command Manager Implementation
+// =============================================================================
+// -----------------------------------------------------------------------------
+// Constructors
+// -----------------------------------------------------------------------------
+CommandManager::CommandManager():
+	commands()
+{ }
+
+CommandManager::~CommandManager()
+{ }
+
+} // end namespace dls
