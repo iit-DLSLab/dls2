@@ -36,6 +36,7 @@
 #include <functional>
 #include <mutex>
 #include <atomic>
+#include <signal.h>
 
 // =============================================================================
 // Class Interface
@@ -44,7 +45,7 @@ namespace dls
 {
 /// A console interface into the framework
 ///
-class ConsoleLayer : public AppLayer//, public SubscriberBase<StringMsgPubSubType>
+class ConsoleLayer : public AppLayer
 {
 	// Console completion is handled by readline, which is a C-library.
 	// Therefore, need to declare this as a friend
@@ -98,12 +99,19 @@ private:
 
 	/// User feedback subscriber
 	///
-	version2::Subscriber<StringMsgPubSubType> string_listener;
+	version2::Subscriber<StringMsgPubSubType> consoleFeedback;
 
 	/// Stores commands registered by the console
 	///
 	CommandManager command_manager;
+
+	/// Flag of the running loop
+	/// Exits when set to true
 	std::atomic_bool should_quit;
+	
+	/// Handler to the shutdown SIGINT (ctrl+c) signal
+	/// 
+	static void handle_signals(int);
 };
 } // end namespace dls
 

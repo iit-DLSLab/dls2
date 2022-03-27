@@ -111,12 +111,13 @@ void launchSim();
 // as a signal handler
 void kill_children(int)
 {
-	std::cout << "\nShuttingdown processes" << std::endl;
+	/*
 	for(auto &el : child_datas)
 	{
-		kill(el.first, SIGTERM);
+		kill(el.first, SIGINT);
 	}
-	kill(0, SIGTERM);
+	*/
+	pApp->stop();
 }
 
 void stop_app_handler(int)
@@ -147,7 +148,8 @@ void app_panic_handler(int)
 // =============================================================================
 int main(int argc, char **argv)
 {
-	using namespace std::chrono_literals;
+	change_process_name(argv, "dls_framework");
+
 	#ifndef NDEBUG
 		std::cout << "Debug build" << std::endl;
 	#endif
@@ -167,8 +169,8 @@ int main(int argc, char **argv)
 	);
 
 	// Initiate log streams
-	logging::coutstream outstream("fwkMonitorStream");
-	logging::cfatalstream sfatal("fwkMonitorFatal");
+	//logging::coutstream outstream("fwkMonitorStream");
+	//logging::cfatalstream sfatal("fwkMonitorFatal");
 	
 	// impl::initFramework();
 
@@ -315,8 +317,7 @@ int main(int argc, char **argv)
 	//
 	// loop is exited when there are no more children
 	while(true)
-	{
-		
+	{		
 		std::stringstream ss;
 		int status;
 		pid_t child_pid = wait(&status);
@@ -329,7 +330,7 @@ int main(int argc, char **argv)
 				break;
 			}
 		}
-
+/*
 		auto it = child_datas.find(child_pid);
 		if(it != child_datas.end())
 		{
@@ -353,8 +354,10 @@ int main(int argc, char **argv)
 			ss.flush();
 		}
 		outstream << ss.str() << std::endl;
-		
+*/		
 	}
+	
+	std::cout << "Framework Stopped" << std::endl;
 	return 0;
 }
 
@@ -399,7 +402,7 @@ void forkLayer(const std::string &process_name, char **argv)
 		// register shutdown handler
 		signal
 		(
-			SIGTERM,
+			SIGINT,
 			stop_app_handler
 		);
 		signal
@@ -407,8 +410,9 @@ void forkLayer(const std::string &process_name, char **argv)
 			SIGSEGV,
 			app_panic_handler
 		);
-
+		
 		pApp->run();
+		
 		exit(EXIT_SUCCESS);
 	}
 	else

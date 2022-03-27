@@ -164,64 +164,29 @@ namespace dls
 			writer(nullptr),
 			type(new PubSub_t())
 		{
-			//Find if a participant already exists
-			//Picks a random participant of domain 0
-			auto randomPart = eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->lookup_participant(domain_);
-			// If there is any participant find if the participant already exists
-			if (randomPart != nullptr){
-				//Get participants list
-				auto listPartNames = randomPart->get_participant_names();
+			eprosima::fastdds::dds::DomainParticipantQos participantQos;
+			participantQos.wire_protocol().builtin.discovery_config.discoveryProtocol = eprosima::fastrtps::rtps::DiscoveryProtocol_t::SIMPLE;
+			participantQos.wire_protocol().builtin.discovery_config.leaseDuration_announcementperiod = eprosima::fastrtps::Duration_t(1, 2);
+			// participantQos.wire_protocol().builtin.discovery_config.initial_announcements.count = 2000;
+			// participantQos.wire_protocol().builtin.discovery_config.initial_announcements.period = eprosima::fastrtps::Duration_t(0, 100000000u);
+			participantQos.name(part_);
 
-				//Search for the existence of the participant
-				auto partName = std::find(listPartNames.begin(), listPartNames.end(), part_);
+			this->participant = eprosima::fastdds::dds::DomainParticipantFactory::
+				get_instance()->create_participant(domain_, participantQos);
 
-				//If the participant already exists just use it
-				if ( partName != listPartNames.end() ){
-					//find the instance of the participant
-					auto listPart = eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->lookup_participants(domain_);
-					for (auto part : listPart){
-						if(part->get_qos().name() == *partName){
-							this->participant = part;
-							break;
-						}
-					}
-				}
+			if(this->participant == nullptr){
+				throw std::runtime_error("Error: could not create participant");
 			}
+			this->type.register_type(this->participant);
 			
-			//If the participant does not exists, create it
-			if (this->participant == nullptr){
-				eprosima::fastdds::dds::DomainParticipantQos participantQos;
-				participantQos.wire_protocol().builtin.discovery_config.discoveryProtocol = eprosima::fastrtps::rtps::DiscoveryProtocol_t::SIMPLE;
-				participantQos.wire_protocol().builtin.discovery_config.leaseDuration_announcementperiod = eprosima::fastrtps::Duration_t(1, 2);
-				// participantQos.wire_protocol().builtin.discovery_config.initial_announcements.count = 2000;
-				// participantQos.wire_protocol().builtin.discovery_config.initial_announcements.period = eprosima::fastrtps::Duration_t(0, 100000000u);
-				participantQos.name(part_);
-
-				this->participant = eprosima::fastdds::dds::DomainParticipantFactory::
-					get_instance()->create_participant(domain_, participantQos);
-
-				if(this->participant == nullptr){
-					throw std::runtime_error("Error: could not create participant");
-				}
-				this->type.register_type(this->participant);
-			}
-
-			//search for existing topic
-			this->topic = this->participant->find_topic(topic_, eprosima::fastrtps::Duration_t(0, 1000));
-
-			//if topic does not exists, create it
+			this->topic = this->participant->create_topic(
+				topic_, 
+				rtps_type.getName(), 
+				eprosima::fastdds::dds::TOPIC_QOS_DEFAULT
+			);
+		
 			if(this->topic == nullptr){
-				this->topic = this->participant->create_topic(
-					topic_, 
-					rtps_type.getName(), 
-					eprosima::fastdds::dds::TOPIC_QOS_DEFAULT
-				);
-			}
-
-			if(this->topic == nullptr)
-			{
-				throw std::runtime_error
-				(
+				throw std::runtime_error(
 					"Error: could not create publisher topic"
 				);
 			}
@@ -231,56 +196,46 @@ namespace dls
 				nullptr
 			);
 
-			if(this->publisher == nullptr)
-			{
-				throw std::runtime_error
-				(
+			if(this->publisher == nullptr){
+				throw std::runtime_error(
 					"Error: could not create publisher"
 				);
 			}
 
-			this->writer = this->publisher->create_datawriter
-			(
+			this->writer = this->publisher->create_datawriter(
 				this->topic,
 				eprosima::fastdds::dds::DATAWRITER_QOS_DEFAULT,
 				&this->publisher_listener
 			);
 
-			if(this->writer == nullptr)
-			{
-				throw std::runtime_error
-				(
+			if(this->writer == nullptr)	{
+				throw std::runtime_error(
 					"Error: could not create publisher writer"
 				);
 			}
 		}
 
 		template<class PubSub_t>
-		Publisher<PubSub_t>::~Publisher()
-		{
-			if(this->writer != nullptr)
-			{
+		Publisher<PubSub_t>::~Publisher(){
+			if(this->writer != nullptr){
 				this->publisher->delete_datawriter(this->writer);
 			}
-			if(this->topic != nullptr)
-			{
+			
+			if(this->topic != nullptr){
 			 	this->participant->delete_topic(this->topic);
 			}			
-			if(this->publisher != nullptr)
-			{
+			
+			if(this->publisher != nullptr){
 				this->participant->delete_publisher(this->publisher);
 			}
 			
-			//if the participant has any active entities it does not get deleted
 			eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->
 				delete_participant(this->participant);
 		}
 
 		template<class PubSub_t>
-		void Publisher<PubSub_t>::publish(typename PubSub_t::type &msg) const
-		{
-			if(publisher_listener.matched_count > 0)
-			{
+		void Publisher<PubSub_t>::publish(typename PubSub_t::type &msg) const{
+			if(publisher_listener.matched_count > 0){
 				this->writer->write(&msg);
 			}
 		}
@@ -308,18 +263,15 @@ namespace dls
 			const eprosima::fastdds::dds::PublicationMatchedStatus &info
 		)
 		{
-			if(info.current_count_change == 1)
-			{
+			if(info.current_count_change == 1){
 				// publisher matched
 				this->matched_count = info.total_count;
 			}
-			else if(info.current_count_change == -1)
-			{
+			else if(info.current_count_change == -1){
 				// publisher unmatched
 				this->matched_count = info.total_count;
 			}
-			else
-			{
+			else{
 				// invalid
 			}
 		}

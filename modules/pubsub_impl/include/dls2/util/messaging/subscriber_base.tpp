@@ -157,120 +157,73 @@ namespace dls
 			type(new PubSub_t()),
 			subscriber_listener(callback)
 		{
-			//Find if a participant already exists
-			//Picks a random participant of domain 0
-			auto randomPart = eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->lookup_participant(domain_);
-			// If there is any participant find if the participant already exists
-			if (randomPart != nullptr){
-				//Get participants list
-				auto listPartNames = randomPart->get_participant_names();
+			eprosima::fastdds::dds::DomainParticipantQos participantQos;
+			participantQos.wire_protocol().builtin.discovery_config.discoveryProtocol = eprosima::fastrtps::rtps::DiscoveryProtocol_t::SIMPLE;
+			participantQos.wire_protocol().builtin.discovery_config.leaseDuration_announcementperiod = eprosima::fastrtps::Duration_t(1, 2);
+			// participantQos.wire_protocol().builtin.discovery_config.initial_announcements.count = 2000;
+			// participantQos.wire_protocol().builtin.discovery_config.initial_announcements.period = eprosima::fastrtps::Duration_t(0, 100000000u);
+			participantQos.name(part_);
 
-				//Search for the existence of the participant
-				auto partName = std::find(listPartNames.begin(), listPartNames.end(), part_);
+			this->participant = eprosima::fastdds::dds::DomainParticipantFactory::
+				get_instance()->create_participant(domain_, participantQos);
 
-				//If the participant already exists just use it
-				if ( partName != listPartNames.end() ){
-					//find the instance of the participant
-					auto listPart = eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->lookup_participants(domain_);
-					for (auto part : listPart){
-						if(part->get_qos().name() == *partName){
-							this->participant = part;
-							break;
-						}
-					}
-				}
+			if(this->participant == nullptr){
+				throw std::runtime_error("Error: could not create participant");
 			}
-				
-			//If the participant does not exists, create it
-			if (this->participant == nullptr){
-				eprosima::fastdds::dds::DomainParticipantQos participantQos;
-				participantQos.wire_protocol().builtin.discovery_config.discoveryProtocol = eprosima::fastrtps::rtps::DiscoveryProtocol_t::SIMPLE;
-				participantQos.wire_protocol().builtin.discovery_config.leaseDuration_announcementperiod = eprosima::fastrtps::Duration_t(1, 2);
-				// participantQos.wire_protocol().builtin.discovery_config.initial_announcements.count = 2000;
-				// participantQos.wire_protocol().builtin.discovery_config.initial_announcements.period = eprosima::fastrtps::Duration_t(0, 100000000u);
-				participantQos.name(part_);
-
-				this->participant = eprosima::fastdds::dds::DomainParticipantFactory::
-					get_instance()->create_participant(domain_, participantQos);
-
-				if(this->participant == nullptr){
-					throw std::runtime_error("Error: could not create participant");
-				}
-				this->type.register_type(this->participant);
-			}
-					
-			//search for existing topic
-			this->topic = this->participant->find_topic(topic_, eprosima::fastrtps::Duration_t(0, 1000));
-
-			//if topic does not exists, create it
+			this->type.register_type(this->participant);
+			
+			this->topic = this->participant->create_topic(
+				topic_, 
+				rtps_type.getName(), 
+				eprosima::fastdds::dds::TOPIC_QOS_DEFAULT
+			);
+			
 			if(this->topic == nullptr){
-				this->topic = this->participant->create_topic(
-					topic_, 
-					rtps_type.getName(), 
-					eprosima::fastdds::dds::TOPIC_QOS_DEFAULT
+				throw std::runtime_error(
+					"Error: could not create subscriber topic"
 				);
 			}
 
-
-			if(this->topic == nullptr)
-			{
-				throw std::runtime_error
-				(
-					"Error: could not create publisher topic"
-				);
-			}
-
-			this->subscriber = this->participant->create_subscriber
-			(
+			this->subscriber = this->participant->create_subscriber(
 				eprosima::fastdds::dds::SUBSCRIBER_QOS_DEFAULT,
 				nullptr
 			);
 
-			if(this->subscriber == nullptr)
-			{
-				throw std::runtime_error
-				(
+			if(this->subscriber == nullptr){
+				throw std::runtime_error(
 					"Error: could not create subscriber"
 				);
 			}
 
-			this->reader = this->subscriber->create_datareader
-			(
+			this->reader = this->subscriber->create_datareader(
 				this->topic,
 				eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT,
 				&this->subscriber_listener
 			);
 
-			if(this->reader == nullptr)
-			{
-				throw std::runtime_error
-				(
+			if(this->reader == nullptr){
+				throw std::runtime_error(
 					"Error: could not create subscriber reader"
 				);
 			}
 		}
 
 		template <class PubSub_t>
-		Subscriber<PubSub_t>::~Subscriber()
-		{
-			if(this->reader != nullptr)
-			{
+		Subscriber<PubSub_t>::~Subscriber(){
+			if(this->reader != nullptr){
 				this->subscriber->delete_datareader(this->reader);
 			}
-			if(this->topic != nullptr)
-			{
+			if(this->topic != nullptr){
 			 	this->participant->delete_topic(this->topic);
 			}
-			if(this->subscriber != nullptr)
-			{
+			if(this->subscriber != nullptr){
 				this->participant->delete_subscriber(this->subscriber);
 			}
 
-			//if the participant has any active entities it does not get deleted
 			eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->
 				delete_participant(this->participant);
 		}
-
+		
 		// =====================================================================
 		// Helper Listener Class
 		// =====================================================================

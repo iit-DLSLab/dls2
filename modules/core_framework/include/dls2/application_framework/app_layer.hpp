@@ -124,7 +124,7 @@ private:
 		Status status;
 	// END critical section
 
-	logging::coutstream scout;
+	//logging::coutstream scout;
 
 protected:
 	// TODO remove this

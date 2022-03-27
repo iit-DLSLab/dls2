@@ -32,7 +32,7 @@ AppLayer::AppLayer
 	command_manager(),
 	status_mutex(),
 	status(Status::INITIALISING),
-	scout(ID_ + "Log"),
+	//scout(ID_ + "Log"),
 	main(0)
 {
 	/*

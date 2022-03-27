@@ -18,6 +18,7 @@
 #include <readline/history.h>
 #include <cstring>
 #include <sstream>
+#include <unistd.h>
 
 // TODO when we are using a proper modern compiler, use the filesystem library
 // #include <filesystem>
@@ -70,16 +71,17 @@ ConsoleLayer::ConsoleLayer() :
 	remote_command_manager(),
 	command_manager(),
 	should_quit(false),
-	string_listener(
+	consoleFeedback(
 			dls::domains::layer,
 			"consoleLayer",
 			"consoleFeedback",
 			version2::Subscriber<StringMsgPubSubType>::CallbackType
 			(
 				[&](StringMsg tuple)
-				{/*
+				{
 					eprosima::fastrtps::SampleInfo_t info;
 					StringMsg msg;
+				/*
 					if(sub->takeNextData(&msg, &info))
 					{
 						// std::cout << "\n" << msg.msg() << std::flush;
@@ -91,7 +93,6 @@ ConsoleLayer::ConsoleLayer() :
 						this->message_stack_ready.notify_one();
 					}
 				*/
-					std::cout << " received data" << std::endl;
 					//do the magic here
 				}
 			)
@@ -187,8 +188,18 @@ ConsoleLayer::ConsoleLayer() :
 // =============================================================================
 // Interface Override
 // =============================================================================
+// Signal handler for exiting from console
+void ConsoleLayer::handle_signals(int){
+	pInstance->shutdown();
+	rl_cleanup_after_signal();
+	std::cout << std::endl;
+ 	exit(EXIT_SUCCESS);
+}
+
 ConsoleLayer::Status ConsoleLayer::run()
 {
+	rl_set_signals();
+	signal(SIGINT, this->handle_signals);
 	while(!this->should_quit)
 	{
 		// This calls malloc behind the scenes. Needs to be freed manually
@@ -291,7 +302,6 @@ ConsoleLayer::Status ConsoleLayer::run()
 			std::cout << std::endl;
 		}
 	}
-
 	return getStatus();
 }
 
