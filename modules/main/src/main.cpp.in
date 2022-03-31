@@ -120,28 +120,28 @@ void kill_children(int)
 	pApp->stop();
 }
 
-void stop_app_handler(int)
-{
-	pApp->stop();
-	exit(EXIT_SUCCESS);
-}
+// void stop_app_handler(int)
+// {
+// 	pApp->stop();
+// 	exit(EXIT_SUCCESS);
+// }
 
-void app_panic_handler(int)
-{
-	pApp->panic();
-	std::cout << "framework level segfault detected" << std::endl;
+// void app_panic_handler(int)
+// {
+// 	pApp->panic();
+// 	std::cout << "framework level segfault detected" << std::endl;
 
-	// remove segfault signal handler
-	signal(SIGSEGV, SIG_DFL);
+// 	// remove segfault signal handler
+// 	signal(SIGSEGV, SIG_DFL);
 
-	// force segfault now that it is handled in this process. This
-	// will signal the monitor procss that a segfault occured here
-	kill(getpid(), SIGSEGV);
+// 	// force segfault now that it is handled in this process. This
+// 	// will signal the monitor procss that a segfault occured here
+// 	kill(getpid(), SIGSEGV);
 
-	// alternatively, could exit like this:
-	// exit(SOME_SEGFAULT_ENUM);
-	// then, the monitor would have to respond to that exit value
-}
+// 	// alternatively, could exit like this:
+// 	// exit(SOME_SEGFAULT_ENUM);
+// 	// then, the monitor would have to respond to that exit value
+// }
 
 // =============================================================================
 // Main Logic
@@ -162,11 +162,11 @@ int main(int argc, char **argv)
 	// When the user presses CTRL-C, make sure that all child processes are
 	// killed. If this is not done, the child processes will inherit from the
 	// base process and continue to run even if the framework exits.
-	signal
-	(
-		SIGINT,
-		kill_children
-	);
+	// signal
+	// (
+	// 	SIGINT,
+	// 	kill_children
+	// );
 
 	// Initiate log streams
 	//logging::coutstream outstream("fwkMonitorStream");
@@ -399,17 +399,17 @@ void forkLayer(const std::string &process_name, char **argv)
 		std::shared_ptr<layer_t> pLayer = std::make_shared<layer_t>();
 		pApp->addLayer(pLayer);
 
-		// register shutdown handler
-		signal
-		(
-			SIGINT,
-			stop_app_handler
-		);
-		signal
-		(
-			SIGSEGV,
-			app_panic_handler
-		);
+		// // register shutdown handler
+		// signal
+		// (
+		// 	SIGINT,
+		// 	stop_app_handler
+		// );
+		// signal
+		// (
+		// 	SIGSEGV,
+		// 	app_panic_handler
+		// );
 		
 		pApp->run();
 		

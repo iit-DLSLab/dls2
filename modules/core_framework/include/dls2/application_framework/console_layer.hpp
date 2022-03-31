@@ -28,7 +28,6 @@
 #include "dls2/util/messaging/subscriber_base.hpp"
 
 // commands
-#include "dls2/command/remote_command.hpp"
 #include "dls2/command/command.hpp"
 
 // stdlib
@@ -90,12 +89,10 @@ private:
 	/// Calls a command with the given command line arguments
 	///
 	/// This function automatically converts the string arguments to the correct
-	/// types to be pushed to the remote command
-	/// @param c a remote command to be called
+	/// types to be pushed to the command
+	/// @param c a command to be called
 	/// @param args a vector of string representations of the arguments
-	void callCommand(const RemoteCommand &c, const std::vector<std::string> &args);
-
-	RemoteCommandManager remote_command_manager;
+	void callCommand(const CommandBase &c, const std::vector<std::string> &args);
 
 	/// User feedback subscriber
 	///

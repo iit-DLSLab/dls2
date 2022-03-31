@@ -68,7 +68,6 @@ ConsoleLayer *pInstance = nullptr;
 // =============================================================================
 ConsoleLayer::ConsoleLayer() :
 	AppLayer("console"),
-	remote_command_manager(),
 	command_manager(),
 	should_quit(false),
 	consoleFeedback(
@@ -190,16 +189,14 @@ ConsoleLayer::ConsoleLayer() :
 // =============================================================================
 // Signal handler for exiting from console
 void ConsoleLayer::handle_signals(int){
-	pInstance->shutdown();
-	rl_cleanup_after_signal();
-	std::cout << std::endl;
- 	exit(EXIT_SUCCESS);
+	abort();
 }
 
 ConsoleLayer::Status ConsoleLayer::run()
 {
 	rl_set_signals();
 	signal(SIGINT, this->handle_signals);
+
 	while(!this->should_quit)
 	{
 		// This calls malloc behind the scenes. Needs to be freed manually
@@ -247,7 +244,7 @@ ConsoleLayer::Status ConsoleLayer::run()
 							input_split[0].substr(namespace_delimiter_index + 2);
 
 						// find the command
-						auto pCommand = pInstance->remote_command_manager
+						auto pCommand = pInstance->command_manager
 							.find(namespace_name, command_name);
 
 						// call the command
@@ -267,14 +264,14 @@ ConsoleLayer::Status ConsoleLayer::run()
 					// if the command is of the form command_name
 					else
 					{
-						std::vector<std::shared_ptr<const RemoteCommand>> remote_commands =
-							pInstance->remote_command_manager.findByName(input_split[0]);
+						std::vector<std::shared_ptr<CommandBase>> commands =
+							pInstance->command_manager.findByName(input_split[0]);
 
-						if(remote_commands.size() == 1)
+						if(commands.size() == 1)
 						{
-							callCommand(*remote_commands[0], args);
+							callCommand(*commands[0], args);
 						}
-						else if(remote_commands.size() == 0)
+						else if(commands.size() == 0)
 						{
 							std::cerr << "Command '" << input_split[0] <<
 								"' not found" << std::endl;
@@ -284,9 +281,9 @@ ConsoleLayer::Status ConsoleLayer::run()
 						{
 							std::cout << "error: ambiguous overload. Command '"
 								<< input_split[0] << "' found in these namespaces:\n";
-							for(const auto &el : remote_commands)
+							for(const auto &el : commands)
 							{
-								std::cout << "\t" << el->owner << "\n";
+								std::cout << "\t" << el->getCommandOwner() << "\n";
 							}
 							std::cout << std::endl;
 							build_prompt();
@@ -331,7 +328,7 @@ std::string ConsoleLayer::build_prompt()
 
 void ConsoleLayer::callCommand
 (
-	const RemoteCommand &command, const std::vector<std::string> &args
+	const CommandBase &command, const std::vector<std::string> &args
 )
 {
 	/*
@@ -500,17 +497,17 @@ char **dls::console_completion(const char *text, int start, int /*end*/)
 		{
 			// std::lock_guard<std::mutex> lock(pInstance->commands_mutex);
 
-			std::vector<std::shared_ptr<const RemoteCommand>> remote_commands =
-				pInstance->remote_command_manager.getCurrentlyRegisteredCommands();
+			std::vector<std::shared_ptr<CommandBase>> commands =
+				pInstance->command_manager.getCurrentlyRegisteredCommands();
 
-			auto it = remote_commands.begin();
-			for(; it != remote_commands.end(); ++it)
+			auto it = commands.begin();
+			for(; it != commands.end(); ++it)
 			{
-				if((*it)->command_name == command_name)
+				if((*it)->getCommandName() == command_name)
 					break;
 			}
 
-			if(it != remote_commands.end())
+			if(it != commands.end())
 			{
 				matches = rl_completion_matches(text, arg_completion);
 			}
@@ -526,10 +523,10 @@ char **dls::console_completion(const char *text, int start, int /*end*/)
 // -----------------------------------------------------------------------------
 char *dls::command_completion(const char *text, int state)
 {
-	static decltype(pInstance->remote_command_manager.getCurrentlyRegisteredCommands()) commands;
-	static decltype(pInstance->remote_command_manager.getCurrentlyRegisteredCommands().cbegin()) it_commands;
-	static decltype(pInstance->remote_command_manager.getCurrentlyRegisteredOwners()) owners;
-	static decltype(pInstance->remote_command_manager.getCurrentlyRegisteredOwners().cbegin()) it_owners;
+	static decltype(pInstance->command_manager.getCurrentlyRegisteredCommands()) commands;
+	static decltype(pInstance->command_manager.getCurrentlyRegisteredCommands().cbegin()) it_commands;
+	static decltype(pInstance->command_manager.getCurrentlyRegisteredOwners()) owners;
+	static decltype(pInstance->command_manager.getCurrentlyRegisteredOwners().cbegin()) it_owners;
 	static int string_length;
 
 	// Safety check is not currently needed, but putting it now for future
@@ -539,8 +536,8 @@ char *dls::command_completion(const char *text, int state)
 		// if first time this completer is being run
 		if(state == 0)
 		{
-			commands = pInstance->remote_command_manager.getCurrentlyRegisteredCommands();
-			owners = pInstance->remote_command_manager.getCurrentlyRegisteredOwners();
+			commands = pInstance->command_manager.getCurrentlyRegisteredCommands();
+			owners = pInstance->command_manager.getCurrentlyRegisteredOwners();
 			// pInstance->commands_mutex.lock();
 			// it = pInstance->commands.begin();
 			it_commands = commands.begin();
@@ -551,7 +548,7 @@ char *dls::command_completion(const char *text, int state)
 		// Do command completion
 		while(it_commands != commands.cend())
 		{
-			const char *match_candidate = (*it_commands)->command_name.c_str();
+			const char *match_candidate = (*it_commands)->getCommandName().c_str();
 			++it_commands;
 
 			// TODO move this into a function, since it is copied in the other

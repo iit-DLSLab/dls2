@@ -2,8 +2,6 @@
 #include <iostream>
 #include <catch2/catch.hpp>
 #include "dls2/command/command.hpp"
-#include "dls2/command/remote_command.hpp"
-
 
 TEST_CASE("Commands can be added to the framework", "[command]")
 {

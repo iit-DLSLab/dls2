@@ -24,32 +24,41 @@
 
 namespace dls
 {
-// =============================================================================
-// Command Manager Implementation
-// =============================================================================
-// -----------------------------------------------------------------------------
-// Implementation
-// -----------------------------------------------------------------------------
-template <typename ret_t, typename... arg_ts>
-void CommandManager::addCommand
-(
-	const std::string &owner,
-	const std::string &command_name,
-	const std::string &docstring,
-	const std::function<ret_t(arg_ts...)> &f
-)
-{
-	this->commands.emplace_back
+	// =============================================================================
+	// Command Manager Implementation
+	// =============================================================================
+	// -----------------------------------------------------------------------------
+	// Implementation
+	// -----------------------------------------------------------------------------
+	template <typename ret_t, typename... arg_ts>
+	void CommandManager::addCommand
 	(
-		std::make_unique<Command<ret_t, arg_ts...>>
+		const std::string &owner,
+		const std::string &command_name,
+		const std::string &docstring,
+		const std::function<ret_t(arg_ts...)> &f
+	)
+	{
+		this->commands.emplace_back
 		(
-			owner,
-			command_name,
-			docstring,
-			f
-		)
-	);
-}
+			std::make_unique<Command<ret_t, arg_ts...>>
+			(
+				owner,
+				command_name,
+				docstring,
+				f
+			)
+		);
+	}
+
+	// -------------------------------------------------------------------------
+	// RemoteCommandCallable
+	// -------------------------------------------------------------------------
+	template <typename... Ts>
+	void RemoteCommandCallable::operator()(Ts... ts)
+	{
+		//this->pRemote_command->call(ts...);
+	}
 
 } // end namespace dls
 #endif /* end of include guard: COMMAND_TPP_MANAGER */

@@ -23,17 +23,35 @@
 #include <string>
 #include <utility>
 #include <vector>
-
+#include <condition_variable>
 
 namespace dls
 {
+
 // =============================================================================
-// Container Class
+// Callable
 // =============================================================================
-/// Command Manager class
+/// A class that can be used to programatically call external commands as if
+/// they are defined in the same process space
 ///
-/// External components should prefer using this class instead of directly using
-/// `Command`
+class RemoteCommandCallable
+{
+	friend class CommandManager;
+public:
+	template <typename... Ts>
+	void operator()(Ts...);
+
+private:
+	RemoteCommandCallable();
+	std::shared_ptr<CommandBase> pRemote_command;
+};
+// =============================================================================
+// Command Manager Class
+// =============================================================================
+/// A class that manages commands
+///
+/// This class updates its internal representations as commands advertise
+/// themselves and remove themselves from the framework
 class CommandManager
 {
 public:
@@ -45,6 +63,59 @@ public:
 	///
 	~CommandManager();
 
+		/// Find commands
+	///
+	/// Finds a vector of commands by the name of the component that owns them
+	std::vector<std::shared_ptr<CommandBase>> findByOwner
+	(
+		const std::string&
+	) const;
+
+	/// Find commands
+	///
+	/// Finds a vector of commands by their name. Note that certain commands may
+	/// have the same name but different owners. This could be the case, for
+	/// instance, if multiple controllers advertise a `start` or `stop` command.
+	std::vector<std::shared_ptr<CommandBase>> findByName
+	(
+		const std::string&
+	) const;
+
+	/// Find command
+	///
+	/// Finds a command by its name and the name of its owner. There is
+	/// guaranteed to be at most one command of this type. Returns nullptr on
+	/// failure
+	std::shared_ptr<CommandBase> find
+	(
+		const std::string &owner, const std::string &name
+	) const;
+
+	/// Get list of all registered commands
+	///
+	/// Since commands may be added from separate processes, it is not possible
+	/// to give direct access to the CommandManager's list of commands. Instead,
+	/// this command makes a copy of the registered commands and returns that.
+	/// That way, if some component starts walking through its list of commands,
+	/// that list will never get invalidated by another process registering new
+	/// commands
+	std::vector<std::shared_ptr<CommandBase>>
+		getCurrentlyRegisteredCommands();
+
+	/// Get a list of the unique owners of the commands
+	///
+	std::set<std::string> getCurrentlyRegisteredOwners();
+
+	/// Give a command the hability to be remote callable
+	///
+	/// @param owner the name of the component that registers the command
+	/// @param name the name of the command registered by that component
+	/// @return a functor representing the command
+	RemoteCommandCallable makeCallable
+	(
+		const std::string &owner,
+		const std::string &name
+	) const;
 
 	/// Adds a command to the CommandManager and registers it with the rest of
 	/// the framework
@@ -62,11 +133,32 @@ public:
 		const std::function<ret_t(arg_ts...)> &f
 	);
 
-private:
-	/// Storage space for the commands
+	/// Removes a command from the manager
 	///
-	std::vector<std::unique_ptr<CommandBase>> commands;
+	void removeCommand(CommandBase);
+
+private:
+	// begin critical section
+		/// Mutex protecting the `remote_commands` vector
+		///
+		mutable std::mutex commands_mutex;
+
+		/// Storage space for the commands
+		///
+		std::vector<std::shared_ptr<CommandBase>> commands;
+
+		/// Used by makeCallable to check whether a command that had not been
+		/// registered has become available
+		///
+		mutable std::condition_variable command_added;
+	// end critical section
+
+	/// Subscriber to receive informations from the command dss domain
+	///
+	version2::Subscriber<CommandRegisterMsgPubSubType> registration_listener;
+
 };
+
 } // end namespace dls
 
 #include "dls2/command/command_manager.tpp"

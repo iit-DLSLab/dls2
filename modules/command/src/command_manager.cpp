@@ -21,6 +21,7 @@
 namespace dls
 {
 
+
 // =============================================================================
 // Command Manager Implementation
 // =============================================================================
@@ -28,10 +29,139 @@ namespace dls
 // Constructors
 // -----------------------------------------------------------------------------
 CommandManager::CommandManager():
-	commands()
+	commands(),
+	registration_listener(
+		dls::domains::layer,
+		"remote_command_manager",
+		"command_registration",
+		nullptr //put here the callback for new commands from remote
+	)
 { }
 
 CommandManager::~CommandManager()
 { }
+
+// -----------------------------------------------------------------------------
+// Implementation
+// -----------------------------------------------------------------------------
+std::vector<std::shared_ptr<CommandBase>> CommandManager::findByOwner
+(
+	const std::string &owner
+) const
+{
+	std::vector<std::shared_ptr<CommandBase>> vec;
+	{
+		std::lock_guard<std::mutex> lock(this->commands_mutex);
+		for(const auto &el : this->commands)
+		{
+			if(el->getCommandOwner() == owner)
+			{
+				vec.push_back(el);
+			}
+		}
+	}
+	return vec;
+}
+
+std::vector<std::shared_ptr<CommandBase>> CommandManager::findByName
+(
+	const std::string &name
+) const
+{
+	std::vector<std::shared_ptr<CommandBase>> vec;
+	{
+		std::lock_guard<std::mutex> lock(this->commands_mutex);
+		for(const auto &el : this->commands)
+		{
+			if(el->getCommandName() == name)
+			{
+				vec.push_back(el);
+			}
+		}
+	}
+	return vec;
+}
+
+std::shared_ptr<CommandBase> CommandManager::find
+(
+	const std::string &owner,
+	const std::string &name
+) const
+{
+	{
+		std::lock_guard<std::mutex> lock(this->commands_mutex);
+		for(const auto &el : this->commands)
+		{
+			if
+			(
+				el->getCommandOwner() == owner &&
+				el->getCommandName() == name
+			)
+			{
+				return el;
+			}
+		}
+	}
+	return nullptr;
+}
+
+std::vector<std::shared_ptr<CommandBase>>
+	CommandManager::getCurrentlyRegisteredCommands()
+{
+	std::lock_guard<std::mutex> lock(this->commands_mutex);
+	return this->commands;
+}
+
+std::set<std::string> CommandManager::getCurrentlyRegisteredOwners()
+{
+	std::lock_guard<std::mutex> lock(this->commands_mutex);
+	std::set<std::string> set;
+	for(auto it = commands.begin(); it != commands.end(); ++it)
+	{
+		set.insert((*it)->owner);
+	}
+
+	return set;
+}
+
+// =============================================================================
+// Remote Command Callable
+// =============================================================================
+// -----------------------------------------------------------------------------
+// Constructors
+// -----------------------------------------------------------------------------
+RemoteCommandCallable::RemoteCommandCallable() :
+	pRemote_command(nullptr)
+{ }
+
+RemoteCommandCallable CommandManager::makeCallable
+(
+	const std::string &owner,
+	const std::string &name
+) const
+{
+	std::shared_ptr<CommandBase> pCommand;
+	do
+	{
+		pCommand = this->find
+		(
+			owner,
+			name
+		);
+		if(!pCommand)
+		{
+			std::cout << "Command '" << name << "' for '" << owner <<
+				"' not yet registered. Blocking" << std::endl;
+			std::unique_lock<std::mutex> lock(this->commands_mutex);
+			this->command_added.wait(lock);
+		}
+	}while(pCommand == nullptr);
+
+	RemoteCommandCallable callable;
+	callable.pRemote_command = pCommand;
+	return callable;
+}
+
+
 
 } // end namespace dls

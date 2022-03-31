@@ -1,5 +1,4 @@
 #include "dls2/command/command.hpp"
-#include "dls2/command/remote_command.hpp"
 
 #include <chrono>
 #include <iostream>
