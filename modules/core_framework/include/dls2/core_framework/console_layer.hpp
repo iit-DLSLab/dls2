@@ -86,10 +86,9 @@ private:
 	/// future
 	std::string build_prompt();
 
-
 	/// User feedback subscriber
 	///
-	version2::Subscriber<StringMsgPubSubType> consoleFeedback;
+	// version2::Subscriber<StringMsgPubSubType> consoleFeedback;
 
 	/// Flag of the running loop
 	/// Exits when set to true

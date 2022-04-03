@@ -68,33 +68,34 @@ ConsoleLayer *pInstance = nullptr;
 // =============================================================================
 ConsoleLayer::ConsoleLayer(std::string ID) :
 	AppLayer(ID),
-	should_quit(false),
-	consoleFeedback(
-			dls::domains::layer,
-			ID,
-			"consoleFeedback",
-			version2::Subscriber<StringMsgPubSubType>::CallbackType
-			(
-				[&](StringMsg tuple)
-				{
-					eprosima::fastrtps::SampleInfo_t info;
-					StringMsg msg;
-				/*
-					if(sub->takeNextData(&msg, &info))
-					{
-						// std::cout << "\n" << msg.msg() << std::flush;
-						// std::cout << owner.build_prompt() << " " << rl_line_buffer << std::flush;
-					{
-						std::lock_guard<std::mutex> lock(this->message_stack_mutex);
-						this->message_stack.push_back(msg.msg());
-					}
-						this->message_stack_ready.notify_one();
-					}
-				*/
-					//do the magic here
-				}
-			)
-	)	
+	should_quit(false)
+	// ,
+	// consoleFeedback(
+	// 	dls::domains::layer,
+	// 	ID,
+	// 	"consoleFeedback",
+	// 	version2::Subscriber<StringMsgPubSubType>::CallbackType
+	// 	(
+	// 		[&](StringMsg tuple)
+	// 		{
+	// 			eprosima::fastrtps::SampleInfo_t info;
+	// 			StringMsg msg;
+	// 		/*
+	// 			if(sub->takeNextData(&msg, &info))
+	// 			{
+	// 				// std::cout << "\n" << msg.msg() << std::flush;
+	// 				// std::cout << owner.build_prompt() << " " << rl_line_buffer << std::flush;
+	// 			{
+	// 				std::lock_guard<std::mutex> lock(this->message_stack_mutex);
+	// 				this->message_stack.push_back(msg.msg());
+	// 			}
+	// 				this->message_stack_ready.notify_one();
+	// 			}
+	// 		*/
+	// 			//do the magic here
+	// 		}
+	// 	)
+	// )	
 {
 	pInstance = this;
 
@@ -123,7 +124,8 @@ ConsoleLayer::ConsoleLayer(std::string ID) :
 				std::cout << "\033[2J" << std::endl; // clear
 				std::cout << "\033[H" << std::endl; // home
 			}
-		}
+		},
+		true
 	);
 
 	command_manager.addCommand<void>

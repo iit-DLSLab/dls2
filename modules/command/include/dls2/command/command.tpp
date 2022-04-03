@@ -32,23 +32,6 @@
 
 #include "dls2/util/messaging/participant.hpp"
 
-// The current release of Eigen defines in the file `Eigen_Colamd.h` the macro:
-// # define ALIVE (0)
-// This macro seems to be refered to in only that file. Being a very generic
-// name, it clashes with the enumeration in: `eprosima::fastrtps::rtps::ALIVE`
-// As of this writing, it seems that this has been fixed in Eigen's github.
-// However, it has not been officially released yet. At the time of this writing
-// (21 January 2020), the latest stable release of Eigen is Eigen 3.3.7,
-// released on 11 December 2018. Until such time as Eigen's fix makes it into a
-// new release, the following lines solves the issue.
-//
-// For this message, and other similar issues, refer to the wiki page `Software
-// Issues`
-
-// #ifdef ALIVE
-// #undef ALIVE
-// #endif
-
 namespace dls
 {
 // =============================================================================
@@ -60,30 +43,20 @@ Command<ret_t, arg_ts...>::Command
 	const std::string &owner_,
 	const std::string &command_name_,
 	const std::string &docstring_,
-	const std::function<ret_t(arg_ts...)>&f_
+	const std::function<ret_t(arg_ts...)>&f_,
+	const bool remote
 ) :
 	CommandBase(
 		owner_,
 		command_name_,
 		docstring_,
 		sizeof...(arg_ts)),
-	f(f_),
+	f(f_)
 	//msg(buildMsg(owner_, command_name_, docstring_)),
-	commandSub(
-			dls::domains::command,
-			command_name_,
-			dls::topics::command_call,
-			version2::Subscriber<CommandRegisterMsgPubSubType>::CallbackType
-			(
-				[&](CommandRegisterMsg tuple)
-				{
-					//this->call(tuple);
-				}
-			)
-	)
 {
-	
-	//requestRegistration();
+	if (remote){
+		this->makeRemote();
+	}
 }
 
 template <typename ret_t, typename...arg_ts>
@@ -116,8 +89,7 @@ int Command<ret_t, arg_ts...>::call(std::vector<std::string> args){
 		std::cout << "Error: incorrect number of arguments" << std::endl;
 		return 0;
 	}
-
-	//const std::vector<std::string> inputs{"100", "42.22", "11"};
+	
 	auto arguments = create_tuple<arg_ts...>(args);
 
 	//static_assert(std::is_same_v<decltype(arguments), const std::tuple<arg_ts...>>);
@@ -125,6 +97,32 @@ int Command<ret_t, arg_ts...>::call(std::vector<std::string> args){
 	std::apply(this->f, arguments);
 
 	return 1;
+}
+
+template <typename ret_t, typename...arg_ts>
+void Command<ret_t, arg_ts...>::makeRemote()
+{
+	commandSub = std::make_unique<version2::Subscriber<CommandRegisterMsgPubSubType>> (
+		dls::domains::command,
+		this->getCommandName(),
+		dls::topics::command_call
+		// ,
+		// version2::Subscriber<CommandRegisterMsgPubSubType>::CallbackType
+		// (
+		// 	[&](CommandRegisterMsg tuple)
+		// 	{
+		// 		//this->call(tuple);
+		// 	}
+		// )
+	);
+	
+	std::this_thread::sleep_for(std::chrono::milliseconds(10));
+}
+
+template <typename ret_t, typename...arg_ts>
+void Command<ret_t, arg_ts...>::makeLocal()
+{
+	commandSub.release();
 }
 
 // -----------------------------------------------------------------------------
@@ -164,35 +162,7 @@ template <typename ret_t, typename...arg_ts>
 unsigned int Command<ret_t, arg_ts...>::getNumArgs(){
 	return sizeof...(arg_ts);
 }
-
-
-// =============================================================================
-// Implementation
-// =============================================================================
-// -----------------------------------------------------------------------------
-// Registration
-// -----------------------------------------------------------------------------
-/*template <typename ret_t, typename...arg_ts>
-void Command<ret_t, arg_ts...>::requestRegistration()
-{
-	auto msg = this->msg;
-	msg.register_nremove() = true;
-	//this->publisher.publish(msg);
-	std::this_thread::sleep_for(std::chrono::milliseconds(10));
-}
-
-template <typename ret_t, typename...arg_ts>
-void Command<ret_t, arg_ts...>::requestDeregistration()
-{
-	auto msg = this->msg;
-	msg.register_nremove() = false;
-	//this->publisher.publish(msg);
-}*/
-
-
 /*
-
-
 // ========================== Argument Tuple Building ==========================
 template <typename ret_t, typename...arg_ts>
 template <typename tuple_arg1_t, typename tuple_arg2_t, typename... tuple_arg_ts>

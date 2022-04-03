@@ -58,7 +58,8 @@ public:
 		const std::string &command_name,
 		const std::string &owner,
 		const std::string &docstring,
-		const std::function<ret_t(arg_ts...)> &f
+		const std::function<ret_t(arg_ts...)> &f,
+		const bool is_remote = false
 	);
 
 	/// Destructor
@@ -74,13 +75,13 @@ public:
 	///
 	int call(std::vector<std::string>);
 
-	/// Registers this command with the framework
+	/// Make command remotely accessible
 	///
-	//void requestRegistration() override;
+	void makeRemote();
 
-	/// Removes this command from the framework
+	/// Make command locally accessible
 	///
-	//void requestDeregistration() override;
+	void makeLocal();
 	
 private:
 	// ========================== Constructor helpers ==========================
@@ -106,32 +107,8 @@ private:
 
 	/// Subscriber used to link the command with the rest of the framework
 	///
-	version2::Subscriber<CommandRegisterMsgPubSubType> commandSub;
+	std::unique_ptr<version2::Subscriber<CommandRegisterMsgPubSubType>> commandSub;
 };
-
-
-// ============================ Subscriber reading =============================
-// TODO put these into a proper namespace
-/// Takes an argument from a dynamic subscriber
-///
-template <typename T>
-T takeArg
-(
-	std::shared_ptr<eprosima::fastrtps::types::DynamicData> pData,
-	size_t index
-);
-
-
-// template<class T> T transform_arg(std::string const &s);
-// template<> double transform_arg(std::string const &s);
-// template<> int transform_arg(std::string const &s);
-
-// template <typename... Args, std::size_t... Is>
-// auto create_tuple_impl(std::index_sequence<Is...>, const std::vector<std::string>& arguments);
-
-
-// template <typename... Args>
-// auto create_tuple(const std::vector<std::string>& arguments);
 
 } // end namespace dls
 

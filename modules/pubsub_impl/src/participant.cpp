@@ -65,7 +65,7 @@ namespace dls
 				throw std::runtime_error(
 				    "Error: could not create publisher participant");
 			}
-
+/*
 			// ====== Create the participant for the old API of fastrtps =======
 			// This should eventually be removed when all the old pubs and subs
 			// are taken out
@@ -101,6 +101,7 @@ namespace dls
 				}
 				std::cout << "Built legacy fastrtps participant" << std::endl;
 			}
+			*/
 			std::cout << "initialised fastdds" << std::endl;
 		}
 

@@ -119,7 +119,8 @@ public:
 	(
 		const std::string &command_name,
 		const std::string &docstring,
-		const std::function<ret_t(arg_ts...)> &f
+		const std::function<ret_t(arg_ts...)> &f,
+		const bool is_remote = false
 	);
 
 	/// Removes a command from the manager

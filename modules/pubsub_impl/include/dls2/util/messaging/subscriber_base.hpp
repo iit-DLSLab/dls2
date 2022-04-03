@@ -87,8 +87,9 @@ namespace dls
 			Subscriber(
 				const unsigned int &domain_,
 				const std::string &part_,
-				const std::string &topic_,
-				CallbackType callback
+				const std::string &topic_
+				//,
+				//CallbackType callback
 			);
 			virtual ~Subscriber();
 
@@ -99,26 +100,26 @@ namespace dls
 			eprosima::fastdds::dds::Topic             *topic;
 			eprosima::fastdds::dds::TypeSupport       type;
 
-			class SubListener : public eprosima::fastdds::dds::DataReaderListener
-			{
-			public:
-				SubListener(CallbackType callback_);
+			// class SubListener : public eprosima::fastdds::dds::DataReaderListener
+			// {
+			// public:
+			// 	SubListener(CallbackType callback_);
 
-				void on_subscription_matched
-				(
-					eprosima::fastdds::dds::DataReader*,
-					const eprosima::fastdds::dds::SubscriptionMatchedStatus &info
-				) override;
-				std::atomic_int sample_count;
+			// 	void on_subscription_matched
+			// 	(
+			// 		eprosima::fastdds::dds::DataReader*,
+			// 		const eprosima::fastdds::dds::SubscriptionMatchedStatus &info
+			// 	) override;
+			// 	std::atomic_int sample_count;
 
-				void on_data_available
-				(
-					eprosima::fastdds::dds::DataReader*
-				) override;
+			// 	void on_data_available
+			// 	(
+			// 		eprosima::fastdds::dds::DataReader*
+			// 	) override;
 
-				CallbackType callback;
-				typename PubSub_t::type msg;
-			} subscriber_listener;
+			// 	CallbackType callback;
+			// 	typename PubSub_t::type msg;
+			// } subscriber_listener;
 
 			PubSub_t rtps_type;
 		};

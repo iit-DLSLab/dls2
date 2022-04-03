@@ -173,7 +173,7 @@ int main(int argc, char **argv)
 	//logging::coutstream outstream("fwkMonitorStream");
 	//logging::cfatalstream sfatal("fwkMonitorFatal");
 	
-	// impl::initFramework();
+	impl::initFramework();
 
 	// Create application
 	pApp = std::make_shared<HyQApp>();
@@ -210,7 +210,6 @@ int main(int argc, char **argv)
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
 
-/*
 	///	DDS DEBUGIN CODE - TO BE DELETED
 	auto listPart = eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->
 		lookup_participants(0);
@@ -221,7 +220,7 @@ int main(int argc, char **argv)
 		//eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->
 		//delete_participant(elem);
 	}
-
+/*
 	auto names = eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->lookup_participant(5)->get_participant_names();
 	std::cout << "size names" << names.size() << std::endl;
 	for(auto name : names)
@@ -361,7 +360,7 @@ void forkLayer(const std::string &process_name, char **argv)
 		// );
 		
 		pApp->run();
-		
+
 		exit(EXIT_SUCCESS);
 	}
 	else
