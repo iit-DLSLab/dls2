@@ -13,7 +13,7 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#include "dls2/application_framework/init.hpp"
+#include "dls2/core_framework/init.hpp"
 #include "dls2/util/messaging/participant.hpp"
 
 /// \cond doxygen_namespace_dls

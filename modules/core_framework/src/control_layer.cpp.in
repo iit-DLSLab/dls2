@@ -13,7 +13,7 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#include "dls2/application_framework/control_layer.hpp"
+#include "dls2/core_framework/control_layer.hpp"
 #include <sstream>
 #include <Eigen/Dense>
 #include <tuple>
@@ -43,7 +43,7 @@
 
 #include <cstdlib>
 
-#include "dls2/application_framework/options.hpp"
+#include "dls2/core_framework/options.hpp"
 
 // The current release of Eigen defines in the file `Eigen_Colamd.h` the macro:
 // # define ALIVE (0)
@@ -76,8 +76,8 @@ Eigen::VectorXd last_published_desired_torques;
 // =============================================================================
 // Constructors
 // =============================================================================
-ControlLayer::ControlLayer() :
-	AppLayer("control_layer"),
+ControlLayer::ControlLayer(std::string ID) :
+	AppLayer(ID),
 	controllers_b(),
 	controllers_mutex_b(),
 	// generators(),
@@ -106,10 +106,10 @@ ControlLayer::ControlLayer() :
 	),
 	default_duration_seconds(2),
 
-	command_manager(),
-	scout("control_layer"),
-	clog("control_layer"),
-	cfatal("control_layer")
+	command_manager(ID),
+	scout(ID),
+	clog(ID),
+	cfatal(ID)
 {
 	/*
 	command_manager.addCommand<bool, std::string>

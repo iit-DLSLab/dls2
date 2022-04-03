@@ -28,8 +28,9 @@ namespace dls
 // -----------------------------------------------------------------------------
 // Constructors
 // -----------------------------------------------------------------------------
-CommandManager::CommandManager():
+CommandManager::CommandManager(std::string owner_):
 	commands(),
+	owner(owner_),
 	registration_listener(
 		dls::domains::layer,
 		"remote_command_manager",
@@ -118,7 +119,7 @@ std::set<std::string> CommandManager::getCurrentlyRegisteredOwners()
 	std::set<std::string> set;
 	for(auto it = commands.begin(); it != commands.end(); ++it)
 	{
-		set.insert((*it)->owner);
+		set.insert((*it)->getCommandOwner());
 	}
 
 	return set;

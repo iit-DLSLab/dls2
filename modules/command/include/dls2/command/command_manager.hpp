@@ -57,39 +57,30 @@ class CommandManager
 public:
 	/// Constructor
 	///
-	CommandManager();
+	CommandManager(std::string owner_);
 
 	/// Destructor
 	///
 	~CommandManager();
 
-		/// Find commands
+	/// Find commands
 	///
 	/// Finds a vector of commands by the name of the component that owns them
-	std::vector<std::shared_ptr<CommandBase>> findByOwner
-	(
-		const std::string&
-	) const;
+	std::vector<std::shared_ptr<CommandBase>> findByOwner( const std::string& ) const;
 
 	/// Find commands
 	///
 	/// Finds a vector of commands by their name. Note that certain commands may
 	/// have the same name but different owners. This could be the case, for
 	/// instance, if multiple controllers advertise a `start` or `stop` command.
-	std::vector<std::shared_ptr<CommandBase>> findByName
-	(
-		const std::string&
-	) const;
+	std::vector<std::shared_ptr<CommandBase>> findByName( const std::string& ) const;
 
 	/// Find command
 	///
 	/// Finds a command by its name and the name of its owner. There is
 	/// guaranteed to be at most one command of this type. Returns nullptr on
 	/// failure
-	std::shared_ptr<CommandBase> find
-	(
-		const std::string &owner, const std::string &name
-	) const;
+	std::shared_ptr<CommandBase> find( const std::string &owner, const std::string &name ) const;
 
 	/// Get list of all registered commands
 	///
@@ -99,8 +90,7 @@ public:
 	/// That way, if some component starts walking through its list of commands,
 	/// that list will never get invalidated by another process registering new
 	/// commands
-	std::vector<std::shared_ptr<CommandBase>>
-		getCurrentlyRegisteredCommands();
+	std::vector<std::shared_ptr<CommandBase>> getCurrentlyRegisteredCommands();
 
 	/// Get a list of the unique owners of the commands
 	///
@@ -127,7 +117,6 @@ public:
 	template <typename ret_t, typename... arg_ts>
 	void addCommand
 	(
-		const std::string &owner,
 		const std::string &command_name,
 		const std::string &docstring,
 		const std::function<ret_t(arg_ts...)> &f
@@ -152,6 +141,10 @@ private:
 		///
 		mutable std::condition_variable command_added;
 	// end critical section
+
+	/// Owner layer of the commands
+	///
+	std::string owner;
 
 	/// Subscriber to receive informations from the command dss domain
 	///

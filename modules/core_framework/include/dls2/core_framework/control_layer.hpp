@@ -57,7 +57,7 @@ namespace dls
 class ControlLayer : public AppLayer
 {
 public:
-	ControlLayer();
+	ControlLayer(std::string ID);
 	~ControlLayer();
 
 	// ========================== Interface Overrides ==========================

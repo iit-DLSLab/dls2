@@ -55,7 +55,7 @@ class ConsoleLayer : public AppLayer
 public:
 	/// Default Constructor
 	///
-	ConsoleLayer();
+	ConsoleLayer(std::string ID);
 
 	/// Default Destructor
 	///
@@ -86,21 +86,10 @@ private:
 	/// future
 	std::string build_prompt();
 
-	/// Calls a command with the given command line arguments
-	///
-	/// This function automatically converts the string arguments to the correct
-	/// types to be pushed to the command
-	/// @param c a command to be called
-	/// @param args a vector of string representations of the arguments
-	void callCommand(const CommandBase &c, const std::vector<std::string> &args);
 
 	/// User feedback subscriber
 	///
 	version2::Subscriber<StringMsgPubSubType> consoleFeedback;
-
-	/// Stores commands registered by the console
-	///
-	CommandManager command_manager;
 
 	/// Flag of the running loop
 	/// Exits when set to true

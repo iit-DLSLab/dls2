@@ -19,7 +19,7 @@
 // =============================================================================
 // Includes
 // =============================================================================
-#include "dls2/application_framework/components/periodic_app_layer_component.hpp"
+#include "dls2/components/periodic_app_layer_component.hpp"
 #include "dls2/gait_generator/gait_signal.hpp"
 #include "dls2/controller/control_signal.hpp"
 #include "dls2/fastrtps_wrappers/blind_state.hpp"

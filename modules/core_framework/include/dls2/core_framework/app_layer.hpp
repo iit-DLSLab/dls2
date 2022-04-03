@@ -21,7 +21,7 @@
 #include <map>
 #include <mutex>
 
-#include "dls2/application_framework/components/app_layer_component.hpp"
+#include "dls2/components/app_layer_component.hpp"
 #include "dls2/command/command_manager.hpp"
 
 namespace dls
@@ -107,17 +107,24 @@ protected:
 	/// exist
 	AppLayerComponent::Status getComponentStatus(const std::string &name);
 
+	/// Get the ID of the layer
+	///
+	/// @return the ID of the layer
+	std::string getID();
+
 	// BEGIN critical section
 		mutable std::mutex components_mutex;
 		std::map<std::string, pComponent_t> components;
 	// END critical section
 
+	/// Stores commands registered in the layer
+	///
+	CommandManager command_manager;
+
 private:
 	/// The ID of this layer
 	///
 	const std::string ID;
-
-	CommandManager command_manager;
 
 	// BEGIN critical section
 		mutable std::mutex status_mutex;

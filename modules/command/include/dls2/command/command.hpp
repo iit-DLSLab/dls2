@@ -55,8 +55,8 @@ public:
 	/// any number of any type of argument, and returns any type
 	Command
 	(
-		const std::string &owner,
 		const std::string &command_name,
+		const std::string &owner,
 		const std::string &docstring,
 		const std::function<ret_t(arg_ts...)> &f
 	);
@@ -65,6 +65,14 @@ public:
 	///
 	/// Request removal of the command from the framework
 	~Command();
+
+	/// Return the number of arguments of the command
+	///
+	unsigned int getNumArgs();
+
+	/// Implementation of the virtual call method
+	///
+	int call(std::vector<std::string>);
 
 	/// Registers this command with the framework
 	///
@@ -86,25 +94,8 @@ private:
 		const std::string &docstring
 	);
 
-	// =========================== Member Functions ============================
-	ret_t call(std::tuple<arg_ts...>&);
-
-	template <size_t...I>
-	ret_t call(std::tuple<arg_ts...>&, std::index_sequence<I...>);
 
 	// ============================= Data Members ==============================
-	/// Name of the component that owns this command
-	///
-	const std::string owner;
-
-	/// Name of the command as seen by the rest of the framework
-	///
-	const std::string command_name;
-
-	/// Documentation for the command
-	///
-	const std::string docstring;
-
 	/// Callback of the command
 	///
 	const std::function<ret_t(arg_ts...)> f;
@@ -129,6 +120,18 @@ T takeArg
 	std::shared_ptr<eprosima::fastrtps::types::DynamicData> pData,
 	size_t index
 );
+
+
+// template<class T> T transform_arg(std::string const &s);
+// template<> double transform_arg(std::string const &s);
+// template<> int transform_arg(std::string const &s);
+
+// template <typename... Args, std::size_t... Is>
+// auto create_tuple_impl(std::index_sequence<Is...>, const std::vector<std::string>& arguments);
+
+
+// template <typename... Args>
+// auto create_tuple(const std::vector<std::string>& arguments);
 
 } // end namespace dls
 

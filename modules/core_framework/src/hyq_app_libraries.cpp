@@ -13,7 +13,7 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#include "dls2/application_framework/hyq_app.hpp"
+#include "dls2/core_framework/hyq_app.hpp"
 #include "dls2/util/time/time.hpp"
 
 using namespace dls;

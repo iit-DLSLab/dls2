@@ -13,28 +13,63 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef GAIT_GENERATOR_LAYER_PHPP_6bf82ff6_8192_4ed8_abd5_ac9d0b5328c1
-#define GAIT_GENERATOR_LAYER_PHPP_6bf82ff6_8192_4ed8_abd5_ac9d0b5328c1
+#ifndef ROS_LAYER_HPP
+#define ROS_LAYER_HPP
 // =============================================================================
 // Includes
 // =============================================================================
-#include "dls2/application_framework/app_layer.hpp"
+// framework
+#include "app_layer.hpp"
+
+// messaging
 #include "dls2/util/messaging/publisher_base.hpp"
-#include "dls2/util/messaging/callback_subscriber.hpp"
+#include "dls2/msg/stringmsgPubSubTypes.h"
+#include "dls2/msg/command_registerPubSubTypes.h"
+#include "dls2/util/messaging/subscriber_base.hpp"
 
-#include "dls2/msg/gait_signalPubSubTypes.h"
+// commands
+#include "dls2/command/command.hpp"
 
+// =============================================================================
+// Class Interface
+// =============================================================================
 namespace dls
 {
-	class GaitLayer : public AppLayer
-	{
-	public:
-		GaitLayer();
+/// A ROS interface into the framework
+///
+class ROSLayer : public AppLayer
+{
+public:
+	/// Default Constructor
+	///
+	ROSLayer(std::string ID);
 
-	private:
-		PublisherBase<GaitSignalMsgPubSubType> pub;
-		CallbackSubscriber<GaitSignalMsgPubSubType> sub;
-	};
-}
+	/// Default Destructor
+	///
+	~ROSLayer() = default;
 
-#endif // GAIT_GENERATOR_LAYER_PHPP_6bf82ff6_8192_4ed8_abd5_ac9d0b5328c1
+	/// Run the layer
+	///
+	Status run() override;
+
+	/// Stop the layer
+	///
+	Status shutdown() override;
+
+	/// Print the state of this layer
+	///
+	std::string where() override{return "not yet implemented";}
+
+private:
+	/// Flag of the running loop
+	/// Exits when set to true
+	std::atomic_bool should_quit;
+
+	/// Handler to the shutdown SIGINT (ctrl+c) signal
+	/// 
+	static void handle_signals(int);
+	
+};
+} // end namespace dls
+
+#endif /* end of include guard: ROS_LAYER_HPP */

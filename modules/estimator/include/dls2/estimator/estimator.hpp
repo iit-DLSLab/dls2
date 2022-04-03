@@ -18,7 +18,7 @@
 
 #include <string>
 
-#include "dls2/application_framework/components/periodic_app_layer_component.hpp"
+#include "dls2/components/periodic_app_layer_component.hpp"
 
 namespace dls
 {

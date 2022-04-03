@@ -13,7 +13,7 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#include "dls2/application_framework/console_layer.hpp"
+#include "dls2/core_framework/console_layer.hpp"
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <cstring>
@@ -66,13 +66,12 @@ ConsoleLayer *pInstance = nullptr;
 // =============================================================================
 // Constructors
 // =============================================================================
-ConsoleLayer::ConsoleLayer() :
-	AppLayer("console"),
-	command_manager(),
+ConsoleLayer::ConsoleLayer(std::string ID) :
+	AppLayer(ID),
 	should_quit(false),
 	consoleFeedback(
 			dls::domains::layer,
-			"consoleLayer",
+			ID,
 			"consoleFeedback",
 			version2::Subscriber<StringMsgPubSubType>::CallbackType
 			(
@@ -95,7 +94,7 @@ ConsoleLayer::ConsoleLayer() :
 					//do the magic here
 				}
 			)
-	)
+	)	
 {
 	pInstance = this;
 
@@ -112,37 +111,14 @@ ConsoleLayer::ConsoleLayer() :
 	// flexible rl_attempted_completion_function
 	rl_completion_entry_function = [](const char *, int)->char*{return nullptr;};
 
-	/*
 
-	command_manager.addCommand<void, std::string>
+	command_manager.addCommand<void>
 	(
-		"console_layer",
-		"help",
-		"prints docstring of a command",
-		std::function<void(std::string)>
-		(
-			[&](std::string s)
-			{
-				std::cout << std::endl;
-				for(auto pCommand : this->remote_command_manager.findByName(s))
-				{
-					std::cout << pCommand->owner << "::" <<
-						pCommand->command_name << ": " <<
-						pCommand->docstring << std::endl;
-				}
-				std::cout << this->build_prompt() << std::endl;
-			}
-		)
-	);
-
-	command_manager.addCommand<void, ARGVOID>
-	(
-		"console_layer",
 		"clc",
 		"clears the console",
-		std::function<void(ARGVOID)>
+		std::function<void()>
 		{
-			[](ARGVOID)
+			[&]()
 			{
 				std::cout << "\033[2J" << std::endl; // clear
 				std::cout << "\033[H" << std::endl; // home
@@ -150,25 +126,55 @@ ConsoleLayer::ConsoleLayer() :
 		}
 	);
 
-	command_manager.addCommand<void, ARGVOID>
+	command_manager.addCommand<void>
 	(
-		"console_layer",
+		"exit",
+		"exits the console",
+		std::function<void()>
+		{
+			[&]()
+			{
+				this->should_quit = true;;
+			}
+		}
+	);
+
+	command_manager.addCommand<void, std::string>
+	(
+		"help",
+		"prints docstring of a command",
+		std::function<void(std::string)>
+		(
+			[&](std::string s)
+			{
+				std::cout << std::endl;
+				for(auto pCommand : this->command_manager.findByName(s))
+				{
+					std::cout << pCommand->getCommandOwner() << "::" <<
+						pCommand->getCommandName() <<  std::endl <<
+						pCommand->getCommandDoc() << std::endl << std::endl;
+				}
+			}
+		)
+	);
+
+	command_manager.addCommand<void>
+	(
 		"whereAll",
 		"prints the status of each active component",
-		std::function<void(ARGVOID)>
+		std::function<void()>
 		{
-			[&](ARGVOID)
+			[&]()
 			{
-				auto where_commands =
-					this->remote_command_manager.findByName("where");
+				auto where_commands = this->command_manager.findByName("where");
 				for(const auto &where_command : where_commands)
 				{
-					if(where_command->owner != "console_layer")
+					if(where_command->getCommandOwner() != "console_layer")
 					{
-						std::cout << where_command->owner << std::endl;
+						std::cout << where_command->getCommandOwner() << std::endl;
 						std::cout << "============================" << std::endl;
-						where_command->call();
-						std::cout << "\n" << std::endl;
+						//where_command->call();
+						std::cout << "This function needs to be implemented\n" << std::endl;
 						// TODO this is not the most elegant solution. A better
 						// way would be for "where" of each component to return
 						// a string directly here. This has not been implemented
@@ -181,7 +187,6 @@ ConsoleLayer::ConsoleLayer() :
 			}
 		}
 	);
-	*/
 }
 
 // =============================================================================
@@ -210,12 +215,12 @@ ConsoleLayer::Status ConsoleLayer::run()
 
 			if(*input.c_str())
 			{
-				// add_history(line);
 				add_history(input.c_str());
 
 				// Parse the arguments
 				// the format is [namespace::]command_name [arg1 [arg2...]]
 				std::istringstream iss(input);
+
 				std::vector<std::string> input_split
 					(
 						std::istream_iterator<std::string>{iss},
@@ -250,7 +255,7 @@ ConsoleLayer::Status ConsoleLayer::run()
 						// call the command
 						if(pCommand)
 						{
-							callCommand(*pCommand, args);
+							pCommand->call(args);
 						}
 						else
 						{
@@ -269,7 +274,7 @@ ConsoleLayer::Status ConsoleLayer::run()
 
 						if(commands.size() == 1)
 						{
-							callCommand(*commands[0], args);
+							commands[0]->call(args);
 						}
 						else if(commands.size() == 0)
 						{
@@ -324,140 +329,6 @@ ConsoleLayer::Status ConsoleLayer::shutdown()
 std::string ConsoleLayer::build_prompt()
 {
 	return "> ";
-}
-
-void ConsoleLayer::callCommand
-(
-	const CommandBase &command, const std::vector<std::string> &args
-)
-{
-	/*
-	// Ensure args are correct size
-	if
-	(
-		(
-			args.size() != 0 &&
-			static_cast<CommandBase::ArgumentType>(command.args[0]) == CommandBase::ArgumentType::VOID
-		)
-		||
-		(
-			args.size() != command.args.size() &&
-			static_cast<CommandBase::ArgumentType>(command.args[0]) != CommandBase::ArgumentType::VOID
-		)
-	)
-	{
-		std::cout << "Error: incorrect number of arguments" << std::endl;
-		build_prompt();
-		return;
-	}
-
-	// push the args
-	for(size_t i = 0; i != args.size(); ++ i)
-	{
-		std::stringstream ss(args[i]);
-		switch(static_cast<CommandBase::ArgumentType>(command.args[i]))
-		{
-			case CommandBase::ArgumentType::VOID:
-			{
-				ARGVOID v;
-				command.pushArg<ARGVOID>(v);
-				break;
-			}
-			case CommandBase::ArgumentType::CHAR:
-			{
-				char val;
-				ss >> val;
-				command.pushArg<char>(val);
-				break;
-			}
-			case CommandBase::ArgumentType::UINT8:
-			{
-				uint8_t val;
-				ss >> val;
-				command.pushArg<uint8_t>(val);
-				break;
-			}
-			case CommandBase::ArgumentType::INT16:
-			{
-				int16_t val;
-				ss >> val;
-				command.pushArg<int16_t>(val);
-				break;
-			}
-			case CommandBase::ArgumentType::UINT16:
-			{
-				uint16_t val;
-				ss >> val;
-				command.pushArg<uint16_t>(val);
-				break;
-			}
-			case CommandBase::ArgumentType::INT32:
-			{
-				int32_t val;
-				ss >> val;
-				command.pushArg<int32_t>(val);
-				break;
-			}
-			case CommandBase::ArgumentType::UINT32:
-			{
-				uint32_t val;
-				ss >> val;
-				command.pushArg<uint32_t>(val);
-				break;
-			}
-			case CommandBase::ArgumentType::INT64:
-			{
-				int64_t val;
-				ss >> val;
-				command.pushArg<int64_t>(val);
-				break;
-			}
-			case CommandBase::ArgumentType::FLOAT:
-			{
-				float val;
-				ss >> val;
-				command.pushArg<float>(val);
-				break;
-			}
-			case CommandBase::ArgumentType::DOUBLE:
-			{
-				double val;
-				ss >> val;
-				command.pushArg<double>(val);
-				break;
-			}
-			case CommandBase::ArgumentType::LONG_DOUBLE:
-			{
-				long double val;
-				ss >> val;
-				command.pushArg<long double>(val);
-				break;
-			}
-			case CommandBase::ArgumentType::BOOL:
-			{
-				bool val;
-				ss >> val;
-				command.pushArg<bool>(val);
-				break;
-			}
-			case CommandBase::ArgumentType::STD_STRING:
-			{
-				command.pushArg<std::string>(ss.str());
-				break;
-			}
-			default:
-			{
-				std::cout << "ERROR: unsupported argument type: " <<
-					command.args[i] << std::endl;
-				std::cout << "STD_STRING: " << static_cast<uint32_t>(CommandBase::ArgumentType::STD_STRING) << std::endl;
-				return;
-			}
-		}
-	}
-
-	// call the command
-	command.call();
-	*/
 }
 
 // =============================================================================

@@ -28,6 +28,7 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
+#include <tuple>
 
 #include "dls2/util/messaging/participant.hpp"
 
@@ -61,9 +62,11 @@ Command<ret_t, arg_ts...>::Command
 	const std::string &docstring_,
 	const std::function<ret_t(arg_ts...)>&f_
 ) :
-	owner(owner_),
-	command_name(command_name_),
-	docstring(docstring_),
+	CommandBase(
+		owner_,
+		command_name_,
+		docstring_,
+		sizeof...(arg_ts)),
 	f(f_),
 	//msg(buildMsg(owner_, command_name_, docstring_)),
 	commandSub(
@@ -74,11 +77,12 @@ Command<ret_t, arg_ts...>::Command
 			(
 				[&](CommandRegisterMsg tuple)
 				{
-					this->call(tuple);
+					//this->call(tuple);
 				}
 			)
 	)
 {
+	
 	//requestRegistration();
 }
 
@@ -88,8 +92,43 @@ Command<ret_t, arg_ts...>::~Command()
 	//requestDeregistration();
 }
 
+template<class T> T transform_arg(std::string const &s){return s;}
+// template<> double transform_arg(std::string const &s) { return atof(s.c_str());}
+// template<> int transform_arg(std::string const &s) { return atoi(s.c_str());}
+//template<> std::string transform_arg(std::string const &s) { return s;}
+
+
+template <typename... Args, std::size_t... Is>
+auto create_tuple_impl(std::index_sequence<Is...>, const std::vector<std::string>& arguments) {
+    return std::make_tuple(transform_arg<Args>(arguments[Is])...);
+}
+
+template <typename... Args>
+auto create_tuple(const std::vector<std::string>& args) {
+    return create_tuple_impl<Args...>(std::index_sequence_for<Args...>{}, args);
+}
+
+template <typename ret_t, typename... arg_ts>
+int Command<ret_t, arg_ts...>::call(std::vector<std::string> args){
+
+	// Ensure args are correct size
+	if (args.size() != this->getNumArgs()){
+		std::cout << "Error: incorrect number of arguments" << std::endl;
+		return 0;
+	}
+
+	//const std::vector<std::string> inputs{"100", "42.22", "11"};
+	auto arguments = create_tuple<arg_ts...>(args);
+
+	//static_assert(std::is_same_v<decltype(arguments), const std::tuple<arg_ts...>>);
+	
+	std::apply(this->f, arguments);
+
+	return 1;
+}
+
 // -----------------------------------------------------------------------------
-// Constructor Helpers
+// Class Helpers
 // -----------------------------------------------------------------------------
 template <typename ret_t, typename...arg_ts>
 CommandRegisterMsg Command<ret_t, arg_ts...>::buildMsg
@@ -121,6 +160,12 @@ CommandRegisterMsg Command<ret_t, arg_ts...>::buildMsg
 	return msg;
 }
 
+template <typename ret_t, typename...arg_ts>
+unsigned int Command<ret_t, arg_ts...>::getNumArgs(){
+	return sizeof...(arg_ts);
+}
+
+
 // =============================================================================
 // Implementation
 // =============================================================================
@@ -143,23 +188,6 @@ void Command<ret_t, arg_ts...>::requestDeregistration()
 	msg.register_nremove() = false;
 	//this->publisher.publish(msg);
 }*/
-
-// -----------------------------------------------------------------------------
-// Calling
-// -----------------------------------------------------------------------------
-template <typename ret_t, typename...arg_ts>
-ret_t Command<ret_t, arg_ts...>::call(std::tuple<arg_ts...> &t)
-{
-	static constexpr auto tuple_size = std::tuple_size<std::tuple<arg_ts...>>::value;
-	return call(t, std::make_index_sequence<tuple_size>{});
-}
-
-template <typename ret_t, typename...arg_ts>
-template<size_t...I>
-ret_t Command<ret_t, arg_ts...>::call(std::tuple<arg_ts...> &t, std::index_sequence<I...>)
-{
-	return this->f(std::get<I>(t)...);
-}
 
 
 /*

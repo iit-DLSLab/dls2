@@ -15,7 +15,7 @@
 *******************************************************************************/
 #include <iostream>
 
-#include "dls2/application_framework/app_layer.hpp"
+#include "dls2/core_framework/app_layer.hpp"
 #include "dls2/class_loader.hpp"
 
 using namespace dls;
@@ -29,7 +29,7 @@ AppLayer::AppLayer
 	components_mutex(),
 	components({}),
 	ID(ID_),
-	command_manager(),
+	command_manager(ID_),
 	status_mutex(),
 	status(Status::INITIALISING),
 	//scout(ID_ + "Log"),
@@ -110,6 +110,11 @@ AppLayer::Status AppLayer::getStatus() const
 {
 	std::lock_guard<std::mutex> lock(this->status_mutex);
 	return this->status;
+}
+
+std::string AppLayer::getID()
+{
+	return this->ID;
 }
 
 void AppLayer::setStatus(Status s)

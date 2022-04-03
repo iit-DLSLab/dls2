@@ -13,51 +13,28 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef COMMAND_MANAGER_TPP
-#define COMMAND_MANAGER_TPP
-
+#ifndef GAIT_GENERATOR_LAYER_PHPP_6bf82ff6_8192_4ed8_abd5_ac9d0b5328c1
+#define GAIT_GENERATOR_LAYER_PHPP_6bf82ff6_8192_4ed8_abd5_ac9d0b5328c1
 // =============================================================================
 // Includes
 // =============================================================================
-#include "dls2/command/command_manager.hpp"
+#include "dls2/core_framework/app_layer.hpp"
+#include "dls2/util/messaging/publisher_base.hpp"
+#include "dls2/util/messaging/callback_subscriber.hpp"
 
+#include "dls2/msg/gait_signalPubSubTypes.h"
 
 namespace dls
 {
-	// =============================================================================
-	// Command Manager Implementation
-	// =============================================================================
-	// -----------------------------------------------------------------------------
-	// Implementation
-	// -----------------------------------------------------------------------------
-	template <typename ret_t, typename... arg_ts>
-	void CommandManager::addCommand
-	(
-		const std::string &command_name,
-		const std::string &docstring,
-		const std::function<ret_t(arg_ts...)> &f
-	)
+	class GaitLayer : public AppLayer
 	{
-		this->commands.emplace_back
-		(
-			std::make_unique<Command<ret_t, arg_ts...>>
-			(
-				command_name,
-				this->owner,
-				docstring,
-				f
-			)
-		);
-	}
+	public:
+		GaitLayer();
 
-	// -------------------------------------------------------------------------
-	// RemoteCommandCallable
-	// -------------------------------------------------------------------------
-	template <typename... Ts>
-	void RemoteCommandCallable::operator()(Ts... ts)
-	{
-		//this->pRemote_command->call(ts...);
-	}
+	private:
+		PublisherBase<GaitSignalMsgPubSubType> pub;
+		CallbackSubscriber<GaitSignalMsgPubSubType> sub;
+	};
+}
 
-} // end namespace dls
-#endif /* end of include guard: COMMAND_TPP_MANAGER */
+#endif // GAIT_GENERATOR_LAYER_PHPP_6bf82ff6_8192_4ed8_abd5_ac9d0b5328c1

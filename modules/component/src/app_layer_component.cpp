@@ -14,7 +14,7 @@
 *                                                 `---'                        *
 *******************************************************************************/
 #include <iostream>
-#include "dls2/application_framework/components/app_layer_component.hpp"
+#include "dls2/components/app_layer_component.hpp"
 
 using namespace dls;
 

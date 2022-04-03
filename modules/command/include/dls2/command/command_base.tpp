@@ -70,5 +70,7 @@ CommandBase::RepresentationVector &CommandBase::buildRepresentationVector
 	);
 	return vec;
 }
+
+
 } // end namespace dls
 #endif /* end of include guard: COMMAND_BASE_TPP_VNPJCDBU */

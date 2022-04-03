@@ -13,7 +13,7 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#include "dls2/application_framework/estimation_layer.hpp"
+#include "dls2/core_framework/estimation_layer.hpp"
 #include "dls2/class_loader.hpp"
 
 // TODO("temp includes")

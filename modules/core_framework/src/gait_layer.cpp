@@ -13,7 +13,7 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#include "dls2/application_framework/gait_generator_layer.hpp"
+#include "dls2/core_framework/gait_generator_layer.hpp"
 #include "dls2/topics/gait_signal.hpp"
 
 using namespace dls;

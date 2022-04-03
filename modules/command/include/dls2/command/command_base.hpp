@@ -26,12 +26,10 @@
 // =============================================================================
 namespace dls
 {
-class ARGVOID {};
-/// Base class for command types
-///
+	/// Base class for command types
+	///
 	class CommandBase
 	{
-		friend class CommandManager;
 	public:
 		/// Argument and return type representations
 		///
@@ -57,13 +55,24 @@ class ARGVOID {};
 			STD_STRING
 		};
 
+		CommandBase(
+			std::string name_,
+			std::string owner_,
+			std::string doc_,
+			uint nArg_
+		);
+
 		virtual ~CommandBase() = default;
+
+		virtual int call(std::vector<std::string>);
 
 		std::string getCommandName();
 
 		std::string getCommandOwner();
 
 		std::string getCommandDoc();
+
+		uint getNumArgs();
 
 	protected:
 		/// Convenience typedef
@@ -88,6 +97,7 @@ class ARGVOID {};
 		/// Recursion base case
 		template <typename arg_t>
 		RepresentationVector &buildRepresentationVector(RepresentationVector&);
+		
 
 		/// Register this command with the framework
 		///
@@ -111,6 +121,14 @@ class ARGVOID {};
 		/// Command documentation
 		///
 		std::string docstring;
+
+		/// Number of arguments of command
+		///
+		uint numArg;
+
+		/// Callback of the command
+		///
+		const std::function<int(std::vector<std::string>)> f;
 	};
 } // end namespace dls
 

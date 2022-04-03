@@ -29,15 +29,16 @@
 #include <sys/prctl.h>
 #include <stdlib.h>
 
-#include "dls2/application_framework/hyq_app.hpp"
-#include "dls2/application_framework/hardware_layer.hpp"
-#include "dls2/application_framework/control_layer.hpp"
-#include "dls2/application_framework/estimation_layer.hpp"
-#include "dls2/application_framework/log_layer.hpp"
-#include "dls2/application_framework/console_layer.hpp"
-#include "dls2/application_framework/options.hpp"
-#include "dls2/application_framework/version_info.hpp"
-#include "dls2/application_framework/init.hpp"
+#include "dls2/core_framework/hyq_app.hpp"
+#include "dls2/core_framework/hardware_layer.hpp"
+#include "dls2/core_framework/control_layer.hpp"
+#include "dls2/core_framework/estimation_layer.hpp"
+#include "dls2/core_framework/log_layer.hpp"
+#include "dls2/core_framework/console_layer.hpp"
+#include "dls2/core_framework/ros_layer.hpp"
+#include "dls2/core_framework/options.hpp"
+#include "dls2/core_framework/version_info.hpp"
+#include "dls2/core_framework/init.hpp"
 
 #include "dls2/log/log.hpp"
 #include "dls2/command/command.hpp"
@@ -178,7 +179,7 @@ int main(int argc, char **argv)
 	pApp = std::make_shared<HyQApp>();
 	
 	// Register an exit command to leave the framework
-	CommandManager command_manager;
+	// CommandManager command_manager;
 
 
 	/*		
@@ -199,9 +200,13 @@ int main(int argc, char **argv)
 
 */
 
-	if(Options::launch_console)
-	{
-		forkLayer<ConsoleLayer>("console_layer", argv);
+	if(Options::launch_console)	{
+		forkLayer<ConsoleLayer>("console", argv);
+		std::this_thread::sleep_for(std::chrono::seconds(1));
+	}
+
+	if(Options::is_core) {
+		forkLayer<ROSLayer>("ros_core", argv);
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
 
@@ -224,64 +229,9 @@ int main(int argc, char **argv)
 
 */
 	
+
+
 /*
-	if(Options::is_core)
-	{
-		forkRosCore();
-		command_manager.addCommand<void, ARGVOID>
-		(
-			"HyQApp_server",
-			"launchRosCore",
-			"Launches the ros core",
-			std::function<void(ARGVOID)>
-			(
-				[&](ARGVOID)
-				{
-					forkRosCore();
-				}
-			)
-		);
-		command_manager.addCommand<void, ARGVOID>
-		(
-			"HyQApp_server",
-			"core_exit",
-			"exits the framework",
-			std::function<void(ARGVOID)>
-			(
-				[&](ARGVOID)
-				{
-					for(const auto &el : child_datas)
-					{
-						kill(el.second.pid, SIGTERM);
-					}
-				}
-			)
-		);
-
-		command_manager.addCommand<void, std::string>
-		(
-			"HyQApp_server",
-			"launchLayer",
-
-			"Launches a layer specified by its argument:\n"
-			"* hardware\n"
-			"* console\n"
-			"* control\n"
-			"* log",
-
-			std::function<void(std::string)>
-			(
-				[&](std::string s)
-				{
-					if(s == "hardware") forkLayer<HardwareLayer>("hardware_layer", argv);
-					else if(s == "console") forkLayer<ConsoleLayer>("console_layer", argv);
-					else if(s == "control") forkLayer<ControlLayer>("control_layer", argv);
-					else if(s == "log") forkLayer<LogLayer>("log_layer", argv);
-				}
-			)
-		);
-	}
-
 	if(Options::simulation_mode && Options::is_core)
 	{
 		command_manager.addCommand<void, ARGVOID>
@@ -330,7 +280,7 @@ int main(int argc, char **argv)
 				break;
 			}
 		}
-/*
+
 		auto it = child_datas.find(child_pid);
 		if(it != child_datas.end())
 		{
@@ -353,8 +303,7 @@ int main(int argc, char **argv)
 			}
 			ss.flush();
 		}
-		outstream << ss.str() << std::endl;
-*/		
+		//outstream << ss.str() << std::endl;	
 	}
 	
 	std::cout << "Framework Stopped" << std::endl;
@@ -396,7 +345,7 @@ void forkLayer(const std::string &process_name, char **argv)
 	{
 		change_process_name(argv, process_name);
 		//impl::initFramework();
-		std::shared_ptr<layer_t> pLayer = std::make_shared<layer_t>();
+		std::shared_ptr<layer_t> pLayer = std::make_shared<layer_t>(process_name);
 		pApp->addLayer(pLayer);
 
 		// // register shutdown handler
@@ -424,24 +373,6 @@ void forkLayer(const std::string &process_name, char **argv)
 			std::forward_as_tuple(process_name, pid)
 		);
 	}
-}
-
-void forkRosCore()
-{
-		const pid_t pid = fork(); // TODO error handling on fork
-		if(pid == 0)
-		{
-			change_process_name(Options::argv, "roscore");
-			// auto ret = system("roscore > /dev/null");
-			auto ret = system("roscore");
-			_exit(ret);
-		}
-		child_datas.emplace
-		(
-			std::piecewise_construct,
-			std::forward_as_tuple(pid),
-			std::forward_as_tuple("roscore", pid)
-		);
 }
 
 void launchSim()
