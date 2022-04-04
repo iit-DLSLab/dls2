@@ -43,7 +43,6 @@ namespace dls
 
 		void initFastdds()
 		{
-			std::cout << "start init fastdds" << std::endl;
 			// ======= Create the participant for the new API of fastdds =======
 			eprosima::fastdds::dds::DomainParticipantQos participant_qos;
 			participant_qos.wire_protocol()
@@ -54,7 +53,7 @@ namespace dls
 			    .builtin.discovery_config.leaseDuration_announcementperiod =
 			    eprosima::fastrtps::Duration_t(1, 2);
 
-			participant_qos.name("Participant_publisher");
+			participant_qos.name("framework_base");
 
 			dls::impl::fastdds_participant =
 			    eprosima::fastdds::dds::DomainParticipantFactory::get_instance()
@@ -65,44 +64,7 @@ namespace dls
 				throw std::runtime_error(
 				    "Error: could not create publisher participant");
 			}
-/*
-			// ====== Create the participant for the old API of fastrtps =======
-			// This should eventually be removed when all the old pubs and subs
-			// are taken out
-			{
-				eprosima::fastrtps::ParticipantAttributes participant_attr;
-				participant_attr.rtps.builtin.discovery_config
-				    .discoveryProtocol =
-				    eprosima::fastrtps::rtps::DiscoveryProtocol_t::SIMPLE;
 
-				participant_attr.rtps.builtin.discovery_config
-				    .use_SIMPLE_EndpointDiscoveryProtocol = true;
-
-				participant_attr.rtps.builtin.discovery_config.m_simpleEDP
-				    .use_PublicationReaderANDSubscriptionWriter = true;
-
-				participant_attr.rtps.builtin.discovery_config.m_simpleEDP
-				    .use_PublicationWriterANDSubscriptionReader = true;
-
-				// participant_attr.rtps.builtin.domainId = 0;
-				participant_attr.rtps.builtin.discovery_config.leaseDuration =
-				    eprosima::fastrtps::c_TimeInfinite;
-
-				participant_attr.rtps.setName("Participant_pub");
-
-				legacy_fastrtps_participant =
-				    eprosima::fastrtps::Domain::createParticipant(
-				        participant_attr);
-
-				if(legacy_fastrtps_participant == nullptr)
-				{
-					throw std::runtime_error(
-					    "Could not build legacy participant");
-				}
-				std::cout << "Built legacy fastrtps participant" << std::endl;
-			}
-			*/
-			std::cout << "initialised fastdds" << std::endl;
 		}
 
 		auto getFastddsParticipant() -> eprosima::fastdds::dds::DomainParticipant *

@@ -147,42 +147,31 @@ namespace dls
 		(
 			const unsigned int &domain_,
 			const std::string &part_,
-			const std::string &topic_
-			//,
-			//CallbackType callback
+			const std::string &topic_,
+			CallbackType callback
 		) :
 			participant(nullptr),
 			subscriber(nullptr),
 			reader(nullptr),
 			topic(nullptr),
-			type(new PubSub_t())
-			//,
-			//subscriber_listener(callback)
+			type(new PubSub_t()),
+			subscriber_listener(callback)
 		{
 			eprosima::fastdds::dds::DomainParticipantQos participantQos;
 			participantQos.wire_protocol().builtin.discovery_config.discoveryProtocol = eprosima::fastrtps::rtps::DiscoveryProtocol_t::SIMPLE;
 			participantQos.wire_protocol().builtin.discovery_config.leaseDuration_announcementperiod = eprosima::fastrtps::Duration_t(1, 2);
-			// participantQos.wire_protocol().builtin.discovery_config.initial_announcements.count = 2000;
-			// participantQos.wire_protocol().builtin.discovery_config.initial_announcements.period = eprosima::fastrtps::Duration_t(0, 100000000u);
 			participantQos.name(part_);
 
-
-			std::cout << "create part " << part_ << std::endl;
-
 			this->participant = eprosima::fastdds::dds::DomainParticipantFactory::
-				//get_instance()->create_participant(domain_, participantQos);
-				get_instance()->create_participant(0, eprosima::fastdds::dds::PARTICIPANT_QOS_DEFAULT);
+				get_instance()->create_participant(domain_, participantQos);
 
 			if(this->participant == nullptr){
 				throw std::runtime_error("Error: could not create participant");
 			}
+
 			this->type.register_type(this->participant);
 
-			auto listPart = eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->
-			lookup_participants(0);
-
-			std::cout << "size sub " << listPart.size() << std::endl;
-			/*
+			
 			this->topic = this->participant->create_topic(
 				topic_, 
 				rtps_type.getName(), 
@@ -217,7 +206,6 @@ namespace dls
 					"Error: could not create subscriber reader"
 				);
 			}
-			*/
 		}
 
 		template <class PubSub_t>
@@ -239,48 +227,48 @@ namespace dls
 		// =====================================================================
 		// Helper Listener Class
 		// =====================================================================
-		// template <class PubSub_t>
-		// Subscriber<PubSub_t>::SubListener::SubListener(
-		// 	CallbackType callback_) :
-		// 	sample_count(0),
-		// 	callback(callback_),
-		// 	msg()
-		// { 
-		// }
+		template <class PubSub_t>
+		Subscriber<PubSub_t>::SubListener::SubListener(
+			CallbackType callback_) :
+			sample_count(0),
+			callback(callback_),
+			msg()
+		{ 
+		}
 
-		// template <class PubSub_t>
-		// void Subscriber<PubSub_t>::SubListener::on_subscription_matched(
-		// 	eprosima::fastdds::dds::DataReader*,
-		// 	const eprosima::fastdds::dds::SubscriptionMatchedStatus &info)
-		// {
-		// 	if(info.current_count_change == 1)
-		// 	{
-		// 		// subscriber matched
-		// 	}
-		// 	else if(info.current_count_change == -1)
-		// 	{
-		// 		// subscriber unmatched
-		// 	}
-		// 	else
-		// 	{
-		// 		// invalid
-		// 	}
-		// }
+		template <class PubSub_t>
+		void Subscriber<PubSub_t>::SubListener::on_subscription_matched(
+			eprosima::fastdds::dds::DataReader*,
+			const eprosima::fastdds::dds::SubscriptionMatchedStatus &info)
+		{
+			if(info.current_count_change == 1)
+			{
+				// subscriber matched
+			}
+			else if(info.current_count_change == -1)
+			{
+				// subscriber unmatched
+			}
+			else
+			{
+				// invalid
+			}
+		}
 
-		// template <class PubSub_t>
-		// void Subscriber<PubSub_t>::SubListener::on_data_available(
-		// 	eprosima::fastdds::dds::DataReader *reader)
-		// {
-		// 	eprosima::fastdds::dds::SampleInfo info;
-		// 	if (reader->take_next_sample(&this->msg, &info)	== /*eprosima::fastdds::dds::*/ReturnCode_t::RETCODE_OK)
-		// 	{
-		// 		if(info.valid_data)
-		// 		{
-		// 			this->sample_count++;
-		// 			this->callback(this->msg);
-		// 		}
-		// 	}
-		// }
+		template <class PubSub_t>
+		void Subscriber<PubSub_t>::SubListener::on_data_available(
+			eprosima::fastdds::dds::DataReader *reader)
+		{
+			eprosima::fastdds::dds::SampleInfo info;
+			if (reader->take_next_sample(&this->msg, &info)	== /*eprosima::fastdds::dds::*/ReturnCode_t::RETCODE_OK)
+			{
+				if(info.valid_data)
+				{
+					this->sample_count++;
+					this->callback(this->msg);
+				}
+			}
+		}
 	} /// \endcond namespace version2
 } /// \endcond namespace dls
 #endif /* end of include guard: SUBSCRIBER_BASE_TPP_YC8QGBV2 */

@@ -50,7 +50,8 @@ Command<ret_t, arg_ts...>::Command
 		owner_,
 		command_name_,
 		docstring_,
-		sizeof...(arg_ts)),
+		sizeof...(arg_ts)
+	),
 	f(f_)
 	//msg(buildMsg(owner_, command_name_, docstring_)),
 {
@@ -105,15 +106,14 @@ void Command<ret_t, arg_ts...>::makeRemote()
 	commandSub = std::make_unique<version2::Subscriber<CommandRegisterMsgPubSubType>> (
 		dls::domains::command,
 		this->getCommandName(),
-		dls::topics::command_call
-		// ,
-		// version2::Subscriber<CommandRegisterMsgPubSubType>::CallbackType
-		// (
-		// 	[&](CommandRegisterMsg tuple)
-		// 	{
-		// 		//this->call(tuple);
-		// 	}
-		// )
+		dls::topics::command_call,
+		version2::Subscriber<CommandRegisterMsgPubSubType>::CallbackType
+		(
+			[&](CommandRegisterMsg tuple)
+			{
+				//this->call(tuple);
+			}
+		)
 	);
 	
 	std::this_thread::sleep_for(std::chrono::milliseconds(10));

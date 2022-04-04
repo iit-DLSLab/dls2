@@ -34,9 +34,8 @@ CommandManager::CommandManager(std::string owner_):
 	registration_listener(
 		dls::domains::layer,
 		"command_manager",
-		"command_registration"
-		//,
-		//nullptr //put here the callback for new commands from remote
+		"command_registration",
+		nullptr //put here the callback for new commands from remote
 	)
 { }
 

@@ -24,7 +24,7 @@ namespace dls
 		///
 		/// The full topics will be of the form
 		/// "command_call_<command_owner>_<command_name>"
-		constexpr auto command_call = "command_call_";
+		constexpr auto command_call = "command_call";
 	}
 }
 

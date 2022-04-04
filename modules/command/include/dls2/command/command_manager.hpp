@@ -127,6 +127,10 @@ public:
 	///
 	void removeCommand(CommandBase);
 
+	/// Subscriber to receive informations from the command dss domain
+	///
+	version2::Subscriber<CommandRegisterMsgPubSubType> registration_listener;
+
 private:
 	// begin critical section
 		/// Mutex protecting the `remote_commands` vector
@@ -147,9 +151,7 @@ private:
 	///
 	std::string owner;
 
-	/// Subscriber to receive informations from the command dss domain
-	///
-	version2::Subscriber<CommandRegisterMsgPubSubType> registration_listener;
+
 
 };
 
