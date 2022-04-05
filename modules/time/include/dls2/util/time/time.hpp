@@ -18,7 +18,7 @@
 
 #include "dls2/msg/timePubSubTypes.h"
 #include "dls2/msg/boolPubSubTypes.h"
-#include "dls2/util/messaging/subscriber_base.hpp"
+#include "dls2/util/messaging/subscriber.hpp"
 
 #include <chrono>
 #include <memory>

@@ -25,7 +25,7 @@
 #include "dls2/util/messaging/publisher_base.hpp"
 #include "dls2/msg/stringmsgPubSubTypes.h"
 #include "dls2/msg/command_registerPubSubTypes.h"
-#include "dls2/util/messaging/subscriber_base.hpp"
+#include "dls2/util/messaging/subscriber.hpp"
 
 // commands
 #include "dls2/command/command.hpp"

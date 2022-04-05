@@ -103,27 +103,24 @@ int Command<ret_t, arg_ts...>::call(std::vector<std::string> args){
 template <typename ret_t, typename...arg_ts>
 void Command<ret_t, arg_ts...>::makeRemote()
 {
-	commandSub = std::make_unique<version2::Subscriber<CommandRegisterMsgPubSubType>> (
-		dls::domains::command,
+	ddslink = std::make_shared<dls::DDSParticipant>(
 		this->getCommandName(),
-		dls::topics::command_call,
-		version2::Subscriber<CommandRegisterMsgPubSubType>::CallbackType
-		(
-			[&](CommandRegisterMsg tuple)
-			{
-				//this->call(tuple);
-			}
-		)
+		dls::domains::command
 	);
-	
-	std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+	// dls::topics::command_call,
+	// version2::Subscriber<CommandRegisterMsgPubSubType>::CallbackType
+	// (
+	// 	[&](CommandRegisterMsg tuple)
+	// 	{
+	// 		//this->call(tuple);
+	// 	}
+	// )
 }
 
 template <typename ret_t, typename...arg_ts>
 void Command<ret_t, arg_ts...>::makeLocal()
-{
-	commandSub.release();
-}
+{}
 
 // -----------------------------------------------------------------------------
 // Class Helpers

@@ -205,13 +205,11 @@ int main(int argc, char **argv)
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
 
-	if(Options::is_core) {
-		forkLayer<ROSLayer>("ros_core", argv);
-		std::this_thread::sleep_for(std::chrono::seconds(1));
-	}
+	// if(Options::is_core) {
+	// 	forkLayer<ROSLayer>("ros_core", argv);
+	// 	std::this_thread::sleep_for(std::chrono::seconds(1));
+	// }
 
-
-	std::this_thread::sleep_for(std::chrono::seconds(5));
 
 	///	DDS DEBUGIN CODE - TO BE DELETED
 /*

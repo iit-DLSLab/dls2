@@ -1,5 +1,6 @@
 add_library(dls_pubsub_impl STATIC
 		src/participant.cpp
+		src/subscriber_base.cpp
 )
 
 target_include_directories(dls_pubsub_impl

@@ -13,13 +13,13 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef SUBSCRIBER_BASE_TPP_YC8QGBV2
-#define SUBSCRIBER_BASE_TPP_YC8QGBV2
+#ifndef SUBSCRIBER_TPP_YC8QGBV2
+#define SUBSCRIBER_TPP_YC8QGBV2
 
 // =============================================================================
 // Old Includes -- To be removed
 // =============================================================================
-#include "dls2/util/messaging/subscriber_base.hpp"
+#include "dls2/util/messaging/subscriber.hpp"
 
 #include <fastrtps/transport/UDPv4TransportDescriptor.h>
 #include <fastrtps/attributes/ParticipantAttributes.h>
@@ -145,45 +145,13 @@ namespace dls
 		template <class PubSub_t>
 		Subscriber<PubSub_t>::Subscriber
 		(
-			const unsigned int &domain_,
-			const std::string &part_,
-			const std::string &topic_,
-			CallbackType callback
+			eprosima::fastdds::dds::DomainParticipant *participant_
 		) :
-			participant(nullptr),
+			SubscriberBase(participant_),
 			subscriber(nullptr),
-			reader(nullptr),
-			topic(nullptr),
 			type(new PubSub_t()),
-			subscriber_listener(callback)
+			subscriber_listener(nullptr)
 		{
-			eprosima::fastdds::dds::DomainParticipantQos participantQos;
-			participantQos.wire_protocol().builtin.discovery_config.discoveryProtocol = eprosima::fastrtps::rtps::DiscoveryProtocol_t::SIMPLE;
-			participantQos.wire_protocol().builtin.discovery_config.leaseDuration_announcementperiod = eprosima::fastrtps::Duration_t(1, 2);
-			participantQos.name(part_);
-
-			this->participant = eprosima::fastdds::dds::DomainParticipantFactory::
-				get_instance()->create_participant(domain_, participantQos);
-
-			if(this->participant == nullptr){
-				throw std::runtime_error("Error: could not create participant");
-			}
-
-			this->type.register_type(this->participant);
-
-			
-			this->topic = this->participant->create_topic(
-				topic_, 
-				rtps_type.getName(), 
-				eprosima::fastdds::dds::TOPIC_QOS_DEFAULT
-			);
-			
-			if(this->topic == nullptr){
-				throw std::runtime_error(
-					"Error: could not create subscriber topic"
-				);
-			}
-
 			this->subscriber = this->participant->create_subscriber(
 				eprosima::fastdds::dds::SUBSCRIBER_QOS_DEFAULT,
 				nullptr
@@ -194,18 +162,50 @@ namespace dls
 					"Error: could not create subscriber"
 				);
 			}
+		}
 
-			this->reader = this->subscriber->create_datareader(
-				this->topic,
+		template <class PubSub_t>
+		bool Subscriber<PubSub_t>::addDataReader(
+			std::string		&topicName_,
+			CallbackType 	callback
+		)
+		{
+			auto search = topics.find(topicName_);
+
+			if(search == topics.end()){
+				auto topic = this->participant->create_topic(
+					topicName_, 
+					PubSub_t::type.getName(),
+					//rtps_type.getName(), 
+					eprosima::fastdds::dds::TOPIC_QOS_DEFAULT
+				);
+
+				if(this->topic == nullptr){
+					throw std::runtime_error(
+						"Error: could not create subscriber topic"
+					);
+				}
+
+				search = topics.insert(topicName_, topic);
+			}
+
+			// Should verfify if the reader already exists?
+
+			auto reader = this->subscriber->create_datareader(
+				search->second,
 				eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT,
 				&this->subscriber_listener
 			);
 
-			if(this->reader == nullptr){
-				throw std::runtime_error(
-					"Error: could not create subscriber reader"
-				);
+			if(reader == nullptr){
+				// throw std::runtime_error(
+				// 	"Error: could not create subscriber reader"
+				// );
+				return false;
 			}
+
+			this->readers.push_back(std::move(reader));
+			return true;
 		}
 
 		template <class PubSub_t>
@@ -271,4 +271,4 @@ namespace dls
 		}
 	} /// \endcond namespace version2
 } /// \endcond namespace dls
-#endif /* end of include guard: SUBSCRIBER_BASE_TPP_YC8QGBV2 */
+#endif /* end of include guard: SUBSCRIBER_TPP_YC8QGBV2 */

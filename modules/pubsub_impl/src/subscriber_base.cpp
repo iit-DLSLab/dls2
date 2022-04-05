@@ -13,40 +13,24 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef SUBSCRIBER_BASE_HPP
-#define SUBSCRIBER_BASE_HPP
+#ifndef SUBSCRIBER_BASE_CPP
+#define SUBSCRIBER_BASE_CPP
 
-#include <fastdds/dds/domain/DomainParticipantFactory.hpp>
-#include <fastdds/dds/domain/DomainParticipant.hpp>
-#include <fastdds/dds/topic/TypeSupport.hpp>
-#include <fastdds/dds/subscriber/Subscriber.hpp>
-#include <fastdds/dds/subscriber/DataReader.hpp>
-#include <fastdds/dds/subscriber/DataReaderListener.hpp>
-#include <fastdds/dds/subscriber/qos/DataReaderQos.hpp>
-#include <fastdds/dds/subscriber/SampleInfo.hpp>
-
+#include "dls2/util/messaging/subscriber_base.hpp"
 
 /// \cond doxygen_namespace_dls
 namespace dls
 {
+	/// \cond doxygen_namespace_version2
+	///
+	/// Temporary namespace until the old publishers and subscribers are
+	/// refactored into those contained here, then this namespace will be
+	/// removed and its contents lifted to the dls namespace
 	namespace version2
 	{
-		class SubscriberBase
-		{
-		public:
-			SubscriberBase(
-				eprosima::fastdds::dds::DomainParticipant *participant_
-			);
-			virtual ~SubscriberBase();
-
-			virtual bool addDataReader();
-
-		private:
-
-			eprosima::fastdds::dds::DomainParticipant *participant;
-		
-		};
-	}
+		SubscriberBase::SubscriberBase ( eprosima::fastdds::dds::DomainParticipant *participant_) :
+			participant(participant_)
+		{}
+	} /// \endcond namespace version2
 } /// \endcond namespace dls
-
-#endif /* end of include guard: SUBSCRIBER_BASE_HPP */
+#endif /* end of include guard: SUBSCRIBER_BASE_CPP */

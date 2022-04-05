@@ -18,7 +18,7 @@
 // =============================================================================
 // Includes
 // =============================================================================
-#include "dls2/util/messaging/subscriber_base.hpp"
+#include "dls2/util/messaging/subscriber.hpp"
 
 namespace dls
 {

@@ -129,7 +129,7 @@ public:
 
 	/// Subscriber to receive informations from the command dss domain
 	///
-	version2::Subscriber<CommandRegisterMsgPubSubType> registration_listener;
+	/// version2::ubscriber<CommandRegisterMsgPubSubType> registration_listener;
 
 private:
 	// begin critical section

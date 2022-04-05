@@ -30,13 +30,14 @@ namespace dls
 // -----------------------------------------------------------------------------
 CommandManager::CommandManager(std::string owner_):
 	commands(),
-	owner(owner_),
-	registration_listener(
-		dls::domains::layer,
-		"command_manager",
-		"command_registration",
-		nullptr //put here the callback for new commands from remote
-	)
+	owner(owner_)
+	// ,
+	// registration_listener(
+	// 	dls::domains::layer,
+	// 	"command_manager",
+	// 	"command_registration",
+	// 	nullptr //put here the callback for new commands from remote
+	// )
 { }
 
 CommandManager::~CommandManager()

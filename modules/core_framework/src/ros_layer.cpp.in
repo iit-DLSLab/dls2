@@ -30,142 +30,141 @@ ROSLayer::ROSLayer(std::string ID) :
 	AppLayer(ID),
 	should_quit(false)
 {
-	command_manager.addCommand<void>
-	(
-		"launchRosCore",
-		"Launches the ros core",
-		std::function<void()>
-		(
-			[&]()
-			{
-				// for (const auto& [key, value] : child_pid)
-   				// 	if (value == "roscore"){
-				// 		std::cout << "Ros Core is running!" std::endl;
-				// 		return;
-				// 	}
+	// command_manager.addCommand<void>
+	// (
+	// 	"launchRosCore",
+	// 	"Launches the ros core",
+	// 	std::function<void()>
+	// 	(
+	// 		[&]()
+	// 		{
+	// 			// for (const auto& [key, value] : child_pid)
+   	// 			// 	if (value == "roscore"){
+	// 			// 		std::cout << "Ros Core is running!" std::endl;
+	// 			// 		return;
+	// 			// 	}
        					
-				// forkRosCore();
-			}
-		)
-	);
-/*
-		command_manager.addCommand<void, ARGVOID>
-		(
-			"HyQApp_server",
-			"core_exit",
-			"exits the framework",
-			std::function<void(ARGVOID)>
-			(
-				[&](ARGVOID)
-				{
-					for(const auto &el : child_datas)
-					{
-						kill(el.second.pid, SIGTERM);
-					}
-				}
-			)
-		);
+	// 			// forkRosCore();
+	// 		}
+	// 	)
+	// );
 
-		command_manager.addCommand<void, std::string>
-		(
-			"HyQApp_server",
-			"launchLayer",
+	// command_manager.addCommand<void, ARGVOID>
+	// (
+	// 	"HyQApp_server",
+	// 	"core_exit",
+	// 	"exits the framework",
+	// 	std::function<void(ARGVOID)>
+	// 	(
+	// 		[&](ARGVOID)
+	// 		{
+	// 			for(const auto &el : child_datas)
+	// 			{
+	// 				kill(el.second.pid, SIGTERM);
+	// 			}
+	// 		}
+	// 	)
+	// );
 
-			"Launches a layer specified by its argument:\n"
-			"* hardware\n"
-			"* console\n"
-			"* control\n"
-			"* log",
+	// command_manager.addCommand<void, std::string>
+	// (
+	// 	"HyQApp_server",
+	// 	"launchLayer",
 
-			std::function<void(std::string)>
-			(
-				[&](std::string s)
-				{
-					if(s == "hardware") forkLayer<HardwareLayer>("hardware_layer", argv);
-					else if(s == "console") forkLayer<ConsoleLayer>("console_layer", argv);
-					else if(s == "control") forkLayer<ControlLayer>("control_layer", argv);
-					else if(s == "log") forkLayer<LogLayer>("log_layer", argv);
-				}
-			)
-		);
+	// 	"Launches a layer specified by its argument:\n"
+	// 	"* hardware\n"
+	// 	"* console\n"
+	// 	"* control\n"
+	// 	"* log",
+
+	// 	std::function<void(std::string)>
+	// 	(
+	// 		[&](std::string s)
+	// 		{
+	// 			if(s == "hardware") forkLayer<HardwareLayer>("hardware_layer", argv);
+	// 			else if(s == "console") forkLayer<ConsoleLayer>("console_layer", argv);
+	// 			else if(s == "control") forkLayer<ControlLayer>("control_layer", argv);
+	// 			else if(s == "log") forkLayer<LogLayer>("log_layer", argv);
+	// 		}
+	// 	)
+	// );
 
 
-	command_manager.addCommand<void>
-	(
-		"clc",
-		"clears the console",
-		std::function<void()>
-		{
-			[&]()
-			{
-				std::cout << "\033[2J" << std::endl; // clear
-				std::cout << "\033[H" << std::endl; // home
-			}
-		}
-	);
+	// command_manager.addCommand<void>
+	// (
+	// 	"clc",
+	// 	"clears the console",
+	// 	std::function<void()>
+	// 	{
+	// 		[&]()
+	// 		{
+	// 			std::cout << "\033[2J" << std::endl; // clear
+	// 			std::cout << "\033[H" << std::endl; // home
+	// 		}
+	// 	}
+	// );
 
-	command_manager.addCommand<void>
-	(
-		"exit",
-		"exits the console",
-		std::function<void()>
-		{
-			[&]()
-			{
-				this->should_quit = true;;
-			}
-		}
-	);
+	// command_manager.addCommand<void>
+	// (
+	// 	"exit",
+	// 	"exits the console",
+	// 	std::function<void()>
+	// 	{
+	// 		[&]()
+	// 		{
+	// 			this->should_quit = true;;
+	// 		}
+	// 	}
+	// );
 
-	command_manager.addCommand<void, std::string>
-	(
-		"help",
-		"prints docstring of a command",
-		std::function<void(std::string)>
-		(
-			[&](std::string s)
-			{
-				std::cout << std::endl;
-				for(auto pCommand : this->command_manager.findByName(s))
-				{
-					std::cout << pCommand->getCommandOwner() << "::" <<
-						pCommand->getCommandName() <<  std::endl <<
-						pCommand->getCommandDoc() << std::endl << std::endl;
-				}
-			}
-		)
-	);
+	// command_manager.addCommand<void, std::string>
+	// (
+	// 	"help",
+	// 	"prints docstring of a command",
+	// 	std::function<void(std::string)>
+	// 	(
+	// 		[&](std::string s)
+	// 		{
+	// 			std::cout << std::endl;
+	// 			for(auto pCommand : this->command_manager.findByName(s))
+	// 			{
+	// 				std::cout << pCommand->getCommandOwner() << "::" <<
+	// 					pCommand->getCommandName() <<  std::endl <<
+	// 					pCommand->getCommandDoc() << std::endl << std::endl;
+	// 			}
+	// 		}
+	// 	)
+	// );
 
-	command_manager.addCommand<void>
-	(
-		"whereAll",
-		"prints the status of each active component",
-		std::function<void()>
-		{
-			[&]()
-			{
-				auto where_commands = this->command_manager.findByName("where");
-				for(const auto &where_command : where_commands)
-				{
-					if(where_command->getCommandOwner() != "console_layer")
-					{
-						std::cout << where_command->getCommandOwner() << std::endl;
-						std::cout << "============================" << std::endl;
-						//where_command->call();
-						std::cout << "This function needs to be implemented\n" << std::endl;
-						// TODO this is not the most elegant solution. A better
-						// way would be for "where" of each component to return
-						// a string directly here. This has not been implemented
-						// since at the time of that writing the functionality
-						// of this function was not yet required. At some point
-						// that will have to be refactored too.
-						std::this_thread::sleep_for(std::chrono::seconds(1));
-					}
-				}
-			}
-		}
-	);
-	*/
+	// command_manager.addCommand<void>
+	// (
+	// 	"whereAll",
+	// 	"prints the status of each active component",
+	// 	std::function<void()>
+	// 	{
+	// 		[&]()
+	// 		{
+	// 			auto where_commands = this->command_manager.findByName("where");
+	// 			for(const auto &where_command : where_commands)
+	// 			{
+	// 				if(where_command->getCommandOwner() != "console_layer")
+	// 				{
+	// 					std::cout << where_command->getCommandOwner() << std::endl;
+	// 					std::cout << "============================" << std::endl;
+	// 					//where_command->call();
+	// 					std::cout << "This function needs to be implemented\n" << std::endl;
+	// 					// TODO this is not the most elegant solution. A better
+	// 					// way would be for "where" of each component to return
+	// 					// a string directly here. This has not been implemented
+	// 					// since at the time of that writing the functionality
+	// 					// of this function was not yet required. At some point
+	// 					// that will have to be refactored too.
+	// 					std::this_thread::sleep_for(std::chrono::seconds(1));
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// );
 }
 
 // =============================================================================

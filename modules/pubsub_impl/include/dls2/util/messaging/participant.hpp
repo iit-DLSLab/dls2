@@ -18,6 +18,9 @@
 
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/domain/DomainParticipant.hpp>
+
+#include "dls2/util/messaging/subscriber.hpp"
+
 #include <map>
 #include <string>
 
@@ -32,6 +35,28 @@ namespace eprosima
 /// \cond doxygen_namespace_dls
 namespace dls
 {
+	class DDSParticipant{
+
+	public:
+		DDSParticipant(
+			const std::string &partName_,
+			const unsigned int &domain_
+		);
+		~DDSParticipant();
+
+		template <class PubSub_t>
+		bool addSubscriber();
+
+	private:
+		eprosima::fastdds::dds::DomainParticipant 	*participant;
+		eprosima::fastdds::dds::TypeSupport 		type;
+
+		std::vector<std::unique_ptr<dls::version2::SubscriberBase>> subscribers;
+
+		// TBD - Implement PublisherBase
+		//std::vector<std::unique_ptr<dls::version2::PublisherBase>>  publishers;
+
+	};
 	/// \cond doxygen_namespace_impl
 	namespace impl
 	{

@@ -19,17 +19,15 @@
 // =============================================================================
 // Includes
 // =============================================================================
-#include "dls2/command/command_base.hpp"
-#include "dls2/util/messaging/publisher_base.hpp"
-#include "dls2/util/messaging/subscriber_base.hpp"
-#include "dls2/msg/command_registerPubSubTypes.h"
+
 #include <string>
 #include <functional>
 #include <utility>
 #include <vector>
 #include <memory>
-#include <fastrtps/types/DynamicTypeBuilderPtr.h>
-#include <fastrtps/types/DynamicPubSubType.h>
+
+#include "dls2/command/command_base.hpp"
+#include "dls2/util/messaging/participant.hpp"
 #include "dls2/domains/domains.hpp"
 
 namespace dls
@@ -105,9 +103,9 @@ private:
 	///
 	CommandRegisterMsg msg;
 
-	/// Subscriber used to link the command with the rest of the framework
+	/// Link the command with the rest of the framework
 	///
-	std::unique_ptr<version2::Subscriber<CommandRegisterMsgPubSubType>> commandSub;
+	std::shared_ptr<dls::DDSParticipant> ddslink;
 };
 
 } // end namespace dls
