@@ -21,15 +21,6 @@
 // framework
 #include "app_layer.hpp"
 
-// messaging
-#include "dls2/util/messaging/publisher_base.hpp"
-#include "dls2/msg/stringmsgPubSubTypes.h"
-#include "dls2/msg/command_registerPubSubTypes.h"
-#include "dls2/util/messaging/subscriber.hpp"
-
-// commands
-#include "dls2/command/command.hpp"
-
 // =============================================================================
 // Class Interface
 // =============================================================================
@@ -70,6 +61,8 @@ private:
 	static void handle_signals(int);
 
 	void launchSim();
+
+	void killRoscore();
 	
 };
 } // end namespace dls

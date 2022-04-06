@@ -35,8 +35,7 @@ namespace dls
 	(
 		const std::string &command_name,
 		const std::string &docstring,
-		const std::function<ret_t(arg_ts...)> &f,
-		const bool is_remote
+		const std::function<ret_t(arg_ts...)> &f
 	)
 	{
 		this->commands.emplace_back
@@ -47,7 +46,31 @@ namespace dls
 				this->owner,
 				docstring,
 				f, 
-				is_remote
+				false
+			)
+		);
+	}
+
+	template <typename ret_t, typename... arg_ts>
+	void CommandManager::addRemoteCommand
+	(
+		const std::string &command_name,
+		const std::string &docstring,
+		const std::function<ret_t(arg_ts...)> &f
+	)
+	{
+		auto name = this->owner;
+		name += "::";
+		name += command_name;
+		this->commands.emplace_back
+		(
+			std::make_unique<Command<ret_t, arg_ts...>>
+			(
+				name,
+				this->owner,
+				docstring,
+				f, 
+				true
 			)
 		);
 	}

@@ -18,9 +18,6 @@
 
 #include "dls2/util/messaging/participant.hpp"
 
-// Legacy
-#include <fastrtps/fastrtps_fwd.h>
-#include <fastrtps/Domain.h>
 
 /// \cond doxygen_namespace_dls
 namespace dls

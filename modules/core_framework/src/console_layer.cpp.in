@@ -16,26 +16,7 @@
 #include "dls2/core_framework/console_layer.hpp"
 #include <readline/readline.h>
 #include <readline/history.h>
-#include <cstring>
-#include <sstream>
-#include <unistd.h>
-
-// TODO when we are using a proper modern compiler, use the filesystem library
-// #include <filesystem>
-// TODO when we are using a proper modern compiler, remove this header
-#include <dirent.h>
-
-// #include "util/string/string.hpp"
-
-#include "dls2/util/messaging/publisher_base.hpp"
-
-//TODO these topics should be removed and instead generated dynamically
-#include "dls2/msg/stringmsgPubSubTypes.h"
-#include "dls2/topics/activate_controller.hpp"
-#include "dls2/topics/deactivate_controller.hpp"
-#include "dls2/topics/activate_gait_generator.hpp"
-#include "dls2/topics/deactivate_gait_generator.hpp"
-#include "dls2/topics/command_register.hpp"
+#include <filesystem>
 
 // =============================================================================
 // Foreward Declarations
@@ -112,7 +93,6 @@ ConsoleLayer::ConsoleLayer(std::string ID, bool *should_quit_) :
 	// flexible rl_attempted_completion_function
 	rl_completion_entry_function = [](const char *, int)->char*{return nullptr;};
 
-
 	command_manager.addCommand<void>
 	(
 		"clc",
@@ -124,43 +104,31 @@ ConsoleLayer::ConsoleLayer(std::string ID, bool *should_quit_) :
 				std::cout << "\033[2J" << std::endl; // clear
 				std::cout << "\033[H" << std::endl; // home
 			}
-		},
-		true
+		}
 	);
 
-	// command_manager.addCommand<void, std::string>
-	// (
-	// 	"list",
-	// 	"list fast dds nodes",
-	// 	std::function<void(std::string)>
-	// 	(
-	// 		[&](std::string s)
-	// 		{
-	// 			std::cout << std::endl;
+	command_manager.addCommand<void, std::string>
+	(
+		"list",
+		"list fast dds nodes",
+		std::function<void(std::string)>
+		(
+			[&](std::string s)
+			{
 
-	// 			//auto names = this->command_manager.registration_listener.participant->
-	// 			//	get_participant_names();
+				auto factory = eprosima::fastdds::dds::DomainParticipantFactory::get_instance();
+				auto participant = factory->lookup_participant(stoi(s));				
 
-	// 			auto factory = eprosima::fastdds::dds::DomainParticipantFactory::get_instance();
-	// 			auto names = factory->lookup_participants(5);				
+				auto names = participant->get_participant_names();
 
-	// 			if (names.size() > 0){
-	// 			//if (names != NULL){
-	// 				//for(auto name : names)
-	// 				//	std::cout << name << std::endl;
-	// 				std::cout << "THERE IS SOMEONE HERE" << std::endl;
-	// 			}
-	// 			else{
-	// 				std::cout << "NO ONE HERE" << std::endl;
-	// 			}
-				
-	// 			//for(auto name : names)
-	// 			//	std::cout << name << std::endl;
-
-	// 			return;
-	// 		}
-	// 	)
-	// );
+				if (!names.empty()){
+					for(auto name : names)
+						std::cout << name << std::endl;
+				}
+				return;
+			}
+		)
+	);
 
 
 	command_manager.addCommand<void>
@@ -176,55 +144,54 @@ ConsoleLayer::ConsoleLayer(std::string ID, bool *should_quit_) :
 		}
 	);
 
-	// command_manager.addCommand<void, std::string>
-	// (
-	// 	"help",
-	// 	"prints docstring of a command",
-	// 	std::function<void(std::string)>
-	// 	(
-	// 		[&](std::string s)
-	// 		{
-	// 			std::cout << std::endl;
-	// 			for(auto pCommand : this->command_manager.findByName(s))
-	// 			{
-	// 				std::cout << pCommand->getCommandOwner() << "::" <<
-	// 					pCommand->getCommandName() <<  std::endl <<
-	// 					pCommand->getCommandDoc() << std::endl << std::endl;
-	// 			}
-	// 		}
-	// 	),
-	// 	true
-	// );
+	command_manager.addCommand<void, std::string>
+	(
+		"help",
+		"prints docstring of a command",
+		std::function<void(std::string)>
+		(
+			[&](std::string s)
+			{
+				std::cout << std::endl;
+				for(auto pCommand : this->command_manager.findByName(s))
+				{
+					std::cout << pCommand->getCommandOwner() << "::" <<
+						pCommand->getCommandName() <<  std::endl <<
+						pCommand->getCommandDoc() << std::endl << std::endl;
+				}
+			}
+		)
+	);
 
-	// command_manager.addCommand<void>
-	// (
-	// 	"whereAll",
-	// 	"prints the status of each active component",
-	// 	std::function<void()>
-	// 	{
-	// 		[&]()
-	// 		{
-	// 			auto where_commands = this->command_manager.findByName("where");
-	// 			for(const auto &where_command : where_commands)
-	// 			{
-	// 				if(where_command->getCommandOwner() != "console_layer")
-	// 				{
-	// 					std::cout << where_command->getCommandOwner() << std::endl;
-	// 					std::cout << "============================" << std::endl;
-	// 					//where_command->call();
-	// 					std::cout << "This function needs to be implemented\n" << std::endl;
-	// 					// TODO this is not the most elegant solution. A better
-	// 					// way would be for "where" of each component to return
-	// 					// a string directly here. This has not been implemented
-	// 					// since at the time of that writing the functionality
-	// 					// of this function was not yet required. At some point
-	// 					// that will have to be refactored too.
-	// 					std::this_thread::sleep_for(std::chrono::seconds(1));
-	// 				}
-	// 			}
-	// 		}
-	// 	}
-	// );
+	command_manager.addCommand<void>
+	(
+		"whereAll",
+		"prints the status of each active component",
+		std::function<void()>
+		{
+			[&]()
+			{
+				auto where_commands = this->command_manager.findByName("where");
+				for(const auto &where_command : where_commands)
+				{
+					if(where_command->getCommandOwner() != "console_layer")
+					{
+						std::cout << where_command->getCommandOwner() << std::endl;
+						std::cout << "============================" << std::endl;
+						//where_command->call();
+						std::cout << "This function needs to be implemented\n" << std::endl;
+						// TODO this is not the most elegant solution. A better
+						// way would be for "where" of each component to return
+						// a string directly here. This has not been implemented
+						// since at the time of that writing the functionality
+						// of this function was not yet required. At some point
+						// that will have to be refactored too.
+						std::this_thread::sleep_for(std::chrono::seconds(1));
+					}
+				}
+			}
+		}
+	);
 }
 
 // =============================================================================
@@ -539,69 +506,27 @@ char *dls::arg_completion(const char * text, int state)
 		// 	files.push_back(el);
 		// }
 
+		std::filesystem::directory_iterator dir_it
+			(
+				std::filesystem::current_path()
+			);
 
-		// TODO use this code when we are using a proper C++17 compiler
-		// fill libraries in the current path
-		// std::filesystem::directory_iterator dir_it
-		// 	(
-		// 		std::filesystem::current_path()
-		// 	);
-
-		// for(auto &file : dir_it)
-		// {
-		// 	std::string filename(file.path().filename());
-		// 	if
-		// 	(
-		// 		filename.find_first_of("lib") == 0 &&
-		// 		filename.find_last_of(".so") == filename.size() - 1
-		// 	)
-		// 	{
-		// 		files.push_back
-		// 		(
-		// 			// strip "lib" and ".so" from file
-		// 			filename.substr(3, filename.size() - 6)
-		// 		);
-		// 	}
-		// ADD UP TO HERE WHEN USING A PROPER C++17 COMPILER
-
-		// TODO remove this code when we are using a proper C++17 compiler
-		auto gen = [&](const std::string& dirname)
+		for(auto &file : dir_it)
 		{
-			DIR *dp = nullptr;
-			struct dirent *ep = nullptr;
-			// dp = opendir("./");
-			dp = opendir(dirname.c_str());
-			if(dp != nullptr)
+			std::string filename(file.path().filename());
+			if
+			(
+				filename.find_first_of("lib") == 0 &&
+				filename.find_last_of(".so") == filename.size() - 1
+			)
 			{
-				while( (ep = readdir(dp)) )
-				{
-					std::string filename = ep->d_name;
-					if(filename == "." || filename == "..")
-					{
-						continue;
-					}
-					if
-					(
-						filename.find_first_of("lib") == 0 &&
-						filename.find_last_of(".so") == filename.size() - 1
-					)
-					{
-						files.push_back
-						(
-							// strip "lib" and ".so" from file
-							filename.substr(3, filename.size() - 6)
-						);
-					}
-				}
-				(void)closedir(dp);
+				files.push_back
+				(
+					// strip "lib" and ".so" from file
+					filename.substr(3, filename.size() - 6)
+				);
 			}
-		};
-		gen("./");
-		gen("${DLS_INSTALL_GAIT_GENERATOR_DIR}");
-		gen("${DLS_INSTALL_CONTROLLER_DIR}");
-		gen("${DLS_INSTALL_ESTIMATOR_DIR}");
-		// REMOVE UP TO HERE WHEN USING A PROPER C++17 compiler
-
+		}
 	}
 
 	while(index != files.size())

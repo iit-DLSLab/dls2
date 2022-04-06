@@ -23,7 +23,6 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include <condition_variable>
 
 namespace dls
 {
@@ -107,10 +106,8 @@ public:
 		const std::string &name
 	) const;
 
-	/// Adds a command to the CommandManager and registers it with the rest of
-	/// the framework
+	/// Adds a command to the CommandManager
 	///
-	/// @param owner name of the component that owns the command
 	/// @command_name command name as seen by the rest of the framework
 	/// @param docstring some documentation for the command
 	/// @param f the function encapsulated by the command
@@ -119,9 +116,23 @@ public:
 	(
 		const std::string &command_name,
 		const std::string &docstring,
-		const std::function<ret_t(arg_ts...)> &f,
-		const bool is_remote = false
+		const std::function<ret_t(arg_ts...)> &f
 	);
+
+	/// Adds a command to the CommandManager and registers it with the rest of
+	/// the framework
+	///
+	/// @command_name command name as seen by the rest of the framework
+	/// @param docstring some documentation for the command
+	/// @param f the function encapsulated by the command
+	template <typename ret_t, typename... arg_ts>
+	void addRemoteCommand
+	(
+		const std::string &command_name,
+		const std::string &docstring,
+		const std::function<ret_t(arg_ts...)> &f
+	);
+
 
 	/// Removes a command from the manager
 	///

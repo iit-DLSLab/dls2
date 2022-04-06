@@ -15,28 +15,11 @@
 *******************************************************************************/
 #include "dls2/core_framework/ros_layer.hpp"
 #include <signal.h>
-#include <sys/types.h>
-#include <dirent.h>
-#include <errno.h>
-#include <vector>
-#include <string>
-#include <iostream>
-#include <fstream>
-#include <stdlib.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <sys/prctl.h>
-
-
-#include "dls2/util/messaging/publisher_base.hpp"
 
 // =============================================================================
 // Using Declarations
 // =============================================================================
 using namespace dls;
-
-
-int getProcIdByName(std::string procName);
 
 // =============================================================================
 // Constructors
@@ -64,22 +47,18 @@ ROSLayer::ROSLayer(std::string ID, bool *should_quit_) :
 	// 	)
 	// );
 
-	// command_manager.addCommand<void, ARGVOID>
-	// (
-	// 	"HyQApp_server",
-	// 	"core_exit",
-	// 	"exits the framework",
-	// 	std::function<void(ARGVOID)>
-	// 	(
-	// 		[&](ARGVOID)
-	// 		{
-	// 			for(const auto &el : child_datas)
-	// 			{
-	// 				kill(el.second.pid, SIGTERM);
-	// 			}
-	// 		}
-	// 	)
-	// );
+	command_manager.addRemoteCommand<void>
+	(
+		"core_exit",
+		"exits the framework",
+		std::function<void()>
+		(
+			[&]()
+			{
+				this->killRoscore();
+			}
+		)
+	);
 
 	// command_manager.addCommand<void, std::string>
 	// (
@@ -146,44 +125,33 @@ void ROSLayer::handle_signals(int){
 
 AppLayer::Status ROSLayer::run()
 {
-	signal(SIGINT, this->handle_signals);
 
-	const pid_t pid = fork();
-	if(pid == -1)
+	system("roscore &");
+	
+	while(!*(this->should_quit))
 	{
-		auto error = errno;
-		std::cerr << "Could not fork" << std::endl;
-		switch(error)
-		{
-			case EAGAIN:
-				std::cout << "Thread limit reached or SCHED_DEADLINE used" << std::endl;
-				break;
-			case ENOMEM:
-				std::cout << "Out of memory" << std::endl;
-				break;
-		}
-	}
-	else if(pid == 0)
-	{
-		auto ret = system("roscore");
-
-		exit(EXIT_SUCCESS);
-	}
-	else
-	{
-		prctl(PR_SET_NAME, "roscore_sup");
-
-		while(!*(this->should_quit))
-		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(50));
-		}
-		//int pid = getProcIdByName("roscore");
-		kill(pid, SIGINT);
-		std::this_thread::sleep_for(std::chrono::seconds(1));
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 	}
 	
+	killRoscore();	
+	std::this_thread::sleep_for(std::chrono::seconds(1));
 	return getStatus();
 }
+
+
+void ROSLayer::killRoscore()
+{
+	char line[ 15 ];
+	FILE *cmd = popen( "pgrep -f roscore", "r");
+	fgets( line, 15, cmd );
+	pid_t pid = strtoul( line, NULL, 10 );
+	pclose(cmd);
+
+	if (pid > 0){
+		kill(pid, SIGINT);
+	}
+}
+
 
 AppLayer::Status ROSLayer::shutdown()
 {
@@ -209,48 +177,4 @@ void ROSLayer::launchSim()
 	// 	std::forward_as_tuple(pid),
 	// 	std::forward_as_tuple("simulation", pid)
 	// );
-}
-
-int getProcIdByName(std::string procName)
-{
-    int pid = -1;
-
-    // Open the /proc directory
-    DIR *dp = opendir("/proc");
-    if (dp != NULL)
-    {
-        // Enumerate all entries in directory until process found
-        struct dirent *dirp;
-        while (pid < 0 && (dirp = readdir(dp)))
-        {
-            // Skip non-numeric entries
-            int id = atoi(dirp->d_name);
-            if (id > 0)
-            {
-                // Read contents of virtual /proc/{pid}/cmdline file
-                std::string cmdPath = std::string("/proc/") + dirp->d_name + "/cmdline";
-                std::ifstream cmdFile(cmdPath.c_str());
-                std::string cmdLine;
-                getline(cmdFile, cmdLine);
-                if (!cmdLine.empty())
-                {
-                    // Keep first cmdline item which contains the program path
-                    size_t pos = cmdLine.find('\0');
-                    if (pos != std::string::npos)
-                        cmdLine = cmdLine.substr(0, pos);
-                    // Keep program name only, removing the path
-                    pos = cmdLine.rfind('/');
-                    if (pos != std::string::npos)
-                        cmdLine = cmdLine.substr(pos + 1);
-                    // Compare against requested process name
-                    if (procName == cmdLine)
-                        pid = id;
-                }
-            }
-        }
-    }
-
-    closedir(dp);
-
-    return pid;
 }

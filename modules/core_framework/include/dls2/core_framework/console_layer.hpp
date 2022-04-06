@@ -21,20 +21,7 @@
 // framework
 #include "app_layer.hpp"
 
-// messaging
-#include "dls2/util/messaging/publisher_base.hpp"
-#include "dls2/msg/stringmsgPubSubTypes.h"
-#include "dls2/msg/command_registerPubSubTypes.h"
-#include "dls2/util/messaging/subscriber.hpp"
-
-// commands
-#include "dls2/command/command.hpp"
-
 // stdlib
-#include <map>
-#include <functional>
-#include <mutex>
-#include <atomic>
 #include <signal.h>
 
 // =============================================================================
