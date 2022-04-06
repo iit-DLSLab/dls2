@@ -16,7 +16,6 @@ add_library(dls_framework
 	${ROS_LAYER_CPP}
 	src/estimation_layer.cpp
 	src/log_layer.cpp
-	src/init.cpp
 	src/options.cpp
 )
 

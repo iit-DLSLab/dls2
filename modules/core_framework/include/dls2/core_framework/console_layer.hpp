@@ -55,7 +55,7 @@ class ConsoleLayer : public AppLayer
 public:
 	/// Default Constructor
 	///
-	ConsoleLayer(std::string ID);
+	ConsoleLayer(std::string ID, bool *should_quit_);
 
 	/// Default Destructor
 	///
@@ -92,7 +92,7 @@ private:
 
 	/// Flag of the running loop
 	/// Exits when set to true
-	std::atomic_bool should_quit;
+	bool *should_quit;
 	
 	/// Handler to the shutdown SIGINT (ctrl+c) signal
 	/// 

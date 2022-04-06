@@ -27,7 +27,6 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/prctl.h>
-#include <stdlib.h>
 
 #include "dls2/core_framework/hyq_app.hpp"
 #include "dls2/core_framework/hardware_layer.hpp"
@@ -51,15 +50,9 @@
 
 #include <doglib/factory/robot_factory.hpp>
 
+#include <sys/mman.h>
+
 using namespace dls;
-// =============================================================================
-// Forward Declarations
-// =============================================================================
-
-/// Pointer to application
-///
-std::shared_ptr<HyQApp> pApp;
-
 
 /// Child proccess data
 ///
@@ -82,6 +75,7 @@ struct ChildData
 // some point it will need to be refactored, since this file is steadily growing
 // in size.
 std::map<pid_t, ChildData> child_datas;
+
 // =============================================================================
 // Prtototypes
 // =============================================================================
@@ -95,31 +89,26 @@ void change_process_name(char **argv, const std::string &name);
 /// by the template argument
 ///
 template <class layer_t>
-void forkLayer(const std::string &process_name, char **argv);
+void forkLayer(const std::string &process_name, bool *should_quit_, char **argv);
 
-/// Forks and launches roscore
-///
-void forkRosCore();
+int initVars();
 
-/// Forks and launches simulation
-///
-void launchSim();
 
 // =============================================================================
 // Signal Handlers
 // =============================================================================
 // These used to be lambdas, but it seems not all compilers can install a lambda
 // as a signal handler
-void kill_children(int)
-{
-	/*
-	for(auto &el : child_datas)
-	{
-		kill(el.first, SIGINT);
-	}
-	*/
-	pApp->stop();
-}
+// void kill_children(int)
+// {
+// 	/*
+// 	for(auto &el : child_datas)
+// 	{
+// 		kill(el.first, SIGINT);
+// 	}
+// 	*/
+// 	pApp->stop();
+// }
 
 // void stop_app_handler(int)
 // {
@@ -144,6 +133,8 @@ void kill_children(int)
 // 	// then, the monitor would have to respond to that exit value
 // }
 
+static bool *should_quit;
+
 // =============================================================================
 // Main Logic
 // =============================================================================
@@ -160,7 +151,10 @@ int main(int argc, char **argv)
 	if (!Options::parseArgs(argc, argv))
 		return 0;
 
-	// When the user presses CTRL-C, make sure that all child processes are
+	should_quit = (bool*) mmap(NULL, sizeof *should_quit, PROT_READ | PROT_WRITE, 
+    	MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+
+    // When the user presses CTRL-C, make sure that all child processes are
 	// killed. If this is not done, the child processes will inherit from the
 	// base process and continue to run even if the framework exits.
 	// signal
@@ -173,42 +167,22 @@ int main(int argc, char **argv)
 	//logging::coutstream outstream("fwkMonitorStream");
 	//logging::cfatalstream sfatal("fwkMonitorFatal");
 	
-	impl::initFramework();
-
-	// Create application
-	pApp = std::make_shared<HyQApp>();
 	
-	// Register an exit command to leave the framework
-	// CommandManager command_manager;
-
-
-	/*		
-	if(Options::show_docs)
-	{
-		return system
-		(
-			"@DLS_INSTALL_SCRIPTS_DIR@/xdg-open "
-			"@DLS_INSTALL_DEVELOPMENT_DOCS_DIR@/html/index.html"
-		);
-	}
+	// if(Options::show_docs)
+	// {
+	// 	return system
+	// 	(
+	// 		"@DLS_INSTALL_SCRIPTS_DIR@/xdg-open "
+	// 		"@DLS_INSTALL_DEVELOPMENT_DOCS_DIR@/html/index.html"
+	// 	);
+	// }
 
 	// Launch layers
-	if(Options::launch_log) forkLayer<LogLayer>("log_layer", argv);
-
-	if(Options::launch_hardware) forkLayer<HardwareLayer>("hardware_layer", argv);
-	if(Options::launch_control) forkLayer<ControlLayer>("control_layer", argv);
-
-*/
-
-	if(Options::launch_console)	{
-		forkLayer<ConsoleLayer>("console", argv);
-		std::this_thread::sleep_for(std::chrono::seconds(1));
-	}
-
-	// if(Options::is_core) {
-	// 	forkLayer<ROSLayer>("ros_core", argv);
-	// 	std::this_thread::sleep_for(std::chrono::seconds(1));
-	// }
+	// if(Options::launch_log) forkLayer<LogLayer>("log_layer", argv);
+	// if(Options::launch_hardware) forkLayer<HardwareLayer>("hardware_layer", argv);
+	// if(Options::launch_control)  forkLayer<ControlLayer>("control_layer", argv);
+	if(Options::launch_console)	 	forkLayer<ConsoleLayer>("consoleLayer", should_quit, argv);
+	if(Options::is_core) 			forkLayer<ROSLayer>("ROSLayer", should_quit, argv);
 
 
 	///	DDS DEBUGIN CODE - TO BE DELETED
@@ -232,38 +206,7 @@ int main(int argc, char **argv)
 	
 
 
-/*
-	if(Options::simulation_mode && Options::is_core)
-	{
-		command_manager.addCommand<void, ARGVOID>
-		(
-			"HyQApp_server",
-			"launchSim",
-			"launches the simulation backend",
-			std::function<void(ARGVOID)>
-			{
-				[&](ARGVOID)
-				{
-					launchSim();
-				}
-			}
-		);
 
-		command_manager.addCommand<int, ARGVOID>
-		(
-			"HyQApp_server",
-			"freezeBase",
-			"puts the robot down in simulation",
-			std::function<int(ARGVOID)>
-			{
-				[&](ARGVOID)
-				{
-					return system("rosservice call /hyq/freeze_base");
-				}
-			}
-		);
-	}
-*/
 	// Monitor the child processes
 	//
 	// loop is exited when there are no more children
@@ -325,7 +268,7 @@ void change_process_name(char **argv, const std::string &name)
 }
 
 template <class layer_t>
-void forkLayer(const std::string &process_name, char **argv)
+void forkLayer(const std::string &process_name, bool *should_quit_, char **argv)
 {
 	const pid_t pid = fork();
 	if(pid == -1)
@@ -345,9 +288,6 @@ void forkLayer(const std::string &process_name, char **argv)
 	else if(pid == 0)
 	{
 		change_process_name(argv, process_name);
-		//impl::initFramework();
-		std::shared_ptr<layer_t> pLayer = std::make_shared<layer_t>(process_name);
-		pApp->addLayer(pLayer);
 
 		// // register shutdown handler
 		// signal
@@ -361,7 +301,8 @@ void forkLayer(const std::string &process_name, char **argv)
 		// 	app_panic_handler
 		// );
 		
-		pApp->run();
+		std::shared_ptr<layer_t> pLayer = std::make_shared<layer_t>(process_name, should_quit_);
+		pLayer->run();
 
 		exit(EXIT_SUCCESS);
 	}
@@ -376,19 +317,3 @@ void forkLayer(const std::string &process_name, char **argv)
 	}
 }
 
-void launchSim()
-{
-	const pid_t pid = fork();
-	if(pid == 0)
-	{
-		change_process_name(Options::argv, "simulation");
-		auto ret = system("roslaunch robot_bringup hyq.launch");
-		_exit(ret);
-	}
-	child_datas.emplace
-	(
-		std::piecewise_construct,
-		std::forward_as_tuple(pid),
-		std::forward_as_tuple("simulation", pid)
-	);
-}

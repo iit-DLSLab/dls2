@@ -89,7 +89,6 @@ int main(int argc, char **argv)
 
 	// assert proper args
 	Args args = parse_args(argc, argv);
-	dls::impl::initFramework();
 
 	// logging stream
 	// logging::coutstream s(process_handle);

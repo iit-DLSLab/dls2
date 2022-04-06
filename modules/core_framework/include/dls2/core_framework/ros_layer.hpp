@@ -42,7 +42,7 @@ class ROSLayer : public AppLayer
 public:
 	/// Default Constructor
 	///
-	ROSLayer(std::string ID);
+	ROSLayer(std::string ID, bool *should_quit_);
 
 	/// Default Destructor
 	///
@@ -63,11 +63,13 @@ public:
 private:
 	/// Flag of the running loop
 	/// Exits when set to true
-	std::atomic_bool should_quit;
+	bool *should_quit;
 
 	/// Handler to the shutdown SIGINT (ctrl+c) signal
 	/// 
 	static void handle_signals(int);
+
+	void launchSim();
 	
 };
 } // end namespace dls

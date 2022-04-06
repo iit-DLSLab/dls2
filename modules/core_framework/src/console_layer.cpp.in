@@ -66,9 +66,9 @@ ConsoleLayer *pInstance = nullptr;
 // =============================================================================
 // Constructors
 // =============================================================================
-ConsoleLayer::ConsoleLayer(std::string ID) :
+ConsoleLayer::ConsoleLayer(std::string ID, bool *should_quit_) :
 	AppLayer(ID),
-	should_quit(false)
+	should_quit(should_quit_)
 	// ,
 	// consoleFeedback(
 	// 	dls::domains::layer,
@@ -171,7 +171,7 @@ ConsoleLayer::ConsoleLayer(std::string ID) :
 		{
 			[&]()
 			{
-				this->should_quit = true;;
+				*(this->should_quit) = true;;
 			}
 		}
 	);
@@ -240,7 +240,7 @@ ConsoleLayer::Status ConsoleLayer::run()
 	rl_set_signals();
 	signal(SIGINT, this->handle_signals);
 
-	while(!this->should_quit)
+	while(!*(this->should_quit))
 	{
 		// This calls malloc behind the scenes. Needs to be freed manually
 		char *line = readline(this->build_prompt().c_str());
@@ -347,7 +347,7 @@ ConsoleLayer::Status ConsoleLayer::run()
 
 ConsoleLayer::Status ConsoleLayer::shutdown()
 {
-	this->should_quit = true;
+	*(this->should_quit) = true;
 	return getStatus();
 }
 
