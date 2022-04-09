@@ -107,11 +107,23 @@ std::shared_ptr<CommandBase> CommandManager::find
 	return nullptr;
 }
 
-std::vector<std::shared_ptr<CommandBase>>
-	CommandManager::getCurrentlyRegisteredCommands()
-{
-	std::lock_guard<std::mutex> lock(this->commands_mutex);
-	return this->commands;
+std::vector<std::string> CommandManager::getCurrentlyRegisteredCommands(){
+	//std::lock_guard<std::mutex> lock(this->commands_mutex);
+	
+	std::vector<std::string> remCommands;
+
+	for(auto it = commands.begin(); it != commands.end(); ++it) {
+		remCommands.push_back((*it)->getCommandName());
+	}
+		
+	auto participant = eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->lookup_participant(domains::command);
+	if (participant != NULL){
+		//std::cout << participant->get_qos().name() << std::endl;
+		remCommands = participant->get_participant_names();
+		std::cout << remCommands.size() << std::endl;
+	}
+
+	return remCommands;
 }
 
 std::set<std::string> CommandManager::getCurrentlyRegisteredOwners()

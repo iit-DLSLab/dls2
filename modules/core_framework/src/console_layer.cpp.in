@@ -115,15 +115,16 @@ ConsoleLayer::ConsoleLayer(std::string ID, bool *should_quit_) :
 		(
 			[&](std::string s)
 			{
-
 				auto factory = eprosima::fastdds::dds::DomainParticipantFactory::get_instance();
 				auto participant = factory->lookup_participant(stoi(s));				
 
-				auto names = participant->get_participant_names();
+				if (participant != NULL){
+					auto names = participant->get_participant_names();
 
-				if (!names.empty()){
-					for(auto name : names)
-						std::cout << name << std::endl;
+					if (!names.empty()){
+						for(auto name : names)
+							std::cout << name << std::endl;
+					}
 				}
 				return;
 			}
@@ -355,7 +356,6 @@ std::string ConsoleLayer::build_prompt()
 char **dls::console_completion(const char *text, int start, int /*end*/)
 {
 	char **matches = nullptr;
-
 	if(start == 0)
 	{
 		matches = rl_completion_matches(text, command_completion);
@@ -373,13 +373,14 @@ char **dls::console_completion(const char *text, int start, int /*end*/)
 		{
 			// std::lock_guard<std::mutex> lock(pInstance->commands_mutex);
 
-			std::vector<std::shared_ptr<CommandBase>> commands =
+
+			std::vector<std::string> commands =
 				pInstance->command_manager.getCurrentlyRegisteredCommands();
 
 			auto it = commands.begin();
 			for(; it != commands.end(); ++it)
 			{
-				if((*it)->getCommandName() == command_name)
+				if((*it) == command_name)
 					break;
 			}
 
@@ -424,7 +425,7 @@ char *dls::command_completion(const char *text, int state)
 		// Do command completion
 		while(it_commands != commands.cend())
 		{
-			const char *match_candidate = (*it_commands)->getCommandName().c_str();
+			const char *match_candidate = (*it_commands).c_str();
 			++it_commands;
 
 			// TODO move this into a function, since it is copied in the other

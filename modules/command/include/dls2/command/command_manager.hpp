@@ -89,7 +89,7 @@ public:
 	/// That way, if some component starts walking through its list of commands,
 	/// that list will never get invalidated by another process registering new
 	/// commands
-	std::vector<std::shared_ptr<CommandBase>> getCurrentlyRegisteredCommands();
+	std::vector<std::string> getCurrentlyRegisteredCommands();
 
 	/// Get a list of the unique owners of the commands
 	///
