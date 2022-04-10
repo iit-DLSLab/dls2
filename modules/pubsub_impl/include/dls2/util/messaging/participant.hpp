@@ -39,6 +39,8 @@ namespace dls
 		template <class PubSub_t>
 		bool addSubscriber();
 
+		std::vector<std::string> getParticipants();
+
 	private:
 		eprosima::fastdds::dds::DomainParticipant 	*participant;
 		eprosima::fastdds::dds::TypeSupport 		type;

@@ -50,6 +50,10 @@ namespace dls
 			delete_participant(this->participant);
 	}
 
+	std::vector<std::string> DDSParticipant::getParticipants(){
+		return this->participant->get_participant_names();
+	}
+
 
 	template <class PubSub_t>
 	bool DDSParticipant::addSubscriber(){

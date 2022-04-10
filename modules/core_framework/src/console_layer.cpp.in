@@ -18,6 +18,8 @@
 #include <readline/history.h>
 #include <filesystem>
 
+#include "dls2/util/messaging/participant.hpp"
+
 // =============================================================================
 // Foreward Declarations
 // =============================================================================
@@ -50,6 +52,7 @@ ConsoleLayer *pInstance = nullptr;
 ConsoleLayer::ConsoleLayer(std::string ID, bool *should_quit_) :
 	AppLayer(ID),
 	should_quit(should_quit_)
+	
 	// ,
 	// consoleFeedback(
 	// 	dls::domains::layer,
@@ -106,31 +109,6 @@ ConsoleLayer::ConsoleLayer(std::string ID, bool *should_quit_) :
 			}
 		}
 	);
-
-	command_manager.addCommand<void, std::string>
-	(
-		"list",
-		"list fast dds nodes",
-		std::function<void(std::string)>
-		(
-			[&](std::string s)
-			{
-				auto factory = eprosima::fastdds::dds::DomainParticipantFactory::get_instance();
-				auto participant = factory->lookup_participant(stoi(s));				
-
-				if (participant != NULL){
-					auto names = participant->get_participant_names();
-
-					if (!names.empty()){
-						for(auto name : names)
-							std::cout << name << std::endl;
-					}
-				}
-				return;
-			}
-		)
-	);
-
 
 	command_manager.addCommand<void>
 	(
@@ -193,6 +171,33 @@ ConsoleLayer::ConsoleLayer(std::string ID, bool *should_quit_) :
 			}
 		}
 	);
+
+	// command_manager.addCommand<void, std::string>
+	// (
+	// 	"list",
+	// 	"list fast dds nodes",
+	// 	std::function<void(std::string)>
+	// 	(
+	// 		[&](std::string s)
+	// 		{
+	// 			// auto factory = eprosima::fastdds::dds::DomainParticipantFactory::get_instance();
+	// 			// auto participant = factory->lookup_participant(stoi(s));			
+
+	// 			auto names = ddslink->getParticipants();
+
+	// 			// if (participant != NULL){
+	// 			// 	auto names = participant->get_participant_names();
+
+	// 				if (!names.empty()){
+	// 					for(auto name : names)
+	// 						std::cout << name << std::endl;
+	// 				}
+	// 		//	}
+
+	// 			return;
+	// 		}
+	// 	)
+	// );
 }
 
 // =============================================================================
@@ -319,16 +324,6 @@ ConsoleLayer::Status ConsoleLayer::shutdown()
 	return getStatus();
 }
 
-// void ConsoleLayer::onNewDataMessage(eprosima::fastrtps::Subscriber *sub)
-// {
-// 	StringMsg msg;
-// 	if(sub->takeNextData(&msg, nullptr))
-// 	{
-// 		std::cout << "\n" << msg.msg() << std::flush;
-// 		std::cout << build_prompt() << " " << rl_line_buffer << std::flush;
-// 	}
-// }
-
 // =============================================================================
 // Implementaton
 // =============================================================================
@@ -368,28 +363,13 @@ char **dls::console_completion(const char *text, int start, int /*end*/)
 		ss >> command_name;
 
 		// Find the command structure associated with the command name
-		//
-		// It may not exist if garbage was typed into the command line
+		auto commands = pInstance->command_manager.getCurrentlyRegisteredCommands();
+		auto it = std::find_if(commands.begin(), commands.end(), [&](auto value) { return (text == value.first); });
+
+		if(it != commands.end())
 		{
-			// std::lock_guard<std::mutex> lock(pInstance->commands_mutex);
-
-
-			std::vector<std::string> commands =
-				pInstance->command_manager.getCurrentlyRegisteredCommands();
-
-			auto it = commands.begin();
-			for(; it != commands.end(); ++it)
-			{
-				if((*it) == command_name)
-					break;
-			}
-
-			if(it != commands.end())
-			{
-				matches = rl_completion_matches(text, arg_completion);
-			}
+			matches = rl_completion_matches(text, arg_completion);
 		}
-
 	}
 
 	return matches;
@@ -425,7 +405,7 @@ char *dls::command_completion(const char *text, int state)
 		// Do command completion
 		while(it_commands != commands.cend())
 		{
-			const char *match_candidate = (*it_commands).c_str();
+			const char *match_candidate = it_commands->first.c_str();
 			++it_commands;
 
 			// TODO move this into a function, since it is copied in the other
@@ -446,37 +426,37 @@ char *dls::command_completion(const char *text, int state)
 			}
 		}
 		// Do owner completion
-		while(it_owners != owners.cend())
-		{
-			const char *match_candidate = it_owners->c_str();
-			++it_owners;
+		// while(it_owners != owners.cend())
+		// {
+		// 	const char *match_candidate = it_owners->c_str();
+		// 	++it_owners;
 
-			// TODO move this into a function, since it is copied in the other
-			// completers
-			if(strncmp(match_candidate, text, string_length) == 0)
-			{
-				char *ret_str = static_cast<char *>
-				(
-					// malloc is required by readline
-					// readline will free the string
-					malloc
-					(
-						strlen(match_candidate) + 3 // 2 for '::', 1 for '\0'
-					)
-				);
-				strcpy
-				(
-					ret_str,
-					(
-						std::string
-						(
-							match_candidate
-						) + "::"
-					).c_str()
-				);
-				return ret_str;
-			}
-		}
+		// 	// TODO move this into a function, since it is copied in the other
+		// 	// completers
+		// 	if(strncmp(match_candidate, text, string_length) == 0)
+		// 	{
+		// 		char *ret_str = static_cast<char *>
+		// 		(
+		// 			// malloc is required by readline
+		// 			// readline will free the string
+		// 			malloc
+		// 			(
+		// 				strlen(match_candidate) + 3 // 2 for '::', 1 for '\0'
+		// 			)
+		// 		);
+		// 		strcpy
+		// 		(
+		// 			ret_str,
+		// 			(
+		// 				std::string
+		// 				(
+		// 					match_candidate
+		// 				) + "::"
+		// 			).c_str()
+		// 		);
+		// 		return ret_str;
+		// 	}
+		// }
 
 		// pInstance->commands_mutex.unlock();
 	}

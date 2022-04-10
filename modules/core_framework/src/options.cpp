@@ -43,12 +43,10 @@ bool Options::launch_hardware               = false;
 bool Options::launch_control                = false;
 bool Options::launch_console                = false;
 bool Options::launch_log                    = false;
+bool Options::launch_roscore                = false;
 
 // real robot or simulation mode
 bool Options::simulation_mode               = true;
-
-// if this is the core
-bool Options::is_core                       = false;
 
 // show the documentation in a browser
 bool Options::show_docs                     = false;
@@ -130,6 +128,7 @@ bool Options::parseArgs(int argc, char **argv)
 				Options::launch_control     =  false;
 				Options::launch_console     =  false;
 				Options::launch_log         =  false;
+				Options::launch_roscore		=  false;
 
 				char * const tokens []
 				{
@@ -138,6 +137,7 @@ bool Options::parseArgs(int argc, char **argv)
 					const_cast<char*>("console"),
 					const_cast<char*>("log"),
 					const_cast<char*>("estimation"),
+					const_cast<char*>("roscore"),
 					nullptr
 				};
 				char *value;
@@ -170,6 +170,10 @@ bool Options::parseArgs(int argc, char **argv)
 						{
 							Options::launch_estimation = true;
 						}
+						else if(std::strcmp(layer, "roscore") == 0)
+						{
+							Options::launch_roscore = true;
+						}
 					}
 					else
 					{
@@ -197,11 +201,6 @@ bool Options::parseArgs(int argc, char **argv)
 				// TODO print help of specific arg
 				Options::printUsage();
 				exit(EXIT_SUCCESS);
-				break;
-			}
-			case 'c':
-			{
-				Options::is_core = true;
 				break;
 			}
 			default:
@@ -284,7 +283,8 @@ bool Options::validate()
 		!launch_hardware &&
 		!launch_control &&
 		!launch_console &&
-		!launch_log
+		!launch_log &&
+		!launch_roscore
 	)
 		return false;
 

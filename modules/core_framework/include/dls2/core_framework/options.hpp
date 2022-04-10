@@ -64,12 +64,10 @@ public:
 	static bool launch_control;
 	static bool launch_console;
 	static bool launch_log;
+	static bool launch_roscore;
 
 	// Real robot or simulation mode
 	static bool simulation_mode;
-
-	// if this is the core
-	static bool is_core;
 
 	static dls::dog::RobotFactory::RobotType robot;
 	static std::string robot_name;

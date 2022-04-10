@@ -29,7 +29,6 @@
 #include <csignal>
 #include <sstream>
 
-#include "dls2/core_framework/init.hpp"
 #include "dls2/class_loader.hpp"
 #include "dls2/gait_generator/gait_generator.hpp"
 #include "dls2/controller/controller.hpp"

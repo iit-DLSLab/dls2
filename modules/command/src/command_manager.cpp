@@ -17,6 +17,10 @@
 // Includes
 // =============================================================================
 #include "dls2/command/command_manager.hpp"
+#include <iostream>
+#include <numeric>
+#include <string_view>
+#include <vector>
 
 namespace dls
 {
@@ -30,14 +34,8 @@ namespace dls
 // -----------------------------------------------------------------------------
 CommandManager::CommandManager(std::string owner_):
 	commands(),
-	owner(owner_)
-	// ,
-	// registration_listener(
-	// 	dls::domains::layer,
-	// 	"command_manager",
-	// 	"command_registration",
-	// 	nullptr //put here the callback for new commands from remote
-	// )
+	owner(owner_),
+	commands_monitor(std::make_unique<dls::DDSParticipant>(owner_+"::commands_monitor", domains::command))
 { }
 
 CommandManager::~CommandManager()
@@ -67,68 +65,78 @@ std::vector<std::shared_ptr<CommandBase>> CommandManager::findByOwner
 
 std::vector<std::shared_ptr<CommandBase>> CommandManager::findByName
 (
-	const std::string &name
-) const
+	std::string name_
+)
 {
+	auto cmds = getCurrentlyRegisteredCommands();
+	auto cmd = *std::find_if(cmds.begin(), cmds.end(), [&](auto el) { return (el.first == name_); });
+
 	std::vector<std::shared_ptr<CommandBase>> vec;
-	{
-		std::lock_guard<std::mutex> lock(this->commands_mutex);
-		for(const auto &el : this->commands)
-		{
-			if(el->getCommandName() == name)
+	
+	if (cmd.second == this->owner){
+		for(const auto &el : this->commands){
+			if(el->getCommandName() == name_)
 			{
 				vec.push_back(el);
 			}
 		}
 	}
+	else{
+		std::cout << "TBD - make cmd object for remote command" << std::endl;
+	}
+
 	return vec;
 }
 
 std::shared_ptr<CommandBase> CommandManager::find
 (
-	const std::string &owner,
-	const std::string &name
-) const
+	std::string owner_,
+	std::string name_
+)
 {
-	{
-		std::lock_guard<std::mutex> lock(this->commands_mutex);
-		for(const auto &el : this->commands)
-		{
-			if
-			(
-				el->getCommandOwner() == owner &&
-				el->getCommandName() == name
-			)
-			{
-				return el;
-			}
-		}
+	auto cmds = getCurrentlyRegisteredCommands();
+
+	cmds.find(std::make_pair(name_, owner_));
+
+	// verify if the command is local or remote
+	if (owner_ == this->owner){
+		return *std::find_if(commands.begin(), commands.end(), [&](auto el) { return (el->getCommandOwner() == owner_ &&
+			el->getCommandName() == name_); });
 	}
+	else{
+		std::cout << "TBD - make cmd object for remote command" << std::endl;
+	}
+
 	return nullptr;
 }
 
-std::vector<std::string> CommandManager::getCurrentlyRegisteredCommands(){
-	//std::lock_guard<std::mutex> lock(this->commands_mutex);
-	
-	std::vector<std::string> remCommands;
+std::set<std::pair<std::string, std::string>> CommandManager::getCurrentlyRegisteredCommands(){
 
-	for(auto it = commands.begin(); it != commands.end(); ++it) {
-		remCommands.push_back((*it)->getCommandName());
+	// get all the remote commands
+	auto remCommands = commands_monitor->getParticipants();
+	std::erase_if(remCommands, [](std::string value) { return (value.find("monitor") != std::string::npos); });
+
+	// sort the remote commands
+	std::set<std::pair<std::string, std::string>> cmds;
+
+	for(auto elem :remCommands){
+		size_t idx = elem.find("::");
+		if (idx != std::string::npos)
+			cmds.insert(std::make_pair(elem.substr(idx+2, elem.size()), elem.substr(0, idx)));
 	}
 		
-	auto participant = eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->lookup_participant(domains::command);
-	if (participant != NULL){
-		//std::cout << participant->get_qos().name() << std::endl;
-		remCommands = participant->get_participant_names();
-		std::cout << remCommands.size() << std::endl;
+	for(auto it : this->commands) {
+		cmds.insert(std::make_pair(it->getCommandName(), it->getCommandOwner()));
 	}
 
-	return remCommands;
+	return cmds;
 }
 
 std::set<std::string> CommandManager::getCurrentlyRegisteredOwners()
 {
-	std::lock_guard<std::mutex> lock(this->commands_mutex);
+	auto remCommands = commands_monitor->getParticipants();
+
+
 	std::set<std::string> set;
 	for(auto it = commands.begin(); it != commands.end(); ++it)
 	{
@@ -150,9 +158,9 @@ RemoteCommandCallable::RemoteCommandCallable() :
 
 RemoteCommandCallable CommandManager::makeCallable
 (
-	const std::string &owner,
-	const std::string &name
-) const
+	std::string owner,
+	std::string name
+)
 {
 	std::shared_ptr<CommandBase> pCommand;
 	do

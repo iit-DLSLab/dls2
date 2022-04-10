@@ -72,14 +72,14 @@ public:
 	/// Finds a vector of commands by their name. Note that certain commands may
 	/// have the same name but different owners. This could be the case, for
 	/// instance, if multiple controllers advertise a `start` or `stop` command.
-	std::vector<std::shared_ptr<CommandBase>> findByName( const std::string& ) const;
+	std::vector<std::shared_ptr<CommandBase>> findByName( std::string );
 
 	/// Find command
 	///
 	/// Finds a command by its name and the name of its owner. There is
 	/// guaranteed to be at most one command of this type. Returns nullptr on
 	/// failure
-	std::shared_ptr<CommandBase> find( const std::string &owner, const std::string &name ) const;
+	std::shared_ptr<CommandBase> find( std::string, std::string );
 
 	/// Get list of all registered commands
 	///
@@ -89,7 +89,7 @@ public:
 	/// That way, if some component starts walking through its list of commands,
 	/// that list will never get invalidated by another process registering new
 	/// commands
-	std::vector<std::string> getCurrentlyRegisteredCommands();
+	std::set<std::pair<std::string, std::string>> getCurrentlyRegisteredCommands();
 
 	/// Get a list of the unique owners of the commands
 	///
@@ -102,9 +102,9 @@ public:
 	/// @return a functor representing the command
 	RemoteCommandCallable makeCallable
 	(
-		const std::string &owner,
-		const std::string &name
-	) const;
+		std::string owner,
+		std::string name
+	);
 
 	/// Adds a command to the CommandManager
 	///
@@ -162,7 +162,9 @@ private:
 	///
 	std::string owner;
 
-
+	/// fastdds remote commands monitor
+	///
+	std::unique_ptr<dls::DDSParticipant> commands_monitor;	
 
 };
 
