@@ -82,7 +82,19 @@ std::vector<std::shared_ptr<CommandBase>> CommandManager::findByName
 		}
 	}
 	else{
-		std::cout << "TBD - make cmd object for remote command" << std::endl;
+		vec.push_back(std::make_shared<Command<void>> (
+			cmd.second,
+			cmd.first,
+			"doc string",
+			std::function<void()>
+			{
+				[&]()
+				{
+					std::cout << "send data to execution" << std::endl;
+				}
+			}, 
+			false
+		));
 	}
 
 	return vec;
