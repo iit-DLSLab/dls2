@@ -13,63 +13,66 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef SUBSCRIBER_HPP_XPACOJJI
-#define SUBSCRIBER_HPP_XPACOJJI
+#ifndef PUBLISHER_HPP_MFE9PIJK
+#define PUBLISHER_HPP_MFE9PIJK
 
 // =============================================================================
-// Old Includes -- To be removed
+// Old Includes .. To be removed
 // =============================================================================
 #include <fastrtps/fastrtps_fwd.h>
-#include <fastrtps/subscriber/SubscriberListener.h>
-#include <fastrtps/subscriber/SampleInfo.h>
-#include <fastrtps/participant/Participant.h>
-#include <mutex>
+#include <fastrtps/publisher/PublisherListener.h>
 
 // =============================================================================
-// New Includes
+// New includes
 // =============================================================================
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/domain/DomainParticipant.hpp>
 #include <fastdds/dds/topic/TypeSupport.hpp>
-#include <fastdds/dds/subscriber/Subscriber.hpp>
-#include <fastdds/dds/subscriber/DataReader.hpp>
-#include <fastdds/dds/subscriber/DataReaderListener.hpp>
-#include <fastdds/dds/subscriber/qos/DataReaderQos.hpp>
-#include <fastdds/dds/subscriber/SampleInfo.hpp>
+#include <fastdds/dds/publisher/Publisher.hpp>
+#include <fastdds/dds/publisher/DataWriter.hpp>
+#include <fastdds/dds/publisher/DataWriterListener.hpp>
 
-#include "dls2/util/messaging/subscriber_base.hpp"
+#include "dls2/util/messaging/publisher_base.hpp"
 
-#include <functional>
+#include <string>
 
 // =============================================================================
-// Old Version - To Be Removed
+// Old Version -- to be removed
 // =============================================================================
 namespace dls
 {
 	template <class PubSub_t>
-	class SubscriberBase : public eprosima::fastrtps::SubscriberListener
+	class PublisherBase : public eprosima::fastrtps::PublisherListener
 	{
+		template <typename T, typename U> friend class Service;
+		template <typename T, typename U> friend class ServiceClient;
 	public:
-		SubscriberBase(const std::string &topic);
-		virtual ~SubscriberBase();
+		PublisherBase(const std::string &topic);
+		virtual ~PublisherBase();
+
+		void publish(typename PubSub_t::type &msg) const;
 
 	private:
-		// std::shared_ptr<eprosima::fastrtps::Participant> pParticipant;
-		// std::shared_ptr<eprosima::fastrtps::Subscriber> pSubscriber;
 		eprosima::fastrtps::Participant *pParticipant;
-		eprosima::fastrtps::Subscriber *pSubscriber;
+		eprosima::fastrtps::Publisher *pPublisher;
 
-		static PubSub_t rtps_type;
+		/*static*/ PubSub_t rtps_type;
 
-		// begin critical section
-			// static std::mutex ID_mutex;
-			// static size_t ID;
-		// end critical section
+		/// Returns the underlying fastrtps guid of this publisher
+		///
+		/// This should _not_ be exposed to third party clients. This is used
+		/// only for identification of a specific publisher in the Service and
+		/// ServiceClient implementations. This can be removed without warning
+		auto getGuid() const -> eprosima::fastrtps::rtps::GUID_t;
+
+		// TODO temp, remove
+		const std::string temp_topic;
+
 	};
-}
+} // end namespace dls
 
 // =============================================================================
-// New Version
+// New version
 // =============================================================================
 /// \cond doxygen_namespace_dls
 namespace dls
@@ -81,55 +84,57 @@ namespace dls
 	/// removed and its contents lifted to the dls namespace
 	namespace version2
 	{
-
 		template <class PubSub_t>
-		class Subscriber : public dls::version2::SubscriberBase
+		class Publisher : public dls::version2::PublisherBase
 		{
-		public:
-			typedef std::function<void(typename PubSub_t::type&)> CallbackType;
+			template <typename T, typename U> friend class Service;
+			template <typename T, typename U> friend class ServiceClient;
 
-			Subscriber(
+		public:
+
+			Publisher(
 				eprosima::fastdds::dds::DomainParticipant *participant_
 			);
-			
-			virtual ~Subscriber();
 
-			bool addDataReader(
-				std::string 	&topicName_,
-				CallbackType 	callback
+			virtual ~Publisher();
+
+			bool addDataWriter(
+				std::string 	topicName_
 			);
+
+			auto getGuid() const -> eprosima::fastrtps::rtps::GUID_t;
+
+			void publish(typename PubSub_t::type &msg) const;
 
 		private:
 
-			eprosima::fastdds::dds::Subscriber        								*subscriber;
+			eprosima::fastdds::dds::Publisher        								*publisher;
 			std::map<std::string, std::shared_ptr<eprosima::fastdds::dds::Topic>>   topics;
-			std::vector<std::shared_ptr<eprosima::fastdds::dds::DataReader>> 		readers;
+			std::vector<std::shared_ptr<eprosima::fastdds::dds::DataWriter>> 		writers;
 			eprosima::fastdds::dds::TypeSupport       								type;
-		
-			class SubListener : public eprosima::fastdds::dds::DataReaderListener
-			{
-			public:
-				SubListener(CallbackType callback_);
 
-				typename PubSub_t::type msg;
-				
-				std::atomic_int sample_count;
-				CallbackType callback;
-				
-				void on_subscription_matched (
-					eprosima::fastdds::dds::DataReader*,
-					const eprosima::fastdds::dds::SubscriptionMatchedStatus &info
+			class PublisherListener :
+				public eprosima::fastdds::dds::DataWriterListener
+			{
+
+			public:
+
+				PublisherListener();
+				void on_publication_matched
+				(
+					eprosima::fastdds::dds::DataWriter *,
+					const eprosima::fastdds::dds::PublicationMatchedStatus &info
 				) override;
 
-				void on_data_available ( eprosima::fastdds::dds::DataReader* ) override;
-
-			} subscriber_listener;
+				std::atomic_int matched_count;
+			} publisher_listener;
 
 			PubSub_t rtps_type;
 		};
+
 	} /// \endcond namespace version2
 } /// \endcond namespace dls
 
-#include "dls2/util/messaging/subscriber.tpp"
+#include "dls2/util/messaging/publisher.tpp"
 
-#endif /* end of include guard: SUBSCRIBER_HPP_XPACOJJI */
+#endif /* end of include guard: PUBLISHER_HPP_MFE9PIJK */

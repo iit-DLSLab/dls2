@@ -13,6 +13,9 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
+#ifndef PARTICIPANT_CPP
+#define PARTICIPANT_CPP
+
 #include <fastrtps/attributes/ParticipantAttributes.h>
 #include <fastrtps/participant/Participant.h>
 
@@ -48,20 +51,15 @@ namespace dls
 	
 		eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->
 			delete_participant(this->participant);
+
+		delete this->participant;
 	}
 
 	std::vector<std::string> DDSParticipant::getParticipants(){
 		return this->participant->get_participant_names();
 	}
-
-
-	template <class PubSub_t>
-	bool DDSParticipant::addSubscriber(){
-		subscribers.emplace_back(
-			new dls::version2::Subscriber<PubSub_t>(this->participant)
-		);
-
-		return true;
-	}
+	
 } // namespace dls
 /// \endcond
+
+#endif /* end of include guard: PARTICIPANT_CPP */

@@ -37,16 +37,16 @@ namespace dls
 			SubscriberBase(
 				eprosima::fastdds::dds::DomainParticipant *participant_
 			);
-			virtual ~SubscriberBase();
+			~SubscriberBase(){};
 
-			virtual bool addDataReader();
+			//virtual bool addDataReader();
 
-		private:
+		protected:
 
 			eprosima::fastdds::dds::DomainParticipant *participant;
 		
 		};
-	}
+	} /// \endcond namespace version2
 } /// \endcond namespace dls
 
 #endif /* end of include guard: SUBSCRIBER_BASE_HPP */

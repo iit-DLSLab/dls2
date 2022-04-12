@@ -24,7 +24,7 @@
 #include <mutex>
 
 #include "dls2/util/messaging/callback_subscriber.hpp"
-#include "dls2/util/messaging/publisher_base.hpp"
+#include "dls2/util/messaging/publisher.hpp"
 
 namespace dls
 {

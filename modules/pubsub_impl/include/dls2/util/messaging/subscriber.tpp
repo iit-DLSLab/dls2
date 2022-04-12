@@ -35,8 +35,8 @@
 // =============================================================================
 // New Includes
 // =============================================================================
-#include "dls2/util/messaging/subscriber_base.hpp"
 #include "dls2/util/messaging/participant.hpp"
+#include "dls2/util/messaging/subscriber.hpp"
 
 #include <fastrtps/transport/UDPv4TransportDescriptor.h>
 #include <fastrtps/attributes/ParticipantAttributes.h>
@@ -165,6 +165,14 @@ namespace dls
 		}
 
 		template <class PubSub_t>
+		Subscriber<PubSub_t>::~Subscriber()
+		{
+			if(this->subscriber != nullptr){
+				this->participant->delete_subscriber(this->subscriber);
+			}
+		}
+
+		template <class PubSub_t>
 		bool Subscriber<PubSub_t>::addDataReader(
 			std::string		&topicName_,
 			CallbackType 	callback
@@ -180,16 +188,17 @@ namespace dls
 					eprosima::fastdds::dds::TOPIC_QOS_DEFAULT
 				);
 
-				if(this->topic == nullptr){
-					throw std::runtime_error(
-						"Error: could not create subscriber topic"
-					);
+				if(topic == nullptr){
+					// throw std::runtime_error(
+					// 	"Error: could not create subscriber topic"
+					// );
+					return false;
 				}
 
 				search = topics.insert(topicName_, topic);
 			}
 
-			// Should verfify if the reader already exists?
+			// TBD Should verfify if the reader already exists?
 
 			auto reader = this->subscriber->create_datareader(
 				search->second,
@@ -208,21 +217,6 @@ namespace dls
 			return true;
 		}
 
-		template <class PubSub_t>
-		Subscriber<PubSub_t>::~Subscriber(){
-			if(this->reader != nullptr){
-				this->subscriber->delete_datareader(this->reader);
-			}
-			if(this->topic != nullptr){
-			 	this->participant->delete_topic(this->topic);
-			}
-			if(this->subscriber != nullptr){
-				this->participant->delete_subscriber(this->subscriber);
-			}
-
-			eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->
-				delete_participant(this->participant);
-		}
 		
 		// =====================================================================
 		// Helper Listener Class

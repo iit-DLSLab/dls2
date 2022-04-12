@@ -395,7 +395,6 @@ char *dls::command_completion(const char *text, int state)
 		{
 			commands = pInstance->command_manager.getCurrentlyRegisteredCommands();
 			owners = pInstance->command_manager.getCurrentlyRegisteredOwners();
-			// pInstance->commands_mutex.lock();
 			// it = pInstance->commands.begin();
 			it_commands = commands.begin();
 			it_owners = owners.begin();
@@ -458,7 +457,6 @@ char *dls::command_completion(const char *text, int state)
 		// 	}
 		// }
 
-		// pInstance->commands_mutex.unlock();
 	}
 
 	return nullptr;

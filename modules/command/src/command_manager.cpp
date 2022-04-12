@@ -17,6 +17,7 @@
 // Includes
 // =============================================================================
 #include "dls2/command/command_manager.hpp"
+#include "dls2/msg/console_commandPubSubTypes.h"
 #include <iostream>
 #include <numeric>
 #include <string_view>
@@ -36,7 +37,10 @@ CommandManager::CommandManager(std::string owner_):
 	commands(),
 	owner(owner_),
 	commands_monitor(std::make_unique<dls::DDSParticipant>(owner_+"::commands_monitor", domains::command))
-{ }
+{
+	auto pub = commands_monitor->addPublisher<ConsoleCommandMsgPubSubType>();
+	//pub->addDataWriter(dls::topics::command_call);
+}
 
 CommandManager::~CommandManager()
 { }
@@ -51,7 +55,6 @@ std::vector<std::shared_ptr<CommandBase>> CommandManager::findByOwner
 {
 	std::vector<std::shared_ptr<CommandBase>> vec;
 	{
-		std::lock_guard<std::mutex> lock(this->commands_mutex);
 		for(const auto &el : this->commands)
 		{
 			if(el->getCommandOwner() == owner)
@@ -186,8 +189,6 @@ RemoteCommandCallable CommandManager::makeCallable
 		{
 			std::cout << "Command '" << name << "' for '" << owner <<
 				"' not yet registered. Blocking" << std::endl;
-			std::unique_lock<std::mutex> lock(this->commands_mutex);
-			this->command_added.wait(lock);
 		}
 	}while(pCommand == nullptr);
 

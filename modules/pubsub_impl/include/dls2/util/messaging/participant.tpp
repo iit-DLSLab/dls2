@@ -13,50 +13,35 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef PARTICIPANT_HPP_4d198a8c_fdc4_4c7d_8be9_6d4b7e6bd7d2
-#define PARTICIPANT_HPP_4d198a8c_fdc4_4c7d_8be9_6d4b7e6bd7d2
+#ifndef PARTICIPANT_TPP
+#define PARTICIPANT_TPP
 
-#include <fastdds/dds/domain/DomainParticipantFactory.hpp>
-#include <fastdds/dds/domain/DomainParticipant.hpp>
+#include "dls2/util/messaging/participant.hpp"
 
-#include "dls2/util/messaging/subscriber.hpp"
-#include "dls2/util/messaging/publisher.hpp"
-
-#include <map>
-#include <string>
 
 /// \cond doxygen_namespace_dls
 namespace dls
 {
-	class DDSParticipant{
 
-	public:
-		DDSParticipant(
-			const std::string &partName_,
-			const unsigned int &domain_
+	template <class PubSub_t>
+	bool DDSParticipant::addSubscriber(){
+		subscribers.emplace_back(
+			new dls::version2::Subscriber<PubSub_t>(this->participant)
 		);
-		~DDSParticipant();
 
-		template <class PubSub_t>
-		bool addSubscriber();
+		return true;
+	}
 
-		template <class PubSub_t>
-		bool addPublisher();
+	template <class PubSub_t>
+	bool DDSParticipant::addPublisher(){
+		publishers.emplace_back(
+		 	new dls::version2::Publisher<PubSub_t>(this->participant)
+		);
 
-		std::vector<std::string> getParticipants();
-
-	private:
-		eprosima::fastdds::dds::DomainParticipant 	*participant;
-		eprosima::fastdds::dds::TypeSupport 		type;
-
-		std::vector<dls::version2::SubscriberBase*> subscribers;
-		std::vector<dls::version2::PublisherBase*>  publishers;
-
-	};
+		return true;
+	}
 	
 } // namespace dls
 /// \endcond
 
-#include "dls2/util/messaging/participant.tpp"
-
-#endif // PARTICIPANT_HPP_4d198a8c_fdc4_4c7d_8be9_6d4b7e6bd7d2
+#endif /* end of include guard: PARTICIPANT_TPP */

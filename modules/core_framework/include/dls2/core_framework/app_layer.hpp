@@ -133,9 +133,6 @@ private:
 
 	//logging::coutstream scout;
 
-protected:
-	// TODO remove this
-	std::function<Status(void)> main;
 };
 } // end namespace dls
 

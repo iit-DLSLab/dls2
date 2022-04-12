@@ -14,7 +14,7 @@
 *                                                 `---'                        *
 *******************************************************************************/
 #include "dls2/log/log.hpp"
-#include "dls2/util/messaging/publisher_base.hpp"
+#include "dls2/util/messaging/publisher.hpp"
 #include "dls2/msg/stringmsgPubSubTypes.h"
 
 #include "dls2/topics/debug_log_stream.hpp"
@@ -41,13 +41,13 @@ LogStreamBuffer::LogStreamBuffer
 	const std::string &prefix_
 ) :
 	topic(topic_),
-	pPublisher(
-		std::make_shared<version2::PublisherBase<StringMsgPubSubType>>(
-			dls::domains::logging,
-			prefix_,
-			topic_
-		)
-	),
+	// pPublisher(
+	// 	std::make_shared<version2::Publisher<StringMsgPubSubType>>(
+	// 		dls::domains::logging,
+	// 		prefix_,
+	// 		topic_
+	// 	)
+	// ),
 	buf(new char[buffer_size]),
 	prefix(prefix_ + ": ")
 {

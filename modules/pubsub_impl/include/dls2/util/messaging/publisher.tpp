@@ -13,13 +13,13 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef PUBLISHER_BASE_TPP_I5UWXWN8
-#define PUBLISHER_BASE_TPP_I5UWXWN8
+#ifndef PUBLISHER_TPP_I5UWXWN8
+#define PUBLISHER_TPP_I5UWXWN8
 
 // =============================================================================
 // Old Includes -- to be removed
 // =============================================================================
-#include "dls2/util/messaging/publisher_base.hpp"
+#include "dls2/util/messaging/publisher.hpp"
 
 #include <fastrtps/transport/UDPv4TransportDescriptor.h>
 #include <fastrtps/attributes/ParticipantAttributes.h>
@@ -36,7 +36,7 @@
 // New Includes
 // =============================================================================
 #include "dls2/util/messaging/participant.hpp"
-#include "dls2/util/messaging/publisher_base.hpp"
+#include "dls2/util/messaging/publisher.hpp"
 
 #include <fastrtps/transport/UDPv4TransportDescriptor.h>
 #include <fastrtps/attributes/ParticipantAttributes.h>
@@ -154,43 +154,12 @@ namespace dls
 	{
 		template <class PubSub_t>
 		Publisher<PubSub_t>::Publisher(
-			const unsigned int &domain_,
-			const std::string &part_,
-			const std::string &topic_
+			eprosima::fastdds::dds::DomainParticipant *participant_
 		) :
-			participant(nullptr),
+			PublisherBase(participant_),
 			publisher(nullptr),
-			topic(nullptr),
-			writer(nullptr),
 			type(new PubSub_t())
 		{
-			eprosima::fastdds::dds::DomainParticipantQos participantQos;
-			participantQos.wire_protocol().builtin.discovery_config.discoveryProtocol = eprosima::fastrtps::rtps::DiscoveryProtocol_t::SIMPLE;
-			participantQos.wire_protocol().builtin.discovery_config.leaseDuration_announcementperiod = eprosima::fastrtps::Duration_t(1, 2);
-			// participantQos.wire_protocol().builtin.discovery_config.initial_announcements.count = 2000;
-			// participantQos.wire_protocol().builtin.discovery_config.initial_announcements.period = eprosima::fastrtps::Duration_t(0, 100000000u);
-			participantQos.name(part_);
-
-			this->participant = eprosima::fastdds::dds::DomainParticipantFactory::
-				get_instance()->create_participant(domain_, participantQos);
-
-			if(this->participant == nullptr){
-				throw std::runtime_error("Error: could not create participant");
-			}
-			this->type.register_type(this->participant);
-			
-			this->topic = this->participant->create_topic(
-				topic_, 
-				rtps_type.getName(), 
-				eprosima::fastdds::dds::TOPIC_QOS_DEFAULT
-			);
-		
-			if(this->topic == nullptr){
-				throw std::runtime_error(
-					"Error: could not create publisher topic"
-				);
-			}
-
 			this->publisher = this->participant->create_publisher(
 				eprosima::fastdds::dds::PUBLISHER_QOS_DEFAULT,
 				nullptr
@@ -201,42 +170,65 @@ namespace dls
 					"Error: could not create publisher"
 				);
 			}
-
-			this->writer = this->publisher->create_datawriter(
-				this->topic,
-				eprosima::fastdds::dds::DATAWRITER_QOS_DEFAULT,
-				&this->publisher_listener
-			);
-
-			if(this->writer == nullptr)	{
-				throw std::runtime_error(
-					"Error: could not create publisher writer"
-				);
-			}
 		}
 
 		template<class PubSub_t>
-		Publisher<PubSub_t>::~Publisher(){
-			if(this->writer != nullptr){
-				this->publisher->delete_datawriter(this->writer);
-			}
-			
-			if(this->topic != nullptr){
-			 	this->participant->delete_topic(this->topic);
-			}			
-			
+		Publisher<PubSub_t>::~Publisher()
+		{		
 			if(this->publisher != nullptr){
 				this->participant->delete_publisher(this->publisher);
-			}
-			
-			eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->
-				delete_participant(this->participant);
+			}	
+		}
+
+		template <class PubSub_t>
+		bool Publisher<PubSub_t>::addDataWriter(
+			std::string		topicName_
+		)
+		{
+			auto search = topics.find(topicName_);
+
+			// if(search == topics.end()){
+			// 	auto topic = this->participant->create_topic(
+			// 		topicName_, 
+			// 		typeid(PubSub_t).name(),
+			// 		//rtps_type.getName(), 
+			// 		eprosima::fastdds::dds::TOPIC_QOS_DEFAULT
+			// 	);
+
+			// 	if(topic == nullptr){
+			// 		// throw std::runtime_error(
+			// 		// 	"Error: could not create publisher topic"
+			// 		// );
+			// 		return false;
+			// 	}
+
+			// 	search = topics.insert(topicName_, topic);
+			// }
+
+			// // TBD Should verfify if the writer already exists?
+
+			// auto writer = this->publisher->create_datawriter(
+			// 	search->second,
+			// 	eprosima::fastdds::dds::DATAWRITER_QOS_DEFAULT,
+			// 	&this->publisher_listener
+			// );
+
+			// if(writer == nullptr)	{
+			// 	// throw std::runtime_error(
+			// 	// 	"Error: could not create publisher writer"
+			// 	// );
+			// 	return false;
+			// }
+
+			// this->writers.push_back(std::move(writer));
+			return true;
 		}
 
 		template<class PubSub_t>
 		void Publisher<PubSub_t>::publish(typename PubSub_t::type &msg) const{
 			if(publisher_listener.matched_count > 0){
-				this->writer->write(&msg);
+				//this->writer->write(&msg);
+				std::cout << "TBD do the writer execution" << std::endl;
 			}
 		}
 
@@ -277,4 +269,4 @@ namespace dls
 		}
 	} /// \endcond namespace version2
 } /// \endcond namespace dls
-#endif /* end of include guard: PUBLISHER_BASE_TPP_I5UWXWN8 */
+#endif /* end of include guard: PUBLISHER_TPP_I5UWXWN8 */

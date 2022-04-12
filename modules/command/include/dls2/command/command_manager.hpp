@@ -19,7 +19,9 @@
 // =============================================================================
 // Includes
 // =============================================================================
+#include "dls2/util/messaging/participant.hpp"
 #include "dls2/command/command.hpp"
+
 #include <string>
 #include <utility>
 #include <vector>
@@ -138,25 +140,12 @@ public:
 	///
 	void removeCommand(CommandBase);
 
-	/// Subscriber to receive informations from the command dss domain
-	///
-	/// version2::ubscriber<CommandRegisterMsgPubSubType> registration_listener;
 
 private:
-	// begin critical section
-		/// Mutex protecting the `remote_commands` vector
-		///
-		mutable std::mutex commands_mutex;
 
-		/// Storage space for the commands
-		///
-		std::vector<std::shared_ptr<CommandBase>> commands;
-
-		/// Used by makeCallable to check whether a command that had not been
-		/// registered has become available
-		///
-		mutable std::condition_variable command_added;
-	// end critical section
+	/// Storage space for the commands
+	///
+	std::vector<std::shared_ptr<CommandBase>> commands;
 
 	/// Owner layer of the commands
 	///

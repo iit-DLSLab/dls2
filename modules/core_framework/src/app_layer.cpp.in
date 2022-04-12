@@ -31,9 +31,9 @@ AppLayer::AppLayer
 	ID(ID_),
 	command_manager(ID_),
 	status_mutex(),
-	status(Status::INITIALISING),
+	status(Status::INITIALISING)
+	//,
 	//scout(ID_ + "Log"),
-	main(0)
 {
 	/*
 	command_manager.addCommand<void, ARGVOID>
@@ -100,7 +100,6 @@ AppLayer::AppLayer
 // 	components(_components),
 // 	status_mutex(),
 // 	status(Status::INITIALISING),
-// 	main(0)
 // { }
 
 // =============================================================================

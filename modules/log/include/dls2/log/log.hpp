@@ -17,7 +17,7 @@
 #define LOG_HPP_AMCC9JXS
 
 #include <streambuf>
-#include "dls2/util/messaging/publisher_base.hpp"
+#include "dls2/util/messaging/publisher.hpp"
 #include "dls2/msg/stringmsgPubSubTypes.h"
 #include "dls2/domains/domains.hpp"
 
