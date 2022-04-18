@@ -22,6 +22,9 @@
 #include "dls2/util/messaging/subscriber.hpp"
 #include "dls2/util/messaging/publisher.hpp"
 
+#include "dls2/topics/topics.hpp"
+
+
 #include <map>
 #include <string>
 
@@ -35,23 +38,32 @@ namespace dls
 			const std::string &partName_,
 			const unsigned int &domain_
 		);
+
 		~DDSParticipant();
-
-		template <class PubSub_t>
-		bool addSubscriber();
-
-		template <class PubSub_t>
-		bool addPublisher();
 
 		std::vector<std::string> getParticipants();
 
+		bool addWriter(
+			std::pair<std::string, std::string> topic_
+		);
+
+		bool addReader(
+			std::string 								topicName_,
+			std::string 								dataType_,
+			dls::version2::Subscriber::CallbackType		callback
+		);
+
 	private:
 		eprosima::fastdds::dds::DomainParticipant 	*participant;
-		eprosima::fastdds::dds::TypeSupport 		type;
+		eprosima::fastdds::dds::Topic				*topic;		
 
-		std::vector<dls::version2::SubscriberBase*> subscribers;
-		std::vector<dls::version2::PublisherBase*>  publishers;
+		dls::version2::Subscriber	*subscriber;
+		dls::version2::Publisher	*publisher;
 
+		bool addTopic( 
+			std::string topicName_,
+			std::string dataType_
+		);
 	};
 	
 } // namespace dls

@@ -20,8 +20,7 @@
 // Includes
 // =============================================================================
 #include "dls2/command/command.hpp"
-#include "dls2/topics/command_call.hpp"
-#include "dls2/topics/command_register.hpp"
+#include "dls2/topics/topics.hpp"
 #include <fastrtps/types/DynamicTypeBuilderFactory.h>
 #include <fastrtps/types/DynamicDataFactory.h>
 #include <fastrtps/types/DynamicData.h>

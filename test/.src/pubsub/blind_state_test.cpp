@@ -1,7 +1,7 @@
-#include "dls2/util/messaging/publisher_base.hpp"
+#include "dls2/util/messaging/publisher.hpp"
 #include "dls2/msg/blind_statePubSubTypes.h"
 #include "dls2/msg/timePubSubTypes.h"
-#include "dls2/topics/low_level_estimation/blind_state.hpp"
+#include "dls2/topics/topics.hpp"
 #include <chrono>
 
 int main()

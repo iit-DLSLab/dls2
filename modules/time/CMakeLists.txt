@@ -14,5 +14,4 @@ target_link_libraries(dls_time
 		dls_pubsub
 )
 
-
 dls_install(dls_time)

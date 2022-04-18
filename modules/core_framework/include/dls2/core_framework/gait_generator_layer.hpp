@@ -19,7 +19,7 @@
 // Includes
 // =============================================================================
 #include "dls2/core_framework/app_layer.hpp"
-#include "dls2/util/messaging/publisher_base.hpp"
+#include "dls2/util/messaging/publisher.hpp"
 #include "dls2/util/messaging/callback_subscriber.hpp"
 
 #include "dls2/msg/gait_signalPubSubTypes.h"

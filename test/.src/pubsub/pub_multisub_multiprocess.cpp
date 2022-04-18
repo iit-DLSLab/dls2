@@ -5,7 +5,7 @@
 #include <catch2/catch.hpp>
 #include "dls2/msg/stringmsgPubSubTypes.h"
 #include "dls2/util/messaging/callback_subscriber.hpp"
-#include "dls2/util/messaging/publisher_base.hpp"
+#include "dls2/util/messaging/publisher.hpp"
 #include <string>
 #include <vector>
 #include <chrono>

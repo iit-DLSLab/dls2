@@ -14,8 +14,7 @@
 *                                                 `---'                        *
 *******************************************************************************/
 #include "dls2/gait_generator/gait_generator.hpp"
-#include "dls2/topics/gait_signal.hpp"
-#include "dls2/topics/low_level_estimation/blind_state.hpp"
+#include "dls2/topics/topics.hpp"
 
 #include <chrono>
 #include <thread>

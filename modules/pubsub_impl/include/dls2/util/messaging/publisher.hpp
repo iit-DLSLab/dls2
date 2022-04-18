@@ -32,8 +32,6 @@
 #include <fastdds/dds/publisher/DataWriter.hpp>
 #include <fastdds/dds/publisher/DataWriterListener.hpp>
 
-#include "dls2/util/messaging/publisher_base.hpp"
-
 #include <string>
 
 // =============================================================================
@@ -84,12 +82,8 @@ namespace dls
 	/// removed and its contents lifted to the dls namespace
 	namespace version2
 	{
-		template <class PubSub_t>
-		class Publisher : public dls::version2::PublisherBase
+		class Publisher
 		{
-			template <typename T, typename U> friend class Service;
-			template <typename T, typename U> friend class ServiceClient;
-
 		public:
 
 			Publisher(
@@ -99,19 +93,18 @@ namespace dls
 			virtual ~Publisher();
 
 			bool addDataWriter(
-				std::string 	topicName_
+				eprosima::fastdds::dds::Topic*
 			);
 
 			auto getGuid() const -> eprosima::fastrtps::rtps::GUID_t;
 
-			void publish(typename PubSub_t::type &msg) const;
+			void publish(void *msg) const;
 
 		private:
 
+			eprosima::fastdds::dds::DomainParticipant 								*participant;
 			eprosima::fastdds::dds::Publisher        								*publisher;
-			std::map<std::string, std::shared_ptr<eprosima::fastdds::dds::Topic>>   topics;
-			std::vector<std::shared_ptr<eprosima::fastdds::dds::DataWriter>> 		writers;
-			eprosima::fastdds::dds::TypeSupport       								type;
+			eprosima::fastdds::dds::DataWriter										*writer;
 
 			class PublisherListener :
 				public eprosima::fastdds::dds::DataWriterListener
@@ -129,7 +122,6 @@ namespace dls
 				std::atomic_int matched_count;
 			} publisher_listener;
 
-			PubSub_t rtps_type;
 		};
 
 	} /// \endcond namespace version2

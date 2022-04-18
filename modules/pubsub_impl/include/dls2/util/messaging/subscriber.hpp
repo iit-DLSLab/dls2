@@ -37,7 +37,7 @@
 #include <fastdds/dds/subscriber/qos/DataReaderQos.hpp>
 #include <fastdds/dds/subscriber/SampleInfo.hpp>
 
-#include "dls2/util/messaging/subscriber_base.hpp"
+#include "dls2/util/messaging/subscriber.hpp"
 
 #include <functional>
 
@@ -82,11 +82,10 @@ namespace dls
 	namespace version2
 	{
 
-		template <class PubSub_t>
-		class Subscriber : public dls::version2::SubscriberBase
+		class Subscriber
 		{
 		public:
-			typedef std::function<void(typename PubSub_t::type&)> CallbackType;
+			typedef std::function<void(void *)> CallbackType;
 
 			Subscriber(
 				eprosima::fastdds::dds::DomainParticipant *participant_
@@ -95,23 +94,22 @@ namespace dls
 			virtual ~Subscriber();
 
 			bool addDataReader(
-				std::string 	&topicName_,
-				CallbackType 	callback
+				eprosima::fastdds::dds::Topic	*topic_,
+				CallbackType 					callback
 			);
 
 		private:
 
+			eprosima::fastdds::dds::DomainParticipant 								*participant;
 			eprosima::fastdds::dds::Subscriber        								*subscriber;
-			std::map<std::string, std::shared_ptr<eprosima::fastdds::dds::Topic>>   topics;
-			std::vector<std::shared_ptr<eprosima::fastdds::dds::DataReader>> 		readers;
-			eprosima::fastdds::dds::TypeSupport       								type;
+			eprosima::fastdds::dds::DataReader										*reader;
 		
 			class SubListener : public eprosima::fastdds::dds::DataReaderListener
 			{
 			public:
 				SubListener(CallbackType callback_);
 
-				typename PubSub_t::type msg;
+				void *msg;
 				
 				std::atomic_int sample_count;
 				CallbackType callback;
@@ -124,8 +122,6 @@ namespace dls
 				void on_data_available ( eprosima::fastdds::dds::DataReader* ) override;
 
 			} subscriber_listener;
-
-			PubSub_t rtps_type;
 		};
 	} /// \endcond namespace version2
 } /// \endcond namespace dls

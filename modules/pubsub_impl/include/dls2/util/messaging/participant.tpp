@@ -23,24 +23,6 @@
 namespace dls
 {
 
-	template <class PubSub_t>
-	bool DDSParticipant::addSubscriber(){
-		subscribers.emplace_back(
-			new dls::version2::Subscriber<PubSub_t>(this->participant)
-		);
-
-		return true;
-	}
-
-	template <class PubSub_t>
-	bool DDSParticipant::addPublisher(){
-		publishers.emplace_back(
-		 	new dls::version2::Publisher<PubSub_t>(this->participant)
-		);
-
-		return true;
-	}
-	
 } // namespace dls
 /// \endcond
 

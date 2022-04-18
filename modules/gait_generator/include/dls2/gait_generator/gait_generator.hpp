@@ -26,7 +26,7 @@
 #include <memory>
 #include <atomic>
 
-#include "dls2/util/messaging/publisher_base.hpp"
+#include "dls2/util/messaging/publisher.hpp"
 #include "dls2/msg/gait_signalPubSubTypes.h"
 #include "dls2/fastrtps_wrappers/blind_state.hpp"
 #include "dls2/msg/blind_statePubSubTypes.h"

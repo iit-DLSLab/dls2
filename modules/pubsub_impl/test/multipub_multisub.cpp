@@ -5,8 +5,8 @@
 #include <memory>
 
 #include "dls2/msg/stringmsgPubSubTypes.h"
-#include "dls2/util/messaging/publisher_base.hpp"
-#include "dls2/util/messaging/subscriber_base.hpp"
+#include "dls2/util/messaging/publisher.hpp"
+#include "dls2/util/messaging/subscriber.hpp"
 
 auto topic          = "this_is_a_long_dummy_test_topic";
 auto target_message = "this is the required message that has to be delivered";
@@ -46,13 +46,13 @@ int main(int /*argc*/, char ** /*argv*/)
 	// ================= Build the publishers and subscribers ==================
 	std::cout << "Constructing " << COUNT_OF_SUBSCRIBERS << " subscribers and "
 	          << COUNT_OF_PUBLISHERS << " publishers" << std::endl;
-	std::vector<std::unique_ptr<dls::version2::Publisher<StringMsgPubSubType>>> publishers;
+	std::vector<std::unique_ptr<dls::version2::Publisher>> publishers;
 	std::vector<std::unique_ptr<SubscriberTestStruct>>                          subscribers;
 
 	for(size_t i = 0; i != COUNT_OF_PUBLISHERS; ++i)
 	{
 		publishers.push_back(
-			std::make_unique<dls::version2::Publisher<StringMsgPubSubType>>
+			std::make_unique<dls::version2::Publisher>
 			(topic)
 		);
 	}

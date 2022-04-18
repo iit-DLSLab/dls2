@@ -1,5 +1,5 @@
 #include <catch2/catch.hpp>
-#include "dls2/util/messaging/publisher_base.hpp"
+#include "dls2/util/messaging/publisher.hpp"
 #include "dls2/util/messaging/callback_subscriber.hpp"
 #include "dls2/msg/stringmsgPubSubTypes.h"
 #include <string>
@@ -19,7 +19,7 @@ TEST_CASE("Messages can be published and received via topics", "[pubsub]")
 		std::string received_message("garbage aslkdfjskldafjsklafjlskajfd");
 		REQUIRE(received_message != send_message);
 
-		dls::version2::Publisher<StringMsgPubSubType> publisher(topic);
+		dls::version2::Publisher publisher(topic);
 		dls::version2::Subscriber<StringMsgPubSubType> subscriber
 		(
 			topic,

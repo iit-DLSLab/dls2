@@ -38,8 +38,7 @@ CommandManager::CommandManager(std::string owner_):
 	owner(owner_),
 	commands_monitor(std::make_unique<dls::DDSParticipant>(owner_+"::commands_monitor", domains::command))
 {
-	auto pub = commands_monitor->addPublisher<ConsoleCommandMsgPubSubType>();
-	//pub->addDataWriter(dls::topics::command_call);
+	commands_monitor->addWriter(dls::topics::command_call);
 }
 
 CommandManager::~CommandManager()

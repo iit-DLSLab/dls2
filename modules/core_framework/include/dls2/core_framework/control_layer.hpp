@@ -29,8 +29,8 @@
 #include <thread>
 #include <atomic>
 
-#include "dls2/util/messaging/subscriber_base.hpp"
-#include "dls2/util/messaging/publisher_base.hpp"
+#include "dls2/util/messaging/subscriber.hpp"
+#include "dls2/util/messaging/publisher.hpp"
 #include "dls2/msg/control_signalPubSubTypes.h"
 #include "dls2/msg/desired_torquesPubSubTypes.h"
 #include "dls2/msg/hello_worldPubSubTypes.h"
@@ -40,10 +40,7 @@
 // temporary console includes
 // TODO( "REMOVE THESE INCLUDES WHEN A BETTER CONSOLE IS MADE")
 #include "dls2/msg/stringmsgPubSubTypes.h"
-#include "dls2/topics/activate_controller.hpp"
-#include "dls2/topics/deactivate_controller.hpp"
-#include "dls2/topics/activate_gait_generator.hpp"
-#include "dls2/topics/deactivate_gait_generator.hpp"
+#include "dls2/topics/topics.hpp"	
 #include "dls2/log/log.hpp"
 
 // =============================================================================

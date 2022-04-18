@@ -22,11 +22,7 @@
 // #include <iomanip>
 // #include <sys/time.h>
 
-// #include "topics/debug_log_stream.hpp"
-// #include "topics/error_log_stream.hpp"
-// #include "topics/fatal_log_stream.hpp"
-// #include "topics/info_log_stream.hpp"
-// #include "topics/warn_log_stream.hpp"
+// #include "topics/topics.hpp"
 
 // namespace dls
 // {

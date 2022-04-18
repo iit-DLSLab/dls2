@@ -24,7 +24,7 @@
 #include <mutex>
 #include <map>
 #include <memory>
-#include "dls2/util/messaging/subscriber_base.hpp"
+#include "dls2/util/messaging/subscriber.hpp"
 #include "dls2/msg/stringmsgPubSubTypes.h"
 #include "dls2/msg/gait_signalPubSubTypes.h"
 #include <atomic>

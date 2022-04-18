@@ -17,11 +17,7 @@
 #include "dls2/util/messaging/publisher.hpp"
 #include "dls2/msg/stringmsgPubSubTypes.h"
 
-#include "dls2/topics/debug_log_stream.hpp"
-#include "dls2/topics/error_log_stream.hpp"
-#include "dls2/topics/fatal_log_stream.hpp"
-#include "dls2/topics/info_log_stream.hpp"
-#include "dls2/topics/warn_log_stream.hpp"
+#include "dls2/topics/topics.hpp"
 
 // =============================================================================
 // Using Declarations
@@ -79,8 +75,8 @@ int LogStreamBuffer::sync()
 }
 bool LogStreamBuffer::flush_buffer()
 {
-	StringMsg msg;
-	msg.msg(this->prefix + std::string(buf, pptr()));
+	std::shared_ptr<StringMsg> msg(new StringMsg());
+	msg->msg(this->prefix + std::string(buf, pptr()));
 
 	// Done here, since if it's done statically (for the global cdb, clog, cout,
 	// cerr, cfatal classes, then fastrtps complains
@@ -88,7 +84,7 @@ bool LogStreamBuffer::flush_buffer()
 	// {
 	// 	pPublisher = std::make_shared<dls::PublisherBase<StringMsgPubSubType>>(this->topic);
 	// }
-	pPublisher->publish(msg);
+	pPublisher->publish(msg.get());
 	// std::cout << std::string(buf, pptr());
 	auto n = pptr() - pbase();
 	pbump(-n);

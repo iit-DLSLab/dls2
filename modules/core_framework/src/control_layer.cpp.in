@@ -25,8 +25,7 @@
 #include "dls2/robot/robot.hpp"
 #include "dls2/class_loader.hpp"
 #include "dls2/msg/control_signalPubSubTypes.h"
-#include "dls2/topics/desired_torques.hpp"
-#include "dls2/topics/control_signal_base.hpp"
+#include "dls2/topics/topics.hpp"
 #include "dls2/path_prefixes.hpp"
 #include "dls2/util/time/time.hpp"
 

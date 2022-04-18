@@ -43,17 +43,70 @@ namespace dls
 			throw std::runtime_error("Error: could not create participant");
 		}
 
-		// this->type.register_type(this->participant);
+		this->publisher = new dls::version2::Publisher(this->participant);
+		this->subscriber = new dls::version2::Subscriber(this->participant);
 	}
 
 
 	DDSParticipant::~DDSParticipant(){
+		delete this->publisher;
+		delete this->subscriber;
 	
 		eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->
 			delete_participant(this->participant);
 
 		delete this->participant;
 	}
+
+	bool DDSParticipant::addWriter(
+		std::pair<std::string, std::string> topic_
+	){
+
+		if(this->topic == nullptr)
+			if(!this->addTopic(topic_.first, topic_.second))
+				return false;
+
+		return this->publisher->addDataWriter(this->topic);
+	}
+
+	bool DDSParticipant::addReader(
+		std::string 								topicName_,
+		std::string 								dataType_,
+		dls::version2::Subscriber::CallbackType 	callback
+	){
+
+		if(this->topic == nullptr)
+			if(!this->addTopic(topicName_, dataType_))
+				return false;
+
+		return this->subscriber->addDataReader(this->topic, callback);
+	}
+
+	bool DDSParticipant::addTopic(
+		std::string 	topicName_,
+		std::string 	dataType_
+	){
+		
+		if(this->topic == nullptr){
+			this->topic = this->participant->create_topic(
+				topicName_, 
+				dataType_,
+				eprosima::fastdds::dds::TOPIC_QOS_DEFAULT
+			);
+
+			if(this->topic == nullptr){
+				// throw std::runtime_error(
+				// 	"Error: could not create publisher topic"
+				// );
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+
+
 
 	std::vector<std::string> DDSParticipant::getParticipants(){
 		return this->participant->get_participant_names();

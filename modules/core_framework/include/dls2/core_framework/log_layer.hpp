@@ -17,16 +17,11 @@
 #define LOG_LAYER_HPP_IAHZ5BZG
 
 #include "app_layer.hpp"
-#include "dls2/util/messaging/subscriber_base.hpp"
+#include "dls2/util/messaging/subscriber.hpp"
 #include "dls2/msg/stringmsgPubSubTypes.h"
 #include "dls2/msg/hyqreal_rawPubSubTypes.h"
 
-#include "dls2/topics/hyqreal_raw.hpp"
-#include "dls2/topics/debug_log_stream.hpp"
-#include "dls2/topics/error_log_stream.hpp"
-#include "dls2/topics/fatal_log_stream.hpp"
-#include "dls2/topics/info_log_stream.hpp"
-#include "dls2/topics/warn_log_stream.hpp"
+#include "dls2/topics/topics.hpp"
 
 #include <mutex>
 #include <condition_variable>
