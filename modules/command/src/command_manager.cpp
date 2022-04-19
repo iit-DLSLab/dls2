@@ -47,6 +47,14 @@ CommandManager::~CommandManager()
 // -----------------------------------------------------------------------------
 // Implementation
 // -----------------------------------------------------------------------------
+
+void CommandManager::sendMessage(void *msg){
+
+	commands_monitor->sendMessage(msg);
+}
+
+
+
 std::vector<std::shared_ptr<CommandBase>> CommandManager::findByOwner
 (
 	const std::string &owner
@@ -92,7 +100,11 @@ std::vector<std::shared_ptr<CommandBase>> CommandManager::findByName
 			{
 				[&]()
 				{
-					std::cout << "send data to execution" << std::endl;
+					// hast to change to propper command call
+					CommandCallMsg msg;
+					msg.owner("test");
+
+					this->commands_monitor->sendMessage(&msg);
 				}
 			}, 
 			false

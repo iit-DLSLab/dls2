@@ -107,32 +107,34 @@ namespace dls
 			eprosima::fastdds::dds::DataReader*,
 			const eprosima::fastdds::dds::SubscriptionMatchedStatus &info)
 		{
-			if(info.current_count_change == 1)
-			{
-				// subscriber matched
-			}
-			else if(info.current_count_change == -1)
-			{
-				// subscriber unmatched
-			}
-			else
-			{
-				// invalid
-			}
+			// if(info.current_count_change == 1)
+			// {
+			// 	// subscriber matched
+			// }
+			// else if(info.current_count_change == -1)
+			// {
+			// 	// subscriber unmatched
+			// }
+			// else
+			// {
+			// 	// invalid
+			// }
 		}
 
 		void Subscriber::SubListener::on_data_available(
 			eprosima::fastdds::dds::DataReader *reader)
 		{
 			eprosima::fastdds::dds::SampleInfo info;
-			if (reader->take_next_sample(&this->msg, &info)	== /*eprosima::fastdds::dds::*/ReturnCode_t::RETCODE_OK)
-			{
-				if(info.valid_data)
-				{
-					this->sample_count++;
-					this->callback(this->msg);
-				}
-			}
+			// if (reader->take_next_sample(&this->msg, &info)	== /*eprosima::fastdds::dds::*/ReturnCode_t::RETCODE_OK)
+			// {
+			// 	if(info.valid_data)
+			// 	{
+			// 		this->sample_count++;
+			// 		//this->callback(this->msg);
+			// 		std::cout << "##### message arrived #####" << std::endl;
+			// 	}
+			// }
+			std::cout << "##### message arrived #####" << std::endl;
 		}
 	} /// \endcond namespace version2
 } /// \endcond namespace dls

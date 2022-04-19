@@ -85,10 +85,11 @@ namespace dls
 			return true;
 		}
 
-		//typename PubSub_t::type &msg
 		void Publisher::publish(void *msg) const{
+
 			if(publisher_listener.matched_count > 0){
-				this->writer->write(&msg);
+				std::cout << "######## message sent #####" << std::endl;
+				this->writer->write(msg);
 			}
 		}
 

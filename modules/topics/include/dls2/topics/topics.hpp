@@ -17,7 +17,8 @@
 #define TOPICS_HPP_1NBJMKZJ
 
 
-#include "dls2/msg/console_commandPubSubTypes.h"
+#include "dls2/msg/command_callPubSubTypes.h"
+#include <fastdds/dds/domain/DomainParticipant.hpp>
 #include <utility>
 #include <typeinfo> 
 
@@ -28,7 +29,7 @@ namespace dls
 	{
 		constexpr auto activate_controller 			= "console_activate_controller";
 		constexpr auto activate_gait_generator 		= "console_activate_gait_generator";
-		const auto command_call 					= std::pair<std::string, std::string>("command_call", typeid(ConsoleCommandMsg).name());
+		const auto command_call 					= std::pair<std::string, eprosima::fastdds::dds::TypeSupport>("command_call", new CommandCallMsgPubSubType());
 		constexpr auto console 						= "console";
 		constexpr auto control_signal_base 			= "control_signal_";
 		constexpr auto deactivate_controller 		= "console_deactivate_controller";

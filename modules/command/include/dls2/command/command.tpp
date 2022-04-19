@@ -21,15 +21,12 @@
 // =============================================================================
 #include "dls2/command/command.hpp"
 #include "dls2/topics/topics.hpp"
-#include <fastrtps/types/DynamicTypeBuilderFactory.h>
-#include <fastrtps/types/DynamicDataFactory.h>
-#include <fastrtps/types/DynamicData.h>
+#include "dls2/util/messaging/participant.hpp"
+
 #include <iostream>
 #include <thread>
 #include <chrono>
 #include <tuple>
-
-#include "dls2/util/messaging/participant.hpp"
 
 namespace dls
 {
@@ -102,19 +99,21 @@ int Command<ret_t, arg_ts...>::call(std::vector<std::string> args){
 template <typename ret_t, typename...arg_ts>
 void Command<ret_t, arg_ts...>::makeRemote()
 {
+	std::cout << "###### command " << this->getCommandName() << " created" << std::endl;
+	
 	ddslink = std::make_shared<dls::DDSParticipant>(
 		this->getCommandName(),
 		dls::domains::command
 	);
 
-	// dls::topics::command_call,
-	// version2::Subscriber<CommandRegisterMsgPubSubType>::CallbackType
-	// (
-	// 	[&](CommandRegisterMsg tuple)
-	// 	{
-	// 		//this->call(tuple);
-	// 	}
-	// )
+	ddslink->addReader(
+		topics::command_call,
+		[&](void *tuple)
+		{
+			//this->call(tuple);
+			std::cout << "###### remote command called" << std::endl;
+		}
+	);
 }
 
 template <typename ret_t, typename...arg_ts>

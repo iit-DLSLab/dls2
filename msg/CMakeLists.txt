@@ -1,4 +1,5 @@
 dls_add_message(command_register)
+dls_add_message(command_call)
 dls_add_message(desired_torques)
 dls_add_message(console_command)
 dls_add_message(smart_actuator)

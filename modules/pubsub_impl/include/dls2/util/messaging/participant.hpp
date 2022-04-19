@@ -44,25 +44,26 @@ namespace dls
 		std::vector<std::string> getParticipants();
 
 		bool addWriter(
-			std::pair<std::string, std::string> topic_
+			std::pair<std::string, eprosima::fastdds::dds::TypeSupport> topic_
 		);
 
 		bool addReader(
-			std::string 								topicName_,
-			std::string 								dataType_,
+			std::pair<std::string, eprosima::fastdds::dds::TypeSupport> topicData_,
 			dls::version2::Subscriber::CallbackType		callback
 		);
 
+
+		void sendMessage(void *msg);
+
 	private:
 		eprosima::fastdds::dds::DomainParticipant 	*participant;
-		eprosima::fastdds::dds::Topic				*topic;		
+		eprosima::fastdds::dds::Topic				*topic;	
 
 		dls::version2::Subscriber	*subscriber;
 		dls::version2::Publisher	*publisher;
 
 		bool addTopic( 
-			std::string topicName_,
-			std::string dataType_
+			std::pair<std::string, eprosima::fastdds::dds::TypeSupport> topicData_
 		);
 	};
 	

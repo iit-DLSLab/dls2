@@ -30,6 +30,10 @@ namespace dls
 		const std::string &partName_,
 		const unsigned int &domain_
 	)
+		: participant(nullptr)
+		, publisher(nullptr)
+		, subscriber(nullptr)
+		, topic(nullptr)
 	{
 		eprosima::fastdds::dds::DomainParticipantQos participantQos;
 		participantQos.wire_protocol().builtin.discovery_config.discoveryProtocol = eprosima::fastrtps::rtps::DiscoveryProtocol_t::SIMPLE;
@@ -58,39 +62,44 @@ namespace dls
 		delete this->participant;
 	}
 
+	void DDSParticipant::sendMessage(void *msg){
+
+		this->publisher->publish(msg);
+	}
+
 	bool DDSParticipant::addWriter(
-		std::pair<std::string, std::string> topic_
+		std::pair<std::string, eprosima::fastdds::dds::TypeSupport> topicData_
 	){
 
 		if(this->topic == nullptr)
-			if(!this->addTopic(topic_.first, topic_.second))
+			if(!this->addTopic(topicData_))
 				return false;
 
 		return this->publisher->addDataWriter(this->topic);
 	}
 
 	bool DDSParticipant::addReader(
-		std::string 								topicName_,
-		std::string 								dataType_,
+		std::pair<std::string, eprosima::fastdds::dds::TypeSupport> topicData_,
 		dls::version2::Subscriber::CallbackType 	callback
 	){
 
 		if(this->topic == nullptr)
-			if(!this->addTopic(topicName_, dataType_))
+			if(!this->addTopic(topicData_))
 				return false;
 
 		return this->subscriber->addDataReader(this->topic, callback);
 	}
 
 	bool DDSParticipant::addTopic(
-		std::string 	topicName_,
-		std::string 	dataType_
+		std::pair<std::string, eprosima::fastdds::dds::TypeSupport> topicData_
 	){
-		
+
+		this->participant->register_type(topicData_.second);
+	
 		if(this->topic == nullptr){
 			this->topic = this->participant->create_topic(
-				topicName_, 
-				dataType_,
+				topicData_.first, 
+				topicData_.second.get_type_name(),
 				eprosima::fastdds::dds::TOPIC_QOS_DEFAULT
 			);
 

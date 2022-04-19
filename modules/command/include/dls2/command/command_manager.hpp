@@ -140,6 +140,8 @@ public:
 	///
 	void removeCommand(CommandBase);
 
+	void sendMessage(void *msg);
+
 
 private:
 
