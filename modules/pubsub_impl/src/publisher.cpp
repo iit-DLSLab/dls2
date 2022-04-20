@@ -86,9 +86,7 @@ namespace dls
 		}
 
 		void Publisher::publish(void *msg) const{
-
 			if(publisher_listener.matched_count > 0){
-				std::cout << "######## message sent #####" << std::endl;
 				this->writer->write(msg);
 			}
 		}

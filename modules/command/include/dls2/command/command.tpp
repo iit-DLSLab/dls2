@@ -27,6 +27,7 @@
 #include <thread>
 #include <chrono>
 #include <tuple>
+#include <type_traits>
 
 namespace dls
 {
@@ -62,15 +63,11 @@ Command<ret_t, arg_ts...>::~Command()
 	//requestDeregistration();
 }
 
-template<class T> T transform_arg(std::string const &s){return s;}
-// template<> double transform_arg(std::string const &s) { return atof(s.c_str());}
-// template<> int transform_arg(std::string const &s) { return atoi(s.c_str());}
-//template<> std::string transform_arg(std::string const &s) { return s;}
-
+template<class T> T transform_args(std::string const &s){return s;}
 
 template <typename... Args, std::size_t... Is>
 auto create_tuple_impl(std::index_sequence<Is...>, const std::vector<std::string>& arguments) {
-    return std::make_tuple(transform_arg<Args>(arguments[Is])...);
+    return std::make_tuple(transform_args<Args>(arguments[Is])...);
 }
 
 template <typename... Args>
@@ -88,9 +85,8 @@ int Command<ret_t, arg_ts...>::call(std::vector<std::string> args){
 	}
 	
 	auto arguments = create_tuple<arg_ts...>(args);
-
 	//static_assert(std::is_same_v<decltype(arguments), const std::tuple<arg_ts...>>);
-	
+		
 	std::apply(this->f, arguments);
 
 	return 1;
@@ -99,19 +95,38 @@ int Command<ret_t, arg_ts...>::call(std::vector<std::string> args){
 template <typename ret_t, typename...arg_ts>
 void Command<ret_t, arg_ts...>::makeRemote()
 {
-	std::cout << "###### command " << this->getCommandName() << " created" << std::endl;
-	
 	ddslink = std::make_shared<dls::DDSParticipant>(
-		this->getCommandName(),
+		this->getCommandOwner() + "::" + this->getCommandName(),
 		dls::domains::command
 	);
 
 	ddslink->addReader(
 		topics::command_call,
-		[&](void *tuple)
+		std::function<void(void *)>
 		{
-			//this->call(tuple);
-			std::cout << "###### remote command called" << std::endl;
+			[&](void *tuple)
+			{
+				CommandCallMsg *msg = (CommandCallMsg *)tuple;
+		
+				if (msg->owner() != this->getCommandOwner() ||
+						msg->command_name() != this->getCommandName())
+					return;
+
+				std::vector<std::string> result;				
+
+				//find if there is any args 
+				if (msg->args().find(',') != std::string::npos){
+					std::stringstream ss(msg->args());
+
+					while(ss.good()){
+						std::string substr;
+						getline( ss, substr, ',' );
+						result.push_back( substr );
+					}
+				}
+
+				this->call(result);
+			}
 		}
 	);
 }

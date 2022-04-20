@@ -15,6 +15,7 @@
 *******************************************************************************/
 #include "dls2/core_framework/ros_layer.hpp"
 #include <signal.h>
+#include <boost/process.hpp>
 
 // =============================================================================
 // Using Declarations
@@ -31,7 +32,7 @@ ROSLayer::ROSLayer(std::string ID, bool *should_quit_) :
 	// command_manager.addCommand<void>
 	// (
 	// 	"launchRosCore",
-	// 	"Launches the ros core",
+	// 	"Launches the roscore layer",
 	// 	std::function<void()>
 	// 	(
 	// 		[&]()
@@ -50,7 +51,7 @@ ROSLayer::ROSLayer(std::string ID, bool *should_quit_) :
 	command_manager.addRemoteCommand<void>
 	(
 		"core_exit",
-		"exits the framework",
+		"Shutdown the roscore layer",
 		std::function<void()>
 		(
 			[&]()
@@ -126,11 +127,16 @@ void ROSLayer::handle_signals(int){
 AppLayer::Status ROSLayer::run()
 {
 
-	system("roscore &");
-	
+	//system("roscore &");
+
+	boost::process::child c("roscore");
+	this->pid = c.id();
+
 	while(!*(this->should_quit))
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(50));
+		if(!c.running())
+			return getStatus();
 	}
 	
 	killRoscore();	
@@ -141,15 +147,7 @@ AppLayer::Status ROSLayer::run()
 
 void ROSLayer::killRoscore()
 {
-	char line[ 15 ];
-	FILE *cmd = popen( "pgrep -f roscore", "r");
-	fgets( line, 15, cmd );
-	pid_t pid = strtoul( line, NULL, 10 );
-	pclose(cmd);
-
-	if (pid > 0){
-		kill(pid, SIGINT);
-	}
+	kill(this->pid, SIGINT);
 }
 
 

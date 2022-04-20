@@ -22,6 +22,7 @@
 #include <numeric>
 #include <string_view>
 #include <vector>
+#include <sstream>
 
 namespace dls
 {
@@ -83,6 +84,7 @@ std::vector<std::shared_ptr<CommandBase>> CommandManager::findByName
 
 	std::vector<std::shared_ptr<CommandBase>> vec;
 	
+	//if the command is local
 	if (cmd.second == this->owner){
 		for(const auto &el : this->commands){
 			if(el->getCommandName() == name_)
@@ -91,18 +93,32 @@ std::vector<std::shared_ptr<CommandBase>> CommandManager::findByName
 			}
 		}
 	}
+	//if the command is remote
 	else{
-		vec.push_back(std::make_shared<Command<void>> (
-			cmd.second,
+		vec.push_back(std::make_shared<Command<void, std::string>> (
 			cmd.first,
-			"doc string",
-			std::function<void()>
+			cmd.second,
+			"temp remote command",
+			std::function<void(std::string)>
 			{
-				[&]()
+				[&](std::string args_)
 				{
-					// hast to change to propper command call
+					// this call just send all the info to the remote command
+					// the remote command should verify if the number of arguments and types ar correct
 					CommandCallMsg msg;
-					msg.owner("test");
+					
+					std::stringstream ss(args_);
+					std::vector<std::string> result;
+
+					while(ss.good()){
+    					std::string substr;
+    					getline( ss, substr, '#' );
+    					result.push_back( substr );
+					}
+
+					msg.owner(result[0]);
+					msg.command_name(result[1]);
+					msg.args(result[2]);
 
 					this->commands_monitor->sendMessage(&msg);
 				}

@@ -80,7 +80,7 @@ namespace dls
 
 	bool DDSParticipant::addReader(
 		std::pair<std::string, eprosima::fastdds::dds::TypeSupport> topicData_,
-		dls::version2::Subscriber::CallbackType 	callback
+		std::function<void(void *)> 								callback
 	){
 
 		if(this->topic == nullptr)

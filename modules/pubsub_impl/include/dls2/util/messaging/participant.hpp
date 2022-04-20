@@ -48,8 +48,8 @@ namespace dls
 		);
 
 		bool addReader(
-			std::pair<std::string, eprosima::fastdds::dds::TypeSupport> topicData_,
-			dls::version2::Subscriber::CallbackType		callback
+			std::pair<std::string, eprosima::fastdds::dds::TypeSupport>	topicData_,
+			std::function<void(void *)>									callback
 		);
 
 

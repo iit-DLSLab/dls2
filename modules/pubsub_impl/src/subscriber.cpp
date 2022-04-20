@@ -41,14 +41,12 @@ namespace dls
 	namespace version2
 	{
 
-		Subscriber::Subscriber
-		(
-			eprosima::fastdds::dds::DomainParticipant *participant_
-		) :
-			participant(participant_),
-			subscriber(nullptr),
-			reader(nullptr),
-			subscriber_listener(nullptr)
+		Subscriber::Subscriber(
+			eprosima::fastdds::dds::DomainParticipant *participant_)
+			: participant(participant_)
+			, subscriber(nullptr)
+			, reader(nullptr)
+			, subscriber_listener(nullptr)
 		{
 			this->subscriber = this->participant->create_subscriber(
 				eprosima::fastdds::dds::SUBSCRIBER_QOS_DEFAULT,
@@ -71,9 +69,11 @@ namespace dls
 
 		bool Subscriber::addDataReader(
 			eprosima::fastdds::dds::Topic	*topic_,
-			CallbackType 					callback
+			std::function<void(void *)>		callback
 		)
 		{
+			this->subscriber_listener.callback = callback;
+			
 			this->reader = this->subscriber->create_datareader(
 				topic_,
 				eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT,
@@ -96,45 +96,52 @@ namespace dls
 		// =====================================================================
 
 		Subscriber::SubListener::SubListener(
-			CallbackType callback_) :
-			sample_count(0),
-			callback(callback_),
-			msg()
+			std::function<void(void *)> callback_) 
+			: sample_count(0)
+			, callback(callback_)
+			, msg(nullptr)
 		{ 
+		}
+
+		Subscriber::SubListener::~SubListener(){
+			delete this->msg;
 		}
 
 		void Subscriber::SubListener::on_subscription_matched(
 			eprosima::fastdds::dds::DataReader*,
 			const eprosima::fastdds::dds::SubscriptionMatchedStatus &info)
 		{
-			// if(info.current_count_change == 1)
-			// {
-			// 	// subscriber matched
-			// }
-			// else if(info.current_count_change == -1)
-			// {
-			// 	// subscriber unmatched
-			// }
-			// else
-			// {
-			// 	// invalid
-			// }
+			if(info.current_count_change == 1)
+			{
+				// subscriber matched
+			}
+			else if(info.current_count_change == -1)
+			{
+				// subscriber unmatched
+			}
+			else
+			{
+				// invalid
+			}
 		}
+	
 
 		void Subscriber::SubListener::on_data_available(
 			eprosima::fastdds::dds::DataReader *reader)
 		{
 			eprosima::fastdds::dds::SampleInfo info;
-			// if (reader->take_next_sample(&this->msg, &info)	== /*eprosima::fastdds::dds::*/ReturnCode_t::RETCODE_OK)
-			// {
-			// 	if(info.valid_data)
-			// 	{
-			// 		this->sample_count++;
-			// 		//this->callback(this->msg);
-			// 		std::cout << "##### message arrived #####" << std::endl;
-			// 	}
-			// }
-			std::cout << "##### message arrived #####" << std::endl;
+
+			if (this->msg == nullptr)
+				this->msg = reader->type().create_data();
+
+			if (reader->take_next_sample(this->msg, &info)	== ReturnCode_t::RETCODE_OK)
+			{
+				if(info.valid_data)
+				{
+					this->sample_count++;
+					this->callback(this->msg);
+				}
+			}
 		}
 	} /// \endcond namespace version2
 } /// \endcond namespace dls

@@ -285,6 +285,28 @@ ConsoleLayer::Status ConsoleLayer::run()
 
 						if(commands.size() == 1)
 						{
+							if (commands[0]->getCommandOwner() != this->getID()){
+
+								std::string temp;
+								temp.append(commands[0]->getCommandOwner());
+								temp.append("#");
+								temp.append(commands[0]->getCommandName());
+								temp.append("#");
+
+								if (args.empty()){
+									temp.append(" ");
+								}
+								else{
+									for (auto elem : args){
+										temp.append(elem);
+										temp.append(",");
+									}
+								}
+
+								args.clear();
+								args.push_back(temp);
+							}
+
 							commands[0]->call(args);
 						}
 						else if(commands.size() == 0)
