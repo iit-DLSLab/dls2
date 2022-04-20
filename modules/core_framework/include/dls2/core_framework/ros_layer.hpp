@@ -56,15 +56,11 @@ private:
 	/// Exits when set to true
 	bool *should_quit;
 
-	pid_t pid;
-
 	/// Handler to the shutdown SIGINT (ctrl+c) signal
 	/// 
 	static void handle_signals(int);
 
 	void launchSim();
-
-	void killRoscore();
 	
 };
 } // end namespace dls

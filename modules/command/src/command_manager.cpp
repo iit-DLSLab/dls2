@@ -80,12 +80,15 @@ std::vector<std::shared_ptr<CommandBase>> CommandManager::findByName
 )
 {
 	auto cmds = getCurrentlyRegisteredCommands();
-	auto cmd = *std::find_if(cmds.begin(), cmds.end(), [&](auto el) { return (el.first == name_); });
+	auto cmd = std::find_if(cmds.begin(), cmds.end(), [&](auto el) { return (el.first == name_); });
 
 	std::vector<std::shared_ptr<CommandBase>> vec;
 	
+	if (cmd == cmds.end())
+		return vec;	
+	
 	//if the command is local
-	if (cmd.second == this->owner){
+	if (cmd->second == this->owner){
 		for(const auto &el : this->commands){
 			if(el->getCommandName() == name_)
 			{
@@ -96,8 +99,8 @@ std::vector<std::shared_ptr<CommandBase>> CommandManager::findByName
 	//if the command is remote
 	else{
 		vec.push_back(std::make_shared<Command<void, std::string>> (
-			cmd.first,
-			cmd.second,
+			cmd->first,
+			cmd->second,
 			"temp remote command",
 			std::function<void(std::string)>
 			{

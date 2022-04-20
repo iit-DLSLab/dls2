@@ -56,7 +56,8 @@ ROSLayer::ROSLayer(std::string ID, bool *should_quit_) :
 		(
 			[&]()
 			{
-				this->killRoscore();
+				//this->killRoscore();
+				this->shutdown();
 			}
 		)
 	);
@@ -126,28 +127,16 @@ void ROSLayer::handle_signals(int){
 
 AppLayer::Status ROSLayer::run()
 {
-
-	//system("roscore &");
-
 	boost::process::child c("roscore");
-	this->pid = c.id();
 
 	while(!*(this->should_quit))
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(50));
-		if(!c.running())
-			return getStatus();
 	}
 	
-	killRoscore();	
+	kill(c.id(), SIGINT);	
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 	return getStatus();
-}
-
-
-void ROSLayer::killRoscore()
-{
-	kill(this->pid, SIGINT);
 }
 
 
