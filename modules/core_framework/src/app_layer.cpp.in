@@ -35,27 +35,24 @@ AppLayer::AppLayer
 	//,
 	//scout(ID_ + "Log"),
 {
-	/*
-	command_manager.addCommand<void, ARGVOID>
+	command_manager.addCommand<void>
 	(
-		this->ID,
-		std::string("where"),
-		std::string("Prints the state of ") + this->ID,
-		std::function<void(ARGVOID)>
+		"where",
+		"Prints the state of " + this->ID,
+		std::function<void()>
 		(
-			[&](ARGVOID)
+			[&]()
 			{
 				std::cout << where() << std::endl;
-				scout << where() << std::endl;
+				//scout << where() << std::endl;
 			}
 		)
 	);
 
 	command_manager.addCommand<void, std::string>
 	(
-		this->ID,
-		std::string("addComponent"),
-		std::string("loads a component into ") + this->ID,
+		"addComponent",
+		"loads a component into " + this->ID,
 		std::function<void(std::string)>
 		(
 			[&](std::string name)
@@ -67,9 +64,8 @@ AppLayer::AppLayer
 
 	command_manager.addCommand<void, std::string>
 	(
-		this->ID,
-		std::string("removeComponent"),
-		std::string("removes a component from ") + this->ID,
+		"removeComponent",
+		"removes a component from " + this->ID,
 		std::function<void(std::string)>
 		(
 			[&](std::string name)
@@ -81,9 +77,8 @@ AppLayer::AppLayer
 
 	command_manager.addCommand<int, std::string>
 	(
-		this->ID,
-		std::string("getComponentStatus"),
-		std::string("gets the status of a component running inside ") + this->ID,
+		"getComponentStatus",
+		"gets the status of a component running inside " + this->ID,
 		std::function<int(std::string)>
 		(
 			[&](std::string name)
@@ -92,15 +87,7 @@ AppLayer::AppLayer
 			}
 		)
 	);
-	*/
 }
-
-// AppLayer::AppLayer(const std::initializer_list<pComponent_t> &_components) :
-// 	components_mutex(),
-// 	components(_components),
-// 	status_mutex(),
-// 	status(Status::INITIALISING),
-// { }
 
 // =============================================================================
 // Member Functions
@@ -125,17 +112,6 @@ void AppLayer::setStatus(Status s)
 AppLayer::Status AppLayer::eStop()
 {
 	return this->shutdown();
-	// {
-	// 	std::lock_guard<std::mutex> lock(this->components_mutex);
-	// 	for(const auto pComponent : this->components)
-	// 	{
-	// 		pComponent->eStop();
-	// 	}
-	// }
-
-	// std::lock_guard<std::mutex> lock(this->status_mutex);
-	// this->status = Status::E_STOP;
-	// return this->status;
 }
 
 void AppLayer::addComponent(const std::string &name, pComponent_t component)

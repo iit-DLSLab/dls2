@@ -49,9 +49,8 @@ ConsoleLayer *pInstance = nullptr;
 // =============================================================================
 // Constructors
 // =============================================================================
-ConsoleLayer::ConsoleLayer(std::string ID, bool *should_quit_) :
-	AppLayer(ID),
-	should_quit(should_quit_)
+ConsoleLayer::ConsoleLayer(std::string ID, bool *should_quit_) 
+	: AppLayer(ID)
 	
 	// ,
 	// consoleFeedback(
@@ -81,6 +80,7 @@ ConsoleLayer::ConsoleLayer(std::string ID, bool *should_quit_) :
 	// 	)
 	// )	
 {
+	should_quit = should_quit_;
 	pInstance = this;
 
 	// TODO expose process name here for readline

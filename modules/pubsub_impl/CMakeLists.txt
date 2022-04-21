@@ -14,6 +14,7 @@ target_link_libraries(dls_pubsub_impl
 		fastcdr
 		fastrtps
 		dls_topics
+		dls_domains
 )
 
 set_property(TARGET dls_pubsub_impl PROPERTY POSITION_INDEPENDENT_CODE TRUE)

@@ -18,13 +18,15 @@
 
 namespace dls
 {
+	typedef unsigned int domainType;
+	
 	namespace domains
 	{
-		constexpr auto layer = 4;
-		constexpr auto command = 5;
-		constexpr auto control = 6;
-		constexpr auto console = 7;
-		constexpr auto logging = 8;
+		extern domainType layer;
+		extern domainType command;
+		extern domainType control;
+		extern domainType console;
+		extern domainType logging;
 	}
 }
 

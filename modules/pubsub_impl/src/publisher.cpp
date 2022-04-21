@@ -60,6 +60,8 @@ namespace dls
 
 		Publisher::~Publisher()
 		{		
+			this->publisher->delete_datawriter(this->writer);
+
 			if(this->publisher != nullptr){
 				this->participant->delete_publisher(this->publisher);
 			}	

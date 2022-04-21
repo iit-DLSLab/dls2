@@ -1,7 +1,9 @@
-add_library(dls_topics INTERFACE)
+add_library(dls_topics SHARED
+	src/topics.cpp
+)
 
 target_include_directories(dls_topics
-	INTERFACE
+	PUBLIC
 		include
 )
 

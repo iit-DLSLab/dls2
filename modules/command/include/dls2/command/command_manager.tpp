@@ -59,9 +59,6 @@ namespace dls
 		const std::function<ret_t(arg_ts...)> &f
 	)
 	{
-		// auto name = this->owner;
-		// name += "::";
-		// name += command_name;
 		this->commands.emplace_back
 		(
 			std::make_unique<Command<ret_t, arg_ts...>>

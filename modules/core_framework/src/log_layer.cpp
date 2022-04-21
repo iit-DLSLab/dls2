@@ -20,62 +20,209 @@
 #include <sys/time.h>
 #include <cstdio>
 
-// The current release of Eigen defines in the file `Eigen_Colamd.h` the macro:
-// # define ALIVE (0)
-// This macro seems to be refered to in only that file. Being a very generic
-// name, it clashes with the enumeration in: `eprosima::fastrtps::rtps::ALIVE`
-// As of this writing, it seems that this has been fixed in Eigen's github.
-// However, it has not been officially released yet. At the time of this writing
-// (21 January 2020), the latest stable release of Eigen is Eigen 3.3.7,
-// released on 11 December 2018. Until such time as Eigen's fix makes it into a
-// new release, the following lines solves the issue.
-//
-// For this message, and other similar issues, refer to the wiki page `Software
-// Issues`
-
 #ifdef ALIVE
 #undef ALIVE
 #endif
 
 using namespace dls;
-LogLayer::LogLayer() :
-	AppLayer("log_layer"),
-	debug_listener(),
-	info_listener(),
-	warn_listener(),
-	error_listener(),
-	fatal_listener(),
-	raw_listener(),
-	should_quit(false),
-	should_quit_cv(),
-	should_quit_mutex()
-{ }
+LogLayer::LogLayer(std::string ID, bool *should_quit_)
+	: AppLayer(ID)
+	, ddslink(
+		"log_layer",
+		dls::domains::logging
+	)
+{
+	should_quit = should_quit_;
+
+	//debug_log
+	ddslink.addReader(
+		dls::topics::debug_log_stream,
+		std::function<void(void *)>
+		{
+			[&](void *tuple)
+			{
+				StringMsg *msg = (StringMsg*) tuple;
+				std::cout << LogLayer::get_current_time() << ": DEBUG: " <<  msg->msg() << std::flush;
+			}
+		}
+	);
+
+	//info_log
+	ddslink.addReader(
+		dls::topics::info_log_stream,
+		std::function<void(void *)>
+		{
+			[&](void *tuple)
+			{
+				StringMsg *msg = (StringMsg*) tuple;
+				std::cout << LogLayer::get_current_time() << ": INFO: " <<  msg->msg() << std::flush;
+			}
+		}
+	);
+
+	//warn_log
+	ddslink.addReader(
+		dls::topics::warn_log_stream,
+		std::function<void(void *)>
+		{
+			[&](void *tuple)
+			{
+				StringMsg *msg = (StringMsg*) tuple;
+				std::cout << LogLayer::get_current_time() << ": WARN: " <<  msg->msg() << std::flush;
+			}
+		}
+	);
+
+	//error_log
+	ddslink.addReader(
+		dls::topics::error_log_stream,
+		std::function<void(void *)>
+		{
+			[&](void *tuple)
+			{
+				StringMsg *msg = (StringMsg*) tuple;
+				std::cout << LogLayer::get_current_time() << ": ERROR: " <<  msg->msg() << std::flush;
+			}
+		}
+	);
+
+	//fatal_log
+	ddslink.addReader(
+		dls::topics::fatal_log_stream,
+		std::function<void(void *)>
+		{
+			[&](void *tuple)
+			{
+				StringMsg *msg = (StringMsg*) tuple;
+				std::cout << LogLayer::get_current_time() << ": FATAL: " <<  msg->msg() << std::flush;
+			}
+		}
+	);
+
+
+	//hyq_raw_log
+	ddslink.addReader(
+		dls::topics::hyqreal_raw,
+		std::function<void(void *)>
+		{
+			[&](void *tuple)
+			{
+				HyQRealRawMsg *msg = (HyQRealRawMsg*) tuple;
+				std::cout << LogLayer::get_current_time() << ": RAW: " <<
+						msg->lf().haa().actual_position() << " " <<
+						msg->lf().haa().actual_force() << " " <<
+						msg->lf().haa().calc_velocity() << " " <<
+						msg->lf().haa().pressure_1() << " " <<
+						msg->lf().haa().pressure_2() << " " <<
+						msg->lf().haa().pressure_3() << " " <<
+						msg->lf().haa().pressure_4() << " " <<
+						msg->lf().haa().spool_position() << " " <<
+						msg->lf().haa().force_command() << " " <<
+						msg->lf().haa().spool_command() << " " <<
+						msg->lf().haa().error_word() << " " <<
+						msg->lf().haa().system_temp() << " " <<
+						msg->lf().haa().spare_ptr1() << " " <<
+						msg->lf().haa().spare_ptr2() << " " <<
+						msg->lf().haa().status_word() << " " <<
+
+						msg->lf().hfe().actual_position() << " " <<
+						msg->lf().hfe().actual_force() << " " <<
+						msg->lf().hfe().calc_velocity() << " " <<
+						msg->lf().hfe().pressure_1() << " " <<
+						msg->lf().hfe().pressure_2() << " " <<
+						msg->lf().hfe().pressure_3() << " " <<
+						msg->lf().hfe().pressure_4() << " " <<
+						msg->lf().hfe().spool_position() << " " <<
+						msg->lf().hfe().force_command() << " " <<
+						msg->lf().hfe().spool_command() << " " <<
+						msg->lf().hfe().error_word() << " " <<
+						msg->lf().hfe().system_temp() << " " <<
+						msg->lf().hfe().spare_ptr1() << " " <<
+						msg->lf().hfe().spare_ptr2() << " " <<
+						msg->lf().hfe().status_word() << " " <<
+
+						msg->lf().kfe().actual_position() << " " <<
+						msg->lf().kfe().actual_force() << " " <<
+						msg->lf().kfe().calc_velocity() << " " <<
+						msg->lf().kfe().pressure_1() << " " <<
+						msg->lf().kfe().pressure_2() << " " <<
+						msg->lf().kfe().pressure_3() << " " <<
+						msg->lf().kfe().pressure_4() << " " <<
+						msg->lf().kfe().spool_position() << " " <<
+						msg->lf().kfe().force_command() << " " <<
+						msg->lf().kfe().spool_command() << " " <<
+						msg->lf().kfe().error_word() << " " <<
+						msg->lf().kfe().system_temp() << " " <<
+						msg->lf().kfe().spare_ptr1() << " " <<
+						msg->lf().kfe().spare_ptr2() << " " <<
+						msg->lf().kfe().status_word() << " " <<
+
+						msg->lh().haa().actual_position() << " " <<
+						msg->lh().haa().actual_force() << " " <<
+						msg->lh().haa().calc_velocity() << " " <<
+						msg->lh().haa().pressure_1() << " " <<
+						msg->lh().haa().pressure_2() << " " <<
+						msg->lh().haa().pressure_3() << " " <<
+						msg->lh().haa().pressure_4() << " " <<
+						msg->lh().haa().spool_position() << " " <<
+						msg->lh().haa().force_command() << " " <<
+						msg->lh().haa().spool_command() << " " <<
+						msg->lh().haa().error_word() << " " <<
+						msg->lh().haa().system_temp() << " " <<
+						msg->lh().haa().spare_ptr1() << " " <<
+						msg->lh().haa().spare_ptr2() << " " <<
+						msg->lh().haa().status_word() << " " <<
+
+						msg->lh().hfe().actual_position() << " " <<
+						msg->lh().hfe().actual_force() << " " <<
+						msg->lh().hfe().calc_velocity() << " " <<
+						msg->lh().hfe().pressure_1() << " " <<
+						msg->lh().hfe().pressure_2() << " " <<
+						msg->lh().hfe().pressure_3() << " " <<
+						msg->lh().hfe().pressure_4() << " " <<
+						msg->lh().hfe().spool_position() << " " <<
+						msg->lh().hfe().force_command() << " " <<
+						msg->lh().hfe().spool_command() << " " <<
+						msg->lh().hfe().error_word() << " " <<
+						msg->lh().hfe().system_temp() << " " <<
+						msg->lh().hfe().spare_ptr1() << " " <<
+						msg->lh().hfe().spare_ptr2() << " " <<
+						msg->lh().hfe().status_word() << " " <<
+
+						msg->lh().kfe().actual_position() << " " <<
+						msg->lh().kfe().actual_force() << " " <<
+						msg->lh().kfe().calc_velocity() << " " <<
+						msg->lh().kfe().pressure_1() << " " <<
+						msg->lh().kfe().pressure_2() << " " <<
+						msg->lh().kfe().pressure_3() << " " <<
+						msg->lh().kfe().pressure_4() << " " <<
+						msg->lh().kfe().spool_position() << " " <<
+						msg->lh().kfe().force_command() << " " <<
+						msg->lh().kfe().spool_command() << " " <<
+						msg->lh().kfe().error_word() << " " <<
+						msg->lh().kfe().system_temp() << " " <<
+						msg->lh().kfe().spare_ptr1() << " " <<
+						msg->lh().kfe().spare_ptr2() << " " <<
+						msg->lh().kfe().status_word() << " " << std::endl;
+			}
+		}
+	);
+}
 
 LogLayer::Status LogLayer::run()
 {
-	// TODO start subscribers
-
-	std::unique_lock<std::mutex> lock(this->should_quit_mutex);
-	this->should_quit_cv.wait
-	(
-		lock,
-		[&]{return this->should_quit;}
-	);
-
-	// TODO stop subscribers
+	while(!*(this->should_quit))
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
+	}
 
 	return this->getStatus();
 }
 
 LogLayer::Status LogLayer::shutdown()
 {
-	{
-		std::lock_guard<std::mutex> lock(this->should_quit_mutex);
-		this->should_quit = true;
-	}
-	this->should_quit_cv.notify_one();
-
-	return this->getStatus();
+	*(this->should_quit) = true;
+	return getStatus();
 }
 
 std::string LogLayer::get_current_time()

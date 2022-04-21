@@ -79,6 +79,14 @@ bool Options::parseArgs(int argc, char **argv)
 		{0,            0,                  0,             0}
 	};
 
+	// clear the default layers
+	Options::launch_estimation  =  false;
+	Options::launch_hardware    =  false;
+	Options::launch_control     =  false;
+	Options::launch_console     =  false;
+	Options::launch_log         =  false;
+	Options::launch_roscore		=  false;
+
 	int opt;
 	while((opt = getopt_long(argc, argv, "r:sHl:vh::cd", long_options, nullptr)) != -1)
 	{
@@ -122,14 +130,6 @@ bool Options::parseArgs(int argc, char **argv)
 			}
 			case 'l':
 			{
-				// clear the default layers
-				Options::launch_estimation  =  false;
-				Options::launch_hardware    =  false;
-				Options::launch_control     =  false;
-				Options::launch_console     =  false;
-				Options::launch_log         =  false;
-				Options::launch_roscore		=  false;
-
 				char * const tokens []
 				{
 					const_cast<char*>("hardware"),

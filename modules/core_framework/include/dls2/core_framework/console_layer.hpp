@@ -77,10 +77,6 @@ private:
 	///
 	// version2::Subscriber<StringMsgPubSubType> consoleFeedback;
 
-	/// Flag of the running loop
-	/// Exits when set to true
-	bool *should_quit;
-	
 	/// Handler to the shutdown SIGINT (ctrl+c) signal
 	/// 
 	static void handle_signals(int);

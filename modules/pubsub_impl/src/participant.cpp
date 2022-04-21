@@ -27,13 +27,12 @@ namespace dls
 {
 
 	DDSParticipant::DDSParticipant(
-		const std::string &partName_,
-		const unsigned int &domain_
+		std::string 	partName_,
+		dls::domainType	domain_
 	)
 		: participant(nullptr)
 		, publisher(nullptr)
 		, subscriber(nullptr)
-		, topic(nullptr)
 	{
 		eprosima::fastdds::dds::DomainParticipantQos participantQos;
 		participantQos.wire_protocol().builtin.discovery_config.discoveryProtocol = eprosima::fastrtps::rtps::DiscoveryProtocol_t::SIMPLE;
@@ -58,8 +57,6 @@ namespace dls
 	
 		eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->
 			delete_participant(this->participant);
-
-		delete this->participant;
 	}
 
 	void DDSParticipant::sendMessage(void *msg){
@@ -67,51 +64,52 @@ namespace dls
 		this->publisher->publish(msg);
 	}
 
-	bool DDSParticipant::addWriter(
-		std::pair<std::string, eprosima::fastdds::dds::TypeSupport> topicData_
-	){
+	bool DDSParticipant::addWriter(dls::topicType topicData_){
 
-		if(this->topic == nullptr)
-			if(!this->addTopic(topicData_))
-				return false;
+		auto topic = this->addTopic(topicData_);
 
-		return this->publisher->addDataWriter(this->topic);
+		if (topic == nullptr)
+			return false;
+
+		return this->publisher->addDataWriter(topic);
 	}
 
 	bool DDSParticipant::addReader(
-		std::pair<std::string, eprosima::fastdds::dds::TypeSupport> topicData_,
-		std::function<void(void *)> 								callback
+		dls::topicType 					topicData_,
+		std::function<void(void *)> 	callback
 	){
+		auto topic = this->addTopic(topicData_);
 
-		if(this->topic == nullptr)
-			if(!this->addTopic(topicData_))
-				return false;
-
-		return this->subscriber->addDataReader(this->topic, callback);
+		if (topic == nullptr)
+			return false;
+				
+		return this->subscriber->addDataReader(topic, callback);
 	}
 
-	bool DDSParticipant::addTopic(
-		std::pair<std::string, eprosima::fastdds::dds::TypeSupport> topicData_
-	){
+	eprosima::fastdds::dds::Topic* DDSParticipant::addTopic(dls::topicType topicData_){
+
+		auto search = this->topics.find(topicData_.first);
+
+		if (search != topics.end())
+			return search->second;
 
 		this->participant->register_type(topicData_.second);
 	
-		if(this->topic == nullptr){
-			this->topic = this->participant->create_topic(
-				topicData_.first, 
-				topicData_.second.get_type_name(),
-				eprosima::fastdds::dds::TOPIC_QOS_DEFAULT
-			);
+		auto topic = this->participant->create_topic(
+			topicData_.first, 
+			topicData_.second.get_type_name(),
+			eprosima::fastdds::dds::TOPIC_QOS_DEFAULT
+		);
 
-			if(this->topic == nullptr){
-				// throw std::runtime_error(
-				// 	"Error: could not create publisher topic"
-				// );
-				return false;
-			}
+		if(topic == nullptr){
+			// throw std::runtime_error(
+			// 	"Error: could not create publisher topic"
+			// );
 		}
 
-		return true;
+		this->topics.insert({topicData_.first, topic});
+
+		return topic;
 	}
 
 

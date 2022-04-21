@@ -52,10 +52,6 @@ public:
 	std::string where() override{return "not yet implemented";}
 
 private:
-	/// Flag of the running loop
-	/// Exits when set to true
-	bool *should_quit;
-
 	/// Handler to the shutdown SIGINT (ctrl+c) signal
 	/// 
 	static void handle_signals(int);

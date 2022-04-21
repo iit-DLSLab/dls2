@@ -46,9 +46,6 @@ public:
 		STOP          ///< Layer has been stopped
 	};
 
-	// TODO remove this
-	// AppLayer(const std::initializer_list<pComponent_t>&);
-
 	AppLayer(const std::string &ID);
 	virtual ~AppLayer() = default;
 
@@ -116,6 +113,10 @@ protected:
 		mutable std::mutex components_mutex;
 		std::map<std::string, pComponent_t> components;
 	// END critical section
+
+	/// Flag of the running loop
+	/// Exits when set to true
+	bool *should_quit;
 
 	/// Stores commands registered in the layer
 	///

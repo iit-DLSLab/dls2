@@ -98,30 +98,31 @@ namespace dls
 
 		private:
 
-			eprosima::fastdds::dds::DomainParticipant 								*participant;
-			eprosima::fastdds::dds::Subscriber        								*subscriber;
-			eprosima::fastdds::dds::DataReader										*reader;
-		
-			class SubListener : public eprosima::fastdds::dds::DataReaderListener
-			{
-			public:
-				SubListener(std::function<void(void *)> callback_);
+			eprosima::fastdds::dds::DomainParticipant 		  *participant;
+			eprosima::fastdds::dds::Subscriber        		  *subscriber;
+			std::vector<eprosima::fastdds::dds::DataReader *> readers;
+		};
 
-				~SubListener();
 
-				void *msg;
-				
-				std::atomic_int sample_count;
-				std::function<void(void *)> callback;
+		class SubListener : public eprosima::fastdds::dds::DataReaderListener
+		{
+		public:
+			SubListener(std::function<void(void *)> callback_);
 
-				void on_subscription_matched (
-					eprosima::fastdds::dds::DataReader*,
-					const eprosima::fastdds::dds::SubscriptionMatchedStatus &info
-				) override;
+			~SubListener();
 
-				void on_data_available ( eprosima::fastdds::dds::DataReader* ) override;
+			void *msg;
+			
+			std::atomic_int sample_count;
+			std::function<void(void *)> callback;
 
-			} subscriber_listener;
+			void on_subscription_matched (
+				eprosima::fastdds::dds::DataReader*,
+				const eprosima::fastdds::dds::SubscriptionMatchedStatus &info
+			) override;
+
+			void on_data_available ( eprosima::fastdds::dds::DataReader* ) override;
+
 		};
 	} /// \endcond namespace version2
 } /// \endcond namespace dls

@@ -14,10 +14,6 @@
 *                                                 `---'                        *
 *******************************************************************************/
 #include "dls2/log/log.hpp"
-#include "dls2/util/messaging/publisher.hpp"
-#include "dls2/msg/stringmsgPubSubTypes.h"
-
-#include "dls2/topics/topics.hpp"
 
 // =============================================================================
 // Using Declarations
@@ -32,27 +28,27 @@ using namespace dls::logging;
 // -----------------------------------------------------------------------------
 LogStreamBuffer::LogStreamBuffer
 (
-	const std::string &topic_,
+	dls::topicType topic_,
 	std::size_t buffer_size,
-	const std::string &prefix_
-) :
-	topic(topic_),
-	// pPublisher(
-	// 	std::make_shared<version2::Publisher<StringMsgPubSubType>>(
-	// 		dls::domains::logging,
-	// 		prefix_,
-	// 		topic_
-	// 	)
-	// ),
-	buf(new char[buffer_size]),
-	prefix(prefix_ + ": ")
+	std::string prefix_
+) 
+	: topic(topic_)
+	, ddsLogging(new dls::DDSParticipant(
+			prefix_,
+	 		dls::domains::logging
+		)
+	)
+	, buf(new char[buffer_size])
+	, prefix(prefix_ + ": ")
 {
 	setp(buf, buf + buffer_size -1);
+	ddsLogging->addWriter(topic_);
 }
 
 LogStreamBuffer::~LogStreamBuffer()
 {
 	delete[] buf;
+	delete ddsLogging;
 }
 // -----------------------------------------------------------------------------
 // Interface Override
@@ -78,13 +74,8 @@ bool LogStreamBuffer::flush_buffer()
 	std::shared_ptr<StringMsg> msg(new StringMsg());
 	msg->msg(this->prefix + std::string(buf, pptr()));
 
-	// Done here, since if it's done statically (for the global cdb, clog, cout,
-	// cerr, cfatal classes, then fastrtps complains
-	// if(pPublisher == nullptr)
-	// {
-	// 	pPublisher = std::make_shared<dls::PublisherBase<StringMsgPubSubType>>(this->topic);
-	// }
-	pPublisher->publish(msg.get());
+	this->ddsLogging->sendMessage(msg.get());
+
 	// std::cout << std::string(buf, pptr());
 	auto n = pptr() - pbase();
 	pbump(-n);

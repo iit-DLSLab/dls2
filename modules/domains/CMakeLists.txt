@@ -1,7 +1,9 @@
-add_library(dls_domains INTERFACE)
+add_library(dls_domains SHARED
+		src/domains.cpp
+)
 
 target_include_directories(dls_domains
-	INTERFACE
+	PUBLIC
 		include
 )
 

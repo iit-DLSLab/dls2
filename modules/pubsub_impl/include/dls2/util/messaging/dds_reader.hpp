@@ -13,59 +13,29 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef PARTICIPANT_HPP_4d198a8c_fdc4_4c7d_8be9_6d4b7e6bd7d2
-#define PARTICIPANT_HPP_4d198a8c_fdc4_4c7d_8be9_6d4b7e6bd7d2
+#ifndef DDS_READER_HPP
+#define DDS_READER_HPP
 
-#include <fastdds/dds/domain/DomainParticipantFactory.hpp>
-#include <fastdds/dds/domain/DomainParticipant.hpp>
+#include "dls2/util/messaging/participant.hpp"
 
-#include "dls2/util/messaging/subscriber.hpp"
-#include "dls2/util/messaging/publisher.hpp"
-
-#include "dls2/topics/topics.hpp"
-#include "dls2/domains/domains.hpp"
-
-
-#include <map>
-#include <string>
-
-/// \cond doxygen_namespace_dls
 namespace dls
 {
-	class DDSParticipant{
-
+	template <class PubSub_t>
+	class DDSReader :: public DDSParticipant
+	{
 	public:
-		DDSParticipant(
-			std::string 	partName_,
-			dls::domainType domain_
+		DDSReader(
+			std::string     partName_,
+			dls::domainType domain_,
+			dls::topicType  topic_
 		);
-
-		~DDSParticipant();
-
-		std::vector<std::string> getParticipants();
-
-		bool addWriter(dls::topicType topic_);
-
-		bool addReader(
-			dls::topicType				topicData_,
-			std::function<void(void *)>	callback
-		);
-
-		void sendMessage(void *msg);
+		virtual ~DDSReader();
 
 	private:
-		eprosima::fastdds::dds::DomainParticipant  				*participant;
-		std::map<std::string, eprosima::fastdds::dds::Topic *>  topics;	
-
-		dls::version2::Subscriber	*subscriber;
-		dls::version2::Publisher	*publisher;
-
-		eprosima::fastdds::dds::Topic* addTopic(dls::topicType topicData_);
+		
 	};
-	
-} // namespace dls
-/// \endcond
+}
 
-#include "dls2/util/messaging/participant.tpp"
+#include "dls2/util/messaging/dds_reader.tpp"
 
-#endif // PARTICIPANT_HPP_4d198a8c_fdc4_4c7d_8be9_6d4b7e6bd7d2
+#endif /* end of include guard: SUBSCRIBER_HPP_XPACOJJI */

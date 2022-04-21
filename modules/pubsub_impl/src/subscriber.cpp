@@ -45,8 +45,6 @@ namespace dls
 			eprosima::fastdds::dds::DomainParticipant *participant_)
 			: participant(participant_)
 			, subscriber(nullptr)
-			, reader(nullptr)
-			, subscriber_listener(nullptr)
 		{
 			this->subscriber = this->participant->create_subscriber(
 				eprosima::fastdds::dds::SUBSCRIBER_QOS_DEFAULT,
@@ -69,23 +67,26 @@ namespace dls
 
 		bool Subscriber::addDataReader(
 			eprosima::fastdds::dds::Topic	*topic_,
-			std::function<void(void *)>		callback
+			std::function<void(void *)>		callback_
 		)
 		{
-			this->subscriber_listener.callback = callback;
+			SubListener  *listener = new SubListener(callback_);
 			
-			this->reader = this->subscriber->create_datareader(
-				topic_,
-				eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT,
-				&this->subscriber_listener
-			);
+			eprosima::fastdds::dds::DataReader *reader = 
+				this->subscriber->create_datareader(
+					topic_,
+					eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT,
+					listener
+				);
 
-			if(this->reader == nullptr){
+			if(reader == nullptr){
 				// throw std::runtime_error(
 				// 	"Error: could not create subscriber reader"
 				// );
 				return false;
 			}
+
+			this->readers.push_back(reader);
 
 			return true;
 		}
@@ -95,7 +96,7 @@ namespace dls
 		// Helper Listener Class
 		// =====================================================================
 
-		Subscriber::SubListener::SubListener(
+		SubListener::SubListener(
 			std::function<void(void *)> callback_) 
 			: sample_count(0)
 			, callback(callback_)
@@ -103,11 +104,11 @@ namespace dls
 		{ 
 		}
 
-		Subscriber::SubListener::~SubListener(){
+		SubListener::~SubListener(){
 			delete this->msg;
 		}
 
-		void Subscriber::SubListener::on_subscription_matched(
+		void SubListener::on_subscription_matched(
 			eprosima::fastdds::dds::DataReader*,
 			const eprosima::fastdds::dds::SubscriptionMatchedStatus &info)
 		{
@@ -126,7 +127,7 @@ namespace dls
 		}
 	
 
-		void Subscriber::SubListener::on_data_available(
+		void SubListener::on_data_available(
 			eprosima::fastdds::dds::DataReader *reader)
 		{
 			eprosima::fastdds::dds::SampleInfo info;
