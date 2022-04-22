@@ -2,6 +2,7 @@ add_library(dls_pubsub_impl STATIC
 		src/participant.cpp
 		src/subscriber.cpp
 		src/publisher.cpp
+		src/dds_reader.cpp
 )
 
 target_include_directories(dls_pubsub_impl

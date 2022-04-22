@@ -46,7 +46,7 @@ namespace dls
 
 		bool addWriter(dls::topicType topic_);
 
-		bool addReader(
+		eprosima::fastdds::dds::DataReader *addReader(
 			dls::topicType				topicData_,
 			std::function<void(void *)>	callback
 		);

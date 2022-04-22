@@ -51,7 +51,8 @@ namespace dls
 	}
 
 
-	DDSParticipant::~DDSParticipant(){
+	DDSParticipant::~DDSParticipant()
+	{
 		delete this->publisher;
 		delete this->subscriber;
 	
@@ -59,13 +60,13 @@ namespace dls
 			delete_participant(this->participant);
 	}
 
-	void DDSParticipant::sendMessage(void *msg){
-
+	void DDSParticipant::sendMessage(void *msg)
+	{
 		this->publisher->publish(msg);
 	}
 
-	bool DDSParticipant::addWriter(dls::topicType topicData_){
-
+	bool DDSParticipant::addWriter(dls::topicType topicData_)
+	{
 		auto topic = this->addTopic(topicData_);
 
 		if (topic == nullptr)
@@ -74,14 +75,15 @@ namespace dls
 		return this->publisher->addDataWriter(topic);
 	}
 
-	bool DDSParticipant::addReader(
+	eprosima::fastdds::dds::DataReader *DDSParticipant::addReader(
 		dls::topicType 					topicData_,
 		std::function<void(void *)> 	callback
 	){
 		auto topic = this->addTopic(topicData_);
 
+		// error could not add topic
 		if (topic == nullptr)
-			return false;
+			return nullptr;
 				
 		return this->subscriber->addDataReader(topic, callback);
 	}
@@ -111,8 +113,6 @@ namespace dls
 
 		return topic;
 	}
-
-
 
 
 	std::vector<std::string> DDSParticipant::getParticipants(){

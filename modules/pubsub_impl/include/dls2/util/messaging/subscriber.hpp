@@ -91,7 +91,7 @@ namespace dls
 			
 			virtual ~Subscriber();
 
-			bool addDataReader(
+			eprosima::fastdds::dds::DataReader *addDataReader(
 				eprosima::fastdds::dds::Topic	*topic_,
 				std::function<void(void *)>		callback
 			);

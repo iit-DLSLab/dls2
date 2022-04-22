@@ -107,7 +107,9 @@ ConsoleLayer::ConsoleLayer(std::string ID, bool *should_quit_)
 				std::cout << "\033[2J" << std::endl; // clear
 				std::cout << "\033[H" << std::endl; // home
 			}
-		}
+		},
+		0,
+		true
 	);
 
 	command_manager.addCommand<void>
@@ -120,7 +122,9 @@ ConsoleLayer::ConsoleLayer(std::string ID, bool *should_quit_)
 			{
 				*(this->should_quit) = true;;
 			}
-		}
+		},
+		0,
+		true
 	);
 
 	command_manager.addCommand<void, std::string>
@@ -128,18 +132,20 @@ ConsoleLayer::ConsoleLayer(std::string ID, bool *should_quit_)
 		"help",
 		"prints docstring of a command",
 		std::function<void(std::string)>
-		(
+		{
 			[&](std::string s)
 			{
 				std::cout << std::endl;
 				for(auto pCommand : this->command_manager.findByName(s))
 				{
-					std::cout << pCommand->getCommandOwner() << "::" <<
-						pCommand->getCommandName() <<  std::endl <<
-						pCommand->getCommandDoc() << std::endl << std::endl;
+					std::cout << pCommand->getOwner() << "::" <<
+						pCommand->getName() <<  std::endl <<
+						pCommand->getDoc() << std::endl << std::endl;
 				}
 			}
-		)
+		},
+		0,
+		true
 	);
 
 	command_manager.addCommand<void>
@@ -153,9 +159,9 @@ ConsoleLayer::ConsoleLayer(std::string ID, bool *should_quit_)
 				auto where_commands = this->command_manager.findByName("where");
 				for(const auto &where_command : where_commands)
 				{
-					if(where_command->getCommandOwner() != "console_layer")
+					if(where_command->getOwner() != "console_layer")
 					{
-						std::cout << where_command->getCommandOwner() << std::endl;
+						std::cout << where_command->getOwner() << std::endl;
 						std::cout << "============================" << std::endl;
 						//where_command->call();
 						std::cout << "This function needs to be implemented\n" << std::endl;
@@ -169,35 +175,10 @@ ConsoleLayer::ConsoleLayer(std::string ID, bool *should_quit_)
 					}
 				}
 			}
-		}
+		},
+		0,
+		true
 	);
-
-	// command_manager.addCommand<void, std::string>
-	// (
-	// 	"list",
-	// 	"list fast dds nodes",
-	// 	std::function<void(std::string)>
-	// 	(
-	// 		[&](std::string s)
-	// 		{
-	// 			// auto factory = eprosima::fastdds::dds::DomainParticipantFactory::get_instance();
-	// 			// auto participant = factory->lookup_participant(stoi(s));			
-
-	// 			auto names = ddslink->getParticipants();
-
-	// 			// if (participant != NULL){
-	// 			// 	auto names = participant->get_participant_names();
-
-	// 				if (!names.empty()){
-	// 					for(auto name : names)
-	// 						std::cout << name << std::endl;
-	// 				}
-	// 		//	}
-
-	// 			return;
-	// 		}
-	// 	)
-	// );
 }
 
 // =============================================================================
@@ -263,10 +244,16 @@ ConsoleLayer::Status ConsoleLayer::run()
 						auto pCommand = pInstance->command_manager
 							.find(namespace_name, command_name);
 
-						// call the command
-						if(pCommand)
+						if (pCommand.size() == 1)
 						{
-							pCommand->call(args);
+							// call the command
+							pCommand.front()->call(args);
+						}
+						else if(pCommand.size() > 1){
+							std::cerr << "Ambiguous overload. Command '"
+								<< command_name << "' found in namespace: "
+								<< namespace_name << std::endl;
+							build_prompt();
 						}
 						else
 						{
@@ -280,17 +267,16 @@ ConsoleLayer::Status ConsoleLayer::run()
 					// if the command is of the form command_name
 					else
 					{
-						std::vector<std::shared_ptr<CommandBase>> commands =
-							pInstance->command_manager.findByName(input_split[0]);
+						auto commands =	pInstance->command_manager.findByName(input_split[0]);
 
 						if(commands.size() == 1)
 						{
-							if (commands[0]->getCommandOwner() != this->getID()){
+							if (commands[0]->getOwner() != this->getID()){
 
 								std::string temp;
-								temp.append(commands[0]->getCommandOwner());
+								temp.append(commands[0]->getOwner());
 								temp.append("#");
-								temp.append(commands[0]->getCommandName());
+								temp.append(commands[0]->getName());
 								temp.append("#");
 
 								if (args.empty()){
@@ -321,7 +307,7 @@ ConsoleLayer::Status ConsoleLayer::run()
 								<< input_split[0] << "' found in these namespaces:\n";
 							for(const auto &el : commands)
 							{
-								std::cout << "\t" << el->getCommandOwner() << "\n";
+								std::cout << "\t" << el->getOwner() << "\n";
 							}
 							std::cout << std::endl;
 							build_prompt();
@@ -385,7 +371,7 @@ char **dls::console_completion(const char *text, int start, int /*end*/)
 		ss >> command_name;
 
 		// Find the command structure associated with the command name
-		auto commands = pInstance->command_manager.getCurrentlyRegisteredCommands();
+		auto commands = pInstance->command_manager.getCommandsList();
 		auto it = std::find_if(commands.begin(), commands.end(), [&](auto value) { return (text == value.first); });
 
 		if(it != commands.end())
@@ -402,8 +388,8 @@ char **dls::console_completion(const char *text, int start, int /*end*/)
 // -----------------------------------------------------------------------------
 char *dls::command_completion(const char *text, int state)
 {
-	static decltype(pInstance->command_manager.getCurrentlyRegisteredCommands()) commands;
-	static decltype(pInstance->command_manager.getCurrentlyRegisteredCommands().cbegin()) it_commands;
+	static decltype(pInstance->command_manager.getCommandsList()) commands;
+	static decltype(pInstance->command_manager.getCommandsList().cbegin()) it_commands;
 	static decltype(pInstance->command_manager.getCurrentlyRegisteredOwners()) owners;
 	static decltype(pInstance->command_manager.getCurrentlyRegisteredOwners().cbegin()) it_owners;
 	static int string_length;
@@ -415,7 +401,7 @@ char *dls::command_completion(const char *text, int state)
 		// if first time this completer is being run
 		if(state == 0)
 		{
-			commands = pInstance->command_manager.getCurrentlyRegisteredCommands();
+			commands = pInstance->command_manager.getCommandsList();
 			owners = pInstance->command_manager.getCurrentlyRegisteredOwners();
 			// it = pInstance->commands.begin();
 			it_commands = commands.begin();

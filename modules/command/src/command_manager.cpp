@@ -13,11 +13,13 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
+#ifndef COMMAND_MANAGER_CPP
+#define COMMAND_MANAGER_CPP
+
 // =============================================================================
 // Includes
 // =============================================================================
 #include "dls2/command/command_manager.hpp"
-#include "dls2/msg/console_commandPubSubTypes.h"
 #include <iostream>
 #include <numeric>
 #include <string_view>
@@ -26,207 +28,200 @@
 
 namespace dls
 {
-
-
-// =============================================================================
-// Command Manager Implementation
-// =============================================================================
-// -----------------------------------------------------------------------------
-// Constructors
-// -----------------------------------------------------------------------------
-CommandManager::CommandManager(std::string owner_):
-	commands(),
-	owner(owner_),
-	commands_monitor(std::make_unique<dls::DDSParticipant>(owner_+"::commands_monitor", domains::command))
-{
-	commands_monitor->addWriter(dls::topics::command_call);
-}
-
-CommandManager::~CommandManager()
-{ }
-
-// -----------------------------------------------------------------------------
-// Implementation
-// -----------------------------------------------------------------------------
-
-void CommandManager::sendMessage(void *msg){
-
-	commands_monitor->sendMessage(msg);
-}
-
-
-
-std::vector<std::shared_ptr<CommandBase>> CommandManager::findByOwner
-(
-	const std::string &owner
-) const
-{
-	std::vector<std::shared_ptr<CommandBase>> vec;
+	// =============================================================================
+	// Command Manager Implementation
+	// =============================================================================
+	// -----------------------------------------------------------------------------
+	// Constructors
+	// -----------------------------------------------------------------------------
+	CommandManager::CommandManager(std::string owner_)
+		: commands()
+		, owner(owner_)
+		, commands_monitor(std::make_unique<dls::DDSParticipant>(
+			owner_+"::commands_monitor",
+			domains::command)
+		)
 	{
-		for(const auto &el : this->commands)
+		commands_monitor->addWriter(dls::topics::command_call);
+	}
+
+	CommandManager::~CommandManager()
+	{ }
+
+	// -----------------------------------------------------------------------------
+	// Implementation
+	// -----------------------------------------------------------------------------
+	void CommandManager::sendMessage(void *msg)
+	{
+		commands_monitor->sendMessage(msg);
+	}
+
+	std::vector<std::shared_ptr<CommandBase>> CommandManager::findByOwner
+	(
+		std::string owner_
+	)
+	{
+		auto cmds = this->getCommandsList();
+
+		if (cmds.size() == 0)
+			return {};
+
+		// search for commands with same owner
+		std::multimap<std::string, std::string> cmdlst;
+		for (auto it = cmds.begin(); it != cmds.end(); ++it)
 		{
-			if(el->getCommandOwner() == owner)
-			{
-				vec.push_back(el);
-			}
+			if (it->second == owner_)
+    			cmdlst.insert(*it);
 		}
-	}
-	return vec;
-}
 
-std::vector<std::shared_ptr<CommandBase>> CommandManager::findByName
-(
-	std::string name_
-)
-{
-	auto cmds = getCurrentlyRegisteredCommands();
-	auto cmd = std::find_if(cmds.begin(), cmds.end(), [&](auto el) { return (el.first == name_); });
-
-	std::vector<std::shared_ptr<CommandBase>> vec;
-	
-	if (cmd == cmds.end())
-		return vec;	
-	
-	//if the command is local
-	if (cmd->second == this->owner){
-		for(const auto &el : this->commands){
-			if(el->getCommandName() == name_)
-			{
-				vec.push_back(el);
-			}
-		}
-	}
-	//if the command is remote
-	else{
-		vec.push_back(std::make_shared<Command<void, std::string>> (
-			cmd->first,
-			cmd->second,
-			"temp remote command",
-			std::function<void(std::string)>
-			{
-				[&](std::string args_)
-				{
-					// this call just send all the info to the remote command
-					// the remote command should verify if the number of arguments and types ar correct
-					CommandCallMsg msg;
-					
-					std::stringstream ss(args_);
-					std::vector<std::string> result;
-
-					while(ss.good()){
-    					std::string substr;
-    					getline( ss, substr, '#' );
-    					result.push_back( substr );
-					}
-
-					msg.owner(result[0]);
-					msg.command_name(result[1]);
-					msg.args(result[2]);
-
-					this->commands_monitor->sendMessage(&msg);
-				}
-			}, 
-			false
-		));
+		return makeCallableCmdList(cmds);
 	}
 
-	return vec;
-}
-
-std::shared_ptr<CommandBase> CommandManager::find
-(
-	std::string owner_,
-	std::string name_
-)
-{
-	auto cmds = getCurrentlyRegisteredCommands();
-
-	cmds.find(std::make_pair(name_, owner_));
-
-	// verify if the command is local or remote
-	if (owner_ == this->owner){
-		return *std::find_if(commands.begin(), commands.end(), [&](auto el) { return (el->getCommandOwner() == owner_ &&
-			el->getCommandName() == name_); });
-	}
-	else{
-		std::cout << "TBD - make cmd object for remote command" << std::endl;
-	}
-
-	return nullptr;
-}
-
-std::set<std::pair<std::string, std::string>> CommandManager::getCurrentlyRegisteredCommands(){
-
-	// get all the remote commands
-	auto remCommands = commands_monitor->getParticipants();
-	std::erase_if(remCommands, [](std::string value) { return (value.find("monitor") != std::string::npos); });
-
-	// sort the remote commands
-	std::set<std::pair<std::string, std::string>> cmds;
-
-	for(auto elem :remCommands){
-		size_t idx = elem.find("::");
-		if (idx != std::string::npos)
-			cmds.insert(std::make_pair(elem.substr(idx+2, elem.size()), elem.substr(0, idx)));
-	}
+	std::vector<std::shared_ptr<CommandBase>> CommandManager::findByName
+	(
+		std::string name_
+	)
+	{
+		auto cmds = this->getCommandsList();
 		
-	for(auto it : this->commands) {
-		cmds.insert(std::make_pair(it->getCommandName(), it->getCommandOwner()));
-	}
+		if (cmds.count(name_) == 0)
+			return {};
 
-	return cmds;
-}
-
-std::set<std::string> CommandManager::getCurrentlyRegisteredOwners()
-{
-	auto remCommands = commands_monitor->getParticipants();
-
-
-	std::set<std::string> set;
-	for(auto it = commands.begin(); it != commands.end(); ++it)
-	{
-		set.insert((*it)->getCommandOwner());
-	}
-
-	return set;
-}
-
-// =============================================================================
-// Remote Command Callable
-// =============================================================================
-// -----------------------------------------------------------------------------
-// Constructors
-// -----------------------------------------------------------------------------
-RemoteCommandCallable::RemoteCommandCallable() :
-	pRemote_command(nullptr)
-{ }
-
-RemoteCommandCallable CommandManager::makeCallable
-(
-	std::string owner,
-	std::string name
-)
-{
-	std::shared_ptr<CommandBase> pCommand;
-	do
-	{
-		pCommand = this->find
-		(
-			owner,
-			name
-		);
-		if(!pCommand)
+		// find all commands with same name and put in a new multimap
+		auto range = cmds.equal_range(name_);
+		std::multimap<std::string, std::string> cmdlst;
+		for (auto it = range.first; it != range.second; ++it)
 		{
-			std::cout << "Command '" << name << "' for '" << owner <<
-				"' not yet registered. Blocking" << std::endl;
+    		cmdlst.insert(*it);
 		}
-	}while(pCommand == nullptr);
 
-	RemoteCommandCallable callable;
-	callable.pRemote_command = pCommand;
-	return callable;
-}
+		return makeCallableCmdList(cmdlst);
+	}
+
+	std::vector<std::shared_ptr<CommandBase>> CommandManager::find
+	(
+		std::string owner_,
+		std::string name_
+	)
+	{
+		auto cmds = getCommandsList();
+
+		if (cmds.count(name_) == 0)
+			return {};
+
+		// find all commands with same name and put in a new multimap
+		// but now with keys being the owner
+		auto range = cmds.equal_range(name_);
+		std::multimap<std::string, std::string> cmdlst;
+		for (auto it = range.first; it != range.second; ++it)
+		{
+    		cmdlst.insert({it->second, it->first});
+		}
+
+		if (cmdlst.count(owner_) == 0)
+			return {};
+			
+		// find all commands with same owner and put in a new multimap
+		// getting back the key invertion
+		range = cmdlst.equal_range(owner_);
+		cmds.clear();
+		for (auto it = range.first; it != range.second; ++it)
+		{
+    		cmds.insert({it->second, it->first});
+		}
+
+		return makeCallableCmdList(cmds);
+	}
 
 
+	std::vector<std::shared_ptr<CommandBase>> CommandManager::makeCallableCmdList(
+		std::multimap<std::string, std::string> cmdlst
+	)
+	{
+		// create a list of commands that could be called
+		std::vector<std::shared_ptr<CommandBase>> retvec;
+		
+		for(auto elem : cmdlst){
+			//if the command is local
+			if (elem.second == this->owner){
+				for(const auto &el : this->commands){
+					if(el->getName() == elem.first)
+					{
+						retvec.push_back(el);
+					}
+				}
+			}
+			//if the command is remote
+			else{
+				retvec.push_back(std::make_shared<Command<void, std::string>> (
+					elem.first,
+					elem.second,
+					"temp remote command",
+					std::function<void(std::string)>
+					{
+						[&](std::string args_)
+						{
+							// this call just send all the info to the remote command
+							// the remote command should verify if the number of arguments and types ar correct
+							CommandCallMsg msg;
+							
+							std::stringstream ss(args_);
+							std::vector<std::string> result;
+
+							while(ss.good()){
+								std::string substr;
+								getline( ss, substr, '#' );
+								result.push_back( substr );
+							}
+
+							msg.owner(result[0]);
+							msg.command_name(result[1]);
+							msg.args(result[2]);
+
+							this->commands_monitor->sendMessage(&msg);
+						}
+					}, 
+					false
+				));
+			}
+		}
+
+		return retvec;
+	}
+
+	std::multimap<std::string, std::string> CommandManager::getCommandsList(){
+
+		// get all the remote commands
+		auto remCommands = commands_monitor->getParticipants();
+		// remove the monitors
+		std::erase_if(remCommands, [](std::string value) { return (value.find("monitor") != std::string::npos); });
+
+		// create a list of commands
+		std::multimap<std::string, std::string> cmds;
+
+		for(auto elem :remCommands){
+			size_t idx = elem.find("::");
+			if (idx != std::string::npos)
+				cmds.insert({elem.substr(idx+2, elem.size()), elem.substr(0, idx)});
+		}
+			
+		return cmds;
+	}
+
+	std::set<std::string> CommandManager::getCurrentlyRegisteredOwners()
+	{
+		auto remCommands = commands_monitor->getParticipants();
+
+
+		std::set<std::string> set;
+		for(auto it = commands.begin(); it != commands.end(); ++it)
+		{
+			set.insert((*it)->getOwner());
+		}
+
+		return set;
+	}
 
 } // end namespace dls
+
+#endif /* end of include guard: COMMAND_MANAGER_CPP */

@@ -21,64 +21,33 @@
 // =============================================================================
 #include "dls2/command/command_manager.hpp"
 
-
 namespace dls
 {
 	// =============================================================================
 	// Command Manager Implementation
 	// =============================================================================
-	// -----------------------------------------------------------------------------
-	// Implementation
-	// -----------------------------------------------------------------------------
 	template <typename ret_t, typename... arg_ts>
 	void CommandManager::addCommand
 	(
-		const std::string &command_name,
-		const std::string &docstring,
-		const std::function<ret_t(arg_ts...)> &f
+		std::string name_,
+		std::string doc_,
+		const std::function<ret_t(arg_ts...)> &f_,
+		uint level_,
+		bool enabled_
 	)
 	{
 		this->commands.emplace_back
 		(
 			std::make_unique<Command<ret_t, arg_ts...>>
 			(
-				command_name,
+				name_,
 				this->owner,
-				docstring,
-				f, 
-				false
+				doc_,
+				f_,
+				level_,
+				enabled_
 			)
 		);
-	}
-
-	template <typename ret_t, typename... arg_ts>
-	void CommandManager::addRemoteCommand
-	(
-		const std::string &command_name,
-		const std::string &docstring,
-		const std::function<ret_t(arg_ts...)> &f
-	)
-	{
-		this->commands.emplace_back
-		(
-			std::make_unique<Command<ret_t, arg_ts...>>
-			(
-				command_name,
-				this->owner,
-				docstring,
-				f, 
-				true
-			)
-		);
-	}
-
-	// -------------------------------------------------------------------------
-	// RemoteCommandCallable
-	// -------------------------------------------------------------------------
-	template <typename... Ts>
-	void RemoteCommandCallable::operator()(Ts... ts)
-	{
-		//this->pRemote_command->call(ts...);
 	}
 
 } // end namespace dls

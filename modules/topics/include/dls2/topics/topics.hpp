@@ -22,6 +22,7 @@
 #include "dls2/msg/command_callPubSubTypes.h"
 #include "dls2/msg/stringmsgPubSubTypes.h"
 #include "dls2/msg/hyqreal_rawPubSubTypes.h"
+#include "dls2/msg/command_registerPubSubTypes.h"
 
 
 namespace dls

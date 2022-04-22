@@ -19,7 +19,8 @@
 // =============================================================================
 // Includes
 // =============================================================================
-#include "dls2/msg/command_registerPubSubTypes.h"
+#include "dls2/topics/topics.hpp"
+
 
 // =============================================================================
 // Class Interface
@@ -55,24 +56,79 @@ namespace dls
 			STD_STRING
 		};
 
+		/// Constructor
+		///
+		/// @param name the name of the command as seen from the rest of the
+		/// framework
+		/// @param owner the component that registered this command
+		/// @param doc some documentation for the command
+		/// @param nArg number of arguments of the command
+		/// @param level execution level of the command
+		/// @param enabled set if the command is enabled or not
 		CommandBase(
-			std::string name_,
-			std::string owner_,
-			std::string doc_,
-			uint nArg_
+			std::string name,
+			std::string owner,
+			std::string doc,
+			uint nArg,
+			uint level = 0,
+			bool enabled = false
 		);
 
+		/// Destructor
+		///
 		virtual ~CommandBase() = default;
 
+		/// Associated function call of the command
+		///
 		virtual int call(std::vector<std::string>);
 
-		std::string getCommandName();
+		/// Retrieves command name string
+		///
+		std::string getName();
 
-		std::string getCommandOwner();
+		/// Sets command name
+		///
+		void setName(std::string name_);		
 
-		std::string getCommandDoc();
+		/// Retrieves command owner's name string
+		///
+		std::string getOwner();
 
+		/// Sets command owner
+		///
+		void setOwner(std::string owner_);				
+
+		/// Retrieves command documentation string
+		///
+		std::string getDoc();
+
+		/// Sets command documentation
+		///
+		void setDoc(std::string doc_);
+
+		/// Retrieves command execution level
+		///
+		uint getLevel();
+
+		/// Sets command execution level
+		///
+		void setLevel(uint level_);
+
+		/// Retrieves command number of arguments
+		///
 		uint getNumArgs();
+
+		/// Enable the command
+		/// 
+		void setEnabled();
+
+		/// Disable the command
+		///
+		void setDisabled();
+
+		/// Retrieve the current state of the command
+		///
+		bool isEnabled();
 
 	protected:
 		/// Convenience typedef
@@ -99,15 +155,6 @@ namespace dls
 		RepresentationVector &buildRepresentationVector(RepresentationVector&);
 		
 
-		/// Register this command with the framework
-		///
-		//virtual void requestRegistration() = 0;
-
-		/// Unregister this command with the framework
-		///
-		//virtual void requestDeregistration() = 0;
-
-
 	private:
 
 		/// The name of the component that owns the remote command
@@ -120,15 +167,19 @@ namespace dls
 
 		/// Command documentation
 		///
-		std::string docstring;
+		std::string doc;
 
 		/// Number of arguments of command
 		///
 		uint numArg;
 
-		/// Callback of the command
+		/// Command execution level
 		///
-		const std::function<int(std::vector<std::string>)> f;
+		uint level;
+
+		/// If the command is enabled or not
+		///
+		bool enabled;
 	};
 } // end namespace dls
 

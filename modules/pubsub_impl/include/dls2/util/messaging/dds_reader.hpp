@@ -20,22 +20,22 @@
 
 namespace dls
 {
-	template <class PubSub_t>
-	class DDSReader :: public DDSParticipant
+	class DDSReader : public DDSParticipant
 	{
 	public:
 		DDSReader(
-			std::string     partName_,
-			dls::domainType domain_,
-			dls::topicType  topic_
+			std::string     			partName_,
+			dls::domainType 			domain_,
+			dls::topicType  			topic_,
+			std::function<void(void *)> callback_
 		);
 		virtual ~DDSReader();
 
 	private:
-		
+
+		eprosima::fastdds::dds::DataReader *reader;
+
 	};
 }
-
-#include "dls2/util/messaging/dds_reader.tpp"
 
 #endif /* end of include guard: SUBSCRIBER_HPP_XPACOJJI */

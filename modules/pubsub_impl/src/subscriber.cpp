@@ -65,7 +65,7 @@ namespace dls
 			}
 		}
 
-		bool Subscriber::addDataReader(
+		eprosima::fastdds::dds::DataReader *Subscriber::addDataReader(
 			eprosima::fastdds::dds::Topic	*topic_,
 			std::function<void(void *)>		callback_
 		)
@@ -79,16 +79,10 @@ namespace dls
 					listener
 				);
 
-			if(reader == nullptr){
-				// throw std::runtime_error(
-				// 	"Error: could not create subscriber reader"
-				// );
-				return false;
-			}
+			if(reader != nullptr)
+				this->readers.push_back(reader);
 
-			this->readers.push_back(reader);
-
-			return true;
+			return reader;
 		}
 
 		

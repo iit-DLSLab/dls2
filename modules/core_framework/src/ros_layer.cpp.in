@@ -15,7 +15,6 @@
 *******************************************************************************/
 #include "dls2/core_framework/ros_layer.hpp"
 #include <signal.h>
-#include <boost/process.hpp>
 
 // =============================================================================
 // Using Declarations
@@ -27,29 +26,10 @@ using namespace dls;
 // =============================================================================
 ROSLayer::ROSLayer(std::string ID, bool *should_quit_) 
 	: AppLayer(ID)
-
 {
 	should_quit = should_quit_;
-	// command_manager.addCommand<void>
-	// (
-	// 	"launchRosCore",
-	// 	"Launches the roscore layer",
-	// 	std::function<void()>
-	// 	(
-	// 		[&]()
-	// 		{
-	// 			// for (const auto& [key, value] : child_pid)
-   	// 			// 	if (value == "roscore"){
-	// 			// 		std::cout << "Ros Core is running!" std::endl;
-	// 			// 		return;
-	// 			// 	}
-       					
-	// 			// forkRosCore();
-	// 		}
-	// 	)
-	// );
 
-	command_manager.addRemoteCommand<void>
+	command_manager.addCommand<void>
 	(
 		"core_exit",
 		"Shutdown the roscore layer",
@@ -59,7 +39,54 @@ ROSLayer::ROSLayer(std::string ID, bool *should_quit_)
 			{
 				this->shutdown();
 			}
-		)
+		),
+		0,
+		true
+	);
+
+	command_manager.addCommand<void>
+	(
+		"launchSim",
+		"Launches the simulation backend",
+		std::function<void()>
+		{
+			[&]()
+			{
+				launchSim();
+			}
+		},
+		1,
+		true
+	);
+
+	command_manager.addCommand<void>
+	(
+		"launchRosCore",
+		"Launches the roscore layer",
+		std::function<void()>
+		(
+			[&]()
+			{
+				launchCore();
+			}
+		),
+		0,
+		true
+	);
+
+	command_manager.addCommand<int>
+	(
+		"freezeBase",
+		"puts the robot down in simulation",
+		std::function<int()>
+		{
+			[&]()
+			{
+				return system("rosservice call /hyq/freeze_base");
+			}
+		},
+		1,
+		true
 	);
 
 	// command_manager.addCommand<void, std::string>
@@ -87,33 +114,6 @@ ROSLayer::ROSLayer(std::string ID, bool *should_quit_)
 
 
 
-	// command_manager.addCommand<void, ARGVOID>
-	// (
-	// 	"HyQApp_server",
-	// 	"launchSim",
-	// 	"launches the simulation backend",
-	// 	std::function<void(ARGVOID)>
-	// 	{
-	// 		[&](ARGVOID)
-	// 		{
-	// 			launchSim();
-	// 		}
-	// 	}
-	// );
-
-	// command_manager.addCommand<int, ARGVOID>
-	// (
-	// 	"HyQApp_server",
-	// 	"freezeBase",
-	// 	"puts the robot down in simulation",
-	// 	std::function<int(ARGVOID)>
-	// 	{
-	// 		[&](ARGVOID)
-	// 		{
-	// 			return system("rosservice call /hyq/freeze_base");
-	// 		}
-	// 	}
-	// );
 
 }
 
@@ -127,14 +127,17 @@ void ROSLayer::handle_signals(int){
 
 AppLayer::Status ROSLayer::run()
 {
-	boost::process::child c("roscore");
-
 	while(!*(this->should_quit))
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 	}
 	
-	kill(c.id(), SIGINT);	
+	for (auto elem : this->processes){
+		kill(elem.second->id(), SIGINT);	
+	}
+
+	this->processes.clear();
+
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 	return getStatus();
 }
@@ -149,19 +152,10 @@ AppLayer::Status ROSLayer::shutdown()
 
 void ROSLayer::launchSim()
 {
+	this->processes.insert({"simulation", new boost::process::child("roslaunch robot_bringup hyq.launch")});	
+}
 
-	std::cout << "TBD launch simulation" << std::endl;
-	// const pid_t pid = fork();
-	// if(pid == 0)
-	// {
-	// 	change_process_name(Options::argv, "simulation");
-	// 	auto ret = system("roslaunch robot_bringup hyq.launch");
-	// 	_exit(ret);
-	// }
-	// child_datas.emplace
-	// (
-	// 	std::piecewise_construct,
-	// 	std::forward_as_tuple(pid),
-	// 	std::forward_as_tuple("simulation", pid)
-	// );
+void ROSLayer::launchCore()
+{
+	this->processes.insert({"roscore", new boost::process::child("roscore")});
 }

@@ -21,6 +21,7 @@
 // =============================================================================
 #include "dls2/util/messaging/participant.hpp"
 #include "dls2/command/command.hpp"
+#include "dls2/topics/topics.hpp"
 
 #include <string>
 #include <utility>
@@ -29,23 +30,6 @@
 namespace dls
 {
 
-// =============================================================================
-// Callable
-// =============================================================================
-/// A class that can be used to programatically call external commands as if
-/// they are defined in the same process space
-///
-class RemoteCommandCallable
-{
-	friend class CommandManager;
-public:
-	template <typename... Ts>
-	void operator()(Ts...);
-
-private:
-	RemoteCommandCallable();
-	std::shared_ptr<CommandBase> pRemote_command;
-};
 // =============================================================================
 // Command Manager Class
 // =============================================================================
@@ -64,86 +48,59 @@ public:
 	///
 	~CommandManager();
 
-	/// Find commands
+	/// Find commands by the owner
 	///
-	/// Finds a vector of commands by the name of the component that owns them
-	std::vector<std::shared_ptr<CommandBase>> findByOwner( const std::string& ) const;
+	std::vector<std::shared_ptr<CommandBase>> findByOwner( std::string owner);
 
-	/// Find commands
+	/// Find commands by the name
 	///
-	/// Finds a vector of commands by their name. Note that certain commands may
-	/// have the same name but different owners. This could be the case, for
-	/// instance, if multiple controllers advertise a `start` or `stop` command.
-	std::vector<std::shared_ptr<CommandBase>> findByName( std::string );
+	std::vector<std::shared_ptr<CommandBase>> findByName( std::string name);
 
-	/// Find command
+	/// Find command by the pair {owner, name}
 	///
-	/// Finds a command by its name and the name of its owner. There is
-	/// guaranteed to be at most one command of this type. Returns nullptr on
-	/// failure
-	std::shared_ptr<CommandBase> find( std::string, std::string );
+	std::vector<std::shared_ptr<CommandBase>> find( std::string owner, std::string name);
 
-	/// Get list of all registered commands
+	/// Get list of all enabled commands in distrubuted framework
 	///
-	/// Since commands may be added from separate processes, it is not possible
-	/// to give direct access to the CommandManager's list of commands. Instead,
-	/// this command makes a copy of the registered commands and returns that.
-	/// That way, if some component starts walking through its list of commands,
-	/// that list will never get invalidated by another process registering new
-	/// commands
-	std::set<std::pair<std::string, std::string>> getCurrentlyRegisteredCommands();
+	std::multimap<std::string, std::string> getCommandsList();
 
 	/// Get a list of the unique owners of the commands
 	///
 	std::set<std::string> getCurrentlyRegisteredOwners();
 
-	/// Give a command the hability to be remote callable
-	///
-	/// @param owner the name of the component that registers the command
-	/// @param name the name of the command registered by that component
-	/// @return a functor representing the command
-	RemoteCommandCallable makeCallable
-	(
-		std::string owner,
-		std::string name
-	);
-
 	/// Adds a command to the CommandManager
 	///
-	/// @command_name command name as seen by the rest of the framework
-	/// @param docstring some documentation for the command
+	/// @param name command name as seen by the rest of the framework
+	/// @param doc some documentation for the command
 	/// @param f the function encapsulated by the command
+	/// @param level execution level of the command
+	/// @param enabled set command enabled state
 	template <typename ret_t, typename... arg_ts>
 	void addCommand
 	(
-		const std::string &command_name,
-		const std::string &docstring,
-		const std::function<ret_t(arg_ts...)> &f
+		std::string name,
+		std::string doc,
+		const std::function<ret_t(arg_ts...)> &f,
+		uint level = 0,
+		bool enabled = false
 	);
-
-	/// Adds a command to the CommandManager and registers it with the rest of
-	/// the framework
-	///
-	/// @command_name command name as seen by the rest of the framework
-	/// @param docstring some documentation for the command
-	/// @param f the function encapsulated by the command
-	template <typename ret_t, typename... arg_ts>
-	void addRemoteCommand
-	(
-		const std::string &command_name,
-		const std::string &docstring,
-		const std::function<ret_t(arg_ts...)> &f
-	);
-
 
 	/// Removes a command from the manager
 	///
 	void removeCommand(CommandBase);
 
+	/// Sends message over the framework distributed system
+	///
 	void sendMessage(void *msg);
 
 
 private:
+
+	/// Maque a list of callable commands
+	///
+	std::vector<std::shared_ptr<CommandBase>> makeCallableCmdList(
+		std::multimap<std::string, std::string> cmdlst
+	);
 
 	/// Storage space for the commands
 	///

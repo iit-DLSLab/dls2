@@ -27,86 +27,87 @@
 #include <memory>
 
 #include "dls2/command/command_base.hpp"
-#include "dls2/util/messaging/participant.hpp"
+#include "dls2/util/messaging/dds_reader.hpp"
 #include "dls2/domains/domains.hpp"
 
 namespace dls
 {
-// =============================================================================
-// Class Interface
-// =============================================================================
-/// Template class representing a local command
-///
-/// This class is used to register a command with the framework. Users should
-/// prefer using CommandManager instead of using Command directly
-template <typename ret_t, typename...arg_ts>
-class Command : public CommandBase
-{
-public:
-	/// Constructor
+	// =============================================================================
+	// Class Interface
+	// =============================================================================
+	/// Template class representing a local command
 	///
-	/// @param owner the component that registered this command
-	/// @param command_name the name of the command as seen from the rest of the
-	/// framework
-	/// @param docstring some documentation for the command
-	/// @param f the function associated with the command. The function may take
-	/// any number of any type of argument, and returns any type
-	Command
-	(
-		const std::string &command_name,
-		const std::string &owner,
-		const std::string &docstring,
-		const std::function<ret_t(arg_ts...)> &f,
-		const bool is_remote = false
-	);
+	/// This class is used to register a command with the framework. Users should
+	/// prefer using CommandManager instead of using Command directly
+	template <typename ret_t, typename...arg_ts>
+	class Command : public CommandBase
+	{
+	public:
+		/// Constructor
+		///
+		/// @param name the name of the command as seen from the rest of the
+		/// framework
+		/// @param owner the component that registered this command
+		/// @param docstring some documentation for the command
+		/// @param f the function associated with the command. The function may take
+		/// any number of any type of argument, and returns any type
+		/// @param level execution level of the command
+		/// @param enabled set if the command is enabled or not
+		Command
+		(
+			std::string name,
+			std::string owner,
+			std::string docstring,
+			const std::function<ret_t(arg_ts...)> &f,
+			uint level = 0,
+			bool enabled = false
+		);
 
-	/// Destructor
-	///
-	/// Request removal of the command from the framework
-	~Command();
+		/// Destructor
+		///
+		~Command();
 
-	/// Return the number of arguments of the command
-	///
-	unsigned int getNumArgs();
+		/// Enable the command
+		/// 
+		void setEnabled();
 
-	/// Implementation of the virtual call method
-	///
-	int call(std::vector<std::string>);
+		/// Disable the command
+		///
+		void setDisabled();
 
-	/// Make command remotely accessible
-	///
-	void makeRemote();
+		/// Call method
+		///
+		int call(std::vector<std::string>);
 
-	/// Make command locally accessible
-	///
-	void makeLocal();
-	
-private:
-	// ========================== Constructor helpers ==========================
-	/// Constructor helper
-	///
-	/// Builds the CommandRegisterMsg used to advertise this command
-	CommandRegisterMsg buildMsg
-	(
-		const std::string &owner,
-		const std::string &command_name,
-		const std::string &docstring
-	);
+	private:
+		// ========================== Constructor helpers ==========================
+		/// Constructor helper
+		///
+		/// Builds the CommandRegisterMsg used to advertise this command
+		CommandRegisterMsg buildMsg
+		(
+			const std::string &owner,
+			const std::string &command_name,
+			const std::string &docstring
+		);
 
+		// ============================= Data Members ==============================
+		/// Callback of the command
+		///
+		const std::function<ret_t(arg_ts...)> f;
 
-	// ============================= Data Members ==============================
-	/// Callback of the command
-	///
-	const std::function<ret_t(arg_ts...)> f;
+		/// Link the command with the rest of the framework
+		///
+		std::shared_ptr<dls::DDSReader> ddslink;
 
-	/// Registration message of the command
-	///
-	CommandRegisterMsg msg;
+		/// Register command on command domain
+		///
+		void registerCommand();
 
-	/// Link the command with the rest of the framework
-	///
-	std::shared_ptr<dls::DDSParticipant> ddslink;
-};
+		/// Unregister command on command domain
+		///
+		void unregisterCommand();
+	};
 
 } // end namespace dls
 
