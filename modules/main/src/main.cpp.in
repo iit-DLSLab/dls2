@@ -175,9 +175,9 @@ int main(int argc, char **argv)
 	// }
 
 	// Launch layers
-	if(Options::launch_log) 		forkLayer<LogLayer>("log_layer", should_quit, argv);
+	if(Options::launch_log) 		forkLayer<LogLayer>("logLayer", should_quit, argv);
 	// if(Options::launch_hardware) forkLayer<HardwareLayer>("hardware_layer", argv);
-	// if(Options::launch_control)  forkLayer<ControlLayer>("control_layer", argv);
+	if(Options::launch_control)  	forkLayer<ControlLayer>("controlLayer", should_quit, argv);
 	if(Options::launch_console)	 	forkLayer<ConsoleLayer>("consoleLayer", should_quit, argv);
 	if(Options::launch_roscore)		forkLayer<ROSLayer>("ROSLayer", should_quit, argv);
 
@@ -187,10 +187,7 @@ int main(int argc, char **argv)
 	logging::coutstream outstream("fwkMonitorStream");
 	logging::cfatalstream sfatal("fwkMonitorFatal");
 
-
-
 	// Monitor the child processes
-	//
 	// loop is exited when there are no more children
 	while(true)
 	{		

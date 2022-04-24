@@ -40,8 +40,8 @@ namespace dls
 		std::string name_,
 		std::string owner_,
 		std::string docstring_,
-		const std::function<ret_t(arg_ts...)> &f_,
-		uint level_,
+		std::function<ret_t(arg_ts...)> f_,
+		Level level_,
 		bool enabled_
 	) :
 		CommandBase(
@@ -54,8 +54,6 @@ namespace dls
 		),
 		f(f_)
 	{
-		if(enabled_)
-			this->registerCommand();
 	}
 
 	template <typename ret_t, typename...arg_ts>
@@ -68,7 +66,7 @@ namespace dls
 			return;
 
 		this->registerCommand();
-		this->setEnabled();
+		this->enabled = true;
 	}
 
 	template <typename ret_t, typename...arg_ts>
@@ -77,13 +75,31 @@ namespace dls
 			return;
 
 		this->unregisterCommand();
-		this->setDisabled();
+		this->enabled = false;
+	}
+
+	template <typename ret_t, typename...arg_ts>
+	void Command<ret_t, arg_ts...>::activate(){
+		if(!this->isEnabled() && this->isActive())
+			return;
+
+		this->registerCommand();
+		this->active = true;
+	}
+
+	template <typename ret_t, typename...arg_ts>
+	void Command<ret_t, arg_ts...>::desactivate(){
+
+		if(!this->isEnabled() && !this->isActive())
+			return;
+
+		this->unregisterCommand();
+		this->active = false;
 	}
 
 	template <typename ret_t, typename... arg_ts>
 	int Command<ret_t, arg_ts...>::call(std::vector<std::string> args){
-
-		// Ensure args are correct size
+		// ensure args are correct size
 		if (args.size() != this->getNumArgs()){
 			std::cout << "Error: incorrect number of arguments" << std::endl;
 			return 0;
@@ -103,7 +119,7 @@ namespace dls
 		if (ddslink != nullptr)
 			return;
 				
-		ddslink = std::make_shared<dls::DDSReader>(
+		ddslink = new dls::DDSReader(
 			this->getOwner() + "::" + this->getName(),
 			dls::domains::command,
 			topics::command_call,
@@ -117,18 +133,14 @@ namespace dls
 							msg->command_name() != this->getName())
 						return;
 
-					std::vector<std::string> result;				
+					std::vector<std::string> result;
 
-					//find if there is any args 
-					if (msg->args().find(',') != std::string::npos){
-						std::stringstream ss(msg->args());
-
-						while(ss.good()){
-							std::string substr;
-							getline( ss, substr, ',' );
-							result.push_back( substr );
-						}
-					}
+					//parse args
+					size_t pos = 0;
+					while ((pos = msg->args().find(",")) != std::string::npos) {
+						result.push_back( msg->args().substr(0, pos) );
+						msg->args().erase(0, pos + 1);
+					}			
 
 					this->call(result);
 				}

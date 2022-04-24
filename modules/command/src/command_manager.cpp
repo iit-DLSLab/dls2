@@ -41,6 +41,7 @@ namespace dls
 			owner_+"::commands_monitor",
 			domains::command)
 		)
+		, level(0)
 	{
 		commands_monitor->addWriter(dls::topics::command_call);
 	}
@@ -51,10 +52,6 @@ namespace dls
 	// -----------------------------------------------------------------------------
 	// Implementation
 	// -----------------------------------------------------------------------------
-	void CommandManager::sendMessage(void *msg)
-	{
-		commands_monitor->sendMessage(msg);
-	}
 
 	std::vector<std::shared_ptr<CommandBase>> CommandManager::findByOwner
 	(
@@ -145,9 +142,9 @@ namespace dls
 			//if the command is local
 			if (elem.second == this->owner){
 				for(const auto &el : this->commands){
-					if(el->getName() == elem.first)
+					if(el.first == elem.first)
 					{
-						retvec.push_back(el);
+						retvec.push_back(el.second);
 					}
 				}
 			}
@@ -180,8 +177,7 @@ namespace dls
 
 							this->commands_monitor->sendMessage(&msg);
 						}
-					}, 
-					false
+					}
 				));
 			}
 		}
@@ -208,7 +204,7 @@ namespace dls
 		return cmds;
 	}
 
-	std::set<std::string> CommandManager::getCurrentlyRegisteredOwners()
+	std::set<std::string> CommandManager::getOwnersList()
 	{
 		auto remCommands = commands_monitor->getParticipants();
 
@@ -216,10 +212,75 @@ namespace dls
 		std::set<std::string> set;
 		for(auto it = commands.begin(); it != commands.end(); ++it)
 		{
-			set.insert((*it)->getOwner());
+			set.insert(it->second->getOwner());
 		}
 
 		return set;
+	}
+
+	void CommandManager::setCommandLevel(int level_){
+
+		if(this->level == level_)
+			return;
+
+		for(auto cmd : this->commands){
+			if(cmd.second->getLevel().find(level_) != cmd.second->getLevel().end()){
+				cmd.second->activate();
+			}
+			else{
+				cmd.second->desactivate();
+			}
+		}
+	}
+
+	int CommandManager::callCommand(std::string name_, std::vector<std::string> args_, std::string owner_){
+
+		std::vector<std::shared_ptr<dls::CommandBase>> cmdList;
+
+		// find the commands
+		if(owner_ == ""){
+			cmdList = this->findByName(name_);
+		}
+		else{
+			cmdList = this->find(owner_, name_);
+		}
+
+		if (cmdList.size() != 1)
+			return cmdList.size();
+		
+		// call the command
+		cmdList.front()->call(this->prepareArgs(cmdList.front(), args_));
+
+		// TBD implement next level and change current running level
+		// cmdList.front()->getNextLevel();
+		
+		return 1;
+	}
+
+
+	std::vector<std::string> CommandManager::prepareArgs(std::shared_ptr<dls::CommandBase> cmd, std::vector<std::string> args )
+	{
+		//if the command is remote configure the message
+		if (cmd->getOwner() == this->owner)
+			return args;
+
+		std::string outString;
+		outString.append(cmd->getOwner());
+		outString.append("#");
+		outString.append(cmd->getName());
+		outString.append("#");
+
+		if (args.empty()){
+			outString.append(" ");
+		}
+		else{
+			for (auto elem : args){
+				outString.append(elem);
+				outString.append(",");
+			}
+		}
+
+		return std::vector<std::string>({outString});
 	}
 
 } // end namespace dls

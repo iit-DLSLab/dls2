@@ -35,58 +35,58 @@ AppLayer::AppLayer
 	//,
 	//scout(ID_ + "Log"),
 {
-	command_manager.addCommand<void>
-	(
-		"where",
-		"Prints the state of " + this->ID,
-		std::function<void()>
-		(
-			[&]()
-			{
-				std::cout << where() << std::endl;
-				//scout << where() << std::endl;
-			}
-		)
-	);
+	// command_manager.addCommand<void>
+	// (
+	// 	"where",
+	// 	"Prints the state of " + this->ID,
+	// 	std::function<void()>
+	// 	(
+	// 		[&]()
+	// 		{
+	// 			std::cout << where() << std::endl;
+	// 			//scout << where() << std::endl;
+	// 		}
+	// 	)
+	// );
 
-	command_manager.addCommand<void, std::string>
-	(
-		"addComponent",
-		"loads a component into " + this->ID,
-		std::function<void(std::string)>
-		(
-			[&](std::string name)
-			{
-				this->loadComponentFromDisk(name);
-			}
-		)
-	);
+	// command_manager.addCommand<void, std::string>
+	// (
+	// 	"addComponent",
+	// 	"loads a component into " + this->ID,
+	// 	std::function<void(std::string)>
+	// 	(
+	// 		[&](std::string name)
+	// 		{
+	// 			this->loadComponentFromDisk(name);
+	// 		}
+	// 	)
+	// );
 
-	command_manager.addCommand<void, std::string>
-	(
-		"removeComponent",
-		"removes a component from " + this->ID,
-		std::function<void(std::string)>
-		(
-			[&](std::string name)
-			{
-				this->removeComponent(name);
-			}
-		)
-	);
+	// command_manager.addCommand<void, std::string>
+	// (
+	// 	"removeComponent",
+	// 	"removes a component from " + this->ID,
+	// 	std::function<void(std::string)>
+	// 	(
+	// 		[&](std::string name)
+	// 		{
+	// 			this->removeComponent(name);
+	// 		}
+	// 	)
+	// );
 
-	command_manager.addCommand<int, std::string>
-	(
-		"getComponentStatus",
-		"gets the status of a component running inside " + this->ID,
-		std::function<int(std::string)>
-		(
-			[&](std::string name)
-			{
-				return static_cast<int>(this->getComponentStatus(name));
-			}
-		)
-	);
+	// command_manager.addCommand<int, std::string>
+	// (
+	// 	"getComponentStatus",
+	// 	"gets the status of a component running inside " + this->ID,
+	// 	std::function<int(std::string)>
+	// 	(
+	// 		[&](std::string name)
+	// 		{
+	// 			return static_cast<int>(this->getComponentStatus(name));
+	// 		}
+	// 	)
+	// );
 }
 
 // =============================================================================

@@ -115,6 +115,8 @@ int main(int argc, char **argv)
 		exit(EXIT_FAILURE);
 	}
 
+	std::cout << "=== STARTED ===" << std::endl;
+	
 	// set simulated time
 	if(args.launch_mode == "sim")
 	{

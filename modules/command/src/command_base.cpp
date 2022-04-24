@@ -29,15 +29,16 @@ namespace dls
 		std::string owner_,
 		std::string doc_,
 		uint nArg_,
-		uint level_,
+		Level level_,
 		bool enabled_
-	):
-		name(name_),
-		owner(owner_),
-		doc(doc_),
-		numArg(nArg_),
-		level(level_),
-		enabled(enabled_)
+	)
+		: name(name_)
+		, owner(owner_)
+		, doc(doc_)
+		, numArg(nArg_)
+		, level(level_)
+		, enabled(enabled_)
+		, active(false)
 	{}
 
 	std::string CommandBase::getName(){
@@ -64,32 +65,40 @@ namespace dls
 		this->doc = doc_;
 	}
 
-	uint CommandBase::getLevel(){
-		return this->level;
-	}
-
-	void CommandBase::setLevel(uint level_){
-		this->level = level_;
+	std::set<uint> CommandBase::getLevel(){
+		return this->level.getLevels();
 	}
 
 	uint CommandBase::getNumArgs(){
 		return this->numArg;
 	}
 
-	void CommandBase::setEnabled(){
-		this->enabled = true;
-	}
-
-	void CommandBase::setDisabled(){
-		this->enabled = false;
-	}
-
 	bool CommandBase::isEnabled(){
 		return this->enabled;
 	}
 
+	void CommandBase::activate(){}
+	void CommandBase::desactivate(){}
+
+	bool CommandBase::isActive(){
+		return this->active;
+	}
+
 	int CommandBase::call(std::vector<std::string>)	{
 		return 0;
+	}
+
+
+	Level::Level(std::set<uint> levels_, uint nextLevel_)
+		: levels(levels_)
+		, nextLevel(nextLevel_)
+	{}
+
+	Level::~Level(){}
+
+
+	std::set<uint> Level::getLevels(){
+		return this->levels;
 	}
 
 } // end namespace dls

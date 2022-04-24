@@ -57,11 +57,11 @@ Controller::Controller
 	// 		this->pBlind_state_signal = std::make_shared<BlindState>(msg);
 	// 	}
 	// ),
-	control_signal_topic(std::string(topics::control_signal_base) + name_),
+	control_signal_topic(dls::topics::control_signal.first + name_),
 	publisher(control_signal_topic)
 {
 	std::cout << "controller is publishing on topic: '"
-		<< topics::control_signal_base + name_ << "'" << std::endl;
+		<< dls::topics::control_signal.first + name_ << "'" << std::endl;
 }
 
 // =============================================================================

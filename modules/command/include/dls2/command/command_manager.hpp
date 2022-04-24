@@ -66,7 +66,7 @@ public:
 
 	/// Get a list of the unique owners of the commands
 	///
-	std::set<std::string> getCurrentlyRegisteredOwners();
+	std::set<std::string> getOwnersList();
 
 	/// Adds a command to the CommandManager
 	///
@@ -81,7 +81,7 @@ public:
 		std::string name,
 		std::string doc,
 		const std::function<ret_t(arg_ts...)> &f,
-		uint level = 0,
+		Level level = {{0},0},
 		bool enabled = false
 	);
 
@@ -89,9 +89,11 @@ public:
 	///
 	void removeCommand(CommandBase);
 
-	/// Sends message over the framework distributed system
-	///
-	void sendMessage(void *msg);
+	/// Sets the current command running level
+	/// 
+	void setCommandLevel(int level);
+
+	int callCommand(std::string name, std::vector<std::string> args, std::string owner = "");
 
 
 private:
@@ -104,7 +106,7 @@ private:
 
 	/// Storage space for the commands
 	///
-	std::vector<std::shared_ptr<CommandBase>> commands;
+	std::map<std::string, std::shared_ptr<CommandBase>> commands;
 
 	/// Owner layer of the commands
 	///
@@ -113,6 +115,12 @@ private:
 	/// fastdds remote commands monitor
 	///
 	std::unique_ptr<dls::DDSParticipant> commands_monitor;	
+
+	/// Current command running level
+	///
+	uint level;
+
+	std::vector<std::string> prepareArgs(std::shared_ptr<dls::CommandBase> cmd, std::vector<std::string> args);
 
 };
 

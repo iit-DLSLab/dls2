@@ -65,10 +65,6 @@ public:
 
 	virtual ~Controller() = default;
 
-	// This will be replaced by the shutdown and eStop functions
-	// TODO unknown what this should do
-	// virtual void kill() = 0;
-
 	///// Get the ID of this controller
 	/////
 	///// @ret the ID

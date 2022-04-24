@@ -42,6 +42,7 @@ namespace dls
 	template <typename ret_t, typename...arg_ts>
 	class Command : public CommandBase
 	{
+	friend class CommandManager;
 	public:
 		/// Constructor
 		///
@@ -58,8 +59,8 @@ namespace dls
 			std::string name,
 			std::string owner,
 			std::string docstring,
-			const std::function<ret_t(arg_ts...)> &f,
-			uint level = 0,
+			std::function<ret_t(arg_ts...)> f,
+			Level level = {{0},0},
 			bool enabled = false
 		);
 
@@ -75,22 +76,16 @@ namespace dls
 		///
 		void setDisabled();
 
-		/// Call method
+		/// Activate the command
+		/// 
+		void activate();
+
+		/// Desactivate the command
 		///
-		int call(std::vector<std::string>);
+		void desactivate();
+
 
 	private:
-		// ========================== Constructor helpers ==========================
-		/// Constructor helper
-		///
-		/// Builds the CommandRegisterMsg used to advertise this command
-		CommandRegisterMsg buildMsg
-		(
-			const std::string &owner,
-			const std::string &command_name,
-			const std::string &docstring
-		);
-
 		// ============================= Data Members ==============================
 		/// Callback of the command
 		///
@@ -98,7 +93,7 @@ namespace dls
 
 		/// Link the command with the rest of the framework
 		///
-		std::shared_ptr<dls::DDSReader> ddslink;
+		dls::DDSReader *ddslink;
 
 		/// Register command on command domain
 		///
@@ -107,7 +102,28 @@ namespace dls
 		/// Unregister command on command domain
 		///
 		void unregisterCommand();
+
+		/// Call method
+		///
+		int call(std::vector<std::string>);
+
+		// ========================== class helpers ==========================
+		/// Builds the CommandRegisterMsg used to advertise this command
+		///
+		CommandRegisterMsg buildMsg
+		(
+			const std::string &owner,
+			const std::string &command_name,
+			const std::string &docstring
+		);
 	};
+
+	// ========================== class helpers ==========================
+	template <typename... Args, std::size_t... Is>
+	auto create_tuple_impl(std::index_sequence<Is...>, const std::vector<std::string>& arguments);
+
+	template <typename... Args>
+	auto create_tuple(const std::vector<std::string>& args);
 
 } // end namespace dls
 

@@ -28,6 +28,8 @@ namespace dls
 	char **console_completion(const char *text, int start, int /*end*/);
 	char *command_completion(const char *text, int state);
 	char *arg_completion(const char *text, int state);
+	void display_matches(char **matches, int num_matches, int max_length);
+	const uint ncols_completion = 3;
 }
 
 // =============================================================================
@@ -38,6 +40,9 @@ using namespace dls;
 // TODO move these two to the library
 std::string trim(const std::string&);
 std::string &trim_inplace(std::string *const);
+static std::multiset<std::string> commands;
+static std::multiset<std::string>::iterator it_commands;
+static int string_length;
 // =============================================================================
 // Local Globals
 // =============================================================================
@@ -88,12 +93,13 @@ ConsoleLayer::ConsoleLayer(std::string ID, bool *should_quit_)
 
 	rl_attempted_completion_function = console_completion;
 
+	rl_completion_display_matches_hook = display_matches;
+
+	rl_sort_completion_matches = 0;
+
+	rl_ignore_completion_duplicates = 0;
+
 	// Turn off the default file matching completion
-	//
-	// rl_completion_entry_function is NULL by default, but if it is null, then
-	// readline will call rl_filename_completion_function by default.
-	// We cannot simply use rl_completion_entry_function, since we need the more
-	// flexible rl_attempted_completion_function
 	rl_completion_entry_function = [](const char *, int)->char*{return nullptr;};
 
 	command_manager.addCommand<void>
@@ -108,7 +114,7 @@ ConsoleLayer::ConsoleLayer(std::string ID, bool *should_quit_)
 				std::cout << "\033[H" << std::endl; // home
 			}
 		},
-		0,
+		{{0},1},
 		true
 	);
 
@@ -123,7 +129,7 @@ ConsoleLayer::ConsoleLayer(std::string ID, bool *should_quit_)
 				*(this->should_quit) = true;;
 			}
 		},
-		0,
+		{{0},1},
 		true
 	);
 
@@ -144,7 +150,7 @@ ConsoleLayer::ConsoleLayer(std::string ID, bool *should_quit_)
 				}
 			}
 		},
-		0,
+		{{0},1},
 		true
 	);
 
@@ -176,7 +182,7 @@ ConsoleLayer::ConsoleLayer(std::string ID, bool *should_quit_)
 				}
 			}
 		},
-		0,
+		{{0},1},
 		true
 	);
 }
@@ -213,107 +219,43 @@ ConsoleLayer::Status ConsoleLayer::run()
 				// the format is [namespace::]command_name [arg1 [arg2...]]
 				std::istringstream iss(input);
 
-				std::vector<std::string> input_split
-					(
-						std::istream_iterator<std::string>{iss},
-						std::istream_iterator<std::string>()
-					);
+				std::vector<std::string> input_split(
+					std::istream_iterator<std::string>{iss},
+					std::istream_iterator<std::string>()
+				);
 
-				std::vector<std::string> args
-					(
-						input_split.begin() + 1, input_split.end()
-					);
+				std::vector<std::string> args(input_split.begin() + 1, input_split.end());
 
-				// Execute the commands
+				// find if commands is in form [namespace::]command_name
+				size_t namespace_delimiter_index = input_split[0].find("::");
+
+				std::string namespace_name;
+				std::string command_name;
+
+				// if the command is of the form namepsace::command_name
+				if(namespace_delimiter_index != std::string::npos)
 				{
-
-					// extract the command name and its namespace
-					// The format of the string is
-					// [namespace::]command_name
-					size_t namespace_delimiter_index = input_split[0].find("::");
-
-					// if the command is of the form namepsace::command_name
-					if(namespace_delimiter_index != std::string::npos)
-					{
-						std::string namespace_name =
-							input_split[0].substr(0, namespace_delimiter_index);
-						std::string command_name =
-							input_split[0].substr(namespace_delimiter_index + 2);
-
-						// find the command
-						auto pCommand = pInstance->command_manager
-							.find(namespace_name, command_name);
-
-						if (pCommand.size() == 1)
-						{
-							// call the command
-							pCommand.front()->call(args);
-						}
-						else if(pCommand.size() > 1){
-							std::cerr << "Ambiguous overload. Command '"
-								<< command_name << "' found in namespace: "
-								<< namespace_name << std::endl;
-							build_prompt();
-						}
-						else
-						{
-							std::cerr << "Command '" << command_name
-								<< "' in namespace '" << namespace_name
-								<< " not found" << std::endl;
-							build_prompt();
-						}
-					}
-
-					// if the command is of the form command_name
-					else
-					{
-						auto commands =	pInstance->command_manager.findByName(input_split[0]);
-
-						if(commands.size() == 1)
-						{
-							if (commands[0]->getOwner() != this->getID()){
-
-								std::string temp;
-								temp.append(commands[0]->getOwner());
-								temp.append("#");
-								temp.append(commands[0]->getName());
-								temp.append("#");
-
-								if (args.empty()){
-									temp.append(" ");
-								}
-								else{
-									for (auto elem : args){
-										temp.append(elem);
-										temp.append(",");
-									}
-								}
-
-								args.clear();
-								args.push_back(temp);
-							}
-
-							commands[0]->call(args);
-						}
-						else if(commands.size() == 0)
-						{
-							std::cerr << "Command '" << input_split[0] <<
-								"' not found" << std::endl;
-							build_prompt();
-						}
-						else
-						{
-							std::cout << "error: ambiguous overload. Command '"
-								<< input_split[0] << "' found in these namespaces:\n";
-							for(const auto &el : commands)
-							{
-								std::cout << "\t" << el->getOwner() << "\n";
-							}
-							std::cout << std::endl;
-							build_prompt();
-						}
-					}
+					namespace_name = input_split[0].substr(0, namespace_delimiter_index);
+					command_name = input_split[0].substr(namespace_delimiter_index + 2);
 				}
+				else 
+				{
+					command_name = input_split[0];
+				}
+
+				auto ret = command_manager.callCommand(command_name, args, namespace_name);
+
+				if(ret > 1){
+					std::cerr << "Ambiguous overload. Command '"
+						<< command_name << "' found in different namespaces."
+						<< std::endl;
+				}
+				else if (ret == 0)
+				{
+					std::cerr << "Command '" << command_name
+						<< "' not found." << std::endl;
+				}
+				build_prompt();
 			}
 			free(line);
 			std::this_thread::sleep_for(std::chrono::milliseconds(50));
@@ -331,6 +273,9 @@ ConsoleLayer::Status ConsoleLayer::shutdown()
 	*(this->should_quit) = true;
 	return getStatus();
 }
+
+
+
 
 // =============================================================================
 // Implementaton
@@ -388,11 +333,6 @@ char **dls::console_completion(const char *text, int start, int /*end*/)
 // -----------------------------------------------------------------------------
 char *dls::command_completion(const char *text, int state)
 {
-	static decltype(pInstance->command_manager.getCommandsList()) commands;
-	static decltype(pInstance->command_manager.getCommandsList().cbegin()) it_commands;
-	static decltype(pInstance->command_manager.getCurrentlyRegisteredOwners()) owners;
-	static decltype(pInstance->command_manager.getCurrentlyRegisteredOwners().cbegin()) it_owners;
-	static int string_length;
 
 	// Safety check is not currently needed, but putting it now for future
 	// robustness
@@ -401,70 +341,44 @@ char *dls::command_completion(const char *text, int state)
 		// if first time this completer is being run
 		if(state == 0)
 		{
-			commands = pInstance->command_manager.getCommandsList();
-			owners = pInstance->command_manager.getCurrentlyRegisteredOwners();
-			// it = pInstance->commands.begin();
-			it_commands = commands.begin();
-			it_owners = owners.begin();
+			commands.clear();
 			string_length = std::strlen(text);
+
+			auto list = pInstance->command_manager.getCommandsList();
+
+			for(auto elem : list){
+				commands.insert(elem.second + "::" + elem.first);
+			}
+
+			it_commands = commands.begin();
 		}
 
 		// Do command completion
 		while(it_commands != commands.cend())
 		{
-			const char *match_candidate = it_commands->first.c_str();
+			std::string match_candidate = it_commands->c_str();
+			std::string match_candidate_cmdonly = it_commands->substr(it_commands->find("::")+2, it_commands->length());
 			++it_commands;
 
-			// TODO move this into a function, since it is copied in the other
-			// completers
-			if(strncmp(match_candidate, text, string_length) == 0)
-			{
+			std::string match = "";
+			if (strncmp(match_candidate_cmdonly.c_str(), text, string_length) == 0){
+				match = match_candidate_cmdonly;
+			}
+			else if(strncmp(match_candidate.c_str(), text, string_length) == 0){
+				match = match_candidate;
+			}
+
+			if (match != ""){
 				char *ret_str = static_cast<char *>
 				(
 					// malloc is required by readline
 					// readline will free the string
-					malloc
-					(
-						strlen(match_candidate) + 1
-					)
+					malloc(match.size() + 1)
 				);
-				strcpy(ret_str, match_candidate);
+				strcpy(ret_str, match.c_str());
 				return ret_str;
 			}
 		}
-		// Do owner completion
-		// while(it_owners != owners.cend())
-		// {
-		// 	const char *match_candidate = it_owners->c_str();
-		// 	++it_owners;
-
-		// 	// TODO move this into a function, since it is copied in the other
-		// 	// completers
-		// 	if(strncmp(match_candidate, text, string_length) == 0)
-		// 	{
-		// 		char *ret_str = static_cast<char *>
-		// 		(
-		// 			// malloc is required by readline
-		// 			// readline will free the string
-		// 			malloc
-		// 			(
-		// 				strlen(match_candidate) + 3 // 2 for '::', 1 for '\0'
-		// 			)
-		// 		);
-		// 		strcpy
-		// 		(
-		// 			ret_str,
-		// 			(
-		// 				std::string
-		// 				(
-		// 					match_candidate
-		// 				) + "::"
-		// 			).c_str()
-		// 		);
-		// 		return ret_str;
-		// 	}
-		// }
-
 	}
 
 	return nullptr;
@@ -538,21 +452,61 @@ char *dls::arg_completion(const char * text, int state)
 
 	return nullptr;
 }
-// =============================================================================
-// Helper Class
-// =============================================================================
-// ConsoleLayer::Command::Command
-// (
-// 	const std::string &command_name_,
-// 	const std::function<void(const std::vector<std::string>&)> &function_,
-// 	const std::string &docstring_
-// 	// const std::vector<std::string> &default_completions_
-// ) :
-// 	command_name(command_name_),
-// 	function(function_),
-// 	docstring(docstring_)
-// 	// default_completions(default_completions_)
-// {}
+
+// -----------------------------------------------------------------------------
+// Display Completion
+// -----------------------------------------------------------------------------
+void dls::display_matches (char **matches, int num_matches, int max_length){
+
+	char **strs = matches;
+	std::multiset<std::string> strings;
+	while (*(++strs))
+		strings.insert(std::string(*(strs)));
+
+	// correct strings for the format owner::command
+	std::multiset<std::string> corrected_strings;
+	for(auto elem : strings){
+		if (elem.find("::") != elem.npos){
+			corrected_strings.insert(elem);
+		}
+		else{
+			std::multiset<std::string>::iterator idx = commands.begin();
+			while (idx != commands.end()){
+				if(idx->find(elem) != idx->npos){
+					if(corrected_strings.find(*idx) == corrected_strings.end()){
+						corrected_strings.insert(*idx);
+						break;
+					}					
+				}
+				idx++;
+			}
+		}
+	}
+
+	std::string curOwner = "";
+	uint ncols = 0;
+	for(auto elem : corrected_strings){
+		if (curOwner != elem.substr(0, elem.find("::")+2)){
+			curOwner = elem.substr(0, elem.find("::")+2);
+			std::cout << std::endl << std::endl  << curOwner << std::endl;
+			std::cout << elem.substr(curOwner.size(), elem.length()-1);
+			std::cout << "       ";
+			ncols = 0;
+		}
+		else{
+			std::cout << elem.substr(curOwner.size(), elem.length()-2);
+			if (ncols++ < ncols_completion){
+				std::cout << "       ";
+			}
+			else{
+				std::cout << std::endl;
+				ncols = 0;
+			}
+		}		
+	}
+	std::cout << std::endl;
+	rl_reset_line_state();
+}
 
 std::string trim(const std::string &s)
 {

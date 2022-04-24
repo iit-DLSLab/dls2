@@ -29,17 +29,15 @@
 #include <thread>
 #include <atomic>
 
-#include "dls2/util/messaging/subscriber.hpp"
-#include "dls2/util/messaging/publisher.hpp"
+#include "dls2/util/messaging/dds_reader.hpp"
+#include "dls2/util/messaging/participant.hpp"
 #include "dls2/msg/control_signalPubSubTypes.h"
-#include "dls2/msg/desired_torquesPubSubTypes.h"
 #include "dls2/msg/hello_worldPubSubTypes.h"
 #include "dls2/math/spline/ramp.hpp"
 #include "dls2/command/command.hpp"
 
 // temporary console includes
 // TODO( "REMOVE THESE INCLUDES WHEN A BETTER CONSOLE IS MADE")
-#include "dls2/msg/stringmsgPubSubTypes.h"
 #include "dls2/topics/topics.hpp"	
 #include "dls2/log/log.hpp"
 
@@ -54,12 +52,12 @@ namespace dls
 class ControlLayer : public AppLayer
 {
 public:
-	ControlLayer(std::string ID);
+	ControlLayer(std::string ID, bool *should_quit);
 	~ControlLayer();
 
 	// ========================== Interface Overrides ==========================
 	Status run() override;
-	// TODO("This function is not implemented")
+
 	Status shutdown() override;
 
 	// ============================== Controllers ==============================
@@ -102,36 +100,11 @@ private:
 	/// @ret A saturated version of the torques that do not exceed safe limits
 	Eigen::MatrixXd saturateTorques(const Eigen::MatrixXd &req) const;
 
-	/// Helper class that subscribes to a given controller's control signal
-	///
-	class ControlSubListener : public SubscriberBase<ControlSignalMsgPubSubType>
-	// class ControlSubListener : public SubscriberBase<HelloWorldPubSubType>
-	{
-	public:
-		ControlSubListener(const std::string &topic);
-		~ControlSubListener() = default;
-
-		// Disallow move and copy
-		// This is because pSubscriber gets the address `this`. If this object
-		// is moved into ControlLayer's control_subscribers, pSubscriber would
-		// then point to invalid memory
-		ControlSubListener(const ControlSubListener&&) = delete;
-		ControlSubListener(const ControlSubListener&) = delete;
-
-		std::shared_ptr<ControlSignal> getLastPublishedControlSignal();
-		void onNewDataMessage(eprosima::fastrtps::Subscriber *sub) override;
-	private:
-		// BEGIN critical section
-			std::shared_ptr<ControlSignal> control_signal;
-			std::mutex control_signal_mutex;
-		// END critical section
-		eprosima::fastrtps::SampleInfo_t info;
-	};
 	// ============================ Communincation =============================
 	// TODO Change type of time
 	/// Publish Torques to the rest of the framework
 	///
-	void publishDesiredTorques(const Eigen::VectorXd &, double time) const;
+	void publishDesiredTorques(const Eigen::VectorXd &, double time);
 
 	// ============================= Data Members ==============================
 	// BEGIN critical section
@@ -148,18 +121,27 @@ private:
 				const std::chrono::duration<double> &duration_out
 			);
 
+			std::shared_ptr<ControlSignal> getLastPublishedControlSignal();
+	
 			/*const*/ pid_t controller_pid;
-			/*const*/ std::shared_ptr<ControlSubListener> pSubscriber;
+			/*const*/ std::shared_ptr<DDSReader> dds_reader;
 			/*const*/ Controller::ID_t ID;
 			std::atomic<double> premultiplier; ///< Spline value to premutilply the torque signal
 			const std::chrono::duration<double> spline_in_duration;
 			const std::chrono::duration<double> spline_out_duration;
 			const std::shared_ptr<spline::SplineBase<double>> pSpline_in;
 			const std::shared_ptr<spline::SplineBase<double>> pSpline_out;
+
+			// BEGIN critical section	
+				std::shared_ptr<ControlSignal> control_signal;
+				std::mutex control_signal_mutex;
+			// END critical section
 		};
 		std::map<Controller::ID_t, std::shared_ptr<ControllerData>> controllers_b;
 		std::mutex controllers_mutex_b;
 	// END critical section
+
+
 	// BEGIN critical section
 		struct GaitGeneratorData
 		{
@@ -173,9 +155,8 @@ private:
 		std::shared_ptr<GaitGeneratorData> pGait_generator_data;
 		std::mutex gait_generators_mutex;
 	// END critical section
-	PublisherBase<DesiredTorquesMsgPubSubType> publisher;
-
-	std::atomic_bool should_quit;
+	
+	dls::DDSParticipant ddslink;
 
 	// BEGIN critical section
 		std::vector<std::thread> wait_on_controller_threads;
@@ -197,8 +178,6 @@ private:
 	void waitOnChildController(std::shared_ptr<ControllerData>);
 	void waitOnChildGaitGenerator(std::shared_ptr<GaitGeneratorData>);
 	void deactivateController(std::shared_ptr<ControllerData> pData);
-
-	CommandManager command_manager;
 
 	// ================================ Members ================================
 	logging::coutstream scout;

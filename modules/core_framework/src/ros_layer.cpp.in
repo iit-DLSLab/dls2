@@ -27,11 +27,11 @@ using namespace dls;
 ROSLayer::ROSLayer(std::string ID, bool *should_quit_) 
 	: AppLayer(ID)
 {
-	should_quit = should_quit_;
+	this->should_quit = should_quit_;
 
 	command_manager.addCommand<void>
 	(
-		"core_exit",
+		"exit",
 		"Shutdown the roscore layer",
 		std::function<void()>
 		(
@@ -40,7 +40,7 @@ ROSLayer::ROSLayer(std::string ID, bool *should_quit_)
 				this->shutdown();
 			}
 		),
-		0,
+		{{0},1},
 		true
 	);
 
@@ -55,7 +55,7 @@ ROSLayer::ROSLayer(std::string ID, bool *should_quit_)
 				launchSim();
 			}
 		},
-		1,
+		{{1},0},
 		true
 	);
 
@@ -70,7 +70,7 @@ ROSLayer::ROSLayer(std::string ID, bool *should_quit_)
 				launchCore();
 			}
 		),
-		0,
+		{{0},1},
 		true
 	);
 
@@ -85,7 +85,7 @@ ROSLayer::ROSLayer(std::string ID, bool *should_quit_)
 				return system("rosservice call /hyq/freeze_base");
 			}
 		},
-		1,
+		{{1},0},
 		true
 	);
 

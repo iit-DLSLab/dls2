@@ -32,22 +32,28 @@ namespace dls
 		std::string name_,
 		std::string doc_,
 		const std::function<ret_t(arg_ts...)> &f_,
-		uint level_,
+		Level level_,
 		bool enabled_
 	)
 	{
-		this->commands.emplace_back
+		auto cmd = std::make_shared<Command<ret_t, arg_ts...>>
 		(
-			std::make_unique<Command<ret_t, arg_ts...>>
-			(
-				name_,
-				this->owner,
-				doc_,
-				f_,
-				level_,
-				enabled_
-			)
+			name_,
+			this->owner,
+			doc_,
+			f_,
+			level_,
+			enabled_
 		);
+
+		for(auto elem : level_.getLevels()){
+			if (elem == this->level){
+			 	cmd->activate();
+				break;
+			}	
+		}
+
+		this->commands.insert({name_, cmd});
 	}
 
 } // end namespace dls

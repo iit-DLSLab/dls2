@@ -32,7 +32,7 @@ using namespace dls;
 // -----------------------------------------------------------------------------
 bool Time::use_simulated_time = false;
 std::chrono::duration<double> Time::time_offset(0);
-std::shared_ptr<SubscriberBase<BoolMsgPubSubType>> Time::pPause_sub = nullptr;
+std::shared_ptr<DDSReader> Time::pPause_sub = nullptr;
 bool Time::simulation_paused(false);
 decltype(std::chrono::system_clock::now()) Time::pause_start_time;
 
@@ -46,7 +46,30 @@ void Time::set_use_simulated_time(bool b)
 	{
 		if(Time::pPause_sub == nullptr)
 		{
-			Time::pPause_sub = std::make_shared<PauseSubscriber>();
+			Time::pPause_sub = std::make_shared<DDSReader>(
+				"time",
+				dls::domains::control,
+				dls::topics::simulation_pause,
+				std::function<void(void *)>
+				{
+					[&](void *tuple)
+					{	
+						BoolMsg msg = *((BoolMsg *)tuple);
+						
+						// std::cout << "Got pause bool: " << msg.val() << std::endl;
+						if(msg.val()) // if paused
+						{
+							Time::pause_start_time = std::chrono::system_clock::now();
+						}
+						else
+						{
+							Time::time_offset += std::chrono::system_clock::now() - Time::pause_start_time;
+						}
+						Time::simulation_paused = msg.val();
+						// DMSG("Real time: " << std::chrono::system_clock::now().time_since_epoch().count() << " simulation time: " << Time::now().time_since_epoch().count());
+					}
+				}
+			);
 		}
 	}
 	else
@@ -99,36 +122,5 @@ void Time::sleep_until(time_point_t tp)
 	else
 	{
 		std::this_thread::sleep_until(tp);
-	}
-}
-
-// =============================================================================
-// Helper Class Implementation
-// =============================================================================
-
-// -----------------------------------------------------------------------------
-// PauseSubscriber
-// -----------------------------------------------------------------------------
-Time::PauseSubscriber::PauseSubscriber() :
-	SubscriberBase<BoolMsgPubSubType>(topics::simulation_pause),
-	info()
-{ }
-
-void Time::PauseSubscriber::onNewDataMessage(eprosima::fastrtps::Subscriber *sub)
-{
-	BoolMsg msg;
-	if(sub->takeNextData(&msg, &info))
-	{
-		// std::cout << "Got pause bool: " << msg.val() << std::endl;
-		if(msg.val()) // if paused
-		{
-			Time::pause_start_time = std::chrono::system_clock::now();
-		}
-		else
-		{
-			Time::time_offset += std::chrono::system_clock::now() - Time::pause_start_time;
-		}
-		Time::simulation_paused = msg.val();
-		// DMSG("Real time: " << std::chrono::system_clock::now().time_since_epoch().count() << " simulation time: " << Time::now().time_since_epoch().count());
 	}
 }

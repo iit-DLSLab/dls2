@@ -27,10 +27,29 @@
 // =============================================================================
 namespace dls
 {
+
+	class Level
+	{
+	public:
+
+		Level(std::set<uint> levels, uint nextLevel);
+		~Level();
+
+		std::set<uint> getLevels();
+
+	private:
+
+		std::set<uint> levels;
+
+		uint nextLevel;
+	};
+
+
 	/// Base class for command types
 	///
 	class CommandBase
 	{
+	friend class CommandManager;
 	public:
 		/// Argument and return type representations
 		///
@@ -70,17 +89,13 @@ namespace dls
 			std::string owner,
 			std::string doc,
 			uint nArg,
-			uint level = 0,
+			Level level,
 			bool enabled = false
 		);
 
 		/// Destructor
 		///
 		virtual ~CommandBase() = default;
-
-		/// Associated function call of the command
-		///
-		virtual int call(std::vector<std::string>);
 
 		/// Retrieves command name string
 		///
@@ -108,38 +123,37 @@ namespace dls
 
 		/// Retrieves command execution level
 		///
-		uint getLevel();
-
-		/// Sets command execution level
-		///
-		void setLevel(uint level_);
+		std::set<uint> getLevel();
 
 		/// Retrieves command number of arguments
 		///
 		uint getNumArgs();
 
-		/// Enable the command
-		/// 
-		void setEnabled();
-
-		/// Disable the command
-		///
-		void setDisabled();
-
 		/// Retrieve the current state of the command
 		///
 		bool isEnabled();
 
+		/// Activate the command
+		///
+		virtual void activate();
+
+		/// Desactivate the command
+		///
+		virtual void desactivate();
+
+
+		/// Retrieve the current active state of the command
+		///
+		bool isActive();
+
 	protected:
 		/// Convenience typedef
 		///
-		typedef decltype(std::declval<CommandRegisterMsg>().arg_types())
-			RepresentationVector;
+		typedef decltype(std::declval<CommandRegisterMsg>().arg_types()) RepresentationVector;
 
 		/// Converts a type to its representation for serialization and publishing
 		///
-		template <typename T>
-		ArgumentType typeToRepresentation();
+		template <typename T> ArgumentType typeToRepresentation();
 
 		/// Builds a vector of ArgumentTypes representing the types given in the
 		/// temlate paramters
@@ -153,8 +167,19 @@ namespace dls
 		/// Recursion base case
 		template <typename arg_t>
 		RepresentationVector &buildRepresentationVector(RepresentationVector&);
-		
 
+		/// Command execution level
+		///
+		Level level;
+
+		/// If the command is enabled or not
+		///
+		bool enabled;
+
+		/// If the command is active or not
+		///
+		bool active;
+		
 	private:
 
 		/// The name of the component that owns the remote command
@@ -173,14 +198,15 @@ namespace dls
 		///
 		uint numArg;
 
-		/// Command execution level
+		/// Associated function call of the command
 		///
-		uint level;
+		virtual int call(std::vector<std::string>);
 
-		/// If the command is enabled or not
-		///
-		bool enabled;
 	};
+
+
+
+
 } // end namespace dls
 
 #include "dls2/command/command_base.tpp"

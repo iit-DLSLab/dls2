@@ -27,11 +27,11 @@ namespace dls
 		std::string activate_gait_generator 		= "console_activate_gait_generator";
 		topicType command_call 						= dls::topicType("command_call", new CommandCallMsgPubSubType());
 		std::string console 						= "console";
-		std::string control_signal_base 			= "control_signal_";
+		topicType control_signal 					= dls::topicType("control_signal", new  ControlSignalMsgPubSubType());
 		std::string deactivate_controller 			= "console_deactivate_controller";
 		std::string deactivate_gait_generator 		= "console_deactivate_gait_generator";
 		topicType debug_log_stream 					= dls::topicType("debug_log_stream", new StringMsgPubSubType());
-		std::string desired_torques 				= "desired_torques";
+		topicType desired_torques 					= dls::topicType("desired_torques", new DesiredTorquesMsgPubSubType());
 		topicType error_log_stream 					= dls::topicType("error_log_stream", new StringMsgPubSubType());
 		topicType fatal_log_stream 					= dls::topicType("fatal_log_stream", new StringMsgPubSubType());
 		std::string gait_signal 					= "GaitSignal";
@@ -39,7 +39,7 @@ namespace dls
 		topicType hyqreal_raw 						= dls::topicType("hyqreal_raw", new HyQRealRawMsgPubSubType());
 		topicType info_log_stream 					= dls::topicType("info_log_stream", new StringMsgPubSubType());
 		std::string joint_states					= "joint_states";
-		std::string simulation_pause 				= "simulation_pause";
+		topicType simulation_pause 					= dls::topicType("simulation_pause", new BoolMsgPubSubType());
 		std::string simulation_time 				= "simulation_time";
 		topicType warn_log_stream 					= dls::topicType("warn_log_stream", new StringMsgPubSubType());
 		

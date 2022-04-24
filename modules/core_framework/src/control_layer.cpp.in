@@ -24,7 +24,6 @@
 
 #include "dls2/robot/robot.hpp"
 #include "dls2/class_loader.hpp"
-#include "dls2/msg/control_signalPubSubTypes.h"
 #include "dls2/topics/topics.hpp"
 #include "dls2/path_prefixes.hpp"
 #include "dls2/util/time/time.hpp"
@@ -75,148 +74,162 @@ Eigen::VectorXd last_published_desired_torques;
 // =============================================================================
 // Constructors
 // =============================================================================
-ControlLayer::ControlLayer(std::string ID) :
-	AppLayer(ID),
-	controllers_b(),
-	controllers_mutex_b(),
+ControlLayer::ControlLayer(std::string ID, bool *should_quit_) 
+	: AppLayer(ID)
+	, ddslink(
+		"controlLayer",
+		dls::domains::control
+	)
+	, controllers_b()
+	, controllers_mutex_b()
 	// generators(),
 	// gait_generators_mutex(),
 	// currentActiveGenerator(nullptr),
-	pGait_generator_data(nullptr),
-	gait_generators_mutex(),
-	publisher(topics::desired_torques),
+	, pGait_generator_data(nullptr)
+	, gait_generators_mutex()	
 	// num_children(0),
 	// num_children_cv(),
-	// num_children_mutex(),
-	should_quit(false),
-	wait_on_controller_threads(),
-	wait_on_controller_threads_mutex(),
+	// num_children_mutex()
+	, wait_on_controller_threads()
+	, wait_on_controller_threads_mutex()
 
 	// TODO these 2s should only be put once, and they should be made dynamic
-	pDefault_spline_in
-	(
-		// ramp for two seconds from 0 to 1
-		std::make_shared<spline::Ramp<double>> (0, 2, 0, 1)
-	),
-	pDefault_spline_out
-	(
-		// ramp for two seconds from 1 to 0
-		std::make_shared<spline::Ramp<double>> (0, 2, 1, 0)
-	),
-	default_duration_seconds(2),
-
-	command_manager(ID),
-	scout(ID),
-	clog(ID),
-	cfatal(ID)
+	// ramp for two seconds from 0 to 1
+	, pDefault_spline_in(std::make_shared<spline::Ramp<double>> (0, 2, 0, 1))
+	// ramp for two seconds from 1 to 0
+	, pDefault_spline_out(std::make_shared<spline::Ramp<double>> (0, 2, 1, 0))
+	, default_duration_seconds(2)
+	, scout(ID)
+	, clog(ID)
+	, cfatal(ID)
 {
-	/*
+	should_quit = should_quit_;
+	ddslink.addWriter(dls::topics::desired_torques);
+
+	command_manager.addCommand<void>
+	(
+		"control_exit",
+		"Shutdown control layer",
+		std::function<void()>
+		{
+			[&]()
+			{
+				this->shutdown();
+			}
+		},
+		Level({0},0),
+		true
+	);
+	
 	command_manager.addCommand<bool, std::string>
 	(
-		"control_layer",
 		"activateGaitGenerator",
 		"activates a gait generator",
 		std::function<bool(std::string)>
-		(
+		{
 			[&](std::string s)->bool
 			{
 				return this->activateGaitGenerator(s);
 			}
-		)
+		},
+		{{0,1},2},
+		true
+	);
+
+	
+	command_manager.addCommand<void>
+	(
+		"deactivateGaitGenerators",
+		"stops all running gait generators",
+		std::function<void()>
+		{
+			[&]()
+			{
+				this->deactivateGaitGenerators();
+			}
+		},
+		{{1,2},0},
+		true
 	);
 
 	command_manager.addCommand<bool, std::string>
 	(
-		"control_layer",
 		"activateController",
 		"activates a controller",
 		std::function<bool(std::string s)>
-		(
+		{
 			[&](const std::string &s)->bool
 			{
 				return this->activateController(s);
 			}
-		)
+		},
+		{{0,1},2},
+		true
 	);
 
-	// TODO template system can't currently handle no arguments -- this is just
-	// a temporary workaround by passing an unnecessary string
-	command_manager.addCommand<void, ARGVOID>
-	(
-		"control_layer",
-		"deactivateGaitGenerators",
-		"stops all running gait generators",
-		std::function<void(ARGVOID)>
-		(
-			[&](ARGVOID)
-			{
-				this->deactivateGaitGenerators();
-			}
-		)
-	);
 
-	command_manager.addCommand<void, std::string>
-	(
-		"control_layer",
-		"deactivateController",
-		"stops a controller",
-		std::function<void(std::string)>
-		(
-			[&](std::string s)
-			{
-				this->deactivateController(s);
-			}
-		)
-	);
+	// command_manager.addCommand<void, std::string>
+	// (
+	// 	"deactivateController",
+	// 	"stops a controller",
+	// 	std::function<void(std::string)>
+	// 	{
+	// 		[&](std::string s)
+	// 		{
+	// 			this->deactivateController(s);
+	// 		}
+	// 	},
+	// 	0,
+	// 	true
+	// );
 
-	command_manager.addCommand<void, std::string>
-	(
-		"control_layer",
-		"ls",
+	// command_manager.addCommand<void, std::string>
+	// (
+	// 	"ls",
+	// 	"List components\n"
+	// 	"argument:\n"
+	// 	"\tcont - list controllers\n"
+	// 	"\tgait - list gait generator",
 
-		"List components\n"
-		"argument:\n"
-		"\tcont - list controllers\n"
-		"\tgait - list gait generator",
-
-		std::function<void(std::string)>
-		(
-			[&](std::string s)
-			{
-				if(s == "cont")
-				{
-					std::stringstream ss;
-					std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
-					size_t i = 0;
-					for
-					(
-						auto it = this->controllers_b.cbegin();
-						it != this->controllers_b.cend();
-						++it
-					)
-					{
-						ss << it->first << "\n";
-						++i;
-					}
-					if(i) this->scout << ss.str() << std::endl;
-				}
-				else if(s == "gait")
-				{
-					std::lock_guard<std::mutex> lock(this->gait_generators_mutex);
-					if(this->pGait_generator_data)
-					{
-						scout << this->pGait_generator_data->ID
-							<< std::endl;
-					}
-				}
-				else
-				{
-					scout << "Error: unrecognised argument" << std::endl;
-				}
-			}
-		)
-	);
-	*/
+	// 	std::function<void(std::string)>
+	// 	{
+	// 		[&](std::string s)
+	// 		{
+	// 			if(s == "cont")
+	// 			{
+	// 				std::stringstream ss;
+	// 				std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
+	// 				size_t i = 0;
+	// 				for
+	// 				(
+	// 					auto it = this->controllers_b.cbegin();
+	// 					it != this->controllers_b.cend();
+	// 					++it
+	// 				)
+	// 				{
+	// 					ss << it->first << "\n";
+	// 					++i;
+	// 				}
+	// 				if(i) this->scout << ss.str() << std::endl;
+	// 			}
+	// 			else if(s == "gait")
+	// 			{
+	// 				std::lock_guard<std::mutex> lock(this->gait_generators_mutex);
+	// 				if(this->pGait_generator_data)
+	// 				{
+	// 					scout << this->pGait_generator_data->ID
+	// 						<< std::endl;
+	// 				}
+	// 			}
+	// 			else
+	// 			{
+	// 				scout << "Error: unrecognised argument" << std::endl;
+	// 			}
+	// 		}
+	// 	},
+	// 	0,
+	// 	true
+	// );
 }
 
 ControlLayer::~ControlLayer()
@@ -242,11 +255,14 @@ ControlLayer::Status ControlLayer::run()
 
 	// TODO("Check status of all components in the control layer, take corrective actions if requred")
 	setStatus(Status::RUNNING);
+
 	// TODO this is wrong and just used to remove compile error for unitialised
 	// time. Time should not be doubles.
 	double time = std::chrono::system_clock::now().time_since_epoch().count();
-	while(!this->should_quit)
+
+	while(!*(this->should_quit))
 	{
+		
 		// #ifndef NDEBUG
 			auto begin_epoch = std::chrono::system_clock::now();
 		// #endif
@@ -256,9 +272,10 @@ ControlLayer::Status ControlLayer::run()
 			std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
 			for(const auto &pair : this->controllers_b)
 			{
-				if(!pair.second->pSubscriber) continue;
+				if(!pair.second->dds_reader) continue;
 
-				auto pControl_signal = pair.second->pSubscriber->getLastPublishedControlSignal();
+				auto pControl_signal = pair.second->getLastPublishedControlSignal();
+
 				if(pControl_signal)
 				{
 					desired_torques +=
@@ -270,10 +287,8 @@ ControlLayer::Status ControlLayer::run()
 
 		// Send the desired torques to HAL
 		{
-			std::lock_guard<std::mutex>
-				lock(last_published_desired_torques_mutex);
-			last_published_desired_torques =
-				saturateTorques(desired_torques);
+			std::lock_guard<std::mutex>	lock(last_published_desired_torques_mutex);
+			last_published_desired_torques = saturateTorques(desired_torques);
 			publishDesiredTorques(last_published_desired_torques, time);
 		}
 
@@ -284,7 +299,7 @@ ControlLayer::Status ControlLayer::run()
 		// TODO("sleep at correct frequency here")
 		// std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(500));
 		// DMSG(Time::now().time_since_epoch().count());
-		// std::this_thread::sleep_for(std::chrono::duration<double, std::micro>(100));
+		// std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(500));
 		Time::sleep_until(Time::now() + std::chrono::duration<double, std::micro>(100));
 
 		// #ifndef NDEBUG
@@ -300,7 +315,6 @@ ControlLayer::Status ControlLayer::run()
 				<< std::endl;
 			clog << ss.str() << std::endl;
 			clog << "Control layer published torques " << desired_torques.transpose() << std::endl;
-
 		}
 		// #endif
 	}
@@ -330,7 +344,7 @@ ControlLayer::Status ControlLayer::shutdown()
 			thread.join();
 		}
 	}
-	this->should_quit = true;
+	*(this->should_quit) = true;
 	return getStatus();
 }
 
@@ -394,6 +408,7 @@ bool ControlLayer::activateController(const Controller::ID_t &ID)
 		default_duration_seconds,
 		default_duration_seconds
 	);
+
 	decltype(this->controllers_b.find(ID)) pair_it;
 	{
 		std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
@@ -437,15 +452,27 @@ bool ControlLayer::activateController(const Controller::ID_t &ID)
 
 		pData->controller_pid = controller_pid;
 		pData->ID = ID;
-		pData->pSubscriber =
-			std::make_shared<ControlSubListener>
+		pData->dds_reader =
+			std::make_shared<DDSReader>
 			(
-				// TODO("This should be done by a static function in Controller")
-				std::string(topics::control_signal_base) + ID
+				ID,
+				dls::domains::control,
+				dls::topics::control_signal,
+				std::function<void(void *)>
+				{
+					[&](void *tuple)
+					{
+						ControlSignalMsg msg = *((ControlSignalMsg *)tuple);
+
+						std::shared_ptr<ControlSignal> p = std::make_shared<ControlSignal>(msg);
+						std::lock_guard<std::mutex> lock(pData->control_signal_mutex);
+						pData->control_signal = p;
+					}
+				}
 			);
 
 		std::cout << "control layer is listening for controller on topic '"
-			<< topics::control_signal_base + ID << "'" << std::endl;
+			<< ID << "'" << std::endl;
 
 		this->controllers_b.emplace
 		(
@@ -605,48 +632,13 @@ Eigen::MatrixXd ControlLayer::saturateTorques(const Eigen::MatrixXd &req) const
 	return req;
 }
 
-void ControlLayer::publishDesiredTorques(const Eigen::VectorXd &torques, double time) const // TODO Change type of time
+void ControlLayer::publishDesiredTorques(const Eigen::VectorXd &torques, double time) // TODO Change type of time
 {
-
 	DesiredTorquesMsg msg;
 	msg.desired_torques().resize(torques.size());
 	msg.header().time().seconds()=time;
 	Eigen::VectorXd::Map(&msg.desired_torques()[0], torques.size()) = torques;
-	publisher.publish(msg);
-}
-
-// =============================================================================
-// FastRTPS
-// =============================================================================
-ControlLayer::ControlSubListener::ControlSubListener(const std::string &topic):
-	SubscriberBase<ControlSignalMsgPubSubType>(topic),
-	control_signal(nullptr),
-	control_signal_mutex(),
-	info()
-{ }
-
-std::shared_ptr<ControlSignal>
-	ControlLayer::ControlSubListener::getLastPublishedControlSignal()
-{
-	std::lock_guard<std::mutex> lock(this->control_signal_mutex);
-	return this->control_signal;
-}
-
-void ControlLayer::ControlSubListener::onNewDataMessage
-(
-	eprosima::fastrtps::Subscriber *sub
-)
-{
-	ControlSignalMsg msg;
-	if(sub->takeNextData((void*)&msg, &info))
-	{
-		if(info.sampleKind == eprosima::fastrtps::rtps::ALIVE)
-		{
-			std::shared_ptr<ControlSignal> p = std::make_shared<ControlSignal>(msg);
-			std::lock_guard<std::mutex> lock(this->control_signal_mutex);
-			this->control_signal = p;
-		}
-	}
+	this->ddslink.sendMessage(&msg);
 }
 
 // =============================================================================
@@ -713,7 +705,7 @@ ControlLayer::ControllerData::ControllerData
 	const std::chrono::duration<double> &duration_out
 ) :
 	controller_pid(0),
-	pSubscriber(nullptr),
+	dds_reader(nullptr),
 	ID(),
 	premultiplier(0),
 	spline_in_duration(duration_in),
@@ -721,3 +713,10 @@ ControlLayer::ControllerData::ControllerData
 	pSpline_in(spline_in_),
 	pSpline_out(spline_out_)
 { }
+
+
+std::shared_ptr<ControlSignal> ControlLayer::ControllerData::getLastPublishedControlSignal()
+{
+	std::lock_guard<std::mutex> lock(this->control_signal_mutex);
+	return this->control_signal;
+}
