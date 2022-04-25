@@ -117,7 +117,7 @@ ControlLayer::ControlLayer(std::string ID, bool *should_quit_)
 				this->shutdown();
 			}
 		},
-		Level({0},0),
+		{{0,0},{1,0},{2,0},{3,0}},
 		true
 	);
 	
@@ -132,7 +132,7 @@ ControlLayer::ControlLayer(std::string ID, bool *should_quit_)
 				return this->activateGaitGenerator(s);
 			}
 		},
-		{{0,1},2},
+		{{0,1},{2,3}},
 		true
 	);
 
@@ -148,7 +148,7 @@ ControlLayer::ControlLayer(std::string ID, bool *should_quit_)
 				this->deactivateGaitGenerators();
 			}
 		},
-		{{1,2},0},
+		{{1,0},{3,2}},
 		true
 	);
 
@@ -163,25 +163,25 @@ ControlLayer::ControlLayer(std::string ID, bool *should_quit_)
 				return this->activateController(s);
 			}
 		},
-		{{0,1},2},
+		{{0,2},{3,1}},
 		true
 	);
 
 
-	// command_manager.addCommand<void, std::string>
-	// (
-	// 	"deactivateController",
-	// 	"stops a controller",
-	// 	std::function<void(std::string)>
-	// 	{
-	// 		[&](std::string s)
-	// 		{
-	// 			this->deactivateController(s);
-	// 		}
-	// 	},
-	// 	0,
-	// 	true
-	// );
+	command_manager.addCommand<void, std::string>
+	(
+		"deactivateController",
+		"stops a controller",
+		std::function<void(std::string)>
+		{
+			[&](std::string s)
+			{
+				this->deactivateController(s);
+			}
+		},
+		{{2,0},{3,1}},
+		true
+	);
 
 	// command_manager.addCommand<void, std::string>
 	// (

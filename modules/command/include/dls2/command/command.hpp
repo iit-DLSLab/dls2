@@ -57,10 +57,10 @@ namespace dls
 		Command
 		(
 			std::string name,
-			std::string owner,
+			CommandManager *owner,
 			std::string docstring,
 			std::function<ret_t(arg_ts...)> f,
-			Level level = {{0},0},
+			LevelType level = {{0,0}},
 			bool enabled = false
 		);
 
@@ -80,9 +80,9 @@ namespace dls
 		/// 
 		void activate();
 
-		/// Desactivate the command
+		/// Deactivate the command
 		///
-		void desactivate();
+		void deactivate();
 
 
 	private:

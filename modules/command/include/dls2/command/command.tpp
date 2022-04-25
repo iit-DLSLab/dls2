@@ -38,10 +38,10 @@ namespace dls
 	Command<ret_t, arg_ts...>::Command
 	(
 		std::string name_,
-		std::string owner_,
+		CommandManager *owner_,
 		std::string docstring_,
 		std::function<ret_t(arg_ts...)> f_,
-		Level level_,
+		dls::CommandBase::LevelType level_,
 		bool enabled_
 	) :
 		CommandBase(
@@ -88,7 +88,7 @@ namespace dls
 	}
 
 	template <typename ret_t, typename...arg_ts>
-	void Command<ret_t, arg_ts...>::desactivate(){
+	void Command<ret_t, arg_ts...>::deactivate(){
 
 		if(!this->isEnabled() && !this->isActive())
 			return;
@@ -100,6 +100,7 @@ namespace dls
 	template <typename ret_t, typename... arg_ts>
 	int Command<ret_t, arg_ts...>::call(std::vector<std::string> args){
 		// ensure args are correct size
+
 		if (args.size() != this->getNumArgs()){
 			std::cout << "Error: incorrect number of arguments" << std::endl;
 			return 0;
@@ -109,6 +110,7 @@ namespace dls
 		//static_assert(std::is_same_v<decltype(arguments), const std::tuple<arg_ts...>>);
 			
 		std::apply(this->f, arguments);
+		this->owner->changeLevel(this->getNextLevel(this->owner->getCurrentLevel()));
 
 		return 1;
 	}
@@ -151,10 +153,10 @@ namespace dls
 	template <typename ret_t, typename... arg_ts>
 	void Command<ret_t, arg_ts...>::unregisterCommand()
 	{
-		if (ddslink == nullptr)
+		if (this->ddslink == nullptr)
 			return;
 			
-		delete ddslink;
+		delete this->ddslink;
 	}
 
 

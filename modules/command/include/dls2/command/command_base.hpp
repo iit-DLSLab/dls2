@@ -22,35 +22,23 @@
 #include "dls2/topics/topics.hpp"
 
 
+
+
 // =============================================================================
 // Class Interface
 // =============================================================================
 namespace dls
 {
-
-	class Level
-	{
-	public:
-
-		Level(std::set<uint> levels, uint nextLevel);
-		~Level();
-
-		std::set<uint> getLevels();
-
-	private:
-
-		std::set<uint> levels;
-
-		uint nextLevel;
-	};
-
-
+	//foward declaration of CommandManager class
+	class CommandManager;
 	/// Base class for command types
 	///
 	class CommandBase
 	{
 	friend class CommandManager;
 	public:
+		typedef std::map<uint, uint> LevelType;
+
 		/// Argument and return type representations
 		///
 		/// Since commands may be registered dynamically from external processes, we
@@ -86,10 +74,10 @@ namespace dls
 		/// @param enabled set if the command is enabled or not
 		CommandBase(
 			std::string name,
-			std::string owner,
+			CommandManager *owner,
 			std::string doc,
 			uint nArg,
-			Level level,
+			LevelType level = {{0,0}},
 			bool enabled = false
 		);
 
@@ -109,10 +97,6 @@ namespace dls
 		///
 		std::string getOwner();
 
-		/// Sets command owner
-		///
-		void setOwner(std::string owner_);				
-
 		/// Retrieves command documentation string
 		///
 		std::string getDoc();
@@ -120,10 +104,6 @@ namespace dls
 		/// Sets command documentation
 		///
 		void setDoc(std::string doc_);
-
-		/// Retrieves command execution level
-		///
-		std::set<uint> getLevel();
 
 		/// Retrieves command number of arguments
 		///
@@ -137,14 +117,17 @@ namespace dls
 		///
 		virtual void activate();
 
-		/// Desactivate the command
+		/// Deactivate the command
 		///
-		virtual void desactivate();
-
+		virtual void deactivate();
 
 		/// Retrieve the current active state of the command
 		///
 		bool isActive();
+
+		int getNextLevel(uint curLevel);
+		std::set<uint> getActiveLevels();
+		bool testLevel(uint level);
 
 	protected:
 		/// Convenience typedef
@@ -170,7 +153,7 @@ namespace dls
 
 		/// Command execution level
 		///
-		Level level;
+		LevelType transitionSet;
 
 		/// If the command is enabled or not
 		///
@@ -179,12 +162,12 @@ namespace dls
 		/// If the command is active or not
 		///
 		bool active;
+
+		/// The command_manager that owns the command
+		///
+		CommandManager *owner;
 		
 	private:
-
-		/// The name of the component that owns the remote command
-		///
-		std::string owner;
 
 		/// The name of the command
 		///

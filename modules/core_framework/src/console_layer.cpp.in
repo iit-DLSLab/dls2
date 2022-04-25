@@ -114,7 +114,7 @@ ConsoleLayer::ConsoleLayer(std::string ID, bool *should_quit_)
 				std::cout << "\033[H" << std::endl; // home
 			}
 		},
-		{{0},1},
+		{{0,0}},
 		true
 	);
 
@@ -129,7 +129,7 @@ ConsoleLayer::ConsoleLayer(std::string ID, bool *should_quit_)
 				*(this->should_quit) = true;;
 			}
 		},
-		{{0},1},
+		{{0,0}},
 		true
 	);
 
@@ -144,13 +144,14 @@ ConsoleLayer::ConsoleLayer(std::string ID, bool *should_quit_)
 				std::cout << std::endl;
 				for(auto pCommand : this->command_manager.findByName(s))
 				{
-					std::cout << pCommand->getOwner() << "::" <<
-						pCommand->getName() <<  std::endl <<
-						pCommand->getDoc() << std::endl << std::endl;
+					std::cout << "TBD - retrieve command doc from remote" <<  std::endl;
+					// std::cout << pCommand->second() << "::" <<
+					// 	pCommand->getName() <<  std::endl <<
+					// 	pCommand->getDoc() << std::endl << std::endl;
 				}
 			}
 		},
-		{{0},1},
+		{{0,0}},
 		true
 	);
 
@@ -165,9 +166,9 @@ ConsoleLayer::ConsoleLayer(std::string ID, bool *should_quit_)
 				auto where_commands = this->command_manager.findByName("where");
 				for(const auto &where_command : where_commands)
 				{
-					if(where_command->getOwner() != "console_layer")
+					if(where_command.second != "console_layer")
 					{
-						std::cout << where_command->getOwner() << std::endl;
+						std::cout << where_command.second << std::endl;
 						std::cout << "============================" << std::endl;
 						//where_command->call();
 						std::cout << "This function needs to be implemented\n" << std::endl;
@@ -182,7 +183,7 @@ ConsoleLayer::ConsoleLayer(std::string ID, bool *should_quit_)
 				}
 			}
 		},
-		{{0},1},
+		{{0,0}},
 		true
 	);
 }

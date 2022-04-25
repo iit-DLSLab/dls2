@@ -40,7 +40,7 @@ ROSLayer::ROSLayer(std::string ID, bool *should_quit_)
 				this->shutdown();
 			}
 		),
-		{{0},1},
+		{{0,0},{1,0},{2,0}},
 		true
 	);
 
@@ -55,7 +55,7 @@ ROSLayer::ROSLayer(std::string ID, bool *should_quit_)
 				launchSim();
 			}
 		},
-		{{1},0},
+		{{1,2}},
 		true
 	);
 
@@ -70,7 +70,7 @@ ROSLayer::ROSLayer(std::string ID, bool *should_quit_)
 				launchCore();
 			}
 		),
-		{{0},1},
+		{{0,1}},
 		true
 	);
 
@@ -85,7 +85,7 @@ ROSLayer::ROSLayer(std::string ID, bool *should_quit_)
 				return system("rosservice call /hyq/freeze_base");
 			}
 		},
-		{{1},0},
+		{{2,2}},
 		true
 	);
 

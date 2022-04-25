@@ -31,7 +31,10 @@ namespace dls
 		this->reader = this->addReader(topic_, callback_);
 	}
 
-	DDSReader::~DDSReader(){}
+	DDSReader::~DDSReader(){
+
+		this->reader->delete_contained_entities();
+	}
 
 } // end namespace dls
 

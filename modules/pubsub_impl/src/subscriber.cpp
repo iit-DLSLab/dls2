@@ -60,6 +60,9 @@ namespace dls
 
 		Subscriber::~Subscriber()
 		{
+			for(auto elem : this->readers)
+				this->subscriber->delete_datareader(elem);
+		
 			if(this->subscriber != nullptr){
 				this->participant->delete_subscriber(this->subscriber);
 			}

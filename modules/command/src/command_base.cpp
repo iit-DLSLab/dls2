@@ -16,7 +16,11 @@
 // =============================================================================
 // Includes
 // =============================================================================
+#ifndef COMMAND_BASE_CPP
+#define COMMAND_BASE_CPP
+
 #include "dls2/command/command_base.hpp"
+#include "dls2/command/command_manager.hpp"
 
 namespace dls
 {
@@ -26,17 +30,17 @@ namespace dls
 
 	CommandBase::CommandBase(
 		std::string name_,
-		std::string owner_,
+		CommandManager *owner_,
 		std::string doc_,
 		uint nArg_,
-		Level level_,
+		LevelType transitions_,
 		bool enabled_
 	)
 		: name(name_)
 		, owner(owner_)
 		, doc(doc_)
 		, numArg(nArg_)
-		, level(level_)
+		, transitionSet(transitions_)
 		, enabled(enabled_)
 		, active(false)
 	{}
@@ -50,11 +54,7 @@ namespace dls
 	}
 
 	std::string CommandBase::getOwner(){
-		return this->owner;
-	}
-
-	void CommandBase::setOwner(std::string owner_){
-		this->owner = owner_;
+		return this->owner->getOwner();
 	}
 
 	std::string CommandBase::getDoc(){
@@ -63,10 +63,6 @@ namespace dls
 
 	void CommandBase::setDoc(std::string doc_){
 		this->doc = doc_;
-	}
-
-	std::set<uint> CommandBase::getLevel(){
-		return this->level.getLevels();
 	}
 
 	uint CommandBase::getNumArgs(){
@@ -78,7 +74,7 @@ namespace dls
 	}
 
 	void CommandBase::activate(){}
-	void CommandBase::desactivate(){}
+	void CommandBase::deactivate(){}
 
 	bool CommandBase::isActive(){
 		return this->active;
@@ -88,18 +84,26 @@ namespace dls
 		return 0;
 	}
 
+	int CommandBase::getNextLevel(uint curLevel)
+	{
+		return this->transitionSet.find(curLevel)->second;
+	}
 
-	Level::Level(std::set<uint> levels_, uint nextLevel_)
-		: levels(levels_)
-		, nextLevel(nextLevel_)
-	{}
+	std::set<uint> CommandBase::getActiveLevels()
+	{
+		std::set<uint> activeLevels; 
+		for(auto elem : transitionSet){
+			activeLevels.insert(elem.first);
+		}
 
-	Level::~Level(){}
+		return activeLevels;
+	}
 
-
-	std::set<uint> Level::getLevels(){
-		return this->levels;
+	bool CommandBase::testLevel(uint level_)
+	{
+		return (this->transitionSet.find(level_) != this->transitionSet.end());
 	}
 
 } // end namespace dls
+#endif /* end of include guard: COMMAND_BASE_CPP */
 

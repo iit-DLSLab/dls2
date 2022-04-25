@@ -20,6 +20,7 @@
 // Includes
 // =============================================================================
 #include "dls2/command/command_manager.hpp"
+#include "dls2/command/command.hpp"
 
 namespace dls
 {
@@ -32,26 +33,22 @@ namespace dls
 		std::string name_,
 		std::string doc_,
 		const std::function<ret_t(arg_ts...)> &f_,
-		Level level_,
+		dls::CommandBase::LevelType level_,
 		bool enabled_
 	)
 	{
 		auto cmd = std::make_shared<Command<ret_t, arg_ts...>>
 		(
 			name_,
-			this->owner,
+			this,
 			doc_,
 			f_,
 			level_,
 			enabled_
 		);
 
-		for(auto elem : level_.getLevels()){
-			if (elem == this->level){
-			 	cmd->activate();
-				break;
-			}	
-		}
+		if(cmd->testLevel(this->level))
+			cmd->activate();
 
 		this->commands.insert({name_, cmd});
 	}

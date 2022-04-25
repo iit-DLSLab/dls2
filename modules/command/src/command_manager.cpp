@@ -53,7 +53,7 @@ namespace dls
 	// Implementation
 	// -----------------------------------------------------------------------------
 
-	std::vector<std::shared_ptr<CommandBase>> CommandManager::findByOwner
+	std::multimap<std::string, std::string> CommandManager::findByOwner
 	(
 		std::string owner_
 	)
@@ -71,10 +71,10 @@ namespace dls
     			cmdlst.insert(*it);
 		}
 
-		return makeCallableCmdList(cmds);
+		return cmds;
 	}
 
-	std::vector<std::shared_ptr<CommandBase>> CommandManager::findByName
+	std::multimap<std::string, std::string> CommandManager::findByName
 	(
 		std::string name_
 	)
@@ -92,10 +92,10 @@ namespace dls
     		cmdlst.insert(*it);
 		}
 
-		return makeCallableCmdList(cmdlst);
+		return cmdlst;
 	}
 
-	std::vector<std::shared_ptr<CommandBase>> CommandManager::find
+	std::multimap<std::string, std::string> CommandManager::find
 	(
 		std::string owner_,
 		std::string name_
@@ -127,62 +127,7 @@ namespace dls
     		cmds.insert({it->second, it->first});
 		}
 
-		return makeCallableCmdList(cmds);
-	}
-
-
-	std::vector<std::shared_ptr<CommandBase>> CommandManager::makeCallableCmdList(
-		std::multimap<std::string, std::string> cmdlst
-	)
-	{
-		// create a list of commands that could be called
-		std::vector<std::shared_ptr<CommandBase>> retvec;
-		
-		for(auto elem : cmdlst){
-			//if the command is local
-			if (elem.second == this->owner){
-				for(const auto &el : this->commands){
-					if(el.first == elem.first)
-					{
-						retvec.push_back(el.second);
-					}
-				}
-			}
-			//if the command is remote
-			else{
-				retvec.push_back(std::make_shared<Command<void, std::string>> (
-					elem.first,
-					elem.second,
-					"temp remote command",
-					std::function<void(std::string)>
-					{
-						[&](std::string args_)
-						{
-							// this call just send all the info to the remote command
-							// the remote command should verify if the number of arguments and types ar correct
-							CommandCallMsg msg;
-							
-							std::stringstream ss(args_);
-							std::vector<std::string> result;
-
-							while(ss.good()){
-								std::string substr;
-								getline( ss, substr, '#' );
-								result.push_back( substr );
-							}
-
-							msg.owner(result[0]);
-							msg.command_name(result[1]);
-							msg.args(result[2]);
-
-							this->commands_monitor->sendMessage(&msg);
-						}
-					}
-				));
-			}
-		}
-
-		return retvec;
+		return cmds;
 	}
 
 	std::multimap<std::string, std::string> CommandManager::getCommandsList(){
@@ -208,7 +153,6 @@ namespace dls
 	{
 		auto remCommands = commands_monitor->getParticipants();
 
-
 		std::set<std::string> set;
 		for(auto it = commands.begin(); it != commands.end(); ++it)
 		{
@@ -218,24 +162,26 @@ namespace dls
 		return set;
 	}
 
-	void CommandManager::setCommandLevel(int level_){
+	void CommandManager::changeLevel(uint level_){
+
+		std::cout << "# CHANGE LEVEL" << std::endl;
 
 		if(this->level == level_)
 			return;
 
 		for(auto cmd : this->commands){
-			if(cmd.second->getLevel().find(level_) != cmd.second->getLevel().end()){
+			if(cmd.second->testLevel(level_)){
 				cmd.second->activate();
 			}
 			else{
-				cmd.second->desactivate();
+				cmd.second->deactivate();
 			}
 		}
 	}
 
 	int CommandManager::callCommand(std::string name_, std::vector<std::string> args_, std::string owner_){
 
-		std::vector<std::shared_ptr<dls::CommandBase>> cmdList;
+		std::multimap<std::string, std::string> cmdList;
 
 		// find the commands
 		if(owner_ == ""){
@@ -247,40 +193,47 @@ namespace dls
 
 		if (cmdList.size() != 1)
 			return cmdList.size();
-		
-		// call the command
-		cmdList.front()->call(this->prepareArgs(cmdList.front(), args_));
 
-		// TBD implement next level and change current running level
-		// cmdList.front()->getNextLevel();
+		if (cmdList.begin()->first == this->getOwner()){
+			auto cmd = this->commands.find(name_);
+			cmd->second->call(args_);
+			this->changeLevel(cmd->second->getNextLevel(this->getCurrentLevel()));
+		}
+		else{
+			this->sendMessage(*(cmdList.begin()), args_);
+		}
 		
 		return 1;
 	}
 
-
-	std::vector<std::string> CommandManager::prepareArgs(std::shared_ptr<dls::CommandBase> cmd, std::vector<std::string> args )
+	void CommandManager::sendMessage(std::pair<std::string, std::string> cmdData_, std::vector<std::string> args_)
 	{
-		//if the command is remote configure the message
-		if (cmd->getOwner() == this->owner)
-			return args;
-
+		CommandCallMsg msg;
 		std::string outString;
-		outString.append(cmd->getOwner());
-		outString.append("#");
-		outString.append(cmd->getName());
-		outString.append("#");
 
-		if (args.empty()){
+		if (args_.empty()){
 			outString.append(" ");
 		}
 		else{
-			for (auto elem : args){
+			for (auto elem : args_){
 				outString.append(elem);
 				outString.append(",");
 			}
 		}
 
-		return std::vector<std::string>({outString});
+		msg.owner(cmdData_.second);
+		msg.command_name(cmdData_.first);
+		msg.args(outString);
+
+		this->commands_monitor->sendMessage(&msg);
+	}
+
+	std::string CommandManager::getOwner(){
+		return this->owner;
+	}
+
+	uint CommandManager::getCurrentLevel(){
+		return this->level;
 	}
 
 } // end namespace dls

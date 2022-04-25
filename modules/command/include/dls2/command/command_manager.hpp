@@ -20,7 +20,7 @@
 // Includes
 // =============================================================================
 #include "dls2/util/messaging/participant.hpp"
-#include "dls2/command/command.hpp"
+#include "dls2/command/command_base.hpp"
 #include "dls2/topics/topics.hpp"
 
 #include <string>
@@ -50,15 +50,15 @@ public:
 
 	/// Find commands by the owner
 	///
-	std::vector<std::shared_ptr<CommandBase>> findByOwner( std::string owner);
+	std::multimap<std::string, std::string> findByOwner(std::string owner);
 
 	/// Find commands by the name
 	///
-	std::vector<std::shared_ptr<CommandBase>> findByName( std::string name);
+	std::multimap<std::string, std::string> findByName(std::string name);
 
 	/// Find command by the pair {owner, name}
 	///
-	std::vector<std::shared_ptr<CommandBase>> find( std::string owner, std::string name);
+	std::multimap<std::string, std::string> find(std::string owner, std::string name);
 
 	/// Get list of all enabled commands in distrubuted framework
 	///
@@ -81,7 +81,7 @@ public:
 		std::string name,
 		std::string doc,
 		const std::function<ret_t(arg_ts...)> &f,
-		Level level = {{0},0},
+		dls::CommandBase::LevelType level = {{0,0}},
 		bool enabled = false
 	);
 
@@ -89,20 +89,24 @@ public:
 	///
 	void removeCommand(CommandBase);
 
-	/// Sets the current command running level
-	/// 
-	void setCommandLevel(int level);
-
+	/// Call a local or remote command from the framework
+	///
 	int callCommand(std::string name, std::vector<std::string> args, std::string owner = "");
+
+	/// Get name of the onner layer of the Command Manager
+	///
+	std::string getOwner();
+
+	/// Change current command running level
+	/// 
+	void changeLevel(uint level);
+
+	/// Get current command running level
+	///
+	uint getCurrentLevel();
 
 
 private:
-
-	/// Maque a list of callable commands
-	///
-	std::vector<std::shared_ptr<CommandBase>> makeCallableCmdList(
-		std::multimap<std::string, std::string> cmdlst
-	);
 
 	/// Storage space for the commands
 	///
@@ -120,7 +124,9 @@ private:
 	///
 	uint level;
 
-	std::vector<std::string> prepareArgs(std::shared_ptr<dls::CommandBase> cmd, std::vector<std::string> args);
+	/// Sends message over the framework distributed system
+	///
+	void sendMessage(std::pair<std::string, std::string> cmdData, std::vector<std::string> args);
 
 };
 
