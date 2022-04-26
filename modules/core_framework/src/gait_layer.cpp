@@ -20,7 +20,7 @@ using namespace dls;
 
 
 GaitLayer::GaitLayer() :
-	AppLayer("gait_layer"),
+	AppLayer("gait_layer", nullptr),
 
 	// publisher publishes to "gait_layer" topic
 	pub(dls::topics::gait_layer),

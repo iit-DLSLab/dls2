@@ -46,7 +46,7 @@ public:
 		STOP          ///< Layer has been stopped
 	};
 
-	AppLayer(const std::string &ID);
+	AppLayer(const std::string &ID, bool *should_quit);
 	virtual ~AppLayer() = default;
 
 	/// Emergency stop

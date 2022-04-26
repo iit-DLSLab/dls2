@@ -61,6 +61,8 @@ namespace dls
 
 		void launchCore();
 
+		void exitCore();
+
 		std::map<std::string, boost::process::child *> processes;
 
 	};

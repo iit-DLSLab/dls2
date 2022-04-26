@@ -29,61 +29,58 @@
 // =============================================================================
 namespace dls
 {
-/// A console interface into the framework
-///
-class ConsoleLayer : public AppLayer
-{
-	// Console completion is handled by readline, which is a C-library.
-	// Therefore, need to declare this as a friend
-	friend char *command_completion(const char *text, int state);
-	friend char **console_completion(const char *text, int start, int end);
-	friend char *arg_completion(const char * text, int state);
-
-public:
-	/// Default Constructor
+	/// A console interface into the framework
 	///
-	ConsoleLayer(std::string ID, bool *should_quit_);
+	class ConsoleLayer : public AppLayer
+	{
+		// Console completion is handled by readline, which is a C-library.
+		// Therefore, need to declare this as a friend
+		friend char *command_completion(const char *text, int state);
+		friend char **console_completion(const char *text, int start, int end);
+		friend char *arg_completion(const char * text, int state);
 
-	/// Default Destructor
-	///
-	~ConsoleLayer() = default;
+	public:
+		/// Default Constructor
+		///
+		ConsoleLayer(std::string ID, bool *should_quit_);
 
-	/// Run the console
-	///
-	/// This is a blocking call that enters an infinite loop
-	Status run() override;
+		/// Default Destructor
+		///
+		~ConsoleLayer() = default;
 
-	/// Stop the console
-	///
-	/// Will cause `run` to stop running
-	Status shutdown() override;
+		/// Run the console
+		///
+		/// This is a blocking call that enters an infinite loop
+		Status run() override;
 
-	/// Print the state of this layer
-	///
-	/// prints:
-	/// * active controllers
-	/// * active gait generator
-	/// * published torque
-	std::string where() override{return "not yet implemented";}
+		/// Stop the console
+		///
+		/// Will cause `run` to stop running
+		Status shutdown() override;
 
-private:
-	/// Generates the console prompt
-	///
-	/// This is currently just a stub function, but it can be expanded apon in
-	/// future
-	std::string build_prompt();
+		/// Print the state of this layer
+		///
+		/// prints:
+		/// * active controllers
+		/// * active gait generator
+		/// * published torque
+		std::string where() override{return "not yet implemented";}
 
-	/// User feedback subscriber
-	///
-	// version2::Subscriber<StringMsgPubSubType> consoleFeedback;
+	private:
+		/// Generates the console prompt
+		///
+		/// This is currently just a stub function, but it can be expanded apon in
+		/// future
+		std::string build_prompt();
 
-	/// Handler to the shutdown SIGINT (ctrl+c) signal
-	/// 
-	static void handle_signals(int);
+		/// User feedback subscriber
+		///
+		// version2::Subscriber<StringMsgPubSubType> consoleFeedback;
 
-	dls::DDSParticipant *ddslink;
-		
-};
+		/// Handler to the shutdown SIGINT (ctrl+c) signal
+		/// 
+		static void handle_signals(int);
+	};
 } // end namespace dls
 
 #endif /* end of include guard: CONSOLE_LAYER_HPP_BXNRZS8Q */

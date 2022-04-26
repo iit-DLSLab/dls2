@@ -13,8 +13,8 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef PARTICIPANT_CPP
-#define PARTICIPANT_CPP
+#ifndef DDSPARTICIPANT_CPP
+#define DDSPARTICIPANT_CPP
 
 #include "dls2/util/messaging/dds_participant.hpp"
 
@@ -27,9 +27,9 @@ namespace dls
 		std::string 	partName_,
 		dls::domainType	domain_
 	)
-		// : participant(nullptr)
-		// , publisher(nullptr)
-		// , subscriber(nullptr)
+		: participant(nullptr)
+		, publisher(nullptr)
+		, subscriber(nullptr)
 	{
 		eprosima::fastdds::dds::DomainParticipantQos participantQos;
 		participantQos.wire_protocol().builtin.discovery_config.discoveryProtocol = eprosima::fastrtps::rtps::DiscoveryProtocol_t::SIMPLE;
@@ -38,9 +38,6 @@ namespace dls
 
 		this->participant = eprosima::fastdds::dds::DomainParticipantFactory::
 			get_instance()->create_participant(domain_, participantQos);
-
-		std::cout << "# DDS CREATED " << domain_ << std::endl;
-
 
 		if(this->participant == nullptr){
 			throw std::runtime_error("Error: could not create participant");
@@ -71,8 +68,8 @@ namespace dls
 	DDSParticipant::~DDSParticipant()
 	{
 		// delete all data writers and data readers
-		// this->publisher->delete_contained_entities();
-		// this->subscriber->delete_contained_entities();
+		this->publisher->delete_contained_entities();
+		this->subscriber->delete_contained_entities();
 
 		// delete publisher
 		if(this->publisher != nullptr)
@@ -82,8 +79,13 @@ namespace dls
 		if(this->subscriber != nullptr)
 			this->participant->delete_subscriber(this->subscriber);
 
-		// for(auto elem : topics)
-        // 	this->participant->delete_topic(elem.second);
+		for(auto elem : this->topics)
+			if(elem.second != nullptr)
+        		this->participant->delete_topic(elem.second);
+
+		for(auto elem : this->subListeners){
+			delete elem;
+		}
     
 		// delete participant
 		eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->
@@ -132,8 +134,10 @@ namespace dls
 				listener
 			);
 
-		if(reader != nullptr)
+		if(reader != nullptr){
 			this->readers.insert({readerName_, reader});
+			this->subListeners.push_back(listener);
+		}
 
 		return reader;
 	}
@@ -178,4 +182,4 @@ namespace dls
 } // namespace dls
 /// \endcond
 
-#endif /* end of include guard: PARTICIPANT_CPP */
+#endif /* end of include guard: DDSPARTICIPANT_CPP */

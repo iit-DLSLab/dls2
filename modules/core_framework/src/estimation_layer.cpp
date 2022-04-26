@@ -25,7 +25,7 @@ using namespace dls;
 // Constructors
 // =============================================================================
 EstimationLayer::EstimationLayer() :
-	AppLayer("estimation_layer"),
+	AppLayer("estimation_layer", nullptr),
 	estimators(),
 	estimator_threads(),
 	estimators_mutex(),

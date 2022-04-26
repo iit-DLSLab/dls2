@@ -25,10 +25,8 @@ using namespace dls;
 // Constructors
 // =============================================================================
 ROSLayer::ROSLayer(std::string ID, bool *should_quit_) 
-	: AppLayer(ID)
+	: AppLayer(ID, should_quit_)
 {
-	this->should_quit = should_quit_;
-
 	command_manager.addCommand<void>
 	(
 		"exit",
@@ -46,31 +44,46 @@ ROSLayer::ROSLayer(std::string ID, bool *should_quit_)
 
 	command_manager.addCommand<void>
 	(
-		"launchSim",
-		"Launches the simulation backend",
-		std::function<void()>
-		{
-			[&]()
-			{
-				launchSim();
-			}
-		},
-		{{1,2}},
-		true
-	);
-
-	command_manager.addCommand<void>
-	(
 		"launchRosCore",
 		"Launches the roscore layer",
 		std::function<void()>
 		(
 			[&]()
 			{
-				launchCore();
+				this->launchCore();
 			}
 		),
 		{{0,1}},
+		true
+	);
+
+	command_manager.addCommand<void>
+	(
+		"exitCore",
+		"Terminates roscore",
+		std::function<void()>
+		(
+			[&]()
+			{
+				this->exitCore();
+			}
+		),
+		{{1,0}},
+		true
+	);
+
+	command_manager.addCommand<void>
+	(
+		"launchSim",
+		"Launches the simulation backend",
+		std::function<void()>
+		{
+			[&]()
+			{
+				this->launchSim();
+			}
+		},
+		{{1,2}},
 		true
 	);
 
@@ -82,7 +95,8 @@ ROSLayer::ROSLayer(std::string ID, bool *should_quit_)
 		{
 			[&]()
 			{
-				return system("rosservice call /hyq/freeze_base");
+				// return system("rosservice call /hyq/freeze_base");
+				return 1;
 			}
 		},
 		{{2,2}},
@@ -153,9 +167,22 @@ AppLayer::Status ROSLayer::shutdown()
 void ROSLayer::launchSim()
 {
 	this->processes.insert({"simulation", new boost::process::child("roslaunch robot_bringup hyq.launch")});	
+	this->processes.at("simulation")->detach();
+}
+
+void ROSLayer::exitCore()
+{
+	auto proc = this->processes.find("roscore");
+
+	if ((proc == this->processes.end()) || (proc->second == nullptr))
+		return;
+		
+	kill(proc->second->id(), SIGINT);
+	this->processes.erase("roscore");
 }
 
 void ROSLayer::launchCore()
 {
 	this->processes.insert({"roscore", new boost::process::child("roscore")});
+	this->processes.at("roscore")->detach();
 }

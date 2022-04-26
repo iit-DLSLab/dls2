@@ -34,9 +34,10 @@ namespace dls
 	// -----------------------------------------------------------------------------
 	// Constructors
 	// -----------------------------------------------------------------------------
-	CommandManager::CommandManager(std::string owner_)
+	CommandManager::CommandManager(std::string owner_, bool *should_exit_)
 		: commands()
 		, owner(owner_)
+		, should_exit(should_exit_)
 		, commands_monitor(std::make_unique<dls::DDSWriter>(
 			owner_+"::commands_monitor",
 			domains::command,
@@ -44,10 +45,14 @@ namespace dls
 			)
 		)
 		, level(0)
+		, levelThread(&CommandManager::levelWatcher, this)
 	{}
 
 	CommandManager::~CommandManager()
-	{ }
+	{
+		// release levelThread to exit
+		this->levelCondVar.notify_one();
+	}
 
 	// -----------------------------------------------------------------------------
 	// Implementation
@@ -162,23 +167,6 @@ namespace dls
 		return set;
 	}
 
-	void CommandManager::changeLevel(uint level_){
-
-		std::cout << "# CHANGE LEVEL" << std::endl;
-
-		if(this->level == level_)
-			return;
-
-		for(auto cmd : this->commands){
-			if(cmd.second->testLevel(level_)){
-				cmd.second->activate();
-			}
-			else{
-				cmd.second->deactivate();
-			}
-		}
-	}
-
 	int CommandManager::callCommand(std::string name_, std::vector<std::string> args_, std::string owner_){
 
 		std::multimap<std::string, std::string> cmdList;
@@ -236,6 +224,34 @@ namespace dls
 		return this->level;
 	}
 
-} // end namespace dls
+	void CommandManager::changeLevel(uint level_){
+		{
+            std::unique_lock<std::mutex> lock(this->levelMutex);
+            this->level = level_; 
+        }
+        this->levelCondVar.notify_one();
+	}
 
+	void CommandManager::verifyLevel(){
+
+		for(auto cmd : this->commands){
+			if(cmd.second->testLevel(this->level)){
+				cmd.second->activate();
+			}
+			else{
+				cmd.second->deactivate();
+			}
+		}
+	}
+
+	void CommandManager::levelWatcher() 
+    {
+        while(!*(this->should_exit))
+        {
+            std::unique_lock<std::mutex> lock(this->levelMutex);
+			this->levelCondVar.wait(lock);
+            this->verifyLevel();
+        }
+    }
+} // end namespace dls
 #endif /* end of include guard: COMMAND_MANAGER_CPP */

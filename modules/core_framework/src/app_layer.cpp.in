@@ -24,12 +24,14 @@ using namespace dls;
 // =============================================================================
 AppLayer::AppLayer
 (
-	const std::string &ID_
+	const std::string &ID_,
+	bool *should_quit_
 ) :
 	components_mutex(),
 	components({}),
 	ID(ID_),
-	command_manager(ID_),
+	should_quit(should_quit_),
+	command_manager(ID_, should_quit_),
 	status_mutex(),
 	status(Status::INITIALISING)
 	//,

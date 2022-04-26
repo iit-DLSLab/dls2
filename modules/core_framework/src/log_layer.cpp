@@ -26,14 +26,12 @@
 
 using namespace dls;
 LogLayer::LogLayer(std::string ID, bool *should_quit_)
-	: AppLayer(ID)
+	: AppLayer(ID, should_quit_)
 	, ddslink(
 		"log_layer",
 		dls::domains::logging
 	)
 {
-	should_quit = should_quit_;
-
 	//debug_log
 	ddslink.addReader(
 		"debug_log",

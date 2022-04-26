@@ -26,6 +26,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <condition_variable>
 
 namespace dls
 {
@@ -42,7 +43,7 @@ class CommandManager
 public:
 	/// Constructor
 	///
-	CommandManager(std::string owner_);
+	CommandManager(std::string owner_, bool *should_exit);
 
 	/// Destructor
 	///
@@ -124,9 +125,20 @@ private:
 	///
 	uint level;
 
+	void levelWatcher();
+
+	void verifyLevel();
+
+	std::mutex levelMutex;
+    std::condition_variable levelCondVar;
+
+	std::thread levelThread;
+
 	/// Sends message over the framework distributed system
 	///
 	void sendMessage(std::pair<std::string, std::string> cmdData, std::vector<std::string> args);
+
+	bool *should_exit;
 
 };
 

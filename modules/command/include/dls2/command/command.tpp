@@ -80,7 +80,7 @@ namespace dls
 
 	template <typename ret_t, typename...arg_ts>
 	void Command<ret_t, arg_ts...>::activate(){
-		if(!this->isEnabled() && this->isActive())
+		if(!this->isEnabled() || this->isActive())
 			return;
 
 		this->registerCommand();
@@ -90,10 +90,11 @@ namespace dls
 	template <typename ret_t, typename...arg_ts>
 	void Command<ret_t, arg_ts...>::deactivate(){
 
-		if(!this->isEnabled() && !this->isActive())
+		if(!this->isEnabled() || !this->isActive() || (this->ddslink == nullptr)) 
 			return;
 
-		// this->unregisterCommand();
+		delete this->ddslink;
+		this->ddslink = nullptr;
 		this->active = false;
 	}
 
@@ -105,7 +106,7 @@ namespace dls
 			std::cout << "Error: incorrect number of arguments" << std::endl;
 			return 0;
 		}
-		
+
 		auto arguments = create_tuple<arg_ts...>(args);
 		//static_assert(std::is_same_v<decltype(arguments), const std::tuple<arg_ts...>>);
 			
@@ -129,37 +130,25 @@ namespace dls
 			{
 				[&](void *tuple)
 				{
-					CommandCallMsg *msg = (CommandCallMsg *)tuple;
-			
-					if (msg->owner() != this->getOwner() ||
-							msg->command_name() != this->getName())
+					CommandCallMsg msg = *((CommandCallMsg *)tuple);
+
+					if (msg.owner() != this->getOwner() ||
+							msg.command_name() != this->getName())
 						return;
 
 					std::vector<std::string> result;
 
 					//parse args
 					size_t pos = 0;
-					while ((pos = msg->args().find(",")) != std::string::npos) {
-						result.push_back( msg->args().substr(0, pos) );
-						msg->args().erase(0, pos + 1);
+					while ((pos = msg.args().find(",")) != std::string::npos) {
+						result.push_back( msg.args().substr(0, pos) );
+						msg.args().erase(0, pos + 1);
 					}			
 
 					this->call(result);
-
-					delete msg;
 				}
 			}
 		);
-	}
-
-	template <typename ret_t, typename... arg_ts>
-	void Command<ret_t, arg_ts...>::unregisterCommand()
-	{
-		if (this->ddslink == nullptr)
-			return;
-			
-		// std::cout << "# DELETE LINK " << this->getName() << std::endl;
-		// delete this->ddslink;
 	}
 
 

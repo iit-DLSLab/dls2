@@ -55,7 +55,7 @@ ConsoleLayer *pInstance = nullptr;
 // Constructors
 // =============================================================================
 ConsoleLayer::ConsoleLayer(std::string ID, bool *should_quit_) 
-	: AppLayer(ID)
+	: AppLayer(ID, should_quit_)
 	
 	// ,
 	// consoleFeedback(
@@ -85,7 +85,6 @@ ConsoleLayer::ConsoleLayer(std::string ID, bool *should_quit_)
 	// 	)
 	// )	
 {
-	should_quit = should_quit_;
 	pInstance = this;
 
 	// TODO expose process name here for readline
@@ -102,39 +101,54 @@ ConsoleLayer::ConsoleLayer(std::string ID, bool *should_quit_)
 	// Turn off the default file matching completion
 	rl_completion_entry_function = [](const char *, int)->char*{return nullptr;};
 
-	command_manager.addCommand<void>
-	(
-		"createlink",
-		"createlink",
-		std::function<void()>
-		{
-			[&]()
-			{
-				ddslink = new dls::DDSParticipant(
-					"testcommand",
-					dls::domains::develop
-				);
-			}
-		},
-		{{0,0}},
-		true
-	);
+	// command_manager.addCommand<void>
+	// (
+	// 	"createlink",
+	// 	"createlink",
+	// 	std::function<void()>
+	// 	{
+	// 		[&]()
+	// 		{
+	// 			if (this->ddslink != nullptr)
+	// 				return;
+
+	// 			ddslink = new dls::DDSReader(
+	// 				"testcommand",
+	// 				dls::domains::develop,
+	// 				dls::topics::develop_testbench,
+	// 				std::function<void(void *)>
+	// 				{
+	// 					[&](void *tuple)
+	// 					{
+	// 						return;
+	// 					}
+	// 				}
+	// 			);
+	// 		}
+	// 	},
+	// 	{{0,0}},
+	// 	true
+	// );
 
 
-	command_manager.addCommand<void>
-	(
-		"deletelink",
-		"deletelink",
-		std::function<void()>
-		{
-			[&]()
-			{
-				delete this->ddslink;
-			}
-		},
-		{{0,0}},
-		true
-	);
+	// command_manager.addCommand<void>
+	// (
+	// 	"deletelink",
+	// 	"deletelink",
+	// 	std::function<void()>
+	// 	(
+	// 		[&]()
+	// 		{
+	// 			if (this->ddslink == nullptr)
+	// 				return;
+					
+	// 			delete this->ddslink;
+	// 			this->ddslink = nullptr;
+	// 		}
+	// 	),
+	// 	{{0,0}},
+	// 	true
+	// );
 
 	command_manager.addCommand<void>
 	(

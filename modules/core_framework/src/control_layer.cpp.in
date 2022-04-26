@@ -75,7 +75,7 @@ Eigen::VectorXd last_published_desired_torques;
 // Constructors
 // =============================================================================
 ControlLayer::ControlLayer(std::string ID, bool *should_quit_) 
-	: AppLayer(ID)
+	: AppLayer(ID, should_quit_)
 	, ddslink(
 		"controlLayer",
 		dls::domains::control,
@@ -104,8 +104,6 @@ ControlLayer::ControlLayer(std::string ID, bool *should_quit_)
 	, clog(ID)
 	, cfatal(ID)
 {
-	should_quit = should_quit_;
-
 	command_manager.addCommand<void>
 	(
 		"control_exit",
