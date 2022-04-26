@@ -20,6 +20,7 @@
 // =============================================================================
 #include "app_layer.hpp"
 #include <boost/process.hpp>
+#include "dls2/util/messaging/dds_participant.hpp"
 
 // =============================================================================
 // Class Interface
@@ -61,7 +62,7 @@ namespace dls
 		void launchCore();
 
 		std::map<std::string, boost::process::child *> processes;
-		
+
 	};
 } // end namespace dls
 

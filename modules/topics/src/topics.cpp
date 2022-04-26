@@ -42,6 +42,7 @@ namespace dls
 		topicType simulation_pause 					= dls::topicType("simulation_pause", new BoolMsgPubSubType());
 		std::string simulation_time 				= "simulation_time";
 		topicType warn_log_stream 					= dls::topicType("warn_log_stream", new StringMsgPubSubType());
+		topicType develop_testbench					= dls::topicType("develop_testbench", new StringMsgPubSubType());;
 		
 		namespace low_level_estimation
 		{

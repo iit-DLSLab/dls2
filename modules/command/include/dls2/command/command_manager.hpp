@@ -19,7 +19,7 @@
 // =============================================================================
 // Includes
 // =============================================================================
-#include "dls2/util/messaging/participant.hpp"
+#include "dls2/util/messaging/dds_writer.hpp"
 #include "dls2/command/command_base.hpp"
 #include "dls2/topics/topics.hpp"
 
@@ -110,7 +110,7 @@ private:
 
 	/// Storage space for the commands
 	///
-	std::map<std::string, std::shared_ptr<CommandBase>> commands;
+	std::map<std::string, CommandBase*> commands;
 
 	/// Owner layer of the commands
 	///
@@ -118,7 +118,7 @@ private:
 
 	/// fastdds remote commands monitor
 	///
-	std::unique_ptr<dls::DDSParticipant> commands_monitor;	
+	std::unique_ptr<dls::DDSWriter> commands_monitor;	
 
 	/// Current command running level
 	///

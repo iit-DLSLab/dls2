@@ -5,8 +5,8 @@
 #include <memory>
 
 #include "dls2/msg/stringmsgPubSubTypes.h"
-#include "dls2/util/messaging/publisher.hpp"
-#include "dls2/util/messaging/subscriber.hpp"
+#include "dls2/util/messaging/dds_writer.hpp"
+#include "dls2/util/messaging/dds_reader.hpp"
 
 auto topic          = "this_is_a_long_dummy_test_topic";
 auto target_message = "this is the required message that has to be delivered";
@@ -23,7 +23,7 @@ struct SubscriberTestStruct
 {
 	SubscriberTestStruct();
 	size_t count_of_received_messages{0};
-	dls::version2::Subscriber<StringMsgPubSubType> subscriber;
+	dls::DDSSubscriber<StringMsgPubSubType> subscriber;
 };
 
 SubscriberTestStruct::SubscriberTestStruct():
@@ -47,13 +47,13 @@ int main(int /*argc*/, char ** /*argv*/)
 	std::cout << "Constructing " << COUNT_OF_SUBSCRIBERS << " subscribers and "
 	          << COUNT_OF_PUBLISHERS << " publishers" << std::endl;
 
-	std::vector<std::shared_ptr<dls::version2::Publisher>> publishers;
+	std::vector<std::shared_ptr<dls::DDSWriter>> 		publishers;
 	std::vector<std::shared_ptr<SubscriberTestStruct>>                          subscribers;
 
 	for(size_t i = 0; i != COUNT_OF_PUBLISHERS; ++i)
 	{
 		publishers.push_back(
-			std::make_shared<dls::version2::Publisher>
+			std::make_shared<dls::DDSWriter>
 			(topic)
 		);
 	}

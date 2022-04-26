@@ -30,7 +30,7 @@
 #include <atomic>
 
 #include "dls2/util/messaging/dds_reader.hpp"
-#include "dls2/util/messaging/participant.hpp"
+#include "dls2/util/messaging/dds_writer.hpp"
 #include "dls2/msg/control_signalPubSubTypes.h"
 #include "dls2/msg/hello_worldPubSubTypes.h"
 #include "dls2/math/spline/ramp.hpp"
@@ -156,7 +156,7 @@ private:
 		std::mutex gait_generators_mutex;
 	// END critical section
 	
-	dls::DDSParticipant ddslink;
+	dls::DDSWriter ddslink;
 
 	// BEGIN critical section
 		std::vector<std::thread> wait_on_controller_threads;

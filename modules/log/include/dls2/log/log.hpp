@@ -19,7 +19,7 @@
 #include <streambuf>
 #include "dls2/domains/domains.hpp"
 #include "dls2/topics/topics.hpp"
-#include "dls2/util/messaging/participant.hpp"
+#include "dls2/util/messaging/dds_writer.hpp"
 
 
 namespace dls
@@ -45,7 +45,7 @@ namespace dls
 			int sync() override;
 			bool flush_buffer();
 			dls::topicType topic;
-			dls::DDSParticipant *ddsLogging;
+			dls::DDSWriter *ddsLogging;
 
 			char *buf;
 			const std::string prefix;

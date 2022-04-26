@@ -22,6 +22,7 @@ namespace dls
 	
 	namespace domains
 	{
+		extern domainType develop;
 		extern domainType layer;
 		extern domainType command;
 		extern domainType control;

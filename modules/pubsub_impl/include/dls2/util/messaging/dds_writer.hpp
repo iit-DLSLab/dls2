@@ -13,17 +13,33 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef PARTICIPANT_TPP
-#define PARTICIPANT_TPP
+#ifndef DDSWRITER_HPP
+#define DDSWRITER_HPP
 
-#include "dls2/util/messaging/participant.hpp"
+#include "dls2/util/messaging/dds_participant.hpp"
 
 
-/// \cond doxygen_namespace_dls
 namespace dls
 {
+	class DDSWriter : public DDSParticipant
+	{
+	public:
 
-} // namespace dls
-/// \endcond
+		DDSWriter(
+			std::string     			partName_,
+			dls::domainType 			domain_,
+			dls::topicType  			topic_
+		);
 
-#endif /* end of include guard: PARTICIPANT_TPP */
+		virtual ~DDSWriter();
+
+		void sendMessage(void *msg);
+
+	private:
+
+		eprosima::fastdds::dds::DataWriter *writer;
+
+	};
+}
+
+#endif /* end of include guard: WRITER_HPP */

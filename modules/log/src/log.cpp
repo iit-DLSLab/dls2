@@ -33,16 +33,16 @@ LogStreamBuffer::LogStreamBuffer
 	std::string prefix_
 ) 
 	: topic(topic_)
-	, ddsLogging(new dls::DDSParticipant(
+	, ddsLogging(new dls::DDSWriter(
 			prefix_,
-	 		dls::domains::logging
+	 		dls::domains::logging,
+			topic_
 		)
 	)
 	, buf(new char[buffer_size])
 	, prefix(prefix_ + ": ")
 {
 	setp(buf, buf + buffer_size -1);
-	ddsLogging->addWriter(topic_);
 }
 
 LogStreamBuffer::~LogStreamBuffer()

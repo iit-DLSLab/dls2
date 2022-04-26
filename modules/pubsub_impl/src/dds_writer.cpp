@@ -13,29 +13,29 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef DDSREADER_HPP
-#define DDSREADER_HPP
+#ifndef DDSWRITER_CPP
+#define DDSWRITER_CPP
 
-#include "dls2/util/messaging/dds_participant.hpp"
-
+#include "dls2/util/messaging/dds_writer.hpp"
 
 namespace dls
 {
-	class DDSReader : public DDSParticipant
+	DDSWriter::DDSWriter(
+		std::string     partName_,
+		dls::domainType domain_,
+		dls::topicType  topic_
+	)
+		: DDSParticipant(partName_, domain_)
 	{
-	public:
-		DDSReader(
-			std::string     			partName_,
-			dls::domainType 			domain_,
-			dls::topicType  			topic_,
-			std::function<void(void *)> callback_
-		);
-		virtual ~DDSReader();
+		this->writer = this->addWriter("unicWriter", topic_);
+	}
 
-	private:
+	DDSWriter::~DDSWriter(){}
 
-		eprosima::fastdds::dds::DataReader *reader;
+	void DDSWriter::sendMessage(void *msg){
+		this->writer->write(msg);
+	}
 
-	};
-}
-#endif /* end of include guard: DDSREADER_HPP */
+} // end namespace dls
+
+#endif /* end of include guard: DDSWRITER_CPP */

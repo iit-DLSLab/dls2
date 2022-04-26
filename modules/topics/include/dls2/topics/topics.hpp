@@ -54,6 +54,7 @@ namespace dls
 		extern topicType simulation_pause;
 		extern std::string simulation_time;
 		extern topicType warn_log_stream;
+		extern topicType develop_testbench;
 		
 		namespace low_level_estimation
 		{

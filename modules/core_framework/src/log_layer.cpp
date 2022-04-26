@@ -36,6 +36,7 @@ LogLayer::LogLayer(std::string ID, bool *should_quit_)
 
 	//debug_log
 	ddslink.addReader(
+		"debug_log",
 		dls::topics::debug_log_stream,
 		std::function<void(void *)>
 		{
@@ -49,6 +50,7 @@ LogLayer::LogLayer(std::string ID, bool *should_quit_)
 
 	//info_log
 	ddslink.addReader(
+		"info_log",
 		dls::topics::info_log_stream,
 		std::function<void(void *)>
 		{
@@ -62,6 +64,7 @@ LogLayer::LogLayer(std::string ID, bool *should_quit_)
 
 	//warn_log
 	ddslink.addReader(
+		"warn_log",
 		dls::topics::warn_log_stream,
 		std::function<void(void *)>
 		{
@@ -75,6 +78,7 @@ LogLayer::LogLayer(std::string ID, bool *should_quit_)
 
 	//error_log
 	ddslink.addReader(
+		"error_log",
 		dls::topics::error_log_stream,
 		std::function<void(void *)>
 		{
@@ -88,6 +92,7 @@ LogLayer::LogLayer(std::string ID, bool *should_quit_)
 
 	//fatal_log
 	ddslink.addReader(
+		"fatal_log",
 		dls::topics::fatal_log_stream,
 		std::function<void(void *)>
 		{
@@ -102,6 +107,7 @@ LogLayer::LogLayer(std::string ID, bool *should_quit_)
 
 	//hyq_raw_log
 	ddslink.addReader(
+		"hyq_raw_log",
 		dls::topics::hyqreal_raw,
 		std::function<void(void *)>
 		{

@@ -22,6 +22,7 @@ namespace dls
 {
 	namespace domains
 	{
+		domainType develop = 0;
 		domainType layer = 4;
 		domainType command = 5;
 		domainType control = 6;

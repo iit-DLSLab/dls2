@@ -37,14 +37,14 @@ namespace dls
 	CommandManager::CommandManager(std::string owner_)
 		: commands()
 		, owner(owner_)
-		, commands_monitor(std::make_unique<dls::DDSParticipant>(
+		, commands_monitor(std::make_unique<dls::DDSWriter>(
 			owner_+"::commands_monitor",
-			domains::command)
+			domains::command,
+			dls::topics::command_call
+			)
 		)
 		, level(0)
-	{
-		commands_monitor->addWriter(dls::topics::command_call);
-	}
+	{}
 
 	CommandManager::~CommandManager()
 	{ }

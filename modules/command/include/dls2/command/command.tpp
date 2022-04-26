@@ -93,7 +93,7 @@ namespace dls
 		if(!this->isEnabled() && !this->isActive())
 			return;
 
-		this->unregisterCommand();
+		// this->unregisterCommand();
 		this->active = false;
 	}
 
@@ -145,6 +145,8 @@ namespace dls
 					}			
 
 					this->call(result);
+
+					delete msg;
 				}
 			}
 		);
@@ -156,7 +158,8 @@ namespace dls
 		if (this->ddslink == nullptr)
 			return;
 			
-		delete this->ddslink;
+		// std::cout << "# DELETE LINK " << this->getName() << std::endl;
+		// delete this->ddslink;
 	}
 
 

@@ -13,18 +13,17 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef PARTICIPANT_HPP_4d198a8c_fdc4_4c7d_8be9_6d4b7e6bd7d2
-#define PARTICIPANT_HPP_4d198a8c_fdc4_4c7d_8be9_6d4b7e6bd7d2
-
-#include <fastdds/dds/domain/DomainParticipantFactory.hpp>
-#include <fastdds/dds/domain/DomainParticipant.hpp>
-
-#include "dls2/util/messaging/subscriber.hpp"
-#include "dls2/util/messaging/publisher.hpp"
+#ifndef DDSPARTICIPANT_HPP
+#define DDSPARTICIPANT_HPP
 
 #include "dls2/topics/topics.hpp"
 #include "dls2/domains/domains.hpp"
+#include "dls2/util/messaging/dds_listeners.hpp"
 
+#include <fastdds/dds/domain/DomainParticipantFactory.hpp>
+#include <fastdds/dds/domain/DomainParticipant.hpp>
+#include <fastdds/dds/publisher/Publisher.hpp>
+#include <fastdds/dds/subscriber/Subscriber.hpp>
 
 #include <map>
 #include <string>
@@ -42,30 +41,35 @@ namespace dls
 
 		~DDSParticipant();
 
+		/// Retrieves a list of all participants in the domain of the participant
+		///
 		std::vector<std::string> getParticipants();
 
-		bool addWriter(dls::topicType topic_);
+		eprosima::fastdds::dds::DataWriter *addWriter(
+			std::string    writerName,
+			dls::topicType topicData
+		);
 
 		eprosima::fastdds::dds::DataReader *addReader(
-			dls::topicType				topicData_,
+			std::string                 readerName,
+			dls::topicType				topicData,
 			std::function<void(void *)>	callback
 		);
 
-		void sendMessage(void *msg);
+		void sendMessage(std::string writerName, void *msg);
 
 	private:
-		eprosima::fastdds::dds::DomainParticipant  				*participant;
-		std::map<std::string, eprosima::fastdds::dds::Topic *>  topics;	
+		eprosima::fastdds::dds::DomainParticipant  					*participant;
+		std::map<std::string, eprosima::fastdds::dds::Topic *>  	topics;	
+		std::map<std::string, eprosima::fastdds::dds::DataReader *> readers;
+		std::map<std::string, eprosima::fastdds::dds::DataWriter *> writers;
 
-		dls::version2::Subscriber	*subscriber;
-		dls::version2::Publisher	*publisher;
+		eprosima::fastdds::dds::Subscriber *subscriber;
+		eprosima::fastdds::dds::Publisher  *publisher;
 
 		eprosima::fastdds::dds::Topic* addTopic(dls::topicType topicData_);
 	};
 	
 } // namespace dls
 /// \endcond
-
-#include "dls2/util/messaging/participant.tpp"
-
-#endif // PARTICIPANT_HPP_4d198a8c_fdc4_4c7d_8be9_6d4b7e6bd7d2
+#endif // DDSPARTICIPANT_HPP

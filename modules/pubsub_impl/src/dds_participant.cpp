@@ -16,10 +16,7 @@
 #ifndef PARTICIPANT_CPP
 #define PARTICIPANT_CPP
 
-#include <fastrtps/attributes/ParticipantAttributes.h>
-#include <fastrtps/participant/Participant.h>
-
-#include "dls2/util/messaging/participant.hpp"
+#include "dls2/util/messaging/dds_participant.hpp"
 
 
 /// \cond doxygen_namespace_dls
@@ -30,9 +27,9 @@ namespace dls
 		std::string 	partName_,
 		dls::domainType	domain_
 	)
-		: participant(nullptr)
-		, publisher(nullptr)
-		, subscriber(nullptr)
+		// : participant(nullptr)
+		// , publisher(nullptr)
+		// , subscriber(nullptr)
 	{
 		eprosima::fastdds::dds::DomainParticipantQos participantQos;
 		participantQos.wire_protocol().builtin.discovery_config.discoveryProtocol = eprosima::fastrtps::rtps::DiscoveryProtocol_t::SIMPLE;
@@ -42,50 +39,103 @@ namespace dls
 		this->participant = eprosima::fastdds::dds::DomainParticipantFactory::
 			get_instance()->create_participant(domain_, participantQos);
 
+		std::cout << "# DDS CREATED " << domain_ << std::endl;
+
+
 		if(this->participant == nullptr){
 			throw std::runtime_error("Error: could not create participant");
 		}
 
-		this->publisher = new dls::version2::Publisher(this->participant);
-		this->subscriber = new dls::version2::Subscriber(this->participant);
+		// create publisher
+		this->publisher = this->participant->create_publisher(
+			eprosima::fastdds::dds::PUBLISHER_QOS_DEFAULT,
+			nullptr
+		);
+
+		if(this->publisher == nullptr){
+			throw std::runtime_error("Error: could not create publisher");
+		}
+
+		// create subscriber
+		this->subscriber = this->participant->create_subscriber(
+			eprosima::fastdds::dds::SUBSCRIBER_QOS_DEFAULT,
+			nullptr
+		);
+
+		if(this->subscriber == nullptr){
+			throw std::runtime_error("Error: could not create subscriber");
+		}
 	}
 
 
 	DDSParticipant::~DDSParticipant()
 	{
-		delete this->publisher;
-		delete this->subscriber;
-	
+		// delete all data writers and data readers
+		// this->publisher->delete_contained_entities();
+		// this->subscriber->delete_contained_entities();
+
+		// delete publisher
+		if(this->publisher != nullptr)
+			this->participant->delete_publisher(this->publisher);
+
+		// delete subscriber
+		if(this->subscriber != nullptr)
+			this->participant->delete_subscriber(this->subscriber);
+
+		// for(auto elem : topics)
+        // 	this->participant->delete_topic(elem.second);
+    
+		// delete participant
 		eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->
 			delete_participant(this->participant);
+
 	}
 
-	void DDSParticipant::sendMessage(void *msg)
-	{
-		this->publisher->publish(msg);
-	}
-
-	bool DDSParticipant::addWriter(dls::topicType topicData_)
-	{
+	eprosima::fastdds::dds::DataWriter *DDSParticipant::addWriter(
+		std::string    writerName_,
+		dls::topicType topicData_
+	){
 		auto topic = this->addTopic(topicData_);
 
 		if (topic == nullptr)
-			return false;
+			return nullptr;
 
-		return this->publisher->addDataWriter(topic);
+		auto writer = this->publisher->create_datawriter(
+			topic,
+			eprosima::fastdds::dds::DATAWRITER_QOS_DEFAULT,
+			nullptr
+			//&this->publisher_listener
+		);
+
+		if(writer != nullptr)	
+			this->writers.insert({writerName_, writer});
+
+		return writer;
 	}
 
 	eprosima::fastdds::dds::DataReader *DDSParticipant::addReader(
-		dls::topicType 					topicData_,
-		std::function<void(void *)> 	callback
+		std::string                 readerName_,
+		dls::topicType              topicData_,
+		std::function<void(void *)> callback_
 	){
 		auto topic = this->addTopic(topicData_);
 
 		// error could not add topic
 		if (topic == nullptr)
 			return nullptr;
-				
-		return this->subscriber->addDataReader(topic, callback);
+
+		DDSSubListener  *listener = new DDSSubListener(callback_);
+		
+		auto reader = this->subscriber->create_datareader(
+				topic,
+				eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT,
+				listener
+			);
+
+		if(reader != nullptr)
+			this->readers.insert({readerName_, reader});
+
+		return reader;
 	}
 
 	eprosima::fastdds::dds::Topic* DDSParticipant::addTopic(dls::topicType topicData_){
@@ -117,6 +167,12 @@ namespace dls
 
 	std::vector<std::string> DDSParticipant::getParticipants(){
 		return this->participant->get_participant_names();
+	}
+
+
+	void DDSParticipant::sendMessage(std::string writerName, void *msg)
+	{
+		this->writers.find(writerName)->second->write(msg);
 	}
 	
 } // namespace dls

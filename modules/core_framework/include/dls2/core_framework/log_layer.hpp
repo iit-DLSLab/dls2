@@ -17,7 +17,7 @@
 #define LOG_LAYER_HPP_IAHZ5BZG
 
 #include "app_layer.hpp"
-#include "dls2/util/messaging/participant.hpp"
+#include "dls2/util/messaging/dds_participant.hpp"
 #include "dls2/topics/topics.hpp"
 
 namespace dls

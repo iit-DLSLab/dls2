@@ -69,64 +69,6 @@ namespace dls
 	};
 } // end namespace dls
 
-// =============================================================================
-// New version
-// =============================================================================
-/// \cond doxygen_namespace_dls
-namespace dls
-{
-	/// \cond doxygen_namespace_version2
-	///
-	/// Temporary namespace until the old publishers and subscribers are
-	/// refactored into those contained here, then this namespace will be
-	/// removed and its contents lifted to the dls namespace
-	namespace version2
-	{
-		class Publisher
-		{
-		public:
-
-			Publisher(
-				eprosima::fastdds::dds::DomainParticipant *participant_
-			);
-
-			virtual ~Publisher();
-
-			bool addDataWriter(
-				eprosima::fastdds::dds::Topic*
-			);
-
-			auto getGuid() const -> eprosima::fastrtps::rtps::GUID_t;
-
-			void publish(void *msg) const;
-
-		private:
-
-			eprosima::fastdds::dds::DomainParticipant 								*participant;
-			eprosima::fastdds::dds::Publisher        								*publisher;
-			eprosima::fastdds::dds::DataWriter										*writer;
-
-			class PublisherListener :
-				public eprosima::fastdds::dds::DataWriterListener
-			{
-
-			public:
-
-				PublisherListener();
-				void on_publication_matched
-				(
-					eprosima::fastdds::dds::DataWriter *,
-					const eprosima::fastdds::dds::PublicationMatchedStatus &info
-				) override;
-
-				std::atomic_int matched_count;
-			} publisher_listener;
-
-		};
-
-	} /// \endcond namespace version2
-} /// \endcond namespace dls
-
 #include "dls2/util/messaging/publisher.tpp"
 
 #endif /* end of include guard: PUBLISHER_HPP_MFE9PIJK */

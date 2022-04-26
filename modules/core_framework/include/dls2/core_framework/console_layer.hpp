@@ -80,6 +80,9 @@ private:
 	/// Handler to the shutdown SIGINT (ctrl+c) signal
 	/// 
 	static void handle_signals(int);
+
+	dls::DDSParticipant *ddslink;
+		
 };
 } // end namespace dls
 

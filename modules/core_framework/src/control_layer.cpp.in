@@ -78,7 +78,8 @@ ControlLayer::ControlLayer(std::string ID, bool *should_quit_)
 	: AppLayer(ID)
 	, ddslink(
 		"controlLayer",
-		dls::domains::control
+		dls::domains::control,
+		dls::topics::desired_torques
 	)
 	, controllers_b()
 	, controllers_mutex_b()
@@ -104,7 +105,6 @@ ControlLayer::ControlLayer(std::string ID, bool *should_quit_)
 	, cfatal(ID)
 {
 	should_quit = should_quit_;
-	ddslink.addWriter(dls::topics::desired_torques);
 
 	command_manager.addCommand<void>
 	(

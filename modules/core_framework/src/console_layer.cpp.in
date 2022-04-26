@@ -18,7 +18,7 @@
 #include <readline/history.h>
 #include <filesystem>
 
-#include "dls2/util/messaging/participant.hpp"
+#include "dls2/util/messaging/dds_participant.hpp"
 
 // =============================================================================
 // Foreward Declarations
@@ -101,6 +101,40 @@ ConsoleLayer::ConsoleLayer(std::string ID, bool *should_quit_)
 
 	// Turn off the default file matching completion
 	rl_completion_entry_function = [](const char *, int)->char*{return nullptr;};
+
+	command_manager.addCommand<void>
+	(
+		"createlink",
+		"createlink",
+		std::function<void()>
+		{
+			[&]()
+			{
+				ddslink = new dls::DDSParticipant(
+					"testcommand",
+					dls::domains::develop
+				);
+			}
+		},
+		{{0,0}},
+		true
+	);
+
+
+	command_manager.addCommand<void>
+	(
+		"deletelink",
+		"deletelink",
+		std::function<void()>
+		{
+			[&]()
+			{
+				delete this->ddslink;
+			}
+		},
+		{{0,0}},
+		true
+	);
 
 	command_manager.addCommand<void>
 	(

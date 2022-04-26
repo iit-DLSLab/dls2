@@ -13,8 +13,8 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef DDS_READER_CPP
-#define DDS_READER_CPP
+#ifndef DDSREADER_CPP
+#define DDSREADER_CPP
 
 #include "dls2/util/messaging/dds_reader.hpp"
 
@@ -28,14 +28,12 @@ namespace dls
 	)
 		: DDSParticipant(partName_, domain_)
 	{
-		this->reader = this->addReader(topic_, callback_);
+		if (callback_ != nullptr)
+			this->reader = this->addReader("unicReader", topic_, callback_);
 	}
 
-	DDSReader::~DDSReader(){
-
-		this->reader->delete_contained_entities();
-	}
+	DDSReader::~DDSReader(){}
 
 } // end namespace dls
 
-#endif /* end of include guard: DDS_READER_CPP */
+#endif /* end of include guard: DDSREADER_CPP */
