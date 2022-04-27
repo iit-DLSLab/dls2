@@ -101,55 +101,6 @@ ConsoleLayer::ConsoleLayer(std::string ID, bool *should_quit_)
 	// Turn off the default file matching completion
 	rl_completion_entry_function = [](const char *, int)->char*{return nullptr;};
 
-	// command_manager.addCommand<void>
-	// (
-	// 	"createlink",
-	// 	"createlink",
-	// 	std::function<void()>
-	// 	{
-	// 		[&]()
-	// 		{
-	// 			if (this->ddslink != nullptr)
-	// 				return;
-
-	// 			ddslink = new dls::DDSReader(
-	// 				"testcommand",
-	// 				dls::domains::develop,
-	// 				dls::topics::develop_testbench,
-	// 				std::function<void(void *)>
-	// 				{
-	// 					[&](void *tuple)
-	// 					{
-	// 						return;
-	// 					}
-	// 				}
-	// 			);
-	// 		}
-	// 	},
-	// 	{{0,0}},
-	// 	true
-	// );
-
-
-	// command_manager.addCommand<void>
-	// (
-	// 	"deletelink",
-	// 	"deletelink",
-	// 	std::function<void()>
-	// 	(
-	// 		[&]()
-	// 		{
-	// 			if (this->ddslink == nullptr)
-	// 				return;
-					
-	// 			delete this->ddslink;
-	// 			this->ddslink = nullptr;
-	// 		}
-	// 	),
-	// 	{{0,0}},
-	// 	true
-	// );
-
 	command_manager.addCommand<void>
 	(
 		"clc",

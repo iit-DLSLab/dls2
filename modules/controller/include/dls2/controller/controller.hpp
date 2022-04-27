@@ -22,15 +22,11 @@
 #include "dls2/components/periodic_app_layer_component.hpp"
 #include "dls2/gait_generator/gait_signal.hpp"
 #include "dls2/controller/control_signal.hpp"
-#include "dls2/fastrtps_wrappers/blind_state.hpp"
 #include "dls2/robot/robot.hpp"
-#include "dls2/util/messaging/subscriber.hpp"
-#include "dls2/util/messaging/publisher.hpp"
-#include "dls2/msg/gait_signalPubSubTypes.h"
-#include "dls2/msg/control_signalPubSubTypes.h"
-#include "dls2/msg/blind_statePubSubTypes.h"
-#include <doglib/base/dog.hpp>
+#include "dls2/util/messaging/dds_participant.hpp"
+#include "dls2/msg_wrappers/blind_state.hpp"
 
+#include <doglib/base/dog.hpp>
 
 #include <chrono>
 #include <string>
@@ -46,10 +42,8 @@ namespace dls
 class Controller : public PeriodicAppLayerComponent
 {
 	friend class ControlLayer;
-	friend class GaitListener;
-	friend class BlindStateListener;
+
 public:
-	// using ID_t = std::string;
 
 	// Plugin typedefs
 	typedef Controller *create_t(std::shared_ptr<dls::dog::Dog>);
@@ -57,18 +51,15 @@ public:
 
 	Controller
 	(
-		const std::shared_ptr<dog::Dog>&,                   ///< A pointer to the robot model
-		const ID_t&,                                        ///< The ID of the controller
-		const period_t&,                                    ///< The period of the controller
-		const ControlSignal::SignalReconstructionMethod&    ///< Signal reconstruction used by this controller
+		const ID_t&,                                        		 							///< The ID of the controller
+		const std::shared_ptr<dog::Dog>&,                   		 							///< A pointer to the robot model
+		const period_t&,                                    		 							///< The period of the controller
+		const ControlSignal::SignalReconstructionMethod&,  			 							///< Signal reconstruction used by this controller
+		const dls::topicType& gateTopic = dls::topics::gait_signal,	 							///< Topic where gate signal is being published
+		const dls::topicType& blindStateTopic = dls::topics::low_level_estimation::blind_state  ///< Topic where blind state signal is being published
 	);
 
 	virtual ~Controller() = default;
-
-	///// Get the ID of this controller
-	/////
-	///// @ret the ID
-	//ID_t getID() const;
 
 	/// Returns the name of the topic where this controller is publishing its
 	/// control signal
@@ -90,9 +81,8 @@ protected:
 	void publishSignal(const ControlSignal&);
 
 	const std::shared_ptr<const dog::Dog> pDog;
-	const std::string name;
+
 	const ControlSignal::SignalReconstructionMethod signal_reconstruction_method;
-	// const ID_t ID;
 
 private:
 	// BEGIN critical section
@@ -114,33 +104,11 @@ private:
 
 	std::atomic_bool should_run;
 
-	// =============================== FastRTPS ================================
-	class GaitListener : public SubscriberBase<GaitSignalMsgPubSubType>
-	{
-	public:
-		GaitListener(std::shared_ptr<Controller>);
-		~GaitListener() = default;
-		void onNewDataMessage(eprosima::fastrtps::Subscriber*) override;
-	private:
-		const std::shared_ptr<Controller> pOwner;
-		eprosima::fastrtps::SampleInfo_t info;
-	} gait_listener;
+	dls::topicType control_signal_topic;
+	dls::topicType gait_topic;
+	dls::topicType blind_state_topic;
 
-	class BlindStateListener : public SubscriberBase<BlindStateMsgPubSubType>
-	{
-	public:
-		BlindStateListener(std::shared_ptr<Controller>);
-		~BlindStateListener() = default;
-		void onNewDataMessage(eprosima::fastrtps::Subscriber*) override;
-	private:
-		const std::shared_ptr<Controller> pOwner;
-		eprosima::fastrtps::SampleInfo_t info;
-	} blind_state_listener;
-
-	// dls::version2::Subscriber<BlindStateMsgPubSubType> blind_state_listener;
-
-	const std::string control_signal_topic;
-	PublisherBase<ControlSignalMsgPubSubType> publisher;
+	dls::DDSParticipant ddslink;
 };
 } // end namespace dls
 

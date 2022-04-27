@@ -34,10 +34,10 @@ namespace dls
 	// -----------------------------------------------------------------------------
 	// Constructors
 	// -----------------------------------------------------------------------------
-	CommandManager::CommandManager(std::string owner_, bool *should_exit_)
+	CommandManager::CommandManager(std::string owner_)
 		: commands()
 		, owner(owner_)
-		, should_exit(should_exit_)
+		, should_exit(false)
 		, commands_monitor(std::make_unique<dls::DDSWriter>(
 			owner_+"::commands_monitor",
 			domains::command,
@@ -51,6 +51,7 @@ namespace dls
 	CommandManager::~CommandManager()
 	{
 		// release levelThread to exit
+		should_exit = true;
 		this->levelCondVar.notify_one();
 	}
 
@@ -246,7 +247,7 @@ namespace dls
 
 	void CommandManager::levelWatcher() 
     {
-        while(!*(this->should_exit))
+        while(!this->should_exit)
         {
             std::unique_lock<std::mutex> lock(this->levelMutex);
 			this->levelCondVar.wait(lock);

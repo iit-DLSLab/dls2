@@ -23,32 +23,46 @@ namespace dls
 
 	namespace topics
 	{
-		std::string activate_controller 			= "console_activate_controller";
-		std::string activate_gait_generator 		= "console_activate_gait_generator";
-		topicType command_call 						= dls::topicType("command_call", new CommandCallMsgPubSubType());
-		std::string console 						= "console";
-		topicType control_signal 					= dls::topicType("control_signal", new  ControlSignalMsgPubSubType());
-		std::string deactivate_controller 			= "console_deactivate_controller";
-		std::string deactivate_gait_generator 		= "console_deactivate_gait_generator";
-		topicType debug_log_stream 					= dls::topicType("debug_log_stream", new StringMsgPubSubType());
-		topicType desired_torques 					= dls::topicType("desired_torques", new DesiredTorquesMsgPubSubType());
-		topicType error_log_stream 					= dls::topicType("error_log_stream", new StringMsgPubSubType());
-		topicType fatal_log_stream 					= dls::topicType("fatal_log_stream", new StringMsgPubSubType());
-		std::string gait_signal 					= "GaitSignal";
-		std::string gait_layer  					= "GaitSignalLayer";
-		topicType hyqreal_raw 						= dls::topicType("hyqreal_raw", new HyQRealRawMsgPubSubType());
-		topicType info_log_stream 					= dls::topicType("info_log_stream", new StringMsgPubSubType());
-		std::string joint_states					= "joint_states";
-		topicType simulation_pause 					= dls::topicType("simulation_pause", new BoolMsgPubSubType());
-		std::string simulation_time 				= "simulation_time";
-		topicType warn_log_stream 					= dls::topicType("warn_log_stream", new StringMsgPubSubType());
-		topicType develop_testbench					= dls::topicType("develop_testbench", new StringMsgPubSubType());;
+		// logs
+		dls::topicType warn_log_stream 			= dls::topicType("warn_log_stream", new StringMsgPubSubType());
+		dls::topicType info_log_stream 			= dls::topicType("info_log_stream", new StringMsgPubSubType());
+		dls::topicType error_log_stream 		= dls::topicType("error_log_stream", new StringMsgPubSubType());
+		dls::topicType fatal_log_stream 		= dls::topicType("fatal_log_stream", new StringMsgPubSubType());
+		dls::topicType hyqreal_raw 				= dls::topicType("hyqreal_raw", new HyQRealRawMsgPubSubType());
+		dls::topicType debug_log_stream 		= dls::topicType("debug_log_stream", new StringMsgPubSubType());
+
+		// command
+		dls::topicType command_call 			= dls::topicType("command_call", new CommandCallMsgPubSubType());
+		std::string console 					= "console";
+
+		// simulation
+		std::string simulation_time 			= "simulation_time";
+		dls::topicType simulation_pause 		= dls::topicType("simulation_pause", new BoolMsgPubSubType());
+
+		// development pool
+		dls::topicType develop_testbench		= dls::topicType("develop_testbench", new StringMsgPubSubType());
+
+		// control signals
+		dls::topicType desired_torques 			= dls::topicType("desired_torques", new DesiredTorquesMsgPubSubType());
+		dls::topicType control_signal 			= dls::topicType("control_signal", new  ControlSignalMsgPubSubType());
+		dls::topicType gait_signal 				= dls::topicType("gaitSignal", new  GaitSignalMsgPubSubType());
+		dls::topicType joint_states				= dls::topicType("joint_states", new JointStateMsgPubSubType());
+
+		std::string gait_layer  				= "GaitSignalLayer";
+
+
+		std::string activate_controller 		= "console_activate_controller";
+		std::string activate_gait_generator 	= "console_activate_gait_generator";
+		std::string deactivate_controller 		= "console_deactivate_controller";
+		std::string deactivate_gait_generator 	= "console_deactivate_gait_generator";
+		
+		
 		
 		namespace low_level_estimation
 		{
-			std::string blind_state 				= "low_level_estimation/blind_state";
-			std::string hyq_raw 					= "low_level_estimation/hyq_raw";
-			std::string imu 						= "low_level_estimation/imu";
+			dls::topicType blind_state 			= dls::topicType("blind_state", new  BlindStateMsgPubSubType());
+			dls::topicType hyq_raw 				= dls::topicType("hyq_raw", new HyQRawMsgPubSubType());
+			dls::topicType imu 					= dls::topicType("imu", new ImuMsgPubSubType());
 		}
 	}
 }

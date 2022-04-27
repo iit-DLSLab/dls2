@@ -13,11 +13,11 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#include <thread>
 #include "dls2/controller/controller.hpp"
 #include "dls2/topics/topics.hpp"
-#include "dls2/fastrtps_wrappers/blind_state.hpp"
 #include "dls2/log/log.hpp"
+
+#include <thread>
 
 // =============================================================================
 // Using Declarations
@@ -30,16 +30,16 @@ using dls::dog::Dog;
 // =============================================================================
 Controller::Controller
 (
-	const std::shared_ptr<Dog> &dog_,
 	const std::string &name_,
+	const std::shared_ptr<Dog> &dog_,
 	const period_t &period_,
-	const ControlSignal::SignalReconstructionMethod &reconst_meth
+	const ControlSignal::SignalReconstructionMethod &reconst_meth_,
+	const dls::topicType &gait_topic_,
+	const dls::topicType &blind_state_topic_
 ):
-	PeriodicAppLayerComponent(name_,period_),
+	PeriodicAppLayerComponent(name_, period_),
 	pDog(dog_),
-	name(name_),
-	signal_reconstruction_method(reconst_meth),
-	// ID(name_),
+	signal_reconstruction_method(reconst_meth_),
 	pGait_signal(nullptr),
 	gait_signal_mutex(),
 	pControl_signal(nullptr),
@@ -47,31 +47,50 @@ Controller::Controller
 	pBlind_state_signal(nullptr),
 	blind_state_signal_mutex(),
 	should_run(false),
-	gait_listener(std::shared_ptr<Controller>(this,[](Controller*){})),
-	blind_state_listener(std::shared_ptr<Controller>(this,[](Controller*){})),
-	// blind_state_listener
-	// (
-	// 	topics::low_level_estimation::blind_state,
-	// 	[&](BlindStateMsg msg)
-	// 	{
-	// 		this->pBlind_state_signal = std::make_shared<BlindState>(msg);
-	// 	}
-	// ),
-	control_signal_topic(dls::topics::control_signal.first + name_),
-	publisher(control_signal_topic)
+	control_signal_topic(dls::topicType(name_, new StringMsgPubSubType())),
+	gait_topic(gait_topic_),
+	blind_state_topic(blind_state_topic),
+	ddslink(name_, dls::domains::control)
 {
+
+	this->ddslink.addWriter("signalout", this->control_signal_topic);
+
+	this->ddslink.addReader("gaitListener",
+		this->gait_topic,
+		std::function<void(void *)>
+		{
+			[&](void *tuple)
+			{
+				GaitSignalMsg st = *((GaitSignalMsg*) tuple);
+				std::lock_guard<std::mutex> lock(this->gait_signal_mutex);
+				// TODO do not reassign memory, just reset it
+				// std::cout << "received a gait signal" << std::endl;
+				this->pGait_signal = std::make_shared<const GaitSignal>(st);
+			}
+		}
+	);
+
+	this->ddslink.addReader("blindStateListener",
+		this->blind_state_topic,
+		std::function<void(void *)>
+		{
+			[&](void *tuple)
+			{
+				BlindStateMsg bs = *((BlindStateMsg*) tuple);
+				std::lock_guard<std::mutex> lock(this->blind_state_signal_mutex);
+				// TODO do not reassign memory, just reset it
+				this->pBlind_state_signal = std::make_shared<BlindState>(bs);
+			}
+		}
+	);
+
 	std::cout << "controller is publishing on topic: '"
-		<< dls::topics::control_signal.first + name_ << "'" << std::endl;
+		<< name_ << "'" << std::endl;
 }
 
 // =============================================================================
 // Implementation
 // =============================================================================
-// Controller::ID_t Controller::getID() const
-// {
-// 	return this->ID;
-// }
-
 std::shared_ptr<const GaitSignal> Controller::readGaitSignal() const
 {
 	std::lock_guard<std::mutex> lock(this->gait_signal_mutex);
@@ -84,51 +103,13 @@ std::shared_ptr<BlindState> Controller::readBlindStateSignal() const
 	return this->pBlind_state_signal;
 }
 
-void Controller::publishSignal(const ControlSignal &msg)
+void Controller::publishSignal(const ControlSignal &signal)
 {
-	ControlSignalMsg p = msg;
-	publisher.publish(p);
+	ControlSignalMsg p = signal;
+	this->ddslink.sendMessage("signalout", (void *) &p);
 }
 
 std::string Controller::getControlSignalTopic() const
 {
-	return this->control_signal_topic;
-}
-
-// =============================================================================
-// FastRTPS
-// =============================================================================
-Controller::GaitListener::GaitListener(std::shared_ptr<Controller> p) :
-	SubscriberBase<GaitSignalMsgPubSubType>(topics::gait_signal),
-	pOwner(p),
-	info()
-{ }
-
-void Controller::GaitListener::onNewDataMessage(eprosima::fastrtps::Subscriber *pSub)
-{
-	GaitSignalMsg st;
-	if(pSub->takeNextData(&st, &info))
-	{
-		std::lock_guard<std::mutex> lock(pOwner->gait_signal_mutex);
-		// TODO do not reassign memory, just reset it
-		// std::cout << "received a gait signal" << std::endl;
-		pOwner->pGait_signal = std::make_shared<const GaitSignal>(st);
-	}
-}
-
-Controller::BlindStateListener::BlindStateListener(std::shared_ptr<Controller> p) :
-	SubscriberBase<BlindStateMsgPubSubType>(topics::low_level_estimation::blind_state),
-	pOwner(p),
-	info()
-{ }
-
-void Controller::BlindStateListener::onNewDataMessage(eprosima::fastrtps::Subscriber *pSub)
-{
-	BlindStateMsg bs;
-	if(pSub->takeNextData(&bs, &info))
-	{
-		std::lock_guard<std::mutex> lock(pOwner->blind_state_signal_mutex);
-		// TODO do not reassign memory, just reset it
-		pOwner->pBlind_state_signal = std::make_shared<BlindState>(bs);
-	}
+	return this->control_signal_topic.first;
 }

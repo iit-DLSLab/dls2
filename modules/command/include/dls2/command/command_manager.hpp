@@ -43,7 +43,7 @@ class CommandManager
 public:
 	/// Constructor
 	///
-	CommandManager(std::string owner_, bool *should_exit);
+	CommandManager(std::string owner_);
 
 	/// Destructor
 	///
@@ -138,7 +138,7 @@ private:
 	///
 	void sendMessage(std::pair<std::string, std::string> cmdData, std::vector<std::string> args);
 
-	bool *should_exit;
+	std::atomic_bool should_exit;
 
 };
 

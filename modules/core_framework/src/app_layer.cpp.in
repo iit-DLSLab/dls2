@@ -31,7 +31,7 @@ AppLayer::AppLayer
 	components({}),
 	ID(ID_),
 	should_quit(should_quit_),
-	command_manager(ID_, should_quit_),
+	command_manager(ID_),
 	status_mutex(),
 	status(Status::INITIALISING)
 	//,

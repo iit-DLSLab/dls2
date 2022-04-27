@@ -25,8 +25,13 @@
 #include "dls2/msg/command_registerPubSubTypes.h"
 #include "dls2/msg/desired_torquesPubSubTypes.h"
 #include "dls2/msg/control_signalPubSubTypes.h"
+#include "dls2/msg/blind_statePubSubTypes.h"
+#include "dls2/msg/gait_signalPubSubTypes.h"
 #include "dls2/msg/timePubSubTypes.h"
 #include "dls2/msg/boolPubSubTypes.h"
+#include "dls2/msg/joint_statePubSubTypes.h"
+#include "dls2/msg/hyq_rawPubSubTypes.h"
+#include "dls2/msg/imuPubSubTypes.h"
 
 
 namespace dls
@@ -35,32 +40,44 @@ namespace dls
 
 	namespace topics
 	{
+		// logs
+		extern dls::topicType warn_log_stream;
+		extern dls::topicType info_log_stream;
+		extern dls::topicType error_log_stream;
+		extern dls::topicType fatal_log_stream;
+		extern dls::topicType hyqreal_raw;
+		extern dls::topicType debug_log_stream;
+
+		// command
+		extern dls::topicType command_call;
+		extern std::string console;
+
+		// simulation
+		extern std::string simulation_time;
+		extern dls::topicType simulation_pause;
+
+		// development pool
+		extern dls::topicType develop_testbench;
+
+		// control signals
+		extern dls::topicType desired_torques;
+		extern dls::topicType control_signal;
+		extern dls::topicType gait_signal;
+		extern dls::topicType joint_states;
+		extern std::string gait_layer;
+
+
 		extern std::string activate_controller;
 		extern std::string activate_gait_generator;
-		extern topicType command_call;
-		extern std::string console;
-		extern topicType control_signal;
 		extern std::string deactivate_controller;
 		extern std::string deactivate_gait_generator;
-		extern topicType debug_log_stream;
-		extern topicType desired_torques;
-		extern topicType error_log_stream;
-		extern topicType fatal_log_stream;
-		extern std::string gait_signal;
-		extern std::string gait_layer;
-		extern topicType hyqreal_raw;
-		extern topicType info_log_stream;
-		extern std::string joint_states;
-		extern topicType simulation_pause;
-		extern std::string simulation_time;
-		extern topicType warn_log_stream;
-		extern topicType develop_testbench;
+				
 		
 		namespace low_level_estimation
 		{
-			extern std::string blind_state;
-			extern std::string hyq_raw;
-			extern std::string imu;
+			extern dls::topicType blind_state;
+			extern dls::topicType hyq_raw;
+			extern dls::topicType imu;
 		}
 	}
 }

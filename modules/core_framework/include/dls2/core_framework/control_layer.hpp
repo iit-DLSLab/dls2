@@ -31,13 +31,8 @@
 
 #include "dls2/util/messaging/dds_reader.hpp"
 #include "dls2/util/messaging/dds_writer.hpp"
-#include "dls2/msg/control_signalPubSubTypes.h"
-#include "dls2/msg/hello_worldPubSubTypes.h"
 #include "dls2/math/spline/ramp.hpp"
 #include "dls2/command/command.hpp"
-
-// temporary console includes
-// TODO( "REMOVE THESE INCLUDES WHEN A BETTER CONSOLE IS MADE")
 #include "dls2/topics/topics.hpp"	
 #include "dls2/log/log.hpp"
 
