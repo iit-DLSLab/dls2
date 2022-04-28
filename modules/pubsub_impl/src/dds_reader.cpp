@@ -32,7 +32,9 @@ namespace dls
 			this->reader = this->addReader("unicReader", topic_, callback_);
 	}
 
-	DDSReader::~DDSReader(){}
+	DDSReader::~DDSReader(){
+		this->reader = nullptr;
+	}
 
 } // end namespace dls
 

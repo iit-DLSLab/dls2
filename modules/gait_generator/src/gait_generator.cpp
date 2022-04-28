@@ -31,14 +31,14 @@ GaitGenerator::GaitGenerator
 	const period_t &period_,
 	const dls::topicType& gateTopic_,
 	const dls::topicType& blindStateTopic_
-) :
-	PeriodicAppLayerComponent(ID, period_),
-	pRobot(pRobot_),
-	pData(nullptr),
-	data_mutex(),
-	pBlind_state_signal(nullptr),
-	blind_state_signal_mutex(),
-	ddslink(ID, dls::domains::control)
+) 
+	: PeriodicAppLayerComponent(ID, period_)
+	// , pRobot(pRobot_)
+	// , pData(nullptr)
+	// , data_mutex()
+	// , pBlind_state_signal(nullptr)
+	// , blind_state_signal_mutex()
+	, ddslink("GaitGen::" + ID, dls::domains::control)
 { 
 	this->ddslink.addWriter("signalout", gateTopic_);
 

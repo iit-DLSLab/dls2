@@ -26,6 +26,7 @@
 #include <fastdds/dds/subscriber/Subscriber.hpp>
 
 #include <map>
+#include <set>
 #include <string>
 
 /// \cond doxygen_namespace_dls
@@ -61,6 +62,7 @@ namespace dls
 	private:
 		eprosima::fastdds::dds::DomainParticipant  					*participant;
 		std::map<std::string, eprosima::fastdds::dds::Topic *>  	topics;	
+		std::set<std::string>										types;
 		std::map<std::string, eprosima::fastdds::dds::DataReader *> readers;
 		std::map<std::string, eprosima::fastdds::dds::DataWriter *> writers;
 		std::vector<dls::DDSSubListener *>							subListeners;

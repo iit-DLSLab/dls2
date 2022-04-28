@@ -119,7 +119,7 @@ private:
 
 	/// fastdds remote commands monitor
 	///
-	std::unique_ptr<dls::DDSWriter> commands_monitor;	
+	dls::DDSWriter commands_monitor;	
 
 	/// Current command running level
 	///

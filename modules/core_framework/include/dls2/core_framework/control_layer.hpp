@@ -28,6 +28,7 @@
 #include <mutex>
 #include <thread>
 #include <atomic>
+#include <boost/process.hpp>
 
 #include "dls2/util/messaging/dds_reader.hpp"
 #include "dls2/util/messaging/dds_writer.hpp"
@@ -83,7 +84,7 @@ public:
 	bool activateGaitGenerator(const GaitGenerator::ID_t&);
 
 	/// Deactivates the current gait generator
-	void deactivateGaitGenerators();
+	void deactivateGaitGenerator();
 
 	std::string where() override;
 private:
@@ -140,15 +141,16 @@ private:
 	// BEGIN critical section
 		struct GaitGeneratorData
 		{
-			GaitGeneratorData() :
-				gait_generator_pid(0), ID()
+			GaitGeneratorData() 
+				: ID()
+				, proc(nullptr)
 			{ }
-			pid_t gait_generator_pid;
 			GaitGenerator::ID_t ID;
-			// std::shared_ptr<std::thread> pGait_generator_wait_thread;
+			boost::process::child *proc;
 		};
-		std::shared_ptr<GaitGeneratorData> pGait_generator_data;
-		std::mutex gait_generators_mutex;
+
+		GaitGeneratorData gaitData;
+		std::mutex gaitMutex;
 	// END critical section
 	
 	dls::DDSWriter ddslink;

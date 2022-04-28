@@ -20,11 +20,7 @@
 // Includes
 // =============================================================================
 #include "dls2/command/command_manager.hpp"
-#include <iostream>
-#include <numeric>
-#include <string_view>
-#include <vector>
-#include <sstream>
+
 
 namespace dls
 {
@@ -38,11 +34,10 @@ namespace dls
 		: commands()
 		, owner(owner_)
 		, should_exit(false)
-		, commands_monitor(std::make_unique<dls::DDSWriter>(
+		, commands_monitor(
 			owner_+"::commands_monitor",
 			domains::command,
 			dls::topics::command_call
-			)
 		)
 		, level(0)
 		, levelThread(&CommandManager::levelWatcher, this)
@@ -139,7 +134,7 @@ namespace dls
 	std::multimap<std::string, std::string> CommandManager::getCommandsList(){
 
 		// get all the remote commands
-		auto remCommands = commands_monitor->getParticipants();
+		auto remCommands = commands_monitor.getParticipants();
 		// remove the monitors
 		std::erase_if(remCommands, [](std::string value) { return (value.find("monitor") != std::string::npos); });
 
@@ -157,7 +152,7 @@ namespace dls
 
 	std::set<std::string> CommandManager::getOwnersList()
 	{
-		auto remCommands = commands_monitor->getParticipants();
+		auto remCommands = commands_monitor.getParticipants();
 
 		std::set<std::string> set;
 		for(auto it = commands.begin(); it != commands.end(); ++it)
@@ -214,7 +209,7 @@ namespace dls
 		msg.command_name(cmdData_.first);
 		msg.args(outString);
 
-		this->commands_monitor->sendMessage(&msg);
+		this->commands_monitor.sendMessage(&msg);
 	}
 
 	std::string CommandManager::getOwner(){
@@ -236,6 +231,7 @@ namespace dls
 	void CommandManager::verifyLevel(){
 
 		for(auto cmd : this->commands){
+			std::this_thread::sleep_for(std::chrono::milliseconds(200));
 			if(cmd.second->testLevel(this->level)){
 				cmd.second->activate();
 			}

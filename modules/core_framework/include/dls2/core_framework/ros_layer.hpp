@@ -59,6 +59,8 @@ namespace dls
 
 		void launchSim();
 
+		void exitSim();
+
 		void launchCore();
 
 		void exitCore();

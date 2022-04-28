@@ -87,16 +87,30 @@ ROSLayer::ROSLayer(std::string ID, bool *should_quit_)
 		true
 	);
 
+	command_manager.addCommand<void>
+	(
+		"exitSim",
+		"Terminates simulation",
+		std::function<void()>
+		(
+			[&]()
+			{
+				this->exitSim();
+			}
+		),
+		{{2,1}},
+		true
+	);
+
 	command_manager.addCommand<int>
 	(
 		"freezeBase",
-		"puts the robot down in simulation",
+		"Toggle the RUN/FREEZE state of the simulation",
 		std::function<int()>
 		{
 			[&]()
 			{
-				// return system("rosservice call /hyq/freeze_base");
-				return 1;
+				return system("rosservice call /hyq/freeze_base");
 			}
 		},
 		{{2,2}},
@@ -170,6 +184,23 @@ void ROSLayer::launchSim()
 	this->processes.at("simulation")->detach();
 }
 
+void ROSLayer::exitSim()
+{
+	auto proc = this->processes.find("simulation");
+
+	if ((proc == this->processes.end()) || (proc->second == nullptr))
+		return;
+		
+	kill(proc->second->id(), SIGINT);
+	this->processes.erase("simulation");
+}
+
+void ROSLayer::launchCore()
+{
+	this->processes.insert({"roscore", new boost::process::child("roscore")});
+	this->processes.at("roscore")->detach();
+}
+
 void ROSLayer::exitCore()
 {
 	auto proc = this->processes.find("roscore");
@@ -179,10 +210,4 @@ void ROSLayer::exitCore()
 		
 	kill(proc->second->id(), SIGINT);
 	this->processes.erase("roscore");
-}
-
-void ROSLayer::launchCore()
-{
-	this->processes.insert({"roscore", new boost::process::child("roscore")});
-	this->processes.at("roscore")->detach();
 }

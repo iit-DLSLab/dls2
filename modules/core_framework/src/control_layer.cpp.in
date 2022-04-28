@@ -77,17 +77,16 @@ Eigen::VectorXd last_published_desired_torques;
 ControlLayer::ControlLayer(std::string ID, bool *should_quit_) 
 	: AppLayer(ID, should_quit_)
 	, ddslink(
-		"controlLayer",
+		"ControlLayer::desiredTorques",
 		dls::domains::control,
 		dls::topics::desired_torques
 	)
 	, controllers_b()
 	, controllers_mutex_b()
 	// generators(),
-	// gait_generators_mutex(),
 	// currentActiveGenerator(nullptr),
-	, pGait_generator_data(nullptr)
-	, gait_generators_mutex()	
+	// , pGait_generator_data(nullptr)
+	, gaitMutex()	
 	// num_children(0),
 	// num_children_cv(),
 	// num_children_mutex()
@@ -137,13 +136,13 @@ ControlLayer::ControlLayer(std::string ID, bool *should_quit_)
 	
 	command_manager.addCommand<void>
 	(
-		"deactivateGaitGenerators",
+		"deactivateGaitGenerator",
 		"stops all running gait generators",
 		std::function<void()>
 		{
 			[&]()
 			{
-				this->deactivateGaitGenerators();
+				this->deactivateGaitGenerator();
 			}
 		},
 		{{1,0},{3,2}},
@@ -161,7 +160,7 @@ ControlLayer::ControlLayer(std::string ID, bool *should_quit_)
 				return this->activateController(s);
 			}
 		},
-		{{0,2},{3,1}},
+		{{0,2},{1,3}},
 		true
 	);
 
@@ -323,7 +322,7 @@ ControlLayer::Status ControlLayer::run()
 ControlLayer::Status ControlLayer::shutdown()
 {
 	setStatus(Status::STOP);
-	deactivateGaitGenerators();
+	deactivateGaitGenerator();
 
 	// Stop all controllers
 	{
@@ -368,11 +367,11 @@ std::string ControlLayer::where()
 	}
 	// Where Gait Generators
 	{
-		std::lock_guard<std::mutex> lock(this->gait_generators_mutex);
-		if(this->pGait_generator_data)
+		std::lock_guard<std::mutex> lock(this->gaitMutex);
+		if(this->gaitData.proc)
 		{
 			ss << "Active Gait Generator:\n";
-			ss << pGait_generator_data->ID << "\n";
+			ss << gaitData.ID << "\n";
 		}
 		else
 		{
@@ -568,58 +567,55 @@ void ControlLayer::loadController(const Controller::ID_t &name)
 // -----------------------------------------------------------------------------
 bool ControlLayer::activateGaitGenerator(const GaitGenerator::ID_t &ID)
 {
-	std::lock_guard<std::mutex> lock(this->gait_generators_mutex);
+	std::lock_guard<std::mutex> lock(this->gaitMutex);
 
 	// if a gait generator is already running
-	if(this->pGait_generator_data && this->pGait_generator_data->gait_generator_pid != 0)
+	if(this->gaitData.proc != nullptr)
 	{
 		std::cout << "A gait generator is already running" << std::endl;
 		return false;
 	}
-	// launch a gait generator and register it with the architecture
-	this->pGait_generator_data = std::make_shared<GaitGeneratorData>();
-	this->pGait_generator_data->ID = ID;
-	this->pGait_generator_data->gait_generator_pid = fork();
-	if(this->pGait_generator_data->gait_generator_pid == 0)
-	{
-		// TODO("error checking")
-		// launch the controller
-		//
-		// since its premultiplier is initially set to zero, this will have
-		// no effect on the robot until the spline in is run later
-		std::cout << "WARNING hardcoded to hyq" << std::endl;
-		execl
-		(
-			#ifndef NDEBUG
-				"${EXECUTABLE_OUTPUT_PATH}/child_process_launcher",
-			#else
-				"${DLS_INSTALL_RUNTIME_DIR}/child_process_launcher",
-			#endif
-			ID.c_str(),
-			"gait_generator",
-			"hyq",
-			// Options::robot_name,
-			(Options::simulation_mode?"sim":"live"),
-			nullptr
-		);
-		// execl("${DLS_INSTALL_RUNTIME_DIR}/dls_gait_generator_process", ID.c_str(), ID.c_str(), (char *)NULL);
-		cfatal << "Failed to launch gait generator process" << std::endl;
-	}
 
+	// TODO("error checking")
+	// launch the controller
+	//
+	// since its premultiplier is initially set to zero, this will have
+	// no effect on the robot until the spline in is run later
+
+	std::cout << "WARNING hardcoded to hyq" << std::endl;
+	// launch a gait generator and register it with the architecture
+	this->gaitData.proc = new boost::process::child(std::vector<std::string>({
+		#ifndef NDEBUG
+			"${EXECUTABLE_OUTPUT_PATH}/child_process_launcher",
+		#else
+			"${DLS_INSTALL_RUNTIME_DIR}/child_process_launcher",
+		#endif
+		ID.c_str(),
+		"gait_generator",
+		Options::robot_name,
+		(Options::simulation_mode?"sim":"live")
+	}));
+
+	this->gaitData.ID = ID;
+	this->gaitData.proc->detach();
+
+	if (this->gaitData.proc == nullptr)
+		std::cout << "Failed to launch gait generator process" << std::endl;
+	
 	// start the wait thread -- it will remove the gait generator data when done
-	std::thread t(&ControlLayer::waitOnChildGaitGenerator, this, this->pGait_generator_data);
-	t.detach();
+	// std::thread t(&ControlLayer::waitOnChildGaitGenerator, this, this->pGait_generator_data);
+	// t.detach();
 
 	return true;
 }
 
-void ControlLayer::deactivateGaitGenerators()
+void ControlLayer::deactivateGaitGenerator()
 {
-	std::lock_guard<std::mutex> lock(this->gait_generators_mutex);
-	// if(this->pGait_generator_data || this->pGait_generator_data->gait_generator_pid != 0)
-	if(this->pGait_generator_data && this->pGait_generator_data->gait_generator_pid != 0)
+	std::lock_guard<std::mutex> lock(this->gaitMutex);
+	if(this->gaitData.proc != nullptr)
 	{
-		kill(this->pGait_generator_data->gait_generator_pid, SIGTERM);
+		kill(this->gaitData.proc->id(), SIGTERM);
+		std::cout << "#### KILL SIGNAL SENT" << std::endl;
 	}
 }
 
@@ -673,7 +669,7 @@ void ControlLayer::waitOnChildController(std::shared_ptr<ControllerData> pData)
 void ControlLayer::waitOnChildGaitGenerator(std::shared_ptr<GaitGeneratorData> pData)
 {
 	int status;
-	/*pid_t child_pid =*/ waitpid(pData->gait_generator_pid, &status, 0);
+	/*pid_t child_pid =*/ waitpid(pData->proc->id(), &status, 0);
 	if(WIFSIGNALED(status))
 	{
 		std::stringstream ss;
@@ -687,8 +683,9 @@ void ControlLayer::waitOnChildGaitGenerator(std::shared_ptr<GaitGeneratorData> p
 	}
 	// DMSG("child gait generator " << child_pid << " exited");
 	{
-		std::lock_guard<std::mutex> lock(this->gait_generators_mutex);
-		pGait_generator_data = nullptr;
+		std::lock_guard<std::mutex> lock(this->gaitMutex);
+		gaitData.proc = nullptr;
+		gaitData.ID = "";
 	}
 }
 

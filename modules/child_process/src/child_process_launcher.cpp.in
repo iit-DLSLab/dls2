@@ -193,21 +193,21 @@ int main(int argc, char **argv)
 
 Args parse_args(int argc, char **argv)
 {
-	if(argc != 4)
+	if(argc != 5)
 	{
 		std::cerr << "Error: incorrect number of arguments" << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	for(size_t i = 0; i != 4; ++i)
+	for(size_t i = 1; i <= 4; i++)
 	{
 		std::cout << "arg " << i << ": " << argv[i] << std::endl;
 	}
 
 	Args args;
-	args.component_name = argv[0];
-	args.component_type = argv[1];
-	args.robot_name     = argv[2];
-	args.launch_mode    = argv[3];
+	args.component_name = argv[1];
+	args.component_type = argv[2];
+	args.robot_name     = argv[3];
+	args.launch_mode    = argv[4];
 
 	if
 	(
@@ -247,6 +247,7 @@ Args parse_args(int argc, char **argv)
 
 void signal_handler(int signal)
 {
+	std::cout << "#### KILL SIGNAL RECEIVED" << std::endl;
 	if(signal == SIGTERM)
 	{
 		pComponent->stop();

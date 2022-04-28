@@ -13,7 +13,7 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#include "dls2/fastrtps_wrappers/blind_state.hpp"
+#include "dls2/msg_wrappers/blind_state.hpp"
 
 using namespace dls;
 // =============================================================================

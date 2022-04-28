@@ -132,8 +132,7 @@ namespace dls
 				{
 					CommandCallMsg msg = *((CommandCallMsg *)tuple);
 
-					if (msg.owner() != this->getOwner() ||
-							msg.command_name() != this->getName())
+					if (msg.owner() != this->getOwner() || msg.command_name() != this->getName())
 						return;
 
 					std::vector<std::string> result;
