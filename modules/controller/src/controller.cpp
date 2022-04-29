@@ -84,8 +84,7 @@ Controller::Controller
 		}
 	);
 
-	std::cout << "controller is publishing on topic: '"
-		<< name_ << "'" << std::endl;
+	std::cout << "controller is publishing on topic: '"	<< name_ << "'" << std::endl;
 }
 
 // =============================================================================

@@ -81,6 +81,11 @@ ControlLayer::ControlLayer(std::string ID, bool *should_quit_)
 		dls::domains::control,
 		dls::topics::desired_torques
 	)
+	, ddsMonitor(
+		"ControlLayer::monitor",
+		dls::domains::controllers,
+		dls::topics::controller_command
+	)
 	, controllers_b()
 	, controllers_mutex_b()
 	// generators(),
@@ -602,10 +607,6 @@ bool ControlLayer::activateGaitGenerator(const GaitGenerator::ID_t &ID)
 	if (this->gaitData.proc == nullptr)
 		std::cout << "Failed to launch gait generator process" << std::endl;
 	
-	// start the wait thread -- it will remove the gait generator data when done
-	// std::thread t(&ControlLayer::waitOnChildGaitGenerator, this, this->pGait_generator_data);
-	// t.detach();
-
 	return true;
 }
 
@@ -614,9 +615,31 @@ void ControlLayer::deactivateGaitGenerator()
 	std::lock_guard<std::mutex> lock(this->gaitMutex);
 	if(this->gaitData.proc != nullptr)
 	{
-		kill(this->gaitData.proc->id(), SIGTERM);
-		std::cout << "#### KILL SIGNAL SENT" << std::endl;
+		//shutdown controller over the dds comunication layer
+		ControllerCommandMsg msg;
+		msg.name(this->gaitData.ID);
+		msg.command("shutdown");
+		this->ddsMonitor.sendMessage((void*) &msg);
+
+		//wait a little for gait exit
+		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(200));
+
+		if(this->gaitData.proc->running()){
+			std::cout << "### GAIT GENERATOR IS STILL RUNNING WAITING A LITTLE TO GET PROPPER EXIT ###" << std::endl;
+			std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
+			if(this->gaitData.proc->running()){
+				std::cout << "### FORCING GAIT GENERATOR EXIT ###" << std::endl;
+				kill(this->gaitData.proc->id(), SIGTERM);
+			}
+		}
+
+		delete this->gaitData.proc;
+		this->gaitData.proc = nullptr;
 	}
+
+	
+
+	
 }
 
 Eigen::MatrixXd ControlLayer::saturateTorques(const Eigen::MatrixXd &req) const

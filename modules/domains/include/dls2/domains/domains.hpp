@@ -26,6 +26,7 @@ namespace dls
 		extern domainType layer;
 		extern domainType command;
 		extern domainType control;
+		extern domainType controllers;
 		extern domainType console;
 		extern domainType logging;
 	}

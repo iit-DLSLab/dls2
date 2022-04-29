@@ -26,6 +26,7 @@ namespace dls
 		domainType layer = 4;
 		domainType command = 5;
 		domainType control = 0;
+		domainType controllers = 1;
 		domainType console = 7;
 		domainType logging = 8;
 	}

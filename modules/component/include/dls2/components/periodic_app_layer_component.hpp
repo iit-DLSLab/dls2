@@ -17,9 +17,7 @@
 #define PERIODIC_APP_LAYER_COMPONENT_HPP_RY9LWBZG
 
 #include "dls2/components/app_layer_component.hpp"
-#include "dls2/util/messaging/subscriber.hpp"
-#include "dls2/msg/timePubSubTypes.h"
-#include "dls2/command/command.hpp"
+#include "dls2/command/command_manager.hpp"
 #include "dls2/log/log.hpp"
 
 #include <condition_variable>
@@ -84,9 +82,9 @@ private:
 
 	/// Commands to pause/continue this component
 	///
-	// CommandManager command_manager;
+	CommandManager command_manager;
 
-	// logging::coutstream scout;
+	logging::coutstream scout;
 };
 } // end namespace dls
 

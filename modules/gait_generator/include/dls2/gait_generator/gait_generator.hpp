@@ -91,7 +91,10 @@ class GaitGenerator : public PeriodicAppLayerComponent
 			mutable std::mutex blind_state_signal_mutex;
 		// END crital section
 
+		void executeCommand(std::string cmd);
+
 		dls::DDSParticipant ddslink;
+		dls::DDSReader 		ddsMonitor;
 	};
 } // end namespace dls
 

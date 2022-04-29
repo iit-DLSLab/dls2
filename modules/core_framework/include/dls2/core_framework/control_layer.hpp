@@ -154,6 +154,7 @@ private:
 	// END critical section
 	
 	dls::DDSWriter ddslink;
+	dls::DDSWriter ddsMonitor;	
 
 	// BEGIN critical section
 		std::vector<std::thread> wait_on_controller_threads;

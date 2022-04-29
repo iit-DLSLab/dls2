@@ -39,6 +39,22 @@ GaitGenerator::GaitGenerator
 	// , pBlind_state_signal(nullptr)
 	// , blind_state_signal_mutex()
 	, ddslink("GaitGen::" + ID, dls::domains::control)
+	, ddsMonitor(
+		ID,
+		dls::domains::controllers,
+		dls::topics::controller_command,
+		std::function<void(void *)>
+		{
+			[&](void *tuple)
+			{
+				ControllerCommandMsg msg = *((ControllerCommandMsg*) tuple);
+
+				if (msg.name() == this->getID())
+					this->executeCommand(msg.command());			
+			}
+		}
+
+	)
 { 
 	this->ddslink.addWriter("signalout", gateTopic_);
 
@@ -74,4 +90,15 @@ std::shared_ptr<BlindState> GaitGenerator::readBlindStateSignal() const
 {
 	std::lock_guard<std::mutex> lock(this->blind_state_signal_mutex);
 	return this->pBlind_state_signal;
+}
+
+
+void GaitGenerator::executeCommand(std::string cmd)
+{
+	if(cmd == "shutdown"){
+		this->stop();
+	}
+	else if(cmd == "activate"){
+		this->run();
+	}
 }

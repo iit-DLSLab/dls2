@@ -48,14 +48,8 @@ namespace dls
 		dls::topicType gait_signal 				= dls::topicType("gaitSignal", new  GaitSignalMsgPubSubType());
 		dls::topicType joint_states				= dls::topicType("joint_states", new JointStateMsgPubSubType());
 
-		std::string gait_layer  				= "GaitSignalLayer";
-
-
-		std::string activate_controller 		= "console_activate_controller";
-		std::string activate_gait_generator 	= "console_activate_gait_generator";
-		std::string deactivate_controller 		= "console_deactivate_controller";
-		std::string deactivate_gait_generator 	= "console_deactivate_gait_generator";
-		
+		// controller commands
+		dls::topicType controller_command 		= dls::topicType("controller_command", new ControllerCommandMsgPubSubType());		
 		
 		
 		namespace low_level_estimation

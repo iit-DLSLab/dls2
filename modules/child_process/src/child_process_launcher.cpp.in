@@ -115,15 +115,13 @@ int main(int argc, char **argv)
 		exit(EXIT_FAILURE);
 	}
 
-	std::cout << "=== STARTED ===" << std::endl;
-	
 	// set simulated time
 	if(args.launch_mode == "sim")
 	{
 		Time::set_use_simulated_time(true);
 	}
 
-	std::cout << "=== TRYING TO LOAD CONTROLLER ===" << std::endl;
+	std::cout << "=== LOADING CONTROLLER ===" << std::endl;
 
 	// // Load the component
 	// try
@@ -186,7 +184,6 @@ int main(int argc, char **argv)
 	// Register signal handler
 	std::signal(SIGTERM, signal_handler);
 
-	std::cout << "running component" << std::endl;
 	pComponent->run();
 	return 0;
 }
@@ -254,11 +251,13 @@ void signal_handler(int signal)
 
 		// logging::coutstream s(process_handle);
 		// s << pComponent->getID() << " received kill request" << std::endl;
-		auto exit_status = pComponent->getStatus();
-		pComponent = nullptr;
+		dls::AppLayerComponent::Status exit_status = pComponent->getStatus();
+
+		std::cout << "#### FROM KILLER pComp status " << static_cast<int>(exit_status) << std::endl;
+		// pComponent = nullptr;
 
 		// give fastrtps a moment to send its message
-		std::this_thread::sleep_for(std::chrono::milliseconds(300));
+		std::this_thread::sleep_for(std::chrono::milliseconds(10000));
 		exit(static_cast<int>(exit_status));
 	}
 }
