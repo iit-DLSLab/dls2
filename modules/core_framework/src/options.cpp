@@ -178,11 +178,10 @@ bool Options::parseArgs(int argc, char **argv)
 					else
 					{
 						std::cerr << "unknown layer: " << value << std::endl;
-						auto p = tokens;
 						std::cout << "valid layers are: ";
-						while(p != nullptr)
+						for(int i = 0; i < (sizeof(tokens)/8-1) ; i++)
 						{
-							std::cout << p << " ";
+							std::cout << tokens[i] << " ";
 						}
 						std::cout << std::endl;
 						goto invalid_command_line;

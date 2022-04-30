@@ -151,34 +151,34 @@ namespace dls
 			this->participant->register_type(topicData_.second);
 		}
 
-			auto topic = this->participant->create_topic(
-				topicData_.first,
-				topicData_.second.get_type_name(),
-				eprosima::fastdds::dds::TOPIC_QOS_DEFAULT);
+		auto topic = this->participant->create_topic(
+			topicData_.first,
+			topicData_.second.get_type_name(),
+			eprosima::fastdds::dds::TOPIC_QOS_DEFAULT);
 
-			if (topic == nullptr)
-			{
-				// throw std::runtime_error(
-				// 	"Error: could not create publisher topic"
-				// );
-			}
-
-			this->topics.insert({topicData_.first, topic});
-
-			return topic;
-		}
-
-		std::vector<std::string> DDSParticipant::getParticipants()
+		if (topic == nullptr)
 		{
-			return this->participant->get_participant_names();
+			// throw std::runtime_error(
+			// 	"Error: could not create publisher topic"
+			// );
 		}
 
-		void DDSParticipant::sendMessage(std::string writerName, void *msg)
-		{
-			this->writers.find(writerName)->second->write(msg);
-		}
+		this->topics.insert({topicData_.first, topic});
 
-	} // namespace dls
-	/// \endcond
+		return topic;
+	}
+
+	std::vector<std::string> DDSParticipant::getParticipants()
+	{
+		return this->participant->get_participant_names();
+	}
+
+	void DDSParticipant::sendMessage(std::string writerName, void *msg)
+	{
+		this->writers.find(writerName)->second->write(msg);
+	}
+
+} // namespace dls
+/// \endcond
 
 #endif /* end of include guard: DDSPARTICIPANT_CPP */

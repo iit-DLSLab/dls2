@@ -1,6 +1,7 @@
-#include "dls2/msg/stringmsgPubSubTypes.h"
-#include "dls2/util/messaging/callback_subscriber.hpp"
-#include "dls2/util/messaging/publisher.hpp"
+
+
+#include "dls2/util/messaging/dds_writer.hpp"
+#include "dls2/util/messaging/dds_reader.hpp"
 #include <string>
 #include <vector>
 #include <chrono>
@@ -14,9 +15,9 @@ size_t number_of_messages_to_send = 100;
 
 int main()
 {
-	std::vector<CallbackSubscriber<StringMsgPubSubType>*> subscribers;
-	std::vector<PublisherBase<StringMsgPubSubType>*>      publishers;
-	std::vector<size_t>                                  count_received_messages;
+	std::vector<dls::DDSReader*> subscribers;
+	std::vector<dls::DDSWriter*> publishers;
+	std::vector<size_t>      	 count_received_messages;
 
 	count_received_messages.resize(num_pubsub_pairs);
 
@@ -34,17 +35,26 @@ int main()
 		topic_ss << topic_base << i;
 
 		// build the publisher for this pair
-		auto pub = new PublisherBase<StringMsgPubSubType>(topic_ss.str());
+		auto pub = new DDSWriter(
+			"publisher:" + std::to_string(i),
+			dls::domains::develop,
+			topicType("MULTI_PUBSUB_ONE_TO_ONE_CPP:" + std::to_string(i), new StringMsgPubSubType())
+		);
 		publishers.push_back(pub);
 
 		// build the subscriber for this pair
-		auto sub = new CallbackSubscriber<StringMsgPubSubType>
+		auto sub = new DDSReader
 		(
-			topic_ss.str(),
-			[=, &count_received_messages](StringMsg)
+			"subscriber:" + std::to_string(i),
+			dls::domains::develop,
+			topicType("MULTI_PUBSUB_ONE_TO_ONE_CPP:" + std::to_string(i), new StringMsgPubSubType()),
+			std::function<void(void *)>
 			{
-				std::cout << "subscriber " << i << " got a message" << std::endl;
-				++count_received_messages[i];
+				[=, &count_received_messages](void *tuple)
+				{
+					std::cout << "subscriber " << i << " got a message" << std::endl;
+					++count_received_messages[i];			
+				}
 			}
 		);
 		subscribers.push_back(sub);
@@ -59,7 +69,7 @@ int main()
 	{
 		for(const auto &publisher : publishers)
 		{
-			publisher->publish(msg);
+			publisher->sendMessage((void*) &msg);
 		}
 	}
 

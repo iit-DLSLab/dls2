@@ -1,12 +1,9 @@
 #include "dls2/util/service/service.hpp"
-#include "parameter_server_topics.hpp"
 #include "dls2/msg/param_server_set_doublePubSubTypes.h"
 #include "dls2/msg/doublePubSubTypes.h"
 #include "dls2/msg/stringmsgPubSubTypes.h"
 
 #include "dls/parameter_server_client.hpp"
-
-namespace servimpl = dls::parameter_server::impl;
 
 namespace dls
 {
@@ -40,19 +37,11 @@ namespace dls
 		) :
 			add_double
 			(
-				servimpl::buildFullTopicFromNamespace
-				(
-					server_namespace,
-					servimpl::topics::add_double
-				)
+				dls::topicType("DLS_PARAMETER_SERVER_ADD_DOUBLE", new DoubleMsgPubSubType())
 			),
 			get_double
 			(
-				servimpl::buildFullTopicFromNamespace
-				(
-					server_namespace,
-					servimpl::topics::get_double
-				)
+				dls::topicType("DLS_PARAMETER_SERVER_GET_DOUBLE", new DoubleMsgPubSubType())
 			)
 		{ }
 	}

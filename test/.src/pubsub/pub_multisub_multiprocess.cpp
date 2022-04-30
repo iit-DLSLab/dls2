@@ -1,18 +1,18 @@
+#include "dls2/util/messaging/dds_writer.hpp"
+#include "dls2/util/messaging/dds_reader.hpp"
+
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <atomic>
 #include <catch2/catch.hpp>
-#include "dls2/msg/stringmsgPubSubTypes.h"
-#include "dls2/util/messaging/callback_subscriber.hpp"
-#include "dls2/util/messaging/publisher.hpp"
 #include <string>
 #include <vector>
 #include <chrono>
 #include <iostream>
 
 // ================================== Globals ==================================
-std::string topic("topic_pub_multisub");
+dls::topicType topic("topic_pub_multisub", new StringMsgPubSubType());
 std::string send_message("this is the message that needs to be sent");
 const int number_of_messages_to_send = 10;
 
@@ -23,8 +23,8 @@ int run_subscriber(int sub_id);
 // =================================== Main ====================================
 int main()
 {
-	dls::impl::initFastdds();
 	auto publisher_pid = fork();
+
 	if(publisher_pid == 0)
 	{
 		run_publisher();
@@ -74,7 +74,10 @@ int main()
 // --------------------------------- publisher ---------------------------------
 int run_publisher()
 {
-	dls::PublisherBase<StringMsgPubSubType> publisher(topic);
+	dls::DDSWriter publisher(
+		"publicher_example",
+		dls::domains::develop, 
+		topic);
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 
 	for(size_t i = 0; i != number_of_messages_to_send; ++i)
@@ -82,7 +85,7 @@ int run_publisher()
 		StringMsg msg;
 		msg.msg() = send_message;
 		std::cout << "publish " << i << "..." << std::endl;
-		publisher.publish(msg);
+		publisher.sendMessage((void*) &msg);
 	}
 
 	exit(EXIT_SUCCESS);
@@ -93,15 +96,23 @@ int run_subscriber(int sub_id)
 {
 	std::atomic_int sent_count(0);
 
-	dls::CallbackSubscriber<StringMsgPubSubType> sub
+	dls::DDSReader sub
 	(
+		"reader_example",
+		dls::domains::develop,
 		topic,
-		[&](StringMsg &)
+		std::function<void(void *)>
 		{
-			std::cout << "Sub " << sub_id << " got a message" << std::endl;
-			++sent_count;
+			[&](void *tuple)
+			{
+				StringMsg msg = *((StringMsg*) tuple);
+
+				std::cout << "Sub " << sub_id << " got a message" << std::endl;
+				++sent_count;			
+			}
 		}
 	);
+
 	std::this_thread::sleep_for(std::chrono::seconds(2));
 	if(sent_count != number_of_messages_to_send)
 	{

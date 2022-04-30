@@ -1,14 +1,13 @@
+#include "dls2/util/messaging/dds_writer.hpp"
+#include "dls2/util/messaging/dds_reader.hpp"
+
 #include <chrono>
 #include <cstdlib>
 #include <iostream>
 #include <vector>
 #include <memory>
 
-#include "dls2/msg/stringmsgPubSubTypes.h"
-#include "dls2/util/messaging/dds_writer.hpp"
-#include "dls2/util/messaging/dds_reader.hpp"
-
-auto topic          = "this_is_a_long_dummy_test_topic";
+dls::topicType topic("this_is_a_long_dummy_test_topic", new StringMsgPubSubType());
 auto target_message = "this is the required message that has to be delivered";
 constexpr size_t COUNT_OF_SUBSCRIBERS             = 50;
 constexpr size_t COUNT_OF_PUBLISHERS              = 50;
@@ -23,37 +22,44 @@ struct SubscriberTestStruct
 {
 	SubscriberTestStruct();
 	size_t count_of_received_messages{0};
-	dls::DDSSubscriber<StringMsgPubSubType> subscriber;
+	dls::DDSReader subscriber;
 };
 
 SubscriberTestStruct::SubscriberTestStruct():
-    subscriber(topic, [&](StringMsg msg) {
-	    if(msg.msg() == target_message)
-	    {
-		    ++this->count_of_received_messages;
-	    }
-		else
+    subscriber(
+		"subscriber",
+		dls::domains::develop,
+		topic,
+		std::function<void(void *)>
 		{
-		    std::cerr << "Error: message with incorrect payload received"
-		              << std::endl;
-	    }
-    })
+			[&](void* tuple)
+			{
+				StringMsg msg = *((StringMsg*) tuple);
+				if(msg.msg() == target_message)
+				{
+					++this->count_of_received_messages;
+				}
+				else
+				{
+					std::cerr << "Error: message with incorrect payload received" << std::endl;
+				}
+			}
+		}
+    )
 { }
 
 int main(int /*argc*/, char ** /*argv*/)
 {
-	dls::impl::initFastdds();
 	// ================= Build the publishers and subscribers ==================
 	std::cout << "Constructing " << COUNT_OF_SUBSCRIBERS << " subscribers and "
 	          << COUNT_OF_PUBLISHERS << " publishers" << std::endl;
-	std::vector<std::unique_ptr<dls::DDSWriter>> publishers;
-	std::vector<std::unique_ptr<SubscriberTestStruct>>                          subscribers;
+	std::vector<std::unique_ptr<dls::DDSWriter>> 		publishers;
+	std::vector<std::unique_ptr<SubscriberTestStruct>>  subscribers;
 
 	for(size_t i = 0; i != COUNT_OF_PUBLISHERS; ++i)
 	{
 		publishers.push_back(
-			std::make_unique<dls::DDSWriter>
-			(topic)
+			std::make_unique<dls::DDSWriter>("publisher", dls::domains::develop, topic)
 		);
 	}
 
@@ -89,7 +95,7 @@ int main(int /*argc*/, char ** /*argv*/)
 	{
 		for(size_t i = 0; i != NUMBER_OF_MESSAGES_PER_PUBLISHER; ++i)
 		{
-			publisher->publish(msg);
+			publisher->sendMessage((void*) &msg);
 			std::this_thread::sleep_for(std::chrono::milliseconds(30));
 		}
 		std::cout << "next publisher" << std::endl;

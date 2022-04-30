@@ -71,7 +71,7 @@ add_executable(dummy_blind_state_subscriber
 )
 
 target_link_libraries(dummy_blind_state_subscriber
-		dls_framework
+	dls_framework
 	dls_messaging
 	fastrtps
 	fastcdr

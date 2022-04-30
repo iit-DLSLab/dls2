@@ -1,18 +1,22 @@
-#include "dls2/topics/topics.hpp"
-#include "dls2/util/messaging/callback_subscriber.hpp"
-#include "dls2/fastrtps_wrappers/blind_state.hpp"
-#include "dls2/msg/blind_statePubSubTypes.h"
+
+
+#include "dls2/util/messaging/dds_reader.hpp"
 
 #include <iostream>
 
 int main()
 {
-	dls::CallbackSubscriber<BlindStateMsgPubSubType> sub
+	dls::DDSReader sub
 	(
+		"dds_subscriber",
+		dls::domains::develop,
 		dls::topics::low_level_estimation::blind_state,
-		[&](BlindStateMsg)
+		std::function<void(void *)>
 		{
-			std::cout << "Got a blind state" << std::endl;
+			[&](void *tuple)
+			{
+				std::cout << "Got a blind state" << std::endl;			
+			}
 		}
 	);
 

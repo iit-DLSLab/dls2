@@ -154,36 +154,6 @@ namespace dls
 	// -----------------------------------------------------------------------------
 	// Class Helpers
 	// -----------------------------------------------------------------------------
-	template <typename ret_t, typename...arg_ts>
-	CommandRegisterMsg Command<ret_t, arg_ts...>::buildMsg
-	(
-		const std::string &owner,
-		const std::string &command_name,
-		const std::string &docstring
-	)
-	{
-		CommandRegisterMsg msg;
-		msg.owner(owner);
-		msg.command_name(command_name);
-		msg.docstring(docstring);
-
-		buildRepresentationVector<arg_ts...>(msg.arg_types());
-		msg.ret_type
-		(
-			static_cast
-			<
-				std::remove_reference
-				<
-					decltype(msg.ret_type())
-				>::type
-			>
-			(
-				CommandBase::typeToRepresentation<ret_t>()
-			)
-		);
-		return msg;
-	}
-
 	template<class T> T transform_args(std::string const &s){return s;}
 
 	template <typename... Args, std::size_t... Is>

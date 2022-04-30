@@ -23,8 +23,8 @@
 #include <chrono>
 #include <mutex>
 
-#include "dls2/util/messaging/callback_subscriber.hpp"
-#include "dls2/util/messaging/publisher.hpp"
+#include "dls2/util/messaging/dds_reader.hpp"
+#include "dls2/util/messaging/dds_writer.hpp"
 
 namespace dls
 {
@@ -58,16 +58,16 @@ namespace dls
 		///                 this service receives a request
 		Service
 		(
-			const std::string &topic,
+			const dls::topicType &topic,
 			callback_t callback
 		);
 
 	private:
-		std::string                      service_topic;
+		dls::topicType                      service_topic;
 
 		/// Subscriber waiting for a request message
 		///
-		CallbackSubscriber<req_pubsub_t> request_subscriber;
+		dls::DDSReader request_subscriber;
 
 		/// The callback to call when a request is received
 		///
@@ -106,7 +106,7 @@ namespace dls
 		/// same topic.
 		///
 		/// @param topic the topic on which the server is listening for requests
-		ServiceClient(const std::string &topic);
+		ServiceClient(const dls::topicType &topic);
 
 		/// Calls the service
 		///
@@ -174,11 +174,11 @@ namespace dls
 		/// specified in the constructor
 		// DO NOT put this after response_subscriber. response_subscriber
 		// depends on request_publisher in the constructor initializer list
-		PublisherBase<req_pubsub_t>      request_publisher;
+		dls::DDSWriter	request_publisher;
 
 		/// Subscriber that receives the response from the server
 		///
-		CallbackSubscriber<res_pubsub_t> response_subscriber;
+		dls::DDSReader response_subscriber;
 
 		// BEGIN critical section
 			std::mutex              response_mutex;

@@ -29,6 +29,7 @@ namespace dls
 		domainType controllers = 1;
 		domainType console = 7;
 		domainType logging = 8;
+		domainType service = 9;
 	}
 }
 

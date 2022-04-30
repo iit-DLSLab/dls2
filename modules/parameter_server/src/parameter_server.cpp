@@ -6,12 +6,8 @@
 #include "dls2/msg/doublePubSubTypes.h"
 #include "dls2/msg/stringmsgPubSubTypes.h"
 
-#include "parameter_server_topics.hpp"
-
 #include <mutex>
 #include <string>
-
-namespace servimpl = dls::parameter_server::impl;
 
 namespace dls
 {
@@ -57,11 +53,7 @@ namespace dls
 			param_store(),
 			add_double
 			(
-				servimpl::buildFullTopicFromNamespace
-				(
-					server_namespace,
-					servimpl::topics::add_double
-				),
+				dls::topicType("DLS_PARAMETER_SERVER_ADD_DOUBLE", new DoubleMsgPubSubType()),
 				[this](ParamServerSetDouble msg) -> DoubleMsg
 				{
 					std::lock_guard<std::mutex> lock(this->param_store_mutex);
@@ -71,11 +63,7 @@ namespace dls
 			),
 			get_double
 			(
-				servimpl::buildFullTopicFromNamespace
-				(
-					server_namespace,
-					servimpl::topics::get_double
-				),
+				dls::topicType("DLS_PARAMETER_SERVER_GET_DOUBLE", new DoubleMsgPubSubType()),
 				[this](StringMsg msg) -> DoubleMsg
 				{
 					std::lock_guard<std::mutex> lock(this->param_store_mutex);

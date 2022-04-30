@@ -31,63 +31,42 @@ namespace dls
 	template <typename req_pubsub_t, typename res_pubsub_t>
 	Service<req_pubsub_t, res_pubsub_t>::Service
 	(
-		const std::string &topic_,
+		const dls::topicType &topic_,
 		callback_t callback_
 	) :
 		service_topic(topic_),
 		request_subscriber
 		(
+			"request_sub",
+			dls::domains::service,
 			topic_,
-			// -----------------------------------------------------------------
-			// Service request handling
-			// -----------------------------------------------------------------
-			// TODO perhapse move this lambda into a private member function for
-			// legiblity
-			[&](eprosima::fastrtps::Subscriber *sub)
+			std::function<void(void *)>
 			{
-				// spawn a thread to handle the request
-				//
-				// this thread is immediately detached. As soon as the thread
-				// exits, it is automatically cleaned up.
-				// See man 3 pthread_detach
-				std::thread t
-				(
-					[&]()
-					{
-						// ============= read the request message ==============
-						req_t request;
-						eprosima::fastrtps::SampleInfo_t info;
-						if(sub->takeNextData((void*)&request, &info))
-						{
-							std::stringstream out_topic_stream;
-							out_topic_stream << this->service_topic
-											 << "_response_"
-											 << info.sample_identity.writer_guid();
+				[&](void* tuple)
+				{
+					// // ============= read the request message ==============
+					// req_pubsub_t request = *((req_pubsub_t*) tuple);
 
-							// ============== Process the request ==============
-							res_t response = this->callback(request);
+					// std::stringstream out_topic_stream;
+					// out_topic_stream << this->service_topic.first
+					// 				<< "_response_";
 
-							PublisherBase<res_pubsub_t> response_publisher
-							(
-								out_topic_stream.str()
-							);
+					// // ============== Process the request ==============
+					// res_pubsub_t response = this->callback(request);
 
-							// =============== Send the response ===============
-							// return the response
-							// this->response_publisher.publish(response);
-							response_publisher.publish(response);
+					// dls::DDSWriter response_publisher(
+					// 	"response_pub",
+					// 	dls::domains::service,
+					// 	dls::topicType(out_topic_stream.str(), new req_pubsub_t())
+					// );
 
-							// sleep this thread before removing it. Sleep is
-							// required, since when publisher goes out of scope,
-							// its history is removed. If this happens before
-							// the client gets the response, it will never see
-							// the message
-							std::this_thread::sleep_for(std::chrono::seconds(10));
-						}
-					}
-				);
-				t.detach();
-			}
+					// // =============== Send the response ===============
+					// // return the response
+					// // this->response_publisher.publish(response);
+					// response_publisher.sendMessage((void*) &response);
+
+				}
+			}		
 		),
 		callback(callback_)
 	{ }
@@ -98,35 +77,30 @@ namespace dls
 	template <typename req_pubsub_t, typename res_pubsub_t>
 	ServiceClient<req_pubsub_t, res_pubsub_t>::ServiceClient
 	(
-		const std::string &topic
+		const dls::topicType &topic
 	) :
-		request_publisher(topic),
-		response_subscriber
-		(
-			(
-				// Build the topic
-				//
-				// request_publisher.getGuid can not be added to a string with
-				// the addition operator, but it can be added to a stream using
-				// the bitshift operator. This lambda just builds the topic name
-				// that way and returns it imediately
-				[&]()
-				{
-					std::stringstream ss;
-					ss << topic
-					<< "_response_"
-					<< this->request_publisher.getGuid();
-
-					return ss.str();
-				}()
-			),
-			[&](res_t &response)
+		request_publisher(
+			"request_pub",
+			dls::domains::service,
+			topic
+		),
+		response_subscriber(
+			"response_sub",
+			dls::domains::service,
+			topic,
+			std::function<void(void *)>
 			{
-				std::lock_guard<std::mutex> lock(this->response_mutex);
-				this->remote_response   = response;
-				this->received_response = true;
-				this->received_response_cv.notify_all();
-			}
+				[&](void* tuple)
+				{
+					// res_pubsub_t response = *((res_pubsub_t*) tuple);
+
+					// std::lock_guard<std::mutex> lock(this->response_mutex);
+					// this->remote_response   = response;
+					// this->received_response = true;
+					// this->received_response_cv.notify_all();
+
+				}
+			}	
 		),
 		response_mutex(),
 		received_response_cv(),
@@ -145,7 +119,7 @@ namespace dls
 		std::unique_lock<std::mutex> lock(this->response_mutex);
 
 		// send the request to the server
-		this->request_publisher.publish(request);
+		this->request_publisher.sendMessage((void*) &request);
 
 		// wait for a response
 		this->received_response_cv.wait_for(lock, duration);

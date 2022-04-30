@@ -13,61 +13,20 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef CALLBACK_SUBSCRIBER_TPP_E9ANNCP0
-#define CALLBACK_SUBSCRIBER_TPP_E9ANNCP0
-
-#include "dls2/util/messaging/callback_subscriber.hpp"
-
-// TODO temp include
-#include <iostream>
-
+#ifndef GAIT_GENERATOR_LAYER_HPP_6bf82ff6_8192_4ed8_abd5_ac9d0b5328c1
+#define GAIT_GENERATOR_LAYER_HPP_6bf82ff6_8192_4ed8_abd5_ac9d0b5328c1
+// =============================================================================
+// Includes
+// =============================================================================
+#include "dls2/core_framework/app_layer.hpp"
 namespace dls
 {
-	template <class PubSub_t>
-	CallbackSubscriber<PubSub_t>::CallbackSubscriber
-	(
-		const std::string &topic,
-		callback_t callback_
-	) :
-		SubscriberBase<PubSub_t>(topic),
-		callback(callback_),
-		callback_impl(nullptr)
-	{ }
-
-	template <class PubSub_t>
-	CallbackSubscriber<PubSub_t>::CallbackSubscriber
-	(
-		const std::string &topic,
-		callback_impl_t callback_
-	) :
-		SubscriberBase<PubSub_t>(topic),
-		callback(nullptr),
-		callback_impl(callback_)
-	{ }
-
-	template <class PubSub_t>
-	void CallbackSubscriber<PubSub_t>::onNewDataMessage
-	(
-		eprosima::fastrtps::Subscriber *sub
-	)
+	class GaitLayer : public AppLayer
 	{
-		if(callback_impl)
-		{
-			callback_impl(sub);
-		}
-		else
-		{
-			typename PubSub_t::type msg;
-			eprosima::fastrtps::SampleInfo_t info;
-			if(sub->takeNextData((void*)&msg, &info))
-			{
-				// if(info.sampleKind == eprosima::fastrtps::rtps::ALIVE)
-				// {
-					callback(msg);
-				// }
-			}
-		}
-	}
-} // end namespace dls
+	public:
+		GaitLayer();
 
-#endif /* end of include guard: CALLBACK_SUBSCRIBER_TPP_E9ANNCP0 */
+	};
+}
+
+#endif // GAIT_GENERATOR_LAYER_HPP_6bf82ff6_8192_4ed8_abd5_ac9d0b5328c1

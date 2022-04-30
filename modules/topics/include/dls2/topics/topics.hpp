@@ -22,7 +22,6 @@
 #include "dls2/msg/command_callPubSubTypes.h"
 #include "dls2/msg/stringmsgPubSubTypes.h"
 #include "dls2/msg/hyqreal_rawPubSubTypes.h"
-#include "dls2/msg/command_registerPubSubTypes.h"
 #include "dls2/msg/desired_torquesPubSubTypes.h"
 #include "dls2/msg/control_signalPubSubTypes.h"
 #include "dls2/msg/blind_statePubSubTypes.h"

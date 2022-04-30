@@ -13,25 +13,12 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#include "dls2/core_framework/gait_generator_layer.hpp"
+#include "dls2/core_framework/gait_layer.hpp"
 #include "dls2/topics/topics.hpp"
 
 using namespace dls;
 
 
 GaitLayer::GaitLayer() :
-	AppLayer("gait_layer", nullptr),
-
-	// publisher publishes to "gait_layer" topic
-	pub(dls::topics::gait_layer),
-
-	// Subscriber listens for "gait_signal" as published by gait generators
-	sub
-	(
-		dls::topics::gait_signal,
-		[&](GaitSignalMsg msg)
-		{
-			this->pub.publish(msg);
-		}
-	)
+	AppLayer("gait_layer", nullptr)
 { }

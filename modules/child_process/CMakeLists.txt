@@ -16,6 +16,8 @@ target_link_libraries(child_process_launcher
 		dl
 		dls_framework
 		${roscpp_LIBRARIES}
+		fastcdr
+		fastrtps
 )
 
 dls_install(child_process_launcher)

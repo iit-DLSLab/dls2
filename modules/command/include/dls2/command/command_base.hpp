@@ -130,26 +130,6 @@ namespace dls
 		bool testLevel(uint level);
 
 	protected:
-		/// Convenience typedef
-		///
-		typedef decltype(std::declval<CommandRegisterMsg>().arg_types()) RepresentationVector;
-
-		/// Converts a type to its representation for serialization and publishing
-		///
-		template <typename T> ArgumentType typeToRepresentation();
-
-		/// Builds a vector of ArgumentTypes representing the types given in the
-		/// temlate paramters
-		///
-		template <typename arg1_t, typename arg2_t, typename...arg_other_ts>
-		RepresentationVector &buildRepresentationVector(RepresentationVector&);
-
-		/// Builds a vector of ArgumentTypes representing the types given in the
-		/// temlate paramters
-		///
-		/// Recursion base case
-		template <typename arg_t>
-		RepresentationVector &buildRepresentationVector(RepresentationVector&);
 
 		/// Command execution level
 		///
@@ -191,6 +171,4 @@ namespace dls
 
 
 } // end namespace dls
-
-#include "dls2/command/command_base.tpp"
 #endif /* end of include guard: COMMAND_BASE_HPP_BH05RHMM */

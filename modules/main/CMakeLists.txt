@@ -9,6 +9,8 @@ add_executable(dynamic_legged_systems_framework
 target_link_libraries(dynamic_legged_systems_framework
 	PRIVATE
 		dls_framework
+		fastdds
+		fastrtps
 )
 
 dls_install(dynamic_legged_systems_framework)

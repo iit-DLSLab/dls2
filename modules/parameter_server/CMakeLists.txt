@@ -23,6 +23,8 @@ target_link_libraries(dls_parameter_server
 		parameter_store
 		param_server_msgs
 		dls_pubsub
+		fastcdr
+		fastrtps
 
 )
 
@@ -35,13 +37,14 @@ add_executable(dls_parameter_server_cli
 
 target_link_libraries(dls_parameter_server_cli
 	PRIVATE
-	dls_parameter_server
+		dls_parameter_server
+		dls_pubsub
 )
 
 target_include_directories(dls_parameter_server_cli
 	PRIVATE
-	include
-	src
+		include
+		src
 )
 
 dls_install(dls_parameter_server)

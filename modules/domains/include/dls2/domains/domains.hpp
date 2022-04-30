@@ -29,6 +29,7 @@ namespace dls
 		extern domainType controllers;
 		extern domainType console;
 		extern domainType logging;
+		extern domainType service;
 	}
 }
 

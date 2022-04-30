@@ -107,15 +107,6 @@ namespace dls
 		///
 		int call(std::vector<std::string>);
 
-		// ========================== class helpers ==========================
-		/// Builds the CommandRegisterMsg used to advertise this command
-		///
-		CommandRegisterMsg buildMsg
-		(
-			const std::string &owner,
-			const std::string &command_name,
-			const std::string &docstring
-		);
 	};
 
 	// ========================== class helpers ==========================

@@ -43,10 +43,10 @@ namespace dls
 		dls::topicType develop_testbench		= dls::topicType("develop_testbench", new StringMsgPubSubType());
 
 		// control signals
-		dls::topicType desired_torques 			= dls::topicType("desired_torques", new DesiredTorquesMsgPubSubType());
-		dls::topicType control_signal 			= dls::topicType("control_signal", new  ControlSignalMsgPubSubType());
-		dls::topicType gait_signal 				= dls::topicType("gaitSignal", new  GaitSignalMsgPubSubType());
-		dls::topicType joint_states				= dls::topicType("joint_states", new JointStateMsgPubSubType());
+		dls::topicType desired_torques 			= dls::topicType("rt/desired_torques", new DesiredTorquesMsgPubSubType());
+		dls::topicType control_signal 			= dls::topicType("rt/control_signal", new  ControlSignalMsgPubSubType());
+		dls::topicType gait_signal 				= dls::topicType("rt/gaitSignal", new  GaitSignalMsgPubSubType());
+		dls::topicType joint_states				= dls::topicType("rt/joint_states", new JointStateMsgPubSubType());
 
 		// controller commands
 		dls::topicType controller_command 		= dls::topicType("controller_command", new ControllerCommandMsgPubSubType());		

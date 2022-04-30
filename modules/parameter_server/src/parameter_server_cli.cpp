@@ -1,6 +1,5 @@
 // ================================= Includes ==================================
 #include "dls/parameter_server_client.hpp"
-#include "parameter_server_topics.hpp"
 
 #include <string>
 #include <iostream>
