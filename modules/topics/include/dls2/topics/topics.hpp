@@ -31,7 +31,7 @@
 #include "dls2/msg/joint_statePubSubTypes.h"
 #include "dls2/msg/hyq_rawPubSubTypes.h"
 #include "dls2/msg/imuPubSubTypes.h"
-#include "dls2/msg/controller_commandPubSubTypes.h"
+#include "dls2/msg/command_sendPubSubTypes.h"
 
 
 namespace dls
@@ -65,8 +65,8 @@ namespace dls
 		extern dls::topicType gait_signal;
 		extern dls::topicType joint_states;
 
-		// controller commands
-		extern dls::topicType controller_command;
+		// commands send
+		extern dls::topicType command_send;
 
 		
 		namespace low_level_estimation

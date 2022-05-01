@@ -33,8 +33,6 @@
 #include "dls2/util/messaging/dds_reader.hpp"
 #include "dls2/util/messaging/dds_writer.hpp"
 #include "dls2/math/spline/ramp.hpp"
-#include "dls2/command/command.hpp"
-#include "dls2/topics/topics.hpp"	
 #include "dls2/log/log.hpp"
 
 // =============================================================================
@@ -68,12 +66,6 @@ public:
 	/// @ret true if the controller exists, false otherwise
 	/// See also ControlLayer::activateController
 	bool deactivateController(const Controller::ID_t&);
-
-	/// Dynamically loads a controller at run time
-	///
-	/// This function throws a std::runtime_error if the controller shared
-	/// object cannot be found
-	void loadController(const std::string &name);
 
 	// ============================ Gait Generators ============================
 	/// Activates a gait generator
@@ -114,14 +106,15 @@ private:
 				std::shared_ptr<spline::SplineBase<double>> pSpline_in,
 				std::shared_ptr<spline::SplineBase<double>> pSpline_out,
 				const std::chrono::duration<double> &duration_in,
-				const std::chrono::duration<double> &duration_out
+				const std::chrono::duration<double> &duration_out,
+				uint controlSize
 			);
 
-			std::shared_ptr<ControlSignal> getLastPublishedControlSignal();
+			ControlSignal getLastPublishedControlSignal();
 	
-			/*const*/ pid_t controller_pid;
-			/*const*/ std::shared_ptr<DDSReader> dds_reader;
-			/*const*/ Controller::ID_t ID;
+			boost::process::child *proc;
+			std::shared_ptr<DDSReader> dds_reader;
+			Controller::ID_t ID;
 			std::atomic<double> premultiplier; ///< Spline value to premutilply the torque signal
 			const std::chrono::duration<double> spline_in_duration;
 			const std::chrono::duration<double> spline_out_duration;
@@ -129,7 +122,7 @@ private:
 			const std::shared_ptr<spline::SplineBase<double>> pSpline_out;
 
 			// BEGIN critical section	
-				std::shared_ptr<ControlSignal> control_signal;
+				ControlSignal control_signal;
 				std::mutex control_signal_mutex;
 			// END critical section
 		};
@@ -153,13 +146,8 @@ private:
 		std::mutex gaitMutex;
 	// END critical section
 	
-	dls::DDSWriter ddslink;
-	dls::DDSWriter ddsMonitor;	
-
-	// BEGIN critical section
-		std::vector<std::thread> wait_on_controller_threads;
-		std::mutex wait_on_controller_threads_mutex;
-	// END critical section
+	dls::DDSWriter *ddsControl;
+	dls::DDSWriter *ddsMonitor;	
 
 	/// Default controller spline-in
 	///
@@ -173,8 +161,6 @@ private:
 	///
 	std::chrono::seconds default_duration_seconds;
 
-	void waitOnChildController(std::shared_ptr<ControllerData>);
-	void waitOnChildGaitGenerator(std::shared_ptr<GaitGeneratorData>);
 	void deactivateController(std::shared_ptr<ControllerData> pData);
 
 	// ================================ Members ================================

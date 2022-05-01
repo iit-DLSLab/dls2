@@ -28,12 +28,13 @@
 #include <string>
 #include <csignal>
 #include <sstream>
+#include <sys/prctl.h>
 
 #include "dls2/class_loader.hpp"
 #include "dls2/gait_generator/gait_generator.hpp"
 #include "dls2/controller/controller.hpp"
 #include "dls2/path_prefixes.hpp"
-// #include "dls2/log/log.hpp"
+#include "dls2/log/log.hpp"
 
 #include "dls2/util/time/time.hpp"
 #include <doglib/factory/robot_factory.hpp>
@@ -86,13 +87,10 @@ int main(int argc, char **argv)
 		std::cout << "Debug build" << std::endl;
 	#endif
 
-	// assert proper args
 	Args args = parse_args(argc, argv);
 
-	// logging stream
-	// logging::coutstream s(process_handle);
+	logging::coutstream s(process_handle);
 
-	// build the robot model
 	std::shared_ptr<dog::Dog> pRobot;
 	if(args.robot_name == "hyq")
 	{
@@ -156,7 +154,7 @@ int main(int argc, char **argv)
 			else if(args.component_type == "gait_generator")
 			{
 				pComponent =
-					ClassLoader::loadClass<Controller, std::shared_ptr<dls::dog::Dog>>
+					ClassLoader::loadClass<GaitGenerator, std::shared_ptr<dls::dog::Dog>>
 					(
 						std::string("${DLS_INSTALL_GAIT_GENERATOR_DIR}/lib") + args.component_name + ".so",
 						pRobot
@@ -168,7 +166,7 @@ int main(int argc, char **argv)
 				exit(EXIT_FAILURE);
 			}
 
-			// s << "Loaded component " << pComponent->getID() << std::endl;
+			s << "Loaded component " << pComponent->getID() << std::endl;
 		}
 		catch(const std::exception&)
 		{
@@ -183,6 +181,8 @@ int main(int argc, char **argv)
 
 	// Register signal handler
 	std::signal(SIGTERM, signal_handler);
+
+	prctl(PR_SET_NAME, args.component_name.c_str());
 
 	pComponent->run();
 	return 0;
@@ -249,8 +249,8 @@ void signal_handler(int signal)
 	{
 		pComponent->stop();
 
-		// logging::coutstream s(process_handle);
-		// s << pComponent->getID() << " received kill request" << std::endl;
+		logging::coutstream s(process_handle);
+		s << pComponent->getID() << " received kill request" << std::endl;
 		dls::AppLayerComponent::Status exit_status = pComponent->getStatus();
 
 		std::cout << "#### FROM KILLER pComp status " << static_cast<int>(exit_status) << std::endl;

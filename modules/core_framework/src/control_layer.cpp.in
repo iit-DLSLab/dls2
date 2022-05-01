@@ -43,22 +43,6 @@
 
 #include "dls2/core_framework/options.hpp"
 
-// The current release of Eigen defines in the file `Eigen_Colamd.h` the macro:
-// # define ALIVE (0)
-// This macro seems to be refered to in only that file. Being a very generic
-// name, it clashes with the enumeration in: `eprosima::fastrtps::rtps::ALIVE`
-// As of this writing, it seems that this has been fixed in Eigen's github.
-// However, it has not been officially released yet. At the time of this writing
-// (21 January 2020), the latest stable release of Eigen is Eigen 3.3.7,
-// released on 11 December 2018. Until such time as Eigen's fix makes it into a
-// new release, the following lines solves the issue.
-//
-// For this message, and other similar issues, refer to the wiki page `Software
-// Issues`
-#ifdef ALIVE
-#undef ALIVE
-#endif
-
 using namespace dls;
 
 // =============================================================================
@@ -76,16 +60,6 @@ Eigen::VectorXd last_published_desired_torques;
 // =============================================================================
 ControlLayer::ControlLayer(std::string ID, bool *should_quit_) 
 	: AppLayer(ID, should_quit_)
-	, ddslink(
-		"ControlLayer::desiredTorques",
-		dls::domains::control,
-		dls::topics::desired_torques
-	)
-	, ddsMonitor(
-		"ControlLayer::monitor",
-		dls::domains::controllers,
-		dls::topics::controller_command
-	)
 	, controllers_b()
 	, controllers_mutex_b()
 	// generators(),
@@ -95,8 +69,6 @@ ControlLayer::ControlLayer(std::string ID, bool *should_quit_)
 	// num_children(0),
 	// num_children_cv(),
 	// num_children_mutex()
-	, wait_on_controller_threads()
-	, wait_on_controller_threads_mutex()
 
 	// TODO these 2s should only be put once, and they should be made dynamic
 	// ramp for two seconds from 0 to 1
@@ -108,9 +80,22 @@ ControlLayer::ControlLayer(std::string ID, bool *should_quit_)
 	, clog(ID)
 	, cfatal(ID)
 {
+
+	ddsControl = new dls::DDSWriter(
+		"ControlLayer::desiredTorques",
+		dls::domains::control,
+		dls::topics::desired_torques
+	);
+
+	ddsMonitor = new dls::DDSWriter(
+		"ControlLayer::monitor",
+		dls::domains::controllers,
+		dls::topics::command_send
+	);
+	
 	command_manager.addCommand<void>
 	(
-		"control_exit",
+		"exit",
 		"Shutdown control layer",
 		std::function<void()>
 		{
@@ -185,62 +170,59 @@ ControlLayer::ControlLayer(std::string ID, bool *should_quit_)
 		true
 	);
 
-	// command_manager.addCommand<void, std::string>
-	// (
-	// 	"ls",
-	// 	"List components\n"
-	// 	"argument:\n"
-	// 	"\tcont - list controllers\n"
-	// 	"\tgait - list gait generator",
+	command_manager.addCommand<void, std::string>
+	(
+		"ls",
+		"List components\n"
+		"argument:\n"
+		"\tcont - list controllers\n"
+		"\tgait - list gait generator",
 
-	// 	std::function<void(std::string)>
-	// 	{
-	// 		[&](std::string s)
-	// 		{
-	// 			if(s == "cont")
-	// 			{
-	// 				std::stringstream ss;
-	// 				std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
-	// 				size_t i = 0;
-	// 				for
-	// 				(
-	// 					auto it = this->controllers_b.cbegin();
-	// 					it != this->controllers_b.cend();
-	// 					++it
-	// 				)
-	// 				{
-	// 					ss << it->first << "\n";
-	// 					++i;
-	// 				}
-	// 				if(i) this->scout << ss.str() << std::endl;
-	// 			}
-	// 			else if(s == "gait")
-	// 			{
-	// 				std::lock_guard<std::mutex> lock(this->gait_generators_mutex);
-	// 				if(this->pGait_generator_data)
-	// 				{
-	// 					scout << this->pGait_generator_data->ID
-	// 						<< std::endl;
-	// 				}
-	// 			}
-	// 			else
-	// 			{
-	// 				scout << "Error: unrecognised argument" << std::endl;
-	// 			}
-	// 		}
-	// 	},
-	// 	0,
-	// 	true
-	// );
+		std::function<void(std::string)>
+		{
+			[&](std::string s)
+			{
+				if(s == "cont")
+				{
+					std::stringstream ss;
+					std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
+					size_t i = 0;
+					for
+					(
+						auto it = this->controllers_b.cbegin();
+						it != this->controllers_b.cend();
+						++it
+					)
+					{
+						ss << it->first << "\n";
+						++i;
+					}
+					if(i) this->scout << ss.str() << std::endl;
+				}
+				else if(s == "gait")
+				{
+					std::lock_guard<std::mutex> lock(this->gaitMutex);
+					if(this->gaitData.proc)
+					{
+						scout << this->gaitData.ID	<< std::endl;
+					}
+				}
+				else
+				{
+					scout << "Error: unrecognised argument" << std::endl;
+				}
+			}
+		},
+		{{0,0},{1,0},{2,0},{3,0}},
+		true
+	);
 }
 
 ControlLayer::~ControlLayer()
 {
-	// this->should_quit = true;
-	// this->num_children_cv.notify_one();
-	// DMSG("notified");
-	// this->wait_on_controllers_thread.join();
-	// DMSG("joined");
+	delete ddsControl;
+	delete ddsMonitor;
+	std::cout << "### CONTROL LAYER OFF ###" << std::endl;
 }
 
 // =============================================================================
@@ -265,25 +247,20 @@ ControlLayer::Status ControlLayer::run()
 	while(!*(this->should_quit))
 	{
 		
-		// #ifndef NDEBUG
-			auto begin_epoch = std::chrono::system_clock::now();
-		// #endif
+		auto begin_epoch = std::chrono::system_clock::now();
+
 		// Read the control signals
 		Eigen::VectorXd desired_torques = Eigen::VectorXd::Zero(Robot::getDimension());
 		{
 			std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
-			for(const auto &pair : this->controllers_b)
+			for(auto pair : this->controllers_b)
 			{
 				if(!pair.second->dds_reader) continue;
 
-				auto pControl_signal = pair.second->getLastPublishedControlSignal();
-
-				if(pControl_signal)
-				{
-					desired_torques +=
-						pair.second->premultiplier*pControl_signal->torques;
-					time = pControl_signal->time; // TODO How to pick which time
-				}
+				ControlSignal c_signal = pair.second->getLastPublishedControlSignal();
+				desired_torques += pair.second->premultiplier*c_signal.torques;
+				
+				// time = c_signal.time; // TODO How to pick which time
 			}
 		}
 
@@ -305,48 +282,38 @@ ControlLayer::Status ControlLayer::run()
 		Time::sleep_until(Time::now() + std::chrono::duration<double, std::micro>(100));
 
 		// #ifndef NDEBUG
-		{
-			auto end_epoch = std::chrono::system_clock::now();
-			double useconds =
-				std::chrono::duration<double, std::ratio<1, 1'000'000>>
-					(end_epoch - begin_epoch).count();
+		// {
+		// 	auto end_epoch = std::chrono::system_clock::now();
+		// 	double useconds =
+		// 		std::chrono::duration<double, std::ratio<1, 1'000'000>>
+		// 			(end_epoch - begin_epoch).count();
 
-			std::stringstream ss;
-			ss << "Control Layer has period "
-				<< std::chrono::duration<double, std::ratio<1, 1'000'000>>(100).count() << " useconds. epoch ran in: " << useconds << " useconds "
-				<< std::endl;
-			clog << ss.str() << std::endl;
-			clog << "Control layer published torques " << desired_torques.transpose() << std::endl;
-		}
+		// 	std::stringstream ss;
+		// 	ss << "Control Layer has period "
+		// 		<< std::chrono::duration<double, std::ratio<1, 1'000'000>>(100).count() << " useconds. epoch ran in: " << useconds << " useconds ";
+		// 		// << std::endl;
+		// 	// std::cout << ss.str() << std::endl;
+		// 	std::cout << "\033[F" << "\033[F" << "\r" << ss.str() << std::endl;
+		// 	std::cout << "Control layer published torques " << desired_torques.transpose() << std::endl; // << std::endl;
+		// }
 		// #endif
 	}
-
 	return getStatus();
 }
 
 ControlLayer::Status ControlLayer::shutdown()
 {
-	setStatus(Status::STOP);
 	deactivateGaitGenerator();
 
-	// Stop all controllers
+	for(auto pair : this->controllers_b)
 	{
-		std::unique_lock<std::mutex> lock(this->controllers_mutex_b);
-		for(auto &pair : this->controllers_b)
-		{
-			deactivateController(pair.second);
-		}
+		deactivateController(pair.second);
 	}
-
-	// Join all dangling threads
-	{
-		std::lock_guard<std::mutex> lock(this->wait_on_controller_threads_mutex);
-		for(auto &thread : this->wait_on_controller_threads)
-		{
-			thread.join();
-		}
-	}
+	
 	*(this->should_quit) = true;
+
+	setStatus(Status::STOP);
+
 	return getStatus();
 }
 
@@ -408,73 +375,68 @@ bool ControlLayer::activateController(const Controller::ID_t &ID)
 		this->pDefault_spline_in,
 		this->pDefault_spline_out,
 		default_duration_seconds,
-		default_duration_seconds
+		default_duration_seconds,
+		Robot::getDimension()
 	);
+
+	pData->ID = ID;
 
 	decltype(this->controllers_b.find(ID)) pair_it;
 	{
 		std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
 
-		// find the controller in the list of controllers
-		pair_it = this->controllers_b.find(ID);
-		// TODO("Inform the user that the controller already exists")
-		if(pair_it != this->controllers_b.end()) return false;
+		if(this->controllers_b.find(ID) != this->controllers_b.end()) 
+			return false;
 
-		if((controller_pid = fork()) == 0)
+		// launch the controller
+		//
+		// since its premultiplier is initially set to zero, this will have
+		// no effect on the robot until the spline in is run later
+		std::cout << "WARNING hardcoded to hyq" << std::endl;
+		char *child_process_launcher = std::getenv("DLS_CHILD_PROCESS_LAUNCHER");
+		if(!child_process_launcher)
 		{
-			// launch the controller
-			//
-			// since its premultiplier is initially set to zero, this will have
-			// no effect on the robot until the spline in is run later
-			std::cout << "WARNING hardcoded to hyq" << std::endl;
-			char *child_process_launcher = std::getenv("DLS_CHILD_PROCESS_LAUNCHER");
-			if(!child_process_launcher)
-			{
-				std::cerr <<
-					"ERROR: env variable DLS_CHILD_PROCESS_LAUNCHER not "
-					"defined.  This is probably an error with the launch script"
-				<< std::endl;
-				return false;
-			}
-			std::cout << "Launching: child_process_launcher" << std::endl;
-			execl
-			(
-				child_process_launcher,
-				ID.c_str(),
-				"controller",
-				"hyq",
-				// Options::robot_name,
-				(Options::simulation_mode?"sim":"live"),
-				nullptr
-			);
-			// execl("${DLS_INSTALL_RUNTIME_DIR}/dls_controller_process", ID.c_str(), ID.c_str(), (char *)NULL);
-			cfatal << "Controller process failed to launch" << std::endl;
-			_exit(0);
+			std::cerr <<
+				"ERROR: env variable DLS_CHILD_PROCESS_LAUNCHER not "
+				"defined.  This is probably an error with the launch script"
+			<< std::endl;
+			return false;
 		}
 
-		pData->controller_pid = controller_pid;
-		pData->ID = ID;
+		std::cout << "Launching: child_process_launcher" << std::endl;
+		pData->proc = new boost::process::child(std::vector<std::string>({
+			child_process_launcher,
+			ID.c_str(),
+			"controller",
+			Options::robot_name,
+			(Options::simulation_mode?"sim":"live")
+		}));
+
+		if (pData->proc == nullptr){
+			std::cout << "Controller process failed to launch" << std::endl;
+			return false;
+		}
+		pData->proc->detach();
+
 		pData->dds_reader =
 			std::make_shared<DDSReader>
 			(
-				ID,
+				"ControlLayer::Listener::" + ID,
 				dls::domains::control,
-				dls::topics::control_signal,
+				dls::topicType("Listener::" + ID, new ControlSignalMsgPubSubType()),
 				std::function<void(void *)>
 				{
 					[&](void *tuple)
 					{
 						ControlSignalMsg msg = *((ControlSignalMsg *)tuple);
 
-						std::shared_ptr<ControlSignal> p = std::make_shared<ControlSignal>(msg);
 						std::lock_guard<std::mutex> lock(pData->control_signal_mutex);
-						pData->control_signal = p;
+						pData->control_signal = msg;
 					}
 				}
 			);
 
-		std::cout << "control layer is listening for controller on topic '"
-			<< ID << "'" << std::endl;
+		std::cout << "control layer is listening for controller on topic '"	<< ID << "'" << std::endl;
 
 		this->controllers_b.emplace
 		(
@@ -483,16 +445,6 @@ bool ControlLayer::activateController(const Controller::ID_t &ID)
 				ID,
 				pData
 			)
-		);
-	}
-
-	{
-		std::lock_guard<std::mutex> lock(this->wait_on_controller_threads_mutex);
-		this->wait_on_controller_threads.emplace_back
-		(
-			&ControlLayer::waitOnChildController,
-			this,
-			pData
 		);
 	}
 
@@ -540,9 +492,28 @@ void ControlLayer::deactivateController(std::shared_ptr<ControllerData> pData)
 		}
 	}
 
-	// tell the process to stop -- waitOnChildControllers will
-	// wait on it and join it as required
-	kill(pData->controller_pid, SIGTERM);
+	std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
+
+	//shutdown controller over the dds comunication layer
+	CommandSendMsg msg;
+	msg.name(pData->ID);
+	msg.command("shutdown");
+	this->ddsMonitor->sendMessage((void*) &msg);
+
+	//wait a little for gait exit
+	std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(200));
+
+	if(pData->proc->running()){
+		std::cout << "### CONTROLLER IS STILL RUNNING WAITING A LITTLE TO GET PROPPER EXIT ###" << std::endl;
+		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
+		if(pData->proc->running()){
+			std::cout << "### FORCING CONTROLLER EXIT ###" << std::endl;
+			kill(pData->proc->id(), SIGTERM);
+		}
+	}
+
+	delete pData->proc;
+	this->controllers_b.erase(pData->ID);
 }
 
 bool ControlLayer::deactivateController(const Controller::ID_t &ID)
@@ -552,19 +523,13 @@ bool ControlLayer::deactivateController(const Controller::ID_t &ID)
 		std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
 		pair_it = this->controllers_b.find(ID);
 
-		// TODO("Inform user that the controller does not exist")
-		if(pair_it == this->controllers_b.end()) return false;
+		if(pair_it == this->controllers_b.end()) 
+			return false;
 	}
 
 	this->deactivateController(pair_it->second);
 
 	return true;
-}
-
-// TODO("remove this function")
-void ControlLayer::loadController(const Controller::ID_t &name)
-{
-	name.c_str();
 }
 
 // -----------------------------------------------------------------------------
@@ -574,7 +539,6 @@ bool ControlLayer::activateGaitGenerator(const GaitGenerator::ID_t &ID)
 {
 	std::lock_guard<std::mutex> lock(this->gaitMutex);
 
-	// if a gait generator is already running
 	if(this->gaitData.proc != nullptr)
 	{
 		std::cout << "A gait generator is already running" << std::endl;
@@ -582,13 +546,8 @@ bool ControlLayer::activateGaitGenerator(const GaitGenerator::ID_t &ID)
 	}
 
 	// TODO("error checking")
-	// launch the controller
-	//
-	// since its premultiplier is initially set to zero, this will have
-	// no effect on the robot until the spline in is run later
 
 	std::cout << "WARNING hardcoded to hyq" << std::endl;
-	// launch a gait generator and register it with the architecture
 	this->gaitData.proc = new boost::process::child(std::vector<std::string>({
 		#ifndef NDEBUG
 			"${EXECUTABLE_OUTPUT_PATH}/child_process_launcher",
@@ -616,10 +575,10 @@ void ControlLayer::deactivateGaitGenerator()
 	if(this->gaitData.proc != nullptr)
 	{
 		//shutdown controller over the dds comunication layer
-		ControllerCommandMsg msg;
+		CommandSendMsg msg;
 		msg.name(this->gaitData.ID);
 		msg.command("shutdown");
-		this->ddsMonitor.sendMessage((void*) &msg);
+		this->ddsMonitor->sendMessage((void*) &msg);
 
 		//wait a little for gait exit
 		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(200));
@@ -636,10 +595,6 @@ void ControlLayer::deactivateGaitGenerator()
 		delete this->gaitData.proc;
 		this->gaitData.proc = nullptr;
 	}
-
-	
-
-	
 }
 
 Eigen::MatrixXd ControlLayer::saturateTorques(const Eigen::MatrixXd &req) const
@@ -655,61 +610,7 @@ void ControlLayer::publishDesiredTorques(const Eigen::VectorXd &torques, double 
 	msg.desired_torques().resize(torques.size());
 	msg.header().time().seconds()=time;
 	Eigen::VectorXd::Map(&msg.desired_torques()[0], torques.size()) = torques;
-	this->ddslink.sendMessage(&msg);
-}
-
-// =============================================================================
-// Fork
-// =============================================================================
-// TODO spline out controller here too if necessary
-void ControlLayer::waitOnChildController(std::shared_ptr<ControllerData> pData)
-{
-	int status;
-
-	// TODO("Handle errors, relaunching etc")
-	/*pid_t child_pid = */waitpid(pData->controller_pid, &status, 0);
-	if(WIFSIGNALED(status))
-	{
-		std::stringstream ss;
-		ss << "child controller " << pData->ID << " exited by signal " << std::flush;
-		if(WCOREDUMP(status))
-		{
-			ss << " and produced a core dump";
-		}
-		ss << std::flush;
-		scout << ss.str() << std::endl;
-	}
-	{
-		std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
-		auto it = this->controllers_b.find(pData->ID);
-		if(it != this->controllers_b.end())
-		{
-			this->controllers_b.erase(it);
-		}
-	}
-}
-
-void ControlLayer::waitOnChildGaitGenerator(std::shared_ptr<GaitGeneratorData> pData)
-{
-	int status;
-	/*pid_t child_pid =*/ waitpid(pData->proc->id(), &status, 0);
-	if(WIFSIGNALED(status))
-	{
-		std::stringstream ss;
-		ss << "child gait generator exited by signal " << std::flush;
-		if(WCOREDUMP(status))
-		{
-			ss << "and produced a core dump" << std::flush;
-		}
-		ss << std::flush;
-		scout << ss.str() << std::endl;
-	}
-	// DMSG("child gait generator " << child_pid << " exited");
-	{
-		std::lock_guard<std::mutex> lock(this->gaitMutex);
-		gaitData.proc = nullptr;
-		gaitData.ID = "";
-	}
+	this->ddsControl->sendMessage(&msg);
 }
 
 // =============================================================================
@@ -720,20 +621,22 @@ ControlLayer::ControllerData::ControllerData
 	std::shared_ptr<spline::SplineBase<double>> spline_in_,
 	std::shared_ptr<spline::SplineBase<double>> spline_out_,
 	const std::chrono::duration<double> &duration_in,
-	const std::chrono::duration<double> &duration_out
+	const std::chrono::duration<double> &duration_out,
+	uint controlSize
 ) :
-	controller_pid(0),
+	proc(nullptr),
 	dds_reader(nullptr),
 	ID(),
 	premultiplier(0),
 	spline_in_duration(duration_in),
 	spline_out_duration(duration_out),
 	pSpline_in(spline_in_),
-	pSpline_out(spline_out_)
+	pSpline_out(spline_out_),
+	control_signal(controlSize)
 { }
 
 
-std::shared_ptr<ControlSignal> ControlLayer::ControllerData::getLastPublishedControlSignal()
+ControlSignal ControlLayer::ControllerData::getLastPublishedControlSignal()
 {
 	std::lock_guard<std::mutex> lock(this->control_signal_mutex);
 	return this->control_signal;

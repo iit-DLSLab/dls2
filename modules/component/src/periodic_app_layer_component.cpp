@@ -39,43 +39,43 @@ PeriodicAppLayerComponent::PeriodicAppLayerComponent(const ID_t &ID, const perio
 	, command_manager(ID)
 	, scout(ID)
 {
-	this->command_manager.addCommand<void>
-	(
-		"pause",
-		"Pause the execution of " + this->getID(),
-		std::function<void()>
-		(
-			[&]()
-			{
-				std::lock_guard<std::mutex> lock(this->pause_mutex);
-				this->is_paused = true;
-				this->pause_request.notify_all();
-				std::cout << this->getID() << " EXECUTION PAUSED" << std::endl;
-				scout << this->getID() << " paused execution" << std::endl;
-			}
-		),
-		{{0,1}},
-		true
-	);
+	// this->command_manager.addCommand<void>
+	// (
+	// 	"pause",
+	// 	"Pause the execution of " + this->getID(),
+	// 	std::function<void()>
+	// 	(
+	// 		[&]()
+	// 		{
+	// 			std::lock_guard<std::mutex> lock(this->pause_mutex);
+	// 			this->is_paused = true;
+	// 			this->pause_request.notify_all();
+	// 			std::cout << this->getID() << " EXECUTION PAUSED" << std::endl;
+	// 			scout << this->getID() << " paused execution" << std::endl;
+	// 		}
+	// 	),
+	// 	{{0,1}},
+	// 	true
+	// );
 
-	this->command_manager.addCommand<void>
-	(
-		"continue",
-		"Continue the execution of " + this->getID(),
-		std::function<void()>
-		(
-			[&]()
-			{
-				std::lock_guard<std::mutex> lock(this->pause_mutex);
-				this->is_paused = false;
-				this->pause_request.notify_all();
-				std::cout << this->getID() << " continued execution" << std::endl;
-				scout << this->getID() << " continued execution" << std::endl;
-			}
-		),
-		{{1,0}},
-		true
-	);
+	// this->command_manager.addCommand<void>
+	// (
+	// 	"continue",
+	// 	"Continue the execution of " + this->getID(),
+	// 	std::function<void()>
+	// 	(
+	// 		[&]()
+	// 		{
+	// 			std::lock_guard<std::mutex> lock(this->pause_mutex);
+	// 			this->is_paused = false;
+	// 			this->pause_request.notify_all();
+	// 			std::cout << this->getID() << " continued execution" << std::endl;
+	// 			scout << this->getID() << " continued execution" << std::endl;
+	// 		}
+	// 	),
+	// 	{{1,0}},
+	// 	true
+	// );
 }
 
 // =============================================================================

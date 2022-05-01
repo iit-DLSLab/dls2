@@ -1,4 +1,4 @@
-dls_add_message(controller_command)
+dls_add_message(command_send)
 dls_add_message(command_call)
 dls_add_message(desired_torques)
 dls_add_message(console_command)

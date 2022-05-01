@@ -16,15 +16,15 @@
 #include "dls2/controller/control_signal.hpp"
 
 using namespace dls;
-ControlSignal::ControlSignal() :
-	torques(),
+ControlSignal::ControlSignal(uint size) :
+	torques(Eigen::VectorXd::Zero(size)),
 	signal_reconstruction_method(SignalReconstructionMethod::ZERO_ORDER_HOLD),
 	time()
 { }
 
 ControlSignal::ControlSignal(ControlSignalMsg msg) :
 	// TODO this 12 should not be hardcoded
-	torques(Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(msg.torques().data(), 12)),
+	torques(Eigen::VectorXd::Map(msg.torques().data(), 12)),
 	signal_reconstruction_method((SignalReconstructionMethod)msg.signal_reconstruction_method()),
 	time(msg.header().time().seconds())
 { }
@@ -42,3 +42,10 @@ ControlSignal::operator ControlSignalMsg() const
 	msg.header().time().seconds()=this->time;
 	return msg;
 }
+
+
+// ControlSignal & ControlSignal::operator=(const ControlSignalMsg &msg){
+// 	this->torques = Eigen::VectorXd::Map(msg.torques().data(), 12);
+// 	this->signal_reconstruction_method = (SignalReconstructionMethod) msg.signal_reconstruction_method();
+// 	this->time = msg.header().time().seconds();
+// }

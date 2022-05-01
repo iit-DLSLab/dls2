@@ -50,6 +50,7 @@ ROSLayer::ROSLayer(std::string ID, bool *should_quit_)
 		(
 			[&]()
 			{
+				std::cout << "### LAUNCHING ROSCORE ###" << std::endl;
 				this->launchCore();
 			}
 		),

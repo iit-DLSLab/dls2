@@ -125,7 +125,22 @@ ConsoleLayer::ConsoleLayer(std::string ID, bool *should_quit_)
 		{
 			[&]()
 			{
-				*(this->should_quit) = true;;
+				*(this->should_quit) = true;
+			}
+		},
+		{{0,0}},
+		true
+	);
+
+	command_manager.addCommand<void>
+	(
+		"shutdown",
+		"Shutdown the framework",
+		std::function<void()>
+		{
+			[&]()
+			{
+				this->shutdownAll();
 			}
 		},
 		{{0,0}},
@@ -186,6 +201,10 @@ ConsoleLayer::ConsoleLayer(std::string ID, bool *should_quit_)
 		true
 	);
 }
+
+ConsoleLayer::~ConsoleLayer(){
+	std::cout << "### CONSOLE LAYER OFF ###" << std::endl;
+};
 
 // =============================================================================
 // Interface Override
@@ -275,7 +294,13 @@ ConsoleLayer::Status ConsoleLayer::shutdown()
 }
 
 
+void ConsoleLayer::shutdownAll()
+{
+	CommandSendMsg msg;
+	msg.command() = "shutdownAll";
 
+	this->ddslink->sendMessage("commandSender", (void*) &msg);
+}
 
 // =============================================================================
 // Implementaton

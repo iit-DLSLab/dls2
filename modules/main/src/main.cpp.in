@@ -229,7 +229,7 @@ int main(int argc, char **argv)
 		outstream << ss.str() << std::endl;	
 	}
 	
-	std::cout << "Framework Stopped" << std::endl;
+	std::cout << "=== FRAMEWORK NODE STOPPED ===" << std::endl;
 	return 0;
 }
 
@@ -280,7 +280,7 @@ void forkLayer(const std::string &process_name, bool *should_quit_, char **argv)
 		// 	app_panic_handler
 		// );
 		
-		std::shared_ptr<layer_t> pLayer = std::make_shared<layer_t>(process_name, should_quit_);
+		layer_t *pLayer = new layer_t(process_name, should_quit_);
 		pLayer->run();
 		exit(EXIT_SUCCESS);
 	}

@@ -12,8 +12,8 @@ target_include_directories(dls_pubsub_impl
 
 target_link_libraries(dls_pubsub_impl
 	PRIVATE
-		# fastcdr
-		# fastrtps
+		fastcdr
+		fastrtps
 		dls_topics
 		dls_domains
 )

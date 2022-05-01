@@ -36,21 +36,40 @@ Controller::Controller
 	const ControlSignal::SignalReconstructionMethod &reconst_meth_,
 	const dls::topicType &gait_topic_,
 	const dls::topicType &blind_state_topic_
-):
-	PeriodicAppLayerComponent(name_, period_),
-	pDog(dog_),
-	signal_reconstruction_method(reconst_meth_),
-	pGait_signal(nullptr),
-	gait_signal_mutex(),
-	pControl_signal(nullptr),
-	control_signal_mutex(),
-	pBlind_state_signal(nullptr),
-	blind_state_signal_mutex(),
-	should_run(false),
-	control_signal_topic(dls::topicType(name_, new StringMsgPubSubType())),
-	gait_topic(gait_topic_),
-	blind_state_topic(blind_state_topic),
-	ddslink(name_, dls::domains::control)
+)
+	: PeriodicAppLayerComponent(name_, period_)
+	, pDog(dog_)
+	, signal_reconstruction_method(reconst_meth_)
+	// , pGait_signal(nullptr),
+	// gait_signal_mutex(),
+	// pControl_signal(nullptr),
+	// control_signal_mutex(),
+	// pBlind_state_signal(nullptr),
+	// blind_state_signal_mutex()
+	, should_run(false)
+	, control_signal_topic(dls::topicType("Listener::" + name_, new ControlSignalMsgPubSubType()))
+	, gait_topic(gait_topic_)
+	, blind_state_topic(blind_state_topic)
+	, ddslink(
+		"Controller::" + name_,
+		dls::domains::control
+	)
+	, ddsMonitor(
+		name_,
+		dls::domains::controllers,
+		dls::topics::command_send,
+		std::function<void(void *)>
+		{
+			[&](void *tuple)
+			{
+				CommandSendMsg msg = *((CommandSendMsg*) tuple);
+
+				if (msg.name() == this->getID())
+					this->executeCommand(msg.command());			
+			}
+		}
+
+	)
 {
 
 	this->ddslink.addWriter("signalout", this->control_signal_topic);
@@ -62,53 +81,64 @@ Controller::Controller
 			[&](void *tuple)
 			{
 				GaitSignalMsg st = *((GaitSignalMsg*) tuple);
+
 				std::lock_guard<std::mutex> lock(this->gait_signal_mutex);
-				// TODO do not reassign memory, just reset it
-				// std::cout << "received a gait signal" << std::endl;
-				this->pGait_signal = std::make_shared<const GaitSignal>(st);
+				this->gait_signal = st;
 			}
 		}
 	);
 
 	this->ddslink.addReader("blindStateListener",
-		this->blind_state_topic,
+		//this->blind_state_topic,
+		dls::topics::low_level_estimation::blind_state,
 		std::function<void(void *)>
 		{
 			[&](void *tuple)
 			{
 				BlindStateMsg bs = *((BlindStateMsg*) tuple);
+
 				std::lock_guard<std::mutex> lock(this->blind_state_signal_mutex);
-				// TODO do not reassign memory, just reset it
-				this->pBlind_state_signal = std::make_shared<BlindState>(bs);
+				this->blind_state_signal = bs;
 			}
 		}
 	);
 
-	std::cout << "controller is publishing on topic: '"	<< name_ << "'" << std::endl;
+	std::cout << "### CONTROLLER IS PUBLISHING ON TOPIC: '"	<< name_ << "' ###" << std::endl;
 }
 
 // =============================================================================
 // Implementation
 // =============================================================================
-std::shared_ptr<const GaitSignal> Controller::readGaitSignal() const
+GaitSignal Controller::readGaitSignal()
 {
 	std::lock_guard<std::mutex> lock(this->gait_signal_mutex);
-	return this->pGait_signal;
+	return gait_signal;
 }
 
-std::shared_ptr<BlindState> Controller::readBlindStateSignal() const
+BlindState Controller::readBlindStateSignal()
 {
 	std::lock_guard<std::mutex> lock(this->blind_state_signal_mutex);
-	return this->pBlind_state_signal;
+	return this->blind_state_signal;
 }
 
 void Controller::publishSignal(const ControlSignal &signal)
 {
 	ControlSignalMsg p = signal;
+	
 	this->ddslink.sendMessage("signalout", (void *) &p);
 }
 
 std::string Controller::getControlSignalTopic() const
 {
 	return this->control_signal_topic.first;
+}
+
+void Controller::executeCommand(std::string cmd)
+{
+	if(cmd == "shutdown"){
+		this->stop();
+	}
+	else if(cmd == "activate"){
+		this->run();
+	}
 }

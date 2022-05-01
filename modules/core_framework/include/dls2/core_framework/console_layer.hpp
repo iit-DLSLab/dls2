@@ -46,7 +46,7 @@ namespace dls
 
 		/// Default Destructor
 		///
-		~ConsoleLayer() = default;
+		~ConsoleLayer();
 
 		/// Run the console
 		///
@@ -73,9 +73,7 @@ namespace dls
 		/// future
 		std::string build_prompt();
 
-		/// User feedback subscriber
-		///
-		// version2::Subscriber<StringMsgPubSubType> consoleFeedback;
+		void shutdownAll();
 
 		/// Handler to the shutdown SIGINT (ctrl+c) signal
 		/// 

@@ -23,6 +23,7 @@
 
 #include "dls2/components/app_layer_component.hpp"
 #include "dls2/command/command_manager.hpp"
+#include "dls2/util/messaging/dds_participant.hpp"
 
 namespace dls
 {
@@ -47,7 +48,7 @@ public:
 	};
 
 	AppLayer(const std::string &ID, bool *should_quit);
-	virtual ~AppLayer() = default;
+	~AppLayer();
 
 	/// Emergency stop
 	///
@@ -122,6 +123,9 @@ protected:
 	///
 	CommandManager command_manager;
 
+
+	dls::DDSParticipant *ddslink;
+
 private:
 	/// The ID of this layer
 	///
@@ -132,8 +136,7 @@ private:
 		Status status;
 	// END critical section
 
-	//logging::coutstream scout;
-
+	logging::coutstream scout;
 };
 } // end namespace dls
 

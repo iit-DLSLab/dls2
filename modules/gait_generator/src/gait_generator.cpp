@@ -42,12 +42,12 @@ GaitGenerator::GaitGenerator
 	, ddsMonitor(
 		ID,
 		dls::domains::controllers,
-		dls::topics::controller_command,
+		dls::topics::command_send,
 		std::function<void(void *)>
 		{
 			[&](void *tuple)
 			{
-				ControllerCommandMsg msg = *((ControllerCommandMsg*) tuple);
+				CommandSendMsg msg = *((CommandSendMsg*) tuple);
 
 				if (msg.name() == this->getID())
 					this->executeCommand(msg.command());			

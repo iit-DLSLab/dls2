@@ -40,9 +40,11 @@ struct ControlSignal
 
 	// =============================== Fastrtps ================================
 	// TODO ("Figure out if this should be const or reference or whatever")
-	ControlSignal();
+	ControlSignal(uint size);
 	ControlSignal(ControlSignalMsg);
 	operator ControlSignalMsg() const;
+
+	// ControlSignal & operator=(const ControlSignalMsg &msg);
 };
 } // end namespace dls
 #endif /* end of include guard: CONTROL_SIGNAL_HPP_QCFRROHM */

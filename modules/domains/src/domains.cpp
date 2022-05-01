@@ -22,14 +22,14 @@ namespace dls
 {
 	namespace domains
 	{
-		domainType develop = 2;
-		domainType layer = 4;
-		domainType command = 5;
-		domainType control = 0;
-		domainType controllers = 1;
-		domainType console = 7;
-		domainType logging = 8;
-		domainType service = 9;
+		domainType develop 		= 2;
+		domainType layers 		= 4;
+		domainType command		= 5;
+		domainType control 		= 0;
+		domainType controllers 	= 1;
+		domainType console 		= 7;
+		domainType logging 		= 8;
+		domainType service 		= 9;
 	}
 }
 

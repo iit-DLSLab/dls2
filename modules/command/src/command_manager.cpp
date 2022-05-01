@@ -34,20 +34,24 @@ namespace dls
 		: commands()
 		, owner(owner_)
 		, should_exit(false)
-		, commands_monitor(
+		, level(0)
+		, levelThread(&CommandManager::levelWatcher, this)
+	{
+		commands_monitor = new dls::DDSWriter(
 			owner_+"::commands_monitor",
 			domains::command,
 			dls::topics::command_call
-		)
-		, level(0)
-		, levelThread(&CommandManager::levelWatcher, this)
-	{}
+		);
+	}
 
 	CommandManager::~CommandManager()
 	{
-		// release levelThread to exit
-		should_exit = true;
+		for(auto elem : this->commands){
+			elem.second->deactivate();
+		}
+		delete commands_monitor;
 		this->levelCondVar.notify_one();
+		should_exit = true;
 	}
 
 	// -----------------------------------------------------------------------------
@@ -134,7 +138,7 @@ namespace dls
 	std::multimap<std::string, std::string> CommandManager::getCommandsList(){
 
 		// get all the remote commands
-		auto remCommands = commands_monitor.getParticipants();
+		auto remCommands = commands_monitor->getParticipants();
 		// remove the monitors
 		std::erase_if(remCommands, [](std::string value) { return (value.find("monitor") != std::string::npos); });
 
@@ -152,7 +156,7 @@ namespace dls
 
 	std::set<std::string> CommandManager::getOwnersList()
 	{
-		auto remCommands = commands_monitor.getParticipants();
+		auto remCommands = commands_monitor->getParticipants();
 
 		std::set<std::string> set;
 		for(auto it = commands.begin(); it != commands.end(); ++it)
@@ -209,7 +213,7 @@ namespace dls
 		msg.command_name(cmdData_.first);
 		msg.args(outString);
 
-		this->commands_monitor.sendMessage(&msg);
+		this->commands_monitor->sendMessage(&msg);
 	}
 
 	std::string CommandManager::getOwner(){

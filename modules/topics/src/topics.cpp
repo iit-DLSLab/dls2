@@ -48,8 +48,8 @@ namespace dls
 		dls::topicType gait_signal 				= dls::topicType("rt/gaitSignal", new  GaitSignalMsgPubSubType());
 		dls::topicType joint_states				= dls::topicType("rt/joint_states", new JointStateMsgPubSubType());
 
-		// controller commands
-		dls::topicType controller_command 		= dls::topicType("controller_command", new ControllerCommandMsgPubSubType());		
+		// commands send
+		dls::topicType command_send 			= dls::topicType("command_send", new CommandSendMsgPubSubType());		
 		
 		
 		namespace low_level_estimation
