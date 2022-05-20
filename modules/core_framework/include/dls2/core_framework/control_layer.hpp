@@ -35,6 +35,31 @@
 #include "dls2/math/spline/ramp.hpp"
 #include "dls2/log/log.hpp"
 
+#include <pthread.h>
+
+#define SCHED_DEADLINE       6
+#define __NR_sched_setattr           314
+#define __NR_sched_getattr           315
+
+
+struct sched_attr {
+     __u32 size;
+
+     __u32 sched_policy;
+     __u64 sched_flags;
+
+     /* SCHED_NORMAL, SCHED_BATCH */
+     __s32 sched_nice;
+
+     /* SCHED_FIFO, SCHED_RR */
+     __u32 sched_priority;
+
+     /* SCHED_DEADLINE (nsec) */
+     __u64 sched_runtime;
+     __u64 sched_deadline;
+     __u64 sched_period;
+};
+
 // =============================================================================
 // Class Interface
 // =============================================================================
@@ -46,7 +71,7 @@ namespace dls
 class ControlLayer : public AppLayer
 {
 public:
-	ControlLayer(std::string ID, bool *should_quit);
+	ControlLayer(std::string ID);
 	~ControlLayer();
 
 	// ========================== Interface Overrides ==========================
@@ -113,7 +138,7 @@ private:
 			ControlSignal getLastPublishedControlSignal();
 	
 			boost::process::child *proc;
-			std::shared_ptr<DDSReader> dds_reader;
+			DDSReader *dds_reader;
 			Controller::ID_t ID;
 			std::atomic<double> premultiplier; ///< Spline value to premutilply the torque signal
 			const std::chrono::duration<double> spline_in_duration;
@@ -126,7 +151,7 @@ private:
 				std::mutex control_signal_mutex;
 			// END critical section
 		};
-		std::map<Controller::ID_t, std::shared_ptr<ControllerData>> controllers_b;
+		std::map<Controller::ID_t, ControllerData*> controllers_b;
 		std::mutex controllers_mutex_b;
 	// END critical section
 
@@ -161,7 +186,9 @@ private:
 	///
 	std::chrono::seconds default_duration_seconds;
 
-	void deactivateController(std::shared_ptr<ControllerData> pData);
+	void deactivateController(ControllerData *pData);
+
+	static void *run_deadline(void *data);
 
 	// ================================ Members ================================
 	logging::coutstream scout;

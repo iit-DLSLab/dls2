@@ -88,7 +88,7 @@ void change_process_name(char **argv, const std::string &name);
 /// by the template argument
 ///
 template <class layer_t>
-void forkLayer(const std::string &process_name, bool *should_quit_, char **argv);
+void forkLayer(const std::string &process_name, char **argv);
 
 int initVars();
 
@@ -132,8 +132,6 @@ int initVars();
 // 	// then, the monitor would have to respond to that exit value
 // }
 
-static bool *should_quit;
-
 // =============================================================================
 // Main Logic
 // =============================================================================
@@ -149,9 +147,6 @@ int main(int argc, char **argv)
 	// do or just print the usage
 	if (!Options::parseArgs(argc, argv))
 		return 0;
-
-	should_quit = (bool*) mmap(NULL, sizeof *should_quit, PROT_READ | PROT_WRITE, 
-    	MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 
     // When the user presses CTRL-C, make sure that all child processes are
 	// killed. If this is not done, the child processes will inherit from the
@@ -175,11 +170,11 @@ int main(int argc, char **argv)
 	// }
 
 	// Launch layers
-	if(Options::launch_log) 		forkLayer<LogLayer>("logLayer", should_quit, argv);
+	if(Options::launch_log) 		forkLayer<LogLayer>("logLayer", argv);
 	// if(Options::launch_hardware) forkLayer<HardwareLayer>("hardware_layer", argv);
-	if(Options::launch_control)  	forkLayer<ControlLayer>("controlLayer", should_quit, argv);
-	if(Options::launch_console)	 	forkLayer<ConsoleLayer>("consoleLayer", should_quit, argv);
-	if(Options::launch_roscore)		forkLayer<ROSLayer>("ROSLayer", should_quit, argv);
+	if(Options::launch_control)  	forkLayer<ControlLayer>("controlLayer", argv);
+	if(Options::launch_console)	 	forkLayer<ConsoleLayer>("consoleLayer", argv);
+	if(Options::launch_roscore)		forkLayer<ROSLayer>("ROSLayer", argv);
 
 
 	// Initiate log streams
@@ -247,7 +242,7 @@ void change_process_name(char **argv, const std::string &name)
 }
 
 template <class layer_t>
-void forkLayer(const std::string &process_name, bool *should_quit_, char **argv)
+void forkLayer(const std::string &process_name, char **argv)
 {
 	const pid_t pid = fork();
 	if(pid == -1)
@@ -280,8 +275,9 @@ void forkLayer(const std::string &process_name, bool *should_quit_, char **argv)
 		// 	app_panic_handler
 		// );
 		
-		layer_t *pLayer = new layer_t(process_name, should_quit_);
+		layer_t *pLayer = new layer_t(process_name);
 		pLayer->run();
+		delete pLayer;
 		exit(EXIT_SUCCESS);
 	}
 	else

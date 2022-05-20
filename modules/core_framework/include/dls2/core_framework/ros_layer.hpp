@@ -34,7 +34,7 @@ namespace dls
 	public:
 		/// Default Constructor
 		///
-		ROSLayer(std::string ID, bool *should_quit_);
+		ROSLayer(std::string ID);
 
 		/// Default Destructor
 		///

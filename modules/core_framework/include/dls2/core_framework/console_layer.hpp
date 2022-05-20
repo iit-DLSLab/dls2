@@ -42,7 +42,7 @@ namespace dls
 	public:
 		/// Default Constructor
 		///
-		ConsoleLayer(std::string ID, bool *should_quit_);
+		ConsoleLayer(std::string ID);
 
 		/// Default Destructor
 		///

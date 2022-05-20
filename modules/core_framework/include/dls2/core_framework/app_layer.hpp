@@ -47,7 +47,7 @@ public:
 		STOP          ///< Layer has been stopped
 	};
 
-	AppLayer(const std::string &ID, bool *should_quit);
+	AppLayer(const std::string &ID);
 	~AppLayer();
 
 	/// Emergency stop
@@ -117,7 +117,7 @@ protected:
 
 	/// Flag of the running loop
 	/// Exits when set to true
-	bool *should_quit;
+	bool should_quit;
 
 	/// Stores commands registered in the layer
 	///

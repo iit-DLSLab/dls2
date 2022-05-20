@@ -24,13 +24,12 @@ using namespace dls;
 // =============================================================================
 AppLayer::AppLayer
 (
-	const std::string &ID_,
-	bool *should_quit_
+	const std::string &ID_
 ) 
 	: components_mutex()
 	, components({})
 	, ID(ID_)
-	, should_quit(should_quit_)
+	, should_quit(false)
 	, command_manager(ID_)
 	, status_mutex()
 	, status(Status::INITIALISING)
@@ -67,19 +66,36 @@ AppLayer::AppLayer
 		}
 	);
 
-	// command_manager.addCommand<void>
-	// (
-	// 	"where",
-	// 	"Prints the state of " + this->ID,
-	// 	std::function<void()>
-	// 	(
-	// 		[&]()
-	// 		{
-	// 			std::cout << where() << std::endl;
-	// 			//scout << where() << std::endl;
-	// 		}
-	// 	)
-	// );
+	command_manager.addCommand<void>
+	(
+		"exit",
+		"Shutdown control layer",
+		std::function<void()>
+		{
+			[&]()
+			{
+				this->shutdown();
+			}
+		},
+		{},
+		true
+	);
+
+	command_manager.addCommand<void>
+	(
+		"where",
+		"Prints the state of " + this->ID,
+		std::function<void()>
+		(
+			[&]()
+			{
+				std::cout << where() << std::endl;
+				//scout << where() << std::endl;
+			}
+		),
+		{},
+		true
+	);
 
 	// command_manager.addCommand<void, std::string>
 	// (

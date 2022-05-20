@@ -46,12 +46,18 @@ namespace dls
 
 	CommandManager::~CommandManager()
 	{
+		{
+			std::unique_lock<std::mutex> lock(this->levelMutex);
+			this->should_exit.store(true);
+		}
+
 		for(auto elem : this->commands){
 			elem.second->deactivate();
 		}
 		delete commands_monitor;
+
 		this->levelCondVar.notify_one();
-		should_exit = true;
+		this->levelThread.join();
 	}
 
 	// -----------------------------------------------------------------------------
@@ -247,10 +253,12 @@ namespace dls
 
 	void CommandManager::levelWatcher() 
     {
-        while(!this->should_exit)
+        while(true)
         {
             std::unique_lock<std::mutex> lock(this->levelMutex);
 			this->levelCondVar.wait(lock);
+			if(this->should_exit.load())
+				break;
             this->verifyLevel();
         }
     }

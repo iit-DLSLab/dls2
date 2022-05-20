@@ -78,6 +78,7 @@ protected:
 	BlindState readBlindStateSignal();
 
 	/// Sends the control command to the rest of the architecture
+	///
 	void publishSignal(const ControlSignal&);
 
 	const std::shared_ptr<const dog::Dog> pDog;

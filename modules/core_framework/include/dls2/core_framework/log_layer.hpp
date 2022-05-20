@@ -29,7 +29,7 @@ namespace dls
 	class LogLayer : public AppLayer
 	{
 	public:
-		LogLayer(std::string ID, bool *should_quit_);
+		LogLayer(std::string ID);
 
 		Status run() override;
 		Status shutdown() override;

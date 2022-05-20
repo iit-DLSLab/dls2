@@ -20,13 +20,10 @@
 #include <sys/time.h>
 #include <cstdio>
 
-#ifdef ALIVE
-#undef ALIVE
-#endif
-
 using namespace dls;
-LogLayer::LogLayer(std::string ID, bool *should_quit_)
-	: AppLayer(ID, should_quit_)
+
+LogLayer::LogLayer(std::string ID)
+	: AppLayer(ID)
 	, ddslink(
 		"log_layer",
 		dls::domains::logging
@@ -215,7 +212,7 @@ LogLayer::LogLayer(std::string ID, bool *should_quit_)
 
 LogLayer::Status LogLayer::run()
 {
-	while(!*(this->should_quit))
+	while(!this->should_quit)
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 	}
@@ -225,7 +222,7 @@ LogLayer::Status LogLayer::run()
 
 LogLayer::Status LogLayer::shutdown()
 {
-	*(this->should_quit) = true;
+	this->should_quit = true;
 	return getStatus();
 }
 

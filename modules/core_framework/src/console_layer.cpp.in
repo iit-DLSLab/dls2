@@ -54,8 +54,8 @@ ConsoleLayer *pInstance = nullptr;
 // =============================================================================
 // Constructors
 // =============================================================================
-ConsoleLayer::ConsoleLayer(std::string ID, bool *should_quit_) 
-	: AppLayer(ID, should_quit_)
+ConsoleLayer::ConsoleLayer(std::string ID) 
+	: AppLayer(ID)
 	
 	// ,
 	// consoleFeedback(
@@ -111,21 +111,6 @@ ConsoleLayer::ConsoleLayer(std::string ID, bool *should_quit_)
 			{
 				std::cout << "\033[2J" << std::endl; // clear
 				std::cout << "\033[H" << std::endl; // home
-			}
-		},
-		{{0,0}},
-		true
-	);
-
-	command_manager.addCommand<void>
-	(
-		"exit",
-		"exits the console",
-		std::function<void()>
-		{
-			[&]()
-			{
-				*(this->should_quit) = true;
 			}
 		},
 		{{0,0}},
@@ -203,7 +188,6 @@ ConsoleLayer::ConsoleLayer(std::string ID, bool *should_quit_)
 }
 
 ConsoleLayer::~ConsoleLayer(){
-	std::cout << "### CONSOLE LAYER OFF ###" << std::endl;
 };
 
 // =============================================================================
@@ -219,7 +203,7 @@ ConsoleLayer::Status ConsoleLayer::run()
 	rl_set_signals();
 	signal(SIGINT, this->handle_signals);
 
-	while(!*(this->should_quit))
+	while(!this->should_quit)
 	{
 		// This calls malloc behind the scenes. Needs to be freed manually
 		char *line = readline(this->build_prompt().c_str());
@@ -289,7 +273,7 @@ ConsoleLayer::Status ConsoleLayer::run()
 
 ConsoleLayer::Status ConsoleLayer::shutdown()
 {
-	*(this->should_quit) = true;
+	this->should_quit = true;
 	return getStatus();
 }
 

@@ -24,8 +24,8 @@ using namespace dls;
 // =============================================================================
 // Constructors
 // =============================================================================
-ROSLayer::ROSLayer(std::string ID, bool *should_quit_) 
-	: AppLayer(ID, should_quit_)
+ROSLayer::ROSLayer(std::string ID) 
+	: AppLayer(ID)
 {
 	command_manager.addCommand<void>
 	(
@@ -156,7 +156,7 @@ void ROSLayer::handle_signals(int){
 
 AppLayer::Status ROSLayer::run()
 {
-	while(!*(this->should_quit))
+	while(!this->should_quit)
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 	}
@@ -174,7 +174,7 @@ AppLayer::Status ROSLayer::run()
 
 AppLayer::Status ROSLayer::shutdown()
 {
-	*(this->should_quit) = true;
+	this->should_quit = true;
 	return getStatus();
 }
 

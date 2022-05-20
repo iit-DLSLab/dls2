@@ -86,21 +86,17 @@ namespace dls
 
 	int CommandBase::getNextLevel(uint curLevel)
 	{
+		if(this->transitionSet.empty())
+			return curLevel;
+
 		return this->transitionSet.find(curLevel)->second;
-	}
-
-	std::set<uint> CommandBase::getActiveLevels()
-	{
-		std::set<uint> activeLevels; 
-		for(auto elem : transitionSet){
-			activeLevels.insert(elem.first);
-		}
-
-		return activeLevels;
 	}
 
 	bool CommandBase::testLevel(uint level_)
 	{
+		if(this->transitionSet.empty())
+			return true;
+			
 		return (this->transitionSet.find(level_) != this->transitionSet.end());
 	}
 

@@ -18,7 +18,7 @@
 
 #include <mutex>
 
-#include "dls2/command/command.hpp"
+#include "dls2/command/command_manager.hpp"
 #include "dls2/log/log.hpp"
 
 namespace dls
@@ -91,20 +91,20 @@ protected:
 	/// @param status the status to set
 	void setStatus(Status status);
 
+	/// Command manager for commands that all components must have
+	///
+	CommandManager command_manager;
+
+	/// Print stream
+	///
+	logging::coutstream scout;
+
 private:
 	// BEGIN critical section
 		Status status;           ///< The status of this  component
 		std::mutex status_mutex; ///< Status mutex
 	// END critical section
 	const ID_t ID; ///< The ID of this component
-
-	/// Command manager for commands that all components must have
-	///
-	// CommandManager command_manager;
-
-	/// Print stream
-	///
-	// logging::coutstream scout;
 };
 } // end namespace dls
 

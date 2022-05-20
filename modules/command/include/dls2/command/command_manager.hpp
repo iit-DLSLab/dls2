@@ -27,6 +27,7 @@
 #include <utility>
 #include <vector>
 #include <condition_variable>
+#include <atomic>
 
 namespace dls
 {
@@ -82,7 +83,7 @@ public:
 		std::string name,
 		std::string doc,
 		const std::function<ret_t(arg_ts...)> &f,
-		dls::CommandBase::LevelType level = {{0,0}},
+		dls::CommandBase::LevelType level = {},
 		bool enabled = false
 	);
 
@@ -138,7 +139,7 @@ private:
 	///
 	void sendMessage(std::pair<std::string, std::string> cmdData, std::vector<std::string> args);
 
-	std::atomic_bool should_exit;
+	std::atomic<bool> should_exit;
 
 };
 

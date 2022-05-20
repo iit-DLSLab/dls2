@@ -20,5 +20,5 @@ using namespace dls;
 
 
 GaitLayer::GaitLayer() :
-	AppLayer("gait_layer", nullptr)
+	AppLayer("gait_layer")
 { }

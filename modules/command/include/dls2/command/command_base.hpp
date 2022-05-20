@@ -126,7 +126,6 @@ namespace dls
 		bool isActive();
 
 		int getNextLevel(uint curLevel);
-		std::set<uint> getActiveLevels();
 		bool testLevel(uint level);
 
 	protected:

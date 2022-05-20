@@ -21,29 +21,29 @@ using namespace dls;
 // =============================================================================
 // Constructors
 // =============================================================================
-AppLayerComponent::AppLayerComponent(const ID_t &ID_) :
-	status(Status::UNCONSTRUCTED),
-	status_mutex(),
-	ID(ID_)//,
-	// command_manager(),
-	// scout(ID_)
+AppLayerComponent::AppLayerComponent(const ID_t &ID_) 
+	: status(Status::UNCONSTRUCTED)
+	, status_mutex()
+	, ID(ID_)
+	, command_manager(ID_)
+	, scout(ID_)
 {
-	// this->command_manager.addCommand<void, ARGVOID>
-	// (
-	// 	this->getID(),
-	// 	"where",
-	// 	std::string("Prints the state of ") + this->getID(),
-
-	// 	std::function<void(ARGVOID)>
-	// 	(
-	// 		[&](ARGVOID)
-	// 		{
-	// 			auto s = where();
-	// 			std::cout << s << std::endl;
-	// 			scout     << s << std::endl;
-	// 		}
-	// 	)
-	// );
+	this->command_manager.addCommand<void>
+	(
+		"where",
+		std::string("Prints the state of ") + this->getID(),
+		std::function<void()>
+		(
+			[&]()
+			{
+				auto s = where();
+				std::cout << s << std::endl;
+				scout     << s << std::endl;
+			}
+		),
+		{{0,0}},
+	 	true
+	);
 }
 
 // =============================================================================
