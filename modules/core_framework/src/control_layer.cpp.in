@@ -25,7 +25,6 @@
 #include "dls2/robot/robot.hpp"
 #include "dls2/class_loader.hpp"
 #include "dls2/topics/topics.hpp"
-#include "dls2/path_prefixes.hpp"
 #include "dls2/util/time/time.hpp"
 
 #include <string.h>
@@ -51,7 +50,7 @@ int sched_setattr(pid_t pid,
                const struct sched_attr *attr,
                unsigned int flags)
 {
-     return syscall(__NR_sched_setattr, pid, attr, flags);
+    return syscall(__NR_sched_setattr, pid, attr, flags);
 }
 
 int sched_getattr(pid_t pid,
@@ -59,18 +58,8 @@ int sched_getattr(pid_t pid,
                unsigned int size,
                unsigned int flags)
 {
-     return syscall(__NR_sched_getattr, pid, attr, size, flags);
+    return syscall(__NR_sched_getattr, pid, attr, size, flags);
 }
-
-// =============================================================================
-// Globals
-// =============================================================================
-// TODO either move this into the class itself, or do not report it in the
-// `where` command
-// BEGIN critical section
-std::mutex last_published_desired_torques_mutex;
-Eigen::VectorXd last_published_desired_torques;
-// END critical section
 
 // =============================================================================
 // Constructors
@@ -215,7 +204,7 @@ ControlLayer::ControlLayer(std::string ID)
 				}
 			}
 		},
-		{{0,0},{1,0},{2,0},{3,0}},
+		{},
 		true
 	);
 }
@@ -227,6 +216,10 @@ ControlLayer::~ControlLayer()
 	for(auto pair : this->controllers_b){
 		delete pair.second;
 	}
+
+	void *res;
+	pthread_join(controlSignalGatherThread, &res);
+
 }
 
 // =============================================================================
@@ -234,76 +227,87 @@ ControlLayer::~ControlLayer()
 // =============================================================================
 ControlLayer::Status ControlLayer::run()
 {
-	// TODO THIS NEEDS to be moved to the library initialisation of hyq_app.
-	// However, there is something going wrong with the fastrtps subscriber if
-	// it is done there. For now, this call has been placed here
-	// Time::set_use_simulated_time(true);
-
 	// TODO("spawn nonrealtime thread for user interaction")
 
 	// TODO("Check status of all components in the control layer, take corrective actions if requred")
 	setStatus(Status::RUNNING);
 
-	// TODO this is wrong and just used to remove compile error for unitialised
-	// time. Time should not be doubles.
-	double time = std::chrono::system_clock::now().time_since_epoch().count();
+	// real-time thread that gather all the control sinals and sends to robot
+    pthread_create(&controlSignalGatherThread, NULL, (THREADFUNCPTR) &ControlLayer::controlSignalGather, this);
 
-	pthread_t thread;
-    pthread_create(&thread, NULL, run_deadline, NULL);
-
-
-	while(!this->should_quit)
+	while(!this->shouldQuit())
 	{
-		
-		// auto begin_epoch = std::chrono::high_resolution_clock::now();
 
-		// // Read the control signals
-		// Eigen::VectorXd desired_torques = Eigen::VectorXd::Zero(Robot::getDimension());
-		// {
-		// 	std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
-		// 	for(auto pair : this->controllers_b)
-		// 	{
-		// 		if(!pair.second->dds_reader) continue;
+		// TODO this loop should be used to verify the state of the layer and all its controllers		
+		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(500));
 
-		// 		ControlSignal c_signal = pair.second->getLastPublishedControlSignal();
-		// 		desired_torques += pair.second->premultiplier*c_signal.torques;
-				
-		// 		// time = c_signal.time; // TODO How to pick which time
-		// 	}
-		// }
+	}
+	return getStatus();
+}
 
-		// // // Send the desired torques to HAL
-		// {
-		// 	// std::lock_guard<std::mutex>	lock(last_published_desired_torques_mutex);
-		// 	last_published_desired_torques = saturateTorques(desired_torques);
-		// 	publishDesiredTorques(last_published_desired_torques, time);
-		// }
 
-		// // std::stringstream ss;
-		// // ss << "Control layer published torques: " << desired_torques.transpose() << std::endl;
-		// // logging::cout << ss.str() << std::endl;
+void *ControlLayer::controlSignalGather(void *data)
+{
 
-		// std::chrono::duration<double, std::nano> delta = std::chrono::high_resolution_clock::now()- begin_epoch;
+    // struct sched_attr attr;
+    // int ret;
+    // unsigned int flags = 0;
 
-		// std::this_thread::sleep_for(std::chrono::duration<double, std::nano>(100000 + e) - delta);
+	// memset(&attr, 0, sizeof(struct sched_attr));
+	// attr.size = sizeof(struct sched_attr);
+	// attr.sched_policy = SCHED_DEADLINE;
+	// attr.sched_runtime  = 50000 * 1000ULL;
+	// attr.sched_period   = 50000 * 1000ULL;
+	// attr.sched_deadline = 50000 * 1000ULL;
 
-		// // Time::sleep_until(Time::now() + std::chrono::duration<double, std::micro>(100));
+    // ret = sched_setattr(0, &attr, flags);
+    // if (ret < 0) {
+    //     perror("sched_setattr");
+    //     exit(-1);
+    // }
 
-		// auto end_epoch = std::chrono::system_clock::now();
-		// double nseconds = std::chrono::duration<double, std::nano>(end_epoch - begin_epoch).count();
+	std::cout << "### Signal gather thread started: " << gettid() << std::endl;
 
-		// e += 0.01*(100000 - nseconds);
+	ControlLayer *layer = (ControlLayer*) data;	
+
+	Eigen::VectorXd desired_torques = Eigen::VectorXd::Zero(Robot::getDimension());
+
+    while (!layer->shouldQuit()) {
+
+		// Read the control signals
+		{
+			std::lock_guard<std::mutex> lock(layer->controllers_mutex_b);
+			for(auto pair : layer->controllers_b)
+			{
+				if(!pair.second->dds_reader) continue;
+
+				ControlSignal c_signal = pair.second->getLastPublishedControlSignal();
+				desired_torques += pair.second->premultiplier*c_signal.torques;
+			}
+		}
+
+		// Send the desired torques to HAL
+		layer->publishDesiredTorques(
+			layer->saturateTorques(desired_torques),
+			std::chrono::system_clock::now().time_since_epoch().count()
+		);
+
+		// std::stringstream ss;
+		// ss << "Control layer published torques: " << desired_torques.transpose() << std::endl;
+		// logging::cout << ss.str() << std::endl;
 
 		// std::stringstream ss;
 		// ss << "Control Layer has period 100 useconds. epoch ran in: " << int(nseconds/1000) << " useconds ";
 	    // // std::cout << ss.str() << std::endl;
 		// std::cout << "\033[F" << "\r" << ss.str() << std::endl;
 		// // std::cout << "Control layer published torques " << desired_torques.transpose() << std::endl; // << std::endl;
-		
-		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(500));
 
-	}
-	return getStatus();
+		std::this_thread::sleep_for(std::chrono::milliseconds(200));
+		//sched_yield();
+    }
+
+    std::cout << "### Signal gather thread dies: " << gettid() << std::endl;
+    return NULL;
 }
 
 ControlLayer::Status ControlLayer::shutdown()
@@ -357,9 +361,7 @@ std::string ControlLayer::where()
 	}
 	// Where Desired Torque
 	{
-		std::lock_guard<std::mutex> lock(last_published_desired_torques_mutex);
-		ss << "Last published torque: "
-			<< last_published_desired_torques.transpose();
+		ss << "Last published torque: "	<< this->getPublishedDesiredTorques().transpose();
 	}
 
 	return ss.str();
@@ -374,7 +376,6 @@ std::string ControlLayer::where()
 // TODO("std::map already does this check for emplace, maybe for others. Double check and make this more efficient")
 bool ControlLayer::activateController(const Controller::ID_t &ID)
 {
-	pid_t controller_pid;
 	ControllerData *pData = new ControllerData (
 		this->pDefault_spline_in,
 		this->pDefault_spline_out,
@@ -604,9 +605,20 @@ void ControlLayer::publishDesiredTorques(const Eigen::VectorXd &torques, double 
 {
 	DesiredTorquesMsg msg;
 	msg.desired_torques().resize(torques.size());
-	msg.header().time().seconds()=time;
+	msg.header().time().seconds() = time;
 	Eigen::VectorXd::Map(&msg.desired_torques()[0], torques.size()) = torques;
+
+	{
+		std::lock_guard<std::mutex>	lock(this->last_published_desired_torques_mutex);
+		this->last_published_desired_torques = torques;
+	}
+
 	this->ddsControl->sendMessage(&msg);
+}
+
+Eigen::VectorXd ControlLayer::getPublishedDesiredTorques(){
+	std::lock_guard<std::mutex>	lock(this->last_published_desired_torques_mutex);
+	return this->last_published_desired_torques;
 }
 
 // =============================================================================
@@ -636,62 +648,4 @@ ControlSignal ControlLayer::ControllerData::getLastPublishedControlSignal()
 {
 	std::lock_guard<std::mutex> lock(this->control_signal_mutex);
 	return this->control_signal;
-}
-
-
-void *ControlLayer::run_deadline(void *data)
-{
-     struct sched_attr attr;
-     int ret;
-     unsigned int flags = 0;
-
-     printf("deadline thread started [%ld]\n", gettid());
-
-	memset(&attr, 0, sizeof(struct sched_attr));
-	attr.size = sizeof(struct sched_attr);
-	attr.sched_policy = SCHED_DEADLINE;
-	attr.sched_runtime  = 50000 * 1000ULL;
-	attr.sched_period   = 50000 * 1000ULL;
-	attr.sched_deadline = 50000 * 1000ULL;
-
-     ret = sched_setattr(0, &attr, flags);
-     if (ret < 0) {
-             perror("sched_setattr");
-             exit(-1);
-     }
-	
-	auto epoch = std::chrono::high_resolution_clock::now();
-
-    while (true) {
-		
-		std::chrono::duration<double, std::micro> delta = std::chrono::high_resolution_clock::now() - epoch;
-		epoch = std::chrono::high_resolution_clock::now();
-
-		std::cout << "Control Layer has period of " << delta.count() << " useconds " << std::endl;		
-
-		sched_yield();
-
-	// 	// std::stringstream ss;
-	// 	// ss << "Control layer published torques: " << desired_torques.transpose() << std::endl;
-	// 	// logging::cout << ss.str() << std::endl;
-
-	// 	std::chrono::duration<double, std::nano> delta = std::chrono::high_resolution_clock::now()- begin_epoch;
-
-	// 	std::this_thread::sleep_for(std::chrono::duration<double, std::nano>(100000 + e) - delta);
-
-	// 	// Time::sleep_until(Time::now() + std::chrono::duration<double, std::micro>(100));
-
-	// 	auto end_epoch = std::chrono::system_clock::now();
-	// 	double nseconds = std::chrono::duration<double, std::nano>(end_epoch - begin_epoch).count();
-
-	// 	e += 0.01*(100000 - nseconds);
-
-	// 	std::stringstream ss;
-	// 	ss << "Control Layer has period 100 useconds. epoch ran in: " << int(nseconds/1000) << " useconds ";
-	//     // std::cout << ss.str() << std::endl;
-	// 	std::cout << "\033[F" << "\r" << ss.str() << std::endl;
-     }
-
-     printf("deadline thread dies [%ld]\n", gettid());
-     return NULL;
 }

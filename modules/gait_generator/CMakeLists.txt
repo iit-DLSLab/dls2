@@ -14,6 +14,8 @@ target_link_libraries(dls_gait_generator
 	PUBLIC
 		dls_framework_components
 		dls_gait_signal
+		dls_geometry
+		dls_message_wrappers
 )
 
 dls_install(dls_gait_generator)

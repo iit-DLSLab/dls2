@@ -4,6 +4,8 @@
 #include <memory>
 #include <string>
 
+#include "dls2/topics/topics.hpp"
+
 namespace dls
 {
 	namespace impl

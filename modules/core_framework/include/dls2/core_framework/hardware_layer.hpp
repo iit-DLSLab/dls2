@@ -26,7 +26,7 @@ namespace dls
 class HardwareLayer : public AppLayer
 {
 public:
-	HardwareLayer();
+	HardwareLayer(std::string ID);
 	~HardwareLayer();
 
 	Status run() override;

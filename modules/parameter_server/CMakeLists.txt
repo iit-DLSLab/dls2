@@ -25,7 +25,9 @@ target_link_libraries(dls_parameter_server
 		dls_pubsub
 		fastcdr
 		fastrtps
-
+		dls_topics
+		dls_service
+		dls_domains
 )
 
 # ==============================================================================
@@ -39,6 +41,11 @@ target_link_libraries(dls_parameter_server_cli
 	PRIVATE
 		dls_parameter_server
 		dls_pubsub
+		dls_${PROJECT_NAME}_messaging
+		fastcdr
+		fastrtps
+		dls_domains
+		dls_topics
 )
 
 target_include_directories(dls_parameter_server_cli

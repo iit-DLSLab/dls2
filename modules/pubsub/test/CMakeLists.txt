@@ -1,4 +1,4 @@
-set(DLS_TEST_SCOPE pubsub_impl)
+set(DLS_TEST_SCOPE pubsub)
 
 dls_register_test(pubsub
 	LINK

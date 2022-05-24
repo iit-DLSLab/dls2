@@ -28,7 +28,6 @@
 #include <sys/wait.h>
 #include <sys/prctl.h>
 
-#include "dls2/core_framework/hyq_app.hpp"
 #include "dls2/core_framework/hardware_layer.hpp"
 #include "dls2/core_framework/control_layer.hpp"
 #include "dls2/core_framework/estimation_layer.hpp"
@@ -37,6 +36,8 @@
 #include "dls2/core_framework/ros_layer.hpp"
 #include "dls2/core_framework/options.hpp"
 #include "dls2/core_framework/version_info.hpp"
+
+#include "dls2/util/time/time.hpp"
 
 #include "dls2/log/log.hpp"
 #include "dls2/command/command.hpp"
@@ -157,8 +158,6 @@ int main(int argc, char **argv)
 	// 	kill_children
 	// );
 
-
-	
 	
 	// if(Options::show_docs)
 	// {
@@ -171,14 +170,16 @@ int main(int argc, char **argv)
 
 	// Launch layers
 	if(Options::launch_log) 		forkLayer<LogLayer>("logLayer", argv);
-	// if(Options::launch_hardware) forkLayer<HardwareLayer>("hardware_layer", argv);
+	if(Options::launch_hardware) 	forkLayer<HardwareLayer>("hardware_layer", argv);
 	if(Options::launch_control)  	forkLayer<ControlLayer>("controlLayer", argv);
 	if(Options::launch_console)	 	forkLayer<ConsoleLayer>("consoleLayer", argv);
 	if(Options::launch_roscore)		forkLayer<ROSLayer>("ROSLayer", argv);
 
+	//Time::set_use_simulated_time(Options::is_simulation());
+
 
 	// Initiate log streams
-	// Does not initiate these before fork actions
+	// Does not initiate these before fork actions, dds will break
 	logging::coutstream outstream("fwkMonitorStream");
 	logging::cfatalstream sfatal("fwkMonitorFatal");
 

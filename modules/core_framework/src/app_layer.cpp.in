@@ -229,3 +229,8 @@ void AppLayer::loadComponentFromDisk(const std::string &name)
 	}
 
 }
+
+bool AppLayer::shouldQuit()
+{
+	return should_quit;
+}

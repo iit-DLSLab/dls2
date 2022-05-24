@@ -35,12 +35,14 @@ target_link_libraries(dls_framework
 	PUBLIC
 		dls_math
 		pthread
-		dls_path_prefixes
 		dls_controller
 		dls_estimator
 		dls_gait_generator
-		dl
+		dls_domains
+		dls_topics
 		dls_class_loader
+		fastcdr
+		fastrtps
 )
 
 dls_install(dls_framework)

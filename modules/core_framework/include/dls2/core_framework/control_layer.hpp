@@ -70,6 +70,8 @@ namespace dls
 /// Responsible for managing controllers and gait generators
 class ControlLayer : public AppLayer
 {
+	typedef void * (*THREADFUNCPTR)(void *);
+	
 public:
 	ControlLayer(std::string ID);
 	~ControlLayer();
@@ -101,7 +103,12 @@ public:
 	bool activateGaitGenerator(const GaitGenerator::ID_t&);
 
 	/// Deactivates the current gait generator
+	///
 	void deactivateGaitGenerator();
+
+	/// Returns the last published desired torques
+	///
+	Eigen::VectorXd getPublishedDesiredTorques();
 
 	std::string where() override;
 private:
@@ -186,9 +193,17 @@ private:
 	///
 	std::chrono::seconds default_duration_seconds;
 
+	// BEGIN critical section
+		std::mutex last_published_desired_torques_mutex;
+		Eigen::VectorXd last_published_desired_torques;
+	// END critical section
+
 	void deactivateController(ControllerData *pData);
 
-	static void *run_deadline(void *data);
+	// real-time thread that gather all the control sinals and sends to robot
+	pthread_t controlSignalGatherThread;
+
+	static void *controlSignalGather(void *data);
 
 	// ================================ Members ================================
 	logging::coutstream scout;

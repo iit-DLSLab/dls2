@@ -16,6 +16,7 @@ target_link_libraries(dls_gait_signal
 		doglib
 	PRIVATE
 		dls_message_wrappers
+		dls_geometry
 )
 
 dls_install(dls_gait_signal)

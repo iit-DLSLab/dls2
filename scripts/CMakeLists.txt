@@ -16,7 +16,7 @@ list(JOIN DLS_LD_LIBRARY_PATH ":" DLS_LD_LIBRARY_PATH)
 # framework
 set(DLS_CHILD_PROCESS_LAUNCHER              "${DLS_INSTALL_RUNTIME_DIR}/child_process_launcher")
 set(DLS_LAUNCH_SCRIPT_LIBRARY_PATH          "/usr/lib/dls2:${DLS_LD_LIBRARY_PATH}:$LD_LIBRARY_PATH")
-set(DLS_LUANCH_SCRIPT_RUN_FRAMEWORK_COMMAND "${DLS_INSTALL_RUNTIME_DIR}/dynamic_legged_systems_framework \"$@\"")
+set(DLS_LUANCH_SCRIPT_RUN_FRAMEWORK_COMMAND "sudo ${DLS_INSTALL_RUNTIME_DIR}/dynamic_legged_systems_framework \"$@\"")
 dls_configure(launch_framework.in           LAUNCH_FRAMEWORK)
 
 # Configure the version of the launch script that is used to launch the framework
@@ -38,6 +38,12 @@ install(FILES ${LAUNCH_FRAMEWORK}
 		OWNER_READ OWNER_WRITE
 		DESTINATION ${DLS_INSTALL_LAUNCH_RUNTIME_DIR}
 	RENAME dls
+	COMPONENT
+		dls_runtime
+)
+
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/dls2.conf
+	DESTINATION /etc/ld.so.conf.d
 	COMPONENT
 		dls_runtime
 )

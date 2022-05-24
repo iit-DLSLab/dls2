@@ -22,11 +22,11 @@ using namespace dls;
 // =============================================================================
 // Constructors
 // =============================================================================
-HardwareLayer::HardwareLayer() :
-	AppLayer("hardware_layer"),
-	xenomotor_pid(0),
-	xenorostask_pid(0),
-	scout("hardware_layer")
+HardwareLayer::HardwareLayer(std::string ID_) 
+	: AppLayer(ID_)
+	, xenomotor_pid(0)
+	, xenorostask_pid(0)
+	, scout(ID_)
 {
 	scout << "hello" << std::endl;
 	std::cout << "ELLO" << std::endl;

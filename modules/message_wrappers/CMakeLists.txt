@@ -1,4 +1,4 @@
-add_library(dls_message_wrappers
+add_library(dls_message_wrappers SHARED
 	src/screw.cpp
 	src/joint_state.cpp
 	src/blind_state.cpp

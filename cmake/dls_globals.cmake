@@ -8,7 +8,7 @@ string(LENGTH "{CMAKE_SOURCE_DIR}/" SOURCE_PATH_SIZE)
 
 add_compile_options(
 	# Standards
-	-std=c++14
+	-std=c++17
 
 	# Warnings
 	-Wall

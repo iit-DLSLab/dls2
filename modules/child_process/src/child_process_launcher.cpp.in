@@ -33,10 +33,8 @@
 #include "dls2/class_loader.hpp"
 #include "dls2/gait_generator/gait_generator.hpp"
 #include "dls2/controller/controller.hpp"
-#include "dls2/path_prefixes.hpp"
 #include "dls2/log/log.hpp"
 
-#include "dls2/util/time/time.hpp"
 #include <doglib/factory/robot_factory.hpp>
 
 // =============================================================================
@@ -111,12 +109,6 @@ int main(int argc, char **argv)
 	{
 		std::cerr << "Error, robot not yet implemented" << std::endl;
 		exit(EXIT_FAILURE);
-	}
-
-	// set simulated time
-	if(args.launch_mode == "sim")
-	{
-		Time::set_use_simulated_time(true);
 	}
 
 	std::cout << "=== LOADING CONTROLLER ===" << std::endl;
