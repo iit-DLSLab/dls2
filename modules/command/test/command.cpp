@@ -10,7 +10,8 @@ TEST_CASE("Commands can be added to the framework", "[command]")
 {
 	bool foo_called = false;
 
-	dls::CommandManager command_manager("example_command_owner");
+	dls::CommandManager command_manager("first_owner");
+	dls::CommandManager command_manager_2("second_owner");
 
 	command_manager.addCommand<void>
 	(
@@ -22,17 +23,19 @@ TEST_CASE("Commands can be added to the framework", "[command]")
 			{
 				foo_called = true;
 			}
-		)
+		),
+		{},
+		true
 	);
-	std::this_thread::sleep_for(std::chrono::seconds(1));
+	std::this_thread::sleep_for(std::chrono::seconds(2));
 
 	SECTION( "Another component may call the command that has been registered")
 	{
-		auto pCommand = command_manager.find("example_command_owner", "foo");
+		auto commandList = command_manager_2.find("first_owner", "foo");
 
-		REQUIRE(!pCommand.empty());
+		REQUIRE(!commandList.empty());
 
-		command_manager.callCommand("foo", {});
+		command_manager_2.callCommand("foo", {});
 		
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 
