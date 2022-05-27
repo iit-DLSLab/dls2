@@ -1,4 +1,5 @@
 #include "dls2/command/command.hpp"
+#include "dls2/command/command_manager.hpp"
 #include <catch2/catch.hpp>
 
 using namespace dls;
@@ -13,22 +14,20 @@ using namespace dls;
 // initial direction for investigation.
 TEST_CASE("Creating a command manager works", "[command manager]")
 {
-	dls::impl::initFastdds();
-	CommandManager cm;
+	CommandManager cm("test");
 }
 
 TEST_CASE("Creating a command manager and adding a command works", "[command manager]")
 {
-	CommandManager cm;
+	CommandManager cm("test");
 
-	cm.addCommand<void, ARGVOID>
+	cm.addCommand<void>
 	(
-		"test",
 		"dummy_command",
 		"no docs required",
-		std::function<void(ARGVOID)>
+		std::function<void()>
 		{
-			[&](ARGVOID)
+			[&]()
 			{
 				// empty command
 			}

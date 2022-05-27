@@ -5,6 +5,8 @@ dls_register_test(command_manager
 		command_manager.cpp
 	LINK
 		dls_command
+		fastcdr
+		fastrtps
 )
 
 dls_register_test(command
@@ -12,4 +14,6 @@ dls_register_test(command
 		command.cpp
 	LINK
 		dls_command
+		fastcdr
+		fastrtps
 )
