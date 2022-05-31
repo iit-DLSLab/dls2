@@ -83,7 +83,7 @@ add_executable(bare_dummy_controller
 target_link_libraries(bare_dummy_controller
 	dls_dummy_controller
 	dls_controller_interface
-	dls_dls2_messaging
+	dls_messaging
 	dls_gait_generator
 	dls_command
 	dls_messaging

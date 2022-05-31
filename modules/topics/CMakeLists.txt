@@ -9,7 +9,7 @@ target_include_directories(dls_topics
 
 target_link_libraries(dls_topics
 	PUBLIC
-		dls_dls2_messaging
+		dls_messaging
 )
 
 dls_install(dls_topics)
