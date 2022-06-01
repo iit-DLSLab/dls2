@@ -1,3 +1,5 @@
+message(STATUS "## Reading dls_setup.cmake")
+
 # Gets the name of a file configured with dls_configure
 function(dls_configure_name INFILE OUTFILE)
 	# Assert file has '.in' final extension'

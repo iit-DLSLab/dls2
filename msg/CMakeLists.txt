@@ -1,3 +1,5 @@
+message(STATUS "## Configuring msg folder")
+
 dls_add_message(command_send)
 dls_add_message(command_call)
 dls_add_message(desired_torques)

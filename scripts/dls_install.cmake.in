@@ -162,13 +162,13 @@ macro(dls_deploy_package)
 	set(CPACK_DEBIAN_PACKAGE_MAINTAINER ${${prefix}_MAINTAINER})
 	set(CPACK_DEB_COMPONENT_INSTALL     ON)
 
-	# generate the file name and package name for everything developed in this
-	# project
+	# generate the file name and package name for everything developed in this project
 	get_property(
 		list_of_plugins
 		GLOBAL
 		PROPERTY "DLS_LIST_OF_PLUGINS"
 	)
+	
 	foreach(plugin IN LISTS list_of_plugins)
 		get_property(dls_target_type
 			TARGET   ${plugin}
@@ -223,7 +223,7 @@ macro(dls_deploy_package)
 		)
 		set(
 			CPACK_DEBIAN_${COMPONENT_NAME_UPPER}_FILE_NAME
-			"dls2-messaging-${PROJECT_NAME}-${PROJECT_VERSION}.deb"
+			"dls2-messaging-${PROJECT_VERSION}.deb"
 		)
 	endif()
 

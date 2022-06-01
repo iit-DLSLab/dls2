@@ -1,3 +1,5 @@
+message(STATUS "## Reading dls_test.cmake")
+
 add_custom_target(tests)
 
 add_custom_target(check

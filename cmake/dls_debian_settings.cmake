@@ -1,3 +1,5 @@
+message(STATUS "## Reading dls_debian_settings.cmake")
+
 # General package settings
 set(CPACK_PACKAGE_NAME          "dls2")
 set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VESRION_MAJOR})
@@ -10,10 +12,11 @@ set(CPACK_VERBATIM_VARIABLES    ON)
 # Debian settings
 set(CPACK_GENERATOR                       "DEB")
 set(CPACK_DEB_COMPONENT_INSTALL           ON)
-set(CPACK_DEBIAN_DOGLIB_FILE_NAME         "dls2-doglib-${PROJECT_VERSION}.deb")
+set(CPACK_DEBIAN_DOGLIB_FILE_NAME         "dls2-doglib-${PROJECT_VERSION}.deb" PARENT_SCOPE)
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY     "dls2 framework")
 set(CPACK_DEBIAN_PACKAGE_VERSION          ${PROJECT_VERSION})
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER       "dlslab")
 set(CPACK_DEBIAN_PACKAGE_NAME             "dls2")
 set(CPACK_DEBIAN_ENABLE_COMPONENT_DEPENDS ON)
+
 include(CPack)

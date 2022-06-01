@@ -1,3 +1,5 @@
+message(STATUS "## Reading dls_message.cmake")
+
 # The variable DLS_MESSAGE_HEADER_DESTINATION sets where the current project
 # should place the generated message header files, as well as where to install
 # them. This variable should not be modified by client code. The variable is
@@ -21,21 +23,6 @@ if(NOT DLS_MESSAGE_HEADER_DESTINATION)
 		"the documentation at the source location of this error message"
 	)
 endif()
-# ==============================================================================
-# Configure message installation groups
-# ==============================================================================
-function(dls_register_message_component_impl)
-	set(CPACK_DEBIAN_DLS_MESSAGING_FILE_NAME
-		"dls2-messaging-${PROJECT_VERSION}.deb"
-		PARENT_SCOPE
-	)
-	set(CPACK_DEBIAN_DLS_MESSAGING_PACKAGE_NAME
-		"dls2-messaging"
-		PARENT_SCOPE
-	)
-endfunction()
-dls_register_message_component_impl()
-
 # ==============================================================================
 # Generation of messages
 # ==============================================================================

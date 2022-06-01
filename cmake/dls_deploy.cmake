@@ -1,37 +1,40 @@
-# ==============================================================================
-# Target Installation
-# ==============================================================================
-# ------------------------------------------------------------------------------
-# Componenets
-# ------------------------------------------------------------------------------
-function(register_component COMPONENT_NAME)
-	string(TOUPPER ${COMPONENT_NAME} COMPONENT_NAME_UPPER)
-
-	# Assert that the component name starts with "dls_"
-	string(FIND ${COMPONENT_NAME} "dls_" DLS_SUBSTRING_INDEX)
-	if(NOT DLS_SUBSTRING_INDEX EQUAL 0)
-		message(FATAL_ERROR "COMPONENT_NAME '${COMPONENT_NAME}' must start with 'dls_'")
-	endif()
-
-	# Extract the name without the "dls_" prefix
-	string(SUBSTRING ${COMPONENT_NAME} 4 -1 COMPONENT_NAME_BARE)
+message(STATUS "## Reading dls_deploy.cmake")
 
 
-	# Register the debian name for this component -- requries CPack to not be
-	# included yet
-	set(CPACK_DEBIAN_${COMPONENT_NAME_UPPER}_FILE_NAME
-		"dls2-${COMPONENT_NAME_BARE}-${PROJECT_VERSION}.deb"
-		PARENT_SCOPE
-	)
-	set(CPACK_DEBIAN_${COMPONENT_NAME_UPPER}_PACKAGE_NAME
-		"dls2-${COMPONENT_NAME_BARE}"
-		PARENT_SCOPE
-	)
-endfunction()
+# # ==============================================================================
+# # Target Installation
+# # ==============================================================================
+# # ------------------------------------------------------------------------------
+# # Componenets
+# # ------------------------------------------------------------------------------
+# function(register_component COMPONENT_NAME)
+# 	string(TOUPPER ${COMPONENT_NAME} COMPONENT_NAME_UPPER)
 
-register_component(dls_dev)
-register_component(dls_docs)
-register_component(dls_runtime)
+# 	# Assert that the component name starts with "dls_"
+# 	string(FIND ${COMPONENT_NAME} "dls_" DLS_SUBSTRING_INDEX)
+# 	if(NOT DLS_SUBSTRING_INDEX EQUAL 0)
+# 		message(FATAL_ERROR "COMPONENT_NAME '${COMPONENT_NAME}' must start with 'dls_'")
+# 	endif()
+
+# 	# Extract the name without the "dls_" prefix
+# 	string(SUBSTRING ${COMPONENT_NAME} 4 -1 COMPONENT_NAME_BARE)
+
+
+# 	# Register the debian name for this component -- requries CPack to not be
+# 	# included yet
+# 	set(CPACK_DEBIAN_${COMPONENT_NAME_UPPER}_FILE_NAME
+# 		"dls2-${COMPONENT_NAME_BARE}-${PROJECT_VERSION}.deb"
+# 		PARENT_SCOPE
+# 	)
+# 	set(CPACK_DEBIAN_${COMPONENT_NAME_UPPER}_PACKAGE_NAME
+# 		"dls2-${COMPONENT_NAME_BARE}"
+# 		PARENT_SCOPE
+# 	)
+# endfunction()
+
+# register_component(dls_dev)
+# register_component(dls_docs)
+# register_component(dls_runtime)
 
 # ------------------------------------------------------------------------------
 # Functions
@@ -61,7 +64,7 @@ function(dls_install INSTALL_TARGET)
 			PATTERN "*.hpp"
 			PATTERN "*.tpp"
 	)
-	message("Installing target ${INSTALL_TARGET}")
+	# message("Installing target ${INSTALL_TARGET}")
 endfunction()
 
 # Target to install only for debug builds, not in release

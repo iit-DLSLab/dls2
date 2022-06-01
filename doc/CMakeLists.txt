@@ -1,3 +1,5 @@
+message(STATUS "## Configuring doc folder")
+
 include(dls_docs)
 # ==============================================================================
 # URL of example repository
@@ -10,7 +12,6 @@ execute_process(
 	OUTPUT_VARIABLE
 		DLS_EXAMPLES_REPOSITORY
 )
-message(STATUS "Example repository located at: ${DLS_EXAMPLES_REPOSITORY}")
 
 # ==============================================================================
 # Read Include Files

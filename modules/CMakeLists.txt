@@ -1,3 +1,5 @@
+message(STATUS "## Configuring modules folder")
+
 add_subdirectory(message_wrappers)
 add_subdirectory(parameter_server)
 add_subdirectory(gait_generator)

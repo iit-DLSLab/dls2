@@ -1,3 +1,6 @@
+message(STATUS "## Reading dls_setup.cmake")
+
+
 # ==============================================================================
 # Output Directories and CMake Variables
 # ==============================================================================
@@ -43,8 +46,6 @@ string(JOIN "." PROJECT_VERSION
 	${PROJECT_VERSION_MINOR}
 	${PROJECT_VERSION_PATCH}
 )
+
 unset(VERSION_ARRAY) # delete aray of version strings
-message(STATUS "PROJECT_VERSION ${PROJECT_VERSION}")
-message(STATUS "PROJECT_VERSION_MAJOR ${PROJECT_VERSION_MAJOR}")
-message(STATUS "PROJECT_VERSION_MINOR ${PROJECT_VERSION_MINOR}")
-message(STATUS "PROJECT_VERSION_PATCH ${PROJECT_VERSION_PATCH}")
+message(STATUS "DLS2_PROJECT VERSION ${PROJECT_VERSION}")

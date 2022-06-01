@@ -1,3 +1,5 @@
+message(STATUS "## Reading dls_docs.cmake")
+
 function(dls_markdown_to_man MARKDOWN_FILE MAN_FILE)
 	execute_process(
 		COMMAND
