@@ -53,7 +53,7 @@ function(dls_install_plugin plugin)
 	# Install the plugin
 	# ==========================================================================
 	dls_enforce_shared_lib(${plugin})
-	set(component_name "dls-plugin-${plugin}")
+	set(component_name "dls_plugin_${plugin}")
 	install(
 		TARGETS             ${plugin}
 		LIBRARY DESTINATION ${${${prefix}_TYPE}_install_dir}
