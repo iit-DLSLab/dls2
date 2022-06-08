@@ -23,18 +23,5 @@ add_subdirectory(doc)     # generate and install documentation
 add_subdirectory(modules)   # build framework, libraries and tools
 add_subdirectory(3rd_party) # Some legacy and external code TODO move into better locations
 
-# ================================= Packages configuration ================================
-set(CPACK_DEBIAN_DLS_DEV_FILE_NAME "dls2-dev-${PROJECT_VERSION}.deb" PARENT_SCOPE)
-set(CPACK_DEBIAN_DLS_DEV_PACKAGE_NAME "dls2-dev" PARENT_SCOPE)
-
-set(CPACK_DEBIAN_DLS_DOCS_FILE_NAME "dls2-docs-${PROJECT_VERSION}.deb" PARENT_SCOPE)
-set(CPACK_DEBIAN_DLS_DOCS_PACKAGE_NAME "dls2-docs" PARENT_SCOPE)
-
-set(CPACK_DEBIAN_DLS_RUNTIME_FILE_NAME "dls2-runtime-${PROJECT_VERSION}.deb" PARENT_SCOPE)
-set(CPACK_DEBIAN_DLS_RUNTIME_PACKAGE_NAME "dls2-runtime" PARENT_SCOPE)
-
-set(CPACK_DEBIAN_DLS_MESSAGING_FILE_NAME "dls2-messaging-${PROJECT_VERSION}.deb" PARENT_SCOPE)
-set(CPACK_DEBIAN_DLS_MESSAGING_PACKAGE_NAME	"dls2-messaging" PARENT_SCOPE)
-
 # ================================== Packaging =================================
 include(dls_debian_settings) # configure installation of the framework
