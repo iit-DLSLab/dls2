@@ -10,9 +10,10 @@ target_include_directories(dls_geometry
 )
 
 target_link_libraries(dls_geometry
+	PRIVATE
+		iitcommons
 	PUBLIC
 		dls_messaging
-		iitcommons
 )
 
 dls_install(dls_geometry)
