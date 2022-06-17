@@ -154,7 +154,7 @@ namespace dls
 	// -----------------------------------------------------------------------------
 	// Class Helpers
 	// -----------------------------------------------------------------------------
-	template<class T> T transform_args(std::string const &s){return s;}
+	template<class T> T transform_args(std::string const &s);
 
 	template <typename... Args, std::size_t... Is>
 	auto create_tuple_impl(std::index_sequence<Is...>, const std::vector<std::string>& arguments) {

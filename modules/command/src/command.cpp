@@ -21,7 +21,7 @@
 namespace dls
 {
     template<> double transform_args<double>(std::string const &s) { return atof(s.c_str());}
-    template<> int transform_args(std::string const &s) { return atoi(s.c_str());}
-    template<> std::string transform_args(std::string const &s) { return s;}
-
+    template<> int transform_args<int>(std::string const &s) { return atoi(s.c_str());}
+    template<> bool transform_args<bool>(std::string const &s) { return (s != "0");}
+    template<> std::string transform_args<std::string>(std::string const &s) { return s;}
 } // end namespace dls
