@@ -28,8 +28,8 @@ namespace dls
 	// =========================================================================
 	// Service Implementation
 	// =========================================================================
-	template <typename req_pubsub_t, typename res_pubsub_t>
-	Service<req_pubsub_t, res_pubsub_t>::Service
+	template <typename msg_t>
+	Service<msg_t>::Service
 	(
 		const dls::topicType &topic_,
 		callback_t callback_
@@ -74,8 +74,8 @@ namespace dls
 	// =========================================================================
 	// Service Client Implementation
 	// =========================================================================
-	template <typename req_pubsub_t, typename res_pubsub_t>
-	ServiceClient<req_pubsub_t, res_pubsub_t>::ServiceClient
+	template <typename msg_t>
+	ServiceClient<msg_t>::ServiceClient
 	(
 		const dls::topicType &topic
 	) :
@@ -108,11 +108,10 @@ namespace dls
 		received_response(false)
 	{ }
 
-	template <typename req_pubsub_t, typename res_pubsub_t>
-	bool ServiceClient<req_pubsub_t, res_pubsub_t>::call
+	template <typename msg_t>
+	msg_t* ServiceClient<msg_t>::call
 	(
-		req_t &request,
-		res_t *response,
+		msg_t &request,
 		const std::chrono::duration<double> &duration
 	)
 	{
@@ -126,27 +125,24 @@ namespace dls
 
 		if(this->received_response)
 		{
-			// place the response into the pointer supplied by the caller
-			*response = this->remote_response;
-
 			// reset state for next call
 			this->received_response = false;
 
-			// indicate success
-			return true;
+			return new msg_t(this->remote_response);
+			
 		}
 		else
 		{
 			// indicate failure
-			return false;
+			return nullptr;
 		}
 	}
 
-	template <typename req_pubsub_t, typename res_pubsub_t>
-	bool ServiceClient<req_pubsub_t, res_pubsub_t>::call
+	template <typename msg_t>
+	bool ServiceClient<msg_t>::call
 	(
-		req_t &request,
-		std::function<void(res_t response, bool success)> callback,
+		msg_t &request,
+		std::function<void(msg_t response, bool success)> callback,
 		const std::chrono::duration<double> &duration
 	)
 	{
@@ -154,8 +150,8 @@ namespace dls
 		(
 			[&]()
 			{
-				res_t response;
-				bool success = this->call(request, &response, duration);
+				bool success;
+				msg_t response = this->call(request, duration);
 				callback(response, success);
 			}
 		);

@@ -1,0 +1,30 @@
+#include "optimization.idl"
+#include "minimization_goal.idl"
+#include "swing.idl"
+#include "attractor.idl"
+
+struct TrunkControllerParamsMsg
+{
+	OptimizationMsg optimization;
+	MinimizationGoalMsg minimization_goal;
+	AttractorTypeMsg    attractor;
+	SwingTypeMsg        swing;
+
+	boolean use_internal_stance_computation;
+	boolean use_gravity_compensation;
+	boolean use_friction_constraints;
+	boolean use_torque_constraints;
+	boolean use_joint_constraints;
+	boolean is_height_controlled;
+	boolean is_base_controlled;
+	boolean damping_only;
+	boolean verbose;
+	boolean debug;
+
+	double wrench_error_threshold[6];
+	double default_des_height;
+	double Kp_posture[6];
+	double Kd_posture[6];
+	double Kp_swing[3];
+	double Kd_swing[3];
+};

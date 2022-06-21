@@ -11,7 +11,7 @@ target_include_directories(dls_geometry
 
 target_link_libraries(dls_geometry
 	PRIVATE
-		iitcommons
+		doglib
 	PUBLIC
 		dls_messaging
 )

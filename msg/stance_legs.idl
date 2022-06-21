@@ -1,0 +1,5 @@
+struct StanceLegsMsg
+{
+	boolean input_stance_legs[4];
+	double  feet_grf[4][3];
+};

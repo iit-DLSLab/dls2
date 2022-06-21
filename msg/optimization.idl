@@ -1,0 +1,14 @@
+enum Optimization
+{
+	WHOLE_BODY_STATIC,
+	WHOLE_BODY_DYNAMIC,
+	// TODO this is spellt wrong, but it was spellt wrong before. Run a refactor
+	// at some point
+	NO_OPTMIMIZATION
+};
+
+struct OptimizationMsg
+{
+	/* long type; */
+	Optimization type;
+};

@@ -1,0 +1,10 @@
+enum MinimizationGoal
+{
+	WRENCHDIRECTION,
+	NORMALS,
+	TORQUES
+};
+struct MinimizationGoalMsg
+{
+	MinimizationGoal type;
+};

@@ -1,25 +1,25 @@
 #ifndef PARAMETER_SERVER_HPP_05f2fd08_3966_43ee_b7c8_5c344e7afd3f
 #define PARAMETER_SERVER_HPP_05f2fd08_3966_43ee_b7c8_5c344e7afd3f
 
-#include <memory>
-#include <string>
+// #include <memory>
+// #include <string>
 
-#include "dls2/topics/topics.hpp"
+// #include "dls2/topics/topics.hpp"
 
-namespace dls
-{
-	namespace impl
-	{
-		struct ParameterServerImpl;
-	}
-	class ParameterServer
-	{
-	public:
-		ParameterServer(std::string const & server_namespace );
+// namespace dls
+// {
+// 	namespace impl
+// 	{
+// 		struct ParameterServerImpl;
+// 	}
+// 	class ParameterServer
+// 	{
+// 	public:
+// 		ParameterServer(std::string const & server_namespace );
 
-	private:
-		std::unique_ptr<impl::ParameterServerImpl> pimpl;
-	};
-}
+// 	private:
+// 		std::unique_ptr<impl::ParameterServerImpl> pimpl;
+// 	};
+// }
 
 #endif // PARAMETER_SERVER_HPP_05f2fd08_3966_43ee_b7c8_5c344e7afd3f

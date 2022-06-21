@@ -38,18 +38,12 @@ namespace dls
 	/// that is sent to the server
 	/// \tparam res_pubsub_t the PubSubType corresponding to the response
 	/// message that is received from the server
-	template <typename req_pubsub_t, typename res_pubsub_t>
+	template <typename msg_t>
 	class Service
 	{
 	public:
-		/// The request message type that is received from the ServiceClient
-		typedef typename res_pubsub_t::type res_t;
-
-		/// The response message type that is sent to the ServiceClient
-		typedef typename req_pubsub_t::type req_t;
-
 		/// The service callback signature
-		typedef std::function<res_t(req_t)> callback_t;
+		typedef std::function<msg_t(msg_t)> callback_t;
 
 		/// Creates a service
 		///
@@ -90,16 +84,10 @@ namespace dls
 	/// that is sent to the server
 	/// \tparam res_pubsub_t the PubSubType corresponding to the response
 	/// message that is received from the server
-	template <typename req_pubsub_t, typename res_pubsub_t>
+	template <typename msg_t>
 	class ServiceClient
 	{
 	public:
-		/// The request message type that is sent to the Service
-		typedef typename res_pubsub_t::type res_t;
-
-		/// The response message type that is received from the Service
-		typedef typename req_pubsub_t::type req_t;
-
 		/// Constructor
 		///
 		/// Creates a ServiceClient that can communicate with a server on the
@@ -114,14 +102,12 @@ namespace dls
 		/// maximum blocking time can be specified.
 		///
 		/// @param request the request message to send to the service
-		/// @param response a pointer to the response message
 		/// @param duration how long to wait for a response before giving up and
 		///        returning early. Defaults to no time limit.
 		/// @return true if the call was successful, false otherwise
-		bool call
+		msg_t* call
 		(
-			req_t &request,
-			res_t *response,
+			msg_t &request,
 			const std::chrono::duration<double> &duration =
 				std::chrono::duration<double>
 				{
@@ -160,8 +146,8 @@ namespace dls
 		///         callback passed into this function.
 		bool call
 		(
-			req_t &request,
-			std::function<void(res_t response, bool success)> callback,
+			msg_t &request,
+			std::function<void(msg_t response, bool success)> callback,
 			const std::chrono::duration<double> &duration =
 				std::chrono::duration<double>
 				{
@@ -183,7 +169,7 @@ namespace dls
 		// BEGIN critical section
 			std::mutex              response_mutex;
 			std::condition_variable received_response_cv;
-			res_t                   remote_response;
+			msg_t                   remote_response;
 			bool                    received_response;
 		// END critical section
 	};

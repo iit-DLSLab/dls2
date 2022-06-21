@@ -1,0 +1,10 @@
+enum AttractorType
+{
+	WRENCH,
+	ACCELERATION
+};
+
+struct AttractorTypeMsg
+{
+	AttractorType type;
+};

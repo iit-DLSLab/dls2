@@ -9,75 +9,75 @@
 #include <mutex>
 #include <string>
 
-namespace dls
-{
+// namespace dls
+// {
 
-	// =========================== Pimpl Declaration ===========================
-	namespace impl
-	{
-		template <typename T>
-		struct ParameterServerRequest
-		{
-			std::string key;
-			T data;
-		};
+// 	// =========================== Pimpl Declaration ===========================
+// 	namespace impl
+// 	{
+// 		template <typename T>
+// 		struct ParameterServerRequest
+// 		{
+// 			std::string key;
+// 			T data;
+// 		};
 
-		class ParameterServerImpl
-		{
-		public:
-			ParameterServerImpl(std::string const & server_namespace);
+// 		class ParameterServerImpl
+// 		{
+// 		public:
+// 			ParameterServerImpl(std::string const & server_namespace);
 
-		private:
-			std::mutex param_store_mutex;
-			dls::ParameterStore param_store;
+// 		private:
+// 			std::mutex param_store_mutex;
+// 			dls::ParameterStore param_store;
 
-			dls::Service<ParamServerSetDoublePubSubType, DoubleMsgPubSubType>  add_double;
-			dls::Service<StringMsgPubSubType,            DoubleMsgPubSubType> get_double;
-		};
+// 			dls::Service<ParamServerSetDoublePubSubType>  add_double;
+// 			dls::Service<StringMsgPubSubType> get_double;
+// 		};
 
-	}
+// 	}
 
-	// ====================== Public class implementation ======================
-	ParameterServer::ParameterServer(std::string const & ns) :
-		pimpl(std::make_unique<impl::ParameterServerImpl>(ns))
-	{ }
+// 	// ====================== Public class implementation ======================
+// 	ParameterServer::ParameterServer(std::string const & ns) :
+// 		pimpl(std::make_unique<impl::ParameterServerImpl>(ns))
+// 	{ }
 
-	// ========================= Pimpl Implementation ==========================
-	namespace impl
-	{
-		ParameterServerImpl::ParameterServerImpl
-		(
-			std::string const &server_namespace
-		) :
-			param_store_mutex(),
-			param_store(),
-			add_double
-			(
-				dls::topicType("DLS_PARAMETER_SERVER_ADD_DOUBLE", new DoubleMsgPubSubType()),
-				[this](ParamServerSetDouble msg) -> DoubleMsg
-				{
-					std::lock_guard<std::mutex> lock(this->param_store_mutex);
-					this->param_store.add(msg.key(), msg.value());
-					return DoubleMsg();
-				}
-			),
-			get_double
-			(
-				dls::topicType("DLS_PARAMETER_SERVER_GET_DOUBLE", new DoubleMsgPubSubType()),
-				[this](StringMsg msg) -> DoubleMsg
-				{
-					std::lock_guard<std::mutex> lock(this->param_store_mutex);
-					auto ret = this->param_store.get<double>(msg.msg());
-					double return_val = 0;
-					if(ret)
-					{
-						return_val = ret.get();
-					}
-					DoubleMsg return_message;
-					return_message.val() = return_val;
-					return return_message;
-				}
-			)
-		{ }
-	}
-}
+// 	// ========================= Pimpl Implementation ==========================
+// 	namespace impl
+// 	{
+// 		ParameterServerImpl::ParameterServerImpl
+// 		(
+// 			std::string const &server_namespace
+// 		) :
+// 			param_store_mutex(),
+// 			param_store(),
+// 			add_double
+// 			(
+// 				dls::topicType("DLS_PARAMETER_SERVER_ADD_DOUBLE", new DoubleMsgPubSubType()),
+// 				[this](ParamServerSetDouble msg) -> ParamServerSetDouble
+// 				{
+// 					std::lock_guard<std::mutex> lock(this->param_store_mutex);
+// 					this->param_store.add(msg.key(), msg.value());
+// 					return ParamServerSetDouble();
+// 				}
+// 			),
+// 			get_double
+// 			(
+// 				dls::topicType("DLS_PARAMETER_SERVER_GET_DOUBLE", new DoubleMsgPubSubType()),
+// 				[this](StringMsg msg) -> StringMsg
+// 				{
+// 					std::lock_guard<std::mutex> lock(this->param_store_mutex);
+// 					auto ret = this->param_store.get<double>(msg.msg());
+// 					double return_val = 0;
+// 					if(ret)
+// 					{
+// 						return_val = ret.get();
+// 					}
+// 					StringMsg return_message;
+// 					// return_message.val() = return_val;
+// 					return return_message;
+// 				}
+// 			)
+// 		{ }
+// 	}
+// }

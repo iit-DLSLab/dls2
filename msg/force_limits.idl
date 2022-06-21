@@ -1,0 +1,7 @@
+struct ForceLimitMsg
+{
+	double high_force_limit[4];
+	double low_force_limit[4];
+	double surf_normal[4][3]; // Index: [leg][x/y/z component]
+	double mu_estimate[4];
+};
