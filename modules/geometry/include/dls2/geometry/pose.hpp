@@ -23,7 +23,7 @@
 #include <mutex>
 
 // fastrtps
-#include "dls2/msg/pose.h"
+#include <dls/messages/pose.h>
 
 // TODO Write test cases to check the math in the Pose class
 

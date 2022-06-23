@@ -19,9 +19,10 @@
 //TODO move this file out of fastrtps_wrappers and into msg_wrappres
 
 #include "dls2/geometry/pose.hpp"
-#include "dls2/msg/blind_state.h"
 #include "dls2/msg_wrappers/joint_state.hpp"
 #include "dls2/msg_wrappers/screw.hpp"
+#include <dls/messages/blind_state.h>
+
 #include <Eigen/Dense>
 
 namespace dls

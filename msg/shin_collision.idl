@@ -1,5 +1,0 @@
-struct ShinCollisionMsg
-{
-	short   legID;
-	boolean collision;
-};

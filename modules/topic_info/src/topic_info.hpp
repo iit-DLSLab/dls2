@@ -25,8 +25,8 @@
 #include <map>
 #include <memory>
 #include "dls2/util/messaging/subscriber.hpp"
-#include "dls2/msg/stringmsgPubSubTypes.h"
-#include "dls2/msg/gait_signalPubSubTypes.h"
+#include "dls/messages/stringmsgPubSubTypes.h"
+#include "dls/messages/gait_signalPubSubTypes.h"
 #include <atomic>
 
 namespace dls

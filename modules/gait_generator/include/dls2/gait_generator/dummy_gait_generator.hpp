@@ -18,7 +18,7 @@
 
 #include "dls2/gait_generator/gait_generator.hpp"
 #include "dls2/log/log.hpp"
-#include "dls2/msg/stringmsgPubSubTypes.h"
+#include "dls/messages/stringmsgPubSubTypes.h"
 #include "dls2/util/service/service.hpp"
 
 namespace dls

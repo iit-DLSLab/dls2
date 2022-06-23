@@ -1,9 +1,4 @@
 # ==============================================================================
-# Messages
-# ==============================================================================
-add_subdirectory(msg)
-
-# ==============================================================================
 # Parameter Server Library
 # ==============================================================================
 add_library(dls_parameter_server
@@ -21,7 +16,6 @@ target_include_directories(dls_parameter_server
 target_link_libraries(dls_parameter_server
 	PRIVATE
 		parameter_store
-		param_server_msgs
 		dls_pubsub
 		fastcdr
 		fastrtps
@@ -41,7 +35,7 @@ target_link_libraries(dls_parameter_server_cli
 	PRIVATE
 		dls_parameter_server
 		dls_pubsub
-		dls_messaging
+		dls_messages
 		fastcdr
 		fastrtps
 		dls_domains

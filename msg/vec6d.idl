@@ -1,4 +1,0 @@
-struct Vec6DMsg
-{
-	double data[6];
-};

@@ -18,7 +18,7 @@
 
 #include "dls2/geometry/pose.hpp"
 #include <Eigen/Dense>
-#include "dls2/msg/gait_signal.h"
+#include "dls/messages/gait_signal.h"
 #include "dls2/msg_wrappers/screw.hpp"
 #include "dls2/msg_wrappers/joint_state.hpp"
 

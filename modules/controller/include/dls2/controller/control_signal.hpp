@@ -17,7 +17,7 @@
 #define CONTROL_SIGNAL_HPP_QCFRROHM
 
 #include <Eigen/Dense>
-#include "dls2/msg/control_signalPubSubTypes.h"
+#include "dls/messages/control_signalPubSubTypes.h"
 
 /// A struct representing the control signal that is output by a Controller
 namespace dls

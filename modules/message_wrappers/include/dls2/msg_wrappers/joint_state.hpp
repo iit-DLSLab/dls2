@@ -18,7 +18,7 @@
 
 #include <Eigen/Dense>
 
-#include "dls2/msg/joint_statePubSubTypes.h"
+#include <dls/messages/joint_statePubSubTypes.h>
 
 namespace dls
 {

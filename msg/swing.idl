@@ -1,4 +1,0 @@
-struct SwingTypeMsg
-{
-	long type;
-};

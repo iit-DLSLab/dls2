@@ -1,4 +1,0 @@
-struct Vec12Msg
-{
-	double data[12];
-};

@@ -1,4 +1,0 @@
-struct FeetForceMsg
-{
-	double forces[4][3];
-};

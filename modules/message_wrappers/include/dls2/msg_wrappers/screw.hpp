@@ -18,7 +18,7 @@
 
 #include <Eigen/Dense>
 
-#include "dls2/msg/screw.h"
+#include <dls/messages/screw.h>
 
 /// Wrapper class for screw messages
 ///

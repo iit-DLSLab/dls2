@@ -1,5 +1,0 @@
-struct GainMsg
-{
-	double kp_posture[6];
-	double kd_posture[6];
-};
