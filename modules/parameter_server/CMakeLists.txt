@@ -35,7 +35,7 @@ target_link_libraries(dls_parameter_server_cli
 	PRIVATE
 		dls_parameter_server
 		dls_pubsub
-		dls_messages
+		dls-messages
 		fastcdr
 		fastrtps
 		dls_domains

@@ -1,9 +1,3 @@
 [submodule "doc/dls2_examples"]
 	path = doc/dls2_examples
 	url  = git@gitlab.advr.iit.it:dls-lab/dls2_examples.git
-[submodule "3rd_party/doglib"]
-	path = 3rd_party/doglib
-	url  = git@gitlab.advr.iit.it:dls-lab/doglib.git
-[submodule "3rd_party/param-server"]
-	path = 3rd_party/param-server
-	url = git@gitlab.advr.iit.it:dls-lab/param-server.git
