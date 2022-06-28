@@ -22,7 +22,6 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-#include "dls2/robot/robot.hpp"
 #include "dls2/class_loader.hpp"
 #include "dls2/topics/topics.hpp"
 #include "dls2/util/time/time.hpp"
@@ -270,7 +269,8 @@ void *ControlLayer::controlSignalGather(void *data)
 
 	ControlLayer *layer = (ControlLayer*) data;	
 
-	Eigen::VectorXd desired_torques = Eigen::VectorXd::Zero(Robot::getDimension());
+	// Find a way to configure the size of the signal before the control layer initialization
+	Eigen::VectorXd desired_torques = Eigen::VectorXd::Zero(12);
 
     while (!layer->shouldQuit()) {
 
@@ -381,7 +381,7 @@ bool ControlLayer::activateController(const Controller::ID_t &ID)
 		this->pDefault_spline_out,
 		default_duration_seconds,
 		default_duration_seconds,
-		Robot::getDimension()
+		12 //hardcoded, need to change
 	);
 
 	pData->ID = ID;

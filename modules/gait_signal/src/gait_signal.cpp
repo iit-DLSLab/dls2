@@ -17,7 +17,6 @@
 // Includes
 // =============================================================================
 #include "dls2/gait_generator/gait_signal.hpp"
-#include "dls2/robot/robot.hpp"
 
 using namespace dls;
 // =============================================================================

@@ -17,7 +17,6 @@
 #define JOINT_STATE_CPP_8TOBMLEP
 
 #include "dls2/msg_wrappers/joint_state.hpp"
-#include "dls2/robot/robot.hpp"
 
 using namespace dls;
 JointState::JointState() :

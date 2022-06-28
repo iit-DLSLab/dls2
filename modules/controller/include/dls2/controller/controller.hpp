@@ -22,7 +22,6 @@
 #include "dls2/components/periodic_app_layer_component.hpp"
 #include "dls2/gait_generator/gait_signal.hpp"
 #include "dls2/controller/control_signal.hpp"
-// #include "dls2/robot/robot.hpp"
 #include "dls2/util/messaging/dds_participant.hpp"
 #include "dls2/msg_wrappers/blind_state.hpp"
 

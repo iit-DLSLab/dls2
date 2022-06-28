@@ -13,7 +13,6 @@ target_include_directories(dls_message_wrappers
 
 target_link_libraries(dls_message_wrappers
 	PUBLIC
-		dls_robot
 		dls_geometry
 		dls-messages
 )
