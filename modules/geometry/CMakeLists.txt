@@ -13,7 +13,7 @@ target_link_libraries(dls_geometry
 	PRIVATE
 		doglib
 	PUBLIC
-		dls-messages
+		dls_messages
 )
 
 dls_install(dls_geometry)

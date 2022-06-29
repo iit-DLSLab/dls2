@@ -43,10 +43,10 @@ message(STATUS "## Reading dls_deploy.cmake")
 function(dls_install INSTALL_TARGET)
 	install(TARGETS ${INSTALL_TARGET}
 		LIBRARY
-			DESTINATION lib/dls2
+			DESTINATION /usr/lib/dls2
 			COMPONENT dls_runtime
 		ARCHIVE
-			DESTINATION lib
+			DESTINATION /usr/lib
 			COMPONENT dls_runtime
 		RUNTIME
 			DESTINATION ${DLS_INSTALL_RUNTIME_DIR}
@@ -56,7 +56,7 @@ function(dls_install INSTALL_TARGET)
 		DIRECTORY
 			include/
 		DESTINATION
-			include
+			/usr/include
 		COMPONENT
 			dls_dev
 		FILES_MATCHING
@@ -72,10 +72,10 @@ function(dls_install_debug INSTALL_TARGET)
 	install(TARGETS ${INSTALL_TARGET}
 		CONFIGURATIONS Debug
 		LIBRARY
-			DESTINATION lib/dls2
+			DESTINATION /usr/lib/dls2
 			COMPONENT dls_runtime
 		ARCHIVE
-			DESTINATION lib
+			DESTINATION /usr/lib
 			COMPONENT dls_runtime
 		RUNTIME
 			DESTINATION ${DLS_INSTALL_RUNTIME_DIR}
@@ -91,7 +91,7 @@ install(
 	DIRECTORY
 		${PROJECT_SOURCE_DIR}/include/dls2/
 	DESTINATION
-		include/dls2
+		/usr/include/dls2
 	COMPONENT
 		dls_dev
 	FILES_MATCHING
