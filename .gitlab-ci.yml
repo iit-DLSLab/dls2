@@ -94,7 +94,7 @@ test:dls2:
     - dls2
   script:
     - cd build
-    - make -j$(nproc) tests
+    - make -j$(nproc) dls2-tests
     - make test
   rules:
     - if: '$CI_COMMIT_MESSAGE =~ /\[exp\]/'
