@@ -45,6 +45,8 @@ build:dls2:
   tags:
     - dls2
   script:
+    - cwd=$(pwd)
+    - cd ..
     - echo nproc=$(nproc)
     - git clone git@gitlab.advr.iit.it:dls-lab/dls_messages.git
     - cd dls_messages
@@ -53,7 +55,8 @@ build:dls2:
     - cmake ..
     - make -j$(nproc)
     - make install
-    - echo nproc=$(nproc)
+    - cd $cwd
+    - cd ..
     - git clone git@gitlab.advr.iit.it:dls-lab/dls_param_server.git
     - cd dls_param_server
     - mkdir build
@@ -61,6 +64,8 @@ build:dls2:
     - cmake ..
     - make -j$(nproc)
     - make install
+    - cd $cwd
+    - cd ..
     - git clone git@gitlab.advr.iit.it:dls-lab/doglib.git
     - cd doglib
     - mkdir build
@@ -68,14 +73,11 @@ build:dls2:
     - cmake ..
     - make -j$(nproc)
     - make install  
-    - echo nproc=$(nproc)
+    - cd $cwd
     - git submodule update --init --recursive
     - mkdir build
     - cd build
-    - cmake -DCMAKE_BUILD_TYPE=Release ..
-    - make -j$(nproc)
-    - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(readlink -f ../bin)
-    - echo $LD_LIBRARY_PATH
+    - cmake ..
     - make -j$(nproc)
   artifacts:
     paths:
