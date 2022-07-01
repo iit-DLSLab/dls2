@@ -4,13 +4,18 @@
 image: server-harbor:80/dls2/dls2-dev:latest
 
 before_script:
-  - eval $(ssh-agent -s)
-  - ssh-add <(echo "$SSH_PRIVATE_KEY")
-  - mkdir -p ~/.ssh
-  - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
-  - git config --global user.name "dlsuser"
-  - git config --global user.email "dlsuser@iit.it"
-  - git config --global push.default matching
+  - apt-get -y update 
+  - apt-get install -y --no-install-recommends apt-utils 
+  - apt-get install -y --no-install-recommends build-essential git openssh-client apt-transport-https
+  - mkdir /root/.ssh/
+  - echo "$SSH_PUBLIC_KEY" > /root/.ssh/id_rsa.pub
+  - echo "$SSH_PRIVATE_KEY" > /root/.ssh/id_rsa
+  - cat /root/.ssh/id_rsa.pub  >> /root/.ssh/authorized_keys
+  - chmod 600 /root/.ssh/id_rsa
+  - chmod 600 /root/.ssh/id_rsa.pub
+  - touch /root/.ssh/known_hosts
+  - ssh-keyscan gitlab.advr.iit.it >> /root/.ssh/known_hosts
+  - echo "Host *\n\tStrictHostKeyChecking no\n\n" > /root/.ssh/config
 
 # ==============================================================================
 # Stages
