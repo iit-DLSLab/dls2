@@ -4,7 +4,7 @@ add_custom_target(dls2-tests)
 
 add_custom_target(check
 	COMMAND make test
-	DEPENDS tests
+	DEPENDS dls2-tests
 	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 	COMMENT "Running tests..."
 )
@@ -58,7 +58,7 @@ function(dls_register_test TEST_NAME)
 			${${prefix}_LINK}
 	)
 
-	add_dependencies(tests ${TARGET_NAME})
+	add_dependencies(dls2-tests ${TARGET_NAME})
 
 	add_test(
 		NAME    ${DLS_TEST_SCOPE}_${TEST_NAME}

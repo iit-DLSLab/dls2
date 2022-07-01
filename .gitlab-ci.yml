@@ -67,12 +67,6 @@ prebuild:dls2:
     - cmake ..
     - make -j$(nproc)
     - make install        
-  artifacts:
-    paths:
-      - build/*
-      - bin/*
-    expire_in: 3 hrs
-
 
 # ------------------------------------------------------------------------------
 # Build Stage
