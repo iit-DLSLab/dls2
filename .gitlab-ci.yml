@@ -45,11 +45,11 @@ prebuild:dls2:
     - dls2
   script:
     - echo nproc=$(nproc)
-    - git clone git@gitlab.advr.iit.it:dls-lab/dls_messages.git -b master
+    - git clone git@gitlab.advr.iit.it:dls-lab/dls_messages.git
     - cd dls_messages
     - mkdir build
     - cd build
-    - cmake -DCMAKE_BUILD_TYPE=Release ..
+    - cmake ..
     - make -j$(nproc)
     - make install
     - echo nproc=$(nproc)
@@ -57,14 +57,14 @@ prebuild:dls2:
     - cd dls_param_server
     - mkdir build
     - cd build
-    - cmake -DCMAKE_BUILD_TYPE=Release ..
+    - cmake ..
     - make -j$(nproc)
     - make install
     - git clone git@gitlab.advr.iit.it:dls-lab/doglib.git
     - cd doglib
     - mkdir build
     - cd build
-    - cmake -DCMAKE_BUILD_TYPE=Release ..
+    - cmake ..
     - make -j$(nproc)
     - make install        
   artifacts:
