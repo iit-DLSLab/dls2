@@ -44,18 +44,18 @@ prebuild:dls2:
     - git config --global user.email "dlsuser@iit.it"
     - git config --global push.default matching
     - echo nproc=$(nproc)
-    - echo git clone git@gitlab.advr.iit.it:dls-lab/dls_messages.git
+    - git clone https://gitlab.advr.iit.it/dls-lab/dls_messages.git
     - cd dls_messages
     - mkdir build
     - make -j$(nproc)
     - make install
     - echo nproc=$(nproc)
-    - echo git clone git@gitlab.advr.iit.it:dls-lab/dls_param_server.git
+    - git clone git@gitlab.advr.iit.it:dls-lab/dls_param_server.git
     - cd dls_param_server
     - mkdir build
     - make -j$(nproc)
     - make install
-    - echo git clone git@gitlab.advr.iit.it:dls-lab/doglib.git
+    - git clone git@gitlab.advr.iit.it:dls-lab/doglib.git
     - cd doglib
     - mkdir build
     - make -j$(nproc)
