@@ -15,30 +15,7 @@ before_script:
   - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" >> ~/.ssh/config'
   - source /opt/ros/noetic/setup.bash
   - echo nproc=$(nproc)
-  - git clone git@gitlab.advr.iit.it:dls-lab/dls_messages.git
-  - cd dls_messages
-  - mkdir build
-  - cd build
-  - cmake ..
-  - make -j$(nproc)
-  - make install
-  - cd $cwd
-  - git clone git@gitlab.advr.iit.it:dls-lab/dls_param_server.git
-  - cd dls_param_server
-  - mkdir build
-  - cd build
-  - cmake ..
-  - make -j$(nproc)
-  - make install
-  - cd $cwd
-  - git clone git@gitlab.advr.iit.it:dls-lab/doglib.git
-  - cd doglib
-  - mkdir build
-  - cd build
-  - cmake ..
-  - make -j$(nproc)
-  - make install 
-  - cd $cwd
+  
 
 # ==============================================================================
 # Stages
@@ -46,10 +23,7 @@ before_script:
 stages:
   - build
   - test
-  - pack
-  - deploy
-
-        
+  - packdeploy        
 
 # ------------------------------------------------------------------------------
 # Build Stage
@@ -71,11 +45,37 @@ build:dls2:
   tags:
     - dls2
   script:
+    - cd $cwd
+    - git clone git@gitlab.advr.iit.it:dls-lab/dls_messages.git
+    - cd dls_messages
+    - mkdir build
+    - cd build
+    - cmake ..
+    - make -j$(nproc)
+    - make install
+    - cd $cwd
+    - git clone git@gitlab.advr.iit.it:dls-lab/dls_param_server.git
+    - cd dls_param_server
+    - mkdir build
+    - cd build
+    - cmake ..
+    - make -j$(nproc)
+    - make install
+    - cd $cwd
+    - git clone git@gitlab.advr.iit.it:dls-lab/doglib.git
+    - cd doglib
+    - mkdir build
+    - cd build
+    - cmake ..
+    - make -j$(nproc)
+    - make install 
+    - cd $cwd
     - git submodule update --init --recursive
     - mkdir build
     - cd build
     - cmake ..
     - make -j$(nproc)
+    - cd $cwd
   artifacts:
     paths:
       - build/*
@@ -93,6 +93,16 @@ test:dls2:
   tags:
     - dls2
   script:
+    - cd $cwd
+    - cd dls_messages/build
+    - make install
+    - cd $cwd
+    - cd dls_param_server/build
+    - make install
+    - cd $cwd
+    - cd doglib/build
+    - make install 
+    - cd $cwd
     - cd build
     - make -j$(nproc) dls2-tests
     - make test
@@ -102,42 +112,35 @@ test:dls2:
     - if: '$CI_COMMIT_BRANCH == "master"'   
 
 # ------------------------------------------------------------------------------
-# Pack Stage
+# Pack and Deploy Stage
 # ------------------------------------------------------------------------------
-pack:dls2:
-  stage: pack
+packdeploy:dls2:
+  stage: packdeploy
   tags:
     - dls2
   script:
     # build the debians set up by cmake
+    - cd $cwd
+    - cd dls_messages/build
+    - make install
+    - cd $cwd
+    - cd dls_param_server/build
+    - make install
+    - cd $cwd
+    - cd doglib/build
+    - make install 
+    - cd $cwd
     - cd build
     - make package
     - echo $CI_JOB_ID > CI_JOB_ID
+    - source /root/dls_gitlab_ci/make-json.bash token=$DLSUSER_TOKEN project=$CI_PROJECT_ID branch=$CI_COMMIT_BRANCH job=$CI_JOB_ID tag=latest release=$(lsb_release -sc) > out.json
+    - 'curl -X post -H "Content-Type: application/json" -d @out.json http://server-ubuntu18:9000/hooks/deploy-apt'
   artifacts:
     paths:
       - build/*.deb
-      - build/CI_JOB_ID
     expire_in: 1 week
   dependencies:
     - build:dls2
-  rules:
-    - if: '$CI_COMMIT_MESSAGE =~ /\[exp\]/'
-      when: never
-    - if: '$CI_COMMIT_BRANCH == "master"'
-
-# ------------------------------------------------------------------------------
-# Deploy Stage
-# ------------------------------------------------------------------------------
-deploy:dls2:
-  stage: deploy
-  tags:
-    - dls2
-  script:
-    # sync to server
-    - source /root/dls_gitlab_ci/make-json.bash token=$DLSUSER_TOKEN project=$CI_PROJECT_ID branch=$CI_COMMIT_BRANCH job=$(cat build/CI_JOB_ID) tag=latest release=$(lsb_release -sc) > out.json
-    - 'curl -X post -H "Content-Type: application/json" -d @out.json http://server-ubuntu18:9000/hooks/deploy-apt'  
-  dependencies:
-    - pack:dls2
   rules:
     - if: '$CI_COMMIT_MESSAGE =~ /\[exp\]/'
       when: never
