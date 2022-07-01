@@ -47,8 +47,8 @@ prebuild:dls2:
     - git clone git@gitlab.advr.iit.it:dls-lab/dls_messages.git -b master
     - cd dls_messages
     - mkdir build
-    - cmake -DCMAKE_BUILD_TYPE=Release ..
     - cd build
+    - cmake -DCMAKE_BUILD_TYPE=Release ..
     - make -j$(nproc)
     - make install
     - echo nproc=$(nproc)
