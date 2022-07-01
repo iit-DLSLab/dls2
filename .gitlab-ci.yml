@@ -46,7 +46,6 @@ build:dls2:
     - dls2
   script:
     - cwd=$(pwd)
-    - cd ..
     - echo nproc=$(nproc)
     - git clone git@gitlab.advr.iit.it:dls-lab/dls_messages.git
     - cd dls_messages
@@ -56,7 +55,6 @@ build:dls2:
     - make -j$(nproc)
     - make install
     - cd $cwd
-    - cd ..
     - git clone git@gitlab.advr.iit.it:dls-lab/dls_param_server.git
     - cd dls_param_server
     - mkdir build
@@ -65,7 +63,6 @@ build:dls2:
     - make -j$(nproc)
     - make install
     - cd $cwd
-    - cd ..
     - git clone git@gitlab.advr.iit.it:dls-lab/doglib.git
     - cd doglib
     - mkdir build
