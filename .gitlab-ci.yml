@@ -18,19 +18,21 @@ before_script:
 # Stages
 # ==============================================================================
 stages:
-  - prebuild
   - build
   - test
   - pack
   - deploy
 
+        
+
 # ------------------------------------------------------------------------------
-# Pre Bulid Stage
+# Build Stage
 # ------------------------------------------------------------------------------
 # Print versions of installed programmes on the docker image.
 # Install all libs required by dls2 project
+# Build the framework
 display:versions:
-  stage: prebuild
+  stage: build
   tags:
     - dls2
   script:
@@ -38,9 +40,8 @@ display:versions:
     - gcc --version
     - g++ --version
 
-# Build and install all needed libs
-prebuild:dls2:
-  stage: prebuild
+build:dls2:
+  stage: build
   tags:
     - dls2
   script:
@@ -66,17 +67,7 @@ prebuild:dls2:
     - cd build
     - cmake ..
     - make -j$(nproc)
-    - make install        
-
-# ------------------------------------------------------------------------------
-# Build Stage
-# ------------------------------------------------------------------------------
-# Build the framework
-build:dls2:
-  stage: build
-  tags:
-    - dls2
-  script:
+    - make install  
     - echo nproc=$(nproc)
     - git submodule update --init --recursive
     - mkdir build
@@ -91,8 +82,6 @@ build:dls2:
       - build/*
       - bin/*
     expire_in: 3 hrs
-  dependencies:
-    - prebuild:dls2
 
 # ------------------------------------------------------------------------------
 # Test Stage
