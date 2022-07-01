@@ -12,6 +12,7 @@ before_script:
   - git config --global user.name "dlsuser"
   - git config --global user.email "dlsuser@iit.it"
   - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" >> ~/.ssh/config'
+  - source /opt/ros/noetic/setup.bash
 
 # ==============================================================================
 # Stages
