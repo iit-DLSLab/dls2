@@ -70,16 +70,10 @@ build:dls2:
     - dls2
   script:
     - echo nproc=$(nproc)
-    - git clone git@gitlab.advr.iit.it:dls-lab/doglib.git
-    - cd doglib
-    - mkdir build
-    - make -j$(nproc)
-    - make install
     - git submodule update --init --recursive
     - mkdir build
     - cd build
     - cmake -DCMAKE_BUILD_TYPE=Release ..
-    - 
     - make -j$(nproc)
     - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(readlink -f ../bin)
     - echo $LD_LIBRARY_PATH
