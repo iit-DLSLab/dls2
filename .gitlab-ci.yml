@@ -4,13 +4,10 @@
 image: server-harbor:80/dls2/dls2-dev:latest
 
 before_script:
-  - echo 'Acquire::http { Proxy "http://server-apt:3142"; }' | tee -a /etc/apt/apt.conf.d/proxy
-  - echo 'Acquire::HTTP::Proxy::server-apt "DIRECT";' | tee -a /etc/apt/apt.conf.d/proxy
-  - apt-get -y update 
-  - apt-get install -y --no-install-recommends lsb-release curl ca-certificates software-properties-common apt-transport-https wget git openssh-client
   - eval $(ssh-agent -s)
-  - ssh-add <(echo "$SSH_PRIVATE_KEY")
+  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
   - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
   - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
   - git config --global user.name "dlsuser"
   - git config --global user.email "dlsuser@iit.it"
