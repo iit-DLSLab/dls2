@@ -9,4 +9,4 @@ target_include_directories(catch2
 
 set_target_properties(catch2 PROPERTIES EXCLUDE_FROM_ALL 1)
 
-add_dependencies(tests catch2)
+add_dependencies(dls2-tests catch2)
