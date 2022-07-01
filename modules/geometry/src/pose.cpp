@@ -15,7 +15,7 @@
 *******************************************************************************/
 #include "dls2/geometry/pose.hpp"
 #include <algorithm>
-#include <commons/geometry/rotations.hpp>
+#include <doglib/commons/geometry/rotations.hpp>
 
 using namespace dls;
 // =============================================================================
