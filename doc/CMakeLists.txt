@@ -259,7 +259,7 @@ set(DOXYGEN_EXTRACT_PRIVATE
 # ------------------------------------------------------------------------------
 # Target for installation
 # ------------------------------------------------------------------------------
-add_custom_target(doxygen
+add_custom_target(dls2-doxygen
 	ALL
 	#DEPENDS
 	#	${DOXYFILE_DEST}/html

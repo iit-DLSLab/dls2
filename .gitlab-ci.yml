@@ -10,18 +10,19 @@ before_script:
 # Stages
 # ==============================================================================
 stages:
+  - prebuild
   - build
   - test
   - pack
   - deploy
 
 # ------------------------------------------------------------------------------
-# Build Stage
+# Pre Bulid Stage
 # ------------------------------------------------------------------------------
-# Print versions of installed programmes on the docker image. This is helpful
-# for a quick sanity check when things break
+# Print versions of installed programmes on the docker image.
+# Install all libs required by dls2 project
 display:versions:
-  stage: build
+  stage: prebuild
   tags:
     - dls2
   script:
@@ -29,17 +30,56 @@ display:versions:
     - gcc --version
     - g++ --version
 
+# Build and install all needed libs
+prebuild:dls2:
+  stage: prebuild
+  tags:
+    - dls2
+  script:
+    - echo nproc=$(nproc)
+    - git clone git@gitlab.advr.iit.it:dls-lab/dls_messages.git
+    - cd dls_messages
+    - mkdir build
+    - make -j$(nproc)
+    - make install
+    - echo nproc=$(nproc)
+    - git clone git@gitlab.advr.iit.it:dls-lab/dls_param_server.git
+    - cd dls_param_server
+    - mkdir build
+    - make -j$(nproc)
+    - make install
+    - git clone git@gitlab.advr.iit.it:dls-lab/doglib.git
+    - cd doglib
+    - mkdir build
+    - make -j$(nproc)
+    - make install        
+  artifacts:
+    paths:
+      - build/*
+      - bin/*
+    expire_in: 3 hrs
+
+
+# ------------------------------------------------------------------------------
+# Build Stage
+# ------------------------------------------------------------------------------
 # Build the framework
 build:dls2:
   stage: build
   tags:
     - dls2
   script:
+    - echo nproc=$(nproc)
+    - git clone git@gitlab.advr.iit.it:dls-lab/doglib.git
+    - cd doglib
+    - mkdir build
+    - make -j$(nproc)
+    - make install
     - git submodule update --init --recursive
     - mkdir build
     - cd build
     - cmake -DCMAKE_BUILD_TYPE=Release ..
-    - echo nproc=$(nproc)
+    - 
     - make -j$(nproc)
     - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(readlink -f ../bin)
     - echo $LD_LIBRARY_PATH
@@ -49,7 +89,8 @@ build:dls2:
       - build/*
       - bin/*
     expire_in: 3 hrs
-  
+  dependencies:
+    - prebuild:dls2
 
 # ------------------------------------------------------------------------------
 # Test Stage
