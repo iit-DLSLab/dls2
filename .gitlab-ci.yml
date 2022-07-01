@@ -8,8 +8,8 @@ before_script:
   - apt-get install -y --no-install-recommends apt-utils 
   - apt-get install -y --no-install-recommends build-essential git openssh-client apt-transport-https
   - mkdir /root/.ssh/
-  - echo "$SSH_PUBLIC_KEY" > /root/.ssh/id_rsa.pub
-  - echo "$SSH_PRIVATE_KEY" > /root/.ssh/id_rsa
+  - echo $SSH_PUBLIC_KEY > /root/.ssh/id_rsa.pub
+  - echo $SSH_PRIVATE_KEY > /root/.ssh/id_rsa
   - cat /root/.ssh/id_rsa.pub  >> /root/.ssh/authorized_keys
   - chmod 600 /root/.ssh/id_rsa
   - chmod 600 /root/.ssh/id_rsa.pub
