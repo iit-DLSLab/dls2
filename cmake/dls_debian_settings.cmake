@@ -13,7 +13,7 @@ set(CPACK_DEB_COMPONENT_INSTALL                 ON)
 
 set(CPACK_DEBIAN_DLS_DEV_PACKAGE_NAME           "dls2-dev" CACHE INTERNAL "")
 set(CPACK_DEBIAN_DLS_DEV_FILE_NAME              "dls2-dev-${PROJECT_VERSION}.deb" CACHE INTERNAL "")
-set(CPACK_DEBIAN_DLS_DEV_PACKAGE_DEPENDS        "dls2-runtime" CACHE INTERNAL "")
+set(CPACK_DEBIAN_DLS_DEV_PACKAGE_DEPENDS        "dls2-runtime, dls-messages-dev, dls-doglib-dev, dls-param-server-dev" CACHE INTERNAL "")
 
 set(CPACK_DEBIAN_DLS_DOCS_PACKAGE_NAME          "dls2-docs" CACHE INTERNAL "")
 set(CPACK_DEBIAN_DLS_DOCS_FILE_NAME             "dls2-docs-${PROJECT_VERSION}.deb" CACHE INTERNAL "") 
@@ -21,7 +21,7 @@ set(CPACK_DEBIAN_DLS_DOCS_PACKAGE_DEPENDS       "" CACHE INTERNAL "")
 
 set(CPACK_DEBIAN_DLS_RUNTIME_PACKAGE_NAME       "dls2-runtime" CACHE INTERNAL "")
 set(CPACK_DEBIAN_DLS_RUNTIME_FILE_NAME          "dls2-runtime-${PROJECT_VERSION}.deb" CACHE INTERNAL "")
-set(CPACK_DEBIAN_DLS_RUNTIME_PACKAGE_DEPENDS    "dls-messages, dls-doglib, dls-parameter-store " CACHE INTERNAL "")
+set(CPACK_DEBIAN_DLS_RUNTIME_PACKAGE_DEPENDS    "dls-messages, dls-doglib, dls-param-server" CACHE INTERNAL "")
 
 get_cmake_property(CPACK_COMPONENTS_ALL COMPONENTS)
 list(REMOVE_ITEM CPACK_COMPONENTS_ALL "Unspecified")
