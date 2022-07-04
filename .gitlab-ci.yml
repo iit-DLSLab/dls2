@@ -15,7 +15,30 @@ before_script:
   - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" >> ~/.ssh/config'
   - source /opt/ros/noetic/setup.bash
   - echo nproc=$(nproc)
-  
+  - cd $cwd
+  - git clone git@gitlab.advr.iit.it:dls-lab/dls_messages.git
+  - cd dls_messages
+  - mkdir build
+  - cd build
+  - cmake ..
+  - make -j$(nproc)
+  - make install
+  - cd $cwd
+  - git clone git@gitlab.advr.iit.it:dls-lab/dls_param_server.git
+  - cd dls_param_server
+  - mkdir build
+  - cd build
+  - cmake ..
+  - make -j$(nproc)
+  - make install
+  - cd $cwd
+  - git clone git@gitlab.advr.iit.it:dls-lab/doglib.git
+  - cd doglib
+  - mkdir build
+  - cd build
+  - cmake ..
+  - make -j$(nproc)
+  - make install
 
 # ==============================================================================
 # Stages
@@ -46,36 +69,11 @@ build:dls2:
     - dls2
   script:
     - cd $cwd
-    - git clone git@gitlab.advr.iit.it:dls-lab/dls_messages.git
-    - cd dls_messages
-    - mkdir build
-    - cd build
-    - cmake ..
-    - make -j$(nproc)
-    - make install
-    - cd $cwd
-    - git clone git@gitlab.advr.iit.it:dls-lab/dls_param_server.git
-    - cd dls_param_server
-    - mkdir build
-    - cd build
-    - cmake ..
-    - make -j$(nproc)
-    - make install
-    - cd $cwd
-    - git clone git@gitlab.advr.iit.it:dls-lab/doglib.git
-    - cd doglib
-    - mkdir build
-    - cd build
-    - cmake ..
-    - make -j$(nproc)
-    - make install 
-    - cd $cwd
     - git submodule update --init --recursive
     - mkdir build
     - cd build
     - cmake ..
     - make -j$(nproc)
-    - cd $cwd
   artifacts:
     paths:
       - build/*
@@ -94,15 +92,6 @@ test:dls2:
     - dls2
   script:
     - cd $cwd
-    - cd dls_messages/build
-    - make install
-    - cd $cwd
-    - cd dls_param_server/build
-    - make install
-    - cd $cwd
-    - cd doglib/build
-    - make install 
-    - cd $cwd
     - cd build
     - make -j$(nproc) dls2-tests
     - make test
@@ -119,16 +108,6 @@ packdeploy:dls2:
   tags:
     - dls2
   script:
-    # build the debians set up by cmake
-    - cd $cwd
-    - cd dls_messages/build
-    - make install
-    - cd $cwd
-    - cd dls_param_server/build
-    - make install
-    - cd $cwd
-    - cd doglib/build
-    - make install 
     - cd $cwd
     - cd build
     - make package
