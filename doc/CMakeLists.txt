@@ -1,6 +1,6 @@
 message(STATUS "## Configuring doc folder")
 
-include(dls_docs)
+include(dls_doc)
 # ==============================================================================
 # URL of example repository
 # ==============================================================================
@@ -224,7 +224,7 @@ if(DLS_INSTALL_DEVELOPER_DOCUMENTATION)
 	install(FILES ${DLS_2_DEST}/dls.2.gz
 		DESTINATION /usr/man/man2
 		# development documentation should only be made available to devs
-		COMPONENT dls_docs
+		COMPONENT dls_doc
 	)
 endif()
 
@@ -325,6 +325,6 @@ if(DLS_INSTALL_DEVELOPER_DOCUMENTATION)
 	install(
 		DIRECTORY ${DOXYFILE_DEST}/html
 		DESTINATION ${DLS_INSTALL_DEVELOPMENT_DOCS_DIR}
-		COMPONENT dls_docs
+		COMPONENT dls_doc
 	)
 endif()
