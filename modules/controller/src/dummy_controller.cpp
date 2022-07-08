@@ -18,7 +18,7 @@
 #include <robot_factory.hpp>
 
 using namespace dls;
-using iit::dog::Dog;
+using robotlib::RobotBase;
 
 DummyController::DummyController
 (
@@ -125,7 +125,7 @@ void DummyController::run(const std::chrono::system_clock::time_point &time)
 	time.time_since_epoch();
 }
 
-extern "C" Controller *create(std::shared_ptr<iit::dog::Dog> pDog)
+extern "C" Controller *create(std::shared_ptr<robotlib::RobotBase> pDog)
 {
 	auto p = new DummyController(pDog);
 	std::cout << "loaded dummy controller on: " << pDog->getName() << std::endl;

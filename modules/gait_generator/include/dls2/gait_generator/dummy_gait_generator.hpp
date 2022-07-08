@@ -28,7 +28,7 @@ class DummyGaitGenerator : public GaitGenerator
 {
 public:
 	// DummyGaitGenerator();
-	DummyGaitGenerator(const std::shared_ptr<iit::dog::Dog> &pDog);
+	DummyGaitGenerator(const std::shared_ptr<robotlib::RobotBase> &pDog);
 	void run(const std::chrono::system_clock::time_point&) override;
 	AppLayerComponent::Status eStop() override {return getStatus();}
 

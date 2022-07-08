@@ -23,7 +23,7 @@
 // Using Declarations
 // =============================================================================
 using namespace dls;
-using iit::dog::Dog;
+using robotlib::RobotBase;
 
 // =============================================================================
 // Constructors
@@ -31,7 +31,7 @@ using iit::dog::Dog;
 Controller::Controller
 (
 	const std::string &name_,
-	const std::shared_ptr<Dog> &dog_,
+	const std::shared_ptr<robotlib::RobotBase> &dog_,
 	const period_t &period_,
 	const ControlSignal::SignalReconstructionMethod &reconst_meth_,
 	const dls::topicType &gait_topic_,

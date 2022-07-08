@@ -25,7 +25,7 @@
 #include "dls2/util/messaging/dds_participant.hpp"
 #include "dls2/msg_wrappers/blind_state.hpp"
 
-#include <iit/commons/dog/dog.hpp>
+#include "robot_factory.hpp"
 
 #include <chrono>
 #include <string>
@@ -45,13 +45,13 @@ class Controller : public PeriodicAppLayerComponent
 public:
 
 	// Plugin typedefs
-	typedef Controller *create_t(std::shared_ptr<iit::dog::Dog>);
+	typedef Controller *create_t(std::shared_ptr<robotlib::RobotBase>);
 	typedef void destroy_t(Controller*);
 
 	Controller
 	(
 		const ID_t&,                                        		 							///< The ID of the controller
-		const std::shared_ptr<iit::dog::Dog>&,                   		 							///< A pointer to the robot model
+		const std::shared_ptr<robotlib::RobotBase>&,                   		 							///< A pointer to the robot model
 		const period_t&,                                    		 							///< The period of the controller
 		const ControlSignal::SignalReconstructionMethod&,  			 							///< Signal reconstruction used by this controller
 		const dls::topicType& gateTopic = dls::topics::gait_signal,	 							///< Topic where gate signal is being published
@@ -80,7 +80,7 @@ protected:
 	///
 	void publishSignal(const ControlSignal&);
 
-	const std::shared_ptr<const iit::dog::Dog> pDog;
+	const std::shared_ptr<const robotlib::RobotBase> pDog;
 
 	const ControlSignal::SignalReconstructionMethod signal_reconstruction_method;
 
@@ -118,7 +118,7 @@ private:
 /// Export the controller for loading into the framework
 ///
 #define DLS_EXPORT_CONTROLLER(controller)                                      \
-extern "C" dls::Controller *create(std::shared_ptr<iit::dog::Dog> pDog)        \
+extern "C" dls::Controller *create(std::shared_ptr<robotlib::RobotBase> pDog)        \
 {                                                                              \
 	return new controller(pDog);                                               \
 }                                                                              \

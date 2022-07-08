@@ -35,7 +35,7 @@ class DummyController : public Controller
 public:
 	DummyController
 	(
-		const std::shared_ptr<iit::dog::Dog> &dog
+		const std::shared_ptr<robotlib::RobotBase> &dog
 	);
 
 	// DummyController();

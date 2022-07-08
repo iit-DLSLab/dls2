@@ -20,7 +20,7 @@
 #include <robot_factory.hpp>
 
 using namespace dls;
-using iit::dog::Dog;
+using robotlib::RobotBase;
 
 DummyGaitGenerator::DummyGaitGenerator(const std::shared_ptr<Dog> &pDog) :
 	GaitGenerator

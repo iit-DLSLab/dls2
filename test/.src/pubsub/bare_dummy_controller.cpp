@@ -2,7 +2,7 @@
 
 int main()
 {
-	std::shared_ptr<iit::dog::Dog> pDog;
+	std::shared_ptr<robotlib::RobotBase> pDog;
 	dls::DummyController dummy_controller(pDog);
 	while(true)
 	{

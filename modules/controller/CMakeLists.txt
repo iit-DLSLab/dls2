@@ -12,6 +12,7 @@ target_include_directories(dls_controller
 
 target_link_libraries(dls_controller
 	PUBLIC
+		robotlib
 		dls_framework_components
 		dls_gait_signal
 		dls_geometry

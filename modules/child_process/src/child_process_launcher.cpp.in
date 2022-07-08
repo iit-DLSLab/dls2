@@ -98,7 +98,7 @@ int main(int argc, char **argv)
 	// {
 	// 	// first try loading from the local directory
 	// 	pComponent =
-	// 		ClassLoader::loadClass<Controller, std::shared_ptr<iit::dog::Dog>>
+	// 		ClassLoader::loadClass<Controller, std::shared_ptr<robotlib::RobotBase>>
 	// 		(
 	// 			std::string("./lib") + args.component_name + ".so",
 	// 			pRobot

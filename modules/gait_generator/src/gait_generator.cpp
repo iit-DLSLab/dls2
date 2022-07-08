@@ -27,7 +27,7 @@ using namespace dls;
 GaitGenerator::GaitGenerator
 (
 	const ID_t &ID,
-	const std::shared_ptr<iit::dog::Dog> &pRobot_,
+	const std::shared_ptr<robotlib::RobotBase> &pRobot_,
 	const period_t &period_,
 	const dls::topicType& gateTopic_,
 	const dls::topicType& blindStateTopic_
