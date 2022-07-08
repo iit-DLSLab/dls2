@@ -43,7 +43,7 @@ bool Options::launch_hardware               = false;
 bool Options::launch_control                = false;
 bool Options::launch_console                = false;
 bool Options::launch_log                    = false;
-bool Options::launch_roscore                = false;
+bool Options::launch_ros                    = false;
 
 // real robot or simulation mode
 bool Options::simulation_mode               = true;
@@ -85,7 +85,7 @@ bool Options::parseArgs(int argc, char **argv)
 	Options::launch_control     =  false;
 	Options::launch_console     =  false;
 	Options::launch_log         =  false;
-	Options::launch_roscore		=  false;
+	Options::launch_ros 		=  false;
 
 	int opt;
 	while((opt = getopt_long(argc, argv, "r:sHl:vh::cd", long_options, nullptr)) != -1)
@@ -137,7 +137,7 @@ bool Options::parseArgs(int argc, char **argv)
 					const_cast<char*>("console"),
 					const_cast<char*>("log"),
 					const_cast<char*>("estimation"),
-					const_cast<char*>("roscore"),
+					const_cast<char*>("ros"),
 					nullptr
 				};
 				char *value;
@@ -170,9 +170,9 @@ bool Options::parseArgs(int argc, char **argv)
 						{
 							Options::launch_estimation = true;
 						}
-						else if(std::strcmp(layer, "roscore") == 0)
+						else if(std::strcmp(layer, "ros") == 0)
 						{
-							Options::launch_roscore = true;
+							Options::launch_ros = true;
 						}
 					}
 					else
@@ -283,7 +283,7 @@ bool Options::validate()
 		!launch_control &&
 		!launch_console &&
 		!launch_log &&
-		!launch_roscore
+		!launch_ros
 	)
 		return false;
 

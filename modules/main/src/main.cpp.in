@@ -173,7 +173,7 @@ int main(int argc, char **argv)
 	if(Options::launch_hardware) 	forkLayer<HardwareLayer>("hardware_layer", argv);
 	if(Options::launch_control)  	forkLayer<ControlLayer>("controlLayer", argv);
 	if(Options::launch_console)	 	forkLayer<ConsoleLayer>("consoleLayer", argv);
-	if(Options::launch_roscore)		forkLayer<ROSLayer>("ROSLayer", argv);
+	if(Options::launch_ros)		    forkLayer<ROSLayer>("ROSLayer", argv);
 
 	//Time::set_use_simulated_time(Options::is_simulation());
 

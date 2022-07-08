@@ -30,7 +30,7 @@ ROSLayer::ROSLayer(std::string ID)
 	command_manager.addCommand<void>
 	(
 		"exit",
-		"Shutdown the roscore layer",
+		"Shutdown the ros layer",
 		std::function<void()>
 		(
 			[&]()
@@ -44,8 +44,8 @@ ROSLayer::ROSLayer(std::string ID)
 
 	command_manager.addCommand<void>
 	(
-		"launchRosCore",
-		"Launches the roscore layer",
+		"launchCore",
+		"Launches roscore",
 		std::function<void()>
 		(
 			[&]()
