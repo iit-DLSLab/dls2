@@ -51,7 +51,6 @@ bool Options::simulation_mode               = true;
 // show the documentation in a browser
 bool Options::show_docs                     = false;
 
-dog::RobotFactory::RobotType Options::robot = dog::RobotFactory::RobotType::HyQ;
 std::string Options::robot_name             = "UNSPECIFIED_ROBOT_NAME";
 static bool robot_is_specified              = false;
 
@@ -102,12 +101,10 @@ bool Options::parseArgs(int argc, char **argv)
 				robot_is_specified = true;
 				if(std::strcmp(optarg, "hyq") == 0)
 				{
-					Options::robot = dls::dog::RobotFactory::RobotType::HyQ;
 					Options::robot_name = "hyq";
 				}
 				else if(std::strcmp(optarg, "hyqreal") == 0)
 				{
-					Options::robot = dls::dog::RobotFactory::RobotType::HyQReal;
 					Options::robot_name = "hyqreal";
 				}
 				else

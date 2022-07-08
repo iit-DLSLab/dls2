@@ -12,8 +12,6 @@ target_include_directories(dls_gait_signal
 )
 
 target_link_libraries(dls_gait_signal
-	PUBLIC
-		doglib
 	PRIVATE
 		dls_message_wrappers
 		dls_geometry

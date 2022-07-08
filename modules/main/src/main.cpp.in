@@ -48,7 +48,7 @@
 
 #include "dls2/log/log.hpp"
 
-#include <doglib/factory/robot_factory.hpp>
+#include <robot_factory.hpp>
 
 #include <sys/mman.h>
 

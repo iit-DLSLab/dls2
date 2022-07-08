@@ -23,7 +23,7 @@
 #include "dls2/util/messaging/dds_participant.hpp"
 #include "dls2/msg_wrappers/blind_state.hpp"
 
-#include <doglib/base/dog.hpp>
+#include <iit/commons/dog/dog.hpp>
 
 #include <mutex>
 #include <memory>
@@ -43,14 +43,14 @@ class GaitGenerator : public PeriodicAppLayerComponent
 	public:
 		// Typedefs
 		// using ID_t = std::string;
-		typedef GaitGenerator *create_t(std::shared_ptr<dls::dog::Dog>);
+		typedef GaitGenerator *create_t(std::shared_ptr<iit::dog::Dog>);
 		typedef void destroy_t(GaitGenerator*);
 
 		// Constructors
 		GaitGenerator
 		(
 			const ID_t&,																			///< The ID of the gait generator
-			const std::shared_ptr<dog::Dog>&,														///< A pointer to the robot model
+			const std::shared_ptr<iit::dog::Dog>&,														///< A pointer to the robot model
 			const period_t&,																		///< The period of the gait generator
 			const dls::topicType& gateTopic = dls::topics::gait_signal,								///< Topic where gate signal will be published
 			const dls::topicType& blindStateTopic = dls::topics::low_level_estimation::blind_state  ///< Topic where blind state signal is being published
@@ -68,7 +68,7 @@ class GaitGenerator : public PeriodicAppLayerComponent
 		/// current epoch
 		void publishData(const std::shared_ptr<GaitSignal> &pData);
 
-		const std::shared_ptr<const dog::Dog> pRobot;	///< A pointer to the robot model
+		const std::shared_ptr<const iit::dog::Dog> pRobot;	///< A pointer to the robot model
 
 		std::shared_ptr<BlindState> readBlindStateSignal() const;
 		
@@ -98,7 +98,7 @@ class GaitGenerator : public PeriodicAppLayerComponent
 } // end namespace dls
 
 #define DLS_EXPORT_GAIT_GENERATOR(generator)                               \
-extern "C" dls::GaitGenerator *create(std::shared_ptr<dls::dog::Dog> pDog) \
+extern "C" dls::GaitGenerator *create(std::shared_ptr<iit::dog::Dog> pDog) \
 {                                                                          \
 	return new generator(pDog);                                            \
 }                                                                          \

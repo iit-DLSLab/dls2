@@ -15,10 +15,10 @@
 *******************************************************************************/
 #include "dls2/controller/dummy_controller.hpp"
 #include "dls2/log/log.hpp"
-#include <doglib/factory/robot_factory.hpp>
+#include <robot_factory.hpp>
 
 using namespace dls;
-using dls::dog::Dog;
+using iit::dog::Dog;
 
 DummyController::DummyController
 (
@@ -125,7 +125,7 @@ void DummyController::run(const std::chrono::system_clock::time_point &time)
 	time.time_since_epoch();
 }
 
-extern "C" Controller *create(std::shared_ptr<dls::dog::Dog> pDog)
+extern "C" Controller *create(std::shared_ptr<iit::dog::Dog> pDog)
 {
 	auto p = new DummyController(pDog);
 	std::cout << "loaded dummy controller on: " << pDog->getName() << std::endl;

@@ -17,10 +17,10 @@
 #include "dls2/gait_generator/dummy_gait_generator.hpp"
 #include "dls2/geometry/pose.hpp"
 #include "dls2/log/log.hpp"
-#include <doglib/factory/robot_factory.hpp>
+#include <robot_factory.hpp>
 
 using namespace dls;
-using dls::dog::Dog;
+using iit::dog::Dog;
 
 DummyGaitGenerator::DummyGaitGenerator(const std::shared_ptr<Dog> &pDog) :
 	GaitGenerator

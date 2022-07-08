@@ -35,7 +35,7 @@
 #include "dls2/controller/controller.hpp"
 #include "dls2/log/log.hpp"
 
-#include <doglib/factory/robot_factory.hpp>
+#include <robot_factory.hpp>
 
 // =============================================================================
 // Using Declarations
@@ -89,27 +89,7 @@ int main(int argc, char **argv)
 
 	logging::coutstream s(process_handle);
 
-	std::shared_ptr<dog::Dog> pRobot;
-	if(args.robot_name == "hyq")
-	{
-		pRobot = dls::dog::RobotFactory::buildRobot
-		(
-			dls::dog::RobotFactory::RobotType::HyQ
-		);
-	}
-	else if(args.robot_name == "hyqreal")
-	{
-		pRobot = dls::dog::RobotFactory::buildRobot
-		(
-			dls::dog::RobotFactory::RobotType::HyQReal
-		);
-
-	}
-	else
-	{
-		std::cerr << "Error, robot not yet implemented" << std::endl;
-		exit(EXIT_FAILURE);
-	}
+    std::shared_ptr<robotlib::RobotBase> pRobot = robotlib::RobotFactory::openRobot(args.robot_name);
 
 	std::cout << "=== LOADING CONTROLLER ===" << std::endl;
 
@@ -118,7 +98,7 @@ int main(int argc, char **argv)
 	// {
 	// 	// first try loading from the local directory
 	// 	pComponent =
-	// 		ClassLoader::loadClass<Controller, std::shared_ptr<dls::dog::Dog>>
+	// 		ClassLoader::loadClass<Controller, std::shared_ptr<iit::dog::Dog>>
 	// 		(
 	// 			std::string("./lib") + args.component_name + ".so",
 	// 			pRobot
@@ -137,7 +117,7 @@ int main(int argc, char **argv)
 			if(args.component_type == "controller")
 			{
 				pComponent =
-					ClassLoader::loadClass<Controller, std::shared_ptr<dls::dog::Dog>>
+					ClassLoader::loadClass<Controller, std::shared_ptr<robotlib::RobotBase>>
 					(
 						std::string("${DLS_INSTALL_CONTROLLER_DIR}/lib") + args.component_name + ".so",
 						pRobot
@@ -146,7 +126,7 @@ int main(int argc, char **argv)
 			else if(args.component_type == "gait_generator")
 			{
 				pComponent =
-					ClassLoader::loadClass<GaitGenerator, std::shared_ptr<dls::dog::Dog>>
+					ClassLoader::loadClass<GaitGenerator, std::shared_ptr<robotlib::RobotBase>>
 					(
 						std::string("${DLS_INSTALL_GAIT_GENERATOR_DIR}/lib") + args.component_name + ".so",
 						pRobot

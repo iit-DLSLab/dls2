@@ -33,6 +33,7 @@ target_link_libraries(dls_framework
 		readline # for console_layer
 
 	PUBLIC
+        robotlib
 		dls_math
 		pthread
 		dls_controller

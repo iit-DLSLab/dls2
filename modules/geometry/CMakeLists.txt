@@ -10,8 +10,6 @@ target_include_directories(dls_geometry
 )
 
 target_link_libraries(dls_geometry
-	PRIVATE
-		doglib
 	PUBLIC
 		dls_messages
 )

@@ -25,7 +25,7 @@
 
 #include "dls/messages/stringmsgPubSubTypes.h"
 
-#include <doglib/base/dog.hpp>
+#include <iit/commons/dog/dog.hpp>
 
 // TODO This is a dummy class. Remove it, its cpp file, as well as its entry in the CMakeLists file
 namespace dls
@@ -35,7 +35,7 @@ class DummyController : public Controller
 public:
 	DummyController
 	(
-		const std::shared_ptr<dls::dog::Dog> &dog
+		const std::shared_ptr<iit::dog::Dog> &dog
 	);
 
 	// DummyController();

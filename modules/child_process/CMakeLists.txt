@@ -14,7 +14,6 @@ target_include_directories(child_process_launcher
 target_link_libraries(child_process_launcher
 	PUBLIC
 		dl
-		doglib
 		urdf
 		dls_framework
 		roscpp

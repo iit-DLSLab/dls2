@@ -23,7 +23,7 @@
 #include <map>
 
 // libs
-#include <doglib/factory/robot_factory.hpp>
+#include <robot_factory.hpp>
 
 namespace dls
 {
@@ -69,7 +69,6 @@ public:
 	// Real robot or simulation mode
 	static bool simulation_mode;
 
-	static dls::dog::RobotFactory::RobotType robot;
 	static std::string robot_name;
 
 	// launch browser for documentation
