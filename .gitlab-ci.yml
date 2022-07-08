@@ -32,8 +32,8 @@ before_script:
   - make -j$(nproc)
   - make install
   - cd $cwd
-  - git clone git@gitlab.advr.iit.it:dls-lab/doglib.git
-  - cd doglib
+  - git clone git@gitlab.advr.iit.it:dls-lab/robotlib.git -b develop_dls2
+  - cd robotlib
   - mkdir build
   - cd build
   - cmake ..
