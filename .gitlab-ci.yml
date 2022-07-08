@@ -32,6 +32,14 @@ before_script:
   - make -j$(nproc)
   - make install
   - cd $cwd
+  - git clone git@gitlab.advr.iit.it:dls-lab/iit-commons.git -b develop_dls2
+  - cd iit-commons
+  - mkdir build
+  - cd build
+  - cmake ..
+  - make -j$(nproc)
+  - make install
+  - cd $cwd
   - git clone git@gitlab.advr.iit.it:dls-lab/robotlib.git -b develop_dls2
   - cd robotlib
   - mkdir build
