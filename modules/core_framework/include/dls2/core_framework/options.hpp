@@ -23,7 +23,7 @@
 #include <map>
 
 // libs
-#include <robot_factory.hpp>
+#include "robotlib/robot_factory.hpp"
 
 namespace dls
 {

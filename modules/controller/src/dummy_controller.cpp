@@ -15,7 +15,7 @@
 *******************************************************************************/
 #include "dls2/controller/dummy_controller.hpp"
 #include "dls2/log/log.hpp"
-#include <robot_factory.hpp>
+#include "robotlib/robot_factory.hpp"
 
 using namespace dls;
 using robotlib::RobotBase;

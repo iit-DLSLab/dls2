@@ -23,7 +23,7 @@
 #include "dls2/msg_wrappers/screw.hpp"
 #include <dls/messages/blind_state.h>
 
-#include <Eigen/Dense>
+
 
 namespace dls
 {

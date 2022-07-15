@@ -31,14 +31,14 @@ using robotlib::RobotBase;
 Controller::Controller
 (
 	const std::string &name_,
-	const std::shared_ptr<robotlib::RobotBase> &dog_,
+	const std::shared_ptr<robotlib::RobotBase> &robot_,
 	const period_t &period_,
 	const ControlSignal::SignalReconstructionMethod &reconst_meth_,
 	const dls::topicType &gait_topic_,
 	const dls::topicType &blind_state_topic_
 )
 	: PeriodicAppLayerComponent(name_, period_)
-	, pDog(dog_)
+	, pRobot(robot_)
 	, signal_reconstruction_method(reconst_meth_)
 	// , pGait_signal(nullptr),
 	// gait_signal_mutex(),

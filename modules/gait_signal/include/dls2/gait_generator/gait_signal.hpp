@@ -17,7 +17,7 @@
 #define GAIT_DATA_HPP_DLF4YRRS
 
 #include "dls2/geometry/pose.hpp"
-#include <Eigen/Dense>
+
 #include "dls/messages/gait_signal.h"
 #include "dls2/msg_wrappers/screw.hpp"
 #include "dls2/msg_wrappers/joint_state.hpp"

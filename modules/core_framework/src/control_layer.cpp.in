@@ -15,7 +15,7 @@
 *******************************************************************************/
 #include "dls2/core_framework/control_layer.hpp"
 #include <sstream>
-#include <Eigen/Dense>
+
 #include <tuple>
 
 #include <unistd.h>

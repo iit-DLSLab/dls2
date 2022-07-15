@@ -19,13 +19,11 @@
 // =============================================================================
 // Includes
 // =============================================================================
-#include <Eigen/Dense>
 #include <mutex>
 
-// fastrtps
 #include <dls/messages/pose.h>
 
-// TODO Write test cases to check the math in the Pose class
+#include <Eigen/Dense>
 
 namespace dls
 {

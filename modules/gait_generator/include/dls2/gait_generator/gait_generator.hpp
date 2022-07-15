@@ -23,7 +23,7 @@
 #include "dls2/util/messaging/dds_participant.hpp"
 #include "dls2/msg_wrappers/blind_state.hpp"
 
-#include "robot_factory.hpp"
+#include "robotlib/robot_factory.hpp"
 
 #include <mutex>
 #include <memory>

@@ -25,7 +25,7 @@
 #include "dls2/util/messaging/dds_participant.hpp"
 #include "dls2/msg_wrappers/blind_state.hpp"
 
-#include "robot_factory.hpp"
+#include "robotlib/robot_factory.hpp"
 
 #include <chrono>
 #include <string>
@@ -80,7 +80,7 @@ protected:
 	///
 	void publishSignal(const ControlSignal&);
 
-	const std::shared_ptr<const robotlib::RobotBase> pDog;
+	const std::shared_ptr<const robotlib::RobotBase> pRobot;
 
 	const ControlSignal::SignalReconstructionMethod signal_reconstruction_method;
 
@@ -118,9 +118,9 @@ private:
 /// Export the controller for loading into the framework
 ///
 #define DLS_EXPORT_CONTROLLER(controller)                                      \
-extern "C" dls::Controller *create(std::shared_ptr<robotlib::RobotBase> pDog)        \
+extern "C" dls::Controller *create(std::shared_ptr<robotlib::RobotBase> pRobot)        \
 {                                                                              \
-	return new controller(pDog);                                               \
+	return new controller(pRobot);                                               \
 }                                                                              \
 extern "C" void destroy(dls::Controller *p)                                    \
 {                                                                              \

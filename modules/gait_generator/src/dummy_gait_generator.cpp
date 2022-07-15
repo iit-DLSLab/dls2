@@ -17,7 +17,7 @@
 #include "dls2/gait_generator/dummy_gait_generator.hpp"
 #include "dls2/geometry/pose.hpp"
 #include "dls2/log/log.hpp"
-#include <robot_factory.hpp>
+#include "robotlib/robot_factory.hpp"
 
 using namespace dls;
 using robotlib::RobotBase;

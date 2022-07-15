@@ -16,9 +16,8 @@
 #ifndef JOINT_STATE_HPP_MYSDEPUT
 #define JOINT_STATE_HPP_MYSDEPUT
 
-#include <Eigen/Dense>
-
 #include <dls/messages/joint_statePubSubTypes.h>
+#include <Eigen/Dense>
 
 namespace dls
 {
