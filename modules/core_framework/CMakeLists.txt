@@ -1,7 +1,7 @@
 dls_configure(src/control_layer.cpp.in CONTROL_LAYER_CPP)
 dls_configure(src/version_info.cpp.in  VERSION_INFO_CPP)
 dls_configure(src/console_layer.cpp.in CONSOLE_LAYER_CPP)
-dls_configure(src/ros_layer.cpp.in 	   ROS_LAYER_CPP)
+dls_configure(src/sim_layer.cpp.in 	   SIM_LAYER_CPP)
 dls_configure(src/app_layer.cpp.in     APP_LAYER_CPP)
 
 add_library(dls_framework
@@ -13,7 +13,7 @@ add_library(dls_framework
 	${CONTROL_LAYER_CPP}
 	${VERSION_INFO_CPP}
 	${CONSOLE_LAYER_CPP}
-	${ROS_LAYER_CPP}
+	${SIM_LAYER_CPP}
 	src/estimation_layer.cpp
 	src/log_layer.cpp
 	src/options.cpp

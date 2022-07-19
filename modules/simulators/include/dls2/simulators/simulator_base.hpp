@@ -13,61 +13,60 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef ROS_LAYER_HPP
-#define ROS_LAYER_HPP
-// =============================================================================
-// Includes
-// =============================================================================
-#include "app_layer.hpp"
-#include <boost/process.hpp>
-#include "dls2/util/messaging/dds_participant.hpp"
+#ifndef SIMULATOR_BASE_HPP
+#define SIMULATOR_BASE_HPP
 
-// =============================================================================
-// Class Interface
-// =============================================================================
+#include <iostream>
+
+#include <dls2/components/app_layer_component.hpp>
+#include <dls2/command/command_manager.hpp>
+
+
 namespace dls
 {
-	/// A ROS interface into the framework
+	/// A interface for simulators in the framework
 	///
-	class ROSLayer : public AppLayer
+	class SimulatorBase : AppLayerComponent
 	{
 	public:
 		/// Default Constructor
 		///
-		ROSLayer(std::string ID);
+		SimulatorBase(std::string ID);
 
 		/// Default Destructor
 		///
-		~ROSLayer() = default;
-
-		/// Run the layer
-		///
-		Status run() override;
-
-		/// Stop the layer
-		///
-		Status shutdown() override;
+		~SimulatorBase() = default;
 
 		/// Print the state of this layer
 		///
-		std::string where() override{return "not yet implemented";}
+		virtual std::string where() {return this->getID() + " simulator";}
 
-	private:
-		/// Handler to the shutdown SIGINT (ctrl+c) signal
-		/// 
-		static void handle_signals(int);
+        /// Launch Simulator
+        ///
+		virtual void launchSim() = 0;
 
-		void launchSim();
+        /// Exits Simulator
+        ///
+		virtual void exitSim() = 0;
 
-		void exitSim();
+        virtual Status run() override {};
 
-		void launchCore();
+        /// Emergency stop for this component
+        ///
+        Status eStop() override {};
 
-		void exitCore();
+        /// Normal stop for this component
+        ///
+        Status stop() override {};
 
-		std::map<std::string, boost::process::child *> processes;
+    protected:
+
+        /// Command manager pointer
+        ///
+        std::shared_ptr<CommandManager> pComManager;
 
 	};
+
 } // end namespace dls
 
-#endif /* end of include guard: ROS_LAYER_HPP */
+#endif /* end of include guard: SIMULATOR_BASE_HPP */

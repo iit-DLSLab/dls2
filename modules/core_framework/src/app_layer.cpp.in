@@ -69,14 +69,10 @@ AppLayer::AppLayer
 	command_manager.addCommand<void>
 	(
 		"exit",
-		"Shutdown control layer",
-		std::function<void()>
-		{
-			[&]()
-			{
-				this->shutdown();
-			}
-		},
+		"Shutdown the " + ID + " layer",
+        std::function<void()>([&](){
+			this->shutdown();
+		}),
 		{},
 		true
 	);
@@ -85,14 +81,9 @@ AppLayer::AppLayer
 	(
 		"where",
 		"Prints the state of " + this->ID,
-		std::function<void()>
-		(
-			[&]()
-			{
-				std::cout << where() << std::endl;
-				//scout << where() << std::endl;
-			}
-		),
+		std::function<void()>([&](){
+			std::cout << where() << std::endl;
+		}),
 		{},
 		true
 	);
@@ -193,8 +184,14 @@ AppLayerComponent::Status AppLayer::getComponentStatus(const std::string &name)
 	}
 }
 
-void AppLayer::loadComponentFromDisk(const std::string &name)
+void AppLayer::loadComponentFromDisk(const std::string &name, const std::string &ID_)
 {
+    std::string ident;
+    if(ID_ == "")
+        ident = name;
+    else
+        ident = ID_;
+        
 
 	std::shared_ptr<AppLayerComponent> component;
 	// First try from the current directory
@@ -202,8 +199,8 @@ void AppLayer::loadComponentFromDisk(const std::string &name)
 	{
 		component = ClassLoader::loadClass<AppLayerComponent>
 		(
-			std::string("./lib") + name + ".so",
-			name
+			std::string("/usr/lib/dls2/lib") + name + ".so",
+			ident
 		);
 	}
 	catch (const std::exception &e)
@@ -214,7 +211,7 @@ void AppLayer::loadComponentFromDisk(const std::string &name)
 			component = ClassLoader::loadClass<AppLayerComponent>
 			(
 				std::string("@DLS_INSTALL_COMPONENT_BASE_DIR@") + "/" + this->ID + "/" + name + ".so",
-				name
+				ident
 			);
 		}
 		catch (const std::exception &e)

@@ -1,0 +1,71 @@
+/*******************************************************************************
+*                                                       ,----,                 *
+*                                                     .'   .' \                *
+*                                                   ,----,'    |               *
+*               ________  ___       ________        |    :  .  ;               *
+*              |\   ___ \|\  \     |\   ____\       ;    |.'  /                *
+*              \ \  \_|\ \ \  \    \ \  \___|_      `----'/  ;                 *
+*               \ \  \ \\ \ \  \    \ \_____  \       /  ;  /                  *
+*                \ \  \_\\ \ \  \____\|____|\  \     ;  /  /-,                 *
+*                 \ \_______\ \_______\____\_\  \   /  /  /.`|                 *
+*                  \|_______|\|_______|\_________\./__;      :                 *
+*                                     \|_________||   :    .'                  *
+*                                                 ;   | .'                     *
+*                                                 `---'                        *
+*******************************************************************************/
+#ifndef SIM_LAYER_CPP
+#define SIM_LAYER_CPP
+
+#include "dls2/core_framework/sim_layer.hpp"
+#include <signal.h>
+
+using namespace dls;
+
+SimLayer::SimLayer(std::string ID) 
+	: AppLayer(ID)
+{
+	command_manager.addCommand<void>
+	(
+		"startGazebo",
+		"Launches the gazebo simulator",
+		std::function<void()>([&](){
+			this->loadComponentFromDisk("dls_gazebo", this->getID());
+        }),
+		{{0,1}},
+		true
+	);
+
+	command_manager.addCommand<void>
+	(
+		"shutdownGazebo",
+		"Terminates the gazebo simulator",
+		std::function<void()>([&](){
+			this->components["dls_gazebo"]->stop();
+		}),
+		{{1,0}},
+		true
+	);
+}
+
+// =============================================================================
+// Interface Override
+// =============================================================================
+
+AppLayer::Status SimLayer::run()
+{
+	while(!this->should_quit)
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
+	}
+	
+	return getStatus();
+}
+
+
+AppLayer::Status SimLayer::shutdown()
+{
+	this->should_quit = true;
+	return getStatus();
+}
+
+#endif // SIM_LAYER_CPP

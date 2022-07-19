@@ -101,6 +101,25 @@ ConsoleLayer::ConsoleLayer(std::string ID)
 	// Turn off the default file matching completion
 	rl_completion_entry_function = [](const char *, int)->char*{return nullptr;};
 
+    command_manager.addCommand<void>
+	(
+		"list",
+		"clears the console",
+		std::function<void()>
+		{
+			[&]()
+			{
+                auto cmds = command_manager.getCommandsList();
+                for (auto elem : cmds){
+                    std::cout << elem.second << "::" << elem.first << std::endl; // clear
+
+                }
+			}
+		},
+		{{0,0}},
+		true
+	);
+
 	command_manager.addCommand<void>
 	(
 		"clc",
@@ -471,24 +490,19 @@ void dls::display_matches (char **matches, int num_matches, int max_length){
 	std::multiset<std::string> strings;
 	while (*(++strs))
 		strings.insert(std::string(*(strs)));
-
+    
 	// correct strings for the format owner::command
 	std::multiset<std::string> corrected_strings;
 	for(auto elem : strings){
-		if (elem.find("::") != elem.npos){
-			corrected_strings.insert(elem);
-		}
-		else{
-			std::multiset<std::string>::iterator idx = commands.begin();
-			while (idx != commands.end()){
-				if(idx->find(elem) != idx->npos){
-					if(corrected_strings.find(*idx) == corrected_strings.end()){
-						corrected_strings.insert(*idx);
-						break;
-					}					
-				}
-				idx++;
+		std::multiset<std::string>::iterator idx = commands.begin();
+		while (idx != commands.end()){
+            if(idx->substr(idx->find("::")+2) == elem){
+				if(corrected_strings.find(*idx) == corrected_strings.end()){
+					corrected_strings.insert(*idx);
+					break;
+				}					
 			}
+			idx++;
 		}
 	}
 

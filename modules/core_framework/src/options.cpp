@@ -13,16 +13,13 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-// =============================================================================
-// Includes
-// =============================================================================
-// stdlib
+#ifndef OPTIONS_CPP
+#define OPTIONS_CPP
+
 #include <iostream>
 
-// libs
 #include <getopt.h>
 
-// project includes
 #include "dls2/core_framework/options.hpp"
 #include "dls2/core_framework/version_info.hpp"
 
@@ -43,7 +40,7 @@ bool Options::launch_hardware               = false;
 bool Options::launch_control                = false;
 bool Options::launch_console                = false;
 bool Options::launch_log                    = false;
-bool Options::launch_ros                    = false;
+bool Options::launch_sim                    = false;
 
 // real robot or simulation mode
 bool Options::simulation_mode               = true;
@@ -68,12 +65,12 @@ bool Options::parseArgs(int argc, char **argv)
 	{
 		//long_name    required?           return_short?  short_version
 		{"robot",      required_argument,  nullptr,       'r'},
-		{"simulation", no_argument,        nullptr,       's'},
+		{"simulation", required_argument,  nullptr,       's'},
 		{"hardware",   no_argument,        nullptr,       'H'},
 		{"layers",     optional_argument,  nullptr,       'l'},
 		{"version",    no_argument,        nullptr,       'v'},
 		{"help",       no_argument,        nullptr,       'h'},
-		{"core",       no_argument,        nullptr,       'c'},
+		// {"core",       no_argument,        nullptr,       'c'},
 		{"docs",       no_argument,        nullptr,       'd'},
 		{0,            0,                  0,             0}
 	};
@@ -84,7 +81,7 @@ bool Options::parseArgs(int argc, char **argv)
 	Options::launch_control     =  false;
 	Options::launch_console     =  false;
 	Options::launch_log         =  false;
-	Options::launch_ros 		=  false;
+	Options::launch_sim 		=  false;
 
 	int opt;
 	while((opt = getopt_long(argc, argv, "r:sHl:vh::cd", long_options, nullptr)) != -1)
@@ -118,6 +115,7 @@ bool Options::parseArgs(int argc, char **argv)
 			case 's':
 			{
 				Options::simulation_mode = true;
+                Options::launch_sim = true;
 				break;
 			}
 			case 'H':
@@ -134,7 +132,7 @@ bool Options::parseArgs(int argc, char **argv)
 					const_cast<char*>("console"),
 					const_cast<char*>("log"),
 					const_cast<char*>("estimation"),
-					const_cast<char*>("ros"),
+					const_cast<char*>("sim"),
 					nullptr
 				};
 				char *value;
@@ -166,10 +164,6 @@ bool Options::parseArgs(int argc, char **argv)
 						else if(std::strcmp(layer, "estimation") == 0)
 						{
 							Options::launch_estimation = true;
-						}
-						else if(std::strcmp(layer, "ros") == 0)
-						{
-							Options::launch_ros = true;
 						}
 					}
 					else
@@ -226,13 +220,13 @@ void Options::printUsage()
 {
 	std::cout << "USAGE: dls "
 
-	"< -r <hyq|hyqreal> | --robot=<hyq|hyqreal> > "
-	"< --layers= | l ...> "
-	"[ --simulation | -s] "
+	"< --robot=<hyq|hyqreal> | -r <hyq|hyqreal> > "
+	"< --layers= | -l ...> "
+	"[ --simulation= | -s ...] "
 	"[ --hardware | -H ] "
 	"[ --version | -v ] "
 	"[ --help | -h ] "
-	"[ --core | -c ] "
+	// "[ --core | -c ] "
 	"[ --doc | -d ]"
 	"\n"
 	"\n"
@@ -246,7 +240,7 @@ void Options::printUsage()
 	"| layers      | l            | a comma-separated list of layers to launch          |\n"
 	"| version     | v            | print the version and exit                          |\n"
 	"| help        | h            | print this help and exit                            |\n"
-	"| core        | c            | launch in core mode                                 |\n"
+	// "| core        | c            | launch in core mode                                 |\n"
 	"| docs        | d            | show development documentation                      |\n"
 	<< std::endl;
 }
@@ -280,9 +274,11 @@ bool Options::validate()
 		!launch_control &&
 		!launch_console &&
 		!launch_log &&
-		!launch_ros
+		!launch_sim
 	)
 		return false;
 
 	return true;
 }
+
+#endif // OPTIONS_CPP

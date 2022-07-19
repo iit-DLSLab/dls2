@@ -50,13 +50,6 @@ namespace dls
 		AppLayer(const std::string &ID);
 		~AppLayer();
 
-		/// Emergency stop
-		///
-		/// If a layer does not override this function, it defaults to the layer's
-		/// shutdown function
-		virtual Status eStop();
-
-
 		/// Get the status of the layer
 		///
 		/// @ret the layer's status
@@ -68,12 +61,11 @@ namespace dls
 		/// @param status the status
 		void setStatus(Status status);
 
-		// TODO These should probably only be accessible from HyQApp
 		/// Runs the layer
 		///
 		virtual Status run() = 0;
 
-		/// Kills the layer
+		/// Shutdown the layer
 		///
 		virtual Status shutdown() = 0;
 
@@ -85,6 +77,11 @@ namespace dls
 		///
 		bool shouldQuit();
 
+        /// Emergency stop
+		///
+		/// If a layer does not override this function, it defaults to the layer's
+		/// shutdown function
+		virtual Status eStop();
 
 	protected:
 		/// Adds a component to this layer
@@ -96,7 +93,7 @@ namespace dls
 		/// Reads a component from the install path of this layer and loads it
 		///
 		/// @param name the name of the component
-		void loadComponentFromDisk(const std::string &name);
+		void loadComponentFromDisk(const std::string &name, const std::string &ID = "");
 
 		/// Remove a component from this layer
 		///
@@ -127,7 +124,8 @@ namespace dls
 		///
 		CommandManager command_manager;
 
-
+        /// DDS communication link
+        ///
 		dls::DDSParticipant *ddslink;
 
 	private:

@@ -33,7 +33,7 @@
 #include "dls2/core_framework/estimation_layer.hpp"
 #include "dls2/core_framework/log_layer.hpp"
 #include "dls2/core_framework/console_layer.hpp"
-#include "dls2/core_framework/ros_layer.hpp"
+#include "dls2/core_framework/sim_layer.hpp"
 #include "dls2/core_framework/options.hpp"
 #include "dls2/core_framework/version_info.hpp"
 
@@ -170,10 +170,10 @@ int main(int argc, char **argv)
 
 	// Launch layers
 	if(Options::launch_log) 		forkLayer<LogLayer>("logLayer", argv);
-	if(Options::launch_hardware) 	forkLayer<HardwareLayer>("hardware_layer", argv);
+	if(Options::launch_hardware) 	forkLayer<HardwareLayer>("hardwareLayer", argv);
 	if(Options::launch_control)  	forkLayer<ControlLayer>("controlLayer", argv);
 	if(Options::launch_console)	 	forkLayer<ConsoleLayer>("consoleLayer", argv);
-	if(Options::launch_ros)		    forkLayer<ROSLayer>("ROSLayer", argv);
+	if(Options::launch_sim)		    forkLayer<SimLayer>("simLayer", argv);
 
 	//Time::set_use_simulated_time(Options::is_simulation());
 
