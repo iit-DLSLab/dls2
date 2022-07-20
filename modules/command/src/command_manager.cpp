@@ -262,5 +262,18 @@ namespace dls
             this->verifyLevel();
         }
     }
+
+    void CommandManager::disableCommand(std::string name)
+    {
+        if(commands.contains(name))
+            this->commands[name]->deactivate();
+    }
+
+    void CommandManager::enableCommand(std::string name)
+    {
+        if(commands.contains(name))
+            this->commands[name]->activate();
+    }
+
 } // end namespace dls
 #endif /* end of include guard: COMMAND_MANAGER_CPP */

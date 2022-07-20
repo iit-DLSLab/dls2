@@ -38,6 +38,10 @@ namespace dls
 		///
 		std::string where() override {return "ROS simulator";}
 
+        AppLayerComponent::Status run() override;
+
+        AppLayerComponent::Status stop() override;
+
     private:
         /// Launch Simulator
         ///
@@ -49,7 +53,7 @@ namespace dls
 
         /// Launch ROS Core
         ///
-		void launchCore();
+		bool launchCore();
 
         /// Exits ROS Core
         ///

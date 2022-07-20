@@ -107,6 +107,14 @@ public:
 	///
 	uint getCurrentLevel();
 
+    /// Disable local command
+    ///
+    void disableCommand(std::string);
+
+    /// Enable local command
+    ///
+    void enableCommand(std::string);
+
 
 private:
 

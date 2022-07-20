@@ -19,8 +19,7 @@
 using namespace dls;
 
 SimulatorBase::SimulatorBase(std::string ID_) : 
-    AppLayerComponent(ID_),
-    pComManager(&this->command_manager)
+    AppLayerComponent(ID_)
 {
 
 }

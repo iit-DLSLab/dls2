@@ -26,7 +26,7 @@ namespace dls
 {
 	/// A interface for simulators in the framework
 	///
-	class SimulatorBase : AppLayerComponent
+	class SimulatorBase : protected AppLayerComponent
 	{
 	public:
 		/// Default Constructor
@@ -49,21 +49,13 @@ namespace dls
         ///
 		virtual void exitSim() = 0;
 
-        virtual Status run() override {};
-
         /// Emergency stop for this component
         ///
-        Status eStop() override {};
+        Status eStop() override {return this->getStatus();};
 
-        /// Normal stop for this component
-        ///
-        Status stop() override {};
-
-    protected:
-
-        /// Command manager pointer
-        ///
-        std::shared_ptr<CommandManager> pComManager;
+        // /// Normal stop for this component
+        // ///
+        // Status stop() override {return this->getStatus();};
 
 	};
 

@@ -122,7 +122,12 @@ namespace dls
 		///
 		bool isActive();
 
+        /// Retrieve the next level after call a method
+        ///
 		int getNextLevel(uint curLevel);
+
+        /// Test the current level
+        ///
 		bool testLevel(uint level);
 
 	protected:

@@ -25,6 +25,7 @@ target_link_libraries("dls_simulator"
 target_link_libraries("dls_gazebo"
 	PUBLIC
         dls_simulator
+        roscpp
 )
 
 dls_install("dls_gazebo")

@@ -17,6 +17,7 @@
 #define ROS_SIM_CPP
 
 #include "dls2/simulators/ros_sim.hpp"
+#include "ros/ros.h"
 
 #include <signal.h>
 
@@ -26,58 +27,62 @@ using namespace dls;
 ROSSim::ROSSim(std::string ID) 
 	: SimulatorBase(ID)
 {
-	pComManager->addCommand<void>
+
+    int argc;
+    ros::init(argc, {}, "master_test");
+
+	command_manager.addCommand<void>
 	(
 		"launchCore",
 		"Launches roscore",
 		std::function<void()>([&](){
 			this->launchCore();
 		}),
-		{{0,1}},
+		{{1,2}},
 		true
 	);
 
-	pComManager->addCommand<void>
+	command_manager.addCommand<void>
 	(
 		"exitCore",
 		"Terminates roscore",
 		std::function<void()>([&](){
 			this->exitCore();
 		}),
-		{{1,0}},
+		{{2,1}},
 		true
 	);
 
-    pComManager->addCommand<void>
+    command_manager.addCommand<void>
 	(
 		"launchSim",
 		"Launches the simulation backend",
 		std::function<void()>([&](){
 			this->launchSim();
 		}),
-		{{1,2}},
+		{{2,3}},
 		true
 	);
 
-	pComManager->addCommand<void>
+	command_manager.addCommand<void>
 	(
 		"exitSim",
 		"Terminates simulation",
 		std::function<void()>([&](){
 			this->exitSim();
 		}),
-		{{2,1}},
+		{{3,2}},
 		true
 	);
 
-	pComManager->addCommand<int>
+	command_manager.addCommand<int>
 	(
 		"freezeBase",
 		"Toggle the RUN/FREEZE state of the simulation",
 		std::function<int()>{[&](){
 			return system("rosservice call /hyq/freeze_base");
 		}},
-		{{2,2}},
+		{{3,3}},
 		true
 	);
 }
@@ -99,10 +104,24 @@ void ROSSim::exitSim()
 	this->processes.erase("simulation");
 }
 
-void ROSSim::launchCore()
+bool ROSSim::launchCore()
 {
-	this->processes.insert({"roscore", new boost::process::child("/opt/ros/noetic/bin/roscore")});
-	this->processes.at("roscore")->detach();
+    if(!ros::master::check()){
+	    this->processes.insert({"roscore", new boost::process::child("/opt/ros/noetic/bin/roscore")});
+	    this->processes.at("roscore")->detach();
+    }
+
+    int time = 0;
+    while(!ros::master::check() && time < 10){
+        sleep(1);
+        time++;
+    }
+
+    if(time > 10){
+        std::cout << "roscore took too much time to start" << std::endl;
+        return false;
+    }
+    return true;
 }
 
 void ROSSim::exitCore()
@@ -116,7 +135,20 @@ void ROSSim::exitCore()
 	this->processes.erase("roscore");
 }
 
+AppLayerComponent::Status ROSSim::run()
+{
+    command_manager.changeLevel(1);
+    return this->getStatus();
+}
 
+AppLayerComponent::Status ROSSim::stop()
+{
+    exitSim();
+    exitCore();
+    command_manager.changeLevel(0);
+
+    return this->getStatus();
+}
 
 // the class factories
 extern "C" ROSSim* create(std::string name) 

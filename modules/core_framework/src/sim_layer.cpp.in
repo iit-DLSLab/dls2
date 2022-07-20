@@ -30,6 +30,7 @@ SimLayer::SimLayer(std::string ID)
 		"Launches the gazebo simulator",
 		std::function<void()>([&](){
 			this->loadComponentFromDisk("dls_gazebo", this->getID());
+            this->components["dls_gazebo"]->run();
         }),
 		{{0,1}},
 		true
@@ -40,7 +41,8 @@ SimLayer::SimLayer(std::string ID)
 		"shutdownGazebo",
 		"Terminates the gazebo simulator",
 		std::function<void()>([&](){
-			this->components["dls_gazebo"]->stop();
+            this->components["dls_gazebo"]->stop();
+            this->components.erase("dls_gazebo");
 		}),
 		{{1,0}},
 		true
