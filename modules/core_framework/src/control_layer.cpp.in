@@ -98,69 +98,59 @@ ControlLayer::ControlLayer(std::string ID)
 		dls::topics::command_send
 	);
 	
-	command_manager.addCommand<bool, std::string>
+	command_manager.addCommand<std::string>
 	(
 		"activateGaitGenerator",
 		"activates a gait generator",
-		std::function<bool(std::string)>
-		{
-			[&](std::string s)->bool
-			{
-				return this->activateGaitGenerator(s);
-			}
-		},
+		std::function<bool(std::string)>([&](std::string s)->bool
+        {
+			return this->activateGaitGenerator(s);
+		}),
 		{{0,1},{2,3}},
 		true
 	);
 
 	
-	command_manager.addCommand<void>
+	command_manager.addCommand<>
 	(
 		"deactivateGaitGenerator",
 		"stops all running gait generators",
-		std::function<void()>
+		std::function<bool()>([&]()->bool
 		{
-			[&]()
-			{
-				this->deactivateGaitGenerator();
-			}
-		},
+			this->deactivateGaitGenerator();
+            return true;
+		}),
 		{{1,0},{3,2}},
 		true
 	);
 
-	command_manager.addCommand<bool, std::string>
+	command_manager.addCommand<std::string>
 	(
 		"activateController",
 		"activates a controller",
-		std::function<bool(std::string s)>
+		std::function<bool(std::string s)>([&](const std::string &s)->bool
 		{
-			[&](const std::string &s)->bool
-			{
-				return this->activateController(s);
-			}
-		},
+			return this->activateController(s);
+		}),
 		{{0,2},{1,3}},
 		true
 	);
 
 
-	command_manager.addCommand<void, std::string>
+	command_manager.addCommand<std::string>
 	(
 		"deactivateController",
 		"stops a controller",
-		std::function<void(std::string)>
+		std::function<bool(std::string)>([&](std::string s)->bool
 		{
-			[&](std::string s)
-			{
-				this->deactivateController(s);
-			}
-		},
+			this->deactivateController(s);
+            return true;
+		}),
 		{{2,0},{3,1}},
 		true
 	);
 
-	command_manager.addCommand<void, std::string>
+	command_manager.addCommand<std::string>
 	(
 		"ls",
 		"List components\n"
@@ -168,41 +158,41 @@ ControlLayer::ControlLayer(std::string ID)
 		"\tcont - list controllers\n"
 		"\tgait - list gait generator",
 
-		std::function<void(std::string)>
-		{
-			[&](std::string s)
-			{
-				if(s == "cont")
-				{
-					std::stringstream ss;
-					std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
-					size_t i = 0;
-					for
-					(
-						auto it = this->controllers_b.cbegin();
-						it != this->controllers_b.cend();
-						++it
-					)
-					{
-						ss << it->first << "\n";
-						++i;
-					}
-					if(i) this->scout << ss.str() << std::endl;
-				}
-				else if(s == "gait")
-				{
-					std::lock_guard<std::mutex> lock(this->gaitMutex);
-					if(this->gaitData.proc)
-					{
-						scout << this->gaitData.ID	<< std::endl;
-					}
-				}
-				else
-				{
-					scout << "Error: unrecognised argument" << std::endl;
-				}
-			}
-		},
+		std::function<bool(std::string)>([&](std::string s)->bool
+        {
+            if(s == "cont")
+            {
+                std::stringstream ss;
+                std::lock_guard<std::mutex> lock(this->controllers_mutex_b);
+                size_t i = 0;
+                for
+                (
+                    auto it = this->controllers_b.cbegin();
+                    it != this->controllers_b.cend();
+                    ++it
+                )
+                {
+                    ss << it->first << "\n";
+                    ++i;
+                }
+                if(i) this->scout << ss.str() << std::endl;
+            }
+            else if(s == "gait")
+            {
+                std::lock_guard<std::mutex> lock(this->gaitMutex);
+                if(this->gaitData.proc)
+                {
+                    scout << this->gaitData.ID	<< std::endl;
+                }
+            }
+            else
+            {
+                scout << "Error: unrecognised argument" << std::endl;
+                return false;
+            }
+
+            return true;
+		}),
 		{},
 		true
 	);
@@ -218,7 +208,6 @@ ControlLayer::~ControlLayer()
 
 	void *res;
 	pthread_join(controlSignalGatherThread, &res);
-
 }
 
 // =============================================================================

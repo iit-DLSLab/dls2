@@ -164,7 +164,7 @@ namespace dls
 
 		/// Associated function call of the command
 		///
-		virtual int call(std::vector<std::string>);
+		virtual bool call(std::vector<std::string>);
 
 	};
 

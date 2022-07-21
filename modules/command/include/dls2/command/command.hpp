@@ -39,7 +39,7 @@ namespace dls
 	///
 	/// This class is used to register a command with the framework. Users should
 	/// prefer using CommandManager instead of using Command directly
-	template <typename ret_t, typename...arg_ts>
+	template <typename...arg_ts>
 	class Command : public CommandBase
 	{
 	friend class CommandManager;
@@ -59,7 +59,7 @@ namespace dls
 			std::string name,
 			CommandManager *owner,
 			std::string docstring,
-			std::function<ret_t(arg_ts...)> f,
+			std::function<bool(arg_ts...)> f,
 			LevelType level = {{0,0}},
 			bool enabled = false
 		);
@@ -89,7 +89,7 @@ namespace dls
 		// ============================= Data Members ==============================
 		/// Callback of the command
 		///
-		const std::function<ret_t(arg_ts...)> f;
+		const std::function<bool(arg_ts...)> f;
 
 		/// Link the command with the rest of the framework
 		///
@@ -105,7 +105,7 @@ namespace dls
 
 		/// Call method
 		///
-		int call(std::vector<std::string>);
+		bool call(std::vector<std::string>);
 
 	};
 

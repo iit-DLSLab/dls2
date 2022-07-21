@@ -80,8 +80,8 @@ namespace dls
 		return this->active;
 	}
 
-	int CommandBase::call(std::vector<std::string>)	{
-		return 0;
+	bool CommandBase::call(std::vector<std::string>)	{
+		return false;
 	}
 
 	int CommandBase::getNextLevel(uint curLevel)

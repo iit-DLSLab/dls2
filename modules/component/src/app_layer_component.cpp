@@ -28,19 +28,17 @@ AppLayerComponent::AppLayerComponent(const ID_t &ID_)
 	, command_manager(ID_)
 	, scout(ID_)
 {
-	this->command_manager.addCommand<void>
+	this->command_manager.addCommand<>
 	(
 		"where",
 		std::string("Prints the state of ") + this->getID(),
-		std::function<void()>
-		(
-			[&]()
-			{
-				auto s = where();
-				std::cout << s << std::endl;
-				scout     << s << std::endl;
-			}
-		),
+		std::function<bool()>([&]()->bool
+        {
+			auto s = where();
+			std::cout << s << std::endl;
+			scout     << s << std::endl;
+            return true;
+		}),
 		{{0,0}},
 	 	true
 	);

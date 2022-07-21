@@ -66,23 +66,27 @@ AppLayer::AppLayer
 		}
 	);
 
-	command_manager.addCommand<void>
+	command_manager.addCommand<>
 	(
 		"exit",
 		"Shutdown the " + ID + " layer",
-        std::function<void()>([&](){
+        std::function<bool()>([&]()->bool
+        {
 			this->shutdown();
+            return true;
 		}),
 		{},
 		true
 	);
 
-	command_manager.addCommand<void>
+	command_manager.addCommand<>
 	(
 		"where",
 		"Prints the state of " + this->ID,
-		std::function<void()>([&](){
+		std::function<bool()>([&]()->bool
+        {
 			std::cout << where() << std::endl;
+            return true;
 		}),
 		{},
 		true
@@ -184,13 +188,13 @@ AppLayerComponent::Status AppLayer::getComponentStatus(const std::string &name)
 	}
 }
 
-bool AppLayer::loadComponentFromDisk(const std::string &name, const std::string &ID_)
+bool AppLayer::loadComponentFromDisk(const std::string &type, const std::string &ID_)
 {
-    std::string ident;
+    std::string name;
     if(ID_ == "")
-        ident = name;
+        name = type;
     else
-        ident = ID_;
+        name = ID_;
         
 
 	std::shared_ptr<AppLayerComponent> component;
@@ -199,8 +203,8 @@ bool AppLayer::loadComponentFromDisk(const std::string &name, const std::string 
 	{
 		component = ClassLoader::loadClass<AppLayerComponent>
 		(
-			std::string("/usr/lib/dls2/lib") + name + ".so",
-			ident
+			std::string("/usr/lib/dls2/lib") + type + ".so",
+			name
 		);
 	}
 	catch (const std::exception &e)
@@ -210,13 +214,14 @@ bool AppLayer::loadComponentFromDisk(const std::string &name, const std::string 
 		{
 			component = ClassLoader::loadClass<AppLayerComponent>
 			(
-				std::string("@DLS_INSTALL_COMPONENT_BASE_DIR@") + "/" + this->ID + "/" + name + ".so",
-				ident
+				std::string("@DLS_INSTALL_COMPONENT_BASE_DIR@") + "/" + this->ID + "/" + type + ".so",
+				name
 			);
 		}
 		catch (const std::exception &e)
 		{
-			std::cerr << "Error: " << name << " not found" << std::endl;
+            std::cerr << e.what() << std::endl;
+			// std::cerr << "Error: " << name << " not found" << std::endl;
             return false;
 		}
 	}

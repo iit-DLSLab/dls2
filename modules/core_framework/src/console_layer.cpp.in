@@ -101,106 +101,111 @@ ConsoleLayer::ConsoleLayer(std::string ID)
 	// Turn off the default file matching completion
 	rl_completion_entry_function = [](const char *, int)->char*{return nullptr;};
 
-    command_manager.addCommand<void>
+    command_manager.addCommand<>
 	(
 		"list",
 		"clears the console",
-		std::function<void()>
+		std::function<bool()>([&]()->bool
 		{
-			[&]()
-			{
-                auto cmds = command_manager.getCommandsList();
-                for (auto elem : cmds){
-                    std::cout << elem.second << "::" << elem.first << std::endl; // clear
+            auto cmds = command_manager.getCommandsList();
+            for (auto elem : cmds){
+                std::cout << elem.second << "::" << elem.first << std::endl; // clear
 
-                }
-			}
-		},
+            }
+            return true;
+        }),
 		{{0,0}},
 		true
 	);
 
-	command_manager.addCommand<void>
+	command_manager.addCommand<>
 	(
 		"clc",
 		"clears the console",
-		std::function<void()>
+		std::function<bool()>([&]()->bool
 		{
-			[&]()
-			{
-				std::cout << "\033[2J" << std::endl; // clear
-				std::cout << "\033[H" << std::endl; // home
-			}
-		},
+			std::cout << "\033[2J" << std::endl; // clear
+			std::cout << "\033[H" << std::endl; // home
+            return true;
+		}),
 		{{0,0}},
 		true
 	);
 
-	command_manager.addCommand<void>
+	command_manager.addCommand<>
 	(
 		"shutdown",
 		"Shutdown the framework",
-		std::function<void()>
+		std::function<bool()>([&]()->bool
 		{
-			[&]()
-			{
-				this->shutdownAll();
-			}
-		},
+			this->shutdownAll();
+            return true;
+		}),
 		{{0,0}},
 		true
 	);
 
-	command_manager.addCommand<void, std::string>
+    command_manager.addCommand<>
+	(
+		"cleanZombies",
+		"Clean FASTDDS zombies",
+		std::function<bool()>([&]()->bool
+		{
+			system("fastdds shm clean");
+            return true;
+		}),
+		{{0,0}},
+		true
+	);
+
+    
+
+	command_manager.addCommand<std::string>
 	(
 		"help",
 		"prints docstring of a command",
-		std::function<void(std::string)>
+		std::function<bool(std::string)>([&](std::string s)->bool
 		{
-			[&](std::string s)
+			std::cout << std::endl;
+			for(auto pCommand : this->command_manager.findByName(s))
 			{
-				std::cout << std::endl;
-				for(auto pCommand : this->command_manager.findByName(s))
-				{
-					std::cout << "TBD - retrieve command doc from remote" <<  std::endl;
-					// std::cout << pCommand->second() << "::" <<
-					// 	pCommand->getName() <<  std::endl <<
-					// 	pCommand->getDoc() << std::endl << std::endl;
-				}
+				std::cout << "TBD - retrieve command doc from remote" <<  std::endl;
+				// std::cout << pCommand->second() << "::" <<
+				// 	pCommand->getName() <<  std::endl <<
+				// 	pCommand->getDoc() << std::endl << std::endl;
+                return true;
 			}
-		},
+		}),
 		{{0,0}},
 		true
 	);
 
-	command_manager.addCommand<void>
+	command_manager.addCommand<>
 	(
 		"whereAll",
 		"prints the status of each active component",
-		std::function<void()>
+		std::function<bool()>([&]()->bool
 		{
-			[&]()
-			{
-				auto where_commands = this->command_manager.findByName("where");
-				for(const auto &where_command : where_commands)
-				{
-					if(where_command.second != "console_layer")
-					{
-						std::cout << where_command.second << std::endl;
-						std::cout << "============================" << std::endl;
-						//where_command->call();
-						std::cout << "This function needs to be implemented\n" << std::endl;
-						// TODO this is not the most elegant solution. A better
-						// way would be for "where" of each component to return
-						// a string directly here. This has not been implemented
-						// since at the time of that writing the functionality
-						// of this function was not yet required. At some point
-						// that will have to be refactored too.
-						std::this_thread::sleep_for(std::chrono::seconds(1));
-					}
-				}
-			}
-		},
+			auto where_commands = this->command_manager.findByName("where");
+            for(const auto &where_command : where_commands)
+            {
+                if(where_command.second != "console_layer")
+                {
+                    std::cout << where_command.second << std::endl;
+                    std::cout << "============================" << std::endl;
+                    //where_command->call();
+                    std::cout << "This function needs to be implemented\n" << std::endl;
+                    // TODO this is not the most elegant solution. A better
+                    // way would be for "where" of each component to return
+                    // a string directly here. This has not been implemented
+                    // since at the time of that writing the functionality
+                    // of this function was not yet required. At some point
+                    // that will have to be refactored too.
+                    std::this_thread::sleep_for(std::chrono::seconds(1));
+                }
+            }
+            return true;
+        }),
 		{{0,0}},
 		true
 	);

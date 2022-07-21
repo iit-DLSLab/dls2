@@ -77,12 +77,12 @@ public:
 	/// @param f the function encapsulated by the command
 	/// @param level execution level of the command
 	/// @param enabled set command enabled state
-	template <typename ret_t, typename... arg_ts>
+	template <typename... arg_ts>
 	void addCommand
 	(
 		std::string name,
 		std::string doc,
-		const std::function<ret_t(arg_ts...)> &f,
+		const std::function<bool(arg_ts...)> &f,
 		dls::CommandBase::LevelType level = {},
 		bool enabled = false
 	);

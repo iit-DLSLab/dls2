@@ -37,40 +37,36 @@ PeriodicAppLayerComponent::PeriodicAppLayerComponent(const ID_t &ID, const perio
 	, is_paused(false)
 	, pause_request()
 {
-	this->command_manager.addCommand<void>
+	this->command_manager.addCommand<>
 	(
 		"pause",
 		"Pause the execution of " + this->getID(),
-		std::function<void()>
-		(
-			[&]()
-			{
-				std::lock_guard<std::mutex> lock(this->pause_mutex);
-				this->is_paused = true;
-				this->pause_request.notify_all();
-				std::cout << this->getID() << " EXECUTION PAUSED" << std::endl;
-				scout << this->getID() << " paused execution" << std::endl;
-			}
-		),
+		std::function<bool()>([&]()->bool
+        {
+			std::lock_guard<std::mutex> lock(this->pause_mutex);
+			this->is_paused = true;
+			this->pause_request.notify_all();
+			std::cout << this->getID() << " EXECUTION PAUSED" << std::endl;
+			scout << this->getID() << " paused execution" << std::endl;
+            return true;
+		}),
 		{{0,1}},
 		true
 	);
 
-	this->command_manager.addCommand<void>
+	this->command_manager.addCommand<>
 	(
 		"continue",
 		"Continue the execution of " + this->getID(),
-		std::function<void()>
-		(
-			[&]()
-			{
-				std::lock_guard<std::mutex> lock(this->pause_mutex);
-				this->is_paused = false;
-				this->pause_request.notify_all();
-				std::cout << this->getID() << " continued execution" << std::endl;
-				scout << this->getID() << " continued execution" << std::endl;
-			}
-		),
+		std::function<bool()>([&]()->bool
+		{
+			std::lock_guard<std::mutex> lock(this->pause_mutex);
+			this->is_paused = false;
+			this->pause_request.notify_all();
+			std::cout << this->getID() << " continued execution" << std::endl;
+			scout << this->getID() << " continued execution" << std::endl;
+            return true;
+		}),
 		{{1,0}},
 		true
 	);

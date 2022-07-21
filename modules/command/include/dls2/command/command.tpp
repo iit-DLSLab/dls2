@@ -34,13 +34,13 @@ namespace dls
 	// =============================================================================
 	// Constructors
 	// =============================================================================
-	template <typename ret_t, typename...arg_ts>
-	Command<ret_t, arg_ts...>::Command
+	template <typename...arg_ts>
+	Command<arg_ts...>::Command
 	(
 		std::string name_,
 		CommandManager *owner_,
 		std::string docstring_,
-		std::function<ret_t(arg_ts...)> f_,
+		std::function<bool(arg_ts...)> f_,
 		dls::CommandBase::LevelType level_,
 		bool enabled_
 	) :
@@ -56,12 +56,12 @@ namespace dls
 	{
 	}
 
-	template <typename ret_t, typename...arg_ts>
-	Command<ret_t, arg_ts...>::~Command(){}
+	template <typename... arg_ts>
+	Command<arg_ts...>::~Command(){}
 
 
-	template <typename ret_t, typename...arg_ts>
-	void Command<ret_t, arg_ts...>::setEnabled(){
+	template <typename... arg_ts>
+	void Command<arg_ts...>::setEnabled(){
 		if(this->isEnabled())
 			return;
 
@@ -69,8 +69,8 @@ namespace dls
 		this->enabled = true;
 	}
 
-	template <typename ret_t, typename...arg_ts>
-	void Command<ret_t, arg_ts...>::setDisabled(){
+	template <typename... arg_ts>
+	void Command<arg_ts...>::setDisabled(){
 		if(this->isEnabled())
 			return;
 
@@ -78,8 +78,8 @@ namespace dls
 		this->enabled = false;
 	}
 
-	template <typename ret_t, typename...arg_ts>
-	void Command<ret_t, arg_ts...>::activate(){
+	template <typename... arg_ts>
+	void Command<arg_ts...>::activate(){
 		if(!this->isEnabled() || this->isActive())
 			return;
 
@@ -87,8 +87,8 @@ namespace dls
 		this->active = true;
 	}
 
-	template <typename ret_t, typename...arg_ts>
-	void Command<ret_t, arg_ts...>::deactivate(){
+	template <typename... arg_ts>
+	void Command<arg_ts...>::deactivate(){
 
 		if(!this->isEnabled() || !this->isActive() || (this->ddslink == nullptr)) 
 			return;
@@ -98,26 +98,26 @@ namespace dls
 		this->active = false;
 	}
 
-	template <typename ret_t, typename... arg_ts>
-	int Command<ret_t, arg_ts...>::call(std::vector<std::string> args){
+	template <typename... arg_ts>
+	bool Command<arg_ts...>::call(std::vector<std::string> args){
 		// ensure args are correct size
 
 		if (args.size() != this->getNumArgs()){
 			std::cout << "Error: incorrect number of arguments" << std::endl;
-			return 0;
+			return false;
 		}
 
 		auto arguments = create_tuple<arg_ts...>(args);
 		//static_assert(std::is_same_v<decltype(arguments), const std::tuple<arg_ts...>>);
 			
-		std::apply(this->f, arguments);
-		this->owner->changeLevel(this->getNextLevel(this->owner->getCurrentLevel()));
+		if(std::apply(this->f, arguments))
+		    this->owner->changeLevel(this->getNextLevel(this->owner->getCurrentLevel()));
 
-		return 1;
+		return true;
 	}
 
-	template <typename ret_t, typename... arg_ts>
-	void Command<ret_t, arg_ts...>::registerCommand(){
+	template <typename... arg_ts>
+	void Command<arg_ts...>::registerCommand(){
 
 		if (ddslink != nullptr)
 			return;

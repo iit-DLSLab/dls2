@@ -27,17 +27,17 @@ namespace dls
 	// =============================================================================
 	// Command Manager Implementation
 	// =============================================================================
-	template <typename ret_t, typename... arg_ts>
+	template <typename... arg_ts>
 	void CommandManager::addCommand
 	(
 		std::string name_,
 		std::string doc_,
-		const std::function<ret_t(arg_ts...)> &f_,
+		const std::function<bool(arg_ts...)> &f_,
 		dls::CommandBase::LevelType level_,
 		bool enabled_
 	)
 	{
-		auto cmd = new dls::Command<ret_t, arg_ts...>
+		auto cmd = new dls::Command<arg_ts...>
 		(
 			name_,
 			this,

@@ -38,7 +38,7 @@ std::shared_ptr<T> ClassLoader::loadClass
 	{
 		std::stringstream ss;
 		ss << "Error: could not load object " << name << ": " << dlerror();
-		std::cout << ss.str() << std::endl;
+		// std::cout << ss.str() << std::endl;
 		throw std::runtime_error(ss.str());
 	}
 
@@ -53,7 +53,7 @@ std::shared_ptr<T> ClassLoader::loadClass
 		std::stringstream ss;
 		ss	<< "Error: could not find instantiation code in " << name
 			<< ". Did the module export the class?" << dlerror();
-		std::cout << ss.str() << std::endl;
+		// std::cout << ss.str() << std::endl;
 		throw std::runtime_error(ss.str());
 	}
 
@@ -68,7 +68,7 @@ std::shared_ptr<T> ClassLoader::loadClass
 		std::stringstream ss;
 		ss	<< "Error: could not find destruction code in " << name
 			<< ". Did the module export the class?" << dlerror();
-		std::cout << ss.str() << std::endl;
+		// std::cout << ss.str() << std::endl;
 		throw std::runtime_error(ss.str());
 	}
 
