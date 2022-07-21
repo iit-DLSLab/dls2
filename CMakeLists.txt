@@ -21,3 +21,4 @@ add_subdirectory(modules)   # build framework, libraries and tools
 
 # ================================== Packaging =================================
 include(dls_debian_settings) # configure installation of the framework
+install (SCRIPT "cmake/dls_post_install.cmake")

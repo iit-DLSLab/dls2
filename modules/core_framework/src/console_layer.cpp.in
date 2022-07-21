@@ -151,7 +151,7 @@ ConsoleLayer::ConsoleLayer(std::string ID)
 		"Clean FASTDDS zombies",
 		std::function<bool()>([&]()->bool
 		{
-			system("fastdds shm clean");
+			system("sudo fastdds shm clean");
             return true;
 		}),
 		{{0,0}},
