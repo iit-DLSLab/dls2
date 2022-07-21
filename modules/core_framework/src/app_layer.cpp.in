@@ -184,7 +184,7 @@ AppLayerComponent::Status AppLayer::getComponentStatus(const std::string &name)
 	}
 }
 
-void AppLayer::loadComponentFromDisk(const std::string &name, const std::string &ID_)
+bool AppLayer::loadComponentFromDisk(const std::string &name, const std::string &ID_)
 {
     std::string ident;
     if(ID_ == "")
@@ -217,13 +217,13 @@ void AppLayer::loadComponentFromDisk(const std::string &name, const std::string 
 		catch (const std::exception &e)
 		{
 			std::cerr << "Error: " << name << " not found" << std::endl;
+            return false;
 		}
 	}
 
-	if (component)
-	{
-		this->addComponent(name, component);
-	}
+	this->addComponent(name, component);
+	
+    return true;
 
 }
 

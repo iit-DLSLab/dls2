@@ -24,13 +24,25 @@ using namespace dls;
 SimLayer::SimLayer(std::string ID) 
 	: AppLayer(ID)
 {
-	command_manager.addCommand<void>
+	command_manager.addCommand<void, std::string>
 	(
-		"startGazebo",
-		"Launches the gazebo simulator",
-		std::function<void()>([&](){
-			this->loadComponentFromDisk("dls_gazebo", this->getID());
-            this->components["dls_gazebo"]->run();
+		"loadSimulator",
+		"Launches a simulator",
+		std::function<void(std::string)>([&](std::string type){
+            int idx = 1;
+            std::string name = type + "_" + std::to_string(idx);
+            while(this->components.count(name)){
+                idx++;
+                name = type + "_" + std::to_string(idx);
+            }
+
+			if(this->loadComponentFromDisk(type, name)){
+                this->components[name]->run();
+            }
+            else
+            {
+                std::cout << "No such simulator with " << type << " type" << std::endl;
+            }
         }),
 		{{0,1}},
 		true
@@ -38,11 +50,31 @@ SimLayer::SimLayer(std::string ID)
 
 	command_manager.addCommand<void>
 	(
-		"shutdownGazebo",
-		"Terminates the gazebo simulator",
+		"removeSimulator",
+		"Terminates a instance of a simulator",
+		std::function<void(std::string)>([&](std::string name_){
+            if(this->components.count(name_)){
+                this->components[name_]->stop();
+                this->removeComponent(name_);
+            }
+            else
+            {
+                std::cout << "There is no instance of the simulator with " << name_ << " name running" << std::endl;
+            }
+		}),
+		{{1,0}},
+		true
+	);
+
+    command_manager.addCommand<void>
+	(
+		"list",
+		"Lists all simulators running",
 		std::function<void()>([&](){
-            this->components["dls_gazebo"]->stop();
-            this->components.erase("dls_gazebo");
+            std::cout << std::endl;
+            for(auto elem : this->components){
+                std::cout << elem.first << std::endl;
+            }
 		}),
 		{{1,0}},
 		true
