@@ -86,12 +86,20 @@ int main(int argc, char **argv)
 	#endif
 
 	Args args = parse_args(argc, argv);
+    
+    std::shared_ptr<robotlib::RobotBase> pRobot;
 
-	logging::coutstream s(process_handle);
+    logging::coutstream s(process_handle);
 
-    std::shared_ptr<robotlib::RobotBase> pRobot = robotlib::RobotFactory::openRobot(args.robot_name);
+    try{
+        pRobot = robotlib::RobotFactory::openRobot(args.robot_name);  
+    }
+    catch (const std::exception &e)
+    {
+	    std::cerr << e.what() << std::endl;
+    }
 
-	std::cout << "=== LOADING CONTROLLER ===" << std::endl;
+    std::cout << "=== LOADING CONTROLLER ===" << std::endl;
 
 	// // Load the component
 	// try

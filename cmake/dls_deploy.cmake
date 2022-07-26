@@ -99,11 +99,3 @@ install(
 		PATTERN "*.hpp"
 		PATTERN "*.tpp"
 )
-
-
-add_custom_target(dls2 DEPENDS
-    COMMAND             setcap 'cap_sys_nice=eip' /usr/bin/dls2/dynamic_legged_systems_framework
-    WORKING_DIRECTORY   ${CMAKE_SOURCE_DIR}
-    COMMENT             "Set real-time capabilities for dls"
-)
-

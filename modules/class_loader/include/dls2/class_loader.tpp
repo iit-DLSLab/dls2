@@ -31,8 +31,6 @@ std::shared_ptr<T> ClassLoader::loadClass
 	constructor_arg_ts... args
 )
 {
-	// std::cout << name << std::endl;
-	// void *T_lib = dlopen(name.c_str(), RTLD_NOW);
 	void *T_lib = dlopen(name.c_str(), RTLD_LAZY);
 	if(!T_lib)
 	{
