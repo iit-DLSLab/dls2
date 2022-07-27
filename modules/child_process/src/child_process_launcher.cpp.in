@@ -86,7 +86,7 @@ int main(int argc, char **argv)
 	#endif
 
 	Args args = parse_args(argc, argv);
-    
+
     std::shared_ptr<robotlib::RobotBase> pRobot;
 
     logging::coutstream s(process_handle);
@@ -101,63 +101,44 @@ int main(int argc, char **argv)
 
     std::cout << "=== LOADING CONTROLLER ===" << std::endl;
 
-	// // Load the component
-	// try
-	// {
-	// 	// first try loading from the local directory
-	// 	pComponent =
-	// 		ClassLoader::loadClass<Controller, std::shared_ptr<robotlib::RobotBase>>
-	// 		(
-	// 			std::string("./lib") + args.component_name + ".so",
-	// 			pRobot
-	// 		);
-
-	// 	std::cout << "Loaded component from local directory" << std::endl;
-	// 	// s << "Loaded component " << pComponent->getID()
-	// 	// 	<< " from local directory" << std::endl;
-	// }
-	// catch(const std::exception&)
+	// Load the component
+	try
 	{
-		// next, try loading from the installed directory
-		try
-		{
+	    if(args.component_type == "controller")
+        {
+            pComponent =
+                ClassLoader::loadClass<Controller, std::shared_ptr<robotlib::RobotBase>>
+                (
+                    std::string("${DLS_INSTALL_CONTROLLER_DIR}/lib") + args.component_name + ".so",
+                    pRobot
+                );
+        }
+        else if(args.component_type == "gait_generator")
+        {
+            pComponent =
+                ClassLoader::loadClass<GaitGenerator, std::shared_ptr<robotlib::RobotBase>>
+                (
+                    std::string("${DLS_INSTALL_GAIT_GENERATOR_DIR}/lib") + args.component_name + ".so",
+                    pRobot
+                );
+        }
+        else
+        {
+            std::cerr << "component loading not yet implemented" << std::endl;
+            exit(EXIT_FAILURE);
+        }
 
-			if(args.component_type == "controller")
-			{
-				pComponent =
-					ClassLoader::loadClass<Controller, std::shared_ptr<robotlib::RobotBase>>
-					(
-						std::string("${DLS_INSTALL_CONTROLLER_DIR}/lib") + args.component_name + ".so",
-						pRobot
-					);
-			}
-			else if(args.component_type == "gait_generator")
-			{
-				pComponent =
-					ClassLoader::loadClass<GaitGenerator, std::shared_ptr<robotlib::RobotBase>>
-					(
-						std::string("${DLS_INSTALL_GAIT_GENERATOR_DIR}/lib") + args.component_name + ".so",
-						pRobot
-					);
-			}
-			else
-			{
-				std::cerr << "component loading not yet implemented" << std::endl;
-				exit(EXIT_FAILURE);
-			}
-
-			s << "Loaded component " << pComponent->getID() << std::endl;
-		}
-		catch(const std::exception&)
-		{
-			// logging::cfatalstream s(process_handle);
-			// s << "Component '" << args.component_name << "' of type '"
-			// 	<< args.component_type << "' not found" << std::endl;
-			std::cout << "Could not load component '" << args.component_name
-			          << "' of type '" << args.component_type << std::endl;
-			exit(EXIT_FAILURE);
-		}
-	}
+        s << "Loaded component " << pComponent->getID() << std::endl;
+    }
+    catch(const std::exception&)
+    {
+        // logging::cfatalstream s(process_handle);
+        // s << "Component '" << args.component_name << "' of type '"
+        // 	<< args.component_type << "' not found" << std::endl;
+        std::cout << "Could not load component '" << args.component_name
+                    << "' of type '" << args.component_type << std::endl;
+        exit(EXIT_FAILURE);
+    }
 
 	// Register signal handler
 	std::signal(SIGTERM, signal_handler);
