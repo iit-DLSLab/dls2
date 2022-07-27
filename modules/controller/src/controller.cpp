@@ -49,7 +49,7 @@ Controller::Controller
 	, should_run(false)
 	, control_signal_topic(dls::topicType("Listener::" + name_, new ControlSignalMsgPubSubType()))
 	, gait_topic(gait_topic_)
-	, blind_state_topic(blind_state_topic)
+	, blind_state_topic(blind_state_topic_)
 	, ddslink(
 		"Controller::" + name_,
 		dls::domains::control
