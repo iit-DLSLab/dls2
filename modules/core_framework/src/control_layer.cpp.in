@@ -28,8 +28,6 @@
 
 #include <string.h>
 #include <errno.h>
-// TODO  temp include
-#include <sstream>
 
 #ifndef NDEBUG
 #include <sstream>
@@ -254,6 +252,8 @@ void *ControlLayer::controlSignalGather(void *data)
     while (!layer->shouldQuit()) {
         std::stringstream ss;
 
+		desired_torques = Eigen::Matrix<double, 1, 12>::Zero();
+
 		// Read the control signals
 		{
 			std::lock_guard<std::mutex> lock(layer->controllers_mutex_b);
@@ -263,8 +263,6 @@ void *ControlLayer::controlSignalGather(void *data)
 
 				ControlSignal c_signal = pair.second->getLastPublishedControlSignal();
 				desired_torques += pair.second->premultiplier*c_signal.torques;
-                ss << "Control from " << pair.first << ": " << c_signal.torques.transpose() << std::endl;
-                std::cout << "\033[F" << "\r" ;
 			}
 		}
 
@@ -279,8 +277,8 @@ void *ControlLayer::controlSignalGather(void *data)
         time_old = std::chrono::high_resolution_clock::now();
         
 		// ss << "Control Layer has period 10 mseconds. epoch ran in: " << delta << " useconds ";
-  		ss << "Control layer published torques " << desired_torques.transpose(); // << std::endl;
-		std::cout << "\033[F" << "\r" << ss.str() << std::endl;
+  		// ss << "Control layer published torques " << desired_torques.transpose(); // << std::endl;
+		// std::cout << "\033[F" << "\r" << ss.str() << std::endl;
         // std::cout << ss.str() << std::endl;
 
     	sched_yield();

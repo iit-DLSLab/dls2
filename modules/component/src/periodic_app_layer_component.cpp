@@ -13,6 +13,10 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
+#define SCHED_DEADLINE       6
+#define __NR_sched_setattr           314
+#define __NR_sched_getattr           315
+
 #include <iostream>
 #include <thread>
 #include <chrono>
@@ -24,6 +28,53 @@
 #include <chrono>
 #include "dls2/log/log.hpp"
 #endif
+
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <cstdlib>
+#include <tuple>
+#include <unistd.h>
+#include <pthread.h>
+
+#include <map>
+#include <memory>
+#include <mutex>
+#include <thread>
+#include <atomic>
+#include <boost/process.hpp>
+
+struct sched_attr {
+     __u32 size;
+
+     __u32 sched_policy;
+     __u64 sched_flags;
+
+     /* SCHED_NORMAL, SCHED_BATCH */
+     __s32 sched_nice;
+
+     /* SCHED_FIFO, SCHED_RR */
+     __u32 sched_priority;
+
+     /* SCHED_DEADLINE (nsec) */
+     __u64 sched_runtime;
+     __u64 sched_deadline;
+     __u64 sched_period;
+};
+
+int sched_setattr(pid_t pid,
+               const struct sched_attr *attr,
+               unsigned int flags)
+{
+    return syscall(__NR_sched_setattr, pid, attr, flags);
+}
+
+int sched_getattr(pid_t pid,
+               struct sched_attr *attr,
+               unsigned int size,
+               unsigned int flags)
+{
+    return syscall(__NR_sched_getattr, pid, attr, size, flags);
+}
 
 using namespace dls;
 // =============================================================================
@@ -79,11 +130,30 @@ AppLayerComponent::Status PeriodicAppLayerComponent::run()
 {
 	setStatus(Status::RUNNING);
 	this->should_run = true;
-	auto next_loop_time = this->period + Time::now();
+	// auto next_loop_time = this->period + Time::now();
+
+	struct sched_attr attr;
+    int ret;
+    unsigned int flags = 0;
+
+	memset(&attr, 0, sizeof(struct sched_attr));
+	attr.size = sizeof(struct sched_attr);
+	attr.sched_policy = SCHED_DEADLINE;
+	attr.sched_runtime  = 1 * 1000 * 1000ULL;
+	attr.sched_period   = 1 * 1000 * 1000ULL;
+	attr.sched_deadline = 1 * 1000 * 1000ULL;
+
+    ret = sched_setattr(0, &attr, flags);
+    if (ret < 0) {
+        perror("sched_setattr");
+        exit(-1);
+    }
+	auto begin_epoch = std::chrono::high_resolution_clock::now();
+
 	do
 	{
 		// #ifndef NDEBUG
-		// 	auto begin_epoch = std::chrono::system_clock::now();
+			// auto begin_epoch = std::chrono::system_clock::now();
 		// #endif
 
 		// auto last_loop_time = Time::now();
@@ -118,28 +188,33 @@ AppLayerComponent::Status PeriodicAppLayerComponent::run()
 		// #/hondif
 
 		// Check realtime
-		if(Time::now() > next_loop_time)
-		{
-			setStatus(Status::BREAKING_REALTIME);
-		}
+		// if(Time::now() > next_loop_time)
+		// {
+		// 	setStatus(Status::BREAKING_REALTIME);
+		// }
 
-		// TODO("use realtime sleep here")
-		// std::this_thread::sleep_until(next_loop_time);
-		Time::sleep_until(next_loop_time);
-		next_loop_time = this->period + Time::now(); // TODO ABC
+		// // TODO("use realtime sleep here")
+		// // std::this_thread::sleep_until(next_loop_time);
+		// Time::sleep_until(next_loop_time);
+		// next_loop_time = this->period + Time::now(); // TODO ABC
 
 		// #ifndef NDEBUG
 		// {
-		// 	auto end_epoch = std::chrono::system_clock::now();
-		// 	double useconds =
-		// 		std::chrono::duration<double, std::ratio<1, 1'000'000>>
-		// 			(end_epoch - begin_epoch).count();
+			// auto end_epoch = std::chrono::system_clock::now();
+			// double useconds =
+			// 	std::chrono::duration<double, std::ratio<1, 1'000'000>>
+			// 		(end_epoch - begin_epoch).count();
+			// auto delta = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - begin_epoch).count();
 
-		// 	std::stringstream ss;
-		// 	ss << "Component " << this->getID() << " has period "
-		// 		<< std::chrono::duration<double, std::ratio<1, 1'000'000>>(this->period).count() << " useconds. epoch ran in: " << useconds << " useconds "
-		// 		<< std::endl;
-		// 	logging::clog << ss.str() << std::endl;
+			// std::stringstream ss;
+			// ss << "Component " << this->getID() << " has period "
+			// 	// << std::chrono::duration<double, std::ratio<1, 1'000'000>>(this->period).count() << " useconds. epoch ran in: " << useconds << " useconds "
+			// 	<< " useconds. epoch ran in: " << delta << " useconds "
+			// 	<< std::endl;
+			// std::cout << ss.str() << std::endl;
+
+			// begin_epoch = std::chrono::high_resolution_clock::now();
+			
 		// }
 		// #endif
 
@@ -155,6 +230,8 @@ AppLayerComponent::Status PeriodicAppLayerComponent::run()
 				);
 			}
 		}
+		sched_yield();
+
 	}while(this->should_run);
 
 	return this->getStatus();
