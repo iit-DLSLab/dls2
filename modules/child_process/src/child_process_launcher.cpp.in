@@ -136,7 +136,7 @@ int main(int argc, char **argv)
         // s << "Component '" << args.component_name << "' of type '"
         // 	<< args.component_type << "' not found" << std::endl;
         std::cout << "Could not load component '" << args.component_name
-                    << "' of type '" << args.component_type << std::endl;
+                  << "' of type '" << args.component_type << std::endl;
         exit(EXIT_FAILURE);
     }
 
@@ -145,7 +145,19 @@ int main(int argc, char **argv)
 
 	prctl(PR_SET_NAME, args.component_name.c_str());
 
+    std::cout << "#### PROCESS " << args.component_name << " IS RUNNING #####" << '\n';
+
+
 	pComponent->run();
+
+    std::cout << "pComponent use_count() = " << pComponent.use_count() << '\n';
+
+    pComponent.reset();
+
+    std::cout << "After reset(): use_count() = " << pComponent.use_count() << '\n';
+
+    
+    
 	return 0;
 }
 

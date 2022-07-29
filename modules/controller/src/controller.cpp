@@ -64,8 +64,9 @@ Controller::Controller
 			{
 				CommandSendMsg msg = *((CommandSendMsg*) tuple);
 
-				if (msg.name() == this->getID())
+				if (msg.name() == this->getID()){
 					this->executeCommand(msg.command());			
+                }
 			}
 		}
 

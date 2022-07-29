@@ -44,7 +44,7 @@ struct ControlSignal
 	ControlSignal(ControlSignalMsg);
 	operator ControlSignalMsg() const;
 
-	// ControlSignal & operator=(const ControlSignalMsg &msg);
+	ControlSignal & operator=(const ControlSignalMsg &msg);
 };
 } // end namespace dls
 #endif /* end of include guard: CONTROL_SIGNAL_HPP_QCFRROHM */

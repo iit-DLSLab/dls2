@@ -44,8 +44,8 @@ ControlSignal::operator ControlSignalMsg() const
 }
 
 
-// ControlSignal & ControlSignal::operator=(const ControlSignalMsg &msg){
-// 	this->torques = Eigen::VectorXd::Map(msg.torques().data(), 12);
-// 	this->signal_reconstruction_method = (SignalReconstructionMethod) msg.signal_reconstruction_method();
-// 	this->time = msg.header().time().seconds();
-// }
+ControlSignal & ControlSignal::operator=(const ControlSignalMsg &msg){
+	this->torques = Eigen::VectorXd::Map(msg.torques().data(), 12);
+	this->signal_reconstruction_method = (SignalReconstructionMethod) msg.signal_reconstruction_method();
+	this->time = msg.header().time().seconds();
+}

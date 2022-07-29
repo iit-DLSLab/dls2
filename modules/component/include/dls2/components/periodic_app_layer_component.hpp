@@ -33,7 +33,6 @@ namespace dls
 		friend class ClockSubscriber;
 	public:
 		typedef std::chrono::duration<double, std::ratio<1, 1'000'000>> period_t;
-	public:
 
 		/// Constructor
 		///

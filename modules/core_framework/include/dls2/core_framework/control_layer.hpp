@@ -158,8 +158,8 @@ private:
 				std::mutex control_signal_mutex;
 			// END critical section
 		};
-		std::map<Controller::ID_t, ControllerData*> controllers_b;
-		std::mutex controllers_mutex_b;
+		std::map<Controller::ID_t, ControllerData*> controllers;
+		std::mutex controllers_mutex;
 	// END critical section
 
 
@@ -198,9 +198,9 @@ private:
 		Eigen::VectorXd last_published_desired_torques;
 	// END critical section
 
-	void deactivateController(ControllerData *pData);
+	bool deactivateController(ControllerData *pData);
 
-	// real-time thread that gather all the control sinals and sends to robot
+	// Real-time thread that gather all the control sinals and sends to robot
 	pthread_t controlSignalGatherThread;
 
 	static void *controlSignalGather(void *data);
