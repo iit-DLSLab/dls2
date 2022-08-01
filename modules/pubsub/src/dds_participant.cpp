@@ -29,7 +29,8 @@ namespace dls
 	{
 		eprosima::fastdds::dds::DomainParticipantQos participantQos;
 		participantQos.wire_protocol().builtin.discovery_config.discoveryProtocol = eprosima::fastrtps::rtps::DiscoveryProtocol_t::SIMPLE;
-		participantQos.wire_protocol().builtin.discovery_config.leaseDuration_announcementperiod = eprosima::fastrtps::Duration_t(1, 2);
+		participantQos.wire_protocol().builtin.discovery_config.leaseDuration = eprosima::fastrtps::Duration_t(3, 1);
+        participantQos.wire_protocol().builtin.discovery_config.leaseDuration_announcementperiod = eprosima::fastrtps::Duration_t(1, 2);
 		participantQos.name(partName_);
 
 		this->participant = eprosima::fastdds::dds::DomainParticipantFactory::
@@ -173,9 +174,9 @@ namespace dls
 		return this->participant->get_participant_names();
 	}
 
-	void DDSParticipant::sendMessage(std::string writerName, void *msg)
+	bool DDSParticipant::sendMessage(std::string writerName, void *msg)
 	{
-		this->writers.find(writerName)->second->write(msg);
+		return this->writers.find(writerName)->second->write(msg);
 	}
 
 } // namespace dls

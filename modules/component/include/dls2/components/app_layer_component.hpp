@@ -28,14 +28,13 @@ namespace dls
 class AppLayerComponent
 {
 public:
-	using ID_t = std::string;
-	typedef AppLayerComponent *create_t(const ID_t&);
+	typedef AppLayerComponent *create_t(const std::string&);
 	typedef void destroy_t(AppLayerComponent*);
 
 
 	/// Constructor
 	/// @parm ID the name of this component
-	AppLayerComponent(const ID_t &ID);
+	AppLayerComponent(const std::string &ID);
 
 	virtual ~AppLayerComponent() = default;
 
@@ -78,7 +77,7 @@ public:
 	/// Returns the ID of this component
 	///
 	/// @ret the ID
-	ID_t getID();
+	std::string getID();
 
 	/// Prints the state of this component
 	///
@@ -104,7 +103,7 @@ private:
 		Status status;           ///< The status of this  component
 		std::mutex status_mutex; ///< Status mutex
 	// END critical section
-	const ID_t ID; ///< The ID of this component
+	const std::string ID; ///< The ID of this component
 };
 } // end namespace dls
 

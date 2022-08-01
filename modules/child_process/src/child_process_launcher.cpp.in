@@ -99,9 +99,7 @@ int main(int argc, char **argv)
 	    std::cerr << e.what() << std::endl;
     }
 
-    std::cout << "=== LOADING CONTROLLER ===" << std::endl;
-
-	// Load the component
+    // Load the component
 	try
 	{
 	    if(args.component_type == "controller")
@@ -145,19 +143,8 @@ int main(int argc, char **argv)
 
 	prctl(PR_SET_NAME, args.component_name.c_str());
 
-    std::cout << "#### PROCESS " << args.component_name << " IS RUNNING #####" << '\n';
-
-
 	pComponent->run();
 
-    std::cout << "pComponent use_count() = " << pComponent.use_count() << '\n';
-
-    pComponent.reset();
-
-    std::cout << "After reset(): use_count() = " << pComponent.use_count() << '\n';
-
-    
-    
 	return 0;
 }
 

@@ -49,7 +49,7 @@ class GaitGenerator : public PeriodicAppLayerComponent
 		// Constructors
 		GaitGenerator
 		(
-			const ID_t&,																			///< The ID of the gait generator
+			const std::string&,																			///< The ID of the gait generator
 			const std::shared_ptr<robotlib::RobotBase>&,														///< A pointer to the robot model
 			const period_t&,																		///< The period of the gait generator
 			const dls::topicType& gateTopic = dls::topics::gait_signal,								///< Topic where gate signal will be published

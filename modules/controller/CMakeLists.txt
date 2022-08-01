@@ -1,6 +1,7 @@
 add_library(dls_controller SHARED
 	src/controller.cpp
 	src/control_signal.cpp
+    src/controller_data.cpp
 )
 
 set_property(TARGET dls_controller PROPERTY POSITION_INDEPENDENT_CODE ON)

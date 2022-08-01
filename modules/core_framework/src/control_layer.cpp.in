@@ -42,7 +42,6 @@
 using namespace dls;
 
 
-
 int sched_setattr(pid_t pid,
                const struct sched_attr *attr,
                unsigned int flags)
@@ -259,13 +258,13 @@ void *ControlLayer::controlSignalGather(void *data)
             desired_torques = Eigen::VectorXd::Zero(12);
             ControlSignal c_signal(12);
             
-			// for(auto pair : layer->controllers)
-			// {
-			// 	if(!pair.second->dds_reader) continue;
+			for(auto pair : layer->controllers)
+			{
+				if(!pair.second->dds_reader) continue;
 
-			// 	c_signal = pair.second->getLastPublishedControlSignal();
-			// 	desired_torques += pair.second->premultiplier*c_signal.torques;
-			// }
+				c_signal = pair.second->getLastPublishedControlSignal();
+				desired_torques += pair.second->premultiplier*c_signal.torques;
+			}
 		}
 
     	// Send the desired torques to HAL
@@ -355,7 +354,7 @@ std::string ControlLayer::where()
 // Controllers
 // -----------------------------------------------------------------------------
 // TODO("std::map already does this check for emplace, maybe for others. Double check and make this more efficient")
-bool ControlLayer::activateController(const Controller::ID_t &ID)
+bool ControlLayer::activateController(const std::string &ID)
 {
 	ControllerData *pData = new ControllerData (
 		this->pDefault_spline_in,
@@ -407,15 +406,15 @@ bool ControlLayer::activateController(const Controller::ID_t &ID)
 		pData->dds_reader = new dls::DDSReader(
 			"ControlLayer::Listener::" + ID,
 			dls::domains::control,
-			dls::topicType("Listener::" + ID, new ControlSignalMsgPubSubType()),
+			dls::topics::control_signal,
 			std::function<void(void *)>
 			{
 				[&](void *tuple)
 				{
+                    // std::lock_guard<std::mutex> lock(pData->control_signal_mutex);
 					ControlSignalMsg msg = *((ControlSignalMsg *)tuple);
-
-					// std::lock_guard<std::mutex> lock(pData->control_signal_mutex);
-					pData->control_signal = msg;
+					
+                    pData->control_signal = msg;
 				}
 			}
 		);
@@ -496,7 +495,7 @@ bool ControlLayer::deactivateController(ControllerData *pData)
     return false;
 }
 
-bool ControlLayer::deactivateController(const Controller::ID_t &ID)
+bool ControlLayer::deactivateController(const std::string &ID)
 {
 	decltype(this->controllers.find(ID)) pair_it;
 	{
@@ -513,7 +512,7 @@ bool ControlLayer::deactivateController(const Controller::ID_t &ID)
 // -----------------------------------------------------------------------------
 // Gait Generators
 // -----------------------------------------------------------------------------
-bool ControlLayer::activateGaitGenerator(const GaitGenerator::ID_t &ID)
+bool ControlLayer::activateGaitGenerator(const std::string &ID)
 {
 	std::lock_guard<std::mutex> lock(this->gaitMutex);
 
@@ -600,33 +599,4 @@ void ControlLayer::publishDesiredTorques(const Eigen::VectorXd &torques, double 
 Eigen::VectorXd ControlLayer::getPublishedDesiredTorques(){
 	std::lock_guard<std::mutex>	lock(this->last_published_desired_torques_mutex);
 	return this->last_published_desired_torques;
-}
-
-// =============================================================================
-// Helper Classes
-// =============================================================================
-ControlLayer::ControllerData::ControllerData
-(
-	std::shared_ptr<spline::SplineBase<double>> spline_in_,
-	std::shared_ptr<spline::SplineBase<double>> spline_out_,
-	const std::chrono::duration<double> &duration_in,
-	const std::chrono::duration<double> &duration_out,
-	uint controlSize
-) :
-	proc(nullptr),
-	dds_reader(nullptr),
-	ID(),
-	premultiplier(0),
-	spline_in_duration(duration_in),
-	spline_out_duration(duration_out),
-	pSpline_in(spline_in_),
-	pSpline_out(spline_out_),
-	control_signal(controlSize)
-{ }
-
-
-ControlSignal ControlLayer::ControllerData::getLastPublishedControlSignal()
-{
-	std::lock_guard<std::mutex> lock(this->control_signal_mutex);
-	return this->control_signal;
 }

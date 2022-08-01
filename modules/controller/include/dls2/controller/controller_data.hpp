@@ -13,38 +13,47 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef CONTROL_SIGNAL_HPP_QCFRROHM
-#define CONTROL_SIGNAL_HPP_QCFRROHM
+#ifndef CONTROLLER_DATA_HPP
+#define CONTROLLER_DATA_HPP
 
-#include "dls/messages/control_signalPubSubTypes.h"
-#include <Eigen/Dense>
+#include "dls2/controller/control_signal.hpp"
+#include "dls2/util/messaging/dds_reader.hpp"
+#include "dls2/math/spline/ramp.hpp"
+#include <boost/process.hpp>
+
+#include <memory>
 
 /// A struct representing the control signal that is output by a Controller
 namespace dls
 {
-    // TODO Should this be made thread safe?
-    class ControlSignal
+    class ControllerData
     {
     public:
-        /// How the control layer should interpret the torques from the controller
-        /// when summing the torques between multiple controllers
-        // if the inherited type is changed, change it also in the idl file
-        enum class SignalReconstructionMethod : uint64_t
-        {
-            ZERO_ORDER_HOLD,
-            // IMPULSE
-        } signal_reconstruction_method;
+        ControllerData
+        (
+            std::shared_ptr<spline::SplineBase<double>> pSpline_in,
+            std::shared_ptr<spline::SplineBase<double>> pSpline_out,
+            const std::chrono::duration<double> &duration_in,
+            const std::chrono::duration<double> &duration_out,
+            uint controlSize
+        );
 
-        double time;
-        Eigen::VectorXd torques; ///< The torque vector to the joints
+        ControlSignal getLastPublishedControlSignal();
 
-        // =============================== Fastrtps ================================
-        // TODO ("Figure out if this should be const or reference or whatever")
-        ControlSignal(uint size);
-        ControlSignal(ControlSignalMsg);
-        operator ControlSignalMsg() const;
+        boost::process::child *proc;
+        DDSReader *dds_reader;
+        std::string ID;
+        std::atomic<double> premultiplier; ///< Spline value to premutilply the torque signal
+        const std::chrono::duration<double> spline_in_duration;
+        const std::chrono::duration<double> spline_out_duration;
+        const std::shared_ptr<spline::SplineBase<double>> pSpline_in;
+        const std::shared_ptr<spline::SplineBase<double>> pSpline_out;
 
-        ControlSignal & operator=(const ControlSignalMsg &msg);
+        // BEGIN critical section	
+            ControlSignal control_signal;
+            std::mutex control_signal_mutex;
+        // END critical section
     };
-} // end namespace dls
+}// end namespace dls
+
 #endif /* end of include guard: CONTROL_SIGNAL_HPP_QCFRROHM */

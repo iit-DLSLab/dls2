@@ -38,7 +38,7 @@ namespace dls
 		///
 		/// @param ID the name of this component
 		/// @parma period the period length of each run epoch
-		PeriodicAppLayerComponent(const ID_t &ID,const period_t &period);
+		PeriodicAppLayerComponent(const std::string &ID,const period_t &period);
 
 		/// Runs the component
 		///

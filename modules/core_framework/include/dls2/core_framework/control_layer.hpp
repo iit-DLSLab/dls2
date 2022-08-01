@@ -65,6 +65,7 @@ struct sched_attr {
 // =============================================================================
 namespace dls
 {
+
 /// Control layer
 ///
 /// Responsible for managing controllers and gait generators
@@ -86,13 +87,13 @@ public:
 	///
 	/// @ret true if the controller exists, false otherwise.
 	/// See also ControlLayer::deactivateController
-	bool activateController(const Controller::ID_t&);
+	bool activateController(const std::string&);
 
 	/// Deactivates a controller
 	///
 	/// @ret true if the controller exists, false otherwise
 	/// See also ControlLayer::activateController
-	bool deactivateController(const Controller::ID_t&);
+	bool deactivateController(const std::string&);
 
 	// ============================ Gait Generators ============================
 	/// Activates a gait generator
@@ -100,7 +101,7 @@ public:
 	/// This will stop any other running gait generators
 	/// @ret true if the controller exists, false otherwise. See also
 	/// ControlLayer::deactivateGaitGenerators
-	bool activateGaitGenerator(const GaitGenerator::ID_t&);
+	bool activateGaitGenerator(const std::string&);
 
 	/// Deactivates the current gait generator
 	///
@@ -128,37 +129,7 @@ private:
 
 	// ============================= Data Members ==============================
 	// BEGIN critical section
-		/// Helper struct for collecting controllers, their thread handles, and
-		/// subscribers to a controller's control signal
-		///
-		struct ControllerData
-		{
-			ControllerData
-			(
-				std::shared_ptr<spline::SplineBase<double>> pSpline_in,
-				std::shared_ptr<spline::SplineBase<double>> pSpline_out,
-				const std::chrono::duration<double> &duration_in,
-				const std::chrono::duration<double> &duration_out,
-				uint controlSize
-			);
-
-			ControlSignal getLastPublishedControlSignal();
-	
-			boost::process::child *proc;
-			DDSReader *dds_reader;
-			Controller::ID_t ID;
-			std::atomic<double> premultiplier; ///< Spline value to premutilply the torque signal
-			const std::chrono::duration<double> spline_in_duration;
-			const std::chrono::duration<double> spline_out_duration;
-			const std::shared_ptr<spline::SplineBase<double>> pSpline_in;
-			const std::shared_ptr<spline::SplineBase<double>> pSpline_out;
-
-			// BEGIN critical section	
-				ControlSignal control_signal;
-				std::mutex control_signal_mutex;
-			// END critical section
-		};
-		std::map<Controller::ID_t, ControllerData*> controllers;
+		std::map<std::string, ControllerData*> controllers;
 		std::mutex controllers_mutex;
 	// END critical section
 
@@ -170,7 +141,7 @@ private:
 				: ID()
 				, proc(nullptr)
 			{ }
-			GaitGenerator::ID_t ID;
+			std::string ID;
 			boost::process::child *proc;
 		};
 
@@ -210,6 +181,7 @@ private:
 	logging::clogstream clog;
 	logging::cfatalstream cfatal;
 };
+
 } // end namespace dls
 
 #endif /* end of include guard: CONTROL_LAYER_HPP_YCHFNYBM */

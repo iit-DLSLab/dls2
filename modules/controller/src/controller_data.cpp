@@ -13,52 +13,37 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#include <iostream>
-#include "dls2/components/app_layer_component.hpp"
+#ifndef CONTROLLER_DATA_CPP
+#define CONTROLLER_DATA_CPP
+
+#include "dls2/controller/controller_data.hpp"
 
 using namespace dls;
 
-// =============================================================================
-// Constructors
-// =============================================================================
-AppLayerComponent::AppLayerComponent(const std::string &ID_) 
-	: status(Status::UNCONSTRUCTED)
-	, status_mutex()
-	, ID(ID_)
-	, command_manager(ID_)
-	, scout(ID_)
+ControllerData::ControllerData
+(
+	std::shared_ptr<spline::SplineBase<double>> spline_in_,
+	std::shared_ptr<spline::SplineBase<double>> spline_out_,
+	const std::chrono::duration<double> &duration_in,
+	const std::chrono::duration<double> &duration_out,
+	uint controlSize
+) :
+	proc(nullptr),
+	dds_reader(nullptr),
+	ID(),
+	premultiplier(0),
+	spline_in_duration(duration_in),
+	spline_out_duration(duration_out),
+	pSpline_in(spline_in_),
+	pSpline_out(spline_out_),
+	control_signal(controlSize)
+{ }
+
+
+ControlSignal ControllerData::getLastPublishedControlSignal()
 {
-	this->command_manager.addCommand<>
-	(
-		"where",
-		std::string("Prints the state of ") + this->getID(),
-		std::function<bool()>([&]()->bool
-        {
-			auto s = where();
-			std::cout << s << std::endl;
-			scout     << s << std::endl;
-            return true;
-		}),
-		{{0,0}},
-	 	true
-	);
+	std::lock_guard<std::mutex> lock(this->control_signal_mutex);
+	return this->control_signal;
 }
 
-// =============================================================================
-// Class Implementation
-// =============================================================================
-AppLayerComponent::Status AppLayerComponent::getStatus()
-{
-	std::lock_guard<std::mutex> lock(this->status_mutex);
-	return this->status;
-}
-
-void AppLayerComponent::setStatus(Status s)
-{
-	this->status = s;
-}
-
-std::string AppLayerComponent::getID()
-{
-	return this->ID;
-}
+#endif /* end of include guard: CONTROL_SIGNAL_HPP_QCFRROHM */

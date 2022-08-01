@@ -57,7 +57,7 @@ namespace dls
 			std::function<void(void *)>	callback
 		);
 
-		void sendMessage(std::string writerName, void *msg);
+		bool sendMessage(std::string writerName, void *msg);
 
 	private:
 		eprosima::fastdds::dds::DomainParticipant  					*participant;
