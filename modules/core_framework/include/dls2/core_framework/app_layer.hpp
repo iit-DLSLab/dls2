@@ -48,7 +48,7 @@ namespace dls
 		};
 
 		AppLayer(const std::string &ID);
-		~AppLayer();
+		virtual ~AppLayer();
 
 		/// Get the status of the layer
 		///
