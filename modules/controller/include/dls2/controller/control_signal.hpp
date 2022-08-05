@@ -22,29 +22,24 @@
 /// A struct representing the control signal that is output by a Controller
 namespace dls
 {
-    // TODO Should this be made thread safe?
     class ControlSignal
     {
     public:
-        /// How the control layer should interpret the torques from the controller
-        /// when summing the torques between multiple controllers
-        // if the inherited type is changed, change it also in the idl file
         enum class SignalReconstructionMethod : uint64_t
         {
             ZERO_ORDER_HOLD,
-            // IMPULSE
-        } signal_reconstruction_method;
+            IMPULSE
+        };
 
-        double time;
-        Eigen::VectorXd torques; ///< The torque vector to the joints
-
-        // =============================== Fastrtps ================================
-        // TODO ("Figure out if this should be const or reference or whatever")
         ControlSignal(uint size);
         ControlSignal(ControlSignalMsg);
         operator ControlSignalMsg() const;
-
+        
         ControlSignal & operator=(const ControlSignalMsg &msg);
+
+        Eigen::VectorXd torques;
+        SignalReconstructionMethod signal_reconstruction_method;
+        double time;
     };
 } // end namespace dls
 #endif /* end of include guard: CONTROL_SIGNAL_HPP_QCFRROHM */

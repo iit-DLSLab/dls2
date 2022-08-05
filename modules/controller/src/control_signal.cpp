@@ -16,10 +16,10 @@
 #include "dls2/controller/control_signal.hpp"
 
 using namespace dls;
-ControlSignal::ControlSignal(uint size) :
-	torques(Eigen::VectorXd::Zero(size)),
-	signal_reconstruction_method(SignalReconstructionMethod::ZERO_ORDER_HOLD),
-	time()
+ControlSignal::ControlSignal(uint size) 
+    : torques(Eigen::VectorXd::Zero(size))
+	, signal_reconstruction_method(SignalReconstructionMethod::ZERO_ORDER_HOLD)
+	, time()
 { }
 
 ControlSignal::ControlSignal(ControlSignalMsg msg) :

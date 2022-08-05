@@ -36,7 +36,6 @@ struct GetCommand : public Command
 };
 
 // ================================ Prototypes =================================
-void        exitError();
 std::string getHelpString();
 Command     *parseCommand();
 Command     *parseSetCommand();
@@ -50,7 +49,8 @@ int main(int argc, char **argv)
 
 	if(argc != 5 && argc != 6)
 	{
-		exitError();
+		std::cerr << getHelpString() << std::endl;
+	    exit(EXIT_FAILURE);
 	}
 
 	Command *command = parseCommand();
@@ -82,10 +82,8 @@ Command *parseCommand()
 	{
 		return parseGetCommand();
 	}
-	else
-	{
-		exitError();
-	}
+    std::cerr << getHelpString() << std::endl;
+	exit(EXIT_FAILURE);
 }
 
 Command *parseSetCommand()
@@ -108,12 +106,6 @@ Command *parseGetCommand()
 	return c;
 }
 
-void exitError()
-{
-	std::cerr << getHelpString() << std::endl;
-	exit(EXIT_FAILURE);
-}
-
 // ============================== Helper Structs ===============================
 // -------------------------------- set command --------------------------------
 void SetCommand::execute(dls::ParameterServerClient &c)
@@ -123,10 +115,9 @@ void SetCommand::execute(dls::ParameterServerClient &c)
 
 		c.setDouble(this->key, std::stod(this->value));
 	}
-	else
-	{
-		exitError();
-	}
+    
+    std::cerr << getHelpString() << std::endl;
+	exit(EXIT_FAILURE);
 }
 
 // -------------------------------- get command --------------------------------
@@ -137,8 +128,7 @@ void GetCommand::execute(dls::ParameterServerClient &c)
 		double d = c.getDouble(this->key);
 		std::cout << d << std::endl;
 	}
-	else
-	{
-		exitError();
-	}
+    
+	std::cerr << getHelpString() << std::endl;
+	exit(EXIT_FAILURE);
 }

@@ -170,7 +170,7 @@ bool Options::parseArgs(int argc, char **argv)
 					{
 						std::cerr << "unknown layer: " << value << std::endl;
 						std::cout << "valid layers are: ";
-						for(int i = 0; i < (sizeof(tokens)/8-1) ; i++)
+						for(long unsigned int i = 0; i < (sizeof(tokens)/8-1) ; i++)
 						{
 							std::cout << tokens[i] << " ";
 						}

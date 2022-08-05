@@ -67,9 +67,9 @@ namespace dls
 		std::map<std::string, eprosima::fastdds::dds::DataWriter *> writers;
 		std::vector<dls::DDSSubListener *>							subListeners;
 
-		eprosima::fastdds::dds::Subscriber *subscriber;
 		eprosima::fastdds::dds::Publisher  *publisher;
-
+        eprosima::fastdds::dds::Subscriber *subscriber;
+		
 		eprosima::fastdds::dds::Topic* addTopic(dls::topicType topicData_);
 	};
 	

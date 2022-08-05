@@ -22,15 +22,12 @@ using namespace dls;
 // =============================================================================
 // Constructors
 // =============================================================================
-AppLayer::AppLayer
-(
-	const std::string &ID_
-) 
+AppLayer::AppLayer(const std::string &ID_) 
 	: components_mutex()
-	, components({})
-	, ID(ID_)
-	, should_quit(false)
-	, command_manager(ID_)
+    , components({})
+    , should_quit(false)
+    , command_manager(ID_)
+    , ID(ID_)
 	, status_mutex()
 	, status(Status::INITIALISING)
 	, scout(ID_ + "Log")
@@ -192,9 +189,13 @@ bool AppLayer::loadComponentFromDisk(const std::string &type, const std::string 
 {
     std::string name;
     if(ID_ == "")
+    {
         name = type;
+    }
     else
+    {
         name = ID_;
+    }
         
 
 	std::shared_ptr<AppLayerComponent> component;

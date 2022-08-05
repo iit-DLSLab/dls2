@@ -44,26 +44,26 @@ namespace dls
 			{
 				[&](void* tuple)
 				{
-					// // ============= read the request message ==============
-					// req_pubsub_t request = *((req_pubsub_t*) tuple);
+					// ============= read the request message ==============
+					msg_t request = *((msg_t*) tuple);
 
-					// std::stringstream out_topic_stream;
-					// out_topic_stream << this->service_topic.first
-					// 				<< "_response_";
+					std::stringstream out_topic_stream;
+					out_topic_stream << this->service_topic.first
+									<< "_response_";
 
-					// // ============== Process the request ==============
-					// res_pubsub_t response = this->callback(request);
+					// ============== Process the request ==============
+					msg_t response = this->callback(request);
 
-					// dls::DDSWriter response_publisher(
-					// 	"response_pub",
-					// 	dls::domains::service,
-					// 	dls::topicType(out_topic_stream.str(), new req_pubsub_t())
-					// );
+					dls::DDSWriter response_publisher(
+						"response_pub",
+						dls::domains::service,
+						dls::topicType(out_topic_stream.str(), new msg_t())
+					);
 
-					// // =============== Send the response ===============
-					// // return the response
-					// // this->response_publisher.publish(response);
-					// response_publisher.sendMessage((void*) &response);
+					// =============== Send the response ===============
+					// return the response
+					// this->response_publisher.publish(response);
+					response_publisher.sendMessage((void*) &response);
 
 				}
 			}		
@@ -92,12 +92,12 @@ namespace dls
 			{
 				[&](void* tuple)
 				{
-					// res_pubsub_t response = *((res_pubsub_t*) tuple);
+					msg_t response = *((msg_t*) tuple);
 
-					// std::lock_guard<std::mutex> lock(this->response_mutex);
-					// this->remote_response   = response;
-					// this->received_response = true;
-					// this->received_response_cv.notify_all();
+					std::lock_guard<std::mutex> lock(this->response_mutex);
+					this->remote_response   = response;
+					this->received_response = true;
+					this->received_response_cv.notify_all();
 
 				}
 			}	

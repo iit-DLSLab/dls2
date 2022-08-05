@@ -31,7 +31,7 @@ namespace dls
 
 	void DDSPubListener::on_publication_matched
 	(
-		eprosima::fastdds::dds::DataWriter				       *writer,
+		eprosima::fastdds::dds::DataWriter*,
 		const eprosima::fastdds::dds::PublicationMatchedStatus &info
 	)
 	{
@@ -61,7 +61,7 @@ namespace dls
 	}
 
 	DDSSubListener::~DDSSubListener(){
-		delete this->msg;
+		free(this->msg);
 	}
 
 	void DDSSubListener::on_subscription_matched(

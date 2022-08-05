@@ -111,7 +111,7 @@ namespace dls
 		//static_assert(std::is_same_v<decltype(arguments), const std::tuple<arg_ts...>>);
 			
 		if(std::apply(this->f, arguments))
-		    this->owner->changeLevel(this->getNextLevel(this->owner->getCurrentLevel()));
+            CommandHelper::changeCommandLevel(this->owner, this->getNextLevel(CommandHelper::getCurrentLevel(this->owner)));
 
 		return true;
 	}

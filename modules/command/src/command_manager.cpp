@@ -33,9 +33,9 @@ namespace dls
 	CommandManager::CommandManager(std::string owner_)
 		: commands()
 		, owner(owner_)
-		, should_exit(false)
-		, level(0)
+        , level(0)
 		, levelThread(&CommandManager::levelWatcher, this)
+        , should_exit(false)
 	{
 		commands_monitor = new dls::DDSWriter(
 			owner_+"::commands_monitor",

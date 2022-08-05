@@ -55,10 +55,9 @@ namespace dls
 
 		~DDSSubListener();
 
-		void *msg;
-		
 		std::atomic_int sample_count;
 		std::function<void(void *)> callback;
+        void *msg;
 
 		void on_subscription_matched (
 			eprosima::fastdds::dds::DataReader*,

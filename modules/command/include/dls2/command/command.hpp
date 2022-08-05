@@ -43,6 +43,8 @@ namespace dls
 	class Command : public CommandBase
 	{
 	friend class CommandManager;
+    friend class CommandHelper;
+
 	public:
 		/// Constructor
 		///
@@ -115,6 +117,16 @@ namespace dls
 
 	template <typename... Args>
 	auto create_tuple(const std::vector<std::string>& args);
+
+    class CommandManager;
+
+    class CommandHelper
+    {
+    public:
+
+        static void changeCommandLevel(CommandManager *manager, int level);
+        static int getCurrentLevel(CommandManager *manager);
+    };
 
 } // end namespace dls
 

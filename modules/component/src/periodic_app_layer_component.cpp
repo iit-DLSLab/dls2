@@ -148,7 +148,7 @@ AppLayerComponent::Status PeriodicAppLayerComponent::run()
         perror("sched_setattr");
         exit(-1);
     }
-	auto begin_epoch = std::chrono::high_resolution_clock::now();
+	// auto begin_epoch = std::chrono::high_resolution_clock::now();
 
 	do
 	{

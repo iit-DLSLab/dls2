@@ -31,7 +31,7 @@ GaitGenerator::GaitGenerator
 	const dls::topicType& blindStateTopic_
 ) 
 	: PeriodicAppLayerComponent(ID, period_)
-	// , pRobot(pRobot_)
+	, pRobot(pRobot_)
 	// , pData(nullptr)
 	// , data_mutex()
 	// , pBlind_state_signal(nullptr)

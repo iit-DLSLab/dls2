@@ -36,13 +36,13 @@ namespace dls
 		LevelType transitions_,
 		bool enabled_
 	)
-		: name(name_)
-		, owner(owner_)
-		, doc(doc_)
-		, numArg(nArg_)
-		, transitionSet(transitions_)
+		: transitionSet(transitions_)
 		, enabled(enabled_)
 		, active(false)
+		, owner(owner_)
+		, name(name_)
+		, doc(doc_)
+        , numArg(nArg_)
 	{}
 
 	std::string CommandBase::getName(){

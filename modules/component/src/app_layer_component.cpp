@@ -22,11 +22,11 @@ using namespace dls;
 // Constructors
 // =============================================================================
 AppLayerComponent::AppLayerComponent(const std::string &ID_) 
-	: status(Status::UNCONSTRUCTED)
-	, status_mutex()
-	, ID(ID_)
-	, command_manager(ID_)
+	: command_manager(ID_)
 	, scout(ID_)
+	, status(Status::UNCONSTRUCTED)
+	, status_mutex()
+    , ID(ID_)
 {
 	this->command_manager.addCommand<>
 	(

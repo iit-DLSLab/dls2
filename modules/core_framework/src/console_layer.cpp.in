@@ -13,6 +13,8 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
+#define UNUSED(x) (void)(x)
+
 #include "dls2/core_framework/console_layer.hpp"
 #include <readline/readline.h>
 #include <readline/history.h>
@@ -151,7 +153,7 @@ ConsoleLayer::ConsoleLayer(std::string ID)
 		"Clean FASTDDS zombies",
 		std::function<bool()>([&]()->bool
 		{
-			system("sudo fastdds shm clean");
+			if(system("sudo fastdds shm clean")){};
             return true;
 		}),
 		{{0,0}},
@@ -173,8 +175,8 @@ ConsoleLayer::ConsoleLayer(std::string ID)
 				// std::cout << pCommand->second() << "::" <<
 				// 	pCommand->getName() <<  std::endl <<
 				// 	pCommand->getDoc() << std::endl << std::endl;
-                return true;
 			}
+            return true;
 		}),
 		{{0,0}},
 		true
@@ -212,7 +214,7 @@ ConsoleLayer::ConsoleLayer(std::string ID)
 }
 
 ConsoleLayer::~ConsoleLayer(){
-};
+}
 
 // =============================================================================
 // Interface Override
@@ -490,6 +492,8 @@ char *dls::arg_completion(const char * text, int state)
 // Display Completion
 // -----------------------------------------------------------------------------
 void dls::display_matches (char **matches, int num_matches, int max_length){
+    UNUSED(num_matches);
+    UNUSED(max_length);
 
 	char **strs = matches;
 	std::multiset<std::string> strings;

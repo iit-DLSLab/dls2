@@ -22,10 +22,10 @@
 namespace dls
 {
 
-	DDSParticipant::DDSParticipant(
-		std::string partName_,
-		dls::domainType domain_)
-		: participant(nullptr), publisher(nullptr), subscriber(nullptr)
+	DDSParticipant::DDSParticipant(std::string partName_, dls::domainType domain_)
+    	: participant(nullptr)
+        , publisher(nullptr)
+        , subscriber(nullptr)
 	{
 		eprosima::fastdds::dds::DomainParticipantQos participantQos;
 		participantQos.wire_protocol().builtin.discovery_config.discoveryProtocol = eprosima::fastrtps::rtps::DiscoveryProtocol_t::SIMPLE;

@@ -28,11 +28,11 @@ namespace dls
 		) :
 			add_double
 			(
-				dls::topicType("DLS_PARAMETER_SERVER_ADD_DOUBLE", new ParamServerSetDoublePubSubType())
+				dls::topicType( server_namespace + "_ADD_DOUBLE", new ParamServerSetDoublePubSubType())
 			),
 			get_double
 			(
-				dls::topicType("DLS_PARAMETER_SERVER_GET_DOUBLE", new StringMsgPubSubType())
+				dls::topicType( server_namespace + "_GET_DOUBLE", new StringMsgPubSubType())
 			)
 		{ }
 	}
