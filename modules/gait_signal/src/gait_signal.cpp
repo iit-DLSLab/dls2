@@ -22,7 +22,7 @@ using namespace dls;
 // =============================================================================
 // Constructors
 // =============================================================================
-GaitSignal::GaitSignal() :
+GaitSignal::GaitSignal(const std::shared_ptr<robotlib::RobotBase> &pRobot) :
 
     desired_com_pose_world(),
     desired_com_velocity_world(),
@@ -32,7 +32,10 @@ GaitSignal::GaitSignal() :
     desired_base_velocity_world(),
     desired_base_acceleration_world(),
 
-	desired_joint_state(),
+	desired_joint_position(pRobot->makeJointState()),
+    desired_joint_velocity(pRobot->makeJointState()),
+    desired_joint_acceleration(pRobot->makeJointState()),
+    desired_joint_effort(pRobot->makeJointState()),
 	stance_legs(),
 
 	desired_base_wrench()
@@ -45,7 +48,7 @@ GaitSignal::GaitSignal() :
 // Converting Constructor
 // -----------------------------------------------------------------------------
 // TODO ("stance feet")
-GaitSignal::GaitSignal(GaitSignalMsg msg) :
+GaitSignal::GaitSignal(const std::shared_ptr<robotlib::RobotBase> &pRobot, GaitSignalMsg msg) :
     desired_com_pose_world(msg.desired_com_pose_world()),
     desired_com_velocity_world(msg.desired_com_velocity_world()),
     desired_com_acceleration_world(msg.desired_com_velocity_world()),
@@ -54,7 +57,10 @@ GaitSignal::GaitSignal(GaitSignalMsg msg) :
     desired_base_velocity_world(msg.desired_base_velocity_world()),
     desired_base_acceleration_world(msg.desired_base_acceleration_world()),
 
-    desired_joint_state(msg.desired_joint_state()),
+	desired_joint_position(pRobot->makeJointState()),
+    desired_joint_velocity(pRobot->makeJointState()),
+    desired_joint_acceleration(pRobot->makeJointState()),
+    desired_joint_effort(pRobot->makeJointState()),
 
 	stance_legs(),
 
@@ -85,7 +91,10 @@ GaitSignal::operator GaitSignalMsg() const
     msg.desired_base_velocity_world(this->desired_base_velocity_world);
     msg.desired_base_acceleration_world(this->desired_base_acceleration_world);
 
-	msg.desired_joint_state(this->desired_joint_state);
+	msg.desired_joint_position(this->desired_joint_position);
+    msg.desired_joint_velocity(this->desired_joint_velocity);
+    msg.desired_joint_acceleration(this->desired_joint_acceleration);
+    msg.desired_joint_effort(this->desired_joint_effort);    
 
 	// TODO this loop is bad, but I'm forced by legacy code. Remove the
 	// pointless leg data map class, or improve it for move symantics, then fix
@@ -99,4 +108,27 @@ GaitSignal::operator GaitSignalMsg() const
 	msg.desired_base_wrench(this->desired_base_wrench);
 
     return msg;
+}
+
+GaitSignal &GaitSignal::operator= (GaitSignalMsg &msg)
+{
+    desired_com_pose_world = msg.desired_com_pose_world();
+    desired_com_velocity_world = msg.desired_com_velocity_world();
+    desired_com_acceleration_world = msg.desired_com_velocity_world();
+
+    desired_base_pose_world = msg.desired_base_pose_world();
+    desired_base_velocity_world = msg.desired_base_velocity_world();
+    desired_base_acceleration_world = msg.desired_base_acceleration_world();
+
+	desired_joint_position = msg.desired_joint_position();
+    desired_joint_velocity = msg.desired_joint_velocity();
+    desired_joint_acceleration = msg.desired_joint_acceleration();
+    desired_joint_effort = msg.desired_joint_effort(); 
+
+	desired_base_wrench = msg.desired_base_wrench();
+
+	for(unsigned int i = 0; i != msg.stance_feet().size(); ++i)
+	{
+		this->stance_legs[i] = msg.stance_feet()[i];
+	}
 }

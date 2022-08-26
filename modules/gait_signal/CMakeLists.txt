@@ -15,6 +15,7 @@ target_link_libraries(dls_gait_signal
 	PRIVATE
 		dls_message_wrappers
 		dls_geometry
+        robotlib
 )
 
 dls_install(dls_gait_signal)
