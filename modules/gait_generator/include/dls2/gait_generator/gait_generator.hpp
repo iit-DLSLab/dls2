@@ -70,7 +70,7 @@ class GaitGenerator : public PeriodicAppLayerComponent
 
 		const std::shared_ptr<const robotlib::RobotBase> pRobot;	///< A pointer to the robot model
 
-		std::shared_ptr<BlindState> readBlindStateSignal() const;
+		BlindState readBlindStateSignal() const;
 		
 	private:
 		// BEGIN critical section
@@ -86,7 +86,7 @@ class GaitGenerator : public PeriodicAppLayerComponent
 		// END critical section
 
 		// BEGIN critical section
-			std::shared_ptr<BlindState> pBlind_state_signal;
+			BlindState blind_state_signal;
 			mutable std::mutex blind_state_signal_mutex;
 		// END crital section
 

@@ -176,6 +176,8 @@ private:
 
 	static void *controlSignalGather(void *data);
 
+	std::shared_ptr<robotlib::RobotBase> pRobot;
+
 	// ================================ Members ================================
 	logging::coutstream scout;
 	logging::clogstream clog;

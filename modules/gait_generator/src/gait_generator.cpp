@@ -34,7 +34,7 @@ GaitGenerator::GaitGenerator
 	, pRobot(pRobot_)
 	// , pData(nullptr)
 	// , data_mutex()
-	// , pBlind_state_signal(nullptr)
+	, blind_state_signal(pRobot_)
 	// , blind_state_signal_mutex()
 	, ddslink("GaitGen::" + ID, dls::domains::control)
 	, ddsMonitor(
@@ -66,7 +66,7 @@ GaitGenerator::GaitGenerator
 
 				std::lock_guard<std::mutex> lock(this->blind_state_signal_mutex);
 				// TODO do not reassign memory, just reset it
-				this->pBlind_state_signal = std::make_shared<BlindState>(bs);
+				this->blind_state_signal = bs;
 				// std::cout << "received a blind state message of size: "
 				//           << bs.joint_state().position().size() << std::endl;
 			}
@@ -84,10 +84,10 @@ void GaitGenerator::publishData(const GaitSignal &signal)
 	this->ddslink.sendMessage("signalout", (void *) &p);
 }
 
-std::shared_ptr<BlindState> GaitGenerator::readBlindStateSignal() const
+BlindState GaitGenerator::readBlindStateSignal() const
 {
 	std::lock_guard<std::mutex> lock(this->blind_state_signal_mutex);
-	return this->pBlind_state_signal;
+	return blind_state_signal;
 }
 
 

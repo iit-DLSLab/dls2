@@ -19,27 +19,32 @@
 //TODO move this file out of fastrtps_wrappers and into msg_wrappres
 
 #include "dls2/geometry/pose.hpp"
-#include "dls2/msg_wrappers/joint_state.hpp"
+#include "robotlib/robot_base.hpp"
 #include "dls2/msg_wrappers/screw.hpp"
 #include <dls/messages/blind_state.h>
 
 
-
 namespace dls
 {
-struct BlindState
-{
-	BlindState();
-	// TODO should this be by const reference?
-	BlindState(BlindStateMsg);
-	operator BlindStateMsg() const;
+	class BlindState
+	{
+	public:
+		BlindState(const std::shared_ptr<robotlib::RobotBase>&);
+		operator BlindStateMsg() const;
 
-	JointState joint_state;
-	Pose base_pose_world;
-	Screw base_velocity_world;
-	Screw base_acceleration_world;
-	double time;
-};
+		BlindState& operator= (BlindStateMsg);
+
+		robotlib::JointState joint_position;
+		robotlib::JointState joint_velocity;
+		robotlib::JointState joint_acceleration;
+		robotlib::JointState joint_effort;
+
+		Pose base_pose_world;
+		Screw base_velocity_world;
+		Screw base_acceleration_world;
+
+		double time;
+	};
 } // end namespace dls
 
 #endif /* end of include guard: BLIND_STATE_SIGNAL_HPP */

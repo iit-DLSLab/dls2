@@ -15,6 +15,7 @@ target_link_libraries(dls_message_wrappers
 	PUBLIC
 		dls_geometry
 		dls_messages
+		robotlib
 )
 
 dls_install(dls_message_wrappers)

@@ -42,6 +42,7 @@ Controller::Controller
 	, pRobot(robot_)
 	, signal_reconstruction_method(reconst_meth_)
     , gait_signal(robot_)
+	, blind_state_signal(robot_)
 	, should_run(false)
 	, control_signal_topic(control_signal_topic_)
 	, gait_topic(gait_topic_)

@@ -75,6 +75,13 @@ ControlLayer::ControlLayer(std::string ID)
 	, clog(ID)
 	, cfatal(ID)
 {
+    try{
+        pRobot = robotlib::RobotFactory::openRobot(Options::robot_name);  
+    }
+    catch (const std::exception &e)
+    {
+	    std::cerr << e.what() << std::endl;
+    }
 
 	ddsControl = new dls::DDSWriter(
 		"ControlLayer::desiredTorques",
@@ -245,7 +252,7 @@ void *ControlLayer::controlSignalGather(void *data)
 	ControlLayer *layer = (ControlLayer*) data;	
 
 	// Find a way to configure the size of the signal before the control layer initialization
-	Eigen::VectorXd desired_torques;
+	robotlib::JointState desired_torques(layer->pRobot->makeJointState());
 
     while (!layer->shouldQuit()) {
         auto now = std::chrono::high_resolution_clock::now();
@@ -255,8 +262,7 @@ void *ControlLayer::controlSignalGather(void *data)
 		{
 			// std::lock_guard<std::mutex> lock(layer->controllers_mutex);
 
-            desired_torques = Eigen::VectorXd::Zero(12);
-            ControlSignal c_signal(12);
+            ControlSignal c_signal(layer->pRobot);
             
 			for(auto pair : layer->controllers)
 			{
@@ -269,7 +275,7 @@ void *ControlLayer::controlSignalGather(void *data)
 
     	// Send the desired torques to HAL
 		layer->publishDesiredTorques(
-			layer->saturateTorques(desired_torques),
+			layer->saturateTorques(desired_torques.vec_()),
 			std::chrono::duration_cast<std::chrono::microseconds>(epoch).count()
 		);
 
@@ -357,11 +363,11 @@ std::string ControlLayer::where()
 bool ControlLayer::activateController(const std::string &ID)
 {
 	ControllerData *pData = new ControllerData (
+		this->pRobot,
 		this->pDefault_spline_in,
 		this->pDefault_spline_out,
 		default_duration_seconds,
-		default_duration_seconds,
-		12 //hardcoded, need to change
+		default_duration_seconds
 	);
 
 	pData->ID = ID;

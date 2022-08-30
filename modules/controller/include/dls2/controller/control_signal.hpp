@@ -17,7 +17,7 @@
 #define CONTROL_SIGNAL_HPP_QCFRROHM
 
 #include "dls/messages/control_signalPubSubTypes.h"
-#include <Eigen/Dense>
+#include "robotlib/robot_base.hpp"
 
 /// A struct representing the control signal that is output by a Controller
 namespace dls
@@ -31,13 +31,12 @@ namespace dls
             IMPULSE
         };
 
-        ControlSignal(uint size);
-        ControlSignal(ControlSignalMsg);
+        ControlSignal(const std::shared_ptr<robotlib::RobotBase>&);
         operator ControlSignalMsg() const;
         
         ControlSignal & operator=(const ControlSignalMsg &msg);
 
-        Eigen::VectorXd torques;
+        robotlib::JointState torques;
         SignalReconstructionMethod signal_reconstruction_method;
         double time;
     };

@@ -22,11 +22,11 @@ using namespace dls;
 
 ControllerData::ControllerData
 (
+	const std::shared_ptr<robotlib::RobotBase> &pRobot,
 	std::shared_ptr<spline::SplineBase<double>> spline_in_,
 	std::shared_ptr<spline::SplineBase<double>> spline_out_,
 	const std::chrono::duration<double> &duration_in,
-	const std::chrono::duration<double> &duration_out,
-	uint controlSize
+	const std::chrono::duration<double> &duration_out
 ) :
 	proc(nullptr),
 	dds_reader(nullptr),
@@ -36,7 +36,7 @@ ControllerData::ControllerData
 	spline_out_duration(duration_out),
 	pSpline_in(spline_in_),
 	pSpline_out(spline_out_),
-	control_signal(controlSize)
+	control_signal(pRobot)
 { }
 
 

@@ -131,4 +131,6 @@ GaitSignal &GaitSignal::operator= (GaitSignalMsg &msg)
 	{
 		this->stance_legs[i] = msg.stance_feet()[i];
 	}
+
+    return *this;
 }

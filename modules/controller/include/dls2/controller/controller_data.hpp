@@ -31,11 +31,11 @@ namespace dls
     public:
         ControllerData
         (
+            const std::shared_ptr<robotlib::RobotBase>&,
             std::shared_ptr<spline::SplineBase<double>> pSpline_in,
             std::shared_ptr<spline::SplineBase<double>> pSpline_out,
             const std::chrono::duration<double> &duration_in,
-            const std::chrono::duration<double> &duration_out,
-            uint controlSize
+            const std::chrono::duration<double> &duration_out
         );
 
         ControlSignal getLastPublishedControlSignal();
