@@ -35,8 +35,9 @@ namespace dls
 struct GaitSignal
 {
 	GaitSignal(const std::shared_ptr<robotlib::RobotBase>&);
-	// TODO read up if this should be reference or const or whatever
 	GaitSignal(const std::shared_ptr<robotlib::RobotBase>&, GaitSignalMsg);
+	GaitSignal(GaitSignal&);
+
 	operator GaitSignalMsg() const;
     GaitSignal &operator= (GaitSignalMsg &);
 
@@ -59,7 +60,7 @@ struct GaitSignal
     robotlib::JointState desired_joint_velocity;
     robotlib::JointState desired_joint_acceleration;
     robotlib::JointState desired_joint_effort;
-    
+	    
 	/// Data map of legs that are in contact with the ground
 	///
 	iit::dog::LegBoolMap stance_legs;

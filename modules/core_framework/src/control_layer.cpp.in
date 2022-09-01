@@ -200,7 +200,7 @@ ControlLayer::~ControlLayer()
 	delete ddsControl;
 	delete ddsMonitor;
 	for(auto pair : this->controllers){
-		delete pair.second;
+		pair.second = nullptr;
 	}
 
 	void *res;
@@ -251,7 +251,6 @@ void *ControlLayer::controlSignalGather(void *data)
 
 	ControlLayer *layer = (ControlLayer*) data;	
 
-	// Find a way to configure the size of the signal before the control layer initialization
 	robotlib::JointState desired_torques(layer->pRobot->makeJointState());
 
     while (!layer->shouldQuit()) {
@@ -268,16 +267,16 @@ void *ControlLayer::controlSignalGather(void *data)
 			{
 				if(!pair.second->dds_reader) continue;
 
-				c_signal = pair.second->getLastPublishedControlSignal();
-				desired_torques += pair.second->premultiplier*c_signal.torques;
+				// c_signal = pair.second->getLastPublishedControlSignal();
+				// desired_torques += pair.second->premultiplier*c_signal.torques;
 			}
 		}
 
     	// Send the desired torques to HAL
-		layer->publishDesiredTorques(
-			layer->saturateTorques(desired_torques.vec_()),
-			std::chrono::duration_cast<std::chrono::microseconds>(epoch).count()
-		);
+		// layer->publishDesiredTorques(
+		// 	layer->saturateTorques(desired_torques.vec_()),
+		// 	std::chrono::duration_cast<std::chrono::microseconds>(epoch).count()
+		// );
 
         auto delta = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - now).count();
 
@@ -362,7 +361,7 @@ std::string ControlLayer::where()
 // TODO("std::map already does this check for emplace, maybe for others. Double check and make this more efficient")
 bool ControlLayer::activateController(const std::string &ID)
 {
-	ControllerData *pData = new ControllerData (
+	std::shared_ptr<ControllerData> pData = std::make_shared<ControllerData>(
 		this->pRobot,
 		this->pDefault_spline_in,
 		this->pDefault_spline_out,
@@ -395,7 +394,7 @@ bool ControlLayer::activateController(const std::string &ID)
 		}
 
 		std::cout << "Launching: child_process_launcher" << std::endl;
-		pData->proc = new boost::process::child(std::vector<std::string>({
+		pData->proc = std::make_shared<boost::process::child>(std::vector<std::string>({
 			child_process_launcher,
 			ID.c_str(),
 			"controller",
@@ -409,7 +408,7 @@ bool ControlLayer::activateController(const std::string &ID)
 		}
 		// pData->proc->detach();
 
-		pData->dds_reader = new dls::DDSReader(
+		pData->dds_reader = std::make_shared<dls::DDSReader>(
 			"ControlLayer::Listener::" + ID,
 			dls::domains::control,
 			dls::topics::control_signal,
@@ -418,16 +417,17 @@ bool ControlLayer::activateController(const std::string &ID)
 				[&](void *tuple)
 				{
                     // std::lock_guard<std::mutex> lock(pData->control_signal_mutex);
-					ControlSignalMsg msg = *((ControlSignalMsg *)tuple);
+					// ControlSignalMsg msg = *((ControlSignalMsg *)tuple);
 					
-                    pData->control_signal = msg;
+                    // pData->control_signal = msg;
+					std::cout << "RECEIVED SOMETING" << std::endl;
 				}
 			}
 		);
 
 		std::cout << "CONTROL LAYER IS LISTENING CONTROLLER " << ID << " ON TOPIC ControlLayer::Listener::" << ID <<  std::endl;
 
-		this->controllers.insert({ID, pData});
+		this->controllers.emplace(ID, pData);
 	}
 
 	// spline in the controller
@@ -454,7 +454,7 @@ bool ControlLayer::activateController(const std::string &ID)
 	return true;
 }
 
-bool ControlLayer::deactivateController(ControllerData *pData)
+bool ControlLayer::deactivateController(std::shared_ptr<ControllerData> pData)
 {
 	// spline down the controller
 	if(pData->pSpline_out)
@@ -494,8 +494,8 @@ bool ControlLayer::deactivateController(ControllerData *pData)
 		}
 	}
 
-	delete pData->proc;
-	delete pData->dds_reader;
+	pData->proc = nullptr;
+	pData->dds_reader = nullptr;
 	this->controllers.erase(pData->ID);
 
     return false;

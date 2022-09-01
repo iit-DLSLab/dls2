@@ -129,7 +129,7 @@ private:
 
 	// ============================= Data Members ==============================
 	// BEGIN critical section
-		std::map<std::string, ControllerData*> controllers;
+		std::map<std::string, std::shared_ptr<ControllerData>> controllers;
 		std::mutex controllers_mutex;
 	// END critical section
 
@@ -169,7 +169,7 @@ private:
 		Eigen::VectorXd last_published_desired_torques;
 	// END critical section
 
-	bool deactivateController(ControllerData *pData);
+	bool deactivateController(std::shared_ptr<ControllerData> pData);
 
 	// Real-time thread that gather all the control sinals and sends to robot
 	pthread_t controlSignalGatherThread;

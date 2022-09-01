@@ -13,15 +13,31 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-// =============================================================================
-// Includes
-// =============================================================================
+
 #include "dls2/gait_generator/gait_signal.hpp"
 
 using namespace dls;
-// =============================================================================
-// Constructors
-// =============================================================================
+
+GaitSignal::GaitSignal(GaitSignal &from) :
+
+    desired_com_pose_world(from.desired_com_pose_world),
+    desired_com_velocity_world(from.desired_com_velocity_world),
+    desired_com_acceleration_world(from.desired_com_acceleration_world),
+
+    desired_base_pose_world(from.desired_base_pose_world),
+    desired_base_velocity_world(from.desired_base_velocity_world),
+    desired_base_acceleration_world(from.desired_base_acceleration_world),
+
+	desired_joint_position(from.desired_joint_position),
+    desired_joint_velocity(from.desired_joint_velocity),
+    desired_joint_acceleration(from.desired_joint_acceleration),
+    desired_joint_effort(from.desired_joint_effort),
+	stance_legs(from.stance_legs),
+
+	desired_base_wrench(from.desired_base_wrench)
+{ }
+
+
 GaitSignal::GaitSignal(const std::shared_ptr<robotlib::RobotBase> &pRobot) :
 
     desired_com_pose_world(),

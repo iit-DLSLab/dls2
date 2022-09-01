@@ -51,7 +51,7 @@ namespace dls
 			cmd->activate();
 
 		this->commands.insert({name_, cmd});
-		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(100));
+		
 	}
 
 } // end namespace dls

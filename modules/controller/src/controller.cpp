@@ -108,7 +108,7 @@ Controller::Controller
 // =============================================================================
 GaitSignal Controller::readGaitSignal()
 {
-	std::lock_guard<std::mutex> lock(this->gait_signal_mutex);
+	// std::lock_guard<std::mutex> lock(this->gait_signal_mutex);
 	return gait_signal;
 }
 

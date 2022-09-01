@@ -39,7 +39,7 @@ AppLayerComponent::AppLayerComponent(const std::string &ID_)
 			scout     << s << std::endl;
             return true;
 		}),
-		{{0,0}},
+		{},
 	 	true
 	);
 }

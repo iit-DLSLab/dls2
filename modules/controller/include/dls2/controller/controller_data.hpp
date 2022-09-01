@@ -40,8 +40,8 @@ namespace dls
 
         ControlSignal getLastPublishedControlSignal();
 
-        boost::process::child *proc;
-        DDSReader *dds_reader;
+        std::shared_ptr<boost::process::child> proc;
+        std::shared_ptr<DDSReader> dds_reader;
         std::string ID;
         std::atomic<double> premultiplier; ///< Spline value to premutilply the torque signal
         const std::chrono::duration<double> spline_in_duration;

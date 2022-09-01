@@ -52,7 +52,8 @@ namespace dls
 			level_,
 			enabled_
 		),
-		f(f_)
+		f(f_),
+		ddslink(nullptr)
 	{
 	}
 
