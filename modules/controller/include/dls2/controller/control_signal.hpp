@@ -32,6 +32,7 @@ namespace dls
         };
 
         ControlSignal(const std::shared_ptr<robotlib::RobotBase>&);
+        ~ControlSignal(){};
         operator ControlSignalMsg() const;
         
         ControlSignal & operator=(const ControlSignalMsg &msg);

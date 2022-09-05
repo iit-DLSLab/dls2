@@ -259,7 +259,7 @@ void *ControlLayer::controlSignalGather(void *data)
 
 		// Read the control signals
 		{
-			// std::lock_guard<std::mutex> lock(layer->controllers_mutex);
+			std::lock_guard<std::mutex> lock(layer->controllers_mutex);
 
             ControlSignal c_signal(layer->pRobot);
             
@@ -267,16 +267,16 @@ void *ControlLayer::controlSignalGather(void *data)
 			{
 				if(!pair.second->dds_reader) continue;
 
-				// c_signal = pair.second->getLastPublishedControlSignal();
-				// desired_torques += pair.second->premultiplier*c_signal.torques;
+				c_signal = pair.second->getLastPublishedControlSignal();
+				desired_torques = pair.second->premultiplier*c_signal.torques;
 			}
 		}
 
     	// Send the desired torques to HAL
-		// layer->publishDesiredTorques(
-		// 	layer->saturateTorques(desired_torques.vec_()),
-		// 	std::chrono::duration_cast<std::chrono::microseconds>(epoch).count()
-		// );
+		layer->publishDesiredTorques(
+			layer->saturateTorques(desired_torques.vec_()),
+			std::chrono::duration_cast<std::chrono::microseconds>(epoch).count()
+		);
 
         auto delta = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - now).count();
 
@@ -417,10 +417,9 @@ bool ControlLayer::activateController(const std::string &ID)
 				[&](void *tuple)
 				{
                     // std::lock_guard<std::mutex> lock(pData->control_signal_mutex);
-					// ControlSignalMsg msg = *((ControlSignalMsg *)tuple);
+					ControlSignalMsg msg = *((ControlSignalMsg *)tuple);
 					
-                    // pData->control_signal = msg;
-					std::cout << "RECEIVED SOMETING" << std::endl;
+                    pData->control_signal = msg;
 				}
 			}
 		);
