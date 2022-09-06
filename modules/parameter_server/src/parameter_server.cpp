@@ -1,5 +1,5 @@
-#include "dls/parameter_server.hpp"
-#include "dls/parameter_store.hpp"
+#include "dls2/parameter_server/parameter_server.hpp"
+#include "dls/parameter_store/parameter_store.hpp"
 #include "dls2/util/service/service.hpp"
 
 #include "dls/messages/param_server_set_doublePubSubTypes.h"

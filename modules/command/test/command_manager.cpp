@@ -21,16 +21,16 @@ TEST_CASE("Creating a command manager and adding a command works", "[command man
 {
 	CommandManager cm("test");
 
-	cm.addCommand<void>
+	cm.addCommand<>
 	(
 		"dummy_command",
 		"no docs required",
-		std::function<void()>
+		std::function<bool()>([&]()->bool
 		{
-			[&]()
-			{
-				// empty command
-			}
-		}
+			// empty command
+            return true;
+		}),
+        {},
+        true
 	);
 }

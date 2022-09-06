@@ -13,17 +13,15 @@ TEST_CASE("Commands can be added to the framework", "[command]")
 	dls::CommandManager command_manager("first_owner");
 	dls::CommandManager command_manager_2("second_owner");
 
-	command_manager.addCommand<void>
+	command_manager.addCommand<>
 	(
 		"foo",
 		"prints foo",
-		std::function<void()>
-		(
-			[&]()
-			{
-				foo_called = true;
-			}
-		),
+		std::function<bool()>([&]()->bool
+		{
+			foo_called = true;
+            return true;
+		}),
 		{},
 		true
 	);

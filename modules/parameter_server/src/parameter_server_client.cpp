@@ -3,7 +3,7 @@
 #include "dls/messages/doublePubSubTypes.h"
 #include "dls/messages/stringmsgPubSubTypes.h"
 
-#include "dls/parameter_server_client.hpp"
+#include "dls2/parameter_server/parameter_server_client.hpp"
 
 namespace dls
 {
