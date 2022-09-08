@@ -1,7 +1,7 @@
 #include <catch2/catch.hpp>
 #include "dls2/util/messaging/dds_writer.hpp"
 #include "dls2/util/messaging/callback_subscriber.hpp"
-#include "dls/messages/stringmsgPubSubTypes.h"
+#include "dls_messages/dds/stringmsgPubSubTypes.h"
 #include <string>
 #include <chrono>
 

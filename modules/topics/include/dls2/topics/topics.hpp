@@ -19,19 +19,19 @@
 #include <fastdds/dds/domain/DomainParticipant.hpp>
 #include <utility>
 #include <typeinfo> 
-#include <dls/messages/command_callPubSubTypes.h>
-#include <dls/messages/stringmsgPubSubTypes.h>
-#include <dls/messages/hyqreal_rawPubSubTypes.h>
-#include <dls/messages/desired_torquesPubSubTypes.h>
-#include <dls/messages/control_signalPubSubTypes.h>
-#include <dls/messages/blind_statePubSubTypes.h>
-#include <dls/messages/gait_signalPubSubTypes.h>
-#include <dls/messages/timePubSubTypes.h>
-#include <dls/messages/boolPubSubTypes.h>
-#include <dls/messages/joint_statePubSubTypes.h>
-#include <dls/messages/hyq_rawPubSubTypes.h>
-#include <dls/messages/imuPubSubTypes.h>
-#include <dls/messages/command_sendPubSubTypes.h>
+#include <dls_messages/dds/command_callPubSubTypes.h>
+#include <dls_messages/dds/stringmsgPubSubTypes.h>
+#include <dls_messages/dds/hyqreal_rawPubSubTypes.h>
+#include <dls_messages/dds/desired_torquesPubSubTypes.h>
+#include <dls_messages/dds/control_signalPubSubTypes.h>
+#include <dls_messages/dds/blind_statePubSubTypes.h>
+#include <dls_messages/dds/gait_signalPubSubTypes.h>
+#include <dls_messages/dds/timePubSubTypes.h>
+#include <dls_messages/dds/boolPubSubTypes.h>
+#include <dls_messages/dds/joint_statePubSubTypes.h>
+#include <dls_messages/dds/hyq_rawPubSubTypes.h>
+#include <dls_messages/dds/imuPubSubTypes.h>
+#include <dls_messages/dds/command_sendPubSubTypes.h>
 
 
 namespace dls

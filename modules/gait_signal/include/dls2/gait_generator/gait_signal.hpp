@@ -18,9 +18,8 @@
 
 #include "dls2/geometry/pose.hpp"
 
-#include "dls/messages/gait_signal.h"
+#include "dls_messages/dds/gait_signal.h"
 #include "dls2/msg_wrappers/screw.hpp"
-#include "dls2/msg_wrappers/joint_state.hpp"
 
 #include <iit/commons/dog/leg_bool_map.h>
 

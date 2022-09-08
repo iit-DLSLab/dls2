@@ -2,9 +2,9 @@
 #include "dls/parameter_store/parameter_store.hpp"
 #include "dls2/util/service/service.hpp"
 
-#include "dls/messages/param_server_set_doublePubSubTypes.h"
-#include "dls/messages/doublePubSubTypes.h"
-#include "dls/messages/stringmsgPubSubTypes.h"
+#include "dls_messages/dds/param_server_set_doublePubSubTypes.h"
+#include "dls_messages/dds/doublePubSubTypes.h"
+#include "dls_messages/dds/stringmsgPubSubTypes.h"
 
 #include <mutex>
 #include <string>

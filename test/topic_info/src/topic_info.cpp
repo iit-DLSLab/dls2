@@ -23,20 +23,20 @@
 #include <fastrtps/transport/UDPv4TransportDescriptor.h>
 
 // TODO temporarily list all the types here
-#include "dls/messages/blind_statePubSubTypes.h"
-#include "dls/messages/console_commandPubSubTypes.h"
-#include "dls/messages/control_signalPubSubTypes.h"
-#include "dls/messages/desired_torquesPubSubTypes.h"
-#include "dls/messages/gait_signalPubSubTypes.h"
-#include "dls/messages/headerPubSubTypes.h"
-#include "dls/messages/hello_worldPubSubTypes.h"
-#include "dls/messages/imuPubSubTypes.h"
-#include "dls/messages/joint_statePubSubTypes.h"
-#include "dls/messages/posePubSubTypes.h"
-#include "dls/messages/screwPubSubTypes.h"
-#include "dls/messages/stringmsgPubSubTypes.h"
-#include "dls/messages/timePubSubTypes.h"
-#include "dls/messages/vec3PubSubTypes.h"
+#include "dls_messages/dds/blind_statePubSubTypes.h"
+#include "dls_messages/dds/console_commandPubSubTypes.h"
+#include "dls_messages/dds/control_signalPubSubTypes.h"
+#include "dls_messages/dds/desired_torquesPubSubTypes.h"
+#include "dls_messages/dds/gait_signalPubSubTypes.h"
+#include "dls_messages/dds/headerPubSubTypes.h"
+#include "dls_messages/dds/hello_worldPubSubTypes.h"
+#include "dls_messages/dds/imuPubSubTypes.h"
+#include "dls_messages/dds/joint_statePubSubTypes.h"
+#include "dls_messages/dds/posePubSubTypes.h"
+#include "dls_messages/dds/screwPubSubTypes.h"
+#include "dls_messages/dds/stringmsgPubSubTypes.h"
+#include "dls_messages/dds/timePubSubTypes.h"
+#include "dls_messages/dds/vec3PubSubTypes.h"
 
 
 

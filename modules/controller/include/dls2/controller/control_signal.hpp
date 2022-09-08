@@ -16,7 +16,7 @@
 #ifndef CONTROL_SIGNAL_HPP_QCFRROHM
 #define CONTROL_SIGNAL_HPP_QCFRROHM
 
-#include "dls/messages/control_signalPubSubTypes.h"
+#include "dls_messages/dds/control_signalPubSubTypes.h"
 #include "robotlib/robot_base.hpp"
 
 /// A struct representing the control signal that is output by a Controller

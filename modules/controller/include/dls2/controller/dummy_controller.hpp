@@ -23,7 +23,7 @@
 #include "dls2/command/command.hpp"
 #include "dls2/log/log.hpp"
 
-#include "dls/messages/stringmsgPubSubTypes.h"
+#include "dls_messages/dds/stringmsgPubSubTypes.h"
 
 #include <iit/commons/dog/dog.hpp>
 

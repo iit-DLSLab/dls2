@@ -21,7 +21,7 @@
 #include "dls2/geometry/pose.hpp"
 #include "robotlib/robot_base.hpp"
 #include "dls2/msg_wrappers/screw.hpp"
-#include <dls/messages/blind_state.h>
+#include <dls_messages/dds/blind_state.h>
 
 
 namespace dls
