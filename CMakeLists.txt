@@ -19,6 +19,10 @@ add_subdirectory(test)      # Test libraries and frameworks. Actual unit tests a
 add_subdirectory(doc)     # generate and install documentation
 add_subdirectory(modules)   # build framework, libraries and tools
 
+install(
+    SCRIPT "cmake/dls_post_install.cmake"
+    COMPONENT dls_runtime
+)
+
 # ================================== Packaging =================================
 include(dls_debian_settings) # configure installation of the framework
-install (SCRIPT "cmake/dls_post_install.cmake")
