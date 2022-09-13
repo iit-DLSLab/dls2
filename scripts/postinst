@@ -1,0 +1,6 @@
+#!/bin/sh
+# postinst script for dls
+set -e
+sudo setcap cap_sys_nice=eip /usr/bin/dls2/dynamic_legged_systems_framework
+sudo setcap cap_sys_nice=eip /usr/bin/dls2/child_process_launcher
+sudo ldconfig
