@@ -4,49 +4,8 @@
 image: server-harbor:80/dls2/dls2-dev:latest
 
 before_script:
-  - cwd=$(pwd)
-  - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
-  - eval $(ssh-agent -s)
-  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-  - mkdir -p ~/.ssh
-  - chmod 700 ~/.ssh
-  - git config --global user.name "dlsuser"
-  - git config --global user.email "dlsuser@iit.it"
-  - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" >> ~/.ssh/config'
-  - source /opt/ros/noetic/setup.bash
-  - echo nproc=$(nproc)
-  - cd $cwd
-  - git clone git@gitlab.advr.iit.it:dls-lab/dls_messages.git
-  - cd dls_messages
-  - mkdir build
-  - cd build
-  - cmake ..
-  - make -j$(nproc)
-  - make install
-  - cd $cwd
-  - git clone git@gitlab.advr.iit.it:dls-lab/dls_param_server.git
-  - cd dls_param_server
-  - mkdir build
-  - cd build
-  - cmake ..
-  - make -j$(nproc)
-  - make install
-  - cd $cwd
-  - git clone git@gitlab.advr.iit.it:dls-lab/iit-commons.git -b develop_dls2
-  - cd iit-commons
-  - mkdir build
-  - cd build
-  - cmake ..
-  - make -j$(nproc)
-  - make install
-  - cd $cwd
-  - git clone git@gitlab.advr.iit.it:dls-lab/robotlib.git -b develop_dls2
-  - cd robotlib
-  - mkdir build
-  - cd build
-  - cmake ..
-  - make -j$(nproc)
-  - make install
+  - sudo apt-get update
+  - sudo apt-get install -y dls-messages-dev dls-param-store-dev robotlib-dev dls-iitcommons-dev
 
 # ==============================================================================
 # Stages
@@ -76,7 +35,6 @@ build:dls2:
   tags:
     - dls2
   script:
-    - cd $cwd
     - git submodule update --init --recursive
     - mkdir build
     - cd build
@@ -99,14 +57,12 @@ test:dls2:
   tags:
     - dls2
   script:
-    - cd $cwd
     - cd build
     - make -j$(nproc) dls2-tests
     - make test
   rules:
     - if: '$CI_COMMIT_MESSAGE =~ /\[exp\]/'
       when: never
-    - if: '$CI_COMMIT_BRANCH == "master"'   
 
 # ------------------------------------------------------------------------------
 # Pack and Deploy Stage
@@ -116,7 +72,6 @@ packdeploy:dls2:
   tags:
     - dls2
   script:
-    - cd $cwd
     - cd build
     - make package
     - echo $CI_JOB_ID > CI_JOB_ID
