@@ -64,6 +64,7 @@ test:dls2:
   rules:
     - if: '$CI_COMMIT_MESSAGE =~ /\[exp\]/'
       when: never
+    - when: always
 
 # ------------------------------------------------------------------------------
 # Pack and Deploy Stage
