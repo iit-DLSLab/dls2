@@ -52,7 +52,7 @@ GaitSignal::GaitSignal(const std::shared_ptr<robotlib::RobotBase> &pRobot) :
     desired_joint_velocity(pRobot->makeJointState()),
     desired_joint_acceleration(pRobot->makeJointState()),
     desired_joint_effort(pRobot->makeJointState()),
-	stance_legs(),
+	stance_legs(pRobot->makeLegDataMap<bool>()),
 
 	desired_base_wrench()
 { }
@@ -78,18 +78,21 @@ GaitSignal::GaitSignal(const std::shared_ptr<robotlib::RobotBase> &pRobot, GaitS
     desired_joint_acceleration(pRobot->makeJointState()),
     desired_joint_effort(pRobot->makeJointState()),
 
-	stance_legs(),
+	stance_legs(pRobot->makeLegDataMap<bool>()),
 
 	desired_base_wrench(msg.desired_base_wrench())
 {
-	// TODO this loop is bad, but I'm forced by legacy code. Remove the
-	// pointless leg data map class, or improve it for move symantics, then fix
-	// this
-	for(unsigned int i = 0; i != msg.stance_feet().size(); ++i)
-	{
-		this->stance_legs[i] = msg.stance_feet()[i];
-	}
+    int i = 0;
+    for(auto leg : *pRobot->getLegs())
+    {
+        this->desired_joint_position[leg] = msg.desired_joint_position()[i];
+        this->desired_joint_velocity[leg] = msg.desired_joint_velocity()[i];
+        this->desired_joint_acceleration[leg] = msg.desired_joint_acceleration()[i];
+        this->desired_joint_effort[leg] = msg.desired_joint_effort()[i];
 
+        this->stance_legs[leg] = msg.stance_feet()[i];
+        i++;
+    }
 }
 
 // -----------------------------------------------------------------------------
@@ -112,14 +115,7 @@ GaitSignal::operator GaitSignalMsg() const
     msg.desired_joint_acceleration(this->desired_joint_acceleration);
     msg.desired_joint_effort(this->desired_joint_effort);    
 
-	// TODO this loop is bad, but I'm forced by legacy code. Remove the
-	// pointless leg data map class, or improve it for move symantics, then fix
-	// this
-	msg.stance_feet().resize(4);
-	for(unsigned int i = 0; i != 4; ++i)
-	{
-		msg.stance_feet()[i] = this->stance_legs[i];
-	}
+	msg.stance_feet(this->stance_legs);
 
 	msg.desired_base_wrench(this->desired_base_wrench);
 
@@ -143,10 +139,7 @@ GaitSignal &GaitSignal::operator= (GaitSignalMsg &msg)
 
 	desired_base_wrench = msg.desired_base_wrench();
 
-	for(unsigned int i = 0; i != msg.stance_feet().size(); ++i)
-	{
-		this->stance_legs[i] = msg.stance_feet()[i];
-	}
-
+    stance_legs = msg.stance_feet();
+	
     return *this;
 }

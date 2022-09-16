@@ -21,8 +21,6 @@
 #include "dls_messages/dds/gait_signal.h"
 #include "dls2/msg_wrappers/screw.hpp"
 
-#include <iit/commons/dog/leg_bool_map.h>
-
 #include <robotlib/robot_base.hpp>
 
 /// A structure containing the data streams that make up the signal at the
@@ -62,7 +60,7 @@ struct GaitSignal
 	    
 	/// Data map of legs that are in contact with the ground
 	///
-	iit::dog::LegBoolMap stance_legs;
+	robotlib::LegDataMap<bool> stance_legs;
 
 	/// Desired wrench on the base
 	///
