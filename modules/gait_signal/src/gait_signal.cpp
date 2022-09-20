@@ -52,7 +52,7 @@ GaitSignal::GaitSignal(const std::shared_ptr<robotlib::RobotBase> &pRobot) :
     desired_joint_velocity(pRobot->makeJointState()),
     desired_joint_acceleration(pRobot->makeJointState()),
     desired_joint_effort(pRobot->makeJointState()),
-	stance_legs(pRobot->makeLegDataMap<bool>()),
+	stance_legs(pRobot->makeLegDataMap<bool>(false)),
 
 	desired_base_wrench()
 { }
@@ -78,7 +78,7 @@ GaitSignal::GaitSignal(const std::shared_ptr<robotlib::RobotBase> &pRobot, GaitS
     desired_joint_acceleration(pRobot->makeJointState()),
     desired_joint_effort(pRobot->makeJointState()),
 
-	stance_legs(pRobot->makeLegDataMap<bool>()),
+	stance_legs(pRobot->makeLegDataMap<bool>(false)),
 
 	desired_base_wrench(msg.desired_base_wrench())
 {
