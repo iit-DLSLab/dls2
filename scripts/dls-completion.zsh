@@ -33,7 +33,7 @@ function _dls {
 }
 
 function _robot_name {
-	_alternative 'options:robot name:(hyq hyqreal)'
+	_alternative 'options:robot name:(hyq hyqreal aliengo)'
 }
 
 function _layers {

@@ -104,10 +104,14 @@ bool Options::parseArgs(int argc, char **argv)
 				{
 					Options::robot_name = "hyqreal";
 				}
+                else if(std::strcmp(optarg, "aliengo") == 0)
+				{
+					Options::robot_name = "aliengo";
+				}
 				else
 				{
 					std::cerr << "Unknown robot: " << optarg
-						<<"\nvalid options are 'hyq' or 'hyqreal'" << std::endl;
+						<<"\nvalid options are 'hyq' or 'hyqreal' or 'aliengo'" << std::endl;
 					goto invalid_command_line;
 				}
 				break;
@@ -220,7 +224,7 @@ void Options::printUsage()
 {
 	std::cout << "USAGE: dls "
 
-	"< --robot=<hyq|hyqreal> | -r <hyq|hyqreal> > "
+	"< --robot=<hyq|hyqreal|aliengo> | -r <hyq|hyqreal|aliengo> > "
 	"< --layers= | -l ...> "
 	"[ --simulation= | -s ...] "
 	"[ --hardware | -H ] "

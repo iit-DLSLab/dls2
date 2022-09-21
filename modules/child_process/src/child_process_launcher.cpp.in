@@ -180,7 +180,8 @@ Args parse_args(int argc, char **argv)
 	if
 	(
 		args.robot_name != "hyq" &&
-		args.robot_name != "hyqreal"
+		args.robot_name != "hyqreal" &&
+        args.robot_name != "aliengo"
 	)
 	{
 		std::cerr << "Error: unknown robot '"

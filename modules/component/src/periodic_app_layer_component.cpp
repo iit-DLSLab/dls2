@@ -139,9 +139,11 @@ AppLayerComponent::Status PeriodicAppLayerComponent::run()
 	memset(&attr, 0, sizeof(struct sched_attr));
 	attr.size = sizeof(struct sched_attr);
 	attr.sched_policy = SCHED_DEADLINE;
-	attr.sched_runtime  = 1 * 1000 * 1000ULL;
-	attr.sched_period   = 1 * 1000 * 1000ULL;
-	attr.sched_deadline = 1 * 1000 * 1000ULL;
+
+    // Period defined in nanoseconds
+    attr.sched_runtime  = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(period).count();
+	attr.sched_period   = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(period).count();
+	attr.sched_deadline = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(period).count();
 
     ret = sched_setattr(0, &attr, flags);
     if (ret < 0) {

@@ -7,7 +7,7 @@ version_specified=0
 help_specified=0
 core_specified=0
 
-robot_names=("hyq hyqreal")
+robot_names=("hyq hyqreal aliengo")
 
 # TODO this is a stub function that can be made more complete
 _dls_completion()

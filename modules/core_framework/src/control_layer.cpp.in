@@ -239,9 +239,11 @@ void *ControlLayer::controlSignalGather(void *data)
 	memset(&attr, 0, sizeof(struct sched_attr));
 	attr.size = sizeof(struct sched_attr);
 	attr.sched_policy = SCHED_DEADLINE;
-	attr.sched_runtime  = 10 * 1000 * 1000ULL;
-	attr.sched_period   = 10 * 1000 * 1000ULL;
-	attr.sched_deadline = 10 * 1000 * 1000ULL;
+
+    // Period defined in nanoseconds
+	attr.sched_runtime  = 1 * 100 * 1000ULL;
+	attr.sched_period   = 1 * 100 * 1000ULL;
+	attr.sched_deadline = 1 * 100 * 1000ULL;
 
     ret = sched_setattr(0, &attr, flags);
     if (ret < 0) {
