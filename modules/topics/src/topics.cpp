@@ -50,12 +50,12 @@ namespace dls
 
 		// commands send
 		dls::topicType command_send 			= dls::topicType("command_send", new CommandSendMsgPubSubType());		
-		
-		
+			
 		namespace low_level_estimation
 		{
 			dls::topicType blind_state 			= dls::topicType("blind_state", new  BlindStateMsgPubSubType());
 			dls::topicType hyq_raw 				= dls::topicType("hyq_raw", new HyQRawMsgPubSubType());
+            dls::topicType aliengo_raw 			= dls::topicType("aliengo_raw", new AliengoRawMsgPubSubType());
 			dls::topicType imu 					= dls::topicType("imu", new ImuMsgPubSubType());
 		}
 	}

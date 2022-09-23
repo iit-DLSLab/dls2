@@ -14,6 +14,7 @@
 *                                                 `---'                        *
 *******************************************************************************/
 #include "dls2/core_framework/hardware_layer.hpp"
+#include "dls2/core_framework/options.hpp"
 #include <sys/types.h>
 #include <sys/wait.h>
 
@@ -24,51 +25,45 @@ using namespace dls;
 // =============================================================================
 HardwareLayer::HardwareLayer(std::string ID_) 
 	: AppLayer(ID_)
-	, xenomotor_pid(0)
-	, xenorostask_pid(0)
-	, scout(ID_)
 {
-	scout << "hello" << std::endl;
-	std::cout << "ELLO" << std::endl;
-	if((this->xenomotor_pid = fork()) == 0)
-	{
-		execl("./xenomotor", "xenomotor", nullptr);
-	}
+	std::cout << "#### HARDWARE INTERFACE ####" << std::endl;
 
-	if((this->xenorostask_pid = fork()) == 0)
-	{
-		execl("./xenorostask", "xenorostask", nullptr);
-	}
+    command_manager.addCommand<std::string>
+	(
+		"loadHardware",
+		"Load thel HAL of a robot",
+		std::function<bool(std::string)>([&](std::string type)->bool
+        {
+			if(!this->loadComponentFromDisk(type))
+                return false;
+
+            return true;
+        }),
+		{{0,1}},
+		true
+	);
+
+    command_manager.addCommand<>
+	(
+		"unloadHardware",
+		"Terminates the HAL of the robot",
+		std::function<bool()>([&]()->bool
+        {
+            for (auto &elem : this->components)
+            {
+                elem.second->stop();
+                this->removeComponent(elem.second->getID());
+            }
+            return true;
+		}),
+		{{1,0}},
+		true
+	);
 }
 
 HardwareLayer::~HardwareLayer()
 {
-	while(true)
-	{
-		int status;
-		pid_t child_pid = wait(&status);
-		if(child_pid == - 1 && errno == ECHILD) break;
-
-		std::string childname;
-		if(child_pid == this->xenomotor_pid)
-		{
-			childname = "xenomotor";
-		}
-		else if(child_pid == this->xenorostask_pid)
-		{
-			childname = "xenorostask";
-		}
-		if(WIFEXITED(status))
-		{
-			scout << childname << " exited" << std::endl;
-		}
-		if(WIFSIGNALED(status))
-		{
-			scout <<  "child process " << childname << " exited by signal" << std::endl;
-		}
-	// waitpid(this->xenomotor_pid, &status, 0);
-	// waitpid(this->xenorostask_pid, &status, 0);
-	}
+	std::cout << "#### HARDWARE INTERFACE OFF ####" << std::endl;
 }
 
 
@@ -77,25 +72,20 @@ HardwareLayer::~HardwareLayer()
 // =============================================================================
 HardwareLayer::Status HardwareLayer::run()
 {
+	setStatus(Status::RUNNING);
+
+	while(!this->shouldQuit())
+	{
+		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(500));
+	}
 	return getStatus();
 }
 
 HardwareLayer::Status HardwareLayer::shutdown()
 {
+	this->should_quit = true;
+
+	setStatus(Status::STOP);
+
 	return getStatus();
 }
-
-// void HardwareLayer::addSensor(std::shared_ptr<SensorBase> pSensor)
-// {
-// 	std::lock_guard<std::mutex> lock(this->sensors_mutex);
-// 	this->sensors.push_back(pSensor);
-// }
-
-// void HardwareLayer::addSensor
-// (
-// 	std::initializer_list<std::shared_ptr<SensorBase>> in_sensors
-// )
-// {
-// 	std::lock_guard<std::mutex> lock(this->sensors_mutex);
-// 	this->sensors.insert(this->sensors.end(), in_sensors.begin(), in_sensors.end());
-// }

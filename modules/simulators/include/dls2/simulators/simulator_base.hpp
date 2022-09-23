@@ -43,7 +43,7 @@ namespace dls
 
         /// Launch Simulator
         ///
-		virtual void launchSim() = 0;
+		virtual void launchSim(std::string) = 0;
 
         /// Exits Simulator
         ///
@@ -56,7 +56,6 @@ namespace dls
         // /// Normal stop for this component
         // ///
         // Status stop() override {return this->getStatus();};
-
 	};
 
 } // end namespace dls

@@ -1,18 +1,18 @@
 /*******************************************************************************
-*                                                       ,----,                 *
-*                                                     .'   .' \                *
-*                                                   ,----,'    |               *
-*               ________  ___       ________        |    :  .  ;               *
-*              |\   ___ \|\  \     |\   ____\       ;    |.'  /                *
-*              \ \  \_|\ \ \  \    \ \  \___|_      `----'/  ;                 *
-*               \ \  \ \\ \ \  \    \ \_____  \       /  ;  /                  *
-*                \ \  \_\\ \ \  \____\|____|\  \     ;  /  /-,                 *
-*                 \ \_______\ \_______\____\_\  \   /  /  /.`|                 *
-*                  \|_______|\|_______|\_________\./__;      :                 *
-*                                     \|_________||   :    .'                  *
-*                                                 ;   | .'                     *
-*                                                 `---'                        *
-*******************************************************************************/
+ *                                                       ,----,                 *
+ *                                                     .'   .' \                *
+ *                                                   ,----,'    |               *
+ *               ________  ___       ________        |    :  .  ;               *
+ *              |\   ___ \|\  \     |\   ____\       ;    |.'  /                *
+ *              \ \  \_|\ \ \  \    \ \  \___|_      `----'/  ;                 *
+ *               \ \  \ \\ \ \  \    \ \_____  \       /  ;  /                  *
+ *                \ \  \_\\ \ \  \____\|____|\  \     ;  /  /-,                 *
+ *                 \ \_______\ \_______\____\_\  \   /  /  /.`|                 *
+ *                  \|_______|\|_______|\_________\./__;      :                 *
+ *                                     \|_________||   :    .'                  *
+ *                                                 ;   | .'                     *
+ *                                                 `---'                        *
+ *******************************************************************************/
 // =============================================================================
 // Includes
 // =============================================================================
@@ -53,17 +53,17 @@ std::shared_ptr<PeriodicAppLayerComponent> pComponent;
 // =============================================================================
 struct Args
 {
-	Args() :
-		component_name(),
-		component_type(),
-		robot_name(),
-		launch_mode()
-	{ }
+    Args() : component_name(),
+             component_type(),
+             robot_name(),
+             launch_mode()
+    {
+    }
 
-	std::string component_name;
-	std::string component_type;
-	std::string robot_name;
-	std::string launch_mode;
+    std::string component_name;
+    std::string component_type;
+    std::string robot_name;
+    std::string launch_mode;
 };
 
 const static auto process_handle = "process_launcher";
@@ -81,44 +81,42 @@ void signal_handler(int signal);
 // =============================================================================
 int main(int argc, char **argv)
 {
-	#ifndef NDEBUG
-		std::cout << "Debug build" << std::endl;
-	#endif
+#ifndef NDEBUG
+    std::cout << "Debug build" << std::endl;
+#endif
 
-	Args args = parse_args(argc, argv);
+    Args args = parse_args(argc, argv);
 
     std::shared_ptr<robotlib::RobotBase> pRobot;
 
     logging::coutstream s(process_handle);
 
-    try{
-        pRobot = robotlib::RobotFactory::openRobot(args.robot_name);  
+    try
+    {
+        pRobot = robotlib::RobotFactory::openRobot(args.robot_name);
     }
     catch (const std::exception &e)
     {
-	    std::cerr << e.what() << std::endl;
+        std::cerr << e.what() << std::endl;
     }
 
     // Load the component
-	try
-	{
-	    if(args.component_type == "controller")
+    try
+    {
+        if (args.component_type == "controller")
         {
             pComponent =
-                ClassLoader::loadClass<Controller, std::shared_ptr<robotlib::RobotBase>>
-                (
+                ClassLoader::loadClass<Controller, std::shared_ptr<robotlib::RobotBase>>(
                     std::string("${DLS_INSTALL_CONTROLLER_DIR}/lib") + args.component_name + ".so",
-                    pRobot
-                );
+                    pRobot);
         }
-        else if(args.component_type == "gait_generator")
+        else if (args.component_type == "gait_generator")
         {
+            std::cout << "LOADING GATE GENERATOR FROM '" << std::string("${DLS_INSTALL_GAIT_GENERATOR_DIR}/lib") + args.component_name + ".so'" << std::endl;
             pComponent =
-                ClassLoader::loadClass<GaitGenerator, std::shared_ptr<robotlib::RobotBase>>
-                (
+                ClassLoader::loadClass<GaitGenerator, std::shared_ptr<robotlib::RobotBase>>(
                     std::string("${DLS_INSTALL_GAIT_GENERATOR_DIR}/lib") + args.component_name + ".so",
-                    pRobot
-                );
+                    pRobot);
         }
         else
         {
@@ -128,97 +126,90 @@ int main(int argc, char **argv)
 
         s << "Loaded component " << pComponent->getID() << std::endl;
     }
-    catch(const std::exception&)
+    catch (const std::exception &e)
     {
         // logging::cfatalstream s(process_handle);
         // s << "Component '" << args.component_name << "' of type '"
         // 	<< args.component_type << "' not found" << std::endl;
         std::cout << "Could not load component '" << args.component_name
-                  << "' of type '" << args.component_type << std::endl;
+                  << "' of type '" << args.component_type 
+                  << std::endl << "Error msg:" << e.what() << std::endl;
         exit(EXIT_FAILURE);
     }
 
-	// Register signal handler
-	std::signal(SIGTERM, signal_handler);
+    // Register signal handler
+    std::signal(SIGTERM, signal_handler);
 
-	prctl(PR_SET_NAME, args.component_name.c_str());
+    prctl(PR_SET_NAME, args.component_name.c_str());
 
-	pComponent->run();
+    pComponent->run();
 
-	return 0;
+    return 0;
 }
 
 Args parse_args(int argc, char **argv)
 {
-	if(argc != 5)
-	{
-		std::cerr << "Error: incorrect number of arguments" << std::endl;
-		exit(EXIT_FAILURE);
-	}
-	for(size_t i = 1; i <= 4; i++)
-	{
-		std::cout << "arg " << i << ": " << argv[i] << std::endl;
-	}
+    if (argc != 5)
+    {
+        std::cerr << "Error: incorrect number of arguments" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    for (size_t i = 1; i <= 4; i++)
+    {
+        std::cout << "arg " << i << ": " << argv[i] << std::endl;
+    }
 
-	Args args;
-	args.component_name = argv[1];
-	args.component_type = argv[2];
-	args.robot_name     = argv[3];
-	args.launch_mode    = argv[4];
+    Args args;
+    args.component_name = argv[1];
+    args.component_type = argv[2];
+    args.robot_name = argv[3];
+    args.launch_mode = argv[4];
 
-	if
-	(
-		args.component_type != "controller" &&
-		args.component_type != "gait_generator"
-	)
-	{
-		std::cerr << "Error: unknown component type '" <<
-			args.component_type << "'" << std::endl;
-		exit(EXIT_FAILURE);
-	}
+    if (
+        args.component_type != "controller" &&
+        args.component_type != "gait_generator")
+    {
+        std::cerr << "Error: unknown component type '" << args.component_type << "'" << std::endl;
+        exit(EXIT_FAILURE);
+    }
 
-	if
-	(
-		args.robot_name != "hyq" &&
-		args.robot_name != "hyqreal" &&
-        args.robot_name != "aliengo"
-	)
-	{
-		std::cerr << "Error: unknown robot '"
-			<< args.robot_name << "'" << std::endl;
-		exit(EXIT_FAILURE);
-	}
+    if (
+        args.robot_name != "hyq" &&
+        args.robot_name != "hyqreal" &&
+        args.robot_name != "aliengo")
+    {
+        std::cerr << "Error: unknown robot '"
+                  << args.robot_name << "'" << std::endl;
+        exit(EXIT_FAILURE);
+    }
 
-	if
-	(
-		args.launch_mode != "sim" &&
-		args.launch_mode != "live"
-	)
-	{
-		std::cerr << "Error: unknown launch mode: '" <<
-			args.launch_mode << "'" << std::endl;
-		exit(EXIT_FAILURE);
-	}
+    if (
+        args.launch_mode != "sim" &&
+        args.launch_mode != "live")
+    {
+        std::cerr << "Error: unknown launch mode: '" << args.launch_mode << "'" << std::endl;
+        exit(EXIT_FAILURE);
+    }
 
-	return args;
+    return args;
 }
 
 void signal_handler(int signal)
 {
-	std::cout << "#### KILL SIGNAL RECEIVED" << std::endl;
-	if(signal == SIGTERM)
-	{
-		pComponent->stop();
+    std::cout << "#### KILL SIGNAL RECEIVED" << std::endl;
+    if (signal == SIGTERM)
+    {
+        pComponent->stop();
 
-		logging::coutstream s(process_handle);
-		s << pComponent->getID() << " received kill request" << std::endl;
-		dls::AppLayerComponent::Status exit_status = pComponent->getStatus();
+        logging::coutstream s(process_handle);
+        s << pComponent->getID() << " received kill request" << std::endl;
+        dls::AppLayerComponent::Status exit_status = pComponent->getStatus();
 
-		std::cout << "#### FROM KILLER pComp status " << static_cast<int>(exit_status) << std::endl;
-		// pComponent = nullptr;
+        std::cout << "#### FROM KILLER pComp status " << static_cast<int>(exit_status) << std::endl;
+        // pComponent = nullptr;
 
-		// give fastrtps a moment to send its message
-		std::this_thread::sleep_for(std::chrono::milliseconds(10000));
-		exit(static_cast<int>(exit_status));
-	}
+        // give fastrtps a moment to send its message
+        std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+        exit(static_cast<int>(exit_status));
+    }
 }

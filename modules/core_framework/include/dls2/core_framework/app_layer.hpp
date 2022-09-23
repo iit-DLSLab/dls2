@@ -93,7 +93,7 @@ namespace dls
 		/// Reads a component from the install path of this layer and loads it
 		///
 		/// @param name the name of the component
-		bool loadComponentFromDisk(const std::string &name, const std::string &ID = "");
+		bool loadComponentFromDisk(const std::string &name);
 
 		/// Remove a component from this layer
 		///

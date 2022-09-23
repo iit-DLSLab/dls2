@@ -66,11 +66,9 @@ bool Options::parseArgs(int argc, char **argv)
 		//long_name    required?           return_short?  short_version
 		{"robot",      required_argument,  nullptr,       'r'},
 		{"simulation", required_argument,  nullptr,       's'},
-		{"hardware",   no_argument,        nullptr,       'H'},
 		{"layers",     optional_argument,  nullptr,       'l'},
 		{"version",    no_argument,        nullptr,       'v'},
 		{"help",       no_argument,        nullptr,       'h'},
-		// {"core",       no_argument,        nullptr,       'c'},
 		{"docs",       no_argument,        nullptr,       'd'},
 		{0,            0,                  0,             0}
 	};
@@ -116,17 +114,6 @@ bool Options::parseArgs(int argc, char **argv)
 				}
 				break;
 			}
-			case 's':
-			{
-				Options::simulation_mode = true;
-                Options::launch_sim = true;
-				break;
-			}
-			case 'H':
-			{
-				Options::simulation_mode = false;
-				break;
-			}
 			case 'l':
 			{
 				char * const tokens []
@@ -151,6 +138,7 @@ bool Options::parseArgs(int argc, char **argv)
 						auto layer = tokens[opt];
 						if(std::strcmp(layer, "hardware") == 0)
 						{
+                            Options::simulation_mode = false;
 							Options::launch_hardware = true;
 						}
 						else if(std::strcmp(layer, "control") == 0)
@@ -168,6 +156,11 @@ bool Options::parseArgs(int argc, char **argv)
 						else if(std::strcmp(layer, "estimation") == 0)
 						{
 							Options::launch_estimation = true;
+						}
+                        else if(std::strcmp(layer, "sim") == 0)
+						{
+							Options::simulation_mode = true;
+                            Options::launch_sim = true;
 						}
 					}
 					else
@@ -226,11 +219,8 @@ void Options::printUsage()
 
 	"< --robot=<hyq|hyqreal|aliengo> | -r <hyq|hyqreal|aliengo> > "
 	"< --layers= | -l ...> "
-	"[ --simulation= | -s ...] "
-	"[ --hardware | -H ] "
 	"[ --version | -v ] "
 	"[ --help | -h ] "
-	// "[ --core | -c ] "
 	"[ --doc | -d ]"
 	"\n"
 	"\n"
@@ -239,12 +229,9 @@ void Options::printUsage()
 	"| long option | short option | meaning                                             |\n"
 	"|-------------|--------------|-----------------------------------------------------|\n"
 	"| robot       | r            | specify the robot on which the framework is running |\n"
-	"| simulation  | s            | run the framework in simulated mode (default)       |\n"
-	"| hardware    | H            | run the framework on the real robot                 |\n"
 	"| layers      | l            | a comma-separated list of layers to launch          |\n"
 	"| version     | v            | print the version and exit                          |\n"
 	"| help        | h            | print this help and exit                            |\n"
-	// "| core        | c            | launch in core mode                                 |\n"
 	"| docs        | d            | show development documentation                      |\n"
 	<< std::endl;
 }
@@ -260,11 +247,15 @@ bool Options::validate()
 	if(Options::show_docs)
 		return false;
 
-	if
-	(
-		(Options::launch_control || Options::launch_hardware) &&
-		!robot_is_specified
-	)
+    if(Options::launch_hardware && Options::launch_sim)
+    {
+		std::cerr << "Error: choose between real and simulation, you can't have both" << std::endl;
+		Options::printUsage();
+		exit(EXIT_FAILURE);
+		return false;
+	}
+
+	if((Options::launch_control || Options::launch_hardware || Options::launch_sim) && !robot_is_specified)
 	{
 		std::cerr << "Error: robot not specified" << std::endl;
 		Options::printUsage();

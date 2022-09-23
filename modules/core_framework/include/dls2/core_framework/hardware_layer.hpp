@@ -17,28 +17,32 @@
 #define HARDWARE_LAYER_HPP_64INVL3T
 
 #include "app_layer.hpp"
-#include "dls2/log/log.hpp"
-#include <unistd.h>
-
-// TODO build this class
 namespace dls
 {
-class HardwareLayer : public AppLayer
-{
-public:
-	HardwareLayer(std::string ID);
-	~HardwareLayer();
+    class HardwareLayer : public AppLayer
+    {
+    public:
+        /// Default Constructor
+		///
+        HardwareLayer(std::string);
 
-	Status run() override;
-	Status shutdown() override;
+        /// Default Destructor
+		///
+        ~HardwareLayer();
 
-	std::string where() override { return "not yet implemented";}
+        /// Run the layer
+		///
+		Status run() override;
 
-private:
-	pid_t xenomotor_pid;
-	pid_t xenorostask_pid;
-	logging::coutstream scout;
-};
+		/// Stop the layer
+		///
+		Status shutdown() override;
+
+		/// Print the state of this layer
+		///
+		std::string where() override{return "Base layer for hardwares";}
+
+    };
 } // end namespace dls
 
 #endif /* end of include guard: HARDWARE_LAYER_HPP_64INVL3T */

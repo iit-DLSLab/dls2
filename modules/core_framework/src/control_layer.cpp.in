@@ -544,11 +544,13 @@ bool ControlLayer::activateGaitGenerator(const std::string &ID)
 		(Options::simulation_mode?"sim":"live")
 	}));
 
+    if(this->gaitData.proc == nullptr){
+        std::cout << "Failed to launch gait generator process" << std::endl;
+	    return false;
+    }
+
 	this->gaitData.ID = ID;
 	this->gaitData.proc->detach();
-
-	if (this->gaitData.proc == nullptr)
-		std::cout << "Failed to launch gait generator process" << std::endl;
 	
 	return true;
 }

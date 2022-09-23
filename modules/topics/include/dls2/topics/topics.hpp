@@ -32,6 +32,7 @@
 #include <dls_messages/dds/hyq_rawPubSubTypes.h>
 #include <dls_messages/dds/imuPubSubTypes.h>
 #include <dls_messages/dds/command_sendPubSubTypes.h>
+#include <dls_messages/dds/aliengo_rawPubSubTypes.h>
 
 
 namespace dls
@@ -73,6 +74,7 @@ namespace dls
 		{
 			extern dls::topicType blind_state;
 			extern dls::topicType hyq_raw;
+            extern dls::topicType aliengo_raw;
 			extern dls::topicType imu;
 		}
 	}

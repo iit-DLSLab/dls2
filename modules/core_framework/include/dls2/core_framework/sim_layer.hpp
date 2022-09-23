@@ -20,8 +20,6 @@
 
 namespace dls
 {
-	/// A ROS interface into the framework
-	///
 	class SimLayer : public AppLayer
 	{
 	public:
@@ -35,15 +33,15 @@ namespace dls
 
 		/// Run the layer
 		///
-		virtual Status run() override;
+		Status run() override;
 
 		/// Stop the layer
 		///
-		virtual Status shutdown() override;
+		Status shutdown() override;
 
 		/// Print the state of this layer
 		///
-		virtual std::string where() override{return "Base layer for simulators";}
+		std::string where() override{return "Base layer for simulators";}
 	};
 } // end namespace dls
 

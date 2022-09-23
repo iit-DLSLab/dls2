@@ -30,14 +30,7 @@ SimLayer::SimLayer(std::string ID)
 		"Launches a simulator",
 		std::function<bool(std::string)>([&](std::string type)->bool
         {
-            int idx = 1;
-            std::string name = type + "_" + std::to_string(idx);
-            while(this->components.count(name)){
-                idx++;
-                name = type + "_" + std::to_string(idx);
-            }
-
-			if(!this->loadComponentFromDisk(type, name))
+			if(!this->loadComponentFromDisk(type))
                 return false;
 
             return true;
