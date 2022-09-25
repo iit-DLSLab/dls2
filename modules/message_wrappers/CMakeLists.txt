@@ -1,6 +1,9 @@
 add_library(dls_message_wrappers SHARED
 	src/screw.cpp
 	src/blind_state.cpp
+	src/pose.cpp
+	src/gait_signal.cpp
+	src/control_signal.cpp
 )
 
 set_property(TARGET dls_message_wrappers PROPERTY POSITION_INDEPENDENT_CODE ON)
@@ -12,7 +15,6 @@ target_include_directories(dls_message_wrappers
 
 target_link_libraries(dls_message_wrappers
 	PUBLIC
-		dls_geometry
 		dls_messages
 		robotlib
 )

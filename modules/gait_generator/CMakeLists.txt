@@ -14,8 +14,6 @@ target_link_libraries(dls_gait_generator
 	PUBLIC
 		robotlib
 		dls_framework_components
-		dls_gait_signal
-		dls_geometry
 		dls_message_wrappers
 )
 

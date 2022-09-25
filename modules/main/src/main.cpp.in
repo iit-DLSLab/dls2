@@ -44,8 +44,6 @@
 
 #include <thread>
 
-#include "dls2/geometry/pose.hpp"
-
 #include "dls2/log/log.hpp"
 
 #include "robotlib/robot_factory.hpp"

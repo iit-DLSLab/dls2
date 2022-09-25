@@ -16,10 +16,9 @@
 #ifndef GAIT_DATA_HPP_DLF4YRRS
 #define GAIT_DATA_HPP_DLF4YRRS
 
-#include "dls2/geometry/pose.hpp"
-
 #include "dls_messages/dds/gait_signal.h"
 #include "dls2/msg_wrappers/screw.hpp"
+#include "dls2/msg_wrappers/pose.hpp"
 
 #include <robotlib/robot_base.hpp>
 

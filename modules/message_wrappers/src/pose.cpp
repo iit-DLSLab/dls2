@@ -13,7 +13,7 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#include "dls2/geometry/pose.hpp"
+#include "dls2/msg_wrappers/pose.hpp"
 #include <algorithm>
 #include <iit/commons/geometry/rotations.h>
 

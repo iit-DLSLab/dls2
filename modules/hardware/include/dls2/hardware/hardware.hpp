@@ -22,6 +22,7 @@
 
 namespace dls
 {
+    template<class DataIn = DesiredTorquesMsg, class DataOut = BlindStateMsg>
     class Hardware : public PeriodicAppLayerComponent
     {
         friend class HardwareLayer;
@@ -33,14 +34,16 @@ namespace dls
 
         Hardware
         (
-            const std::string&,                                        		 						///< The ID of the controller
-            const std::shared_ptr<robotlib::RobotBase>&,                   		 					///< A pointer to the robot model
-            const period_t&,                                     		 							///< The period of the controller
+            const std::string&,
+            const std::string&,
+            const period_t&,
             const dls::topicType& controlSignalTopic_ = dls::topics::control_signal,    			///< Topic where control signal should be published
             const dls::topicType& rawSignalTopic_ = dls::topics::low_level_estimation::aliengo_raw	///< Topic where raw signal is being published
         );
 
         virtual ~Hardware() = default;
+
+        virtual void run(const std::chrono::system_clock::time_point&) = 0;
 
     protected:
         
@@ -48,16 +51,20 @@ namespace dls
         ///
         void publishSignal();
 
-        const std::shared_ptr<const robotlib::RobotBase> pRobot;
+        std::shared_ptr<robotlib::RobotBase> pRobot;
+        
+        dls::DDSParticipant ddslink;
+        dls::DDSReader  	ddsMonitor;
+
+        DataOut blind_state;
+        DataIn desired_torques;
 
     private:
+
         std::atomic_bool should_run;
 
         dls::topicType control_signal_topic;
         dls::topicType raw_signal_topic;
-
-        dls::DDSParticipant ddslink;
-        dls::DDSReader  	ddsMonitor;
 
         void executeCommand(std::string cmd);
 };

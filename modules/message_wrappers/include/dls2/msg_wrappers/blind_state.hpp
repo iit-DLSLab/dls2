@@ -16,13 +16,12 @@
 #ifndef BLIND_STATE_SIGNAL_HPP
 #define BLIND_STATE_SIGNAL_HPP
 
-//TODO move this file out of fastrtps_wrappers and into msg_wrappres
 
-#include "dls2/geometry/pose.hpp"
 #include "robotlib/robot_base.hpp"
+
+#include "dls2/msg_wrappers/pose.hpp"
 #include "dls2/msg_wrappers/screw.hpp"
 #include <dls_messages/dds/blind_state.h>
-
 
 namespace dls
 {
@@ -38,6 +37,18 @@ namespace dls
 		robotlib::JointState joint_velocity;
 		robotlib::JointState joint_acceleration;
 		robotlib::JointState joint_effort;
+
+		/// Angular velocity
+		///
+		Eigen::Vector3d angular_velocity;
+
+		/// Angular acceleration
+		///
+		Eigen::Vector3d angular_acceleration;
+
+		/// Orientation
+		///
+		Eigen::Quaternion<double> orientation;
 
 		Pose base_pose_world;
 		Screw base_velocity_world;
