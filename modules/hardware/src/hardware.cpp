@@ -56,10 +56,7 @@ Hardware::Hardware
 
 	)
 {
-	ddslink.addWriter(
-		"blindState", 
-		raw_signal_topic
-	);
+	ddslink.addWriter("blindState", this->raw_signal_topic);
 
 	ddslink.addReader(
 		"desiredTorqueListener",
@@ -79,7 +76,7 @@ Hardware::Hardware
 
 void Hardware::publishSignal()
 {
-	if (!this->ddslink.sendMessage("signalout", (void *) &blind_state))
+	if (!this->ddslink.sendMessage("blindState", (void*) &(this->blind_state)))
         std::cout << "=== Problems sending ControlSignal ===" << std::endl;
 }
 

@@ -21,6 +21,9 @@
 #include "dls2/util/messaging/dds_participant.hpp"
 #include "robotlib/robot_factory.hpp"
 
+#include "dls2/msg_wrappers/blind_state.hpp"
+#include "dls2/msg_wrappers/control_signal.hpp"
+
 namespace dls
 {
     class Hardware : public PeriodicAppLayerComponent
