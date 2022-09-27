@@ -40,7 +40,7 @@ namespace dls
             const std::shared_ptr<robotlib::RobotBase>&,                   		 					///< A pointer to the robot model
             const period_t&,                                     		 							///< The period of the controller
             const dls::topicType& controlSignalTopic_ = dls::topics::control_signal,    			///< Topic where control signal should be published
-            const dls::topicType& rawSignalTopic_ = dls::topics::low_level_estimation::aliengo_raw	///< Topic where raw signal is being published
+            const dls::topicType& rawSignalTopic_ = dls::topics::low_level_estimation::blind_state	///< Topic where raw signal is being published
         );
 
         virtual ~Hardware() = default;
@@ -54,21 +54,13 @@ namespace dls
         dls::topicType control_signal_topic;
         dls::topicType raw_signal_topic;        
 
-    //     std::atomic_bool should_run;
-
         void executeCommand(std::string cmd);
-
-    //     pthread_t hardwareThread;
-
-    //     static void *runHAL(void *data);
-
-    //     void startRunning();
 
     protected:
         
-    //     /// Sends the raw info from the robot to the rest of the architecture
-    //     ///
-    //     void publishSignal();
+        /// Sends the raw info from the robot to the rest of the architecture
+        ///
+        void publishSignal();
 
         std::shared_ptr<robotlib::RobotBase> pRobot;
 

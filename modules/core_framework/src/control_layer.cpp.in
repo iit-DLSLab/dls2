@@ -258,26 +258,26 @@ void *ControlLayer::controlSignalGather(void *data)
         auto now = std::chrono::high_resolution_clock::now();
         auto epoch = std::chrono::time_point_cast<std::chrono::milliseconds>(now).time_since_epoch();
 
-		// Read the control signals
-		{
-			std::lock_guard<std::mutex> lock(layer->controllers_mutex);
+		// // Read the control signals
+		// {
+		// 	std::lock_guard<std::mutex> lock(layer->controllers_mutex);
 
-            ControlSignal c_signal(layer->pRobot);
+        //     ControlSignal c_signal(layer->pRobot);
             
-			for(auto pair : layer->controllers)
-			{
-				if(!pair.second->dds_reader) continue;
+		// 	for(auto pair : layer->controllers)
+		// 	{
+		// 		if(!pair.second->dds_reader) continue;
 
-				c_signal = pair.second->getLastPublishedControlSignal();
-				desired_torques = pair.second->premultiplier*c_signal.torques;
-			}
-		}
+		// 		c_signal = pair.second->getLastPublishedControlSignal();
+		// 		desired_torques = pair.second->premultiplier*c_signal.torques;
+		// 	}
+		// }
 
-    	// Send the desired torques to HAL
-		layer->publishDesiredTorques(
-			layer->saturateTorques(desired_torques.vec_()),
-			std::chrono::duration_cast<std::chrono::microseconds>(epoch).count()
-		);
+    	// // Send the desired torques to HAL
+		// layer->publishDesiredTorques(
+		// 	layer->saturateTorques(desired_torques.vec_()),
+		// 	std::chrono::duration_cast<std::chrono::microseconds>(epoch).count()
+		// );
 
         auto delta = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - now).count();
 
@@ -528,9 +528,6 @@ bool ControlLayer::activateGaitGenerator(const std::string &ID)
 		return false;
 	}
 
-	// TODO("error checking")
-
-	std::cout << "WARNING hardcoded to hyq" << std::endl;
 	this->gaitData.proc = new boost::process::child(std::vector<std::string>({
 		#ifndef NDEBUG
 			"${EXECUTABLE_OUTPUT_PATH}/child_process_launcher",

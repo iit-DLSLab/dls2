@@ -126,23 +126,7 @@ bool HardwareLayer::activateHardware(const std::string &robotType)
 			return false;
 		}
 
-		pData->dds_reader = std::make_shared<dls::DDSReader>(
-			"HardwareLayer::Listener::" + pData->ID,
-			dls::domains::hardwares,
-			dls::topics::control_signal,
-			std::function<void(void *)>
-			{
-				[&](void *tuple)
-				{
-                    // std::lock_guard<std::mutex> lock(pData->control_signal_mutex);
-					// ControlSignalMsg msg = *((ControlSignalMsg *)tuple);
-					
-                    // pData->control_signal = msg;
-				}
-			}
-		);
-
-		std::cout << "HARDWARE LAYER " << pData->ID << " IS LISTENING ON TOPIC HardwareLayer::Listener::" << pData->ID <<  std::endl;
+		std::cout << "HARDWARE LAYER OF " << pData->ID << " IS ON" <<  std::endl;
 
 		this->hardwares.emplace(pData->ID, pData);
 	}

@@ -98,6 +98,7 @@ int main(int argc, char **argv)
     }
     catch (const std::exception &e)
     {
+        std::cout << "child_process: Could not open the robot " << args.robot_name << std::endl;
         std::cerr << e.what() << std::endl;
     }
 

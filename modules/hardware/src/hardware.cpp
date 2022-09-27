@@ -36,7 +36,7 @@ Hardware::Hardware
     , pRobot(pRobot_)
 	, ddslink(
 		"Hardware::" + name_,
-		dls::domains::hardwares
+		dls::domains::control
 	)
 	, ddsMonitor(
 		name_,
@@ -77,11 +77,11 @@ Hardware::Hardware
 	std::cout << "### " << pRobot->getName() << " ROBOT HARDWARE INTERFACE IS RUNNING ###" << std::endl;
 }
 
-// void Hardware::publishSignal()
-// {
-// 	if (!this->ddslink.sendMessage("signalout", (void *) &blind_state))
-//         std::cout << "=== Problems sending ControlSignal ===" << std::endl;
-// }
+void Hardware::publishSignal()
+{
+	if (!this->ddslink.sendMessage("signalout", (void *) &blind_state))
+        std::cout << "=== Problems sending ControlSignal ===" << std::endl;
+}
 
 void Hardware::executeCommand(std::string cmd)
 {
@@ -89,19 +89,5 @@ void Hardware::executeCommand(std::string cmd)
 		this->stop();
 	}
 }
-
-// void Hardware::startRunning()
-// {
-//     pthread_create(&hardwareThread, NULL, (THREADFUNCPTR) &Hardware::runHAL, this);
-// }
-
-// void* Hardware::runHAL(void *data)
-// {
-//     Hardware *layer = (Hardware*) data;	
-
-//     layer->run();
-
-//     return NULL;
-// }
 
 #endif /* end of include guard: HARDWARE_CPP */
