@@ -1,6 +1,5 @@
 add_library(dls_controller SHARED
 	src/controller.cpp
-	src/control_signal.cpp
     src/controller_data.cpp
 )
 
@@ -16,8 +15,6 @@ target_link_libraries(dls_controller
 		robotlib
 		dls_math
 		dls_framework_components
-		dls_gait_signal
-		dls_geometry
 		dls_message_wrappers
 )
 

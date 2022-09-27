@@ -14,7 +14,7 @@
 *                                                 `---'                        *
 *******************************************************************************/
 
-#include "dls2/gait_generator/gait_signal.hpp"
+#include "dls2/msg_wrappers/gait_signal.hpp"
 
 using namespace dls;
 

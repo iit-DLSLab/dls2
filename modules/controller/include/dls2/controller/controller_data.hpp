@@ -16,7 +16,7 @@
 #ifndef CONTROLLER_DATA_HPP
 #define CONTROLLER_DATA_HPP
 
-#include "dls2/controller/control_signal.hpp"
+#include "dls2/msg_wrappers/control_signal.hpp"
 #include "dls2/util/messaging/dds_reader.hpp"
 #include "dls2/math/spline/ramp.hpp"
 #include <boost/process.hpp>

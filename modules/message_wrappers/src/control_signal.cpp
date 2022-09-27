@@ -13,7 +13,7 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#include "dls2/controller/control_signal.hpp"
+#include "dls2/msg_wrappers/control_signal.hpp"
 
 using namespace dls;
 ControlSignal::ControlSignal(const std::shared_ptr<robotlib::RobotBase> &pRobot) 

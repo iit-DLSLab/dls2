@@ -36,54 +36,25 @@ namespace dls
 
         Hardware
         (
-<<<<<<< Updated upstream
             const std::string&,                                        		 						///< The ID of the controller
             const std::shared_ptr<robotlib::RobotBase>&,                   		 					///< A pointer to the robot model
             const period_t&,                                     		 							///< The period of the controller
-=======
-            const ID_t&,
-            const std::shared_ptr<robotlib::RobotBase>&, 
-            const period_t&,
->>>>>>> Stashed changes
             const dls::topicType& controlSignalTopic_ = dls::topics::control_signal,    			///< Topic where control signal should be published
             const dls::topicType& rawSignalTopic_ = dls::topics::low_level_estimation::aliengo_raw	///< Topic where raw signal is being published
         );
 
         virtual ~Hardware() = default;
 
-    protected:
-        
-    //     /// Sends the raw info from the robot to the rest of the architecture
-    //     ///
-    //     void publishSignal();
-
-<<<<<<< Updated upstream
-        const std::shared_ptr<const robotlib::RobotBase> pRobot;
+        virtual void run(const std::chrono::system_clock::time_point&) = 0;
 
     private:
+
         std::atomic_bool should_run;
 
         dls::topicType control_signal_topic;
-        dls::topicType raw_signal_topic;
-=======
-        std::shared_ptr<robotlib::RobotBase> pRobot;
-
-        dls::topicType control_signal_topic;
-        dls::topicType raw_signal_topic;
-        
-    //     dls::DDSParticipant ddslink;
-    //     dls::DDSReader  	ddsMonitor;
-
-        BlindStateMsg blind_state;
-        DesiredTorquesMsg desired_torques;
-
-    private:
+        dls::topicType raw_signal_topic;        
 
     //     std::atomic_bool should_run;
->>>>>>> Stashed changes
-
-        dls::DDSParticipant ddslink;
-        dls::DDSReader  	ddsMonitor;
 
         void executeCommand(std::string cmd);
 
@@ -92,6 +63,20 @@ namespace dls
     //     static void *runHAL(void *data);
 
     //     void startRunning();
+
+    protected:
+        
+    //     /// Sends the raw info from the robot to the rest of the architecture
+    //     ///
+    //     void publishSignal();
+
+        std::shared_ptr<robotlib::RobotBase> pRobot;
+
+        dls::DDSParticipant ddslink;
+        dls::DDSReader  	ddsMonitor;
+
+        BlindStateMsg blind_state;
+        DesiredTorquesMsg desired_torques;
     };
 } // end namespace dls
 
