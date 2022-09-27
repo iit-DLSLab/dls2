@@ -255,7 +255,7 @@ bool Options::validate()
 		return false;
 	}
 
-	if((Options::launch_control || Options::launch_hardware || Options::launch_sim) && !robot_is_specified)
+	if((Options::launch_control || Options::launch_sim) && !robot_is_specified)
 	{
 		std::cerr << "Error: robot not specified" << std::endl;
 		Options::printUsage();

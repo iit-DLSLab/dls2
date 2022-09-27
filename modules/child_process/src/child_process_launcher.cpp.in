@@ -33,6 +33,7 @@
 #include "dls2/class_loader.hpp"
 #include "dls2/gait_generator/gait_generator.hpp"
 #include "dls2/controller/controller.hpp"
+#include "dls2/hardware/hardware.hpp"
 #include "dls2/log/log.hpp"
 
 #include "robotlib/robot_factory.hpp"
@@ -118,6 +119,14 @@ int main(int argc, char **argv)
                     std::string("${DLS_INSTALL_GAIT_GENERATOR_DIR}/lib") + args.component_name + ".so",
                     pRobot);
         }
+        else if (args.component_type == "hardware")
+        {
+            std::cout << "LOADING HARDWARE FROM '" << std::string("${DLS_INSTALL_HARDWARE_DIR}/lib") + args.component_name + ".so'" << std::endl;
+            pComponent =
+                ClassLoader::loadClass<Hardware, std::shared_ptr<robotlib::RobotBase>>(
+                    std::string("${DLS_INSTALL_HARDWARE_DIR}/lib") + args.component_name + ".so",
+                    pRobot);
+        }
         else
         {
             std::cerr << "component loading not yet implemented" << std::endl;
@@ -167,7 +176,9 @@ Args parse_args(int argc, char **argv)
 
     if (
         args.component_type != "controller" &&
-        args.component_type != "gait_generator")
+        args.component_type != "gait_generator" &&
+        args.component_type != "hardware"
+        )
     {
         std::cerr << "Error: unknown component type '" << args.component_type << "'" << std::endl;
         exit(EXIT_FAILURE);

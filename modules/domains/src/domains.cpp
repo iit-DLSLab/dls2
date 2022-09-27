@@ -27,7 +27,7 @@ namespace dls
 		domainType command		= 5;
 		domainType control 		= 0;
 		domainType controllers 	= 1;
-        domainType hardware 	= 3;
+        domainType hardwares 	= 3;
 		domainType console 		= 7;
 		domainType logging 		= 8;
 		domainType service 		= 9;

@@ -13,7 +13,6 @@ target_link_libraries(dls_hardware
 	PUBLIC
 		robotlib
 		dls_framework_components
-        dls_domains
 		dls_message_wrappers
 )
 

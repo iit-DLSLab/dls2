@@ -140,8 +140,7 @@ ControlLayer::ControlLayer(std::string ID)
 		"stops a controller",
 		std::function<bool(std::string)>([&](std::string s)->bool
 		{
-			this->deactivateController(s);
-            return true;
+			return this->deactivateController(s);
 		}),
 		{{2,0},{3,1}},
 		true

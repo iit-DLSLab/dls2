@@ -23,6 +23,10 @@ set(DLS_INSTALL_GAIT_GENERATOR_DIR /usr/lib/dls2/gait_generators
 	CACHE STRING "Directory where shared object libraries for gait generators are stored"
 )
 
+set(DLS_INSTALL_HARDWARE_DIR /usr/lib/dls2/hardwares
+	CACHE STRING "Directory where shared object libraries for hardwares are stored"
+)
+
 set(DLS_INSTALL_GAIT_GENERATOR_HEADER_DIR /usr/include/dls2/gait_generators
 	CACHE STRING "Directory where gait generator headers are stored"
 )
