@@ -65,10 +65,8 @@ GaitGenerator::GaitGenerator
 				BlindStateMsg bs = *((BlindStateMsg*) tuple);
 
 				std::lock_guard<std::mutex> lock(this->blind_state_signal_mutex);
-				// TODO do not reassign memory, just reset it
+				
 				this->blind_state_signal = bs;
-				// std::cout << "received a blind state message of size: "
-				//           << bs.joint_state().position().size() << std::endl;
 			}
 		}
 	);

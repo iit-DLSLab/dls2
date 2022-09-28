@@ -18,7 +18,8 @@
 
 #include <fastdds/dds/domain/DomainParticipant.hpp>
 #include <utility>
-#include <typeinfo> 
+#include <typeinfo>
+#include <functional> 
 #include <dls_messages/dds/command_callPubSubTypes.h>
 #include <dls_messages/dds/stringmsgPubSubTypes.h>
 #include <dls_messages/dds/hyqreal_rawPubSubTypes.h>
@@ -34,10 +35,9 @@
 #include <dls_messages/dds/command_sendPubSubTypes.h>
 #include <dls_messages/dds/aliengo_rawPubSubTypes.h>
 
-
 namespace dls
 {
-	typedef std::pair<std::string, eprosima::fastdds::dds::TypeSupport> topicType;
+	typedef std::tuple<std::string, eprosima::fastdds::dds::TypeSupport, std::function<void()>> topicType;
 
 	namespace topics
 	{
@@ -46,7 +46,6 @@ namespace dls
 		extern dls::topicType info_log_stream;
 		extern dls::topicType error_log_stream;
 		extern dls::topicType fatal_log_stream;
-		extern dls::topicType hyqreal_raw;
 		extern dls::topicType debug_log_stream;
 
 		// command
@@ -74,6 +73,7 @@ namespace dls
 		{
 			extern dls::topicType blind_state;
 			extern dls::topicType hyq_raw;
+			extern dls::topicType hyqreal_raw;
             extern dls::topicType aliengo_raw;
 			extern dls::topicType imu;
 		}

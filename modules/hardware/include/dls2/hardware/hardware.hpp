@@ -55,7 +55,7 @@ namespace dls
         std::atomic_bool should_run;
 
         dls::topicType control_signal_topic;
-        dls::topicType raw_signal_topic;        
+        dls::topicType blind_state_topic;        
 
         void executeCommand(std::string cmd);
 
@@ -71,7 +71,7 @@ namespace dls
         dls::DDSReader  	ddsMonitor;
 
         BlindStateMsg blind_state;
-        DesiredTorquesMsg desired_torques;
+        DesiredTorquesMsg control_signal;
     };
 } // end namespace dls
 

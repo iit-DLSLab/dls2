@@ -118,11 +118,6 @@ void Controller::publishSignal(const ControlSignal &signal)
 
 }
 
-std::string Controller::getControlSignalTopic() const
-{
-	return this->control_signal_topic.first;
-}
-
 void Controller::executeCommand(std::string cmd)
 {
 	if(cmd == "shutdown"){

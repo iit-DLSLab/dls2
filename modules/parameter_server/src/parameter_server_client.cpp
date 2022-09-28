@@ -1,7 +1,8 @@
 #include "dls2/util/service/service.hpp"
 #include "dls_messages/dds/param_server_set_doublePubSubTypes.h"
-#include "dls_messages/dds/doublePubSubTypes.h"
+#include "dls_messages/dds/param_server_set_doubleTypeObject.h"
 #include "dls_messages/dds/stringmsgPubSubTypes.h"
+#include "dls_messages/dds/stringmsgTypeObject.h"
 
 #include "dls2/parameter_server/parameter_server_client.hpp"
 
@@ -28,11 +29,11 @@ namespace dls
 		) :
 			add_double
 			(
-				dls::topicType( server_namespace + "_ADD_DOUBLE", new ParamServerSetDoublePubSubType())
+				dls::topicType( server_namespace + "_ADD_DOUBLE", new ParamServerSetDoublePubSubType(), &registerparam_server_set_doubleTypes)
 			),
 			get_double
 			(
-				dls::topicType( server_namespace + "_GET_DOUBLE", new StringMsgPubSubType())
+				dls::topicType( server_namespace + "_GET_DOUBLE", new StringMsgPubSubType(), &registerstringmsgTypes)
 			)
 		{ }
 	}

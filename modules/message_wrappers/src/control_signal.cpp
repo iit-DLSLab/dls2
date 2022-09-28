@@ -26,25 +26,32 @@ ControlSignal::operator ControlSignalMsg() const
 {
 	ControlSignalMsg msg;
 
+	int i = 0;
 	for(auto &leg_pair : this->torques)
 	{
 		for(auto &joint_pair : *leg_pair.data_)
 		{
-			msg.torques().push_back(*joint_pair.data_);
+			msg.torques()[i++] = *joint_pair.data_;
 		}
 	}
 	
 	msg.signal_reconstruction_method((uint64_t)this->signal_reconstruction_method);
-	msg.header().time().seconds(this->time);
 	return msg;
 }
 
 
 ControlSignal & ControlSignal::operator=(const ControlSignalMsg &msg){
 
-    this->time = msg.header().time().seconds();
 	this->signal_reconstruction_method = (dls::ControlSignal::SignalReconstructionMethod) msg.signal_reconstruction_method();
-	this->torques = msg.torques();
+	
+	int i = 0;
+	for(auto &leg_pair : this->torques)
+	{
+		for(auto &joint_pair : *leg_pair.data_)
+		{
+			*joint_pair.data_ = msg.torques()[i++];
+		}
+	}
 
     return *this;
 }

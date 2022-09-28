@@ -48,7 +48,7 @@ namespace dls
 					msg_t request = *((msg_t*) tuple);
 
 					std::stringstream out_topic_stream;
-					out_topic_stream << this->service_topic.first
+					out_topic_stream << std::get<0>(this->service_topic)
 									<< "_response_";
 
 					// ============== Process the request ==============

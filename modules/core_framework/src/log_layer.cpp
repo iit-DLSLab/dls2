@@ -103,7 +103,7 @@ LogLayer::LogLayer(std::string ID)
 	//hyq_raw_log
 	ddslink.addReader(
 		"hyq_raw_log",
-		dls::topics::hyqreal_raw,
+		dls::topics::low_level_estimation::hyqreal_raw,
 		std::function<void(void *)>
 		{
 			[&](void *tuple)

@@ -62,10 +62,6 @@ namespace dls
 
         virtual ~Controller() = default;
 
-        /// Returns the name of the topic where this controller is publishing its
-        /// control signal
-        std::string getControlSignalTopic() const;
-
     protected:
         ///// Function gets called each epoch.
         /////

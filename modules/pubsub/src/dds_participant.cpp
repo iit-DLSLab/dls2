@@ -28,6 +28,7 @@ namespace dls
         , subscriber(nullptr)
 	{
 		eprosima::fastdds::dds::DomainParticipantQos participantQos;
+		participantQos.wire_protocol().builtin.typelookup_config.use_server = true;
 		participantQos.wire_protocol().builtin.discovery_config.discoveryProtocol = eprosima::fastrtps::rtps::DiscoveryProtocol_t::SIMPLE;
 		participantQos.wire_protocol().builtin.discovery_config.leaseDuration = eprosima::fastrtps::Duration_t(3, 1);
         participantQos.wire_protocol().builtin.discovery_config.leaseDuration_announcementperiod = eprosima::fastrtps::Duration_t(1, 2);
@@ -142,19 +143,20 @@ namespace dls
 	eprosima::fastdds::dds::Topic *DDSParticipant::addTopic(dls::topicType topicData_)
 	{
 
-		auto search = this->topics.find(topicData_.first);
+		auto search = this->topics.find(std::get<0>(topicData_));
 
 		if (search != topics.end())
 			return search->second;
 
-		if (!this->types.contains(topicData_.second.get_type_name())){
-			this->types.insert(topicData_.second.get_type_name());
-			this->participant->register_type(topicData_.second);
+		if (!this->types.contains(std::get<1>(topicData_).get_type_name())){
+			this->types.insert(std::get<1>(topicData_).get_type_name());
+			std::get<2>(topicData_)();
+			this->participant->register_type(std::get<1>(topicData_));
 		}
 
 		auto topic = this->participant->create_topic(
-			topicData_.first,
-			topicData_.second.get_type_name(),
+			std::get<0>(topicData_),
+			std::get<1>(topicData_).get_type_name(),
 			eprosima::fastdds::dds::TOPIC_QOS_DEFAULT);
 
 		if (topic == nullptr)
@@ -164,7 +166,7 @@ namespace dls
 			// );
 		}
 
-		this->topics.insert({topicData_.first, topic});
+		this->topics.insert({std::get<0>(topicData_), topic});
 
 		return topic;
 	}
@@ -176,7 +178,11 @@ namespace dls
 
 	bool DDSParticipant::sendMessage(std::string writerName, void *msg)
 	{
-		return this->writers.find(writerName)->second->write(msg);
+		auto writer = this->writers.find(writerName);
+		if(writer == this->writers.end())
+			return false;
+		
+		return writer->second->write(msg);
 	}
 
 } // namespace dls

@@ -27,12 +27,12 @@ Hardware::Hardware
 	const std::shared_ptr<robotlib::RobotBase> &pRobot_,
 	const period_t &period_,
     const dls::topicType &control_signal_topic_,
-	const dls::topicType &raw_signal_topic_
+	const dls::topicType &blind_state_topic_
 )
 	: PeriodicAppLayerComponent(name_, period_)
     , should_run(false)
     , control_signal_topic(control_signal_topic_)
-	, raw_signal_topic(raw_signal_topic_)
+	, blind_state_topic(blind_state_topic_)
     , pRobot(pRobot_)
 	, ddslink(
 		"Hardware::" + name_,
@@ -56,17 +56,17 @@ Hardware::Hardware
 
 	)
 {
-	ddslink.addWriter("blindState", this->raw_signal_topic);
+	ddslink.addWriter("blindState", this->blind_state_topic);
 
 	ddslink.addReader(
-		"desiredTorqueListener",
-		control_signal_topic,
+		"desiredSignalListener",
+		dls::topics::desired_torques,
 		std::function<void(void *)>
 		{
 			[&](void *tuple)
 			{
-				DesiredTorquesMsg msg = *((DesiredTorquesMsg*) tuple);
-				this->desired_torques = msg;
+				DesiredTorquesMsg  msg = *((DesiredTorquesMsg *) tuple);
+				this->control_signal = msg;
 			}
 		}
 	);

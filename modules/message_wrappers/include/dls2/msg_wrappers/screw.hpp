@@ -33,6 +33,8 @@ public:
 	/// Assigns memory, but does not zero it
 	Screw();
 
+	Screw(const Eigen::Vector3d&, const Eigen::Vector3d&);
+
 	/// Converting Constructor
 	///
 	Screw(const ScrewMsg&);

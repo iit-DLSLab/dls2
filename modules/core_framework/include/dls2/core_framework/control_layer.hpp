@@ -151,7 +151,7 @@ private:
 	
 	dls::DDSWriter *ddsControl;
 	dls::DDSWriter *ddsMonitor;	
-
+	
 	/// Default controller spline-in
 	///
 	std::shared_ptr<spline::Ramp<double>> pDefault_spline_in;

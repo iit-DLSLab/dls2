@@ -36,6 +36,13 @@ Screw::Screw(const ScrewMsg &msg)
 		msg.angular()[2];
 }
 
+Screw::Screw(const Eigen::Vector3d& lin, const Eigen::Vector3d& ang)
+{
+	this->setLinear(lin);
+	this->setLinear(ang);
+}
+
+
 // =============================================================================
 // Conversions
 // =============================================================================
@@ -50,6 +57,7 @@ Screw::operator ScrewMsg() const
 	msg.angular()[2] = this->eigen_vec(5);
 	return msg;
 }
+
 
 
 // =============================================================================
