@@ -71,6 +71,11 @@ Hardware::Hardware
 		}
 	);
 
+	for (int i = 0; i < 12; i++)
+	{
+		control_signal.desired_torques()[i] = 0;
+	}
+
 	std::cout << "### " << pRobot->getName() << " ROBOT HARDWARE INTERFACE IS RUNNING ###" << std::endl;
 }
 

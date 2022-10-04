@@ -222,7 +222,7 @@ ControlLayer::Status ControlLayer::run()
 	while(!this->shouldQuit())
 	{
 		// TODO this loop should be used to verify the state of the layer and all its controllers		
-		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(500));
+		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
 	}
 	return getStatus();
 }
@@ -240,9 +240,9 @@ void *ControlLayer::controlSignalGather(void *data)
 	attr.sched_policy = SCHED_DEADLINE;
 
     // Period defined in nanoseconds
-	attr.sched_runtime  = 1 * 100 * 1000ULL;
-	attr.sched_period   = 1 * 100 * 1000ULL;
-	attr.sched_deadline = 1 * 100 * 1000ULL;
+	attr.sched_runtime  = 1 * 1000 * 1000ULL;
+	attr.sched_period   = 1 * 1000 * 1000ULL;
+	attr.sched_deadline = 1 * 1000 * 1000ULL;
 
     ret = sched_setattr(0, &attr, flags);
     if (ret < 0) {
