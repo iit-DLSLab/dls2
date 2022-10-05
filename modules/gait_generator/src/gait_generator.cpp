@@ -36,6 +36,7 @@ GaitGenerator::GaitGenerator
 	// , data_mutex()
 	, blind_state_signal(pRobot_)
 	// , blind_state_signal_mutex()
+    , heart_beat(false)
 	, ddslink("GaitGen::" + ID, dls::domains::control)
 	, ddsMonitor(
 		ID,
@@ -67,6 +68,7 @@ GaitGenerator::GaitGenerator
 				std::lock_guard<std::mutex> lock(this->blind_state_signal_mutex);
 				
 				this->blind_state_signal = bs;
+                this->heart_beat = true;
 			}
 		}
 	);
@@ -82,9 +84,10 @@ void GaitGenerator::publishData(const GaitSignal &signal)
 	this->ddslink.sendMessage("signalout", (void *) &p);
 }
 
-BlindState GaitGenerator::readBlindStateSignal() const
+BlindState GaitGenerator::readBlindStateSignal()
 {
 	std::lock_guard<std::mutex> lock(this->blind_state_signal_mutex);
+    this->heart_beat = false;
 	return blind_state_signal;
 }
 
@@ -97,4 +100,12 @@ void GaitGenerator::executeCommand(std::string cmd)
 	else if(cmd == "activate"){
 		this->run();
 	}
+}
+
+bool GaitGenerator::readBeat()
+{
+    bool out = this->heart_beat;
+    this->heart_beat = false;
+
+    return out;
 }

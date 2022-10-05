@@ -50,9 +50,13 @@ namespace dls
 
         virtual void run(const std::chrono::system_clock::time_point&) = 0;
 
+        bool readBeat();
+
+
     private:
 
         std::atomic_bool should_run;
+        std::atomic_bool heart_beat;
 
         dls::topicType control_signal_topic;
         dls::topicType blind_state_topic;        

@@ -274,17 +274,20 @@ void *ControlLayer::controlSignalGather(void *data)
 		}
 
     	// Send the desired torques to HAL
-		layer->publishDesiredTorques(
-			layer->saturateTorques(desired_torques.vec_()),
-			std::chrono::duration_cast<std::chrono::microseconds>(epoch).count()
-		);
+        if(layer->controllers.size() > 0)
+        {
+            layer->publishDesiredTorques(
+                layer->saturateTorques(desired_torques.vec_()),
+                std::chrono::duration_cast<std::chrono::microseconds>(epoch).count()
+            );
+        }
 
         auto delta = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - now).count();
 
-        if (delta > 9900)
+        if (delta > 990)
         {
             std::stringstream ss;
-		    ss << "Control Layer is probably breaking real-time. Has period of 10 mseconds but spent: " << delta << " useconds ";
+		    ss << "Control Layer is probably breaking real-time. Has period of 1 mseconds but spent: " << delta << " useconds ";
   		    // ss << "Control layer published torques " << desired_torques.transpose(); // << std::endl;
 		    // std::cout << "\033[F" << "\r" << ss.str() << std::endl;
             std::cout << ss.str() << std::endl;
@@ -362,7 +365,10 @@ std::string ControlLayer::where()
 // TODO("std::map already does this check for emplace, maybe for others. Double check and make this more efficient")
 bool ControlLayer::activateController(const std::string &ID)
 {
-	std::shared_ptr<ControllerData> pData = std::make_shared<ControllerData>(
+	if(this->controllers.find(ID) != this->controllers.end()) 
+        return false;
+
+    std::shared_ptr<ControllerData> pData = std::make_shared<ControllerData>(
 		this->pRobot,
 		this->pDefault_spline_in,
 		this->pDefault_spline_out,
@@ -370,65 +376,59 @@ bool ControlLayer::activateController(const std::string &ID)
 		default_duration_seconds
 	);
 
-	pData->ID = ID;
+    this->controllers.emplace(ID, pData);
 
-	decltype(this->controllers.find(ID)) pair_it;
-	{
-		// std::lock_guard<std::mutex> lock(this->controllers_mutex);
+    pData->ID = ID;
 
-		if(this->controllers.find(ID) != this->controllers.end()) 
-			return false;
+    // std::lock_guard<std::mutex> lock(this->controllers_mutex);
 
-		// launch the controller
-		//
-		// since its premultiplier is initially set to zero, this will have
-		// no effect on the robot until the spline in is run later
-		std::cout << "WARNING hardcoded to hyq" << std::endl;
-		char *child_process_launcher = std::getenv("DLS_CHILD_PROCESS_LAUNCHER");
-		if(!child_process_launcher)
-		{
-			std::cerr <<
-				"ERROR: env variable DLS_CHILD_PROCESS_LAUNCHER not "
-				"defined.  This is probably an error with the launch script"
-			<< std::endl;
-			return false;
-		}
+    // launch the controller
+    //
+    // since its premultiplier is initially set to zero, this will have
+    // no effect on the robot until the spline in is run later
+    std::cout << "WARNING hardcoded to hyq" << std::endl;
+    char *child_process_launcher = std::getenv("DLS_CHILD_PROCESS_LAUNCHER");
+    if(!child_process_launcher)
+    {
+        std::cerr <<
+            "ERROR: env variable DLS_CHILD_PROCESS_LAUNCHER not "
+            "defined.  This is probably an error with the launch script"
+        << std::endl;
+        return false;
+    }
 
-		std::cout << "Launching: child_process_launcher" << std::endl;
-		pData->proc = std::make_shared<boost::process::child>(std::vector<std::string>({
-			child_process_launcher,
-			ID.c_str(),
-			"controller",
-			Options::robot_name,
-			(Options::simulation_mode?"sim":"live")
-		}));
+    std::cout << "Launching: child_process_launcher" << std::endl;
+    pData->proc = std::make_shared<boost::process::child>(std::vector<std::string>({
+        child_process_launcher,
+        ID.c_str(),
+        "controller",
+        Options::robot_name,
+        (Options::simulation_mode?"sim":"live")
+    }));
 
-		if (pData->proc == nullptr){
-			std::cout << "Controller process failed to launch" << std::endl;
-			return false;
-		}
-		// pData->proc->detach();
+    if (pData->proc == nullptr){
+        std::cout << "Controller process failed to launch" << std::endl;
+        return false;
+    }
+    // pData->proc->detach();
 
-		pData->dds_reader = std::make_shared<dls::DDSReader>(
-			"ControlLayer::Listener::" + ID,
-			dls::domains::control,
-			dls::topics::control_signal,
-			std::function<void(void *)>
-			{
-				[&](void *tuple)
-				{
-                    // std::lock_guard<std::mutex> lock(pData->control_signal_mutex);
-					ControlSignalMsg msg = *((ControlSignalMsg *)tuple);
-					
-                    pData->control_signal = msg;
-				}
-			}
-		);
+    pData->dds_reader = std::make_shared<dls::DDSReader>(
+        "ControlLayer::Listener::" + ID,
+        dls::domains::control,
+        dls::topics::control_signal,
+        std::function<void(void *)>
+        {
+            [&, pData](void *tuple)
+            {
+                // std::lock_guard<std::mutex> lock(pData->control_signal_mutex);
+                ControlSignalMsg msg = *((ControlSignalMsg *)tuple);
+                
+                pData->control_signal = msg;
+            }
+        }
+    );
 
-		std::cout << "CONTROL LAYER IS LISTENING CONTROLLER " << ID << " ON TOPIC ControlLayer::Listener::" << ID <<  std::endl;
-
-		this->controllers.emplace(ID, pData);
-	}
+    std::cout << "CONTROL LAYER IS LISTENING CONTROLLER " << ID << " ON TOPIC ControlLayer::Listener::" << ID <<  std::endl;
 
 	// spline in the controller
 	//
@@ -498,7 +498,7 @@ bool ControlLayer::deactivateController(std::shared_ptr<ControllerData> pData)
 	pData->dds_reader = nullptr;
 	this->controllers.erase(pData->ID);
 
-    return false;
+    return true;
 }
 
 bool ControlLayer::deactivateController(const std::string &ID)

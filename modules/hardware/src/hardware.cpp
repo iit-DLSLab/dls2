@@ -67,6 +67,7 @@ Hardware::Hardware
 			{
 				DesiredTorquesMsg  msg = *((DesiredTorquesMsg *) tuple);
 				this->control_signal = msg;
+                this->heart_beat = true;
 			}
 		}
 	);
@@ -90,6 +91,14 @@ void Hardware::executeCommand(std::string cmd)
 	if(cmd == "shutdown"){
 		this->stop();
 	}
+}
+
+bool Hardware::readBeat()
+{
+    bool out = this->heart_beat;
+    this->heart_beat = false;
+
+    return out;
 }
 
 #endif /* end of include guard: HARDWARE_CPP */

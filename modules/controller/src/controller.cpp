@@ -35,6 +35,7 @@ Controller::Controller
     , gait_signal(robot_)
 	, blind_state_signal(robot_)
 	, should_run(false)
+    , heart_beat(false)
 	, control_signal_topic(control_signal_topic_)
 	, gait_topic(gait_topic_)
 	, blind_state_topic(blind_state_topic_)
@@ -73,6 +74,7 @@ Controller::Controller
 
 				std::lock_guard<std::mutex> lock(this->gait_signal_mutex);
 				this->gait_signal = st;
+                heart_beat = true;
 			}
 		}
 	);
@@ -123,4 +125,12 @@ void Controller::executeCommand(std::string cmd)
 	if(cmd == "shutdown"){
 		this->stop();
 	}
+}
+
+bool Controller::readBeat()
+{
+    bool out = this->heart_beat;
+    this->heart_beat = false;
+
+    return out;
 }

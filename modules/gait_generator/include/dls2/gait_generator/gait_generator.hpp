@@ -70,7 +70,9 @@ class GaitGenerator : public PeriodicAppLayerComponent
 
 		const std::shared_ptr<const robotlib::RobotBase> pRobot;	///< A pointer to the robot model
 
-		BlindState readBlindStateSignal() const;
+		BlindState readBlindStateSignal();
+
+        bool readBeat();
 		
 	private:
 		// BEGIN critical section
@@ -91,6 +93,8 @@ class GaitGenerator : public PeriodicAppLayerComponent
 		// END crital section
 
 		void executeCommand(std::string cmd);
+
+        bool heart_beat;
 
 		dls::DDSParticipant ddslink;
 		dls::DDSReader 		ddsMonitor;

@@ -78,6 +78,8 @@ namespace dls
         ///
         void publishSignal(const ControlSignal&);
 
+        bool readBeat();
+
         const std::shared_ptr<const robotlib::RobotBase> pRobot;
 
         const ControlSignal::SignalReconstructionMethod signal_reconstruction_method;
@@ -101,6 +103,7 @@ namespace dls
         // END crital section
 
         std::atomic_bool should_run;
+        bool heart_beat;
 
         dls::topicType control_signal_topic;
         dls::topicType gait_topic;
