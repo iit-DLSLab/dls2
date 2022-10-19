@@ -7,8 +7,6 @@ add_executable(child_process_launcher
 target_include_directories(child_process_launcher
 	PRIVATE
 		src
-	SYSTEM
-		${roscpp_INCLUDE_DIRS}
 )
 
 target_link_libraries(child_process_launcher
@@ -16,7 +14,6 @@ target_link_libraries(child_process_launcher
 		dl
 		urdf
 		dls_framework
-		roscpp
 		fastcdr
 		fastrtps
 )
