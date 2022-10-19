@@ -22,21 +22,20 @@ int main() {
   foxglove::websocket::Server server{8765, "example server"};
 
   const auto chanId = server.addChannel({
-    .topic = "example_msg",
-    .encoding = "json",
-    .schemaName = "ExampleMsg",
-    .schema =
-      json{
-        {"type", "object"},
+    "example_msg",
+    "json",
+    "ExampleMsg",
+    json{
+      {"type", "object"},
+      {
+        "properties",
         {
-          "properties",
-          {
-            {"msg", {{"type", "string"}}},
-            {"count", {{"type", "number"}}},
-          },
+          {"msg", {{"type", "string"}}},
+          {"count", {{"type", "number"}}},
         },
-      }
-        .dump(),
+      },
+    }
+      .dump(),
   });
 
   server.setSubscribeHandler([&](foxglove::websocket::ChannelId chanId) {

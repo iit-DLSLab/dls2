@@ -1,3 +1,6 @@
+
+add_compile_options("-std=c++17")
+
 # add_library(dls_foxglove
 # 	src/server.cpp
 # )
@@ -16,6 +19,7 @@ target_link_libraries(dls_foxglove
         boost_system
         pthread
 		dls_framework_components
+		fastrtps
 )
 
 dls_install(dls_foxglove)
