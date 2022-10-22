@@ -1,5 +1,3 @@
-message(STATUS "## Reading dls_globals.cmake")
-
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Compilation time

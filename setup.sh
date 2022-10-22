@@ -14,8 +14,10 @@ fi
 # Githooks
 # ==============================================================================
 echo -- Installing githooks
-rm -r .git/hooks
-ln -sf ../githooks .git/hooks
+hooks_root=$(git rev-parse --git-path hooks)
+
+rm -r $hooks_root/*
+cp -a $project_root/githooks/. $hooks_root/
 
 # Do not run fast-forward commits on master, but instead create a proper merge
 # commit with a commit message

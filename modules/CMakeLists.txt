@@ -1,5 +1,3 @@
-message(STATUS "## Configuring modules folder")
-
 add_subdirectory(message_wrappers)
 add_subdirectory(simulators)
 add_subdirectory(parameter_server)

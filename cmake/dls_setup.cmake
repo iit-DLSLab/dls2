@@ -1,21 +1,8 @@
-message(STATUS "## Reading dls_setup.cmake")
-
-
 # ==============================================================================
 # Output Directories and CMake Variables
 # ==============================================================================
 set(EXECUTABLE_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}")
 set(LIBRARY_OUTPUT_PATH    "${PROJECT_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}")
-
-# ==============================================================================
-# Setup the repository
-# ==============================================================================
-# This will perfom task such as setting up the git hooks for anyone who uses
-# this project
-execute_process(
-	COMMAND           ./setup.sh
-	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-)
 
 # ==============================================================================
 # Calculate correct project version number
@@ -47,5 +34,15 @@ string(JOIN "." PROJECT_VERSION
 	${PROJECT_VERSION_PATCH}
 )
 
+# ==============================================================================
+# Setup the repository
+# ==============================================================================
+# This will perfom task such as setting up the git hooks for anyone who uses
+# this project
+execute_process(
+	COMMAND           ./setup.sh
+	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
 unset(VERSION_ARRAY) # delete aray of version strings
-message(STATUS "DLS2_PROJECT VERSION ${PROJECT_VERSION}")
+message(STATUS "DLS2 PROJECT VERSION ${PROJECT_VERSION}")
