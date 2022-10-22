@@ -14,8 +14,8 @@
 *                                                 `---'                        *
 *******************************************************************************/
 #include "dls2/msg_wrappers/pose.hpp"
+#include "dls2/msg_wrappers/rotations.hpp" 
 #include <algorithm>
-#include <iit/commons/geometry/rotations.h>
 
 using namespace dls;
 // =============================================================================
@@ -115,14 +115,14 @@ Eigen::AngleAxisd Pose::toAngleAxis() const
 Eigen::Vector3d Pose::toRpy() const
 {
  std::lock_guard<std::mutex> lock(this->pose_mutex);
- return iit::commons::quatToRPY(this->quaternion);
+ return dls::commons::quatToRPY(this->quaternion);
 }
 
 
 Eigen::Matrix3d Pose::toRotationMatrix() const
 {
  std::lock_guard<std::mutex> lock(this->pose_mutex);
- return iit::commons::quatToRotMat(this->quaternion);
+ return dls::commons::quatToRotMat(this->quaternion);
 }
 
 
@@ -131,7 +131,7 @@ Pose::transformation_matrix_t Pose::toTransformationMatrix() const
 	Eigen::Matrix4d T;
 	{
 		std::lock_guard<std::mutex> lock(this->pose_mutex);
-		T.block<3,3>(0,0) = iit::commons::quatToRotMat(this->quaternion);//this->quaternion.toRotationMatrix();
+		T.block<3,3>(0,0) = dls::commons::quatToRotMat(this->quaternion);//this->quaternion.toRotationMatrix();
 		T.block<3, 1>(0, 3) = this->position;
 		// Release mutex earlier for efficiency of other threads
 	}
