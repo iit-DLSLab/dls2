@@ -48,7 +48,7 @@ the behaviour of the API.
 PRO TIP: The source code here contains hyperlinks. Use it to jump to the
 documentation of a component.
 
-<a name="exposing-commands-to-the-framework"/>
+<a name="exposing-commands-to-the-framework"></a>
 ## Exposing Commands to the Framework
 
 @COMMAND_MD@
