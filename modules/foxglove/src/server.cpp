@@ -7,6 +7,7 @@
 #include <iostream>
 #include <thread>
 
+#include <fstream>
 #include <boost/asio.hpp>
 
 using json = nlohmann::json;
@@ -38,6 +39,16 @@ int main() {
       .dump(),
   });
 
+  std::ifstream t("SceneUpdate.json");
+  json jsonSceneUpdate = json::parse(t);
+
+  const auto chanId2 = server.addChannel({
+    "urdf_msg",
+    "json",
+    "foxglove.SceneUpdate",
+    jsonSceneUpdate.dump()
+  });
+
   server.setSubscribeHandler([&](foxglove::websocket::ChannelId chanId) {
     std::cout << "first client subscribed to " << chanId << std::endl;
   });
@@ -55,6 +66,12 @@ int main() {
       }
       server.sendMessage(chanId, nanosecondsSinceEpoch(),
                          json{{"msg", "Hello"}, {"count", i++}}.dump());
+
+      std::ifstream f("example.json");
+      json jsonMsg = json::parse(f);
+
+      server.sendMessage(chanId2, nanosecondsSinceEpoch(),
+                         jsonMsg.dump());
       setTimer();
     });
   };

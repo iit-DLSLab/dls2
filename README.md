@@ -25,11 +25,14 @@ Building
 
 Development
 --------------------------------------------------------------------------------
+To develop please use docker it will save a lot of time. So, if you have not setup your docker installation yet you are invited to visit the [dls_docker](https://gitlab.advr.iit.it/dls-lab/dls_docker) repository, there you will find everithing to get it working.
+
+To enter in the fabulous world of DLS2 you can use the server-harbor:80/dls2/dls2-dev:22.04 image and follow the commands below.
 
 Build the debug project using:
 
-	$ mkdir Debug
-	$ cd Debug
+	$ mkdir build
+	$ cd build
 	$ cmake ..
 	$ make
 
@@ -55,8 +58,8 @@ Release
 
 A release debian package can be generated using:
 
-	$ mkdir Release
-	$ cd Release
+	$ mkdir build
+	$ cd build
 	$ cmake -DCMAKE_BUILD_TYPE=Release ..
 	$ make
 	$ cpack
