@@ -22,25 +22,18 @@ static uint64_t nanosecondsSinceEpoch() {
 int main() {
   foxglove::websocket::Server server{8765, "example server"};
 
+  std::ifstream trns("FrameTransform.json");
+  json jsonFrameTransform = json::parse(trns);
+
   const auto chanId = server.addChannel({
-    "example_msg",
+    "transforms",
     "json",
-    "ExampleMsg",
-    json{
-      {"type", "object"},
-      {
-        "properties",
-        {
-          {"msg", {{"type", "string"}}},
-          {"count", {{"type", "number"}}},
-        },
-      },
-    }
-      .dump(),
+    "foxglove.FrameTransform",
+    jsonFrameTransform.dump(),
   });
 
-  std::ifstream t("SceneUpdate.json");
-  json jsonSceneUpdate = json::parse(t);
+  std::ifstream scene("SceneUpdate.json");
+  json jsonSceneUpdate = json::parse(scene);
 
   const auto chanId2 = server.addChannel({
     "urdf_msg",
@@ -56,19 +49,25 @@ int main() {
     std::cout << "last client unsubscribed from " << chanId << std::endl;
   });
 
-  uint64_t i = 0;
   std::shared_ptr<asio::steady_timer> timer;
   std::function<void()> setTimer = [&] {
-    timer = server.getEndpoint().set_timer(200, [&](std::error_code const& ec) {
+    timer = server.getEndpoint().set_timer(1000, [&](std::error_code const& ec) {
       if (ec) {
         std::cerr << "timer error: " << ec.message() << std::endl;
         return;
       }
-      server.sendMessage(chanId, nanosecondsSinceEpoch(),
-                         json{{"msg", "Hello"}, {"count", i++}}.dump());
 
-      std::ifstream f("example.json");
-      json jsonMsg = json::parse(f);
+      std::ifstream frame("frames.json");
+      json jsonFramesMsg = json::parse(frame);
+
+      for( auto elem : jsonFramesMsg["transforms"])
+      {
+        server.sendMessage(chanId, nanosecondsSinceEpoch(),
+                        elem.dump());
+      }
+
+      std::ifstream scn("aliengo.json");
+      json jsonMsg = json::parse(scn);
 
       server.sendMessage(chanId2, nanosecondsSinceEpoch(),
                          jsonMsg.dump());

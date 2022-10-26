@@ -1,0 +1,441 @@
+{
+    "deletions": [],
+    "entities": [
+        {
+            "frame_id": "base_link",
+            "id": "base_link",
+            "cylinders": [
+                {
+                    "pose": {
+                        "position": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0
+                        },
+                        "orientation": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0,
+                            "w": 1
+                        }
+                    },
+                    "size": {
+                        "x": 0.01,
+                        "y": 0.01,
+                        "z": 0.01
+                    },
+                    "bottom_scale": 1,
+                    "top_scale": 1,
+                    "color": {
+                        "r":0.5,
+                        "g":0,
+                        "b":0,
+                        "a":1
+                    }
+                }
+            ],
+            "frame_locked": true
+        },
+        {
+            "frame_id": "trunk",
+            "id": "trunk",
+            "models": [
+                {
+                    "pose": {
+                        "position": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0
+                        },
+                        "orientation": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0,
+                            "w": 1
+                        }
+                    },
+                    "scale": {
+                        "x": 0.001,
+                        "y": 0.001,
+                        "z": 0.001
+                    },
+                    "override_color": false,
+                    "url": "/home/dwbertol/dls_ws_home/dls2_ws/dls2_deploy/descriptions/aliengo-description/meshes/trunk/combined_torso.dae"
+                }
+            ],
+            "frame_locked": true
+        },
+        {
+            "frame_id": "lf_haa_joint",
+            "id": "lf_haa_joint",
+            "cylinders": [
+                {
+                    "pose": {
+                        "position": {
+                            "x": 0,
+                            "y": -0.023,
+                            "z": 0
+                        },
+                        "orientation": {
+                            "x": 0.7071068,
+                            "y": 0,
+                            "z": 0,
+                            "w": 0.7071068
+                        }
+                    },
+                    "size": {
+                        "x": 0.0888,
+                        "y": 0.0888,
+                        "z": 0.117
+                    },
+                    "bottom_scale": 1,
+                    "top_scale": 1,
+                    "color": {
+                        "r":0.5,
+                        "g":0,
+                        "b":0,
+                        "a":1
+                    }
+                }
+            ],
+            "frame_locked": true
+        },
+        {
+            "frame_id": "lf_hfe_joint",
+            "id": "lf_hfe_joint",
+            "models": [
+                {
+                    "pose": {
+                        "position": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0
+                        },
+                        "orientation": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 1,
+                            "w": 0
+                        }
+                    },
+                    "scale": {
+                        "x": 0.001,
+                        "y": 0.001,
+                        "z": 0.001
+                    },
+                    "override_color": false,
+                    "url": "/home/dwbertol/dls_ws_home/dls2_ws/dls2_deploy/descriptions/aliengo-description/meshes/leg/upperleg.dae"
+                }
+            ],
+            "frame_locked": true
+        },
+        {
+            "frame_id": "lf_kfe_joint",
+            "id": "lf_kfe_joint",
+            "models": [
+                {
+                    "pose": {
+                        "position": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0
+                        },
+                        "orientation": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 1,
+                            "w": 0
+                        }
+                    },
+                    "scale": {
+                        "x": 0.001,
+                        "y": 0.001,
+                        "z": 0.001
+                    },
+                    "override_color": false,
+                    "url": "/home/dwbertol/dls_ws_home/dls2_ws/dls2_deploy/descriptions/aliengo-description/meshes/leg/lowerleg.dae"
+                }
+            ],
+            "frame_locked": true
+        },
+        {
+            "frame_id": "rf_haa_joint",
+            "id": "rf_haa_joint",
+            "cylinders": [
+                {
+                    "pose": {
+                        "position": {
+                            "x": 0,
+                            "y": -0.023,
+                            "z": 0
+                        },
+                        "orientation": {
+                            "x": 0.7071068,
+                            "y": 0,
+                            "z": 0,
+                            "w": 0.7071068
+                        }
+                    },
+                    "size": {
+                        "x": 0.0888,
+                        "y": 0.0888,
+                        "z": 0.117
+                    },
+                    "bottom_scale": 1,
+                    "top_scale": 1,
+                    "color": {
+                        "r":0.5,
+                        "g":0,
+                        "b":0,
+                        "a":1
+                    }
+                }
+            ],
+            "frame_locked": true
+        },
+        {
+            "frame_id": "rf_hfe_joint",
+            "id": "rf_hfe_joint",
+            "models": [
+                {
+                    "pose": {
+                        "position": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0
+                        },
+                        "orientation": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0,
+                            "w": 1
+                        }
+                    },
+                    "scale": {
+                        "x": 0.001,
+                        "y": 0.001,
+                        "z": -0.001
+                    },
+                    "override_color": false,
+                    "url": "/home/dwbertol/dls_ws_home/dls2_ws/dls2_deploy/descriptions/aliengo-description/meshes/leg/upperleg.dae"
+                }
+            ],
+            "frame_locked": true
+        },
+        {
+            "frame_id": "rf_kfe_joint",
+            "id": "rf_kfe_joint",
+            "models": [
+                {
+                    "pose": {
+                        "position": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0
+                        },
+                        "orientation": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0,
+                            "w": 1
+                        }
+                    },
+                    "scale": {
+                        "x": 0.001,
+                        "y": 0.001,
+                        "z": 0.001
+                    },
+                    "override_color": false,
+                    "url": "/home/dwbertol/dls_ws_home/dls2_ws/dls2_deploy/descriptions/aliengo-description/meshes/leg/lowerleg.dae"
+                }
+            ],
+            "frame_locked": true
+        },
+        {
+            "frame_id": "lh_haa_joint",
+            "id": "lh_haa_joint",
+            "cylinders": [
+                {
+                    "pose": {
+                        "position": {
+                            "x": 0,
+                            "y": -0.023,
+                            "z": 0
+                        },
+                        "orientation": {
+                            "x": 0.7071068,
+                            "y": 0,
+                            "z": 0,
+                            "w": 0.7071068
+                        }
+                    },
+                    "size": {
+                        "x": 0.0888,
+                        "y": 0.0888,
+                        "z": 0.117
+                    },
+                    "bottom_scale": 1,
+                    "top_scale": 1,
+                    "color": {
+                        "r":0.5,
+                        "g":0,
+                        "b":0,
+                        "a":1
+                    }
+                }
+            ],
+            "frame_locked": true
+        },
+        {
+            "frame_id": "lh_hfe_joint",
+            "id": "lh_hfe_joint",
+            "models": [
+                {
+                    "pose": {
+                        "position": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0
+                        },
+                        "orientation": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 1,
+                            "w": 0
+                        }
+                    },
+                    "scale": {
+                        "x": 0.001,
+                        "y": 0.001,
+                        "z": 0.001
+                    },
+                    "override_color": false,
+                    "url": "/home/dwbertol/dls_ws_home/dls2_ws/dls2_deploy/descriptions/aliengo-description/meshes/leg/upperleg.dae"
+                }
+            ],
+            "frame_locked": true
+        },
+        {
+            "frame_id": "lh_kfe_joint",
+            "id": "lh_kfe_joint",
+            "models": [
+                {
+                    "pose": {
+                        "position": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0
+                        },
+                        "orientation": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 1,
+                            "w": 0
+                        }
+                    },
+                    "scale": {
+                        "x": 0.001,
+                        "y": 0.001,
+                        "z": 0.001
+                    },
+                    "override_color": false,
+                    "url": "/home/dwbertol/dls_ws_home/dls2_ws/dls2_deploy/descriptions/aliengo-description/meshes/leg/lowerleg.dae"
+                }
+            ],
+            "frame_locked": true
+        },
+        {
+            "frame_id": "rh_haa_joint",
+            "id": "rh_haa_joint",
+            "cylinders": [
+                {
+                    "pose": {
+                        "position": {
+                            "x": 0,
+                            "y": -0.023,
+                            "z": 0
+                        },
+                        "orientation": {
+                            "x": 0.7071068,
+                            "y": 0,
+                            "z": 0,
+                            "w": 0.7071068
+                        }
+                    },
+                    "size": {
+                        "x": 0.0888,
+                        "y": 0.0888,
+                        "z": 0.117
+                    },
+                    "bottom_scale": 1,
+                    "top_scale": 1,
+                    "color": {
+                        "r":0.5,
+                        "g":0,
+                        "b":0,
+                        "a":1
+                    }
+                }
+            ],
+            "frame_locked": true
+        },
+        {
+            "frame_id": "rh_hfe_joint",
+            "id": "rh_hfe_joint",
+            "models": [
+                {
+                    "pose": {
+                        "position": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0
+                        },
+                        "orientation": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0,
+                            "w": 1
+                        }
+                    },
+                    "scale": {
+                        "x": 0.001,
+                        "y": 0.001,
+                        "z": -0.001
+                    },
+                    "override_color": false,
+                    "url": "/home/dwbertol/dls_ws_home/dls2_ws/dls2_deploy/descriptions/aliengo-description/meshes/leg/upperleg.dae"
+                }
+            ],
+            "frame_locked": true
+        },
+        {
+            "frame_id": "rh_kfe_joint",
+            "id": "rh_kfe_joint",
+            "models": [
+                {
+                    "pose": {
+                        "position": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0
+                        },
+                        "orientation": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0,
+                            "w": 1
+                        }
+                    },
+                    "scale": {
+                        "x": 0.001,
+                        "y": 0.001,
+                        "z": 0.001
+                    },
+                    "override_color": false,
+                    "url": "/home/dwbertol/dls_ws_home/dls2_ws/dls2_deploy/descriptions/aliengo-description/meshes/leg/lowerleg.dae"
+                }
+            ],
+            "frame_locked": true
+        }
+    ]
+  }
