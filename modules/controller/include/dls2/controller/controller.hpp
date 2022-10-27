@@ -105,6 +105,10 @@ namespace dls
         std::atomic_bool should_run;
         bool heart_beat;
 
+        /// Print stream
+        ///
+        logging::coutstream scout;
+
         dls::topicType control_signal_topic;
         dls::topicType gait_topic;
         dls::topicType blind_state_topic;

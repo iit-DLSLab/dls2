@@ -36,6 +36,7 @@ Controller::Controller
 	, blind_state_signal(robot_)
 	, should_run(false)
     , heart_beat(false)
+	, scout(name_)
 	, control_signal_topic(control_signal_topic_)
 	, gait_topic(gait_topic_)
 	, blind_state_topic(blind_state_topic_)
@@ -93,7 +94,7 @@ Controller::Controller
 		}
 	);
 
-	std::cout << "### CONTROLLER IS PUBLISHING ON TOPIC: '"	<< name_ << "' ###" << std::endl;
+	scout << "### CONTROLLER IS PUBLISHING ON TOPIC: '"	<< name_ << "' ###" << std::endl;
 }
 
 // =============================================================================
@@ -116,7 +117,7 @@ void Controller::publishSignal(const ControlSignal &signal)
 	ControlSignalMsg p = signal;
 
 	if (!this->ddslink.sendMessage("signalout", (void *) &p))
-        std::cout << "=== Problems sending ControlSignal ===" << std::endl;
+        scout << "=== Problems sending ControlSignal ===" << std::endl;
 
 }
 

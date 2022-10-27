@@ -77,6 +77,8 @@ Args parse_args(int argc, char **argv);
 ///
 void signal_handler(int signal);
 
+logging::coutstream scout(process_handle);
+
 // =============================================================================
 // Main
 // =============================================================================
@@ -90,15 +92,13 @@ int main(int argc, char **argv)
 
     std::shared_ptr<robotlib::RobotBase> pRobot;
 
-    logging::coutstream s(process_handle);
-
     try
     {
         pRobot = robotlib::RobotFactory::openRobot(args.robot_name);
     }
     catch (const std::exception &e)
     {
-        std::cout << "child_process: Could not open the robot " << args.robot_name << std::endl;
+        scout << "child_process: Could not open the robot " << args.robot_name << std::endl;
         std::cerr << e.what() << std::endl;
     }
 
@@ -114,7 +114,7 @@ int main(int argc, char **argv)
         }
         else if (args.component_type == "gait_generator")
         {
-            std::cout << "LOADING GATE GENERATOR FROM '" << std::string("${DLS_INSTALL_GAIT_GENERATOR_DIR}/lib") + args.component_name + ".so'" << std::endl;
+            scout << "LOADING GATE GENERATOR FROM '" << std::string("${DLS_INSTALL_GAIT_GENERATOR_DIR}/lib") + args.component_name + ".so'" << std::endl;
             pComponent =
                 ClassLoader::loadClass<GaitGenerator, std::shared_ptr<robotlib::RobotBase>>(
                     std::string("${DLS_INSTALL_GAIT_GENERATOR_DIR}/lib") + args.component_name + ".so",
@@ -122,7 +122,7 @@ int main(int argc, char **argv)
         }
         else if (args.component_type == "hardware")
         {
-            std::cout << "LOADING HARDWARE FROM '" << std::string("${DLS_INSTALL_HARDWARE_DIR}/lib") + args.component_name + ".so'" << std::endl;
+            scout << "LOADING HARDWARE FROM '" << std::string("${DLS_INSTALL_HARDWARE_DIR}/lib") + args.component_name + ".so'" << std::endl;
             pComponent =
                 ClassLoader::loadClass<Hardware, std::shared_ptr<robotlib::RobotBase>>(
                     std::string("${DLS_INSTALL_HARDWARE_DIR}/lib") + args.component_name + ".so",
@@ -134,14 +134,14 @@ int main(int argc, char **argv)
             exit(EXIT_FAILURE);
         }
 
-        s << "Loaded component " << pComponent->getID() << std::endl;
+        scout << "Loaded component " << pComponent->getID() << std::endl;
     }
     catch (const std::exception &e)
     {
         // logging::cfatalstream s(process_handle);
         // s << "Component '" << args.component_name << "' of type '"
         // 	<< args.component_type << "' not found" << std::endl;
-        std::cout << "Could not load component '" << args.component_name
+        scout << "Could not load component '" << args.component_name
                   << "' of type '" << args.component_type 
                   << std::endl << "Error msg:" << e.what() << std::endl;
         exit(EXIT_FAILURE);
@@ -164,10 +164,10 @@ Args parse_args(int argc, char **argv)
         std::cerr << "Error: incorrect number of arguments" << std::endl;
         exit(EXIT_FAILURE);
     }
-    for (size_t i = 1; i <= 4; i++)
-    {
-        std::cout << "arg " << i << ": " << argv[i] << std::endl;
-    }
+    // for (size_t i = 1; i <= 4; i++)
+    // {
+    //     std::cout << "arg " << i << ": " << argv[i] << std::endl;
+    // }
 
     Args args;
     args.component_name = argv[1];
@@ -208,7 +208,7 @@ Args parse_args(int argc, char **argv)
 
 void signal_handler(int signal)
 {
-    std::cout << "#### KILL SIGNAL RECEIVED" << std::endl;
+    scout << "#### KILL SIGNAL RECEIVED" << std::endl;
     if (signal == SIGTERM)
     {
         pComponent->stop();
@@ -217,7 +217,7 @@ void signal_handler(int signal)
         s << pComponent->getID() << " received kill request" << std::endl;
         dls::AppLayerComponent::Status exit_status = pComponent->getStatus();
 
-        std::cout << "#### FROM KILLER pComp status " << static_cast<int>(exit_status) << std::endl;
+        scout << "#### FROM KILLER pComp status " << static_cast<int>(exit_status) << std::endl;
         // pComponent = nullptr;
 
         // give fastrtps a moment to send its message

@@ -50,7 +50,8 @@ namespace dls
 
 		// command
 		dls::topicType command_call 			= dls::topicType("command_call", new CommandCallMsgPubSubType(), &registercommand_callTypes);
-		std::string console 					= "console";
+		dls::topicType command_send 			= dls::topicType("command_send", new CommandSendMsgPubSubType(), &registercommand_sendTypes);
+		dls::topicType command_feedback			= dls::topicType("command_feedback", new StringMsgPubSubType(), &registerstringmsgTypes);
 
 		// simulation
 		std::string simulation_time 			= "simulation_time";
@@ -64,9 +65,6 @@ namespace dls
 		dls::topicType control_signal 			= dls::topicType("rt/control_signal", new  ControlSignalMsgPubSubType(), &registercontrol_signalTypes);
 		dls::topicType gait_signal 				= dls::topicType("gaitSignal", new  GaitSignalMsgPubSubType(), &registergait_signalTypes);
 		dls::topicType joint_states				= dls::topicType("rt/joint_states", new JointStateMsgPubSubType(), &registerjoint_stateTypes);
-
-		// commands send
-		dls::topicType command_send 			= dls::topicType("command_send", new CommandSendMsgPubSubType(), &registercommand_sendTypes);		
 			
 		namespace low_level_estimation
 		{

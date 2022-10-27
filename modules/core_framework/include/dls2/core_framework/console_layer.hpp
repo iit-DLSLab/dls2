@@ -78,6 +78,8 @@ namespace dls
 		/// Handler to the shutdown SIGINT (ctrl+c) signal
 		/// 
 		static void handle_signals(int);
+
+		dls::DDSReader ddsLog;
 	};
 } // end namespace dls
 

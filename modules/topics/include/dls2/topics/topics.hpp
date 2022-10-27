@@ -50,7 +50,8 @@ namespace dls
 
 		// command
 		extern dls::topicType command_call;
-		extern std::string console;
+		extern dls::topicType command_send;
+		extern dls::topicType command_feedback;
 
 		// simulation
 		extern std::string simulation_time;
@@ -65,10 +66,6 @@ namespace dls
 		extern dls::topicType gait_signal;
 		extern dls::topicType joint_states;
 
-		// commands send
-		extern dls::topicType command_send;
-
-		
 		namespace low_level_estimation
 		{
 			extern dls::topicType blind_state;
