@@ -1,12 +1,9 @@
 
 add_compile_options("-std=c++17")
 
-# add_library(dls_foxglove
-# 	src/server.cpp
-# )
-
-add_executable(dls_foxglove
-src/server.cpp
+add_library(dls_foxglove
+	SHARED
+ 		src/server.cpp
 )
 
 target_include_directories(dls_foxglove

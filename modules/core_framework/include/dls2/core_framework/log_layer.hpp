@@ -19,6 +19,7 @@
 #include "app_layer.hpp"
 #include "dls2/util/messaging/dds_participant.hpp"
 #include "dls2/topics/topics.hpp"
+#include "foxglove/websocket/server.hpp"
 
 namespace dls
 {
@@ -38,6 +39,11 @@ namespace dls
 
 	private:
 		static std::string get_current_time();
+
+		dls::FoxServer server;
+
+		bool startFoxServer();
+		bool stopFoxServer();
 
 		DDSParticipant ddslink;
 

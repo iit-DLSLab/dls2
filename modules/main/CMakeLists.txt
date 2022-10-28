@@ -1,3 +1,6 @@
+
+add_compile_options("-std=c++17")
+
 configure_file(src/main.cpp.in
 	${CMAKE_CURRENT_BINARY_DIR}/src/main.cpp
 )

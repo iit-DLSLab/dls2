@@ -208,6 +208,31 @@ LogLayer::LogLayer(std::string ID)
 			}
 		}
 	);
+
+	command_manager.addCommand<>
+	(
+		"startFoxgloveServer",
+		"Start logging var to foxglove",
+		std::function<bool()>([&]()->bool
+        {
+			return this->startFoxServer();
+        }),
+		{{0,1}},
+		true
+	);
+
+	command_manager.addCommand<>
+	(
+		"stopFoxgloveServer",
+		"Stop logging var to foxglove",
+		std::function<bool()>([&]()->bool
+        {
+			return this->stopFoxServer();
+        }),
+		{{1,0}},
+		true
+	);
+
 }
 
 LogLayer::Status LogLayer::run()
@@ -235,5 +260,19 @@ std::string LogLayer::get_current_time()
     strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
 
 	return buf;
+}
+
+bool LogLayer::startFoxServer()
+{
+	this->server.run();
+
+	return true;
+}
+
+bool LogLayer::stopFoxServer()
+{
+	this->server.stop();
+
+	return true;
 }
 #endif /* end of include guard: LOG_LAYER_CPP_DLJLOFSG */

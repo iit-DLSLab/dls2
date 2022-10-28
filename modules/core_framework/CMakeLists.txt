@@ -1,3 +1,5 @@
+add_compile_options("-std=c++17")
+
 dls_configure(src/version_info.cpp.in  VERSION_INFO_CPP)
 dls_configure(src/app_layer.cpp.in  APP_LAYER_CPP)
 dls_configure(src/control_layer.cpp.in  CONTROL_LAYER_CPP)
@@ -41,6 +43,7 @@ target_link_libraries(dls_framework
 		dls_domains
 		dls_topics
 		dls_class_loader
+		dls_foxglove
 		fastcdr
 		fastrtps
 )
