@@ -27,7 +27,7 @@ dls - Dynamic Legged Systems software framework for the HyQ robot family.
 .B #include <dls2/util/log/log.hpp>
 .B dls::logging::cdbgstream
 .B dls::logging::clogstream
-.B dls::logging::coutstream
+.B dls::logging::clogstream
 .B dls::logging::cerrstream
 .B dls::logging::cfatalstream
 

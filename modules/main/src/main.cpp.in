@@ -178,7 +178,7 @@ int main(int argc, char **argv)
 
 	// Initiate log streams
 	// Does not initiate these before fork actions, dds will break
-	logging::coutstream outstream("fwkMonitorStream");
+	logging::clogstream outstream("fwkMonitorStream");
 	logging::cfatalstream sfatal("fwkMonitorFatal");
 
 	// Monitor the child processes

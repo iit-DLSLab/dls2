@@ -51,7 +51,7 @@ public:
 
 private:
 	// CommandManager command_manager;
-	// logging::coutstream outstream;
+	// logging::clogstream outstream;
 	// logging::clogstream logstream;
 
 	// Service<StringMsgPubSubType, StringMsgPubSubType> service;

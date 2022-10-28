@@ -77,7 +77,7 @@ Args parse_args(int argc, char **argv);
 ///
 void signal_handler(int signal);
 
-logging::coutstream scout(process_handle);
+logging::clogstream scout(process_handle);
 
 // =============================================================================
 // Main
@@ -213,7 +213,7 @@ void signal_handler(int signal)
     {
         pComponent->stop();
 
-        logging::coutstream s(process_handle);
+        logging::clogstream s(process_handle);
         s << pComponent->getID() << " received kill request" << std::endl;
         dls::AppLayerComponent::Status exit_status = pComponent->getStatus();
 

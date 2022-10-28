@@ -179,7 +179,7 @@ private:
 	std::shared_ptr<robotlib::RobotBase> pRobot;
 
 	// ================================ Members ================================
-	logging::coutstream scout;
+	logging::clogstream scout;
 	logging::clogstream clog;
 	logging::cfatalstream cfatal;
 };

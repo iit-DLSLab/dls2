@@ -75,11 +75,11 @@ namespace dls
 		/// Print log stream
 		///
 		/// Use this class to log messages that should also be shown to the user
-		class coutstream : public std::ostream
+		class warnstream : public std::ostream
 		{
 		public:
-			coutstream(const std::string &prefix, std::size_t buffer_size = 512);
-			~coutstream();
+			warnstream(const std::string &prefix, std::size_t buffer_size = 512);
+			~warnstream();
 		};
 
 		/// Error log stream

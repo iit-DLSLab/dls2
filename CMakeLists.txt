@@ -16,7 +16,7 @@ include(dls_test)             # functions to register unit tests
 # ================================= Compilation ================================
 add_subdirectory(scripts)   # bash completion and launch scripts
 add_subdirectory(test)      # Test libraries and frameworks. Actual unit tests are in their respective moduels
-# add_subdirectory(doc)       # generate and install documentation
+add_subdirectory(doc)       # generate and install documentation
 add_subdirectory(modules)   # build framework, libraries and tools
 
 install(SCRIPT "cmake/dls_post_install.cmake")

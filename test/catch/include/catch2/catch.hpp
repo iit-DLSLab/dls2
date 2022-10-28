@@ -13526,13 +13526,13 @@ namespace Catch {
 
         ///////////////////////////////////////////////////////////////////////////
 
-        class CoutStream : public IStream {
+        class clogstream : public IStream {
             mutable std::ostream m_os;
         public:
             // Store the streambuf from cout up-front because
             // cout may get redirected when running tests
-            CoutStream() : m_os( Catch::cout().rdbuf() ) {}
-            ~CoutStream() override = default;
+            clogstream() : m_os( Catch::cout().rdbuf() ) {}
+            ~clogstream() override = default;
 
         public: // IStream
             std::ostream& stream() const override { return m_os; }
@@ -13561,7 +13561,7 @@ namespace Catch {
 
     auto makeStream( StringRef const &filename ) -> IStream const* {
         if( filename.empty() )
-            return new Detail::CoutStream();
+            return new Detail::clogstream();
         else if( filename[0] == '%' ) {
             if( filename == "%debug" )
                 return new Detail::DebugOutStream();

@@ -58,26 +58,6 @@ ConsoleLayer *pInstance = nullptr;
 // =============================================================================
 ConsoleLayer::ConsoleLayer(std::string ID) 
 	: AppLayer(ID)
-	, ddsLog(
-		ID,
-		dls::domains::logging,
-		dls::topics::warn_log_stream,
-		std::function<void(void *)>
-		{
-			[&](void *tuple)
-			{
-				StringMsg msg = *((StringMsg*) tuple);
-				
-				std::cout << "\33[2K\r";
-				std::cout << msg.msg() << std::flush;
-				// rl_reset_line_state();
-				// rl_clear_message();
-				// rl_on_new_line();
-				rl_forced_update_display();
-				// std::cout << build_prompt() << std::ends;
-			}
-		}
-	)
 {
 	pInstance = this;
 

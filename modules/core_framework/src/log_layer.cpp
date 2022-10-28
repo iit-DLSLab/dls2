@@ -38,7 +38,7 @@ LogLayer::LogLayer(std::string ID)
 			[&](void *tuple)
 			{
 				StringMsg *msg = (StringMsg*) tuple;
-				std::cout << LogLayer::get_current_time() << ": DEBUG: " <<  msg->msg() << std::flush;
+				std::cout << '\r' << LogLayer::get_current_time() << ": DEBUG: " <<  msg->msg() << std::flush;
 			}
 		}
 	);
@@ -52,7 +52,7 @@ LogLayer::LogLayer(std::string ID)
 			[&](void *tuple)
 			{
 				StringMsg *msg = (StringMsg*) tuple;
-				std::cout << LogLayer::get_current_time() << ": INFO: " <<  msg->msg() << std::flush;
+				std::cout << '\r' << LogLayer::get_current_time() << ": INFO: " <<  msg->msg() << std::flush;
 			}
 		}
 	);
@@ -66,7 +66,7 @@ LogLayer::LogLayer(std::string ID)
 			[&](void *tuple)
 			{
 				StringMsg *msg = (StringMsg*) tuple;
-				std::cout << LogLayer::get_current_time() << ": WARN: " <<  msg->msg() << std::flush;
+				std::cout << '\r' << LogLayer::get_current_time() << ": WARN: " <<  msg->msg() << std::flush;
 			}
 		}
 	);
@@ -80,7 +80,7 @@ LogLayer::LogLayer(std::string ID)
 			[&](void *tuple)
 			{
 				StringMsg *msg = (StringMsg*) tuple;
-				std::cout << LogLayer::get_current_time() << ": ERROR: " <<  msg->msg() << std::flush;
+				std::cout << '\r' << LogLayer::get_current_time() << ": ERROR: " <<  msg->msg() << std::flush;
 			}
 		}
 	);
@@ -94,7 +94,7 @@ LogLayer::LogLayer(std::string ID)
 			[&](void *tuple)
 			{
 				StringMsg *msg = (StringMsg*) tuple;
-				std::cout << LogLayer::get_current_time() << ": FATAL: " <<  msg->msg() << std::flush;
+				std::cout << '\r' << LogLayer::get_current_time() << ": FATAL: " <<  msg->msg() << std::flush;
 			}
 		}
 	);
@@ -109,7 +109,7 @@ LogLayer::LogLayer(std::string ID)
 			[&](void *tuple)
 			{
 				HyQRealRawMsg *msg = (HyQRealRawMsg*) tuple;
-				std::cout << LogLayer::get_current_time() << ": RAW: " <<
+				std::cout << '\r' << LogLayer::get_current_time() << ": RAW: " <<
 						msg->lf().haa().actual_position() << " " <<
 						msg->lf().haa().actual_force() << " " <<
 						msg->lf().haa().calc_velocity() << " " <<
@@ -228,13 +228,12 @@ LogLayer::Status LogLayer::shutdown()
 
 std::string LogLayer::get_current_time()
 {
-	char buf [256];
-	struct timeval tv;
-	struct timezone tz;
-	struct tm *tm;
-	gettimeofday(&tv, &tz);
-	tm=localtime(&tv.tv_sec);
-	sprintf(buf, "%02d:%02d:%02d:%03d:%03d", tm->tm_hour, tm->tm_min, tm->tm_sec, (int)(tv.tv_usec/1000), (int)(tv.tv_usec%1000));
+	time_t     now = time(0);
+    struct tm  tstruct;
+    char       buf[256];
+    tstruct = *localtime(&now);
+    strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
+
 	return buf;
 }
 #endif /* end of include guard: LOG_LAYER_CPP_DLJLOFSG */

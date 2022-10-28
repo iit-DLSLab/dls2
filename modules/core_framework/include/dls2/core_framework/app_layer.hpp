@@ -138,7 +138,7 @@ namespace dls
 			Status status;
 		// END critical section
 
-		logging::coutstream scout;
+		logging::clogstream scout;
 	};
 } // end namespace dls
 

@@ -35,7 +35,7 @@ public:
 	std::string where() override;
 
 private:
-	logging::coutstream scout;
+	logging::clogstream scout;
 	logging::clogstream sclog;
 	ServiceClient<StringMsgPubSubType, StringMsgPubSubType> service_client;
 };

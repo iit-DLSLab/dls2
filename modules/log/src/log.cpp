@@ -126,7 +126,7 @@ clogstream::~clogstream()
 // -----------------------------------------------------------------------------
 // Cout Stream
 // -----------------------------------------------------------------------------
-coutstream::coutstream(const std::string &prefix, std::size_t buffer_size) :
+warnstream::warnstream(const std::string &prefix, std::size_t buffer_size) :
 	std::ostream
 	(
 		new LogStreamBuffer
@@ -138,7 +138,7 @@ coutstream::coutstream(const std::string &prefix, std::size_t buffer_size) :
 	)
 { }
 
-coutstream::~coutstream()
+warnstream::~warnstream()
 {
 	delete rdbuf();
 }

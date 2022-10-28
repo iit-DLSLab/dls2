@@ -107,7 +107,7 @@ namespace dls
 
         /// Print stream
         ///
-        logging::coutstream scout;
+        logging::clogstream scout;
 
         dls::topicType control_signal_topic;
         dls::topicType gait_topic;
