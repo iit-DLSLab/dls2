@@ -158,7 +158,9 @@ class FoxServer
   private:
 
     void serverFunc();    
+    void watcherFunc();
     std::thread *serverThread;
+    std::thread *watcherThread;
     std::shared_ptr<boost::asio::steady_timer> timer;
     Server *server;
 };

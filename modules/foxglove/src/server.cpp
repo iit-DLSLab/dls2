@@ -333,11 +333,13 @@ FoxServer::FoxServer()
 
 FoxServer::~FoxServer(){}
 
+void FoxServer::watcherFunc()
+{
+}
+
 void FoxServer::serverFunc()
 {
-  server = new Server(8765, "example server");
-
-  std::ifstream trns("/home/dwbertol/dls2_ws/dls2_deploy/dls2/modules/foxglove/src/FrameTransform.json");
+  std::ifstream trns("/home/dwbertol/dls2_ws/dls2_deploy/dls2/modules/foxglove/json/FrameTransform.json");
   json jsonFrameTransform = json::parse(trns);
 
   const auto chanId = server->addChannel({
@@ -347,7 +349,7 @@ void FoxServer::serverFunc()
     jsonFrameTransform.dump(),
   });
 
-  std::ifstream scene("/home/dwbertol/dls2_ws/dls2_deploy/dls2/modules/foxglove/src/SceneUpdate.json");
+  std::ifstream scene("/home/dwbertol/dls2_ws/dls2_deploy/dls2/modules/foxglove/json/SceneUpdate.json");
   json jsonSceneUpdate = json::parse(scene);
 
   const auto chanId2 = server->addChannel({
@@ -371,7 +373,7 @@ void FoxServer::serverFunc()
         return;
       }
 
-      std::ifstream frame("/home/dwbertol/dls2_ws/dls2_deploy/dls2/modules/foxglove/src/frames.json");
+      std::ifstream frame("/home/dwbertol/dls2_ws/dls2_deploy/dls2/modules/foxglove/json/frames.json");
       json jsonFramesMsg = json::parse(frame);
 
       for( auto elem : jsonFramesMsg["transforms"])
@@ -380,7 +382,7 @@ void FoxServer::serverFunc()
                         elem.dump());
       }
 
-      std::ifstream scn("/home/dwbertol/dls2_ws/dls2_deploy/dls2/modules/foxglove/src/aliengo.json");
+      std::ifstream scn("/home/dwbertol/dls2_ws/dls2_deploy/dls2/modules/foxglove/json/aliengo.json");
       json jsonMsg = json::parse(scn);
 
       server->sendMessage(chanId2, nanosecondsSinceEpoch(),
@@ -409,31 +411,43 @@ void FoxServer::serverFunc()
 
   server->run();
 
-  std::cout << "#### Foxglove Server Stopped #####" << std::endl;
+  std::cout << "#### Foxglove Loop Stopped #####" << std::endl;
 
-  delete server;
-  server = nullptr;
 } 
 
 void FoxServer::run()
 {
-  if(this->serverThread == nullptr)
-    this->serverThread = new std::thread(&FoxServer::serverFunc, this);
+  if(server != nullptr)
+    return;
+
+  this->server = new Server(8765, "example server");
+  this->serverThread = new std::thread(&FoxServer::serverFunc, this);
+  this->watcherThread = new std::thread(&FoxServer::watcherFunc, this);
+
 }
 
 void FoxServer::stop()
 {
-  if(this->server != nullptr)
-  {
-    server->removeChannel(1);
-    server->removeChannel(2);
-    server->stop();
-    if (timer) {
-      timer->cancel();
-    }
+  if(server == nullptr)
+    return;
+  
+  server->removeChannel(1);
+  server->removeChannel(2);
+  server->stop();
+
+  if (timer) {
+    timer->cancel();
   }
 
   this->serverThread->join();
   delete this->serverThread;
   this->serverThread = nullptr;
+
+  this->watcherThread->join();
+  delete this->watcherThread;
+  this->watcherThread = nullptr;
+
+  delete this->server;
+  this->server = nullptr;
+  std::cout << "#### Foxglove Server Stopped #####" << std::endl;
 }
