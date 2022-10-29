@@ -1,17 +1,19 @@
 #include "dls2/util/messaging/dds_writer.hpp"
 #include "dls2/util/messaging/dds_reader.hpp"
 
+#include <dls_messages/dds/stringmsgTypeObject.h>
+
 #include <chrono>
 #include <cstdlib>
 #include <iostream>
 #include <vector>
 #include <memory>
 
-dls::topicType topic("this_is_a_long_dummy_test_topic", new StringMsgPubSubType());
+dls::topicType topic("this_is_a_long_dummy_test_topic", new StringMsgPubSubType(), &registerstringmsgTypes);
 auto target_message = "this is the required message that has to be delivered";
 constexpr size_t COUNT_OF_SUBSCRIBERS             = 50;
 constexpr size_t COUNT_OF_PUBLISHERS              = 50;
-constexpr size_t NUMBER_OF_MESSAGES_PER_PUBLISHER = 5;
+constexpr size_t NUMBER_OF_MESSAGES_PER_PUBLISHER = 20;
 constexpr size_t TOLERANCE_OF_MISSED_MESSAGES     = 10;
 constexpr auto   MINIMUM_EXPECTED_MESSAGES        = NUMBER_OF_MESSAGES_PER_PUBLISHER * COUNT_OF_PUBLISHERS - TOLERANCE_OF_MISSED_MESSAGES;
 

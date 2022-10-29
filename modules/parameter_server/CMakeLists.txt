@@ -16,7 +16,7 @@ target_include_directories(dls_parameter_server
 target_link_libraries(dls_parameter_server
 	PRIVATE
 		dls_param_store 
-		dls_pubsub
+		dls_com
 		fastcdr
 		fastrtps
 		dls_topics
@@ -34,7 +34,7 @@ add_executable(dls_parameter_server_cli
 target_link_libraries(dls_parameter_server_cli
 	PRIVATE
 		dls_parameter_server
-		dls_pubsub
+		dls_com
 		dls_messages
 		fastcdr
 		fastrtps

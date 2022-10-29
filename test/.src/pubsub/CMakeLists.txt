@@ -3,7 +3,7 @@
 # 		multiple_pub_sub_with_single_participant_to_same_topic.cpp
 # 	LINK
 # 		dls_messages
-# 		dls_pubsub
+# 		dls_com
 # 		fastrtps
 # 		fastcdr
 # 		dls_framework
@@ -14,7 +14,7 @@
 # 		high_frequency_test.cpp
 # 	LINK
 # 		dls_messages
-# 		dls_pubsub
+# 		dls_com
 # 		fastrtps
 # 		fastcdr
 # 		dls_framework
@@ -25,7 +25,7 @@ create_test(pubsub
 		pubsub.cpp
 	LINK
 		dls_messages
-		dls_pubsub
+		dls_com
 		dls_framework
 		fastrtps
 		fastcdr
@@ -60,7 +60,7 @@ add_executable(dummy_blind_state_publisher
 
 target_link_libraries(dummy_blind_state_publisher
 	dls_framework
-	dls_pubsub
+	dls_com
 	dls_messages
 	fastrtps
 	fastcdr

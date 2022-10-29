@@ -7,7 +7,7 @@ target_include_directories(dls_service
 
 target_link_libraries(dls_service
 	INTERFACE
-		dls_pubsub
+		dls_com
 )
 
 dls_install(dls_service)

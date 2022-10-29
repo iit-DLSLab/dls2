@@ -1,38 +1,35 @@
 #include <catch2/catch.hpp>
 #include "dls2/util/messaging/dds_writer.hpp"
-#include "dls2/util/messaging/callback_subscriber.hpp"
-#include "dls_messages/dds/stringmsgPubSubTypes.h"
+#include "dls2/util/messaging/dds_reader.hpp"
+#include "dls_messages/dds/stringmsgTypeObject.h"
 #include <string>
 #include <chrono>
 
-#include "dls2/application_framework/init.hpp"
-
 TEST_CASE("Messages can be published and received via topics", "[pubsub]")
 {
-	std::string topic("this_is_a_pubsub_test_topic_a1212j3jL@#@!jfsxzc");
+	dls::topicType topic("this_is_a_pubsub_test_topic_a1212j3jL@#@!jfsxzc", new StringMsgPubSubType(), &registerstringmsgTypes);
 	std::string send_message("this is the message that needs to be sent");
-
-	dls::impl::initFastdds();
 
 	SECTION("A message is sent and received")
 	{
 		std::string received_message("garbage aslkdfjskldafjsklafjlskajfd");
 		REQUIRE(received_message != send_message);
 
-		dls::DDSWriter publisher(topic);
-		dls::DDSSubscriber<StringMsgPubSubType> subscriber
-		(
-			topic,
-			[&](StringMsg &msg)
+		dls::DDSWriter publisher("test_writer", dls::domains::develop, topic);
+		dls::DDSReader subscriber("test_reader", dls::domains::develop, topic,
+			std::function<void(void *)>
 			{
-				received_message = msg.msg();
+				[&](void *tuple)
+				{
+					received_message = ((StringMsg*) tuple)->msg();
+				}
 			}
 		);
 
 		StringMsg msg;
 		msg.msg() = send_message;
 		std::this_thread::sleep_for(std::chrono::seconds(1));
-		publisher.publish(msg);
+		publisher.sendMessage(&msg);
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 		REQUIRE(received_message == send_message);
 	}

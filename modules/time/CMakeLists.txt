@@ -11,7 +11,7 @@ target_include_directories(dls_time
 
 target_link_libraries(dls_time
 	PUBLIC
-		dls_pubsub
+		dls_com
 		dls_topics
 		dls_domains
 )

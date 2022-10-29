@@ -11,7 +11,7 @@ target_include_directories(dls_logging
 
 target_link_libraries(dls_logging
 	PUBLIC
-		dls_pubsub
+		dls_com
 		dls_domains
 		dls_topics
 )

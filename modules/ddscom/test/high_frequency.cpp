@@ -7,7 +7,9 @@
 #include "dls2/util/messaging/dds_writer.hpp"
 #include "dls2/util/messaging/dds_reader.hpp"
 
-dls::topicType topic("this_is_a_long_dummy_test_topic", new StringMsgPubSubType());
+#include <dls_messages/dds/stringmsgTypeObject.h>
+
+dls::topicType topic("this_is_a_long_dummy_test_topic", new StringMsgPubSubType(), &registerstringmsgTypes);
 auto target_message = "this is the required message that has to be delivered";
 constexpr size_t COUNT_OF_SUBSCRIBERS             = 4;
 constexpr size_t COUNT_OF_PUBLISHERS              = 4;
@@ -101,7 +103,7 @@ int main(int /*argc*/, char ** /*argv*/)
 			{
 				for(size_t j = 0; j != NUMBER_OF_MESSAGES_PER_PUBLISHER; ++j)
 				{
-					publisher->sendMessage((void*) &msg);
+					publishers[i]->sendMessage((void*) &msg);
 					std::this_thread::sleep_for(std::chrono::milliseconds(1));
 				}
 			}

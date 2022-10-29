@@ -6,6 +6,6 @@ add_executable(topic_info
 
 target_link_libraries(topic_info
 	PRIVATE
-		dls_pubsub
+		dls_com
 		dls_debug
 )

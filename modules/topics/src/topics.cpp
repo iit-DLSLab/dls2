@@ -20,8 +20,6 @@
 
 #include <dls_messages/dds/timeTypeObject.h>
 #include <dls_messages/dds/headerTypeObject.h>
-
-
 #include <dls_messages/dds/stringmsgTypeObject.h>
 #include <dls_messages/dds/hyqreal_rawTypeObject.h>
 #include <dls_messages/dds/command_callTypeObject.h>
