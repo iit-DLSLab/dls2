@@ -25,7 +25,7 @@ namespace dls
 		domainType develop 		= 2;
 		domainType layers 		= 4;
 		domainType command		= 5;
-		domainType control 		= 0;
+		domainType signals 		= 0;
 		domainType controllers 	= 1;
         domainType hardwares 	= 3;
 		domainType console 		= 7;

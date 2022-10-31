@@ -67,6 +67,39 @@ namespace dls
 		void on_data_available ( eprosima::fastdds::dds::DataReader* ) override;
 
 	};
+
+
+	class DDSPartListener
+	{
+	public:
+
+		// virtual void on_double_data_read(
+		// 		const std::vector<types::NumericDatum>& numeric_data,
+		// 		double timestamp)
+		// {
+		// 	DEBUG("Calling on_double_data_read");
+		// 	static_cast<void>(numeric_data);
+		// 	static_cast<void>(timestamp);
+		// }
+
+		// virtual void on_string_data_read(
+		// 		const std::vector<types::TextDatum>& text_data,
+		// 		double timestamp)
+		// {
+		// 	DEBUG("Calling on_string_data_read");
+		// 	static_cast<void>(text_data);
+		// 	static_cast<void>(timestamp);
+		// }
+
+		virtual void on_topic_discovery(
+				const std::string& topic_name,
+				const std::string& type_name)
+		{
+			static_cast<void>(topic_name);
+			static_cast<void>(type_name);
+		}
+
+	};
 	
 
 } /// \endcond namespace dls

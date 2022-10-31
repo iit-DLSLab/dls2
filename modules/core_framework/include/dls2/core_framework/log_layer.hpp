@@ -19,7 +19,7 @@
 #include "app_layer.hpp"
 #include "dls2/util/messaging/dds_participant.hpp"
 #include "dls2/topics/topics.hpp"
-#include "foxglove/server.hpp"
+#include "foxglove/foxserver.hpp"
 
 namespace dls
 {

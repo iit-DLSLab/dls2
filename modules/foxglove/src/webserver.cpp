@@ -1,21 +1,13 @@
-#include <foxglove/server.hpp>
+#include <foxglove/foxserver.hpp>
 
 #include <atomic>
 #include <chrono>
 #include <iostream>
 #include <thread>
 
-#include <fstream>
-
 using json = nlohmann::json;
 using namespace boost;
 using namespace dls;
-
-static uint64_t nanosecondsSinceEpoch() {
-  return uint64_t(std::chrono::duration_cast<std::chrono::nanoseconds>(
-                    std::chrono::system_clock::now().time_since_epoch())
-                    .count());
-}
 
 const std::string Server::SUPPORTED_SUBPROTOCOL = "foxglove.websocket.v1";
 
@@ -323,131 +315,4 @@ bool Server::anySubscribed(ChannelId chanId) const
     }
   }
   return false;
-}
-
-FoxServer::FoxServer()
-: serverThread(nullptr)
-, server{nullptr}
-{
-}
-
-FoxServer::~FoxServer(){}
-
-void FoxServer::watcherFunc()
-{
-}
-
-void FoxServer::serverFunc()
-{
-  std::ifstream trns("/home/dwbertol/dls2_ws/dls2_deploy/dls2/modules/foxglove/json/FrameTransform.json");
-  json jsonFrameTransform = json::parse(trns);
-
-  const auto chanId = server->addChannel({
-    "transforms",
-    "json",
-    "foxglove.FrameTransform",
-    jsonFrameTransform.dump(),
-  });
-
-  std::ifstream scene("/home/dwbertol/dls2_ws/dls2_deploy/dls2/modules/foxglove/json/SceneUpdate.json");
-  json jsonSceneUpdate = json::parse(scene);
-
-  const auto chanId2 = server->addChannel({
-    "urdf_msg",
-    "json",
-    "foxglove.SceneUpdate",
-    jsonSceneUpdate.dump()
-  });
-
-  server->setSubscribeHandler([&](ChannelId chanId) {
-    std::cout << "first client subscribed to " << chanId << std::endl;
-  });
-  server->setUnsubscribeHandler([&](ChannelId chanId) {
-    std::cout << "last client unsubscribed from " << chanId << std::endl;
-  });
-
-  std::function<void()> setTimer = [&] {
-    timer = server->getEndpoint().set_timer(1000, [&](std::error_code const& ec) {
-      if (ec) {
-        std::cerr << "timer error: " << ec.message() << std::endl;
-        return;
-      }
-
-      std::ifstream frame("/home/dwbertol/dls2_ws/dls2_deploy/dls2/modules/foxglove/json/frames.json");
-      json jsonFramesMsg = json::parse(frame);
-
-      for( auto elem : jsonFramesMsg["transforms"])
-      {
-        server->sendMessage(chanId, nanosecondsSinceEpoch(),
-                        elem.dump());
-      }
-
-      std::ifstream scn("/home/dwbertol/dls2_ws/dls2_deploy/dls2/modules/foxglove/json/aliengo.json");
-      json jsonMsg = json::parse(scn);
-
-      server->sendMessage(chanId2, nanosecondsSinceEpoch(),
-                         jsonMsg.dump());
-      setTimer();
-    });
-  };
-
-  setTimer();
-
-  asio::signal_set signals(server->getEndpoint().get_io_service(), SIGINT);
-
-  signals.async_wait([&](std::error_code const& ec, int sig) {
-    if (ec) {
-      std::cerr << "signal error: " << ec.message() << std::endl;
-      return;
-    }
-    std::cerr << "received signal " << sig << ", shutting down" << std::endl;
-    server->removeChannel(chanId);
-    server->removeChannel(chanId2);
-    server->stop();
-    if (timer) {
-      timer->cancel();
-    }
-  });
-
-  server->run();
-
-  std::cout << "#### Foxglove Loop Stopped #####" << std::endl;
-
-} 
-
-void FoxServer::run()
-{
-  if(server != nullptr)
-    return;
-
-  this->server = new Server(8765, "example server");
-  this->serverThread = new std::thread(&FoxServer::serverFunc, this);
-  this->watcherThread = new std::thread(&FoxServer::watcherFunc, this);
-
-}
-
-void FoxServer::stop()
-{
-  if(server == nullptr)
-    return;
-  
-  server->removeChannel(1);
-  server->removeChannel(2);
-  server->stop();
-
-  if (timer) {
-    timer->cancel();
-  }
-
-  this->serverThread->join();
-  delete this->serverThread;
-  this->serverThread = nullptr;
-
-  this->watcherThread->join();
-  delete this->watcherThread;
-  this->watcherThread = nullptr;
-
-  delete this->server;
-  this->server = nullptr;
-  std::cout << "#### Foxglove Server Stopped #####" << std::endl;
 }

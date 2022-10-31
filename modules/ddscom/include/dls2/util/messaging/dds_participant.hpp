@@ -22,6 +22,7 @@
 
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/domain/DomainParticipant.hpp>
+#include <fastdds/dds/domain/DomainParticipantListener.hpp>
 #include <fastdds/dds/publisher/Publisher.hpp>
 #include <fastdds/dds/subscriber/Subscriber.hpp>
 
@@ -32,7 +33,8 @@
 /// \cond doxygen_namespace_dls
 namespace dls
 {
-	class DDSParticipant{
+	class DDSParticipant : public eprosima::fastdds::dds::DomainParticipantListener 
+	{
 
 	public:
 		DDSParticipant(
@@ -59,6 +61,8 @@ namespace dls
 
 		bool sendMessage(std::string writerName, void *msg);
 
+		void setTopicListener(dls::DDSPartListener *listener_);
+
 	private:
 		eprosima::fastdds::dds::DomainParticipant  					*participant;
 		std::map<std::string, eprosima::fastdds::dds::Topic *>  	topics;	
@@ -71,6 +75,15 @@ namespace dls
         eprosima::fastdds::dds::Subscriber *subscriber;
 		
 		eprosima::fastdds::dds::Topic* addTopic(dls::topicType topicData_);
+
+		void on_publisher_discovery(
+            eprosima::fastdds::dds::DomainParticipant* participant,
+            eprosima::fastrtps::rtps::WriterDiscoveryInfo&& info) override;
+
+		void on_topic_discovery_(const std::string& topic_name, const std::string& type_name);
+
+		dls::DDSPartListener *topicListener;
+		std::unordered_map<std::string, std::string> discovery_database;
 	};
 	
 } // namespace dls

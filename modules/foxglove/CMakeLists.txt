@@ -1,9 +1,9 @@
-
 add_compile_options("-std=c++17")
 
 add_library(dls_foxglove
 	SHARED
- 		src/server.cpp
+ 		src/webserver.cpp
+		src/foxserver.cpp
 )
 
 target_include_directories(dls_foxglove
@@ -17,6 +17,7 @@ target_link_libraries(dls_foxglove
         pthread
 		dls_framework_components
 		fastrtps
+		aliengo
 )
 
 dls_install(dls_foxglove)

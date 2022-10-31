@@ -37,7 +37,7 @@ GaitGenerator::GaitGenerator
 	, blind_state_signal(pRobot_)
 	// , blind_state_signal_mutex()
     , heart_beat(false)
-	, ddslink("GaitGen::" + ID, dls::domains::control)
+	, ddslink("GaitGen::" + ID, dls::domains::signals)
 	, ddsMonitor(
 		ID,
 		dls::domains::controllers,

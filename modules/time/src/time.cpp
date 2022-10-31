@@ -36,7 +36,7 @@ void Time::set_use_simulated_time(bool b)
 		{
 			Time::pPause_sub = std::make_shared<DDSReader>(
 				"Time::timeSource",
-				dls::domains::control,
+				dls::domains::signals,
 				dls::topics::simulation_pause,
 				std::function<void(void *)>
 				{

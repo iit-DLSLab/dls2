@@ -36,7 +36,7 @@ Hardware::Hardware
     , pRobot(pRobot_)
 	, ddslink(
 		"Hardware::" + name_,
-		dls::domains::control
+		dls::domains::signals
 	)
 	, ddsMonitor(
 		name_,

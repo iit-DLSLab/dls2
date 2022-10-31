@@ -26,6 +26,7 @@ namespace dls
     	: participant(nullptr)
         , publisher(nullptr)
         , subscriber(nullptr)
+		, topicListener(nullptr)
 	{
 		eprosima::fastdds::dds::DomainParticipantQos participantQos;
 		participantQos.wire_protocol().builtin.typelookup_config.use_server = true;
@@ -34,9 +35,14 @@ namespace dls
         participantQos.wire_protocol().builtin.discovery_config.leaseDuration_announcementperiod = eprosima::fastrtps::Duration_t(1, 2);
 		participantQos.name(partName_);
 
-		this->participant = eprosima::fastdds::dds::DomainParticipantFactory::
-								get_instance()
-									->create_participant(domain_, participantQos);
+		eprosima::fastdds::dds::StatusMask mask;
+
+		this->participant = eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->create_participant(
+			domain_, 
+			participantQos,
+			this,
+			mask.none()
+		);
 
 		if (this->participant == nullptr)
 		{
@@ -183,6 +189,44 @@ namespace dls
 			return false;
 		
 		return writer->second->write(msg);
+	}
+
+	void DDSParticipant::on_publisher_discovery(
+        eprosima::fastdds::dds::DomainParticipant* participant,
+        eprosima::fastrtps::rtps::WriterDiscoveryInfo&& info)
+	{
+		// Only set as new topic discovered if it is ALIVE
+		if (info.status == eprosima::fastrtps::rtps::WriterDiscoveryInfo::DISCOVERY_STATUS::DISCOVERED_WRITER)
+		{
+			// Get Topic of DataWriter discovered and set it as discovered
+			std::string topic_name = info.info.topicName().to_string();
+			std::string type_name = info.info.typeName().to_string();
+
+			// Set Topic as discovered. If it is not new nothing happen
+			on_topic_discovery_(topic_name, type_name);
+		}
+	}
+
+	void DDSParticipant::on_topic_discovery_(const std::string& topic_name, const std::string& type_name)
+	{
+		// Check if this topic has already been discovered
+		if (discovery_database.find(topic_name) != discovery_database.end())
+			return;
+
+		discovery_database[topic_name] = type_name;
+
+		// Call listener callback to notify new topic
+		if (this->topicListener)
+		{
+			this->topicListener->on_topic_discovery(topic_name, type_name);
+		}
+
+		// std::cout << "Topic discovered: " << topic_name << " [ " << type_name << " ]" << std::endl;
+	}
+
+	void DDSParticipant::setTopicListener(dls::DDSPartListener *listener_)
+	{
+		this->topicListener = listener_;
 	}
 
 } // namespace dls

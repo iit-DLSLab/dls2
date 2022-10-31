@@ -42,7 +42,7 @@ Controller::Controller
 	, blind_state_topic(blind_state_topic_)
 	, ddslink(
 		"Controller::" + name_,
-		dls::domains::control
+		dls::domains::signals
 	)
 	, ddsMonitor(
 		name_,

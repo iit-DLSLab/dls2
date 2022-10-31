@@ -11,12 +11,12 @@
             "rotation": {
                 "x": 0,
                 "y": 0,
-                "z": 1,
-                "w": 0
+                "z": 0,
+                "w": 1
             }
         },
         {
-            "parent_frame_id": "base_link",
+            "parent_frame_id": "trunk",
             "child_frame_id": "lf_haa_joint",
             "translation": {
                 "x": 0.2399,
@@ -26,7 +26,7 @@
             "rotation": {
                 "x": 0.7071068,
                 "y": 0,
-                "z": 0.7071068,
+                "z": -0.7071068,
                 "w": 0
             }
         },
@@ -39,10 +39,10 @@
                 "z": 0
             },
             "rotation": {
-                "x": 0.7071068,
-                "y": 0,
-                "z": 0,
-                "w": 0.7071068
+                "x": 0,
+                "y": -0.7071068,
+                "z": 0.7071068,
+                "w": 0
             }
         },
         {
@@ -76,7 +76,7 @@
             }
         },
         {
-            "parent_frame_id": "base_link",
+            "parent_frame_id": "trunk",
             "child_frame_id": "rf_haa_joint",
             "translation": {
                 "x": 0.2399,
@@ -136,7 +136,7 @@
             }
         },
         {
-            "parent_frame_id": "base_link",
+            "parent_frame_id": "trunk",
             "child_frame_id": "lh_haa_joint",
             "translation": {
                 "x": -0.2399,
@@ -146,7 +146,7 @@
             "rotation": {
                 "x": 0.7071068,
                 "y": 0,
-                "z": 0.7071068,
+                "z": -0.7071068,
                 "w": 0
             }
         },
@@ -159,10 +159,10 @@
                 "z": 0
             },
             "rotation": {
-                "x": 0.7071068,
-                "y": 0,
-                "z": 0,
-                "w": 0.7071068
+                "x": 0,
+                "y": -0.7071068,
+                "z": 0.7071068,
+                "w": 0
             }
         },
         {
@@ -196,7 +196,7 @@
             }
         },
         {
-            "parent_frame_id": "base_link",
+            "parent_frame_id": "trunk",
             "child_frame_id": "rh_haa_joint",
             "translation": {
                 "x": -0.2399,

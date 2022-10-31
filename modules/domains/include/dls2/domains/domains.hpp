@@ -25,7 +25,7 @@ namespace dls
 		extern domainType develop;
 		extern domainType layers;
 		extern domainType command;
-		extern domainType control;
+		extern domainType signals;
 		extern domainType controllers;
         extern domainType hardwares;
 		extern domainType console;

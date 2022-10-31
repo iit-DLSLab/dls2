@@ -85,7 +85,7 @@ ControlLayer::ControlLayer(std::string ID)
 
 	ddsControl = new dls::DDSWriter(
 		"ControlLayer::desiredTorques",
-		dls::domains::control,
+		dls::domains::signals,
 		dls::topics::desired_torques
 	);
 
@@ -409,7 +409,7 @@ bool ControlLayer::activateController(const std::string &ID)
 
     pData->dds_reader = std::make_shared<dls::DDSReader>(
         "ControlLayer::Listener::" + ID,
-        dls::domains::control,
+        dls::domains::signals,
         dls::topics::control_signal,
         std::function<void(void *)>
         {
