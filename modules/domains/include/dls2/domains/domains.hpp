@@ -22,7 +22,7 @@ namespace dls
 	
 	namespace domains
 	{
-		extern domainType develop;
+		extern domainType users;
 		extern domainType layers;
 		extern domainType command;
 		extern domainType signals;
@@ -31,6 +31,7 @@ namespace dls
 		extern domainType console;
 		extern domainType logging;
 		extern domainType service;
+		extern domainType develop;
 	}
 }
 

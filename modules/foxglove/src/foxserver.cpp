@@ -26,80 +26,8 @@ FoxServer::~FoxServer(){}
 
 void FoxServer::serverFunc()
 {
-  // std::ifstream trns("/home/dwbertol/dls2_ws/dls2_deploy/dls2/modules/foxglove/json/FrameTransform.json");
-  // json jsonFrameTransform = json::parse(trns);
-
-  // const auto chanId = foxserver.addChannel({
-  //   "transforms",
-  //   "json",
-  //   "foxglove.FrameTransform",
-  //   jsonFrameTransform.dump(),
-  // });
-
-  // std::ifstream scene("/home/dwbertol/dls2_ws/dls2_deploy/dls2/modules/foxglove/json/SceneUpdate.json");
-  // json jsonSceneUpdate = json::parse(scene);
-
-  // const auto chanId2 = foxserver.addChannel({
-  //   "urdf_msg",
-  //   "json",
-  //   "foxglove.SceneUpdate",
-  //   jsonSceneUpdate.dump()
-  // });
-
-  // foxserver.setSubscribeHandler([&](ChannelId chanId) {
-  //   std::cout << "first client subscribed to " << chanId << std::endl;
-  // });
-  // foxserver.setUnsubscribeHandler([&](ChannelId chanId) {
-  //   std::cout << "last client unsubscribed from " << chanId << std::endl;
-  // });
-
-  // std::function<void()> setTimer = [&] {
-  //   timer = foxserver.getEndpoint().set_timer(1000, [&](std::error_code const& ec) {
-  //     if (ec) {
-  //       std::cerr << "timer error: " << ec.message() << std::endl;
-  //       return;
-  //     }
-
-  //     std::ifstream frame("/home/dwbertol/dls2_ws/dls2_deploy/dls2/modules/foxglove/json/frames.json");
-  //     json jsonFramesMsg = json::parse(frame);
-
-  //     for( auto elem : jsonFramesMsg["transforms"])
-  //     {
-  //       foxserver.sendMessage(chanId, nanosecondsSinceEpoch(),
-  //                       elem.dump());
-  //     }
-
-  //     std::ifstream scn("/home/dwbertol/dls2_ws/dls2_deploy/dls2/modules/foxglove/json/aliengo.json");
-  //     json jsonMsg = json::parse(scn);
-
-  //     foxserver.sendMessage(chanId2, nanosecondsSinceEpoch(),
-  //                        jsonMsg.dump());
-  //     setTimer();
-  //   });
-  // };
-
-  // setTimer();
-
-  // asio::signal_set signals(foxserver.getEndpoint().get_io_service(), SIGINT);
-
-  // signals.async_wait([&](std::error_code const& ec, int sig) {
-  //   if (ec) {
-  //     std::cerr << "signal error: " << ec.message() << std::endl;
-  //     return;
-  //   }
-  //   std::cerr << "received signal " << sig << ", shutting down" << std::endl;
-  //   foxserver.removeChannel(chanId);
-  //   foxserver.removeChannel(chanId2);
-  //   foxserver.stop();
-  //   if (timer) {
-  //     timer->cancel();
-  //   }
-  // });
-
   foxserver.run();
-
   std::cout << "#### Foxglove Server Stopped #####" << std::endl;
-
 } 
 
 void FoxServer::run()
@@ -120,8 +48,6 @@ void FoxServer::stop()
   this->serverThread->join();
   delete this->serverThread;
   this->serverThread = nullptr;
-
-  // std::cout << "#### Foxglove Server Stopped #####" << std::endl;
 }
 
 void FoxServer::on_topic_discovery(const std::string& topic_name, const std::string& type_name)
@@ -130,13 +56,8 @@ void FoxServer::on_topic_discovery(const std::string& topic_name, const std::str
 
   if(type_name == "DesiredTorquesMsg")
   {
-    std::cout << "CREATING DESIRED TORQUES CHANNEL" << std::endl;
-
     std::ifstream jsonSchemaFile("/home/dwbertol/dls2_ws/dls2_deploy/dls2/modules/foxglove/json/DesiredTorques.json");
-
     json jsonSchema = json::parse(jsonSchemaFile);
-
-    std::cout << "Schema title: " << jsonSchema["title"] << std::endl;
 
     auto chanId = this->foxserver.addChannel({
       topic_name,
@@ -163,11 +84,8 @@ void FoxServer::on_topic_discovery(const std::string& topic_name, const std::str
 
         foxserver.sendMessage(chanId, nanosecondsSinceEpoch(), jsonMsg.dump());
 
-				// std::cout << jsonMsg.dump() << std::endl;
-			}
+  		}
 		});
-
-    std::cout << "CREATED DESIRED TORQUES CHANNEL" << std::endl;
   }
   else if(type_name == "BlindStateMsg")
   {
@@ -185,11 +103,6 @@ void FoxServer::on_topic_discovery(const std::string& topic_name, const std::str
     std::ifstream jsonFramesFile("/home/dwbertol/dls2_ws/dls2_deploy/dls2/modules/foxglove/json/frames.json");
     json jsonFramesMsg = json::parse(jsonFramesFile);
 
-    // for(auto frame : jsonFramesMsg["transforms"])
-    // {
-    //   foxserver.sendMessage(chanFrame, nanosecondsSinceEpoch(), frame.dump());
-    // }
-
     // Update scene
     std::ifstream jsonSceneSchemaFile("/home/dwbertol/dls2_ws/dls2_deploy/dls2/modules/foxglove/json/SceneUpdate.json");
     json jsonSceneSchema = json::parse(jsonSceneSchemaFile);
@@ -203,11 +116,9 @@ void FoxServer::on_topic_discovery(const std::string& topic_name, const std::str
 
     std::ifstream jsonAliengoFile("/home/dwbertol/dls2_ws/dls2_deploy/dls2/modules/foxglove/json/aliengo.json");
     json jsonAliengoMsg = json::parse(jsonAliengoFile);
-    // foxserver.sendMessage(chanScene, nanosecondsSinceEpoch(), jsonAliengoMsg.dump());
 
     // Handler for connection
     foxserver.setSubscribeHandler([&, jsonFramesMsg, chanFrame, jsonAliengoMsg, chanScene](ChannelId chanId) {
-
       if(chanId == chanFrame)
       {
         for(auto frame : jsonFramesMsg["transforms"])
@@ -323,8 +234,6 @@ void FoxServer::on_topic_discovery(const std::string& topic_name, const std::str
           }
           foxserver.sendMessage(chanFrame, nanosecondsSinceEpoch(), frame.dump());
         }
-        // std::cout << "## " << frame["child_frame_id"] << " / " << msg.joint_name()[aliengolib::glue_joint_names_to_ids[frame["child_frame_id"]]] << " ";  
-				// std::cout << std::endl;
 			}
 		});
   }
