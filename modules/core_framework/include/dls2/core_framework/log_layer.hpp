@@ -40,10 +40,7 @@ namespace dls
 	private:
 		static std::string get_current_time();
 
-		dls::FoxServer server;
-
-		bool startFoxServer();
-		bool stopFoxServer();
+		dls::FoxServer foxserver;
 
 		DDSParticipant ddslink;
 

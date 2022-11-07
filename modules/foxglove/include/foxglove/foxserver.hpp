@@ -25,6 +25,10 @@ namespace dls {
       Server foxserver;
 
       dls::DDSParticipant ddslink;
+      std::function<void()> setTimer;
+
+      std::set<int> send_flags;
+      std::set<int> timer_flags;
 
       void on_topic_discovery(const std::string& topic_name, const std::string& type_name) override;
   };

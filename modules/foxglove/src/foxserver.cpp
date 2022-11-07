@@ -8,7 +8,7 @@ using namespace boost;
 using namespace dls;
 
 static uint64_t nanosecondsSinceEpoch() {
-  return uint64_t(std::chrono::duration_cast<std::chrono::nanoseconds>(
+    return uint64_t(std::chrono::duration_cast<std::chrono::nanoseconds>(
                     std::chrono::system_clock::now().time_since_epoch())
                     .count());
 }
@@ -20,6 +20,22 @@ FoxServer::FoxServer()
 {
   this->serverThread = new std::thread(&FoxServer::serverFunc, this);
   ddslink.setTopicListener(this);
+
+  this->setTimer = [&] {
+    this->timer = this->foxserver.getEndpoint().set_timer(20, [&](std::error_code const& ec) {
+      if (ec) {
+        std::cerr << "timer error: " << ec.message() << std::endl;
+        return;
+      }
+      for (auto const &chan: this->timer_flags) {
+        this->send_flags.erase(chan);
+      }
+
+      this->setTimer();
+    });
+  };
+
+  this->setTimer();
 }
 
 FoxServer::~FoxServer(){}
@@ -30,26 +46,6 @@ void FoxServer::serverFunc()
   std::cout << "#### Foxglove Server Stopped #####" << std::endl;
 } 
 
-void FoxServer::run()
-{
-  
-}
-
-void FoxServer::stop()
-{
-  // foxserver.removeChannel(1);
-  // foxserver.removeChannel(2);
-  foxserver.stop();
-
-  if (timer) {
-    timer->cancel();
-  }
-
-  this->serverThread->join();
-  delete this->serverThread;
-  this->serverThread = nullptr;
-}
-
 void FoxServer::on_topic_discovery(const std::string& topic_name, const std::string& type_name)
 {
   std::cout << "Topic discovered: " << topic_name << " [ " << type_name << " ]" << std::endl;
@@ -59,19 +55,24 @@ void FoxServer::on_topic_discovery(const std::string& topic_name, const std::str
     std::ifstream jsonSchemaFile("/home/dwbertol/dls2_ws/dls2_deploy/dls2/modules/foxglove/json/DesiredTorques.json");
     json jsonSchema = json::parse(jsonSchemaFile);
 
-    auto chanId = this->foxserver.addChannel({
+    auto chanTorques = this->foxserver.addChannel({
       topic_name,
       "json",
       jsonSchema["title"],
       jsonSchema.dump()
     });
 
+    this->timer_flags.insert(chanTorques);
+
     this->ddslink.addReader("desired_torques_foxglove",
 		dls::topics::desired_torques,
 		std::function<void(void *)>
 		{
-			[&, chanId](void *tuple)
+			[&, chanTorques](void *tuple)
 			{
+        if(this->send_flags.find(chanTorques) != this->send_flags.end())
+          return;
+
 				DesiredTorquesMsg msg = *((DesiredTorquesMsg*) tuple);
 
         json jsonMsg;
@@ -82,8 +83,8 @@ void FoxServer::on_topic_discovery(const std::string& topic_name, const std::str
           jsonMsg["torques"].push_back(msg.desired_torques()[i]);
         }
 
-        foxserver.sendMessage(chanId, nanosecondsSinceEpoch(), jsonMsg.dump());
-
+        foxserver.sendMessage(chanTorques, nanosecondsSinceEpoch(), jsonMsg.dump());
+        this->send_flags.insert(chanTorques);
   		}
 		});
   }
@@ -100,8 +101,7 @@ void FoxServer::on_topic_discovery(const std::string& topic_name, const std::str
       jsonFrameSchema.dump()
     });
 
-    std::ifstream jsonFramesFile("/home/dwbertol/dls2_ws/dls2_deploy/dls2/modules/foxglove/json/frames.json");
-    json jsonFramesMsg = json::parse(jsonFramesFile);
+    this->timer_flags.insert(chanFrame);
 
     // Update scene
     std::ifstream jsonSceneSchemaFile("/home/dwbertol/dls2_ws/dls2_deploy/dls2/modules/foxglove/json/SceneUpdate.json");
@@ -114,22 +114,20 @@ void FoxServer::on_topic_discovery(const std::string& topic_name, const std::str
       jsonSceneSchema.dump()
     });
 
-    std::ifstream jsonAliengoFile("/home/dwbertol/dls2_ws/dls2_deploy/dls2/modules/foxglove/json/aliengo.json");
-    json jsonAliengoMsg = json::parse(jsonAliengoFile);
-
     // Handler for connection
-    foxserver.setSubscribeHandler([&, jsonFramesMsg, chanFrame, jsonAliengoMsg, chanScene](ChannelId chanId) {
-      if(chanId == chanFrame)
-      {
-        for(auto frame : jsonFramesMsg["transforms"])
-        {
-          foxserver.sendMessage(chanId, nanosecondsSinceEpoch(), frame.dump());
-        }
-      }
-      else if(chanId == chanScene)
-      {
-        foxserver.sendMessage(chanId, nanosecondsSinceEpoch(), jsonAliengoMsg.dump());
-      }
+    foxserver.setSubscribeHandler([&, this](ChannelId chanId) {
+      this->send_flags.erase(chanId);
+      // if(chanId == chanFrame)
+      // {
+      //   for(auto frame : jsonFramesMsg["transforms"])
+      //   {
+      //     foxserver.sendMessage(chanId, nanosecondsSinceEpoch(), frame.dump());
+      //   }
+      // }
+      // else if(chanId == chanScene)
+      // {
+      //   foxserver.sendMessage(chanId, nanosecondsSinceEpoch(), jsonAliengoMsg.dump());
+      // }
     });
 
     // Frames update
@@ -143,13 +141,31 @@ void FoxServer::on_topic_discovery(const std::string& topic_name, const std::str
       jsonBlindSchema.dump()
     });
 
+    this->timer_flags.insert(chanBlind);
+
     this->ddslink.addReader("blind_state_foxglove",
 		dls::topics::low_level_estimation::blind_state,
 		std::function<void(void *)>
 		{
-			[&, chanBlind, chanFrame, jsonFramesMsg](void *tuple)
+			[&, chanBlind, chanFrame, chanScene](void *tuple)
 			{
-				BlindStateMsg msg = *((BlindStateMsg*) tuple);
+        auto epoch = nanosecondsSinceEpoch();
+        BlindStateMsg msg = *((BlindStateMsg*) tuple);
+
+        if(this->send_flags.find(chanScene) == this->send_flags.end())
+        {
+          std::ifstream jsonRobotFile("/home/dwbertol/dls2_ws/dls2_deploy/dls2/modules/foxglove/json/" + msg.robot_name() + ".json");
+          json jsonRobotMsg = json::parse(jsonRobotFile);
+
+          foxserver.sendMessage(chanScene, nanosecondsSinceEpoch(), jsonRobotMsg.dump());
+          this->send_flags.insert(chanScene);
+        }
+
+        if(this->send_flags.find(chanBlind) != this->send_flags.end()) 
+          return;
+          
+        std::ifstream jsonFramesFile("/home/dwbertol/dls2_ws/dls2_deploy/dls2/modules/foxglove/json/" + msg.robot_name() + "_frames.json");
+        json jsonFramesMsg = json::parse(jsonFramesFile);
 
         json jsonBlindMsg;
         jsonBlindMsg["joint_pos"] = json::array();
@@ -190,8 +206,7 @@ void FoxServer::on_topic_discovery(const std::string& topic_name, const std::str
         jsonBlindMsg["base_ang_acc"]["y"] = msg.base_ang_acc_world()[1];
         jsonBlindMsg["base_ang_acc"]["z"] = msg.base_ang_acc_world()[2];
 
-        foxserver.sendMessage(chanBlind, nanosecondsSinceEpoch(), jsonBlindMsg.dump());
-
+        foxserver.sendMessage(chanBlind, epoch, jsonBlindMsg.dump());
         
         for(auto frame : jsonFramesMsg["transforms"])
         {
@@ -232,8 +247,9 @@ void FoxServer::on_topic_discovery(const std::string& topic_name, const std::str
               i++;
             }
           }
-          foxserver.sendMessage(chanFrame, nanosecondsSinceEpoch(), frame.dump());
+          foxserver.sendMessage(chanFrame, epoch, frame.dump());
         }
+        this->send_flags.insert(chanBlind);
 			}
 		});
   }
