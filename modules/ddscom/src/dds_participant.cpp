@@ -195,6 +195,9 @@ namespace dls
         eprosima::fastdds::dds::DomainParticipant* participant,
         eprosima::fastrtps::rtps::WriterDiscoveryInfo&& info)
 	{
+		// warning suppress
+		(void)participant;
+
 		// Only set as new topic discovered if it is ALIVE
 		if (info.status == eprosima::fastrtps::rtps::WriterDiscoveryInfo::DISCOVERY_STATUS::DISCOVERED_WRITER)
 		{
