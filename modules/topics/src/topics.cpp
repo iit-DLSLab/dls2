@@ -33,6 +33,7 @@
 #include <dls_messages/dds/hyq_rawTypeObject.h>
 #include <dls_messages/dds/aliengo_rawTypeObject.h>
 #include <dls_messages/dds/imuTypeObject.h>
+#include <dls_messages/dds/legs_poseTypeObject.h>
 
 namespace dls
 {
@@ -60,9 +61,13 @@ namespace dls
 
 		// control signals
 		dls::topicType desired_torques 			= dls::topicType("desired_torques", new DesiredTorquesMsgPubSubType(), &registerdesired_torquesTypes);
-		dls::topicType control_signal 			= dls::topicType("rt/control_signal", new  ControlSignalMsgPubSubType(), &registercontrol_signalTypes);
+		dls::topicType control_signal 			= dls::topicType("control_signal", new  ControlSignalMsgPubSubType(), &registercontrol_signalTypes);
 		dls::topicType gait_signal 				= dls::topicType("gaitSignal", new  GaitSignalMsgPubSubType(), &registergait_signalTypes);
-		dls::topicType joint_states				= dls::topicType("rt/joint_states", new JointStateMsgPubSubType(), &registerjoint_stateTypes);
+
+		namespace high_level_estimation
+		{
+			dls::topicType legs_pose			= dls::topicType("legs_pose", new LegsPoseMsgPubSubType(), &registerjoint_stateTypes);
+		}
 			
 		namespace low_level_estimation
 		{
@@ -71,6 +76,7 @@ namespace dls
 			dls::topicType hyqreal_raw 			= dls::topicType("hyqreal_raw", new HyQRealRawMsgPubSubType(), &registerhyqreal_rawTypes);
             dls::topicType aliengo_raw 			= dls::topicType("aliengo_raw", new AliengoRawMsgPubSubType(), &registeraliengo_rawTypes);
 			dls::topicType imu 					= dls::topicType("imu", new ImuMsgPubSubType(), &registerimu_mgxTypes);
+			dls::topicType joint_states			= dls::topicType("joint_states", new JointStateMsgPubSubType(), &registerjoint_stateTypes);
 		}
 	}
 }

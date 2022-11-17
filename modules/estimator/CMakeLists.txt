@@ -9,6 +9,7 @@ target_include_directories(dls_estimator
 
 target_link_libraries(dls_estimator
 	PUBLIC
+		robotlib
 		dls_framework_components
 )
 

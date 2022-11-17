@@ -34,6 +34,7 @@
 #include <dls_messages/dds/imuPubSubTypes.h>
 #include <dls_messages/dds/command_sendPubSubTypes.h>
 #include <dls_messages/dds/aliengo_rawPubSubTypes.h>
+#include <dls_messages/dds/legs_posePubSubTypes.h>
 
 namespace dls
 {
@@ -64,7 +65,11 @@ namespace dls
 		extern dls::topicType desired_torques;
 		extern dls::topicType control_signal;
 		extern dls::topicType gait_signal;
-		extern dls::topicType joint_states;
+
+		namespace high_level_estimation
+		{
+			extern dls::topicType legs_pose;
+		}
 
 		namespace low_level_estimation
 		{
@@ -73,6 +78,7 @@ namespace dls
 			extern dls::topicType hyqreal_raw;
             extern dls::topicType aliengo_raw;
 			extern dls::topicType imu;
+			extern dls::topicType joint_states;
 		}
 	}
 }
