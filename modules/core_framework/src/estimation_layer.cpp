@@ -24,13 +24,25 @@ using namespace dls;
 // =============================================================================
 // Constructors
 // =============================================================================
-EstimationLayer::EstimationLayer() :
-	AppLayer("estimation_layer"),
+EstimationLayer::EstimationLayer(std::string ID) :
+	AppLayer(ID),
 	estimators(),
 	estimator_threads(),
 	estimators_mutex(),
 	should_run(true)
-{ }
+{ 
+	command_manager.addCommand<std::string>
+	(
+		"loadEstimator",
+		"Load a state estimator plugin",
+		std::function<bool(std::string)>([&](std::string s)->bool
+        {
+			return this->loadEstimator(s);
+		}),
+		{{0,1},{2,3}},
+		true
+	);
+}
 
 EstimationLayer::~EstimationLayer()
 {
@@ -70,10 +82,10 @@ AppLayer::Status EstimationLayer::shutdown()
 // =============================================================================
 // Implementation
 // =============================================================================
-void EstimationLayer::loadEstimator(const std::string &name)
+bool EstimationLayer::loadEstimator(const std::string &name)
 {
 	std::shared_ptr<Estimator> pEstimator = ClassLoader::loadClass<Estimator>(name);
-	this->addEstimator(pEstimator);
+	return this->addEstimator(pEstimator);
 }
 
 // TODO("This is copied more or less in all the layers")

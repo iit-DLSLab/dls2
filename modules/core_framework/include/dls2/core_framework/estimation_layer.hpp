@@ -35,16 +35,16 @@ namespace dls
 class EstimationLayer : public AppLayer
 {
 public:
-	EstimationLayer();
+	EstimationLayer(std::string ID);
 	~EstimationLayer();
 
 	Status run() override;
 	Status shutdown() override;
 
 	template <typename estimator_t>
-	void addEstimator(const std::shared_ptr<estimator_t>&);
+	bool addEstimator(const std::shared_ptr<estimator_t>&);
 
-	void loadEstimator(const std::string&);
+	bool loadEstimator(const std::string&);
 
 	//TODO("These two should probably return bool")
 	bool activateEstimator(const Estimator::ID_t&);

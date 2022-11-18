@@ -171,6 +171,7 @@ int main(int argc, char **argv)
 	if(Options::launch_hardware) 	forkLayer<HardwareLayer>("hardwareLayer", argv);
 	if(Options::launch_control)  	forkLayer<ControlLayer>("controlLayer", argv);
 	if(Options::launch_console)	 	forkLayer<ConsoleLayer>("consoleLayer", argv);
+	if(Options::launch_estimation)	forkLayer<EstimationLayer>("estimationLayer", argv);
 	if(Options::launch_sim)		    forkLayer<SimLayer>("simLayer", argv);
 
 	//Time::set_use_simulated_time(Options::is_simulation());

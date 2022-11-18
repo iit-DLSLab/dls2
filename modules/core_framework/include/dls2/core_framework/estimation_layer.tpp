@@ -22,13 +22,13 @@
 namespace dls
 {
 template <typename estimator_t>
-void EstimationLayer::addEstimator(const std::shared_ptr<estimator_t> &pEstimator)
+bool EstimationLayer::addEstimator(const std::shared_ptr<estimator_t> &pEstimator)
 {
-	static_assert
-	(
-		std::is_base_of<Estimator, estimator_t>::value,
-		"Error, estimator_t must inherit from Estimator"
-	);
+	if(!std::is_base_of<Estimator, estimator_t>::value)
+	{
+		std::cout << "Error, estimator_t must inherit from Estimator" << std::endl;
+		return false;
+	}
 
 	std::lock_guard<std::mutex> lock(this->estimators_mutex);
 	this->estimators.insert
@@ -39,6 +39,8 @@ void EstimationLayer::addEstimator(const std::shared_ptr<estimator_t> &pEstimato
 			pEstimator
 		)
 	);
+	
+	return true;
 }
 } // end namespace dls
 
