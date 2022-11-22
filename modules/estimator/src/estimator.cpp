@@ -19,7 +19,7 @@ using namespace dls;
 // =============================================================================
 // Constructors
 // =============================================================================
-Estimator::Estimator(const ID_t &ID_, std::shared_ptr<robotlib::RobotBase> robot_, const period_t &period_) 
+Estimator::Estimator(const ID_t &ID_,const std::shared_ptr<robotlib::RobotBase>& robot_, const period_t &period_) 
 	: PeriodicAppLayerComponent(ID_, period_)
 	, pRobot(robot_)
 	, signalLink(

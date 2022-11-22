@@ -30,7 +30,7 @@ namespace dls
 		Estimator
 		(
 			const ID_t&,		///< The ID of this estimator
-			std::shared_ptr<robotlib::RobotBase>,
+			const std::shared_ptr<robotlib::RobotBase>&,
 			const period_t&		///< The period of this estimator
 		);
 		
@@ -40,7 +40,7 @@ namespace dls
 		typedef void destroy_t(Estimator*);
 
 	protected:
-		const std::shared_ptr<robotlib::RobotBase> &pRobot;
+		const std::shared_ptr<robotlib::RobotBase> pRobot;
 		dls::DDSParticipant signalLink;		
 	};
 } // end namespace dls
