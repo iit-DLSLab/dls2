@@ -34,6 +34,7 @@
 #include "dls2/gait_generator/gait_generator.hpp"
 #include "dls2/controller/controller.hpp"
 #include "dls2/hardware/hardware.hpp"
+#include "dls2/estimator/estimator.hpp"
 #include "dls2/log/log.hpp"
 
 #include "robotlib/robot_factory.hpp"
@@ -128,6 +129,14 @@ int main(int argc, char **argv)
                     std::string("${DLS_INSTALL_HARDWARE_DIR}/lib") + args.component_name + ".so",
                     pRobot);
         }
+        else if (args.component_type == "estimator")
+        {
+            scout << "LOADING ESTIMATOR FROM '" << std::string("${DLS_INSTALL_ESTIMATOR_DIR}/lib") + args.component_name + ".so'" << std::endl;
+            pComponent =
+                ClassLoader::loadClass<Estimator, std::shared_ptr<robotlib::RobotBase>>(
+                    std::string("${DLS_INSTALL_ESTIMATOR_DIR}/lib") + args.component_name + ".so",
+                    pRobot);
+        }
         else
         {
             std::cerr << "component loading not yet implemented" << std::endl;
@@ -154,6 +163,7 @@ int main(int argc, char **argv)
 
     pComponent->run();
 
+    std::cout <<  "### ALL GOOD" << std::endl;
     return 0;
 }
 
@@ -178,7 +188,8 @@ Args parse_args(int argc, char **argv)
     if (
         args.component_type != "controller" &&
         args.component_type != "gait_generator" &&
-        args.component_type != "hardware"
+        args.component_type != "hardware"&&
+        args.component_type != "estimator"
         )
     {
         std::cerr << "Error: unknown component type '" << args.component_type << "'" << std::endl;

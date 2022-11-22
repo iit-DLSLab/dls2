@@ -21,13 +21,18 @@
 #include <thread>
 
 using namespace dls;
-// =============================================================================
-// Constructors
-// =============================================================================
+
+EstimatorData::EstimatorData() 
+    : proc(nullptr)
+    , dds_reader(nullptr)
+    , ID("")
+{ }
+
+EstimatorData::~EstimatorData(){}
+
 EstimationLayer::EstimationLayer(std::string ID) :
 	AppLayer(ID),
 	estimators(),
-	estimator_threads(),
 	estimators_mutex(),
 	should_run(true)
 { 
@@ -47,16 +52,6 @@ EstimationLayer::EstimationLayer(std::string ID) :
 EstimationLayer::~EstimationLayer()
 {
 	std::lock_guard<std::mutex> lock(this->estimators_mutex);
-
-	for(auto &pair_ID_pEstimator : this->estimators)
-	{
-		pair_ID_pEstimator.second->stop();
-	}
-
-	for(auto &pair_ID_thread : this->estimator_threads)
-	{
-		pair_ID_thread.second.join();
-	}
 }
 
 // =============================================================================
@@ -84,28 +79,51 @@ AppLayer::Status EstimationLayer::shutdown()
 // =============================================================================
 bool EstimationLayer::loadEstimator(const std::string &name)
 {
-	std::shared_ptr<Estimator> pEstimator = ClassLoader::loadClass<Estimator>(name);
-	return this->addEstimator(pEstimator);
-}
+    std::shared_ptr<EstimatorData> pData = std::make_shared<EstimatorData>();
 
-// TODO("This is copied more or less in all the layers")
-bool EstimationLayer::activateEstimator(const Estimator::ID_t &ID)
-{
-	std::lock_guard<std::mutex> lock(this->estimators_mutex);
+    for(long unsigned int i = 0; i <= estimators.size(); i++){
+        pData->ID = name + "_" + std::to_string(i);
+        if(this->estimators.find(pData->ID) == this->estimators.end())
+            break;
+    }   
 
-	auto estimator_it = this->estimators.find(ID);
+	{
+		// std::lock_guard<std::mutex> lock(this->estimators_mutex);
 
-	if(estimator_it == this->estimators.end()) return false;
+		// launch the hardware
+		char *child_process_launcher = std::getenv("DLS_CHILD_PROCESS_LAUNCHER");
+		if(!child_process_launcher)
+		{
+			std::cerr <<
+				"ERROR: env variable DLS_CHILD_PROCESS_LAUNCHER not "
+				"defined.  This is probably an error with the launch script"
+			<< std::endl;
+			return false;
+		}
 
-	// TODO("check whether estimator is already active or not")
+		std::cout << "Launching: child_process_launcher" << std::endl;
+		pData->proc = std::make_shared<boost::process::child>(std::vector<std::string>({
+			child_process_launcher,
+			name,
+			"estimator",
+			"aliengo",
+            "live"
+		}));
 
-	AppLayerComponent::Status (Estimator::*run_p)() = &Estimator::run;
-	this->estimator_threads.emplace
-	(
-		std::piecewise_construct,
-		std::forward_as_tuple(ID),
-		std::forward_as_tuple(run_p, &*estimator_it->second)
-	);
+		if (pData->proc == nullptr){
+			std::cout << "Estimator process failed to launch" << std::endl;
+			return false;
+		}
+
+        if (!pData->proc->running()){
+			std::cout << "Estimator process failed to launch" << std::endl;
+			return false;
+		}
+
+		std::cout << "ESTIMATOR " << pData->ID << " IS ON" <<  std::endl;
+
+		this->estimators.emplace(pData->ID, pData);
+	}
 
 	return true;
 }

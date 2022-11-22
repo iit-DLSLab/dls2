@@ -34,7 +34,6 @@ set(DLS_INSTALL_CONTROLLER_DIR /usr/lib/dls2/controllers
 set(DLS_INSTALL_CONTROLLER_HEADER_DIR /usr/include/dls2/controllers
 	CACHE STRING "Directory where controller headers are stored"
 )
-
 set(DLS_INSTALL_ESTIMATOR_DIR /usr/lib/dls2/estimators
 	CACHE STRING "Directory where shared object libraries for estimators are stored"
 )

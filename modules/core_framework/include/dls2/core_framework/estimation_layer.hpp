@@ -26,42 +26,46 @@
 #include "app_layer.hpp"
 #include "dls2/estimator/estimator.hpp"
 
+#include <boost/process.hpp>
+#include <pthread.h>
+
 namespace dls
 {
 // TODO build and document this class
 /// Estimation layer
-///
-/// Manages estimators
-class EstimationLayer : public AppLayer
-{
-public:
-	EstimationLayer(std::string ID);
-	~EstimationLayer();
 
-	Status run() override;
-	Status shutdown() override;
+	class EstimatorData
+    {
+    public:
+        EstimatorData();
+        ~EstimatorData();
 
-	template <typename estimator_t>
-	bool addEstimator(const std::shared_ptr<estimator_t>&);
+        std::shared_ptr<boost::process::child> proc;
+        std::shared_ptr<DDSReader> dds_reader;
+        std::string ID;
+    };
 
-	bool loadEstimator(const std::string&);
+	class EstimationLayer : public AppLayer
+	{
+	public:
+		EstimationLayer(std::string ID);
+		~EstimationLayer();
 
-	//TODO("These two should probably return bool")
-	bool activateEstimator(const Estimator::ID_t&);
-	bool deactivateEstimator(const Estimator::ID_t);
+		Status run() override;
+		Status shutdown() override;
 
-	std::string where() override {return "not yet implemented"; }
+		bool loadEstimator(const Estimator::ID_t&);
+		bool deactivateEstimator(const Estimator::ID_t);
 
-private:
-	// BEGIN critical section
-		std::map<Estimator::ID_t, std::shared_ptr<Estimator>> estimators;
-		std::map<Estimator::ID_t, std::thread> estimator_threads;
-		std::mutex estimators_mutex;
-	// END critical section
-	std::atomic_bool should_run;
-};
-} // end namespace dls
+		std::string where() override {return "not yet implemented"; }
 
-#include "estimation_layer.tpp"
+	private:
+		// BEGIN critical section
+			std::map<Estimator::ID_t, std::shared_ptr<EstimatorData>> estimators;
+			std::mutex estimators_mutex;
+		// END critical section
+		std::atomic_bool should_run;
+	};
+	} // end namespace dls
 
 #endif /* end of include guard: ESTIMATION_LAYER_HPP_3QHYDR67 */

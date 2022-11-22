@@ -6,9 +6,7 @@ dls_configure(src/control_layer.cpp.in  CONTROL_LAYER_CPP)
 
 add_library(dls_framework
 	SHARED
-	src/hyq_app.cpp
 	src/hardware_layer.cpp
-	src/hyq_app_libraries.cpp
 	src/console_layer.cpp
 	src/sim_layer.cpp
 	src/estimation_layer.cpp
