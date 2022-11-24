@@ -1,8 +1,4 @@
 #include "dls2/util/service/service.hpp"
-#include "dls_messages/dds/param_server_set_doublePubSubTypes.h"
-#include "dls_messages/dds/param_server_set_doubleTypeObject.h"
-#include "dls_messages/dds/stringmsgPubSubTypes.h"
-#include "dls_messages/dds/stringmsgTypeObject.h"
 
 #include "dls2/parameter_server/parameter_server_client.hpp"
 
