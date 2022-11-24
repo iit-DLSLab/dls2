@@ -1,15 +1,13 @@
 #include "dls2/util/messaging/dds_writer.hpp"
 #include "dls2/util/messaging/dds_reader.hpp"
 
-#include <dls_messages/dds/stringmsgTypeObject.h>
-
 #include <chrono>
 #include <cstdlib>
 #include <iostream>
 #include <vector>
 #include <memory>
 
-dls::topicType topic("this_is_a_long_dummy_test_topic", new StringMsgPubSubType(), &registerstringmsgTypes);
+dls::topicType topic("this_is_a_long_dummy_test_topic", new StringMsgPubSubType());
 auto target_message = "this is the required message that has to be delivered";
 constexpr size_t COUNT_OF_SUBSCRIBERS             = 10;
 constexpr size_t COUNT_OF_PUBLISHERS              = 10;

@@ -2,8 +2,6 @@
 #include "dls2/util/messaging/dds_writer.hpp"
 #include "dls2/util/messaging/dds_reader.hpp"
 
-#include <dls_messages/dds/stringmsgTypeObject.h>
-
 #include <catch2/catch.hpp>
 #include <string>
 #include <vector>
@@ -16,7 +14,7 @@ size_t number_of_messages_to_send = 10;
 TEST_CASE("A single publisher can publish to multiple subscribers", "[pubsub]")
 {
 	std::cout << "creating objects" << std::endl;
-	dls::topicType topic("topic_pub_multisub", new StringMsgPubSubType(), &registerstringmsgTypes);
+	dls::topicType topic("topic_pub_multisub", new StringMsgPubSubType());
 	std::string send_message("this is the message that needs to be sent");
 
 	dls::DDSWriter publisher("test_publisher", dls::domains::develop, topic);

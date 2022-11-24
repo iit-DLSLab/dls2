@@ -1,13 +1,13 @@
 #include <catch2/catch.hpp>
 #include "dls2/util/messaging/dds_writer.hpp"
 #include "dls2/util/messaging/dds_reader.hpp"
-#include "dls_messages/dds/stringmsgTypeObject.h"
+
 #include <string>
 #include <chrono>
 
 TEST_CASE("Messages can be published and received via topics", "[pubsub]")
 {
-	dls::topicType topic("this_is_a_pubsub_test_topic_a1212j3jL@#@!jfsxzc", new StringMsgPubSubType(), &registerstringmsgTypes);
+	dls::topicType topic("this_is_a_pubsub_test_topic_a1212j3jL@#@!jfsxzc", new StringMsgPubSubType());
 	std::string send_message("this is the message that needs to be sent");
 
 	SECTION("A message is sent and received")
