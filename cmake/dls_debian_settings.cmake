@@ -11,7 +11,7 @@ set(CPACK_DEB_COMPONENT_INSTALL                     ON)
 
 set(CPACK_DEBIAN_DLS_DEV_PACKAGE_NAME               "dls2-dev" CACHE INTERNAL "")
 set(CPACK_DEBIAN_DLS_DEV_FILE_NAME                  "dls2-dev-${PROJECT_VERSION}.deb" CACHE INTERNAL "")
-set(CPACK_DEBIAN_DLS_DEV_PACKAGE_DEPENDS            "dls2-runtime, dls-messages-dev, robotlib-dev, dls-param-store-dev" CACHE INTERNAL "")
+set(CPACK_DEBIAN_DLS_DEV_PACKAGE_DEPENDS            "dls2-runtime, dls-messages-dev, robotlib-dev" CACHE INTERNAL "")
 
 set(CPACK_DEBIAN_DLS_DOC_PACKAGE_NAME               "dls2-doc" CACHE INTERNAL "")
 set(CPACK_DEBIAN_DLS_DOC_FILE_NAME                  "dls2-doc-${PROJECT_VERSION}.deb" CACHE INTERNAL "") 
@@ -19,7 +19,7 @@ set(CPACK_DEBIAN_DLS_DOC_PACKAGE_DEPENDS            "" CACHE INTERNAL "")
 
 set(CPACK_DEBIAN_DLS_RUNTIME_PACKAGE_NAME           "dls2-runtime" CACHE INTERNAL "")
 set(CPACK_DEBIAN_DLS_RUNTIME_FILE_NAME              "dls2-runtime-${PROJECT_VERSION}.deb" CACHE INTERNAL "")
-set(CPACK_DEBIAN_DLS_RUNTIME_PACKAGE_DEPENDS        "dls-messages, robotlib, dls-param-store" CACHE INTERNAL "")
+set(CPACK_DEBIAN_DLS_RUNTIME_PACKAGE_DEPENDS        "dls-messages, robotlib" CACHE INTERNAL "")
 set(CPACK_DEBIAN_DLS_RUNTIME_PACKAGE_CONTROL_EXTRA  "${CMAKE_CURRENT_SOURCE_DIR}/scripts/postinst" CACHE INTERNAL "")
 
 include(CPack)

@@ -6,7 +6,7 @@ image: server-harbor:80/dls2/dls2-dev:22.04
 before_script:
   - source /root/dls_gitlab_ci/gitlab-script.sh
   - sudo apt-get update
-  - sudo apt-get install -y dls-messages-dev dls-param-store-dev robotlib-dev
+  - sudo apt-get install -y dls-messages-dev robotlib-dev
 
 # ==============================================================================
 # Stages
