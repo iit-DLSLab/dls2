@@ -156,7 +156,6 @@ namespace dls
 
 		if (!this->types.contains(std::get<1>(topicData_).get_type_name())){
 			this->types.insert(std::get<1>(topicData_).get_type_name());
-			std::get<2>(topicData_)();
 			this->participant->register_type(std::get<1>(topicData_));
 		}
 

@@ -28,92 +28,70 @@ namespace dls
 	// =========================================================================
 	// Service Implementation
 	// =========================================================================
-	template <typename msg_t>
-	Service<msg_t>::Service
-	(
-		const dls::topicType &topic_,
-		callback_t callback_
-	) :
-		service_topic(topic_),
-		request_subscriber
-		(
+	template <typename req_pubsub_t, typename res_pubsub_t>
+	Service<req_pubsub_t, res_pubsub_t>::Service(const dls::topicType &topic_, callback_t callback_)
+		: service_topic(topic_)
+		, request_subscriber(
 			"request_sub",
 			dls::domains::service,
 			topic_,
-			std::function<void(void *)>
+			std::function<void(void *)>{[&](void* tuple)
 			{
-				[&](void* tuple)
+				// ============= read the request message ==============
+				typename req_pubsub_t::type request = *((typename req_pubsub_t::type*) tuple);
+
+				std::stringstream out_topic_stream;
+				out_topic_stream << std::get<0>(this->service_topic) << "_response_";
+
+				// ============== Process the request ==============
+				if constexpr (std::is_same<typename res_pubsub_t::type, void>() == false)
 				{
-					// ============= read the request message ==============
-					msg_t request = *((msg_t*) tuple);
-
-					std::stringstream out_topic_stream;
-					out_topic_stream << std::get<0>(this->service_topic)
-									<< "_response_";
-
-					// ============== Process the request ==============
-					msg_t response = this->callback(request);
+					typename res_pubsub_t::type response = this->callback(request);
 
 					dls::DDSWriter response_publisher(
 						"response_pub",
 						dls::domains::service,
-						dls::topicType(out_topic_stream.str(), new msg_t())
+							dls::topicType(out_topic_stream.str(), new req_pubsub_t())
 					);
 
 					// =============== Send the response ===============
-					// return the response
-					// this->response_publisher.publish(response);
 					response_publisher.sendMessage((void*) &response);
-
 				}
-			}		
-		),
-		callback(callback_)
+			}})
+		, callback(callback_)
 	{ }
 
 	// =========================================================================
 	// Service Client Implementation
 	// =========================================================================
-	template <typename msg_t>
-	ServiceClient<msg_t>::ServiceClient
-	(
-		const dls::topicType &topic
-	) :
-		request_publisher(
-			"request_pub",
+	template <typename req_pubsub_t, typename res_pubsub_t>
+	ServiceClient<req_pubsub_t, res_pubsub_t>::ServiceClient(const dls::topicType &topic) 
+		: response_mutex()
+		, received_response_cv()
+		, remote_response(nullptr)
+		, request_publisher(
+		 	"request_pub",
 			dls::domains::service,
-			topic
-		),
-		response_subscriber(
+			topic)
+		, response_subscriber(
 			"response_sub",
 			dls::domains::service,
 			topic,
-			std::function<void(void *)>
+			std::function<void(void *)>{[&](void* tuple)
 			{
-				[&](void* tuple)
+				std::lock_guard<std::mutex> lock(this->response_mutex);
+
+				if constexpr (std::is_same<typename res_pubsub_t::type, void>() == false)
 				{
-					msg_t response = *((msg_t*) tuple);
-
-					std::lock_guard<std::mutex> lock(this->response_mutex);
-					this->remote_response   = response;
-					this->received_response = true;
-					this->received_response_cv.notify_all();
-
+					typename res_pubsub_t::type response = *((typename res_pubsub_t::type*) tuple);
+					this->remote_response = new typename res_pubsub_t::type(response);
 				}
-			}	
-		),
-		response_mutex(),
-		received_response_cv(),
-		remote_response(),
-		received_response(false)
+				this->received_response_cv.notify_all();
+			}})
 	{ }
 
-	template <typename msg_t>
-	msg_t* ServiceClient<msg_t>::call
-	(
-		msg_t &request,
-		const std::chrono::duration<double> &duration
-	)
+	template <typename req_pubsub_t, typename res_pubsub_t>
+	typename res_pubsub_t::type* ServiceClient<req_pubsub_t, res_pubsub_t>::call(typename req_pubsub_t::type &request, const std::chrono::duration<double> &duration)
 	{
 		std::unique_lock<std::mutex> lock(this->response_mutex);
 
@@ -123,42 +101,30 @@ namespace dls
 		// wait for a response
 		this->received_response_cv.wait_for(lock, duration);
 
-		if(this->received_response)
+		// clean remote_response for the next call
+		if constexpr (std::is_same<typename res_pubsub_t::type, void>() == false)
 		{
-			// reset state for next call
-			this->received_response = false;
+			auto tmp = this->remote_response;
+			this->remote_response = nullptr;
+			return tmp;
+		}
 
-			return new msg_t(this->remote_response);
-			
-		}
-		else
-		{
-			// indicate failure
-			return nullptr;
-		}
+		return nullptr;		
 	}
 
-	template <typename msg_t>
-	bool ServiceClient<msg_t>::call
-	(
-		msg_t &request,
-		std::function<void(msg_t response, bool success)> callback,
-		const std::chrono::duration<double> &duration
-	)
+	template <typename req_pubsub_t, typename res_pubsub_t>
+	void ServiceClient<req_pubsub_t, res_pubsub_t>::call(
+		typename req_pubsub_t::type &request, 
+		std::function<void(typename req_pubsub_t::type)> callback,	
+		const std::chrono::duration<double> &duration)
 	{
-		std::thread t
-		(
-			[&]()
-			{
-				bool success;
-				msg_t response = this->call(request, duration);
-				callback(response, success);
-			}
-		);
+		std::thread t([&]()
+		{
+			typename res_pubsub_t::type response = this->call(request, duration);
+			callback(response);
+		});
 
 		t.detach();
-
-		return true;
 	}
 } // end namespace dls
 

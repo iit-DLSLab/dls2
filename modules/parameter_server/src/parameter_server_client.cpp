@@ -9,41 +9,12 @@
 namespace dls
 {
 	// =========================================================================
-	// Private Implementation
-	// =========================================================================
-	namespace impl
-	{
-		// ============================ Declaration ============================
-		struct ParameterServerClientImpl
-		{
-			ParameterServerClientImpl(std::string const &server_namespace);
-
-			dls::ServiceClient<ParamServerSetDoublePubSubType> add_double;
-			dls::ServiceClient<StringMsgPubSubType> get_double;
-		};
-
-		// ========================== Implementation ===========================
-		ParameterServerClientImpl::ParameterServerClientImpl
-		(
-			std::string const &server_namespace
-		) :
-			add_double
-			(
-				dls::topicType( server_namespace + "_ADD_DOUBLE", new ParamServerSetDoublePubSubType(), &registerparam_server_set_doubleTypes)
-			),
-			get_double
-			(
-				dls::topicType( server_namespace + "_GET_DOUBLE", new StringMsgPubSubType(), &registerstringmsgTypes)
-			)
-		{ }
-	}
-
-	// =========================================================================
 	// Main Class Implementation
 	// =========================================================================
 	// ============================= constructors ==============================
-	ParameterServerClient::ParameterServerClient(std::string const & ns) :
-		pimpl(std::make_unique<impl::ParameterServerClientImpl>(ns))
+	ParameterServerClient::ParameterServerClient() 
+		: add_double(dls::topics::add_double)
+		, get_double(dls::topics::get_double)
 	{ }
 
 	ParameterServerClient::~ParameterServerClient() { }
@@ -51,12 +22,12 @@ namespace dls
 	// ============================= Param Server ==============================
 	void ParameterServerClient::setDouble(std::string const &key, double d)
 	{
-		ParamServerSetDouble *req = new(ParamServerSetDouble);
+		ParamSetMsg req;
 		
-		req->key()   = key;
-		req->value() = d;
+		req.key()   = key;
+		req.value() = d;
 
-		// req = this->pimpl->add_double.call(req);
+		this->add_double.call(req);
 	}
 
 	double ParameterServerClient::getDouble(std::string const &key)
@@ -65,12 +36,12 @@ namespace dls
 
 		req.msg() = key;
 
-		// this->pimpl->get_double.call(req)
+		auto res = this->get_double.call(req);
 
-		// if()
-		// {
-		// 	return res.val();
-		// }
+		if(res)
+		{
+			return res->val();
+		}
 
 		return 0;
 	}

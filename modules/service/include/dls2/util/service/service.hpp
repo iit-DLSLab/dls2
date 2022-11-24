@@ -28,6 +28,11 @@
 
 namespace dls
 {
+
+	typedef struct{
+		typedef void type;
+	} void_t;
+
 	// =========================================================================
 	// Service Server Class Declaration
 	// =========================================================================
@@ -38,12 +43,14 @@ namespace dls
 	/// that is sent to the server
 	/// \tparam res_pubsub_t the PubSubType corresponding to the response
 	/// message that is received from the server
-	template <typename msg_t>
+	template <typename req_pubsub_t, typename res_pubsub_t = void_t>
 	class Service
 	{
 	public:
+		static_assert(std::is_base_of_v<typename eprosima::fastdds::dds::TopicDataType, req_pubsub_t> == true);
+
 		/// The service callback signature
-		typedef std::function<msg_t(msg_t)> callback_t;
+		typedef std::function<typename res_pubsub_t::type(typename req_pubsub_t::type)> callback_t;
 
 		/// Creates a service
 		///
@@ -57,7 +64,7 @@ namespace dls
 		);
 
 	private:
-		dls::topicType                      service_topic;
+		dls::topicType service_topic;
 
 		/// Subscriber waiting for a request message
 		///
@@ -84,7 +91,7 @@ namespace dls
 	/// that is sent to the server
 	/// \tparam res_pubsub_t the PubSubType corresponding to the response
 	/// message that is received from the server
-	template <typename msg_t>
+	template <typename req_pubsub_t, typename res_pubsub_t = void_t>
 	class ServiceClient
 	{
 	public:
@@ -104,10 +111,10 @@ namespace dls
 		/// @param request the request message to send to the service
 		/// @param duration how long to wait for a response before giving up and
 		///        returning early. Defaults to no time limit.
-		/// @return true if the call was successful, false otherwise
-		msg_t* call
+		/// @return result value if the call was successful, nullptr otherwise
+		typename res_pubsub_t::type* call
 		(
-			msg_t &request,
+			req_pubsub_t::type &request,
 			const std::chrono::duration<double> &duration =
 				std::chrono::duration<double>
 				{
@@ -137,17 +144,10 @@ namespace dls
 		///
 		/// @param duration how long to wait for a response before giving up and
 		///        returning early. Defaults to no time limit.
-		///
-		/// @return always true. This is to keep a similar interface to the
-		///         other overload of `call`. Since the callback is handled
-		///         asynchronously, it is not possible to determine in the
-		///         return whether the call to the server was successful or not.
-		///         The onus to handle failed calls rests with the user-defined
-		///         callback passed into this function.
-		bool call
+		void call
 		(
-			msg_t &request,
-			std::function<void(msg_t response, bool success)> callback,
+			typename req_pubsub_t::type &request,
+			std::function<void(typename req_pubsub_t::type)> callback,
 			const std::chrono::duration<double> &duration =
 				std::chrono::duration<double>
 				{
@@ -156,6 +156,13 @@ namespace dls
 		);
 
 	private:
+		// BEGIN critical section
+			std::mutex              		response_mutex;
+			std::condition_variable 		received_response_cv;
+			typename res_pubsub_t::type*   	remote_response;
+			bool                    		received_response;
+		// END critical section
+
 		/// Publisher that sends the request to the server on the topic
 		/// specified in the constructor
 		// DO NOT put this after response_subscriber. response_subscriber
@@ -165,13 +172,6 @@ namespace dls
 		/// Subscriber that receives the response from the server
 		///
 		dls::DDSReader response_subscriber;
-
-		// BEGIN critical section
-			std::mutex              response_mutex;
-			std::condition_variable received_response_cv;
-			msg_t                   remote_response;
-			bool                    received_response;
-		// END critical section
 	};
 } // end namespace dls
 

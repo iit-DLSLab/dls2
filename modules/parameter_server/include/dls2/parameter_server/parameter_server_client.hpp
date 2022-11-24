@@ -4,22 +4,21 @@
 #include <string>
 #include <memory>
 
+#include "dls2/util/service/service.hpp"
+
 namespace dls
 {
-	namespace impl
-	{
-		struct ParameterServerClientImpl;
-	}
 	class ParameterServerClient
 	{
 	public:
-		ParameterServerClient(std::string const &server_namespace);
+		ParameterServerClient();
 		~ParameterServerClient();
 		void   setDouble(std::string const &key, double val);
 		double getDouble(std::string const &key);
 
-	private:
-		std::unique_ptr<impl::ParameterServerClientImpl> pimpl;
+	private:	
+		dls::ServiceClient<ParamSetMsgPubSubType> add_double;
+		dls::ServiceClient<StringMsgPubSubType, DoubleMsgPubSubType> get_double;
 	};
 }
 

@@ -35,10 +35,12 @@
 #include <dls_messages/dds/command_sendPubSubTypes.h>
 #include <dls_messages/dds/aliengo_rawPubSubTypes.h>
 #include <dls_messages/dds/legs_posePubSubTypes.h>
+#include <dls_messages/dds/param_setPubSubTypes.h>
+#include "dls_messages/dds/doublePubSubTypes.h"
 
 namespace dls
 {
-	typedef std::tuple<std::string, eprosima::fastdds::dds::TypeSupport, std::function<void()>> topicType;
+	typedef std::tuple<std::string, eprosima::fastdds::dds::TypeSupport> topicType;
 
 	namespace topics
 	{
@@ -65,6 +67,10 @@ namespace dls
 		extern dls::topicType desired_torques;
 		extern dls::topicType control_signal;
 		extern dls::topicType gait_signal;
+
+		// services
+		extern dls::topicType add_double;
+		extern dls::topicType get_double;
 
 		namespace high_level_estimation
 		{
