@@ -20,13 +20,14 @@
 #include "dls2/util/messaging/dds_reader.hpp"
 #include "dls2/math/spline/ramp.hpp"
 #include <boost/process.hpp>
+#include "dls2/components/app_data.hpp"
 
 #include <memory>
 
 /// A struct representing the control signal that is output by a Controller
 namespace dls
 {
-    class ControllerData
+    class ControllerData : public AppData
     {
     public:
         ControllerData
@@ -40,9 +41,6 @@ namespace dls
 
         ControlSignal getLastPublishedControlSignal();
 
-        std::shared_ptr<boost::process::child> proc;
-        std::shared_ptr<DDSReader> dds_reader;
-        std::string ID;
         std::atomic<double> premultiplier; ///< Spline value to premutilply the torque signal
         const std::chrono::duration<double> spline_in_duration;
         const std::chrono::duration<double> spline_out_duration;

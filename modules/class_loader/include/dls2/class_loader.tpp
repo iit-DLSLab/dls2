@@ -43,7 +43,7 @@ std::shared_ptr<T> ClassLoader::loadClass
 	// clear errors
 	dlerror();
 
-	typename T::create_t *create_T =
+	typename T::create_t* create_T =
 		(typename T::create_t*)dlsym(T_lib, "create");
 
 	if(!create_T)

@@ -4,7 +4,7 @@
 add_library(dls_parameter_server
 	SHARED
 		src/parameter_server.cpp
-		src/parameter_server_client.cpp
+		# src/parameter_server_client.cpp
 )
 
 target_include_directories(dls_parameter_server

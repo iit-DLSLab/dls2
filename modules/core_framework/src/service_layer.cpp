@@ -13,7 +13,7 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#include "dls2/core_framework/hardware_layer.hpp"
+#include "dls2/core_framework/service_layer.hpp"
 
 #include "dls2/class_loader.hpp"
 #include "dls2/core_framework/options.hpp"
@@ -21,48 +21,55 @@
 
 using namespace dls;
 
-HardwareLayer::HardwareLayer(std::string ID_) 
+
+ServiceLayer::ServiceLayer(std::string ID_) 
 	: AppLayer(ID_)
 {
     ddsMonitor = new dls::DDSWriter(
-		"HardwareLayer::monitor",
-		dls::domains::hardwares,
+		"ServiceLayer::monitor",
+		dls::domains::services,
 		dls::topics::command_send
 	);
 
     command_manager.addCommand<std::string>
 	(
-		"loadHardware",
-		"Load thel HAL of a robot",
+		"loadService",
+		"Load a service",
 		std::function<bool(std::string)>([&](std::string type)->bool
         {
-			return this->activateHardware(type);
+			return this->loadService(type);
         }),
-		{{0,1}},
+		{{0,1},{1,1}},
 		true
 	);
 
-    command_manager.addCommand<>
+	command_manager.addCommand<std::string>
 	(
-		"unloadHardware",
-		"Terminates the HAL of the robot",
-		std::function<bool(std::string)>([&](std::string name)->bool
+		"removeService",
+		"Remove service",
+		std::function<bool(std::string)>([&](std::string s)->bool
         {
-            return this->deactivateHardware(name);
+			if(this->removeService(s))
+			{
+				if(this->numOfServices() == 0)
+					return true;
+			}
+
+			return false;
 		}),
 		{{1,0}},
 		true
 	);
 }
 
-HardwareLayer::~HardwareLayer()
+ServiceLayer::~ServiceLayer()
 {
-	std::cout << "#### HARDWARE INTERFACE OFF ####" << std::endl;
+	std::cout << "#### SERVICE LAYER OFF ####" << std::endl;
 }
 
-HardwareLayer::Status HardwareLayer::run()
+ServiceLayer::Status ServiceLayer::run()
 {
-	// TODO("Check status of all components in the control layer, take corrective actions if requred")
+	// TODO("Check status of all components in the service layer, take corrective actions if requred")
 	setStatus(Status::RUNNING);
 
 	while(!this->shouldQuit())
@@ -74,20 +81,22 @@ HardwareLayer::Status HardwareLayer::run()
 }
 
 
-bool HardwareLayer::activateHardware(const std::string &robotType)
+bool ServiceLayer::loadService(const std::string& lib_name)
 {
-    std::shared_ptr<AppData> pData = std::make_shared<AppData>();
-
-    for(long unsigned int i = 0; i <= hardwares.size(); i++){
-        pData->ID = robotType + "_" + std::to_string(i);
-        if(this->hardwares.find(pData->ID) == this->hardwares.end())
-            break;
-    }   
-
+	
+	if(this->services.find(lib_name) != this->services.end())\
 	{
-		// std::lock_guard<std::mutex> lock(this->hardwares_mutex);
+		scout << "SERVICE " + lib_name + " IS ALREADY RUNNING" << std::endl;
+		return false;
+	}
 
-		// launch the hardware
+    std::shared_ptr<AppData> pData = std::make_shared<AppData>();
+	pData->ID = lib_name;
+    
+	{
+		// std::lock_guard<std::mutex> lock(this->services_mutex);
+
+		// launch the service
 		char *child_process_launcher = std::getenv("DLS_CHILD_PROCESS_LAUNCHER");
 		if(!child_process_launcher)
 		{
@@ -102,78 +111,80 @@ bool HardwareLayer::activateHardware(const std::string &robotType)
 		pData->proc = std::make_shared<boost::process::child>(std::vector<std::string>({
 			child_process_launcher,
 			pData->ID,
-			robotType + "_hal",
-			"hardware",
-			robotType,
+			lib_name,
+			"service",
+			"",
             "live"
 		}));
 
 		if (pData->proc == nullptr){
-			std::cout << "Controller process failed to launch" << std::endl;
+			std::cout << "Service process failed to launch" << std::endl;
 			return false;
 		}
 
         if (!pData->proc->running()){
-			std::cout << "Controller process failed to launch" << std::endl;
+			std::cout << "Service process failed to launch" << std::endl;
 			return false;
 		}
 
-		std::cout << "HARDWARE LAYER OF " << pData->ID << " IS ON" <<  std::endl;
+		std::cout << "SERVICE " << pData->ID << " IS ON" <<  std::endl;
 
-		this->hardwares.emplace(pData->ID, pData);
+		this->services.emplace(pData->ID, pData);
 	}
 
 	return true;
 }
 
-bool HardwareLayer::deactivateHardware(std::shared_ptr<AppData> pData)
+bool ServiceLayer::removeService(const std::string& ID)
 {
-	std::lock_guard<std::mutex> lock(this->hardwares_mutex);
+	// std::lock_guard<std::mutex> lock(this->services_mutex);
 
-    //shutdown controller over the dds comunication layer
+	// Find service inside the services list
+	auto res = this->services.find(ID);
+
+	if (res == this->services.end())
+	{
+		scout << "Service " + ID + " is not loaded" << std::endl;
+		return false;
+	}
+
+	auto pData = res->second;
+
+    //shutdown service over the dds comunication layer
 	CommandSendMsg msg;
 	msg.name(pData->ID);
 	msg.command("shutdown");
 	this->ddsMonitor->sendMessage((void*) &msg);
 
-    //wait a little for hardware to exit
+    //wait a little for service to exit
 	std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(200));
 
 	if(pData->proc->running()){
-		std::cout << "### HARDWARE IS STILL RUNNING WAITING A LITTLE TO GET PROPPER EXIT ###" << std::endl;
+		scout << "### SERVICE IS STILL RUNNING WAITING A LITTLE TO GET PROPPER EXIT ###" << std::endl;
 		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
 		if(pData->proc->running()){
-			std::cout << "### FORCING HARDWARE " << pData->proc->id() << " TO EXIT ###" << std::endl;
+			scout << "### FORCING SERVICE " << pData->proc->id() << " TO EXIT ###" << std::endl;
 			kill(pData->proc->id(), SIGKILL);
 		}
 	}
 
 	pData->proc = nullptr;
 	pData->dds_reader = nullptr;
-	this->hardwares.erase(pData->ID);
+	this->services.erase(pData->ID);
 
-    return false;
+    return true;
 }
 
-bool HardwareLayer::deactivateHardware(const std::string &ID)
-{
-	decltype(this->hardwares.find(ID)) pair_it;
-	{
-		std::lock_guard<std::mutex> lock(this->hardwares_mutex);
-		pair_it = this->hardwares.find(ID);
-
-		if(pair_it == this->hardwares.end()) 
-			return false;
-	}
-
-    return this->deactivateHardware(pair_it->second);
-}
-
-HardwareLayer::Status HardwareLayer::shutdown()
+ServiceLayer::Status ServiceLayer::shutdown()
 {
 	this->should_quit = true;
 
 	setStatus(Status::STOP);
 
 	return getStatus();
+}
+
+int ServiceLayer::numOfServices()
+{
+	return this->services.size();
 }

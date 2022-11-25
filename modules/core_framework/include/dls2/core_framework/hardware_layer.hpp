@@ -18,26 +18,13 @@
 
 #include "app_layer.hpp"
 #include "dls2/hardware/hardware.hpp"
-
-#include "dls2/util/messaging/dds_reader.hpp"
+#include "dls2/components/app_data.hpp"
 #include "dls2/util/messaging/dds_writer.hpp"
 
-#include <boost/process.hpp>
 #include <pthread.h>
 
 namespace dls
 {
-    class HardwareData
-    {
-    public:
-        HardwareData();
-        ~HardwareData();
-
-        std::shared_ptr<boost::process::child> proc;
-        std::shared_ptr<DDSReader> dds_reader;
-        std::string ID;
-    };
-
     class HardwareLayer : public AppLayer
     {
         typedef void * (*THREADFUNCPTR)(void *);
@@ -71,11 +58,11 @@ namespace dls
     
     private:
         // BEGIN critical section
-		    std::map<std::string, std::shared_ptr<HardwareData>> hardwares;
+		    std::map<std::string, std::shared_ptr<AppData>> hardwares;
 		    std::mutex hardwares_mutex;
 	    // END critical section
 
-       	bool deactivateHardware(std::shared_ptr<HardwareData> pData);
+       	bool deactivateHardware(std::shared_ptr<AppData> pData);
 
         dls::DDSWriter *ddsMonitor;	
     };

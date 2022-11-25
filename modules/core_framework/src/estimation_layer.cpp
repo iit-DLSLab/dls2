@@ -22,14 +22,6 @@
 
 using namespace dls;
 
-EstimatorData::EstimatorData() 
-    : proc(nullptr)
-    , dds_reader(nullptr)
-    , ID("")
-{ }
-
-EstimatorData::~EstimatorData(){}
-
 EstimationLayer::EstimationLayer(std::string ID) :
 	AppLayer(ID),
 	estimators(),
@@ -102,7 +94,7 @@ AppLayer::Status EstimationLayer::shutdown()
 // =============================================================================
 bool EstimationLayer::loadEstimator(const Estimator::ID_t& lib_name)
 {
-    std::shared_ptr<EstimatorData> pData = std::make_shared<EstimatorData>();
+    std::shared_ptr<AppData> pData = std::make_shared<AppData>();
 
     for(long unsigned int i = 0; i <= estimators.size(); i++){
         pData->ID = lib_name + "_" + std::to_string(i);

@@ -48,8 +48,7 @@ namespace dls
 		dls::topicType gait_signal 				= dls::topicType("gaitSignal", new  GaitSignalMsgPubSubType());
 
 		// services
-		dls::topicType add_double 				= dls::topicType("add_double", new ParamSetMsgPubSubType());
-		dls::topicType get_double				= dls::topicType("add_double", new DoubleMsgPubSubType());
+		dls::topicType param_server 			= dls::topicType("add_double", new ParamServerMsgPubSubType());
 
 		namespace high_level_estimation
 		{

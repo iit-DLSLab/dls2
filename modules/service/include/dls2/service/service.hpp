@@ -23,6 +23,8 @@
 #include <chrono>
 #include <mutex>
 
+#include "dls2/components/periodic_app_layer_component.hpp"
+
 #include "dls2/util/messaging/dds_reader.hpp"
 #include "dls2/util/messaging/dds_writer.hpp"
 
@@ -44,9 +46,13 @@ namespace dls
 	/// \tparam res_pubsub_t the PubSubType corresponding to the response
 	/// message that is received from the server
 	template <typename req_pubsub_t, typename res_pubsub_t = void_t>
-	class Service
+	class Service : protected AppLayerComponent
 	{
 	public:
+		
+		typedef Service *create_t(std::string);
+        typedef void destroy_t(Service*);
+
 		static_assert(std::is_base_of_v<typename eprosima::fastdds::dds::TopicDataType, req_pubsub_t> == true);
 
 		/// The service callback signature
@@ -59,9 +65,22 @@ namespace dls
 		///                 this service receives a request
 		Service
 		(
-			const dls::topicType &topic,
+			std::string& ID,
+			const dls::topicType& topic,
 			callback_t callback
 		);
+		
+		AppLayerComponent::Status run() override;
+
+        AppLayerComponent::Status stop() override;
+
+		/// Print the state of this layer
+		///
+		virtual std::string where() {return "Parameter server";}
+
+        /// Emergency stop for this component
+        ///
+        Status eStop() override {return this->getStatus();};
 
 	private:
 		dls::topicType service_topic;
@@ -74,7 +93,7 @@ namespace dls
 		///
 		/// The return from this callback will automatically be sent to the
 		/// client that made the request
-		callback_t                       callback;
+		callback_t callback;
 
 	};
 
@@ -175,6 +194,6 @@ namespace dls
 	};
 } // end namespace dls
 
-#include "dls2/util/service/service.tpp"
+#include "dls2/service/service.tpp"
 
 #endif /* end of include guard: SERVICE_HPP_ZNVNXYI5 */

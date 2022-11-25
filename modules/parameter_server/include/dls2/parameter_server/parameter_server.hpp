@@ -1,27 +1,24 @@
-#ifndef PARAMETER_SERVER_HPP_05f2fd08_3966_43ee_b7c8_5c344e7afd3f
-#define PARAMETER_SERVER_HPP_05f2fd08_3966_43ee_b7c8_5c344e7afd3f
+#ifndef PARAMETER_SERVER_HPP
+#define PARAMETER_SERVER_HPP
 
 #include <memory>
 #include <string>
 #include <unordered_map>
 
-#include "dls2/util/service/service.hpp"
+#include "dls2/service/service.hpp"
 
 namespace dls
 {
-	class ParameterServer
+	class ParameterServer : public dls::Service<ParamServerMsgPubSubType, DoubleMsgPubSubType> 
 	{
 	public:
-		ParameterServer();
+		ParameterServer(std::string&);
+		~ParameterServer();
 
 	private:
         std::mutex param_store_mutex;
         std::unordered_map<std::string, double> param_store;
-
-        dls::Service<ParamSetMsgPubSubType>  add_double;
-        dls::Service<StringMsgPubSubType, DoubleMsgPubSubType> get_double;
-
 	};
 }
 
-#endif // PARAMETER_SERVER_HPP_05f2fd08_3966_43ee_b7c8_5c344e7afd3f
+#endif // PARAMETER_SERVER_HPP

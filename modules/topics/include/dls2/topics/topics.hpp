@@ -35,7 +35,7 @@
 #include <dls_messages/dds/command_sendPubSubTypes.h>
 #include <dls_messages/dds/aliengo_rawPubSubTypes.h>
 #include <dls_messages/dds/legs_posePubSubTypes.h>
-#include <dls_messages/dds/param_setPubSubTypes.h>
+#include <dls_messages/dds/param_serverPubSubTypes.h>
 #include "dls_messages/dds/doublePubSubTypes.h"
 
 namespace dls
@@ -69,9 +69,8 @@ namespace dls
 		extern dls::topicType gait_signal;
 
 		// services
-		extern dls::topicType add_double;
-		extern dls::topicType get_double;
-
+		extern dls::topicType param_server;
+		
 		namespace high_level_estimation
 		{
 			extern dls::topicType legs_pose;

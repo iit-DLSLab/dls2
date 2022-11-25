@@ -28,9 +28,7 @@ ControllerData::ControllerData
 	const std::chrono::duration<double> &duration_in,
 	const std::chrono::duration<double> &duration_out
 ) :
-	proc(nullptr),
-	dds_reader(nullptr),
-	ID(),
+	AppData(),
 	premultiplier(0),
 	spline_in_duration(duration_in),
 	spline_out_duration(duration_out),

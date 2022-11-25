@@ -13,15 +13,10 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef SERVICE_TPP_DWLU8PQ9
-#define SERVICE_TPP_DWLU8PQ9
+#ifndef SERVICE_TPP
+#define SERVICE_TPP
 
-#include "dls2/util/service/service.hpp"
-
-// TODO temp include
-#include <iostream>
-#include <sstream>
-#include <thread>
+#include "dls2/service/service.hpp"
 
 namespace dls
 {
@@ -29,8 +24,9 @@ namespace dls
 	// Service Implementation
 	// =========================================================================
 	template <typename req_pubsub_t, typename res_pubsub_t>
-	Service<req_pubsub_t, res_pubsub_t>::Service(const dls::topicType &topic_, callback_t callback_)
-		: service_topic(topic_)
+	Service<req_pubsub_t, res_pubsub_t>::Service(std::string& ID_, const dls::topicType &topic_, callback_t callback_)
+	    : AppLayerComponent(ID_)
+		, service_topic(topic_)
 		, request_subscriber(
 			"request_sub",
 			dls::domains::services,
@@ -126,6 +122,18 @@ namespace dls
 
 		t.detach();
 	}
+
+	template <typename req_pubsub_t, typename res_pubsub_t>
+	AppLayerComponent::Status Service<req_pubsub_t, res_pubsub_t>::run()
+	{
+		return this->getStatus();
+	}
+
+	template <typename req_pubsub_t, typename res_pubsub_t>
+	AppLayerComponent::Status Service<req_pubsub_t, res_pubsub_t>::stop()
+	{
+		return this->getStatus();
+	}
 } // end namespace dls
 
-#endif /* end of include guard: SERVICE_TPP_DWLU8PQ9 */
+#endif /* end of include guard: SERVICE_TPP */

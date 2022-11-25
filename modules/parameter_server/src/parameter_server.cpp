@@ -5,35 +5,53 @@
 
 namespace dls
 {
-	ParameterServer::ParameterServer() 
-        : param_store_mutex()
-        , param_store()
-        , add_double(
-			dls::topics::add_double,
-			[this](ParamSetMsg msg) -> void
+	ParameterServer::ParameterServer(std::string& ID) 
+		: Service(
+			ID,
+			dls::topics::param_server,
+			[this](ParamServerMsg msg) -> DoubleMsg
 			{
 				std::lock_guard<std::mutex> lock(this->param_store_mutex);
-				this->param_store.insert({msg.key(), msg.value()});
-			})
-        , get_double(
-			dls::topics::get_double,
-			[this](StringMsg msg) -> DoubleMsg
-			{
-				std::lock_guard<std::mutex> lock(this->param_store_mutex);
-				auto ret = this->param_store.find(msg.msg());
+				auto param = this->param_store.find(msg.key());
 
-				DoubleMsg return_message;
-				if (ret != this->param_store.end())
+				DoubleMsg return_msg;
+
+				// if it is a reading request and the parameter does not exists return 0
+				if(param == this->param_store.end() && !msg.rw())
 				{
-					return_message.val() = ret->second;
+					return_msg.value() = 0;
+					return return_msg;
 				}
-				else
+
+				// update or insert the parameter if it is a writing request
+				if(msg.rw())
 				{
-					return_message.val() = 0;
-				}
-				
-				return return_message;
-			}
-		)
-    {}
+					param = param_store.emplace(msg.key(), msg.value()).first;
+				}		
+
+				// return the current value of the parameter
+				return_msg.value() = param->second;
+				return return_msg;
+			})
+        , param_store_mutex()
+        , param_store()
+    {
+		scout << "SERVICE " + ID + " IS RUNNING" << std::endl;
+	}
+
+	ParameterServer::~ParameterServer() 
+	{
+		scout << "SERVICE " + this->getID() + " IS OFF" << std::endl;
+	}
+
+	// the class factories
+    extern "C" ParameterServer* create(std::string ID) 
+    {
+        return new ParameterServer(ID);
+    }
+
+    extern "C" void destroy(ParameterServer* p) 
+    {
+        delete p;
+    }
 }

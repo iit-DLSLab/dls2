@@ -35,6 +35,7 @@
 #include "dls2/controller/controller.hpp"
 #include "dls2/hardware/hardware.hpp"
 #include "dls2/estimator/estimator.hpp"
+#include "dls2/service/service.hpp"
 #include "dls2/log/log.hpp"
 
 #include "robotlib/robot_factory.hpp"
@@ -140,6 +141,14 @@ int main(int argc, char **argv)
                     args.component_name,
                     pRobot);
         }
+        else if (args.component_type == "service")
+        {
+            scout << "LOADING SERVICE FROM '" << std::string("${DLS_INSTALL_SERVICE_DIR}/lib") + args.lib_name + ".so'" << std::endl;
+            pComponent =
+                ClassLoader::loadClass<Service, std::string>(
+                    std::string("${DLS_INSTALL_SERVICE_DIR}/lib") + args.lib_name + ".so",
+                    args.component_name);
+        }
         else
         {
             std::cerr << "component loading not yet implemented" << std::endl;
@@ -191,8 +200,9 @@ Args parse_args(int argc, char **argv)
     if (
         args.component_type != "controller" &&
         args.component_type != "gait_generator" &&
-        args.component_type != "hardware"&&
-        args.component_type != "estimator"
+        args.component_type != "hardware" &&
+        args.component_type != "estimator" &&
+        args.component_type != "service"
         )
     {
         std::cerr << "Error: unknown component type '" << args.component_type << "'" << std::endl;
