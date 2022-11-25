@@ -34,7 +34,7 @@ namespace dls
 
         using ID_t = std::string;
 
-        typedef Hardware *create_t(std::shared_ptr<robotlib::RobotBase>);
+        typedef Hardware *create_t(std::string);
         typedef void destroy_t(Hardware*);
 
         Hardware

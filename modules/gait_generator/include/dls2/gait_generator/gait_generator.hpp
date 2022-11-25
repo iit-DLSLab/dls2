@@ -43,7 +43,7 @@ class GaitGenerator : public PeriodicAppLayerComponent
 	public:
 		// Typedefs
 		// using ID_t = std::string;
-		typedef GaitGenerator *create_t(std::shared_ptr<robotlib::RobotBase>);
+		typedef GaitGenerator *create_t(std::string);
 		typedef void destroy_t(GaitGenerator*);
 
 		// Constructors
@@ -100,15 +100,5 @@ class GaitGenerator : public PeriodicAppLayerComponent
 		dls::DDSReader 		ddsMonitor;
 	};
 } // end namespace dls
-
-#define DLS_EXPORT_GAIT_GENERATOR(generator)                               \
-extern "C" dls::GaitGenerator *create(std::shared_ptr<robotlib::RobotBase> pDog) \
-{                                                                          \
-	return new generator(pDog);                                            \
-}                                                                          \
-extern "C" void destroy(dls::GaitGenerator *p)                             \
-{                                                                          \
-	delete p;                                                              \
-}
 
 #endif /* end of include guard: GAIT_GENERATOR_HPP_5MDX0BG2 */

@@ -41,6 +41,7 @@ bool Options::launch_control                = false;
 bool Options::launch_console                = false;
 bool Options::launch_log                    = false;
 bool Options::launch_sim                    = false;
+bool Options::launch_service                = false;
 
 // real robot or simulation mode
 bool Options::simulation_mode               = true;
@@ -80,6 +81,7 @@ bool Options::parseArgs(int argc, char **argv)
 	Options::launch_console     =  false;
 	Options::launch_log         =  false;
 	Options::launch_sim 		=  false;
+	Options::launch_service		=  false;
 
 	int opt;
 	while((opt = getopt_long(argc, argv, "r:sHl:vh::cd", long_options, nullptr)) != -1)
@@ -124,6 +126,7 @@ bool Options::parseArgs(int argc, char **argv)
 					const_cast<char*>("log"),
 					const_cast<char*>("estimation"),
 					const_cast<char*>("sim"),
+					const_cast<char*>("service"),
 					nullptr
 				};
 				char *value;
@@ -161,6 +164,10 @@ bool Options::parseArgs(int argc, char **argv)
 						{
 							Options::simulation_mode = true;
                             Options::launch_sim = true;
+						}
+						else if(std::strcmp(layer, "service") == 0)
+						{
+                            Options::launch_service = true;
 						}
 					}
 					else
@@ -269,7 +276,8 @@ bool Options::validate()
 		!launch_control &&
 		!launch_console &&
 		!launch_log &&
-		!launch_sim
+		!launch_sim &&
+		!launch_service
 	)
 		return false;
 

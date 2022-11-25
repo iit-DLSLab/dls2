@@ -40,7 +40,7 @@
 
 namespace dls
 {
-	typedef std::tuple<std::string, eprosima::fastdds::dds::TypeSupport> topicType;
+	typedef std::pair<std::string, eprosima::fastdds::dds::TypeSupport> topicType;
 
 	namespace topics
 	{

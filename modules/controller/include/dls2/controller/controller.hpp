@@ -46,7 +46,7 @@ namespace dls
     public:
 
         // Plugin typedefs
-        typedef Controller *create_t(std::shared_ptr<robotlib::RobotBase>);
+        typedef Controller *create_t(std::string);
         typedef void destroy_t(Controller*);
 
         Controller

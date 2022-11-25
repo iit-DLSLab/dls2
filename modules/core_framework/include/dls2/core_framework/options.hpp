@@ -65,6 +65,7 @@ public:
 	static bool launch_console;
 	static bool launch_log;
 	static bool launch_sim;
+	static bool launch_service;
 
 	// Real robot or simulation mode
 	static bool simulation_mode;

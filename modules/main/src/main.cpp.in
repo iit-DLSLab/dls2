@@ -34,6 +34,7 @@
 #include "dls2/core_framework/log_layer.hpp"
 #include "dls2/core_framework/console_layer.hpp"
 #include "dls2/core_framework/sim_layer.hpp"
+#include "dls2/core_framework/service_layer.hpp"
 #include "dls2/core_framework/options.hpp"
 #include "dls2/core_framework/version_info.hpp"
 
@@ -173,6 +174,7 @@ int main(int argc, char **argv)
 	if(Options::launch_console)	 	forkLayer<ConsoleLayer>("consoleLayer", argv);
 	if(Options::launch_estimation)	forkLayer<EstimationLayer>("estimationLayer", argv);
 	if(Options::launch_sim)		    forkLayer<SimLayer>("simLayer", argv);
+	if(Options::launch_service)	    forkLayer<ServiceLayer>("serviceLayer", argv);
 
 	//Time::set_use_simulated_time(Options::is_simulation());
 

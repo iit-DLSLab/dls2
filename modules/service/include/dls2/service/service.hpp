@@ -45,18 +45,12 @@ namespace dls
 	/// that is sent to the server
 	/// \tparam res_pubsub_t the PubSubType corresponding to the response
 	/// message that is received from the server
-	template <typename req_pubsub_t, typename res_pubsub_t = void_t>
-	class Service : protected AppLayerComponent
+	class Service : public AppLayerComponent
 	{
 	public:
 		
 		typedef Service *create_t(std::string);
         typedef void destroy_t(Service*);
-
-		static_assert(std::is_base_of_v<typename eprosima::fastdds::dds::TopicDataType, req_pubsub_t> == true);
-
-		/// The service callback signature
-		typedef std::function<typename res_pubsub_t::type(typename req_pubsub_t::type)> callback_t;
 
 		/// Creates a service
 		///
@@ -66,8 +60,9 @@ namespace dls
 		Service
 		(
 			std::string& ID,
-			const dls::topicType& topic,
-			callback_t callback
+			const dls::topicType& topic_in,
+			const dls::topicType& topic_out,
+			std::function<void*(void *)> callback
 		);
 		
 		AppLayerComponent::Status run() override;
@@ -83,17 +78,19 @@ namespace dls
         Status eStop() override {return this->getStatus();};
 
 	private:
-		dls::topicType service_topic;
-
+		
+		dls::topicType service_topic_in;
+		dls::topicType service_topic_out;
 		/// Subscriber waiting for a request message
 		///
 		dls::DDSReader request_subscriber;
+		dls::DDSWriter response_publisher;
 
 		/// The callback to call when a request is received
 		///
 		/// The return from this callback will automatically be sent to the
 		/// client that made the request
-		callback_t callback;
+		std::function<void*(void *)> callback;
 
 	};
 

@@ -21,43 +21,6 @@
 namespace dls
 {
 	// =========================================================================
-	// Service Implementation
-	// =========================================================================
-	template <typename req_pubsub_t, typename res_pubsub_t>
-	Service<req_pubsub_t, res_pubsub_t>::Service(std::string& ID_, const dls::topicType &topic_, callback_t callback_)
-	    : AppLayerComponent(ID_)
-		, service_topic(topic_)
-		, request_subscriber(
-			"request_sub",
-			dls::domains::services,
-			topic_,
-			std::function<void(void *)>{[&](void* tuple)
-			{
-				// ============= read the request message ==============
-				typename req_pubsub_t::type request = *((typename req_pubsub_t::type*) tuple);
-
-				std::stringstream out_topic_stream;
-				out_topic_stream << std::get<0>(this->service_topic) << "_response_";
-
-				// ============== Process the request ==============
-				if constexpr (std::is_same<typename res_pubsub_t::type, void>() == false)
-				{
-					typename res_pubsub_t::type response = this->callback(request);
-
-					dls::DDSWriter response_publisher(
-						"response_pub",
-						dls::domains::services,
-							dls::topicType(out_topic_stream.str(), new req_pubsub_t())
-					);
-
-					// =============== Send the response ===============
-					response_publisher.sendMessage((void*) &response);
-				}
-			}})
-		, callback(callback_)
-	{ }
-
-	// =========================================================================
 	// Service Client Implementation
 	// =========================================================================
 	template <typename req_pubsub_t, typename res_pubsub_t>
@@ -123,17 +86,6 @@ namespace dls
 		t.detach();
 	}
 
-	template <typename req_pubsub_t, typename res_pubsub_t>
-	AppLayerComponent::Status Service<req_pubsub_t, res_pubsub_t>::run()
-	{
-		return this->getStatus();
-	}
-
-	template <typename req_pubsub_t, typename res_pubsub_t>
-	AppLayerComponent::Status Service<req_pubsub_t, res_pubsub_t>::stop()
-	{
-		return this->getStatus();
-	}
 } // end namespace dls
 
 #endif /* end of include guard: SERVICE_TPP */

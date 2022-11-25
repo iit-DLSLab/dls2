@@ -49,7 +49,7 @@ using namespace dls;
 // Globals
 // =============================================================================
 // required to be global for visibility from signal handler
-std::shared_ptr<PeriodicAppLayerComponent> pComponent;
+std::shared_ptr<AppLayerComponent> pComponent;
 
 // =============================================================================
 // Classes
@@ -94,52 +94,40 @@ int main(int argc, char **argv)
 
     Args args = parse_args(argc, argv);
 
-    std::shared_ptr<robotlib::RobotBase> pRobot;
-
-    try
-    {
-        pRobot = robotlib::RobotFactory::openRobot(args.robot_name);
-    }
-    catch (const std::exception &e)
-    {
-        scout << "child_process: Could not open the robot " << args.robot_name << std::endl;
-        std::cerr << e.what() << std::endl;
-    }
-
     // Load the component
     try
     {
         if (args.component_type == "controller")
         {
             pComponent =
-                ClassLoader::loadClass<Controller, std::shared_ptr<robotlib::RobotBase>>(
+                ClassLoader::loadClass<Controller, std::string>(
                     std::string("${DLS_INSTALL_CONTROLLER_DIR}/lib") + args.lib_name + ".so",
-                    pRobot);
+                    args.robot_name);
         }
         else if (args.component_type == "gait_generator")
         {
             scout << "LOADING GATE GENERATOR FROM '" << std::string("${DLS_INSTALL_GAIT_GENERATOR_DIR}/lib") + args.lib_name + ".so'" << std::endl;
             pComponent =
-                ClassLoader::loadClass<GaitGenerator, std::shared_ptr<robotlib::RobotBase>>(
+                ClassLoader::loadClass<GaitGenerator, std::string>(
                     std::string("${DLS_INSTALL_GAIT_GENERATOR_DIR}/lib") + args.lib_name + ".so",
-                    pRobot);
+                    args.robot_name);
         }
         else if (args.component_type == "hardware")
         {
             scout << "LOADING HARDWARE FROM '" << std::string("${DLS_INSTALL_HARDWARE_DIR}/lib") + args.lib_name + ".so'" << std::endl;
             pComponent =
-                ClassLoader::loadClass<Hardware, std::shared_ptr<robotlib::RobotBase>>(
+                ClassLoader::loadClass<Hardware, std::string>(
                     std::string("${DLS_INSTALL_HARDWARE_DIR}/lib") + args.lib_name + ".so",
-                    pRobot);
+                    args.robot_name);
         }
         else if (args.component_type == "estimator")
         {
             scout << "LOADING ESTIMATOR FROM '" << std::string("${DLS_INSTALL_ESTIMATOR_DIR}/lib") + args.lib_name + ".so'" << std::endl;
             pComponent =
-                ClassLoader::loadClass<Estimator, std::string, std::shared_ptr<robotlib::RobotBase>>(
+                ClassLoader::loadClass<Estimator, std::string, std::string>(
                     std::string("${DLS_INSTALL_ESTIMATOR_DIR}/lib") + args.lib_name + ".so",
                     args.component_name,
-                    pRobot);
+                    args.robot_name);
         }
         else if (args.component_type == "service")
         {
@@ -185,7 +173,7 @@ Args parse_args(int argc, char **argv)
         std::cerr << "Error: incorrect number of arguments" << std::endl;
         exit(EXIT_FAILURE);
     }
-    // for (size_t i = 1; i <= 4; i++)
+    // for (size_t i = 1; i <= 5; i++)
     // {
     //     std::cout << "arg " << i << ": " << argv[i] << std::endl;
     // }
@@ -206,16 +194,6 @@ Args parse_args(int argc, char **argv)
         )
     {
         std::cerr << "Error: unknown component type '" << args.component_type << "'" << std::endl;
-        exit(EXIT_FAILURE);
-    }
-
-    if (
-        args.robot_name != "hyq" &&
-        args.robot_name != "hyqreal" &&
-        args.robot_name != "aliengo")
-    {
-        std::cerr << "Error: unknown robot '"
-                  << args.robot_name << "'" << std::endl;
         exit(EXIT_FAILURE);
     }
 
