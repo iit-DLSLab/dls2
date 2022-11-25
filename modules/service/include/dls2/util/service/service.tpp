@@ -33,7 +33,7 @@ namespace dls
 		: service_topic(topic_)
 		, request_subscriber(
 			"request_sub",
-			dls::domains::service,
+			dls::domains::services,
 			topic_,
 			std::function<void(void *)>{[&](void* tuple)
 			{
@@ -50,7 +50,7 @@ namespace dls
 
 					dls::DDSWriter response_publisher(
 						"response_pub",
-						dls::domains::service,
+						dls::domains::services,
 							dls::topicType(out_topic_stream.str(), new req_pubsub_t())
 					);
 
@@ -71,11 +71,11 @@ namespace dls
 		, remote_response(nullptr)
 		, request_publisher(
 		 	"request_pub",
-			dls::domains::service,
+			dls::domains::services,
 			topic)
 		, response_subscriber(
 			"response_sub",
-			dls::domains::service,
+			dls::domains::services,
 			topic,
 			std::function<void(void *)>{[&](void* tuple)
 			{

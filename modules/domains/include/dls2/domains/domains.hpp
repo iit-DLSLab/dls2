@@ -28,10 +28,10 @@ namespace dls
 		extern domainType signals;
 		extern domainType controllers;
         extern domainType hardwares;
-		extern domainType console;
+		extern domainType consoles;
 		extern domainType logging;
-		extern domainType service;
-		extern domainType develop;
+		extern domainType services;
+		extern domainType estimators;
 	}
 }
 

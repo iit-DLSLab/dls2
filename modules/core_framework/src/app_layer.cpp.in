@@ -27,10 +27,10 @@ AppLayer::AppLayer(const std::string &ID_)
     , components({})
     , should_quit(false)
     , command_manager(ID_)
+	, scout(ID_ + "Log")
     , ID(ID_)
 	, status_mutex()
 	, status(Status::INITIALISING)
-	, scout(ID_ + "Log")
 	
 {
 	ddslink = new dls::DDSParticipant(

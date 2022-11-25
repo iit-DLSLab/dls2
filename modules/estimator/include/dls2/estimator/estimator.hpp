@@ -36,7 +36,7 @@ namespace dls
 		
 		virtual ~Estimator() = default;
 
-		typedef Estimator *create_t(std::shared_ptr<robotlib::RobotBase>);
+		typedef Estimator *create_t(std::string, std::shared_ptr<robotlib::RobotBase>);
 		typedef void destroy_t(Estimator*);
 
 	protected:

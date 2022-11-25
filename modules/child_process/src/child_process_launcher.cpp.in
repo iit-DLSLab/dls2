@@ -56,6 +56,7 @@ std::shared_ptr<PeriodicAppLayerComponent> pComponent;
 struct Args
 {
     Args() : component_name(),
+             lib_name(),
              component_type(),
              robot_name(),
              launch_mode()
@@ -63,6 +64,7 @@ struct Args
     }
 
     std::string component_name;
+    std::string lib_name;
     std::string component_type;
     std::string robot_name;
     std::string launch_mode;
@@ -110,31 +112,32 @@ int main(int argc, char **argv)
         {
             pComponent =
                 ClassLoader::loadClass<Controller, std::shared_ptr<robotlib::RobotBase>>(
-                    std::string("${DLS_INSTALL_CONTROLLER_DIR}/lib") + args.component_name + ".so",
+                    std::string("${DLS_INSTALL_CONTROLLER_DIR}/lib") + args.lib_name + ".so",
                     pRobot);
         }
         else if (args.component_type == "gait_generator")
         {
-            scout << "LOADING GATE GENERATOR FROM '" << std::string("${DLS_INSTALL_GAIT_GENERATOR_DIR}/lib") + args.component_name + ".so'" << std::endl;
+            scout << "LOADING GATE GENERATOR FROM '" << std::string("${DLS_INSTALL_GAIT_GENERATOR_DIR}/lib") + args.lib_name + ".so'" << std::endl;
             pComponent =
                 ClassLoader::loadClass<GaitGenerator, std::shared_ptr<robotlib::RobotBase>>(
-                    std::string("${DLS_INSTALL_GAIT_GENERATOR_DIR}/lib") + args.component_name + ".so",
+                    std::string("${DLS_INSTALL_GAIT_GENERATOR_DIR}/lib") + args.lib_name + ".so",
                     pRobot);
         }
         else if (args.component_type == "hardware")
         {
-            scout << "LOADING HARDWARE FROM '" << std::string("${DLS_INSTALL_HARDWARE_DIR}/lib") + args.component_name + ".so'" << std::endl;
+            scout << "LOADING HARDWARE FROM '" << std::string("${DLS_INSTALL_HARDWARE_DIR}/lib") + args.lib_name + ".so'" << std::endl;
             pComponent =
                 ClassLoader::loadClass<Hardware, std::shared_ptr<robotlib::RobotBase>>(
-                    std::string("${DLS_INSTALL_HARDWARE_DIR}/lib") + args.component_name + ".so",
+                    std::string("${DLS_INSTALL_HARDWARE_DIR}/lib") + args.lib_name + ".so",
                     pRobot);
         }
         else if (args.component_type == "estimator")
         {
-            scout << "LOADING ESTIMATOR FROM '" << std::string("${DLS_INSTALL_ESTIMATOR_DIR}/lib") + args.component_name + ".so'" << std::endl;
+            scout << "LOADING ESTIMATOR FROM '" << std::string("${DLS_INSTALL_ESTIMATOR_DIR}/lib") + args.lib_name + ".so'" << std::endl;
             pComponent =
-                ClassLoader::loadClass<Estimator, std::shared_ptr<robotlib::RobotBase>>(
-                    std::string("${DLS_INSTALL_ESTIMATOR_DIR}/lib") + args.component_name + ".so",
+                ClassLoader::loadClass<Estimator, std::string, std::shared_ptr<robotlib::RobotBase>>(
+                    std::string("${DLS_INSTALL_ESTIMATOR_DIR}/lib") + args.lib_name + ".so",
+                    args.component_name,
                     pRobot);
         }
         else
@@ -163,13 +166,12 @@ int main(int argc, char **argv)
 
     pComponent->run();
 
-    std::cout <<  "### ALL GOOD" << std::endl;
     return 0;
 }
 
 Args parse_args(int argc, char **argv)
 {
-    if (argc != 5)
+    if (argc != 6)
     {
         std::cerr << "Error: incorrect number of arguments" << std::endl;
         exit(EXIT_FAILURE);
@@ -181,9 +183,10 @@ Args parse_args(int argc, char **argv)
 
     Args args;
     args.component_name = argv[1];
-    args.component_type = argv[2];
-    args.robot_name = argv[3];
-    args.launch_mode = argv[4];
+    args.lib_name = argv[2];
+    args.component_type = argv[3];
+    args.robot_name = argv[4];
+    args.launch_mode = argv[5];
 
     if (
         args.component_type != "controller" &&

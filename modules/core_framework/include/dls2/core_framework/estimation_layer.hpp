@@ -55,7 +55,9 @@ namespace dls
 		Status shutdown() override;
 
 		bool loadEstimator(const Estimator::ID_t&);
-		bool deactivateEstimator(const Estimator::ID_t);
+		bool removeEstimator(const Estimator::ID_t&);
+
+		int numOfEstimators();
 
 		std::string where() override {return "not yet implemented"; }
 
@@ -64,8 +66,9 @@ namespace dls
 			std::map<Estimator::ID_t, std::shared_ptr<EstimatorData>> estimators;
 			std::mutex estimators_mutex;
 		// END critical section
-		std::atomic_bool should_run;
+
+		dls::DDSWriter *ddsMonitor;	
 	};
-	} // end namespace dls
+} // end namespace dls
 
 #endif /* end of include guard: ESTIMATION_LAYER_HPP_3QHYDR67 */

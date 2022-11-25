@@ -110,6 +110,7 @@ bool HardwareLayer::activateHardware(const std::string &robotType)
 		std::cout << "Launching: child_process_launcher" << std::endl;
 		pData->proc = std::make_shared<boost::process::child>(std::vector<std::string>({
 			child_process_launcher,
+			pData->ID,
 			robotType + "_hal",
 			"hardware",
 			robotType,

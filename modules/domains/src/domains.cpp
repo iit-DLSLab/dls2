@@ -28,10 +28,10 @@ namespace dls
 		domainType signals 		= 3;
 		domainType controllers 	= 4;
         domainType hardwares 	= 5;
-		domainType console 		= 6;
+		domainType consoles		= 6;
 		domainType logging 		= 7;
-		domainType service 		= 8;
-		domainType develop 		= 9;
+		domainType services		= 8;
+		domainType estimators	= 9;
 	}
 }
 

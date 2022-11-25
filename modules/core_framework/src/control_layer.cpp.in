@@ -363,9 +363,9 @@ std::string ControlLayer::where()
 // Controllers
 // -----------------------------------------------------------------------------
 // TODO("std::map already does this check for emplace, maybe for others. Double check and make this more efficient")
-bool ControlLayer::activateController(const std::string &ID)
+bool ControlLayer::activateController(const std::string& lib_name)
 {
-	if(this->controllers.find(ID) != this->controllers.end()) 
+	if(this->controllers.find(lib_name) != this->controllers.end()) 
         return false;
 
     std::shared_ptr<ControllerData> pData = std::make_shared<ControllerData>(
@@ -376,9 +376,9 @@ bool ControlLayer::activateController(const std::string &ID)
 		default_duration_seconds
 	);
 
-    this->controllers.emplace(ID, pData);
+	pData->ID = lib_name;
 
-    pData->ID = ID;
+    this->controllers.emplace(pData->ID, pData);
 
     // std::lock_guard<std::mutex> lock(this->controllers_mutex);
 
@@ -395,7 +395,8 @@ bool ControlLayer::activateController(const std::string &ID)
     scout << "Launching: child_process_launcher" << std::endl;
     pData->proc = std::make_shared<boost::process::child>(std::vector<std::string>({
         child_process_launcher,
-        ID.c_str(),
+        pData->ID,
+		lib_name,
         "controller",
         Options::robot_name,
         (Options::simulation_mode?"sim":"live")
@@ -408,7 +409,7 @@ bool ControlLayer::activateController(const std::string &ID)
     // pData->proc->detach();
 
     pData->dds_reader = std::make_shared<dls::DDSReader>(
-        "ControlLayer::Listener::" + ID,
+        "ControlLayer::Listener::" + pData->ID,
         dls::domains::signals,
         dls::topics::control_signal,
         std::function<void(void *)>
@@ -423,7 +424,7 @@ bool ControlLayer::activateController(const std::string &ID)
         }
     );
 
-    scout << "CONTROL LAYER IS LISTENING CONTROLLER " << ID << " ON TOPIC ControlLayer::Listener::" << ID <<  std::endl;
+    scout << "CONTROL LAYER IS LISTENING CONTROLLER " << pData->ID << " ON TOPIC ControlLayer::Listener::" << pData->ID <<  std::endl;
 
 	// spline in the controller
 	//

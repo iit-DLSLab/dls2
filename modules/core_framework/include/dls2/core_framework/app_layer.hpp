@@ -128,6 +128,10 @@ namespace dls
         ///
 		dls::DDSParticipant *ddslink;
 
+		/// Console/Log output
+        ///
+		logging::clogstream scout;
+
 	private:
 		/// The ID of this layer
 		///
@@ -138,7 +142,6 @@ namespace dls
 			Status status;
 		// END critical section
 
-		logging::clogstream scout;
 	};
 } // end namespace dls
 
