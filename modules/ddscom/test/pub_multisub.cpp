@@ -17,7 +17,7 @@ TEST_CASE("A single publisher can publish to multiple subscribers", "[pubsub]")
 	dls::topicType topic("topic_pub_multisub", new StringMsgPubSubType());
 	std::string send_message("this is the message that needs to be sent");
 
-	dls::DDSWriter publisher("test_publisher", dls::domains::develop, topic);
+	dls::DDSWriter publisher("test_publisher", 0, topic);
 
 	std::vector<dls::DDSReader*> subscribers;
 
@@ -29,7 +29,7 @@ TEST_CASE("A single publisher can publish to multiple subscribers", "[pubsub]")
 		dls::DDSReader *sub = new dls::DDSReader
 		(
 			"reader" + std::to_string(i+1),
-			dls::domains::develop,
+			0,
 			topic,
 			std::function<void(void *)>
 			{

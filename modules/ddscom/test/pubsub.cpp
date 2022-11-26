@@ -15,8 +15,8 @@ TEST_CASE("Messages can be published and received via topics", "[pubsub]")
 		std::string received_message("garbage aslkdfjskldafjsklafjlskajfd");
 		REQUIRE(received_message != send_message);
 
-		dls::DDSWriter publisher("test_writer", dls::domains::develop, topic);
-		dls::DDSReader subscriber("test_reader", dls::domains::develop, topic,
+		dls::DDSWriter publisher("test_writer", 0, topic);
+		dls::DDSReader subscriber("test_reader", 0, topic,
 			std::function<void(void *)>
 			{
 				[&](void *tuple)

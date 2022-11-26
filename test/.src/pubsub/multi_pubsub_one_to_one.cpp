@@ -37,7 +37,7 @@ int main()
 		// build the publisher for this pair
 		auto pub = new DDSWriter(
 			"publisher:" + std::to_string(i),
-			dls::domains::develop,
+			0,
 			topicType("MULTI_PUBSUB_ONE_TO_ONE_CPP:" + std::to_string(i), new StringMsgPubSubType())
 		);
 		publishers.push_back(pub);
@@ -46,7 +46,7 @@ int main()
 		auto sub = new DDSReader
 		(
 			"subscriber:" + std::to_string(i),
-			dls::domains::develop,
+			0,
 			topicType("MULTI_PUBSUB_ONE_TO_ONE_CPP:" + std::to_string(i), new StringMsgPubSubType()),
 			std::function<void(void *)>
 			{

@@ -28,7 +28,7 @@ struct SubscriberTestStruct
 SubscriberTestStruct::SubscriberTestStruct():
     subscriber(
 		"subscriber",
-		dls::domains::develop,
+		0,
 		topic,
 		{
 			[&](void* tuple)
@@ -59,7 +59,7 @@ int main(int /*argc*/, char ** /*argv*/)
 	for(size_t i = 0; i != COUNT_OF_PUBLISHERS; ++i)
 	{
 		publishers.push_back(
-			std::make_unique<dls::DDSWriter>("publisher", dls::domains::develop, topic)
+			std::make_unique<dls::DDSWriter>("publisher", 0, topic)
 		);
 	}
 

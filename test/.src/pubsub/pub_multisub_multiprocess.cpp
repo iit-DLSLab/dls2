@@ -76,7 +76,7 @@ int run_publisher()
 {
 	dls::DDSWriter publisher(
 		"publicher_example",
-		dls::domains::develop, 
+		0, 
 		topic);
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 
@@ -99,7 +99,7 @@ int run_subscriber(int sub_id)
 	dls::DDSReader sub
 	(
 		"reader_example",
-		dls::domains::develop,
+		0,
 		topic,
 		std::function<void(void *)>
 		{

@@ -9,7 +9,7 @@ int main()
 	dls::DDSReader sub
 	(
 		"dds_subscriber",
-		dls::domains::develop,
+		0,
 		dls::topics::low_level_estimation::blind_state,
 		std::function<void(void *)>
 		{

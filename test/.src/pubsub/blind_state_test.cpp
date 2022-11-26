@@ -7,7 +7,7 @@ int main()
 {
 	dls::DDSWriter blind_state_pub(
 		"dds_publisher",
-		dls::domains::develop,
+		0,
 		dls::topics::low_level_estimation::blind_state
 	);
 
