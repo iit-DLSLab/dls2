@@ -62,7 +62,7 @@ namespace dls
 			std::string& ID,
 			const dls::topicType& topic_in,
 			const dls::topicType& topic_out,
-			std::function<void*(void *)> callback
+			std::function<void(void *, void *)> callback
 		);
 		
 		AppLayerComponent::Status run() override;
@@ -90,7 +90,7 @@ namespace dls
 		///
 		/// The return from this callback will automatically be sent to the
 		/// client that made the request
-		std::function<void*(void *)> callback;
+		std::function<void(void *, void*)> callback;
 
 	};
 

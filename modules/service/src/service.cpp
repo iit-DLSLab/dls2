@@ -23,7 +23,7 @@ namespace dls
 	// =========================================================================
 	// Service Implementation
 	// =========================================================================
-	Service::Service(std::string& ID_, const dls::topicType &topic_in_, const dls::topicType &topic_out_, std::function<void*(void *)> callback_)
+	Service::Service(std::string& ID_, const dls::topicType &topic_in_, const dls::topicType &topic_out_, std::function<void(void *, void *)> callback_)
 	    : AppLayerComponent(ID_)
 		, service_topic_in(topic_in_)
         , service_topic_out(topic_out_)
@@ -37,7 +37,8 @@ namespace dls
 				decltype(service_topic_in.second) request = *((decltype(service_topic_in.second)*) tuple);
 
 				// ============== Process the request ==============
-				decltype(service_topic_out.second) response = *((decltype(service_topic_out.second)*)this->callback(&request));
+				decltype(service_topic_out.second) response;
+				this->callback(&request, &response);
 
                 // =============== Send the response ===============
                 response_publisher.sendMessage((void*) &response);
