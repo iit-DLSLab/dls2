@@ -16,7 +16,7 @@
 #ifndef SERVICE_TPP
 #define SERVICE_TPP
 
-#include "dls2/service/service.hpp"
+#include "dls2/service/service_client.hpp"
 
 namespace dls
 {
@@ -50,7 +50,10 @@ namespace dls
 	{ }
 
 	template <typename req_pubsub_t, typename res_pubsub_t>
-	typename res_pubsub_t::type* ServiceClient<req_pubsub_t, res_pubsub_t>::call(typename req_pubsub_t::type &request, const std::chrono::duration<double> &duration)
+	void ServiceClient<req_pubsub_t, res_pubsub_t>::call(
+		typename req_pubsub_t::type &request, 
+		typename res_pubsub_t::type &result,
+		const std::chrono::duration<double> &duration)
 	{
 		std::unique_lock<std::mutex> lock(this->response_mutex);
 
@@ -65,21 +68,19 @@ namespace dls
 		{
 			auto tmp = this->remote_response;
 			this->remote_response = nullptr;
-			return tmp;
 		}
-
-		return nullptr;		
 	}
 
 	template <typename req_pubsub_t, typename res_pubsub_t>
 	void ServiceClient<req_pubsub_t, res_pubsub_t>::call(
 		typename req_pubsub_t::type &request, 
-		std::function<void(typename req_pubsub_t::type)> callback,	
+		std::function<void(typename req_pubsub_t::type, typename res_pubsub_t::type)> callback,	
 		const std::chrono::duration<double> &duration)
 	{
 		std::thread t([&]()
 		{
-			typename res_pubsub_t::type response = this->call(request, duration);
+			typename res_pubsub_t::type response;
+			this->call(request, response, duration);
 			callback(response);
 		});
 
