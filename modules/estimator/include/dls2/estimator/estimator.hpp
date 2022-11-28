@@ -30,17 +30,15 @@ namespace dls
 		Estimator
 		(
 			const ID_t&,		///< The ID of this estimator
-			const std::shared_ptr<robotlib::RobotBase>&,
 			const period_t&		///< The period of this estimator
 		);
 		
 		virtual ~Estimator() = default;
 
-		typedef Estimator *create_t(std::string, std::string);
+		typedef Estimator *create_t(std::string);
 		typedef void destroy_t(Estimator*);
 
 	protected:
-		const std::shared_ptr<robotlib::RobotBase> pRobot;
 		dls::DDSParticipant signalLink;		
 	};
 } // end namespace dls

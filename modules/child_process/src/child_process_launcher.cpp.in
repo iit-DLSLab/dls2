@@ -71,8 +71,6 @@ struct Args
     std::string launch_mode;
 };
 
-const static auto process_handle = "process_launcher";
-
 /// Parses the args and exits if the program if they are invalid
 ///
 Args parse_args(int argc, char **argv);
@@ -81,17 +79,16 @@ Args parse_args(int argc, char **argv);
 ///
 void signal_handler(int signal);
 
-logging::clogstream scout(process_handle);
+logging::clogstream scout("process_launcher");
 
 // =============================================================================
 // Main
 // =============================================================================
 int main(int argc, char **argv)
 {
-#ifndef NDEBUG
-    std::cout << "Debug build" << std::endl;
-#endif
-
+    // give time to the logstrem connect to the logger layer
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    scout << "PROCESS LAUNCHER CALLED" << std::endl;
     Args args = parse_args(argc, argv);
 
     // Load the component
@@ -124,10 +121,9 @@ int main(int argc, char **argv)
         {
             scout << "LOADING ESTIMATOR FROM '" << std::string("${DLS_INSTALL_ESTIMATOR_DIR}/lib") + args.lib_name + ".so'" << std::endl;
             pComponent =
-                ClassLoader::loadClass<Estimator, std::string, std::string>(
+                ClassLoader::loadClass<Estimator, std::string>(
                     std::string("${DLS_INSTALL_ESTIMATOR_DIR}/lib") + args.lib_name + ".so",
-                    args.component_name,
-                    args.robot_name);
+                    args.component_name);
         }
         else if (args.component_type == "service")
         {
@@ -139,7 +135,7 @@ int main(int argc, char **argv)
         }
         else
         {
-            std::cerr << "component loading not yet implemented" << std::endl;
+            scout << "component loading not yet implemented" << std::endl;
             exit(EXIT_FAILURE);
         }
 
@@ -215,15 +211,14 @@ void signal_handler(int signal)
     {
         pComponent->stop();
 
-        logging::clogstream s(process_handle);
-        s << pComponent->getID() << " received kill request" << std::endl;
+        scout << pComponent->getID() << " received kill request" << std::endl;
         dls::AppLayerComponent::Status exit_status = pComponent->getStatus();
 
         scout << "#### FROM KILLER pComp status " << static_cast<int>(exit_status) << std::endl;
         // pComponent = nullptr;
 
         // give fastrtps a moment to send its message
-        std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         exit(static_cast<int>(exit_status));
     }
 }

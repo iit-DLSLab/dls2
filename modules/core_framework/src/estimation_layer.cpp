@@ -116,7 +116,6 @@ bool EstimationLayer::loadEstimator(const Estimator::ID_t& lib_name)
 			return false;
 		}
 
-		std::cout << "Launching: child_process_launcher" << std::endl;
 		pData->proc = std::make_shared<boost::process::child>(std::vector<std::string>({
 			child_process_launcher,
 			pData->ID,
@@ -135,8 +134,6 @@ bool EstimationLayer::loadEstimator(const Estimator::ID_t& lib_name)
 			std::cout << "Estimator process failed to launch" << std::endl;
 			return false;
 		}
-
-		std::cout << "ESTIMATOR " << pData->ID << " IS ON" <<  std::endl;
 
 		this->estimators.emplace(pData->ID, pData);
 	}
