@@ -530,7 +530,8 @@ bool ControlLayer::activateGaitGenerator(const std::string &ID)
 		#else
 			"${DLS_INSTALL_RUNTIME_DIR}/child_process_launcher",
 		#endif
-		ID.c_str(),
+		ID,
+		ID,
 		"gait_generator",
 		Options::robot_name,
 		(Options::simulation_mode?"sim":"live")
