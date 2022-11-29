@@ -22,11 +22,12 @@
 #include <stdlib.h>
 #include <cstring>
 #include <sstream>
-#include <cstring>
+#include <thread>
 
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/prctl.h>
+#include <sys/mman.h>
 
 #include "dls2/core_framework/hardware_layer.hpp"
 #include "dls2/core_framework/control_layer.hpp"
@@ -42,14 +43,6 @@
 
 #include "dls2/log/log.hpp"
 #include "dls2/command/command.hpp"
-
-#include <thread>
-
-#include "dls2/log/log.hpp"
-
-#include "robotlib/robot_factory.hpp"
-
-#include <sys/mman.h>
 
 using namespace dls;
 
@@ -178,6 +171,15 @@ int main(int argc, char **argv)
 
 	//Time::set_use_simulated_time(Options::is_simulation());
 
+	std::this_thread::sleep_for(std::chrono::milliseconds(500));
+	if(Options::robot_name != "")
+	{
+		CommandManager cmd_manager("main");
+		std::this_thread::sleep_for(std::chrono::milliseconds(500));
+		cmd_manager.callCommand("loadService", {"dls_param_server"}, "serviceLayer");
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		cmd_manager.callCommand("setParam", {"robot_name", Options::robot_name}, "dls_param_server");
+	}
 
 	// Initiate log streams
 	// Does not initiate these before fork actions, dds will break

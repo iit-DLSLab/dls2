@@ -87,6 +87,8 @@ namespace dls
 		/// client that made the request
 		std::function<void(void *, void*)> callback;
 
+		bool should_quit;
+
 	};
 
 	

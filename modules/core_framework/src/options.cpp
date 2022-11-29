@@ -49,7 +49,7 @@ bool Options::simulation_mode               = true;
 // show the documentation in a browser
 bool Options::show_docs                     = false;
 
-std::string Options::robot_name             = "UNSPECIFIED_ROBOT_NAME";
+std::string Options::robot_name             = "";
 static bool robot_is_specified              = false;
 
 // =============================================================================
@@ -96,6 +96,7 @@ bool Options::parseArgs(int argc, char **argv)
 			case 'r':
 			{
 				robot_is_specified = true;
+				launch_service = true;
 				if(std::strcmp(optarg, "hyq") == 0)
 				{
 					Options::robot_name = "hyq";
@@ -262,13 +263,13 @@ bool Options::validate()
 		return false;
 	}
 
-	if((Options::launch_control || Options::launch_estimation) && !robot_is_specified)
-	{
-		std::cerr << "Error: robot not specified" << std::endl;
-		Options::printUsage();
-		exit(EXIT_FAILURE);
-		return false;
-	}
+	// if((Options::launch_control || Options::launch_estimation) && !robot_is_specified)
+	// {
+	// 	std::cerr << "Error: robot not specified" << std::endl;
+	// 	Options::printUsage();
+	// 	exit(EXIT_FAILURE);
+	// 	return false;
+	// }
 
 	if(
 		!launch_estimation &&
