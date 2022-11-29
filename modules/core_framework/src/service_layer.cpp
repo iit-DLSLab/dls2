@@ -36,7 +36,8 @@ ServiceLayer::ServiceLayer(std::string ID_)
 		"loadService",
 		"Load a service",
 		std::function<bool(std::string)>([&](std::string type)->bool
-        {
+        {	
+			scout << "loadServiceCalled" << std::endl;
 			return this->loadService(type);
         }),
 		{{0,1},{1,1}},

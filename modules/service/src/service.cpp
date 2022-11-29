@@ -49,15 +49,23 @@ namespace dls
 			topic_out_
 		)
 		, callback(callback_)
+		, should_quit(false)
 	{ }
 
     AppLayerComponent::Status Service::run()
 	{
+		while(!this->should_quit)
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(500));
+		}
+
 		return this->getStatus();
 	}
 
 	AppLayerComponent::Status Service::stop()
 	{
+		this->should_quit = true;
+
 		return this->getStatus();
 	}
 }

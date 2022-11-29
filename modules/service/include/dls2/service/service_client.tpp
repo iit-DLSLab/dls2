@@ -29,11 +29,11 @@ namespace dls
 		, received_response_cv()
 		, remote_response(nullptr)
 		, request_publisher(
-		 	"request_pub",
+		 	"client_request_pub",
 			dls::domains::services,
 			topic)
 		, response_subscriber(
-			"response_sub",
+			"client_response_sub",
 			dls::domains::services,
 			topic,
 			std::function<void(void *)>{[&](void* tuple)
