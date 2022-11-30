@@ -24,62 +24,79 @@ namespace dls
 	// Service Client Implementation
 	// =========================================================================
 	template <typename req_pubsub_t, typename res_pubsub_t>
-	ServiceClient<req_pubsub_t, res_pubsub_t>::ServiceClient(const dls::topicType &topic) 
+	ServiceClient<req_pubsub_t, res_pubsub_t>::ServiceClient(const dls::topicType &topic_req, const dls::topicType &topic_res) 
 		: response_mutex()
 		, received_response_cv()
 		, remote_response(nullptr)
 		, request_publisher(
 		 	"client_request_pub",
 			dls::domains::services,
-			topic)
+			topic_req)
 		, response_subscriber(
 			"client_response_sub",
 			dls::domains::services,
-			topic,
-			std::function<void(void *)>{[&](void* tuple)
+			topic_res,
+			[&](void* tuple)
 			{
 				std::lock_guard<std::mutex> lock(this->response_mutex);
 
-				if constexpr (std::is_same<typename res_pubsub_t::type, void>() == false)
-				{
-					typename res_pubsub_t::type response = *((typename res_pubsub_t::type*) tuple);
-					this->remote_response = new typename res_pubsub_t::type(response);
-				}
+				res_pubsub_t response = *((res_pubsub_t*) tuple);
+				this->remote_response = new res_pubsub_t(response);
+				
 				this->received_response_cv.notify_all();
-			}})
+			})
 	{ }
 
 	template <typename req_pubsub_t, typename res_pubsub_t>
 	void ServiceClient<req_pubsub_t, res_pubsub_t>::call(
-		typename req_pubsub_t::type &request, 
-		typename res_pubsub_t::type &result,
+		req_pubsub_t &request, 
+		res_pubsub_t &result,
 		const std::chrono::duration<double> &duration)
 	{
-		std::unique_lock<std::mutex> lock(this->response_mutex);
-
 		// send the request to the server
 		this->request_publisher.sendMessage((void*) &request);
+		
+		std::unique_lock<std::mutex> lock(this->response_mutex);
 
 		// wait for a response
 		this->received_response_cv.wait_for(lock, duration);
 
 		// clean remote_response for the next call
-		if constexpr (std::is_same<typename res_pubsub_t::type, void>() == false)
+		if(this->remote_response != nullptr)
 		{
-			auto tmp = this->remote_response;
-			this->remote_response = nullptr;
+			result = *this->remote_response;
+			delete this->remote_response;
+		}
+	}
+
+	template <typename req_pubsub_t, typename res_pubsub_t>
+	void ServiceClient<req_pubsub_t, res_pubsub_t>::call(req_pubsub_t &request, res_pubsub_t &result)
+	{
+		// send the request to the server
+		this->request_publisher.sendMessage((void*) &request);
+		
+		std::unique_lock<std::mutex> lock(this->response_mutex);
+
+		// wait for a response
+		this->received_response_cv.wait(lock);
+
+		// clean remote_response for the next call
+		if(this->remote_response != nullptr)
+		{
+			result = *this->remote_response;
+			delete this->remote_response;
 		}
 	}
 
 	template <typename req_pubsub_t, typename res_pubsub_t>
 	void ServiceClient<req_pubsub_t, res_pubsub_t>::call(
-		typename req_pubsub_t::type &request, 
-		std::function<void(typename req_pubsub_t::type, typename res_pubsub_t::type)> callback,	
+		req_pubsub_t &request, 
+		std::function<void(req_pubsub_t, res_pubsub_t)> callback,	
 		const std::chrono::duration<double> &duration)
 	{
 		std::thread t([&]()
 		{
-			typename res_pubsub_t::type response;
+			res_pubsub_t response;
 			this->call(request, response, duration);
 			callback(response);
 		});

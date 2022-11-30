@@ -54,7 +54,20 @@ namespace dls
 		/// same topic.
 		///
 		/// @param topic the topic on which the server is listening for requests
-		ServiceClient(const dls::topicType &topic);
+		ServiceClient(const dls::topicType &topic_req, const dls::topicType &topic_res);
+
+		/// Calls the service
+		///
+		/// This call will block until the service responds. Optionally, a
+		/// maximum blocking time can be specified.
+		///
+		/// @param request the request message to send to the service
+		/// @return result value if the call was successful, nullptr otherwise
+		void call
+		(
+			req_pubsub_t&request,
+			res_pubsub_t &result
+		);
 
 		/// Calls the service
 		///
@@ -67,13 +80,9 @@ namespace dls
 		/// @return result value if the call was successful, nullptr otherwise
 		void call
 		(
-			req_pubsub_t::type &request,
-			res_pubsub_t::type &result,
-			const std::chrono::duration<double> &duration =
-				std::chrono::duration<double>
-				{
-					std::numeric_limits<double>::infinity()
-				}
+			req_pubsub_t&request,
+			res_pubsub_t &result,
+			const std::chrono::duration<double> &duration
 		);
 
 		/// Calls the service
@@ -100,8 +109,8 @@ namespace dls
 		///        returning early. Defaults to no time limit.
 		void call
 		(
-			typename req_pubsub_t::type &request,
-			std::function<void(typename req_pubsub_t::type, typename res_pubsub_t::type)> callback,
+			req_pubsub_t &request,
+			std::function<void(req_pubsub_t, res_pubsub_t)> callback,
 			const std::chrono::duration<double> &duration =
 				std::chrono::duration<double>
 				{
@@ -113,7 +122,7 @@ namespace dls
 		// BEGIN critical section
 			std::mutex              		response_mutex;
 			std::condition_variable 		received_response_cv;
-			typename res_pubsub_t::type*   	remote_response;
+			res_pubsub_t*   				remote_response;
 			bool                    		received_response;
 		// END critical section
 
