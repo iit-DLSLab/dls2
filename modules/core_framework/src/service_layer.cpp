@@ -65,7 +65,7 @@ ServiceLayer::ServiceLayer(std::string ID_)
 
 ServiceLayer::~ServiceLayer()
 {
-	std::cout << "#### SERVICE LAYER OFF ####" << std::endl;
+	scout << "#### SERVICE LAYER OFF ####" << std::endl;
 }
 
 ServiceLayer::Status ServiceLayer::run()
@@ -108,7 +108,6 @@ bool ServiceLayer::loadService(const std::string& lib_name)
 			return false;
 		}
 
-		std::cout << "Launching: child_process_launcher" << std::endl;
 		pData->proc = std::make_shared<boost::process::child>(std::vector<std::string>({
 			child_process_launcher,
 			pData->ID,
@@ -119,16 +118,16 @@ bool ServiceLayer::loadService(const std::string& lib_name)
 		}));
 
 		if (pData->proc == nullptr){
-			std::cout << "Service process failed to launch" << std::endl;
+			scout << "Service process failed to launch" << std::endl;
 			return false;
 		}
 
         if (!pData->proc->running()){
-			std::cout << "Service process failed to launch" << std::endl;
+			scout << "Service process failed to launch" << std::endl;
 			return false;
 		}
 
-		std::cout << "SERVICE " << pData->ID << " IS ON" <<  std::endl;
+		scout << "SERVICE " << pData->ID << " IS ON" <<  std::endl;
 
 		this->services.emplace(pData->ID, pData);
 	}

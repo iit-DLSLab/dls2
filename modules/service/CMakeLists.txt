@@ -1,6 +1,6 @@
 add_library(dls_service 
 	SHARED
-		src/service.cpp
+		src/service_base.cpp
 )
 
 set_property(TARGET dls_service PROPERTY POSITION_INDEPENDENT_CODE ON)

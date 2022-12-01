@@ -35,7 +35,7 @@
 #include "dls2/controller/controller.hpp"
 #include "dls2/hardware/hardware.hpp"
 #include "dls2/estimator/estimator.hpp"
-#include "dls2/service/service.hpp"
+#include "dls2/service/service_base.hpp"
 #include "dls2/log/log.hpp"
 
 #include "robotlib/robot_factory.hpp"
@@ -129,7 +129,7 @@ int main(int argc, char **argv)
         {
             scout << "LOADING SERVICE FROM '" << std::string("${DLS_INSTALL_SERVICE_DIR}/lib") + args.lib_name + ".so'" << std::endl;
             pComponent =
-                ClassLoader::loadClass<Service, std::string>(
+                ClassLoader::loadClass<ServiceBase, std::string>(
                     std::string("${DLS_INSTALL_SERVICE_DIR}/lib") + args.lib_name + ".so",
                     args.component_name);
         }
