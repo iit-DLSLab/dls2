@@ -14,24 +14,40 @@
 *                                                 `---'                        *
 *******************************************************************************/
 
-#ifndef CONTROLLER_COMMAND_CPP
-#define CONTROLLER_COMMAND_CPP
+#ifndef TRAJ_GEN_SIGNAL_HPP
+#define TRAJ_GEN_SIGNAL_HPP
 
+#include <robotlib/robot_base.hpp>
+#include "dls2/msg_wrappers/foot_state.hpp"
 
-#include "dls2/msg_wrappers/controller_command.hpp"
+namespace Eigen
+{
+    typedef Eigen::Matrix<double,6,1> Vector6d;
+}
 
-using namespace dls;
+namespace dls
+{
+    class  TrajGenSignal {
+    public:
+        TrajGenSignal(const std::shared_ptr<robotlib::RobotBase>);
+        TrajGenSignal() = delete;
+        ~TrajGenSignal();
 
-ControllerCommand::ControllerCommand(const std::shared_ptr<robotlib::RobotBase>& pRobot)
-    : robot_height{0.3}
-    , step_frequency{0.5}
-    , duty_factor{0.55}
-    , step_height(pRobot->makeLegDataMap<double>(0.08))
-    , des_base_pos_HF(Eigen::Matrix<double, 6, 1>::Zero())
-    , des_base_vel_HF(Eigen::Matrix<double, 6, 1>::Zero())
-{}
+        robotlib::LegDataMap<FootState> foot;
+        robotlib::LegDataMap<Eigen::Vector3d> nom_touch_down;
+        robotlib::LegDataMap<Eigen::Vector3d> touch_down;
+        robotlib::LegDataMap<double> step_cycle_phase;
+        robotlib::LegDataMap<double> swing_cycle_phase;
+        robotlib::LegDataMap<double> stance_cycle_phase;
+        robotlib::LegDataMap<double> swing_period;
+        robotlib::LegDataMap<double> stance_period;
+        robotlib::LegDataMap<bool> stance;
 
-ControllerCommand::~ControllerCommand()
-{}
+        robotlib::LegDataMap<Eigen::Vector3d> ffwdTorques;
+        robotlib::LegDataMap<double> normal_force_max;
+        robotlib::LegDataMap<double> normal_force_min;
 
-#endif // CONTROLLER_COMMAND_CPP
+        Eigen::Vector6d ffwdWrench = Eigen::Vector6d::Zero();
+    };
+}
+#endif // TRAJ_GEN_SIGNAL_HPP

@@ -20,15 +20,20 @@
 
 using namespace dls;
 
-FootState::FootState(const std::shared_ptr<robotlib::RobotBase> pRobot)
-    : proprio_height{0.4}
-    , pos(pRobot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
-    , pos_HF(pRobot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
-    , vel(pRobot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
-    , acc(pRobot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
+FootState::FootState()
+    : pos(Eigen::Vector3d::Zero())
+    , pos_HF(Eigen::Vector3d::Zero())
+    , vel(Eigen::Vector3d::Zero())
+    , vel_HF(Eigen::Vector3d::Zero())
+    , acc(Eigen::Vector3d::Zero())
 {}
 
 FootState::~FootState()
 {}
+
+FootState FootState::Zero()
+{
+    return FootState();
+}
 
 #endif // FOOT_STATE_CPP

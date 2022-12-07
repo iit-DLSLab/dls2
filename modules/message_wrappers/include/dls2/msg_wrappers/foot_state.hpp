@@ -22,15 +22,16 @@ namespace dls
 {
     class FootState {
     public:
-        FootState(const std::shared_ptr<robotlib::RobotBase> robot);
-        FootState() = delete;
+        FootState();
         ~FootState();
 
-        double proprio_height;
-        robotlib::LegDataMap<Eigen::Vector3d> pos;
-        robotlib::LegDataMap<Eigen::Vector3d> pos_HF;
-        robotlib::LegDataMap<Eigen::Vector3d> vel;
-        robotlib::LegDataMap<Eigen::Vector3d> acc;
+        static FootState Zero();
+
+        Eigen::Vector3d pos;
+        Eigen::Vector3d pos_HF;
+        Eigen::Vector3d vel;
+        Eigen::Vector3d vel_HF;
+        Eigen::Vector3d acc;
     };
 }
 #endif // FOOT_STATE_HPP

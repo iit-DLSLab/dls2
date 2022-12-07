@@ -28,7 +28,7 @@ namespace dls
 {
     class ControllerCommand {
         public:
-            ControllerCommand(const std::shared_ptr<robotlib::RobotBase> robot);
+            ControllerCommand(const std::shared_ptr<robotlib::RobotBase>& robot);
             ControllerCommand() = delete;
             ~ControllerCommand();
             

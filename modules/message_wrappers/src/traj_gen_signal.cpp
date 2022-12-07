@@ -14,24 +14,30 @@
 *                                                 `---'                        *
 *******************************************************************************/
 
-#ifndef CONTROLLER_COMMAND_CPP
-#define CONTROLLER_COMMAND_CPP
+#ifndef TRAJ_GEN_SIGNAL_CPP
+#define TRAJ_GEN_SIGNAL_CPP
 
 
-#include "dls2/msg_wrappers/controller_command.hpp"
+#include "dls2/msg_wrappers/traj_gen_signal.hpp"
 
 using namespace dls;
 
-ControllerCommand::ControllerCommand(const std::shared_ptr<robotlib::RobotBase>& pRobot)
-    : robot_height{0.3}
-    , step_frequency{0.5}
-    , duty_factor{0.55}
-    , step_height(pRobot->makeLegDataMap<double>(0.08))
-    , des_base_pos_HF(Eigen::Matrix<double, 6, 1>::Zero())
-    , des_base_vel_HF(Eigen::Matrix<double, 6, 1>::Zero())
+TrajGenSignal::TrajGenSignal(const std::shared_ptr<robotlib::RobotBase> pRobot)
+    : foot(pRobot->makeLegDataMap<FootState>(FootState::Zero()))
+    , nom_touch_down(pRobot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
+    , touch_down(pRobot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
+    , step_cycle_phase(pRobot->makeLegDataMap<double>(0.0))
+    , swing_cycle_phase(pRobot->makeLegDataMap<double>(0.0))
+    , stance_cycle_phase(pRobot->makeLegDataMap<double>(0.0))
+    , swing_period(pRobot->makeLegDataMap<double>(0.0))
+    , stance_period(pRobot->makeLegDataMap<double>(0.0))
+    , stance(pRobot->makeLegDataMap<bool>(false))
+    , ffwdTorques(pRobot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
+    , normal_force_max(pRobot->makeLegDataMap<double>(800.0))
+    , normal_force_min(pRobot->makeLegDataMap<double>(5.0))
 {}
 
-ControllerCommand::~ControllerCommand()
+TrajGenSignal::~TrajGenSignal()
 {}
 
-#endif // CONTROLLER_COMMAND_CPP
+#endif // TRAJ_GEN_SIGNAL_CPP

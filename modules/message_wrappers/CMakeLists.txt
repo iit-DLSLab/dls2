@@ -7,6 +7,7 @@ add_library(dls_message_wrappers
 		src/control_signal.cpp
 		src/controller_command.cpp
 		src/foot_state.cpp
+		src/traj_gen_signal.cpp
 )
 
 set_property(TARGET dls_message_wrappers PROPERTY POSITION_INDEPENDENT_CODE ON)
