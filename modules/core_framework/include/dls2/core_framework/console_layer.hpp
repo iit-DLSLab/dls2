@@ -62,7 +62,7 @@ namespace dls
 		///
 		/// prints:
 		/// * active controllers
-		/// * active gait generator
+		/// * active motion generator
 		/// * published torque
 		std::string where() override{return "not yet implemented";}
 

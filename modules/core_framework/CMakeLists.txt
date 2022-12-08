@@ -39,7 +39,7 @@ target_link_libraries(dls_framework
 		dls_estimator
         dls_hardware
 		dls_service
-		dls_gait_generator
+		dls_motion_generator
 		dls_domains
 		dls_topics
 		dls_class_loader

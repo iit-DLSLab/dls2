@@ -81,7 +81,7 @@ documentation of a component.
 <a name="building-a-new-generator"></a>
 ## Building a new generator
 
-@GAIT_GENERATOR_MD@
+@MOTION_GENERATOR_MD@
 
 <a name="packaging"></a>
 ## Packaging

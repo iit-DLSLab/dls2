@@ -39,8 +39,8 @@ The layers available are:
 Control Layer
 .\" ----------------------------------------------------------------------------
 .RS
-Handles launching of controllers and gait generators. Takes care of
-communication with the hardware or simulation. Takes corrective action if a gait
+Handles launching of controllers and motion generators. Takes care of
+communication with the hardware or simulation. Takes corrective action if a motion
 generator or controller crashes
 .RE
 

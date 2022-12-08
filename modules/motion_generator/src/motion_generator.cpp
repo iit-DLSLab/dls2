@@ -13,7 +13,7 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#include "dls2/gait_generator/gait_generator.hpp"
+#include "dls2/motion_generator/motion_generator.hpp"
 #include "dls2/topics/topics.hpp"
 
 #include <chrono>
@@ -22,7 +22,7 @@
 
 using namespace dls;
 
-GaitGenerator::GaitGenerator
+MotionGenerator::MotionGenerator
 (
 	const std::string &ID,
 	const std::shared_ptr<robotlib::RobotBase> &pRobot_,
@@ -37,7 +37,7 @@ GaitGenerator::GaitGenerator
 	, blind_state_signal(pRobot_)
 	// , blind_state_signal_mutex()
     , heart_beat(false)
-	, ddslink("GaitGen::" + ID, dls::domains::signals)
+	, ddslink("MotionGen::" + ID, dls::domains::signals)
 	, ddsMonitor(
 		ID,
 		dls::domains::controllers,
@@ -78,13 +78,13 @@ GaitGenerator::GaitGenerator
 // =============================================================================
 // Implementation
 // =============================================================================
-void GaitGenerator::publishData(const GaitSignal &signal)
+void MotionGenerator::publishData(const GaitSignal &signal)
 {
 	GaitSignalMsg p = signal;
 	this->ddslink.sendMessage("signalout", (void *) &p);
 }
 
-BlindState GaitGenerator::readBlindStateSignal()
+BlindState MotionGenerator::readBlindStateSignal()
 {
 	std::lock_guard<std::mutex> lock(this->blind_state_signal_mutex);
     this->heart_beat = false;
@@ -92,7 +92,7 @@ BlindState GaitGenerator::readBlindStateSignal()
 }
 
 
-void GaitGenerator::executeCommand(std::string cmd)
+void MotionGenerator::executeCommand(std::string cmd)
 {
 	if(cmd == "shutdown"){
 		this->stop();
@@ -102,7 +102,7 @@ void GaitGenerator::executeCommand(std::string cmd)
 	}
 }
 
-bool GaitGenerator::readBeat()
+bool MotionGenerator::readBeat()
 {
     bool out = this->heart_beat;
     this->heart_beat = false;

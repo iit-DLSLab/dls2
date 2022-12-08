@@ -23,7 +23,7 @@ add_custom_target(
 	DEPENDS
 		dynamic_legged_systems_framework
 		dls_dummy_controller
-		dls_dummy_gait_generator
+		dls_dummy_motion_generator
 		dls_dummy_estimator
 	WORKING_DIRECTORY ${EXECUTABLE_OUTPUT_PATH}
 )

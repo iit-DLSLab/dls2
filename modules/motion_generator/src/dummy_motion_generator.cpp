@@ -14,7 +14,7 @@
 *                                                 `---'                        *
 *******************************************************************************/
 #include <iostream>
-#include "dls2/gait_generator/dummy_gait_generator.hpp"
+#include "dls2/motion_generator/dummy_motion_generator.hpp"
 #include "dls2/geometry/pose.hpp"
 #include "dls2/log/log.hpp"
 #include "robotlib/robot_factory.hpp"
@@ -22,11 +22,11 @@
 using namespace dls;
 using robotlib::RobotBase;
 
-DummyGaitGenerator::DummyGaitGenerator(const std::shared_ptr<Dog> &pDog) :
-	GaitGenerator
+DummyMotionGenerator::DummyMotionGenerator(const std::shared_ptr<Dog> &pDog) :
+	MotionGenerator
 	(
 		pDog,
-		"dummy_gait_generator",
+		"dummy_motion_generator",
 		std::chrono::duration<double>(1)
 	),
 	scout(getID()),
@@ -36,30 +36,30 @@ DummyGaitGenerator::DummyGaitGenerator(const std::shared_ptr<Dog> &pDog) :
 		"dls_dummy_controller_service"
 	)
 {
-	scout << "dummy gait generator launched" << std::endl;
+	scout << "dummy motion generator launched" << std::endl;
 }
 
-// DummyGaitGenerator::DummyGaitGenerator()
-// 	: DummyGaitGenerator(std::make_shared<Dog>())
+// DummyMotionGenerator::DummyMotionGenerator()
+// 	: DummyMotionGenerator(std::make_shared<Dog>())
 // {
-// 	scout << "dummy gait generator destroyed" << std::endl;
+// 	scout << "dummy motion generator destroyed" << std::endl;
 // }
 
-void DummyGaitGenerator::run(const std::chrono::system_clock::time_point &time)
+void DummyMotionGenerator::run(const std::chrono::system_clock::time_point &time)
 {
-	// sclog << "Dummy Gait Generator Epoch" << std::endl;
-	std::cout << "Dummy Gait Generator Epoch" << std::endl;
+	// sclog << "Dummy Motion Generator Epoch" << std::endl;
+	std::cout << "Dummy Motion Generator Epoch" << std::endl;
 	GaitSignal data;
 
 	Eigen::Vector3d com_position; com_position << 10, 2, 33;
 	data.desired_com_pose_world = Pose(com_position);
 
-	std::cout << "Dummy gait generator sending message" << std::endl;
-	StringMsg msg; msg.msg() = "Hello from dummy gait generator";
+	std::cout << "Dummy motion generator sending message" << std::endl;
+	StringMsg msg; msg.msg() = "Hello from dummy motion generator";
 	StringMsg response;
 	if(service_client.call(msg, &response))
 	{
-		std::cout << "Dummy gait generator got response: " << response.msg()
+		std::cout << "Dummy motion generator got response: " << response.msg()
 		          << std::endl;
 	}
 	else
@@ -71,19 +71,19 @@ void DummyGaitGenerator::run(const std::chrono::system_clock::time_point &time)
 	time.time_since_epoch();
 }
 
-std::string DummyGaitGenerator::where()
+std::string DummyMotionGenerator::where()
 {
 	return "You really want to know the status of this?";
 }
 
-extern "C" GaitGenerator *create()
+extern "C" MotionGenerator *create()
 {
 	using dls::dog::RobotFactory;
-	auto p = new DummyGaitGenerator(RobotFactory::buildRobot(RobotFactory::RobotType::HyQReal));
+	auto p = new DummyMotionGenerator(RobotFactory::buildRobot(RobotFactory::RobotType::HyQReal));
 	return p;
 }
 
-extern "C" void destroy(GaitGenerator *p)
+extern "C" void destroy(MotionGenerator *p)
 {
 	delete p;
 }

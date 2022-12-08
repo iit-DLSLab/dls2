@@ -19,7 +19,7 @@
 // arguments to this program are:
 //
 // * component name                - name of the component to load
-// * <controller | gait_generator> - the type of the component to load A
+// * <controller | motion_generator> - the type of the component to load A
 // * <hyq | hyqreal>               - the robot for which this component is loaded
 // * <sim | live>                  - whether it is simulated or live
 #include <iostream>
@@ -31,7 +31,7 @@
 #include <sys/prctl.h>
 
 #include "dls2/class_loader.hpp"
-#include "dls2/gait_generator/gait_generator.hpp"
+#include "dls2/motion_generator/motion_generator.hpp"
 #include "dls2/controller/controller.hpp"
 #include "dls2/hardware/hardware.hpp"
 #include "dls2/estimator/estimator.hpp"
@@ -101,12 +101,12 @@ int main(int argc, char **argv)
                     std::string("${DLS_INSTALL_CONTROLLER_DIR}/lib") + args.lib_name + ".so",
                     args.robot_name);
         }
-        else if (args.component_type == "gait_generator")
+        else if (args.component_type == "motion_generator")
         {
-            scout << "LOADING GATE GENERATOR FROM '" << std::string("${DLS_INSTALL_GAIT_GENERATOR_DIR}/lib") + args.lib_name + ".so'" << std::endl;
+            scout << "LOADING MOTION GENERATOR FROM '" << std::string("${DLS_INSTALL_MOTION_GENERATOR_DIR}/lib") + args.lib_name + ".so'" << std::endl;
             pComponent =
-                ClassLoader::loadClass<GaitGenerator, std::string>(
-                    std::string("${DLS_INSTALL_GAIT_GENERATOR_DIR}/lib") + args.lib_name + ".so",
+                ClassLoader::loadClass<MotionGenerator, std::string>(
+                    std::string("${DLS_INSTALL_MOTION_GENERATOR_DIR}/lib") + args.lib_name + ".so",
                     args.robot_name);
         }
         else if (args.component_type == "hardware")
@@ -183,7 +183,7 @@ Args parse_args(int argc, char **argv)
 
     if (
         args.component_type != "controller" &&
-        args.component_type != "gait_generator" &&
+        args.component_type != "motion_generator" &&
         args.component_type != "hardware" &&
         args.component_type != "estimator" &&
         args.component_type != "service"

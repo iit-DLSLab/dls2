@@ -63,7 +63,7 @@ namespace dls
 
 		/// Log log stream
 		///
-		/// Use this stream to log system events, such as 'controller loaded', 'gait
+		/// Use this stream to log system events, such as 'controller loaded', 'motion
 		/// generator exited' etc.
 		class clogstream : public std::ostream
 		{

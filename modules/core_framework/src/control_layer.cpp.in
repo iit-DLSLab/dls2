@@ -64,7 +64,7 @@ ControlLayer::ControlLayer(std::string ID)
 	: AppLayer(ID)
 	, controllers()
 	, controllers_mutex()
-	, gaitMutex()	
+	, motionMutex()	
 	// TODO these 2s should only be put once, and they should be made dynamic
 	// ramp for two seconds from 0 to 1
 	, pDefault_spline_in(std::make_shared<spline::Ramp<double>> (0, 2, 0, 1))
@@ -97,11 +97,11 @@ ControlLayer::ControlLayer(std::string ID)
 	
 	command_manager.addCommand<std::string>
 	(
-		"activateGaitGenerator",
-		"activates a gait generator",
+		"activateMotionGenerator",
+		"activates a motion generator",
 		std::function<bool(std::string)>([&](std::string s)->bool
         {
-			return this->activateGaitGenerator(s);
+			return this->activateMotionGenerator(s);
 		}),
 		{{0,1},{2,3}},
 		true
@@ -110,11 +110,11 @@ ControlLayer::ControlLayer(std::string ID)
 	
 	command_manager.addCommand<>
 	(
-		"deactivateGaitGenerator",
-		"stops all running gait generators",
+		"deactivateMotionGenerator",
+		"stops all running motion generators",
 		std::function<bool()>([&]()->bool
 		{
-			this->deactivateGaitGenerator();
+			this->deactivateMotionGenerator();
             return true;
 		}),
 		{{1,0},{3,2}},
@@ -152,7 +152,7 @@ ControlLayer::ControlLayer(std::string ID)
 		"List components\n"
 		"argument:\n"
 		"\tcont - list controllers\n"
-		"\tgait - list gait generator",
+		"\tmotion - list motion generator",
 
 		std::function<bool(std::string)>([&](std::string s)->bool
         {
@@ -173,12 +173,12 @@ ControlLayer::ControlLayer(std::string ID)
                 }
                 if(i) this->scout << ss.str() << std::endl;
             }
-            else if(s == "gait")
+            else if(s == "motion")
             {
-                std::lock_guard<std::mutex> lock(this->gaitMutex);
-                if(this->gaitData.proc)
+                std::lock_guard<std::mutex> lock(this->motionMutex);
+                if(this->motionData.proc)
                 {
-                    scout << this->gaitData.ID	<< std::endl;
+                    scout << this->motionData.ID	<< std::endl;
                 }
             }
             else
@@ -301,7 +301,7 @@ void *ControlLayer::controlSignalGather(void *data)
 
 ControlLayer::Status ControlLayer::shutdown()
 {
-	deactivateGaitGenerator();
+	deactivateMotionGenerator();
 
 	for(auto pair : this->controllers)
 	{
@@ -335,17 +335,17 @@ std::string ControlLayer::where()
 			ss << "No controllers running\n";
 		}
 	}
-	// Where Gait Generators
+	// Where Motion Generators
 	{
-		std::lock_guard<std::mutex> lock(this->gaitMutex);
-		if(this->gaitData.proc)
+		std::lock_guard<std::mutex> lock(this->motionMutex);
+		if(this->motionData.proc)
 		{
-			ss << "Active Gait Generator:\n";
-			ss << gaitData.ID << "\n";
+			ss << "Active Motion Generator:\n";
+			ss << motionData.ID << "\n";
 		}
 		else
 		{
-			ss << "No gait generator running\n";
+			ss << "No motion generator running\n";
 		}
 	}
 	// Where Desired Torque
@@ -477,7 +477,7 @@ bool ControlLayer::deactivateController(std::shared_ptr<ControllerData> pData)
 	msg.command("shutdown");
 	this->ddsMonitor->sendMessage((void*) &msg);
 
-    //wait a little for gait exit
+    //wait a little for motion exit
 	std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(200));
 
 	if(pData->proc->running()){
@@ -511,19 +511,19 @@ bool ControlLayer::deactivateController(const std::string &ID)
 }
 
 // -----------------------------------------------------------------------------
-// Gait Generators
+// Motion Generators
 // -----------------------------------------------------------------------------
-bool ControlLayer::activateGaitGenerator(const std::string &ID)
+bool ControlLayer::activateMotionGenerator(const std::string &ID)
 {
-	std::lock_guard<std::mutex> lock(this->gaitMutex);
+	std::lock_guard<std::mutex> lock(this->motionMutex);
 
-	if(this->gaitData.proc != nullptr)
+	if(this->motionData.proc != nullptr)
 	{
-		scout << "A gait generator is already running" << std::endl;
+		scout << "A motion generator is already running" << std::endl;
 		return false;
 	}
 
-	this->gaitData.proc = new boost::process::child(std::vector<std::string>({
+	this->motionData.proc = new boost::process::child(std::vector<std::string>({
 		#ifndef NDEBUG
 			"${EXECUTABLE_OUTPUT_PATH}/child_process_launcher",
 		#else
@@ -531,47 +531,47 @@ bool ControlLayer::activateGaitGenerator(const std::string &ID)
 		#endif
 		ID,
 		ID,
-		"gait_generator",
+		"motion_generator",
 		Options::robot_name,
 		(Options::simulation_mode?"sim":"live")
 	}));
 
-    if(this->gaitData.proc == nullptr){
-        scout << "Failed to launch gait generator process" << std::endl;
+    if(this->motionData.proc == nullptr){
+        scout << "Failed to launch motion generator process" << std::endl;
 	    return false;
     }
 
-	this->gaitData.ID = ID;
-	this->gaitData.proc->detach();
+	this->motionData.ID = ID;
+	this->motionData.proc->detach();
 	
 	return true;
 }
 
-void ControlLayer::deactivateGaitGenerator()
+void ControlLayer::deactivateMotionGenerator()
 {
-	std::lock_guard<std::mutex> lock(this->gaitMutex);
-	if(this->gaitData.proc != nullptr)
+	std::lock_guard<std::mutex> lock(this->motionMutex);
+	if(this->motionData.proc != nullptr)
 	{
 		//shutdown controller over the dds comunication layer
 		CommandSendMsg msg;
-		msg.name(this->gaitData.ID);
+		msg.name(this->motionData.ID);
 		msg.command("shutdown");
 		this->ddsMonitor->sendMessage((void*) &msg);
 
-		//wait a little for gait exit
+		//wait a little for motion exit
 		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(200));
 
-		if(this->gaitData.proc->running()){
-			scout << "### GAIT GENERATOR IS STILL RUNNING WAITING A LITTLE TO GET PROPPER EXIT ###" << std::endl;
+		if(this->motionData.proc->running()){
+			scout << "### MOTION GENERATOR IS STILL RUNNING WAITING A LITTLE TO GET PROPPER EXIT ###" << std::endl;
 			std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
-			if(this->gaitData.proc->running()){
-				scout << "### FORCING GAIT GENERATOR EXIT ###" << std::endl;
-				kill(this->gaitData.proc->id(), SIGTERM);
+			if(this->motionData.proc->running()){
+				scout << "### FORCING MOTION GENERATOR EXIT ###" << std::endl;
+				kill(this->motionData.proc->id(), SIGTERM);
 			}
 		}
 
-		delete this->gaitData.proc;
-		this->gaitData.proc = nullptr;
+		delete this->motionData.proc;
+		this->motionData.proc = nullptr;
 	}
 }
 

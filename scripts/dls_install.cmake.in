@@ -27,13 +27,13 @@ function(dls_install_plugin plugin)
 	)
 
 	# Install locations for each plugin type
-	set(known_types                   gaitgen controller estimator)
+	set(known_types                   motiongen controller estimator)
 	set(controller_install_dir        @DLS_INSTALL_CONTROLLER_DIR@)
 	set(estimator_install_dir         @DLS_INSTALL_ESTIMATOR_DIR@)
-	set(gaitgen_install_dir           @DLS_INSTALL_GAIT_GENERATOR_DIR@)
+	set(motiongen_install_dir           @DLS_INSTALL_MOTION_GENERATOR_DIR@)
 	set(controller_install_header_dir @DLS_INSTALL_CONTROLLER_HEADER_DIR@)
 	set(estimator_install_header_dir  @DLS_INSTALL_ESTIMATOR_HEADER_DIR@)
-	set(gaitgen_install_header_dir    @DLS_INSTALL_GAIT_GENERATOR_HEADER_DIR@)
+	set(motiongen_install_header_dir    @DLS_INSTALL_MOTION_GENERATOR_HEADER_DIR@)
 
 	# Input sanitation
 	if(NOT ${prefix}_TYPE)
@@ -83,8 +83,8 @@ function(dls_install_plugin plugin)
 	list(LENGTH ${prefix}_HEADERS NUMBER_OF_INSTALL_HEADERS)
 	if(${NUMBER_OF_INSTALL_HEADERS} GREATER 0)
 		# Select the install location based on the type
-		if(${${prefix}_TYPE} STREQUAL "gaitgen")
-			set(HEADER_INSTALL_LOCATION "${gaitgen_install_header_dir}/${${prefix}_DISPLAY_NAME}")
+		if(${${prefix}_TYPE} STREQUAL "motiongen")
+			set(HEADER_INSTALL_LOCATION "${motiongen_install_header_dir}/${${prefix}_DISPLAY_NAME}")
 		elseif(${${prefix}_TYPE} STREQUAL "controller")
 			set(HEADER_INSTALL_LOCATION "${controller_install_header_dir}/${${prefix}_DISPLAY_NAME}")
 		elseif(${${prefix}_TYPE} STREQUAL "estimator")

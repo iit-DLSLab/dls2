@@ -13,10 +13,10 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef DUMMY_GAIT_GENERATOR_HPP_BVC8KPN1
-#define DUMMY_GAIT_GENERATOR_HPP_BVC8KPN1
+#ifndef DUMMY_MOTION_GENERATOR_HPP_BVC8KPN1
+#define DUMMY_MOTION_GENERATOR_HPP_BVC8KPN1
 
-#include "dls2/gait_generator/gait_generator.hpp"
+#include "dls2/motion_generator/motion_generator.hpp"
 #include "dls2/log/log.hpp"
 #include "dls_messages/dds/stringmsgPubSubTypes.h"
 #include "dls2/util/service/service.hpp"
@@ -24,11 +24,11 @@
 namespace dls
 {
 // TODO("this is a temporary class. Remove this file, the cpp file, and the CMake entry")
-class DummyGaitGenerator : public GaitGenerator
+class DummyMotionGenerator : public MotionGenerator
 {
 public:
-	// DummyGaitGenerator();
-	DummyGaitGenerator(const std::shared_ptr<robotlib::RobotBase> &pDog);
+	// DummyMotionGenerator();
+	DummyMotionGenerator(const std::shared_ptr<robotlib::RobotBase> &pDog);
 	void run(const std::chrono::system_clock::time_point&) override;
 	AppLayerComponent::Status eStop() override {return getStatus();}
 
@@ -41,4 +41,4 @@ private:
 };
 } // end namespace dls
 
-#endif /* end of include guard: DUMMY_GAIT_GENERATOR_HPP_BVC8KPN1 */
+#endif /* end of include guard: DUMMY_MOTION_GENERATOR_HPP_BVC8KPN1 */

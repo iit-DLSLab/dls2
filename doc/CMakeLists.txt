@@ -45,22 +45,22 @@ file(READ ${CONTROLLER_MD_FILE} CONTROLLER_MD)
 # Example Generator
 # ------------------------------------------------------------------------------
 # Generator Header
-file(READ dls2_examples/example_gait_generator/include/example_gait_generator.hpp
-	EXAMPLE_GAIT_GENERATOR_HPP
+file(READ dls2_examples/example_motion_generator/include/example_motion_generator.hpp
+	EXAMPLE_MOTION_GENERATOR_HPP
 )
 
 # Generator Source
-file(READ dls2_examples/example_gait_generator/src/example_gait_generator.cpp
-	EXAMPLE_GAIT_GENERATOR_CPP
+file(READ dls2_examples/example_motion_generator/src/example_motion_generator.cpp
+	EXAMPLE_MOTION_GENERATOR_CPP
 )
 
 # Generator CMake
-file(READ dls2_examples/example_gait_generator/src/CMakeLists.txt
-	EXAMPLE_GAIT_GENERATOR_CMAKE
+file(READ dls2_examples/example_motion_generator/src/CMakeLists.txt
+	EXAMPLE_MOTION_GENERATOR_CMAKE
 )
 
-dls_configure_atonly(include/gait_generator.md.in GAIT_GENERATOR_MD_FILE)
-file(READ ${GAIT_GENERATOR_MD_FILE} GAIT_GENERATOR_MD)
+dls_configure_atonly(include/motion_generator.md.in MOTION_GENERATOR_MD_FILE)
+file(READ ${MOTION_GENERATOR_MD_FILE} MOTION_GENERATOR_MD)
 
 # ------------------------------------------------------------------------------
 # Logging
@@ -173,9 +173,9 @@ file(READ ${COMMAND_MD_MAN_FILE} COMMAND_MD_MAN)
 dls_markdown_to_man(${CONTROLLER_MD_FILE} CONTROLLER_MD_MAN_FILE)
 file(READ ${CONTROLLER_MD_MAN_FILE} CONTROLLER_MD_MAN)
 
-# gait_generator.md.in
-dls_markdown_to_man(${GAIT_GENERATOR_MD_FILE} GAIT_GENERATOR_MD_MAN_FILE)
-file(READ ${GAIT_GENERATOR_MD_MAN_FILE} GAIT_GENERATOR_MD_MAN)
+# motion_generator.md.in
+dls_markdown_to_man(${MOTION_GENERATOR_MD_FILE} MOTION_GENERATOR_MD_MAN_FILE)
+file(READ ${MOTION_GENERATOR_MD_MAN_FILE} MOTION_GENERATOR_MD_MAN)
 
 # pub_sub.md.in
 dls_markdown_to_man(${PUB_SUB_MD_FILE} PUB_SUB_MD_MAN_FILE)

@@ -84,7 +84,7 @@ target_link_libraries(bare_dummy_controller
 	dls_dummy_controller
 	dls_controller_interface
 	dls_messages
-	dls_gait_generator
+	dls_motion_generator
 	dls_command
 	dls_logging
 	dls_framework

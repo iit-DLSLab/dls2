@@ -13,8 +13,8 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef GAIT_DATA_HPP_DLF4YRRS
-#define GAIT_DATA_HPP_DLF4YRRS
+#ifndef GAIT_SIGNAL_HPP_DLF4YRRS
+#define GAIT_SIGNAL_HPP_DLF4YRRS
 
 #include "dls_messages/dds/gait_signal.h"
 #include "dls2/msg_wrappers/screw.hpp"
@@ -66,4 +66,4 @@ struct GaitSignal
 	// Screw desired_base_wrench;
 };
 } // end namespace dls
-#endif /* end of include guard: GAIT_DATA_HPP_DLF4YRRS */
+#endif /* end of include guard: GAIT_SIGNAL_HPP_DLF4YRRS */

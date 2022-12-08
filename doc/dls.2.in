@@ -11,7 +11,7 @@ dls - Dynamic Legged Systems software framework for the HyQ robot family.
 .\" ============================================================================
 .nf
 .B find_package(dls CONFIG REQUIRED)
-.BI dls_install_gait_generator( generator )
+.BI dls_install_motion_generator( generator )
 .BI dls_install_controller( controller )
 
 .B #include <dls2/controller/controller.hpp>
@@ -19,10 +19,10 @@ dls - Dynamic Legged Systems software framework for the HyQ robot family.
 .B dls::ControlSignal
 .BI DLS_EXPORT_CONTROLLER( controller )
 
-.B #include <dls2/gait_generator/gait_generator.hpp>
-.B dls::GaitGenerator
+.B #include <dls2/motion_generator/motion_generator.hpp>
+.B dls::MotionGenerator
 .B dls::GaitSignal
-.BI DLS_EXPORT_GAIT_GENERATOR( generator )
+.BI DLS_EXPORT_MOTION_GENERATOR( generator )
 
 .B #include <dls2/util/log/log.hpp>
 .B dls::logging::cdbgstream
@@ -59,10 +59,10 @@ following diagram:
 @FLOW_CHART_INCL@
 .fi
 
-.SS Creating a New Gait Generator
+.SS Creating a New Motion Generator
 .\" ----------------------------------------------------------------------------
 
-@GAIT_GENERATOR_MD_MAN@
+@MOTION_GENERATOR_MD_MAN@
 
 
 .SS Creating a New Controller

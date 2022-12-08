@@ -21,7 +21,7 @@
 // =============================================================================
 #include "app_layer.hpp"
 #include "dls2/controller/controller.hpp"
-#include "dls2/gait_generator/gait_generator.hpp"
+#include "dls2/motion_generator/motion_generator.hpp"
 
 #include <map>
 #include <memory>
@@ -68,7 +68,7 @@ namespace dls
 
 /// Control layer
 ///
-/// Responsible for managing controllers and gait generators
+/// Responsible for managing controllers and motion generators
 class ControlLayer : public AppLayer
 {
 	typedef void * (*THREADFUNCPTR)(void *);
@@ -95,17 +95,17 @@ public:
 	/// See also ControlLayer::activateController
 	bool deactivateController(const std::string&);
 
-	// ============================ Gait Generators ============================
-	/// Activates a gait generator
+	// ============================ Motion Generators ============================
+	/// Activates a motion generator
 	///
-	/// This will stop any other running gait generators
+	/// This will stop any other running motion generators
 	/// @ret true if the controller exists, false otherwise. See also
-	/// ControlLayer::deactivateGaitGenerators
-	bool activateGaitGenerator(const std::string&);
+	/// ControlLayer::deactivateMotionGenerators
+	bool activateMotionGenerator(const std::string&);
 
-	/// Deactivates the current gait generator
+	/// Deactivates the current motion generator
 	///
-	void deactivateGaitGenerator();
+	void deactivateMotionGenerator();
 
 	/// Returns the last published desired torques
 	///
@@ -135,9 +135,9 @@ private:
 
 
 	// BEGIN critical section
-		struct GaitGeneratorData
+		struct MotionGeneratorData
 		{
-			GaitGeneratorData() 
+			MotionGeneratorData() 
 				: ID()
 				, proc(nullptr)
 			{ }
@@ -145,8 +145,8 @@ private:
 			boost::process::child *proc;
 		};
 
-		GaitGeneratorData gaitData;
-		std::mutex gaitMutex;
+		MotionGeneratorData motionData;
+		std::mutex motionMutex;
 	// END critical section
 	
 	dls::DDSWriter *ddsControl;
