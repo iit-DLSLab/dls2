@@ -23,8 +23,8 @@ using namespace dls;
 ControllerData::ControllerData
 (
 	const std::shared_ptr<robotlib::RobotBase> &pRobot,
-	std::shared_ptr<spline::SplineBase<double>> spline_in_,
-	std::shared_ptr<spline::SplineBase<double>> spline_out_,
+	std::shared_ptr<math::SplineBase<double>> spline_in_,
+	std::shared_ptr<math::SplineBase<double>> spline_out_,
 	const std::chrono::duration<double> &duration_in,
 	const std::chrono::duration<double> &duration_out
 ) :

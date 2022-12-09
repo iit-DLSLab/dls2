@@ -1,13 +1,13 @@
 #ifndef DLS_COMMONS_ROTATIONS_HPP
 #define DLS_COMMONS_ROTATIONS_HPP
 
-#include "dls2/msg_wrappers/algebra.hpp"
+#include "dls2/math/algebra.hpp"
 #include <Eigen/Dense>
 
 typedef typename Eigen::Quaterniond Quaternion;
 
 namespace dls {
-namespace commons {
+namespace math {
 
 /**
  * @brief converts a quaternion \f$\mathbf{q}\f$ into a rotation matrix
@@ -453,8 +453,8 @@ Eigen::Vector3d  inline  computeOrientError(const Eigen::Vector3d & des_orient,
                                             const Eigen::Vector3d & actual_orient)
 {
 
-    Eigen::Matrix3d Ract = commons::rpyToRot(actual_orient);
-    Eigen::Matrix3d Rdes = commons::rpyToRot(des_orient);
+    Eigen::Matrix3d Ract = rpyToRot(actual_orient);
+    Eigen::Matrix3d Rdes = rpyToRot(des_orient);
     Eigen::Vector3d err;
 
     //compute the rotation matrix that represent the relative orientation of

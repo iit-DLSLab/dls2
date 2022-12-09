@@ -32,7 +32,7 @@
 
 #include "dls2/util/messaging/dds_reader.hpp"
 #include "dls2/util/messaging/dds_writer.hpp"
-#include "dls2/math/spline/ramp.hpp"
+#include "dls2/math/ramp.hpp"
 #include "dls2/log/log.hpp"
 
 #include <pthread.h>
@@ -154,11 +154,11 @@ private:
 	
 	/// Default controller spline-in
 	///
-	std::shared_ptr<spline::Ramp<double>> pDefault_spline_in;
+	std::shared_ptr<math::Ramp<double>> pDefault_spline_in;
 
 	/// Default controller spline-out
 	///
-	std::shared_ptr<spline::Ramp<double>> pDefault_spline_out;
+	std::shared_ptr<math::Ramp<double>> pDefault_spline_out;
 
 	/// Default spline duration
 	///

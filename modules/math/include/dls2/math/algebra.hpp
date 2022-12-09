@@ -10,7 +10,7 @@ typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> MatrixXR;
 #define prt_vec(x) for( int i = 0; i < x.size(); i++) {std::cout << x[i] << " \n";};
 
 namespace dls {
-namespace commons {
+namespace math {
 
 template<typename DerivedA, typename DerivedB>
 /**

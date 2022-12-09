@@ -36,18 +36,8 @@ namespace dls
         robotlib::LegDataMap<FootState> foot;
         robotlib::LegDataMap<Eigen::Vector3d> nom_touch_down;
         robotlib::LegDataMap<Eigen::Vector3d> touch_down;
-        robotlib::LegDataMap<double> step_cycle_phase;
-        robotlib::LegDataMap<double> swing_cycle_phase;
-        robotlib::LegDataMap<double> stance_cycle_phase;
         robotlib::LegDataMap<double> swing_period;
-        robotlib::LegDataMap<double> stance_period;
         robotlib::LegDataMap<bool> stance;
-
-        robotlib::LegDataMap<Eigen::Vector3d> ffwdTorques;
-        robotlib::LegDataMap<double> normal_force_max;
-        robotlib::LegDataMap<double> normal_force_min;
-
-        Eigen::Vector6d ffwdWrench = Eigen::Vector6d::Zero();
     };
 }
 #endif // TRAJ_GEN_SIGNAL_HPP

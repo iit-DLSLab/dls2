@@ -13,48 +13,49 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef RAMP_TPP_RPS6XN7J
-#define RAMP_TPP_RPS6XN7J
+#ifndef RAMP_HPP_WOXJEKFS
+#define RAMP_HPP_WOXJEKFS
 
-#include "dls2/math/spline/ramp.hpp"
-
+#include "dls2/math/spline_base.hpp"
 namespace dls
 {
-namespace spline
+namespace math
 {
-template <typename domain_t>
-Ramp<domain_t>::Ramp
-(
-	const domain_t &min_domain_,
-	const domain_t &max_domain_,
-	const domain_t &min_range_,
-	const domain_t &max_range_
-):
-	SplineBase<domain_t>(min_domain_, max_domain_),
-	min_range(min_range_),
-	max_range(max_range_)
-{ }
 
-template <typename domain_t>
-domain_t Ramp<domain_t>::eval(domain_t t)
+/// Simple ramp function
+///
+// The ramp is clamped like this:
+//          ______
+//         /
+//        /
+// ______/
+template <typename domain_t = double>
+class Ramp : public SplineBase<domain_t>
 {
-	if(t <= this->min_domain) return this->min_domain;
-	if(t >= this->max_domain) return this->max_domain;
+public:
+	Ramp
+	(
+		const domain_t &min_domain = 0,
+		const domain_t &max_domain = 1,
+		const domain_t &min_range = 0,
+		const domain_t &max_range = 1
+	);
 
-	// return (t - this->min_domain)/(this->max_domain - this->min_domain);
-	return
-		(
-			(this->max_range - this->min_range)
-			/
-			(this->max_domain - this->min_domain)
-		)
-		*
-		(
-			t - this->min_domain
-		)
-		+ this->min_range;
-}
-} // namepsace spline
+	/// Evaluate the ramp
+	///
+	/// @param t the point in the domain to evaluate this ramp.
+	/// If `t` is outside of the domain, the ramp will be clamped at its minimum
+	/// or maximum value
+	virtual domain_t eval(domain_t t) override;
+
+private:
+	domain_t min_range;
+	domain_t max_range;
+};
+
+} // namespace spline
 } // namespace dls
 
-#endif /* end of include guard: IDENTITY_SPLINE_TPP_OICD8WMA */
+#include "dls2/math/ramp.tpp"
+
+#endif /* end of include guard: IDENTITY_SPLINE_HPP_ZETKQVB4 */

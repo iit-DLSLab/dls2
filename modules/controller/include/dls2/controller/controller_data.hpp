@@ -18,7 +18,7 @@
 
 #include "dls2/msg_wrappers/control_signal.hpp"
 #include "dls2/util/messaging/dds_reader.hpp"
-#include "dls2/math/spline/ramp.hpp"
+#include "dls2/math/ramp.hpp"
 #include <boost/process.hpp>
 #include "dls2/components/app_data.hpp"
 
@@ -33,8 +33,8 @@ namespace dls
         ControllerData
         (
             const std::shared_ptr<robotlib::RobotBase>&,
-            std::shared_ptr<spline::SplineBase<double>> pSpline_in,
-            std::shared_ptr<spline::SplineBase<double>> pSpline_out,
+            std::shared_ptr<math::SplineBase<double>> pSpline_in,
+            std::shared_ptr<math::SplineBase<double>> pSpline_out,
             const std::chrono::duration<double> &duration_in,
             const std::chrono::duration<double> &duration_out
         );
@@ -44,8 +44,8 @@ namespace dls
         std::atomic<double> premultiplier; ///< Spline value to premutilply the torque signal
         const std::chrono::duration<double> spline_in_duration;
         const std::chrono::duration<double> spline_out_duration;
-        const std::shared_ptr<spline::SplineBase<double>> pSpline_in;
-        const std::shared_ptr<spline::SplineBase<double>> pSpline_out;
+        const std::shared_ptr<math::SplineBase<double>> pSpline_in;
+        const std::shared_ptr<math::SplineBase<double>> pSpline_out;
 
         // BEGIN critical section	
             ControlSignal control_signal;

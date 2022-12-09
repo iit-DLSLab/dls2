@@ -67,9 +67,9 @@ ControlLayer::ControlLayer(std::string ID)
 	, motionMutex()	
 	// TODO these 2s should only be put once, and they should be made dynamic
 	// ramp for two seconds from 0 to 1
-	, pDefault_spline_in(std::make_shared<spline::Ramp<double>> (0, 2, 0, 1))
+	, pDefault_spline_in(std::make_shared<math::Ramp<double>> (0, 2, 0, 1))
 	// ramp for two seconds from 1 to 0
-	, pDefault_spline_out(std::make_shared<spline::Ramp<double>> (0, 2, 1, 0))
+	, pDefault_spline_out(std::make_shared<math::Ramp<double>> (0, 2, 1, 0))
 	, default_duration_seconds(2)
 	, scout(ID)
 	, clog(ID)
