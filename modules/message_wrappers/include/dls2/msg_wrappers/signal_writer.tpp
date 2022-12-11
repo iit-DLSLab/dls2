@@ -13,29 +13,29 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#include "dls2/controller/controller.hpp"
+#ifndef SIGNAL_WRITER_TPP
+#define SIGNAL_WRITER_TPP
+
+#include "dls2/msg_wrappers/signal_writer.hpp"
 
 using namespace dls;
 
-Controller::Controller
-(
-	const std::string &ID_,
-	const std::shared_ptr<robotlib::RobotBase> &robot_,
-	const period_t &period_,
-	const ControlSignal::SignalReconstructionMethod &reconst_meth_
-)
-	: PeriodicAppLayerComponent(ID_, period_)
-	, signal_reconstruction_method(reconst_meth_)
-	, pRobot(robot_)
-	, ddsLink("Controller::" + this->getID(), dls::domains::signals)
-{ }
-
-dls::DDSParticipant* Controller::getParticipant()
+template <typename SignalType>
+SignalWriter<SignalType>::SignalWriter(const std::string& ID_, dls::DDSParticipant* participant, const dls::topicType& topic_, const std::shared_ptr<robotlib::RobotBase>& pRobot)
+	: Signal<SignalType>(ID_, participant, pRobot)
 {
-	return &(this->ddsLink);
+	this->ddsLink->addWriter(ID_, topic_);
+}
+	
+template <typename SignalType>
+SignalWriter<SignalType>::~SignalWriter()
+{ }	
+
+template <typename SignalType>
+void SignalWriter<SignalType>::publish()
+{
+	std::lock_guard<std::mutex> lock(this->signal_mutex);
+	this->ddsLink->sendMessage(this->ID, this->signal.getMsg());
 }
 
-const robotlib::RobotBase* Controller::getRobot()
-{
-	return this->pRobot.get();
-}
+#endif /* end of include guard: SIGNAL_WRITER_TPP */

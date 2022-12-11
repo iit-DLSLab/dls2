@@ -29,40 +29,11 @@ AppLayer::AppLayer(const std::string &ID_)
     , command_manager(ID_)
 	, scout(ID_ + "Log")
     , ID(ID_)
+	, ddsLink(ID_, dls::domains::layers)
 	, status_mutex()
 	, status(Status::INITIALISING)
 	
 {
-	ddslink = new dls::DDSParticipant(
-		ID_,
-		dls::domains::layers
-	);
-
-	ddslink->addWriter(
-		"commandSender",
-		dls::topics::command_send
-	);
-
-	ddslink->addReader(
-		"commandReceiver",
-		dls::topics::command_send,
-		std::function<void(void *)>
-		{
-			[&](void *tuple)
-			{
-				CommandSendMsg msg = *((CommandSendMsg*) tuple);
-
-				if (msg.name() == this->getID()){
-					if (msg.command() == "shutdown")
-						this->shutdown();
-				}
-
-				if (msg.command() == "shutdownAll")
-					this->shutdown();
-			}
-		}
-	);
-
 	command_manager.addCommand<>
 	(
 		"exit",
@@ -129,9 +100,8 @@ AppLayer::AppLayer(const std::string &ID_)
 	// );
 }
 
-AppLayer::~AppLayer(){
-	delete ddslink;
-}
+AppLayer::~AppLayer()
+{ }
 
 // =============================================================================
 // Member Functions

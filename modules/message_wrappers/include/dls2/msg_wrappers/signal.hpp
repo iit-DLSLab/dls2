@@ -13,29 +13,41 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#include "dls2/controller/controller.hpp"
+#ifndef SIGNAL_HPP
+#define SIGNAL_HPP
 
-using namespace dls;
+#include <mutex>
+#include "dls2/util/messaging/dds_participant.hpp"
+#include "dls2/topics/topics.hpp"
+#include "robotlib/robot_factory.hpp"
 
-Controller::Controller
-(
-	const std::string &ID_,
-	const std::shared_ptr<robotlib::RobotBase> &robot_,
-	const period_t &period_,
-	const ControlSignal::SignalReconstructionMethod &reconst_meth_
-)
-	: PeriodicAppLayerComponent(ID_, period_)
-	, signal_reconstruction_method(reconst_meth_)
-	, pRobot(robot_)
-	, ddsLink("Controller::" + this->getID(), dls::domains::signals)
-{ }
-
-dls::DDSParticipant* Controller::getParticipant()
+namespace dls
 {
-	return &(this->ddsLink);
-}
+	template <typename SignalType>
+	class Signal
+	{
+	public:
+		Signal(const std::string&, dls::DDSParticipant*, const std::shared_ptr<robotlib::RobotBase>&);
+		Signal() = delete;
+		~Signal();
+		
+		SignalType* operator->();
 
-const robotlib::RobotBase* Controller::getRobot()
-{
-	return this->pRobot.get();
-}
+		std::string getID();
+		SignalType getData();
+	
+	protected:
+		std::string ID;
+		dls::DDSParticipant* ddsLink;
+
+		// BEGIN critical section
+			SignalType signal;
+			mutable std::mutex signal_mutex;
+		// END crital section
+
+	};
+} // end namespace dls
+
+#include "dls2/msg_wrappers/signal.tpp"
+
+#endif /* end of include guard: SIGNAL_HPP */

@@ -19,19 +19,20 @@
 #include "dls2/util/messaging/dds_reader.hpp"
 #include <boost/process.hpp>
 
-#include <memory>
-
 /// A struct representing the control signal that is output by a Controller
 namespace dls
 {
 	class AppData
     {
     public:
-        AppData();
+        AppData(const std::string&);
         ~AppData();
 
+        std::string getID();
+
         std::shared_ptr<boost::process::child> proc;
-        std::shared_ptr<DDSReader> dds_reader;
+
+    private:
         std::string ID;
     };
 }// end namespace dls

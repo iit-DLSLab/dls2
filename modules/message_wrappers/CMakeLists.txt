@@ -19,9 +19,12 @@ target_include_directories(dls_message_wrappers
 
 target_link_libraries(dls_message_wrappers
 	PUBLIC
+		robotlib	
 		dls_messages
 		dls_math
-		robotlib		
+		dls_com
+		dls_topics
+		dls_domains			
 )
 
 dls_install(dls_message_wrappers)

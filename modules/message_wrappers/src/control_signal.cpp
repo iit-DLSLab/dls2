@@ -16,10 +16,17 @@
 #include "dls2/msg_wrappers/control_signal.hpp"
 
 using namespace dls;
+
 ControlSignal::ControlSignal(const std::shared_ptr<robotlib::RobotBase> &pRobot) 
     : torques(pRobot->makeJointState())
 	, signal_reconstruction_method(SignalReconstructionMethod::ZERO_ORDER_HOLD)
 	, time()
+{ }
+
+ControlSignal::ControlSignal(ControlSignal& from) 
+    : torques(from.torques)
+	, signal_reconstruction_method(from.signal_reconstruction_method)
+	, time(from.time)
 { }
 
 ControlSignal::operator ControlSignalMsg() const
@@ -39,8 +46,7 @@ ControlSignal::operator ControlSignalMsg() const
 	return msg;
 }
 
-
-ControlSignal & ControlSignal::operator=(const ControlSignalMsg &msg){
+ControlSignal& ControlSignal::operator=(ControlSignalMsg& msg){
 
 	this->signal_reconstruction_method = (dls::ControlSignal::SignalReconstructionMethod) msg.signal_reconstruction_method();
 	
@@ -54,4 +60,13 @@ ControlSignal & ControlSignal::operator=(const ControlSignalMsg &msg){
 	}
 
     return *this;
+}
+
+ControlSignal& ControlSignal::operator=(const ControlSignal& from)
+{ 
+	torques = from.torques;
+	signal_reconstruction_method = from.signal_reconstruction_method;
+	time = from.time;
+	
+	return *this;
 }

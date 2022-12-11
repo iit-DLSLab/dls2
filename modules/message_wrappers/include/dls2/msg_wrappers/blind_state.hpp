@@ -19,40 +19,44 @@
 
 #include "robotlib/robot_base.hpp"
 
+#include "dls2/msg_wrappers/wrapper.hpp"
 #include "dls2/msg_wrappers/pose.hpp"
 #include "dls2/msg_wrappers/screw.hpp"
-#include <dls_messages/dds/blind_state.h>
+#include "dls_messages/dds/blind_state.h"
 
 namespace dls
 {
-	class BlindState
+	class BlindState : public Wrapper<BlindStateMsg>
 	{
 	public:
 		BlindState(const std::shared_ptr<robotlib::RobotBase>&);
-		operator BlindStateMsg() const;
+		BlindState(BlindState&);
+		BlindState() = delete;
+        ~BlindState();
 
-		BlindState& operator= (BlindStateMsg);
+		operator BlindStateMsg() const override;
+		BlindState& operator= (BlindStateMsg&) override;
 
 		robotlib::JointState joint_position;
 		robotlib::JointState joint_velocity;
 		robotlib::JointState joint_acceleration;
 		robotlib::JointState joint_effort;
 
-		/// Angular velocity
-		///
-		Eigen::Vector3d angular_velocity;
+		// /// Angular velocity
+		// ///
+		// Eigen::Vector3d angular_velocity;
 
-		/// Angular acceleration
-		///
-		Eigen::Vector3d angular_acceleration;
+		// /// Angular acceleration
+		// ///
+		// Eigen::Vector3d angular_acceleration;
 
-		/// Orientation
-		///
-		Eigen::Quaternion<double> orientation;
+		// /// Orientation
+		// ///
+		// Eigen::Quaternion<double> orientation;
 
-		Pose base_pose_world;
-		Screw base_velocity_world;
-		Screw base_acceleration_world;
+		// Pose base_pose_world;
+		// Screw base_velocity_world;
+		// Screw base_acceleration_world;
 
 		double time;
 	};

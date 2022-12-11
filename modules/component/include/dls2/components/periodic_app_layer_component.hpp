@@ -65,9 +65,10 @@ namespace dls
 		std::atomic_bool should_run;
 
 		// BEGIN critical section
-		/// mutex handling pausing and unpausing
-		///
-		std::mutex pause_mutex;
+			/// mutex handling pausing and unpausing
+			///
+			std::mutex pause_mutex;
+
 			/// Used to check whether execution should be paused (false until
 			/// specified by the user)
 			bool is_paused;

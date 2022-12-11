@@ -16,13 +16,15 @@
 #ifndef CONTROL_SIGNAL_HPP_QCFRROHM
 #define CONTROL_SIGNAL_HPP_QCFRROHM
 
+#include "dls2/msg_wrappers/wrapper.hpp"
 #include "dls_messages/dds/control_signalPubSubTypes.h"
+
 #include "robotlib/robot_base.hpp"
 
 /// A struct representing the control signal that is output by a Controller
 namespace dls
 {
-    class ControlSignal
+    class ControlSignal : public Wrapper<ControlSignalMsg>
     {
     public:
         enum class SignalReconstructionMethod : uint64_t
@@ -32,10 +34,13 @@ namespace dls
         };
 
         ControlSignal(const std::shared_ptr<robotlib::RobotBase>&);
-        ~ControlSignal(){};
-        operator ControlSignalMsg() const;
-        
-        ControlSignal & operator=(const ControlSignalMsg &msg);
+        ControlSignal(ControlSignal&);
+        ControlSignal() = delete;
+        virtual ~ControlSignal() = default;
+
+        operator ControlSignalMsg() const override;
+        ControlSignal& operator=(ControlSignalMsg&) override;
+        ControlSignal& operator=(const ControlSignal&);
 
         robotlib::JointState torques;
         SignalReconstructionMethod signal_reconstruction_method;

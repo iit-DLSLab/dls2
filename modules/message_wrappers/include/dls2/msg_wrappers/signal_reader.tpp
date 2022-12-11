@@ -13,29 +13,32 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#include "dls2/controller/controller.hpp"
+#ifndef SIGNAL_READER_TPP
+#define SIGNAL_READER_TPP
+
+#include "dls2/msg_wrappers/signal_reader.hpp"
 
 using namespace dls;
 
-Controller::Controller
-(
-	const std::string &ID_,
-	const std::shared_ptr<robotlib::RobotBase> &robot_,
-	const period_t &period_,
-	const ControlSignal::SignalReconstructionMethod &reconst_meth_
-)
-	: PeriodicAppLayerComponent(ID_, period_)
-	, signal_reconstruction_method(reconst_meth_)
-	, pRobot(robot_)
-	, ddsLink("Controller::" + this->getID(), dls::domains::signals)
-{ }
-
-dls::DDSParticipant* Controller::getParticipant()
+template <typename SignalType>
+SignalReader<SignalType>::SignalReader(const std::string& ID_, dls::DDSParticipant* participant, const dls::topicType& topic_, const std::shared_ptr<robotlib::RobotBase>& pRobot)
+	: Signal<SignalType>(ID_, participant, pRobot)
 {
-	return &(this->ddsLink);
+	this->ddsLink->addReader(ID_,
+		topic_,
+		std::function<void(void*)>
+		{
+			[&](void* tuple)
+			{
+				std::lock_guard<std::mutex> lock(this->signal_mutex);		
+				this->signal.loadMsg(tuple);
+			}
+		}
+	);
 }
+	
+template <typename SignalType>
+SignalReader<SignalType>::~SignalReader()
+{ }	
 
-const robotlib::RobotBase* Controller::getRobot()
-{
-	return this->pRobot.get();
-}
+#endif /* end of include guard: SIGNAL_READER_TPP */

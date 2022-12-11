@@ -149,8 +149,7 @@ private:
 		std::mutex motionMutex;
 	// END critical section
 	
-	dls::DDSWriter *ddsControl;
-	dls::DDSWriter *ddsMonitor;	
+	dls::DDSParticipant ddsLink;
 	
 	/// Default controller spline-in
 	///

@@ -16,11 +16,11 @@
 #ifndef CONTROLLER_DATA_HPP
 #define CONTROLLER_DATA_HPP
 
+#include "dls2/components/app_data.hpp"
 #include "dls2/msg_wrappers/control_signal.hpp"
-#include "dls2/util/messaging/dds_reader.hpp"
+#include "dls2/msg_wrappers/signal_reader.hpp"
 #include "dls2/math/ramp.hpp"
 #include <boost/process.hpp>
-#include "dls2/components/app_data.hpp"
 
 #include <memory>
 
@@ -32,6 +32,9 @@ namespace dls
     public:
         ControllerData
         (
+            const std::string&,
+            dls::DDSParticipant* participant,
+            const dls::topicType& topic,
             const std::shared_ptr<robotlib::RobotBase>&,
             std::shared_ptr<math::SplineBase<double>> pSpline_in,
             std::shared_ptr<math::SplineBase<double>> pSpline_out,
@@ -39,18 +42,13 @@ namespace dls
             const std::chrono::duration<double> &duration_out
         );
 
-        ControlSignal getLastPublishedControlSignal();
-
         std::atomic<double> premultiplier; ///< Spline value to premutilply the torque signal
         const std::chrono::duration<double> spline_in_duration;
         const std::chrono::duration<double> spline_out_duration;
         const std::shared_ptr<math::SplineBase<double>> pSpline_in;
         const std::shared_ptr<math::SplineBase<double>> pSpline_out;
 
-        // BEGIN critical section	
-            ControlSignal control_signal;
-            std::mutex control_signal_mutex;
-        // END critical section
+        SignalReader<ControlSignal> control_signal;
     };
 }// end namespace dls
 

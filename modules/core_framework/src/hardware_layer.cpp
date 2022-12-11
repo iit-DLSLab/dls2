@@ -76,12 +76,15 @@ HardwareLayer::Status HardwareLayer::run()
 
 bool HardwareLayer::activateHardware(const std::string &robotType)
 {
-    std::shared_ptr<AppData> pData = std::make_shared<AppData>();
+    std::shared_ptr<AppData> pData;
 
     for(long unsigned int i = 0; i <= hardwares.size(); i++){
-        pData->ID = robotType + "_" + std::to_string(i);
-        if(this->hardwares.find(pData->ID) == this->hardwares.end())
+        std::string ID = robotType + "_" + std::to_string(i);
+        if(this->hardwares.find(ID) == this->hardwares.end())
+		{
+			pData = std::make_shared<AppData>(ID);
             break;
+		}
     }   
 
 	{
@@ -100,7 +103,7 @@ bool HardwareLayer::activateHardware(const std::string &robotType)
 
 		pData->proc = std::make_shared<boost::process::child>(std::vector<std::string>({
 			child_process_launcher,
-			pData->ID,
+			pData->getID(),
 			robotType + "_hal",
 			"hardware",
 			robotType,
@@ -117,9 +120,9 @@ bool HardwareLayer::activateHardware(const std::string &robotType)
 			return false;
 		}
 
-		scout << "HARDWARE LAYER OF " << pData->ID << " IS ON" <<  std::endl;
+		scout << "HARDWARE LAYER OF " << pData->getID() << " IS ON" <<  std::endl;
 
-		this->hardwares.emplace(pData->ID, pData);
+		this->hardwares.emplace(pData->getID(), pData);
 	}
 
 	return true;
@@ -131,7 +134,7 @@ bool HardwareLayer::deactivateHardware(std::shared_ptr<AppData> pData)
 
     //shutdown controller over the dds comunication layer
 	CommandSendMsg msg;
-	msg.name(pData->ID);
+	msg.name(pData->getID());
 	msg.command("shutdown");
 	this->ddsMonitor->sendMessage((void*) &msg);
 
@@ -148,8 +151,7 @@ bool HardwareLayer::deactivateHardware(std::shared_ptr<AppData> pData)
 	}
 
 	pData->proc = nullptr;
-	pData->dds_reader = nullptr;
-	this->hardwares.erase(pData->ID);
+	this->hardwares.erase(pData->getID());
 
     return false;
 }

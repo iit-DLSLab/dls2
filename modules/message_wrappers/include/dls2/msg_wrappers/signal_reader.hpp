@@ -13,29 +13,22 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#include "dls2/controller/controller.hpp"
+#ifndef SIGNAL_READER_HPP
+#define SIGNAL_READER_HPP
 
-using namespace dls;
+#include "dls2/msg_wrappers/signal.hpp"
 
-Controller::Controller
-(
-	const std::string &ID_,
-	const std::shared_ptr<robotlib::RobotBase> &robot_,
-	const period_t &period_,
-	const ControlSignal::SignalReconstructionMethod &reconst_meth_
-)
-	: PeriodicAppLayerComponent(ID_, period_)
-	, signal_reconstruction_method(reconst_meth_)
-	, pRobot(robot_)
-	, ddsLink("Controller::" + this->getID(), dls::domains::signals)
-{ }
-
-dls::DDSParticipant* Controller::getParticipant()
+namespace dls
 {
-	return &(this->ddsLink);
-}
+	template <typename SignalType>
+	class SignalReader : public Signal<SignalType>
+	{
+	public:
+		SignalReader(const std::string&, dls::DDSParticipant*, const dls::topicType&, const std::shared_ptr<robotlib::RobotBase>&);
+		~SignalReader();	
+	};
+} // end namespace dls
 
-const robotlib::RobotBase* Controller::getRobot()
-{
-	return this->pRobot.get();
-}
+#include "dls2/msg_wrappers/signal_reader.tpp"
+
+#endif /* end of include guard: SIGNAL_READER_HPP */

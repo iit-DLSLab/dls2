@@ -132,8 +132,6 @@ ConsoleLayer::ConsoleLayer(std::string ID)
 		true
 	);
 
-    
-
 	command_manager.addCommand<std::string>
 	(
 		"help",
@@ -275,13 +273,9 @@ ConsoleLayer::Status ConsoleLayer::shutdown()
 	return getStatus();
 }
 
-
 void ConsoleLayer::shutdownAll()
 {
-	CommandSendMsg msg;
-	msg.command() = "shutdownAll";
-
-	this->ddslink->sendMessage("commandSender", (void*) &msg);
+	command_manager.callCommand("shutdown", {}, "");
 }
 
 // =============================================================================

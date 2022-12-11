@@ -85,14 +85,13 @@ ServiceLayer::Status ServiceLayer::run()
 bool ServiceLayer::loadService(const std::string& lib_name)
 {
 	
-	if(this->services.find(lib_name) != this->services.end())\
+	if(this->services.find(lib_name) != this->services.end())
 	{
 		scout << "SERVICE " + lib_name + " IS ALREADY RUNNING" << std::endl;
 		return false;
 	}
 
-    std::shared_ptr<AppData> pData = std::make_shared<AppData>();
-	pData->ID = lib_name;
+    std::shared_ptr<AppData> pData = std::make_shared<AppData>(lib_name);
     
 	{
 		// std::lock_guard<std::mutex> lock(this->services_mutex);
@@ -110,7 +109,7 @@ bool ServiceLayer::loadService(const std::string& lib_name)
 
 		pData->proc = std::make_shared<boost::process::child>(std::vector<std::string>({
 			child_process_launcher,
-			pData->ID,
+			pData->getID(),
 			lib_name,
 			"service",
 			"",
@@ -127,9 +126,9 @@ bool ServiceLayer::loadService(const std::string& lib_name)
 			return false;
 		}
 
-		scout << "SERVICE " << pData->ID << " IS ON" <<  std::endl;
+		scout << "SERVICE " << pData->getID() << " IS ON" <<  std::endl;
 
-		this->services.emplace(pData->ID, pData);
+		this->services.emplace(pData->getID(), pData);
 	}
 
 	return true;
@@ -152,7 +151,7 @@ bool ServiceLayer::removeService(const std::string& ID)
 
     //shutdown service over the dds comunication layer
 	CommandSendMsg msg;
-	msg.name(pData->ID);
+	msg.name(pData->getID());
 	msg.command("shutdown");
 	this->ddsMonitor->sendMessage((void*) &msg);
 
@@ -169,8 +168,7 @@ bool ServiceLayer::removeService(const std::string& ID)
 	}
 
 	pData->proc = nullptr;
-	pData->dds_reader = nullptr;
-	this->services.erase(pData->ID);
+	this->services.erase(pData->getID());
 
     return true;
 }

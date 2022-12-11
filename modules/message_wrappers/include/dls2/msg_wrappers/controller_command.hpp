@@ -19,6 +19,9 @@
 
 #include <robotlib/robot_base.hpp>
 
+#include "dls2/msg_wrappers/wrapper.hpp"
+#include "dls_messages/dds/controller_command.h"
+
 namespace Eigen
 {
     typedef Eigen::Matrix<double,6,1> Vector6d;
@@ -26,12 +29,17 @@ namespace Eigen
 
 namespace dls
 {
-    class ControllerCommand {
+    class ControllerCommand : public Wrapper<ControllerCommandMsg>
+    {
         public:
-            ControllerCommand(const std::shared_ptr<robotlib::RobotBase>& robot);
+            ControllerCommand(const std::shared_ptr<robotlib::RobotBase>&);
             ControllerCommand() = delete;
             ~ControllerCommand();
+
+            operator ControllerCommandMsg() const override;
+		    ControllerCommand& operator= (ControllerCommandMsg&) override;
             
+        // private:
             double robot_height;
             double step_frequency;
             double duty_factor;

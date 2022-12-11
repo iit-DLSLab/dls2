@@ -65,10 +65,8 @@ ControlLayer::ControlLayer(std::string ID)
 	, controllers()
 	, controllers_mutex()
 	, motionMutex()	
-	// TODO these 2s should only be put once, and they should be made dynamic
-	// ramp for two seconds from 0 to 1
+	, ddsLink(ID, dls::domains::signals)
 	, pDefault_spline_in(std::make_shared<math::Ramp<double>> (0, 2, 0, 1))
-	// ramp for two seconds from 1 to 0
 	, pDefault_spline_out(std::make_shared<math::Ramp<double>> (0, 2, 1, 0))
 	, default_duration_seconds(2)
 	, scout(ID)
@@ -83,17 +81,7 @@ ControlLayer::ControlLayer(std::string ID)
 	    std::cerr << e.what() << std::endl;
     }
 
-	ddsControl = new dls::DDSWriter(
-		"ControlLayer::desiredTorques",
-		dls::domains::signals,
-		dls::topics::desired_torques
-	);
-
-	ddsMonitor = new dls::DDSWriter(
-		"ControlLayer::monitor",
-		dls::domains::controllers,
-		dls::topics::command_send
-	);
+	ddsLink.addWriter("desiredTorques",	dls::topics::desired_torques);
 	
 	command_manager.addCommand<std::string>
 	(
@@ -106,7 +94,6 @@ ControlLayer::ControlLayer(std::string ID)
 		{{0,1},{2,3}},
 		true
 	);
-
 	
 	command_manager.addCommand<>
 	(
@@ -196,8 +183,6 @@ ControlLayer::ControlLayer(std::string ID)
 
 ControlLayer::~ControlLayer()
 {
-	delete ddsControl;
-	delete ddsMonitor;
 	for(auto pair : this->controllers){
 		pair.second = nullptr;
 	}
@@ -266,9 +251,7 @@ void *ControlLayer::controlSignalGather(void *data)
             
 			for(auto pair : layer->controllers)
 			{
-				if(!pair.second->dds_reader) continue;
-
-				c_signal = pair.second->getLastPublishedControlSignal();
+				c_signal = pair.second->control_signal.getData();
 				desired_torques = pair.second->premultiplier*c_signal.torques;
 			}
 		}
@@ -327,7 +310,7 @@ std::string ControlLayer::where()
 			ss << "Active controllers:\n";
 			for(const auto &pair : this->controllers)
 			{
-				ss << pair.second->ID << "\n";
+				ss << pair.second->getID() << "\n";
 			}
 		}
 		else
@@ -359,16 +342,15 @@ std::string ControlLayer::where()
 // =============================================================================
 // Class Implementation Functions
 // =============================================================================
-// -----------------------------------------------------------------------------
-// Controllers
-// -----------------------------------------------------------------------------
-// TODO("std::map already does this check for emplace, maybe for others. Double check and make this more efficient")
 bool ControlLayer::activateController(const std::string& lib_name)
 {
 	if(this->controllers.find(lib_name) != this->controllers.end()) 
         return false;
 
     std::shared_ptr<ControllerData> pData = std::make_shared<ControllerData>(
+		lib_name,
+		&ddsLink,
+		dls::topics::control_signal,
 		this->pRobot,
 		this->pDefault_spline_in,
 		this->pDefault_spline_out,
@@ -376,9 +358,7 @@ bool ControlLayer::activateController(const std::string& lib_name)
 		default_duration_seconds
 	);
 
-	pData->ID = lib_name;
-
-    this->controllers.emplace(pData->ID, pData);
+    this->controllers.emplace(pData->getID(), pData);
 
     // std::lock_guard<std::mutex> lock(this->controllers_mutex);
 
@@ -394,7 +374,7 @@ bool ControlLayer::activateController(const std::string& lib_name)
 
     pData->proc = std::make_shared<boost::process::child>(std::vector<std::string>({
         child_process_launcher,
-        pData->ID,
+        pData->getID(),
 		lib_name,
         "controller",
         Options::robot_name,
@@ -407,23 +387,7 @@ bool ControlLayer::activateController(const std::string& lib_name)
     }
     // pData->proc->detach();
 
-    pData->dds_reader = std::make_shared<dls::DDSReader>(
-        "ControlLayer::Listener::" + pData->ID,
-        dls::domains::signals,
-        dls::topics::control_signal,
-        std::function<void(void *)>
-        {
-            [&, pData](void *tuple)
-            {
-                // std::lock_guard<std::mutex> lock(pData->control_signal_mutex);
-                ControlSignalMsg msg = *((ControlSignalMsg *)tuple);
-                
-                pData->control_signal = msg;
-            }
-        }
-    );
-
-    scout << "CONTROL LAYER IS LISTENING CONTROLLER " << pData->ID << " ON TOPIC ControlLayer::Listener::" << pData->ID <<  std::endl;
+    scout << "CONTROL LAYER IS LISTENING CONTROLLER " << pData->getID() << " ON TOPIC ControlLayer::Listener::" << pData->getID() <<  std::endl;
 
 	// spline in the controller
 	//
@@ -460,7 +424,6 @@ bool ControlLayer::deactivateController(std::shared_ptr<ControllerData> pData)
 
 		while(now < end_time)
 		{
-
 			double running_time =
 				(pData->spline_out_duration - std::chrono::duration<double>(end_time - now)).count();
 
@@ -471,11 +434,7 @@ bool ControlLayer::deactivateController(std::shared_ptr<ControllerData> pData)
 
 	std::lock_guard<std::mutex> lock(this->controllers_mutex);
 
-    //shutdown controller over the dds comunication layer
-	CommandSendMsg msg;
-	msg.name(pData->ID);
-	msg.command("shutdown");
-	this->ddsMonitor->sendMessage((void*) &msg);
+	command_manager.callCommand("shutdown", {}, pData->getID());
 
     //wait a little for motion exit
 	std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(200));
@@ -490,8 +449,7 @@ bool ControlLayer::deactivateController(std::shared_ptr<ControllerData> pData)
 	}
 
 	pData->proc = nullptr;
-	pData->dds_reader = nullptr;
-	this->controllers.erase(pData->ID);
+	this->controllers.erase(pData->getID());
 
     return true;
 }
@@ -553,10 +511,7 @@ void ControlLayer::deactivateMotionGenerator()
 	if(this->motionData.proc != nullptr)
 	{
 		//shutdown controller over the dds comunication layer
-		CommandSendMsg msg;
-		msg.name(this->motionData.ID);
-		msg.command("shutdown");
-		this->ddsMonitor->sendMessage((void*) &msg);
+		command_manager.callCommand("shutdown", {}, this->motionData.ID);
 
 		//wait a little for motion exit
 		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(200));
@@ -593,7 +548,7 @@ void ControlLayer::publishDesiredTorques(const Eigen::VectorXd &torques, double 
 		this->last_published_desired_torques = torques;
 	}
 
-	this->ddsControl->sendMessage(&msg);
+	this->ddsLink.sendMessage("desiredTorques", &msg);
 }
 
 Eigen::VectorXd ControlLayer::getPublishedDesiredTorques(){

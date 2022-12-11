@@ -94,12 +94,15 @@ AppLayer::Status EstimationLayer::shutdown()
 // =============================================================================
 bool EstimationLayer::loadEstimator(const Estimator::ID_t& lib_name)
 {
-    std::shared_ptr<AppData> pData = std::make_shared<AppData>();
+    std::shared_ptr<AppData> pData;
 
     for(long unsigned int i = 0; i <= estimators.size(); i++){
-        pData->ID = lib_name + "_" + std::to_string(i);
-        if(this->estimators.find(pData->ID) == this->estimators.end())
-            break;
+        std::string ID = lib_name + "_" + std::to_string(i);
+        if(this->estimators.find(ID) == this->estimators.end())
+		{
+			pData = std::make_shared<AppData>(lib_name);
+			break;
+		}
     }   
 
 	{
@@ -118,7 +121,7 @@ bool EstimationLayer::loadEstimator(const Estimator::ID_t& lib_name)
 
 		pData->proc = std::make_shared<boost::process::child>(std::vector<std::string>({
 			child_process_launcher,
-			pData->ID,
+			pData->getID(),
 			lib_name,
 			"estimator",
 			"aliengo",
@@ -135,7 +138,7 @@ bool EstimationLayer::loadEstimator(const Estimator::ID_t& lib_name)
 			return false;
 		}
 
-		this->estimators.emplace(pData->ID, pData);
+		this->estimators.emplace(pData->getID(), pData);
 	}
 
 	return true;
@@ -158,7 +161,7 @@ bool EstimationLayer::removeEstimator(const Estimator::ID_t& ID)
 
     //shutdown controller over the dds comunication layer
 	CommandSendMsg msg;
-	msg.name(pData->ID);
+	msg.name(pData->getID());
 	msg.command("shutdown");
 	this->ddsMonitor->sendMessage((void*) &msg);
 
@@ -175,8 +178,7 @@ bool EstimationLayer::removeEstimator(const Estimator::ID_t& ID)
 	}
 
 	pData->proc = nullptr;
-	pData->dds_reader = nullptr;
-	this->estimators.erase(pData->ID);
+	this->estimators.erase(pData->getID());
 
     return true;
 }

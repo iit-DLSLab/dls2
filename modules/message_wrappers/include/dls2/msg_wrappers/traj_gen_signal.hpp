@@ -19,20 +19,22 @@
 
 #include <robotlib/robot_base.hpp>
 #include "dls2/msg_wrappers/foot_state.hpp"
-
-namespace Eigen
-{
-    typedef Eigen::Matrix<double,6,1> Vector6d;
-}
+#include "dls_messages/dds/traj_gen.h"
+#include "dls2/msg_wrappers/wrapper.hpp"
 
 namespace dls
 {
-    class  TrajGenSignal {
+    class  TrajGenSignal : public Wrapper<TrajGenMsg>
+    {
     public:
-        TrajGenSignal(const std::shared_ptr<robotlib::RobotBase>);
+        TrajGenSignal(const std::shared_ptr<robotlib::RobotBase>&);
         TrajGenSignal() = delete;
         ~TrajGenSignal();
 
+        operator TrajGenMsg() const override;
+		TrajGenSignal &operator= (TrajGenMsg&) override;
+
+    // private:
         robotlib::LegDataMap<FootState> foot;
         robotlib::LegDataMap<Eigen::Vector3d> nom_touch_down;
         robotlib::LegDataMap<Eigen::Vector3d> touch_down;

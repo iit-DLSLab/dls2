@@ -13,29 +13,41 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#include "dls2/controller/controller.hpp"
+#ifndef SIGNAL_TPP
+#define SIGNAL_TPP
+
+#include "dls2/msg_wrappers/signal.hpp"
 
 using namespace dls;
 
-Controller::Controller
-(
-	const std::string &ID_,
-	const std::shared_ptr<robotlib::RobotBase> &robot_,
-	const period_t &period_,
-	const ControlSignal::SignalReconstructionMethod &reconst_meth_
-)
-	: PeriodicAppLayerComponent(ID_, period_)
-	, signal_reconstruction_method(reconst_meth_)
-	, pRobot(robot_)
-	, ddsLink("Controller::" + this->getID(), dls::domains::signals)
+template <typename SignalType>
+Signal<SignalType>::Signal(const std::string& ID_, dls::DDSParticipant* participant, const std::shared_ptr<robotlib::RobotBase>& pRobot)
+	: ID(ID_)
+	, ddsLink(participant)
+	, signal(pRobot)
 { }
+	
+template <typename SignalType>
+Signal<SignalType>::~Signal()
+{ }	
 
-dls::DDSParticipant* Controller::getParticipant()
+template <typename SignalType>
+SignalType* Signal<SignalType>::operator->() 
 {
-	return &(this->ddsLink);
+	std::lock_guard<std::mutex> lock(this->signal_mutex);
+    return &this->signal;
 }
 
-const robotlib::RobotBase* Controller::getRobot()
+template <typename SignalType>
+std::string Signal<SignalType>::getID()
 {
-	return this->pRobot.get();
+	return this->ID_;
 }
+
+template <typename SignalType>
+SignalType Signal<SignalType>::getData()
+{
+	return this->signal;
+}
+
+#endif /* end of include guard: SIGNAL_TPP */

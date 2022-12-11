@@ -18,6 +18,21 @@
 
 using namespace dls;
 
+GaitSignal::GaitSignal(const std::shared_ptr<robotlib::RobotBase> &pRobot) 
+    : desired_com_pose_world()
+    , desired_com_velocity_world()
+    , desired_com_acceleration_world()
+    // , desired_base_pose_world()
+    // , desired_base_velocity_world()
+    // , desired_base_acceleration_world()
+    , desired_joint_position(pRobot->makeJointState())
+    , desired_joint_velocity(pRobot->makeJointState())
+    , desired_joint_acceleration(pRobot->makeJointState())
+    , desired_joint_effort(pRobot->makeJointState())
+    , stance_legs(pRobot->makeLegDataMap<bool>(false))
+	// , desired_base_wrench()
+{ }
+
 GaitSignal::GaitSignal(GaitSignal &from) :
 
     desired_com_pose_world(from.desired_com_pose_world),
@@ -37,74 +52,47 @@ GaitSignal::GaitSignal(GaitSignal &from) :
 	// desired_base_wrench(from.desired_base_wrench)
 { }
 
+// GaitSignal::GaitSignal(const std::shared_ptr<robotlib::RobotBase> &pRobot, GaitSignalMsg msg) :
+//     desired_com_pose_world(Eigen::Vector3d(msg.com_pos().data()), Eigen::Quaterniond(msg.com_ori().data())),
+//     desired_com_velocity_world(Eigen::Vector3d(msg.com_lin_vel().data()), Eigen::Vector3d(msg.com_ang_vel().data())),
+//     desired_com_acceleration_world(Eigen::Vector3d(msg.com_lin_acc().data()), Eigen::Vector3d(msg.com_ang_acc().data())),
 
-GaitSignal::GaitSignal(const std::shared_ptr<robotlib::RobotBase> &pRobot) :
+//     // desired_base_pose_world(msg.desired_base_pose_world()),
+//     // desired_base_velocity_world(msg.desired_base_velocity_world()),
+//     // desired_base_acceleration_world(msg.desired_base_acceleration_world()),
 
-    desired_com_pose_world(),
-    desired_com_velocity_world(),
-    desired_com_acceleration_world(),
+// 	desired_joint_position(pRobot->makeJointState()),
+//     desired_joint_velocity(pRobot->makeJointState()),
+//     desired_joint_acceleration(pRobot->makeJointState()),
+//     desired_joint_effort(pRobot->makeJointState()),
 
-    // desired_base_pose_world(),
-    // desired_base_velocity_world(),
-    // desired_base_acceleration_world(),
+// 	stance_legs(pRobot->makeLegDataMap<bool>(false))
 
-	desired_joint_position(pRobot->makeJointState()),
-    desired_joint_velocity(pRobot->makeJointState()),
-    desired_joint_acceleration(pRobot->makeJointState()),
-    desired_joint_effort(pRobot->makeJointState()),
-	stance_legs(pRobot->makeLegDataMap<bool>(false))
+// 	// desired_base_wrench(msg.desired_base_wrench())
+// {
+//     int i = 0;
+//     for(auto &leg : this->desired_joint_position)
+//     {
+//         for(auto &joint : *leg.data_)
+//         {
+//             this->desired_joint_position[joint.key_] = msg.joint_pos()[i];
+//             this->desired_joint_velocity[joint.key_] = msg.joint_vel()[i];
+//             this->desired_joint_acceleration[joint.key_] = msg.joint_acc()[i];
+//             this->desired_joint_effort[joint.key_] = msg.joint_eff()[i];
 
-	// desired_base_wrench()
-{ }
+//             i++;
+//         }
+//     }
 
-// =============================================================================
-// RTPS Util
-// =============================================================================
-// -----------------------------------------------------------------------------
-// Converting Constructor
-// -----------------------------------------------------------------------------
-// TODO ("stance feet")
-GaitSignal::GaitSignal(const std::shared_ptr<robotlib::RobotBase> &pRobot, GaitSignalMsg msg) :
-    desired_com_pose_world(Eigen::Vector3d(msg.com_pos().data()), Eigen::Quaterniond(msg.com_ori().data())),
-    desired_com_velocity_world(Eigen::Vector3d(msg.com_lin_vel().data()), Eigen::Vector3d(msg.com_ang_vel().data())),
-    desired_com_acceleration_world(Eigen::Vector3d(msg.com_lin_acc().data()), Eigen::Vector3d(msg.com_ang_acc().data())),
-
-    // desired_base_pose_world(msg.desired_base_pose_world()),
-    // desired_base_velocity_world(msg.desired_base_velocity_world()),
-    // desired_base_acceleration_world(msg.desired_base_acceleration_world()),
-
-	desired_joint_position(pRobot->makeJointState()),
-    desired_joint_velocity(pRobot->makeJointState()),
-    desired_joint_acceleration(pRobot->makeJointState()),
-    desired_joint_effort(pRobot->makeJointState()),
-
-	stance_legs(pRobot->makeLegDataMap<bool>(false))
-
-	// desired_base_wrench(msg.desired_base_wrench())
-{
-    int i = 0;
-    for(auto &leg : this->desired_joint_position)
-    {
-        for(auto &joint : *leg.data_)
-        {
-            this->desired_joint_position[joint.key_] = msg.joint_pos()[i];
-            this->desired_joint_velocity[joint.key_] = msg.joint_vel()[i];
-            this->desired_joint_acceleration[joint.key_] = msg.joint_acc()[i];
-            this->desired_joint_effort[joint.key_] = msg.joint_eff()[i];
-
-            i++;
-        }
-    }
-
-    i = 0;
-    for(auto &leg_pair : this->stance_legs)
-	{
-    	*leg_pair.data_ = msg.stance_feet()[i];
-        i++;
-    }
+//     i = 0;
+//     for(auto &leg_pair : this->stance_legs)
+// 	{
+//     	*leg_pair.data_ = msg.stance_feet()[i];
+//         i++;
+//     }
 	
     
-}
+// }
 
 // -----------------------------------------------------------------------------
 // Type Casting
@@ -154,7 +142,7 @@ GaitSignal::operator GaitSignalMsg() const
     return msg;
 }
 
-GaitSignal &GaitSignal::operator= (GaitSignalMsg &msg)
+GaitSignal& GaitSignal::operator= (GaitSignalMsg &msg)
 {
     desired_com_pose_world.set(Eigen::Vector3d(msg.com_pos().data()), Eigen::Quaterniond(msg.com_ori().data())),
     desired_com_velocity_world.setLinear(Eigen::Vector3d(msg.com_lin_vel().data()));

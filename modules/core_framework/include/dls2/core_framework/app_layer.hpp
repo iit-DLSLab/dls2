@@ -124,9 +124,6 @@ namespace dls
 		///
 		CommandManager command_manager;
 
-        /// DDS communication link
-        ///
-		dls::DDSParticipant *ddslink;
 
 		/// Console/Log output
         ///
@@ -136,6 +133,10 @@ namespace dls
 		/// The ID of this layer
 		///
 		const std::string ID;
+
+		/// DDS communication link
+        ///
+		dls::DDSParticipant ddsLink;
 
 		// BEGIN critical section
 			mutable std::mutex status_mutex;

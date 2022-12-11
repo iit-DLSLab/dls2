@@ -13,29 +13,31 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#include "dls2/controller/controller.hpp"
+#ifndef WRAPPER_TPP
+#define WRAPPER_TPP
+
+#include "dls2/msg_wrappers/wrapper.hpp"
 
 using namespace dls;
 
-Controller::Controller
-(
-	const std::string &ID_,
-	const std::shared_ptr<robotlib::RobotBase> &robot_,
-	const period_t &period_,
-	const ControlSignal::SignalReconstructionMethod &reconst_meth_
-)
-	: PeriodicAppLayerComponent(ID_, period_)
-	, signal_reconstruction_method(reconst_meth_)
-	, pRobot(robot_)
-	, ddsLink("Controller::" + this->getID(), dls::domains::signals)
+template <typename MsgType>
+Wrapper<MsgType>::Wrapper()
 { }
 
-dls::DDSParticipant* Controller::getParticipant()
+template <typename MsgType>
+Wrapper<MsgType>::~Wrapper()
+{}
+
+template <typename MsgType>
+void* Wrapper<MsgType>::getMsg()
 {
-	return &(this->ddsLink);
+    return &(this->message);
 }
 
-const robotlib::RobotBase* Controller::getRobot()
+template <typename MsgType>
+void Wrapper<MsgType>::loadMsg(void* tuple)
 {
-	return this->pRobot.get();
+    this->message = *((MsgType*) tuple);
 }
+		
+#endif /* end of include guard: WRAPPER_TPP */

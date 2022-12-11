@@ -20,12 +20,16 @@
 
 using namespace dls;
 
-AppData::AppData() 
+AppData::AppData(const std::string& ID_) 
     : proc(nullptr)
-    , dds_reader(nullptr)
-    , ID("")
+    , ID(ID_)
 { }
 
 AppData::~AppData(){}
+
+std::string AppData::getID()
+{
+    return this->ID;
+}
 
 #endif /* end of include guard: APP_DATA_CPP*/
