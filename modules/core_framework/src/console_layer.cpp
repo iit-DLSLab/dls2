@@ -106,19 +106,6 @@ ConsoleLayer::ConsoleLayer(std::string ID)
 		true
 	);
 
-	command_manager.addCommand<>
-	(
-		"shutdown",
-		"Shutdown the framework",
-		std::function<bool()>([&]()->bool
-		{
-			this->shutdownAll();
-            return true;
-		}),
-		{{0,0}},
-		true
-	);
-
     command_manager.addCommand<>
 	(
 		"cleanZombies",
@@ -271,11 +258,6 @@ ConsoleLayer::Status ConsoleLayer::shutdown()
 {
 	this->should_quit = true;
 	return getStatus();
-}
-
-void ConsoleLayer::shutdownAll()
-{
-	command_manager.callCommand("shutdown", {}, "");
 }
 
 // =============================================================================

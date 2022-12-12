@@ -16,9 +16,6 @@
 #ifndef COMMAND_MANAGER_HPP
 #define COMMAND_MANAGER_HPP
 
-// =============================================================================
-// Includes
-// =============================================================================
 #include "dls2/util/messaging/dds_writer.hpp"
 #include "dls2/command/command_base.hpp"
 #include "dls2/topics/topics.hpp"
@@ -31,125 +28,121 @@
 
 namespace dls
 {
-
-// =============================================================================
-// Command Manager Class
-// =============================================================================
-/// A class that manages commands
-///
-/// This class updates its internal representations as commands advertise
-/// themselves and remove themselves from the framework
-class CommandManager
-{
-public:
-	/// Constructor
+	/// A class that manages commands
 	///
-	CommandManager(std::string owner_);
+	/// This class updates its internal representations as commands advertise
+	/// themselves and remove themselves from the framework
+	class CommandManager
+	{
+	public:
+		/// Constructor
+		///
+		CommandManager(std::string owner_);
 
-	/// Destructor
-	///
-	~CommandManager();
+		/// Destructor
+		///
+		~CommandManager();
 
-	/// Find commands by the owner
-	///
-	std::multimap<std::string, std::string> findByOwner(std::string owner);
+		/// Find commands by the owner
+		///
+		std::multimap<std::string, std::string> findByOwner(std::string owner);
 
-	/// Find commands by the name
-	///
-	std::multimap<std::string, std::string> findByName(std::string name);
+		/// Find commands by the name
+		///
+		std::multimap<std::string, std::string> findByName(std::string name);
 
-	/// Find command by the pair {owner, name}
-	///
-	std::multimap<std::string, std::string> find(std::string owner, std::string name);
+		/// Find command by the pair {owner, name}
+		///
+		std::multimap<std::string, std::string> find(std::string owner, std::string name);
 
-	/// Get list of all enabled commands in distrubuted framework
-	///
-	std::multimap<std::string, std::string> getCommandsList();
+		/// Get list of all enabled commands in distrubuted framework
+		///
+		std::multimap<std::string, std::string> getCommandsList();
 
-	/// Get a list of the unique owners of the commands
-	///
-	std::set<std::string> getOwnersList();
+		/// Get a list of the unique owners of the commands
+		///
+		std::set<std::string> getOwnersList();
 
-	/// Adds a command to the CommandManager
-	///
-	/// @param name command name as seen by the rest of the framework
-	/// @param doc some documentation for the command
-	/// @param f the function encapsulated by the command
-	/// @param level execution level of the command
-	/// @param enabled set command enabled state
-	template <typename... arg_ts>
-	void addCommand
-	(
-		std::string name,
-		std::string doc,
-		const std::function<bool(arg_ts...)> &f,
-		dls::CommandBase::LevelType level = {},
-		bool enabled = false
-	);
+		/// Adds a command to the CommandManager
+		///
+		/// @param name command name as seen by the rest of the framework
+		/// @param doc some documentation for the command
+		/// @param f the function encapsulated by the command
+		/// @param level execution level of the command
+		/// @param enabled set command enabled state
+		template <typename... arg_ts>
+		void addCommand
+		(
+			std::string name,
+			std::string doc,
+			const std::function<bool(arg_ts...)> &f,
+			dls::CommandBase::LevelType level = {},
+			bool enabled = false
+		);
 
-	/// Removes a command from the manager
-	///
-	void removeCommand(CommandBase);
+		/// Removes a command from the manager
+		///
+		void removeCommand(CommandBase);
 
-	/// Call a local or remote command from the framework
-	///
-	int callCommand(std::string name, std::vector<std::string> args, std::string owner = "");
+		/// Call a local or remote command from the framework
+		///
+		int callCommand(std::string name, std::vector<std::string> args, std::string owner = "");
 
-	/// Get name of the onner layer of the Command Manager
-	///
-	std::string getOwner();
+		/// Get name of the onner layer of the Command Manager
+		///
+		std::string getOwner();
 
-	/// Change current command running level
-	/// 
-	void changeLevel(uint level);
+		/// Change current command running level
+		/// 
+		void changeLevel(uint level);
 
-	/// Get current command running level
-	///
-	uint getCurrentLevel();
+		/// Get current command running level
+		///
+		uint getCurrentLevel();
 
-    /// Disable local command
-    ///
-    void disableCommand(std::string);
+		/// Disable local command
+		///
+		void disableCommand(std::string);
 
-    /// Enable local command
-    ///
-    void enableCommand(std::string);
+		/// Enable local command
+		///
+		void enableCommand(std::string);
 
 
-private:
+	private:
 
-	/// Storage space for the commands
-	///
-	std::map<std::string, CommandBase*> commands;
+		/// Storage space for the commands
+		///
+		std::map<std::string, CommandBase*> commands;
 
-	/// Owner layer of the commands
-	///
-	std::string owner;
+		/// Owner layer of the commands
+		///
+		std::string owner;
 
-	/// fastdds remote commands monitor
-	///
-	dls::DDSWriter* commands_monitor;	
+		/// fastdds remote commands monitor
+		///
+		dls::DDSWriter commands_monitor;	
 
-	/// Current command running level
-	///
-	uint level;
+		/// Current command running level
+		///
+		uint level;
 
-	void levelWatcher();
+		void levelWatcher();
 
-	void verifyLevel();
+		void verifyLevel();
 
-	std::mutex levelMutex;
-    std::condition_variable levelCondVar;
+		std::mutex levelMutex;
+		std::condition_variable levelCondVar;
 
-	std::thread levelThread;
+		std::thread levelThread;
 
-	/// Sends message over the framework distributed system
-	///
-	void sendMessage(std::pair<std::string, std::string> cmdData, std::vector<std::string> args);
+		/// Sends message over the framework distributed system
+		///
+		void sendMessage(std::pair<std::string, std::string> cmdData, std::vector<std::string> args);
 
-	std::atomic<bool> should_exit;
+		std::atomic<bool> should_exit;
 
-};
+	};
 
 } // end namespace dls
 

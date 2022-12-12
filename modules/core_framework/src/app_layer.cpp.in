@@ -36,7 +36,7 @@ AppLayer::AppLayer(const std::string &ID_)
 {
 	command_manager.addCommand<>
 	(
-		"exit",
+		"shutdown",
 		"Shutdown the " + ID + " layer",
         std::function<bool()>([&]()->bool
         {

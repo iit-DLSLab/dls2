@@ -105,7 +105,7 @@ public:
 
 	/// Deactivates the current motion generator
 	///
-	void deactivateMotionGenerator();
+	bool deactivateMotionGenerator(const std::string&);
 
 	/// Returns the last published desired torques
 	///
@@ -133,20 +133,9 @@ private:
 		std::mutex controllers_mutex;
 	// END critical section
 
-
 	// BEGIN critical section
-		struct MotionGeneratorData
-		{
-			MotionGeneratorData() 
-				: ID()
-				, proc(nullptr)
-			{ }
-			std::string ID;
-			boost::process::child *proc;
-		};
-
-		MotionGeneratorData motionData;
-		std::mutex motionMutex;
+		std::map<std::string, std::shared_ptr<AppData>> motion_generators;
+		std::mutex motion_mutex;
 	// END critical section
 	
 	dls::DDSParticipant ddsLink;
@@ -169,6 +158,8 @@ private:
 	// END critical section
 
 	bool deactivateController(std::shared_ptr<ControllerData> pData);
+
+	bool deactivateMotionGenerator(std::shared_ptr<AppData> pData);
 
 	// Real-time thread that gather all the control sinals and sends to robot
 	pthread_t controlSignalGatherThread;

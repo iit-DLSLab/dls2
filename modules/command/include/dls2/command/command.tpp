@@ -13,27 +13,21 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef COMMAND_TPP_OVALZHX0
-#define COMMAND_TPP_OVALZHX0
+#ifndef COMMAND_TPP
+#define COMMAND_TPP
 
-// =============================================================================
-// Includes
-// =============================================================================
 #include "dls2/command/command.hpp"
 #include "dls2/topics/topics.hpp"
 #include "dls2/util/messaging/dds_reader.hpp"
 
-#include <iostream>
-#include <thread>
-#include <chrono>
-#include <tuple>
-#include <type_traits>
+// #include <iostream>
+// #include <thread>
+// #include <chrono>
+// #include <tuple>
+// #include <type_traits>
 
 namespace dls
 {
-	// =============================================================================
-	// Constructors
-	// =============================================================================
 	template <typename...arg_ts>
 	Command<arg_ts...>::Command
 	(
@@ -54,15 +48,14 @@ namespace dls
 		),
 		f(f_),
 		ddslink(nullptr)
-	{
-	}
+	{ }
 
 	template <typename... arg_ts>
 	Command<arg_ts...>::~Command(){}
 
-
 	template <typename... arg_ts>
-	void Command<arg_ts...>::setEnabled(){
+	void Command<arg_ts...>::setEnabled()
+	{
 		if(this->isEnabled())
 			return;
 
@@ -71,7 +64,8 @@ namespace dls
 	}
 
 	template <typename... arg_ts>
-	void Command<arg_ts...>::setDisabled(){
+	void Command<arg_ts...>::setDisabled()
+	{
 		if(this->isEnabled())
 			return;
 
@@ -80,7 +74,8 @@ namespace dls
 	}
 
 	template <typename... arg_ts>
-	void Command<arg_ts...>::activate(){
+	void Command<arg_ts...>::activate()
+	{
 		if(!this->isEnabled() || this->isActive())
 			return;
 
@@ -89,8 +84,8 @@ namespace dls
 	}
 
 	template <typename... arg_ts>
-	void Command<arg_ts...>::deactivate(){
-
+	void Command<arg_ts...>::deactivate()
+	{
 		if(!this->isEnabled() || !this->isActive() || (this->ddslink == nullptr)) 
 			return;
 
@@ -100,7 +95,8 @@ namespace dls
 	}
 
 	template <typename... arg_ts>
-	bool Command<arg_ts...>::call(std::vector<std::string> args){
+	bool Command<arg_ts...>::call(std::vector<std::string> args)
+	{
 		// ensure args are correct size
 
 		if (args.size() != this->getNumArgs()){
@@ -118,8 +114,8 @@ namespace dls
 	}
 
 	template <typename... arg_ts>
-	void Command<arg_ts...>::registerCommand(){
-
+	void Command<arg_ts...>::registerCommand()
+	{
 		if (ddslink != nullptr)
 			return;
 				
@@ -131,18 +127,18 @@ namespace dls
 			{
 				[&](void *tuple)
 				{
-					CommandCallMsg msg = *((CommandCallMsg *)tuple);
+					CommandCallMsg* msg = (CommandCallMsg *)tuple;
 
-					if (msg.owner() != this->getOwner() || msg.command_name() != this->getName())
+					if ((msg->owner() != "" && msg->owner() != this->getOwner()) || msg->command_name() != this->getName())
 						return;
 
 					std::vector<std::string> result;
 
 					//parse args
 					size_t pos = 0;
-					while ((pos = msg.args().find(",")) != std::string::npos) {
-						result.push_back( msg.args().substr(0, pos) );
-						msg.args().erase(0, pos + 1);
+					while ((pos = msg->args().find(",")) != std::string::npos) {
+						result.push_back( msg->args().substr(0, pos) );
+						msg->args().erase(0, pos + 1);
 					}			
 
 					this->call(result);
@@ -158,13 +154,16 @@ namespace dls
 	template<class T> T transform_args(std::string const &s);
 
 	template <typename... Args, std::size_t... Is>
-	auto create_tuple_impl(std::index_sequence<Is...>, const std::vector<std::string>& arguments) {
+	auto create_tuple_impl(std::index_sequence<Is...>, const std::vector<std::string>& arguments)
+	{
 		return std::make_tuple(transform_args<Args>(arguments[Is])...);
 	}
 
 	template <typename... Args>
-	auto create_tuple(const std::vector<std::string>& args) {
+	auto create_tuple(const std::vector<std::string>& args)
+	{
 		return create_tuple_impl<Args...>(std::index_sequence_for<Args...>{}, args);
 	}
 } // end namespace dls
-#endif /* end of include guard: COMMAND_TPP_OVALZHX0 */
+
+#endif /* end of include guard: COMMAND_TPP */

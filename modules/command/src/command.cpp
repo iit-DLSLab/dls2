@@ -13,9 +13,9 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-// =============================================================================
-// Includes
-// =============================================================================
+#ifndef COMMAND_CPP
+#define COMMAND_CPP
+
 #include "dls2/command/command.hpp"
 #include "dls2/command/command_manager.hpp"
 
@@ -36,5 +36,6 @@ namespace dls
     {
         return manager->getCurrentLevel();
     }
-
 } // end namespace dls
+
+#endif /* end of include guard: COMMAND_CPP */

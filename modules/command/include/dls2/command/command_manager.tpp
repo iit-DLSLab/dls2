@@ -16,17 +16,11 @@
 #ifndef COMMAND_MANAGER_TPP
 #define COMMAND_MANAGER_TPP
 
-// =============================================================================
-// Includes
-// =============================================================================
 #include "dls2/command/command_manager.hpp"
 #include "dls2/command/command.hpp"
 
 namespace dls
 {
-	// =============================================================================
-	// Command Manager Implementation
-	// =============================================================================
 	template <typename... arg_ts>
 	void CommandManager::addCommand
 	(
@@ -55,4 +49,5 @@ namespace dls
 	}
 
 } // end namespace dls
-#endif /* end of include guard: COMMAND_TPP_MANAGER */
+
+#endif /* end of include guard: COMMAND_MANAGER_TPP */

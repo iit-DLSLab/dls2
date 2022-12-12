@@ -132,11 +132,8 @@ bool HardwareLayer::deactivateHardware(std::shared_ptr<AppData> pData)
 {
 	std::lock_guard<std::mutex> lock(this->hardwares_mutex);
 
-    //shutdown controller over the dds comunication layer
-	CommandSendMsg msg;
-	msg.name(pData->getID());
-	msg.command("shutdown");
-	this->ddsMonitor->sendMessage((void*) &msg);
+    //shutdown hardware over the dds comunication layer
+	command_manager.callCommand("shutdown", {}, pData->getID());
 
     //wait a little for hardware to exit
 	std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(200));
@@ -172,6 +169,11 @@ bool HardwareLayer::deactivateHardware(const std::string &ID)
 
 HardwareLayer::Status HardwareLayer::shutdown()
 {
+	for(auto &pair : this->hardwares)
+	{
+		this->deactivateHardware(pair.first);
+	}
+
 	this->should_quit = true;
 
 	setStatus(Status::STOP);

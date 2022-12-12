@@ -45,17 +45,7 @@ SimLayer::SimLayer(std::string ID)
 		"Terminates a instance of a simulator",
 		std::function<bool(std::string)>([&](std::string name_)->bool
         {
-            if(this->components.count(name_)){
-                this->components[name_]->stop();
-                this->removeComponent(name_);
-                if(!this->components.size())
-                    return true;
-            }
-            else
-            {
-                std::cout << "There is no instance of the simulator with " << name_ << " name running" << std::endl;
-            }
-            return false;
+            return removeSimulator(name_);
 		}),
 		{{1,0}},
 		true
@@ -101,8 +91,28 @@ AppLayer::Status SimLayer::run()
 
 AppLayer::Status SimLayer::shutdown()
 {
+	for(auto &elem : this->components)
+	{
+		removeSimulator(elem.first);
+	}
+	
 	this->should_quit = true;
 	return getStatus();
+}
+
+bool SimLayer::removeSimulator(std::string name_)
+{
+	if(this->components.count(name_)){
+        this->components[name_]->stop();
+        this->removeComponent(name_);
+        if(!this->components.size())
+            return true;
+    }
+    else
+    {
+        std::cout << "There is no instance of the simulator with " << name_ << " name running" << std::endl;
+    }
+    return false;
 }
 
 #endif // SIM_LAYER_CPP

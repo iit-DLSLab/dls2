@@ -73,8 +73,6 @@ namespace dls
 		/// future
 		std::string build_prompt();
 
-		void shutdownAll();
-
 		/// Handler to the shutdown SIGINT (ctrl+c) signal
 		/// 
 		static void handle_signals(int);

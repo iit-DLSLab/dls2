@@ -150,10 +150,7 @@ bool ServiceLayer::removeService(const std::string& ID)
 	auto pData = res->second;
 
     //shutdown service over the dds comunication layer
-	CommandSendMsg msg;
-	msg.name(pData->getID());
-	msg.command("shutdown");
-	this->ddsMonitor->sendMessage((void*) &msg);
+	command_manager.callCommand("shutdown", {}, pData->getID());
 
     //wait a little for service to exit
 	std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(200));
@@ -175,6 +172,11 @@ bool ServiceLayer::removeService(const std::string& ID)
 
 ServiceLayer::Status ServiceLayer::shutdown()
 {
+	for(auto &pair : this->services)
+	{
+		this->removeService(pair.first);
+	}
+
 	this->should_quit = true;
 
 	setStatus(Status::STOP);

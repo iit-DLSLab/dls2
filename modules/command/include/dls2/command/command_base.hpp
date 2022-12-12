@@ -13,17 +13,11 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef COMMAND_BASE_HPP_BH05RHMM
-#define COMMAND_BASE_HPP_BH05RHMM
+#ifndef COMMAND_BASE_HPP
+#define COMMAND_BASE_HPP
 
-// =============================================================================
-// Includes
-// =============================================================================
 #include "dls2/topics/topics.hpp"
 
-// =============================================================================
-// Class Interface
-// =============================================================================
 namespace dls
 {
 	//foward declaration of CommandManager class
@@ -112,11 +106,11 @@ namespace dls
 
 		/// Activate the command
 		///
-		virtual void activate();
+		virtual void activate() = 0;
 
 		/// Deactivate the command
 		///
-		virtual void deactivate();
+		virtual void deactivate() = 0;
 
 		/// Retrieve the current active state of the command
 		///
@@ -168,8 +162,6 @@ namespace dls
 
 	};
 
-
-
-
 } // end namespace dls
-#endif /* end of include guard: COMMAND_BASE_HPP_BH05RHMM */
+
+#endif /* end of include guard: COMMAND_BASE_HPP */

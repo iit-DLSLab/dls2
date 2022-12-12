@@ -66,9 +66,7 @@ EstimationLayer::EstimationLayer(std::string ID) :
 }
 
 EstimationLayer::~EstimationLayer()
-{
-	std::lock_guard<std::mutex> lock(this->estimators_mutex);
-}
+{ }
 
 // =============================================================================
 // Interface Override Functions
@@ -85,6 +83,11 @@ AppLayer::Status EstimationLayer::run()
 
 AppLayer::Status EstimationLayer::shutdown()
 {
+	for(auto &pair : this->estimators)
+	{
+		this->removeEstimator(pair.first);
+	}
+
 	this->should_quit = true;
 	return getStatus();
 }
@@ -159,11 +162,7 @@ bool EstimationLayer::removeEstimator(const Estimator::ID_t& ID)
 
 	auto pData = res->second;
 
-    //shutdown controller over the dds comunication layer
-	CommandSendMsg msg;
-	msg.name(pData->getID());
-	msg.command("shutdown");
-	this->ddsMonitor->sendMessage((void*) &msg);
+	command_manager.callCommand("shutdown", {}, pData->getID());
 
     //wait a little for hardware to exit
 	std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(200));

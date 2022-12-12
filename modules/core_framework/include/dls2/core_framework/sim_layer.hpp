@@ -42,6 +42,10 @@ namespace dls
 		/// Print the state of this layer
 		///
 		std::string where() override{return "Base layer for simulators";}
+
+	private:
+
+		bool removeSimulator(std::string);
 	};
 } // end namespace dls
 
