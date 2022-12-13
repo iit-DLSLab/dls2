@@ -31,10 +31,6 @@ namespace dls
 {
 class MotionGenerator : public PeriodicAppLayerComponent
 {
-	protected:
-		// TODO this is repeated in Controller. Refactor this into one location
-		typedef std::chrono::duration<double, std::ratio<1, 1'000'000>> period_t;
-
 	public:
 		typedef MotionGenerator *create_t(std::string);
 		typedef void destroy_t(MotionGenerator*);
@@ -47,7 +43,7 @@ class MotionGenerator : public PeriodicAppLayerComponent
 			const period_t& 								///< The period of the motion generator
 		);
 
-		virtual ~MotionGenerator() = default;
+		virtual ~MotionGenerator();
 
 		dls::DDSParticipant* getParticipant();
 		const robotlib::RobotBase* getRobot(); 
@@ -62,7 +58,7 @@ class MotionGenerator : public PeriodicAppLayerComponent
 		/// Pointer to the robot model
 		const std::shared_ptr<const robotlib::RobotBase> pRobot;	
 
-		dls::DDSParticipant ddsLink;		
+		dls::DDSParticipant* ddsLink;		
 	};
 } // end namespace dls
 

@@ -17,8 +17,7 @@
 
 using namespace dls;
 
-Controller::Controller
-(
+Controller::Controller(
 	const std::string &ID_,
 	const std::shared_ptr<robotlib::RobotBase> &robot_,
 	const period_t &period_,
@@ -27,12 +26,18 @@ Controller::Controller
 	: PeriodicAppLayerComponent(ID_, period_)
 	, signal_reconstruction_method(reconst_meth_)
 	, pRobot(robot_)
-	, ddsLink("Controller::" + this->getID(), dls::domains::signals)
-{ }
+{ 
+	ddsLink = new dls::DDSParticipant("Controller::" + this->getID(), dls::domains::signals);
+}
+
+Controller::~Controller()
+{
+	delete ddsLink;
+}
 
 dls::DDSParticipant* Controller::getParticipant()
 {
-	return &(this->ddsLink);
+	return this->ddsLink;
 }
 
 const robotlib::RobotBase* Controller::getRobot()

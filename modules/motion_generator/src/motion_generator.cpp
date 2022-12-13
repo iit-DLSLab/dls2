@@ -26,12 +26,18 @@ MotionGenerator::MotionGenerator
 ) 
 	: PeriodicAppLayerComponent(ID, period_)
 	, pRobot(pRobot_)
-	, ddsLink("MotionGen::" + this->getID(), dls::domains::signals)
-{}
+{
+	ddsLink = new dls::DDSParticipant("MotionGen::" + this->getID(), dls::domains::signals);
+}
+
+MotionGenerator::~MotionGenerator()
+{
+	delete ddsLink;
+}
 
 dls::DDSParticipant* MotionGenerator::getParticipant()
 {
-	return &(this->ddsLink);
+	return this->ddsLink;
 }
 
 const robotlib::RobotBase* MotionGenerator::getRobot()

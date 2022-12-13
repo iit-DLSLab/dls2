@@ -26,18 +26,13 @@
 
 #include "robotlib/robot_factory.hpp"
 
-// =============================================================================
-// Class Interface
-// =============================================================================
-// TODO a lot of functions have been removed from Controller. Many of them need to be put into Dog
 namespace dls
 {
     class Controller : public PeriodicAppLayerComponent
     {
-        friend class ControlLayer;
+        // friend class ControlLayer;
 
     public:
-
         // Plugin typedefs
         typedef Controller* create_t(std::string);
         typedef void destroy_t(Controller*);
@@ -50,7 +45,7 @@ namespace dls
             const ControlSignal::SignalReconstructionMethod&    ///< Signal reconstruction used by this controller
         );
 
-        virtual ~Controller() = default;
+        virtual ~Controller();
 
         dls::DDSParticipant* getParticipant();
 		const robotlib::RobotBase* getRobot();
@@ -67,7 +62,7 @@ namespace dls
         /// Pointer to the robot model
         const std::shared_ptr<const robotlib::RobotBase> pRobot;
 
-        dls::DDSParticipant ddsLink;
+        dls::DDSParticipant* ddsLink;
 };
 } // end namespace dls
 

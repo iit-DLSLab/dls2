@@ -42,6 +42,19 @@ AppLayerComponent::AppLayerComponent(const std::string &ID_)
 		{},
 	 	true
 	);
+
+	command_manager.addCommand<>
+	(
+		"exit",
+		"Exits the " + ID + " component",
+        std::function<bool()>([&]()->bool
+        {
+			this->stop();
+            return true;
+		}),
+		{},
+		true
+	);
 }
 
 // =============================================================================

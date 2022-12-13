@@ -42,7 +42,7 @@ namespace dls
 
 		dls::FoxServer foxserver;
 
-		DDSParticipant ddslink;
+		DDSParticipant ddsLogLink;
 
 	};
 } // end namespace dls

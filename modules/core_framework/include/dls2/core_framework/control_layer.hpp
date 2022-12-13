@@ -83,29 +83,29 @@ public:
 	Status shutdown() override;
 
 	// ============================== Controllers ==============================
-	/// Activates a controller
+	/// Loads a controller
 	///
 	/// @ret true if the controller exists, false otherwise.
-	/// See also ControlLayer::deactivateController
-	bool activateController(const std::string&);
+	/// See also ControlLayer::unloadController
+	bool loadController(const std::string&);
 
-	/// Deactivates a controller
+	/// Unloads a controller
 	///
 	/// @ret true if the controller exists, false otherwise
-	/// See also ControlLayer::activateController
-	bool deactivateController(const std::string&);
+	/// See also ControlLayer::loadController
+	bool unloadController(const std::string&);
 
 	// ============================ Motion Generators ============================
-	/// Activates a motion generator
+	/// Loads a motion generator
 	///
 	/// This will stop any other running motion generators
 	/// @ret true if the controller exists, false otherwise. See also
-	/// ControlLayer::deactivateMotionGenerators
-	bool activateMotionGenerator(const std::string&);
+	/// ControlLayer::unloadMotionGenerators
+	bool loadMotionGenerator(const std::string&);
 
-	/// Deactivates the current motion generator
+	/// Unloads the current motion generator
 	///
-	bool deactivateMotionGenerator(const std::string&);
+	bool unloadMotionGenerator(const std::string&);
 
 	/// Returns the last published desired torques
 	///
@@ -138,7 +138,7 @@ private:
 		std::mutex motion_mutex;
 	// END critical section
 	
-	dls::DDSParticipant ddsLink;
+	dls::DDSParticipant* ddsLink;
 	
 	/// Default controller spline-in
 	///
@@ -157,9 +157,9 @@ private:
 		Eigen::VectorXd last_published_desired_torques;
 	// END critical section
 
-	bool deactivateController(std::shared_ptr<ControllerData> pData);
+	bool unloadController(std::shared_ptr<ControllerData> pData);
 
-	bool deactivateMotionGenerator(std::shared_ptr<AppData> pData);
+	bool unloadMotionGenerator(std::shared_ptr<AppData> pData);
 
 	// Real-time thread that gather all the control sinals and sends to robot
 	pthread_t controlSignalGatherThread;

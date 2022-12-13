@@ -24,13 +24,13 @@ using namespace dls;
 
 LogLayer::LogLayer(std::string ID)
 	: AppLayer(ID)
-	, ddslink(
+	, ddsLogLink(
 		"log_layer",
 		dls::domains::logging
 	)
 {
 	//debug_log
-	ddslink.addReader(
+	ddsLogLink.addReader(
 		"debug_log",
 		dls::topics::debug_log_stream,
 		std::function<void(void *)>
@@ -44,7 +44,7 @@ LogLayer::LogLayer(std::string ID)
 	);
 
 	//info_log
-	ddslink.addReader(
+	ddsLogLink.addReader(
 		"info_log",
 		dls::topics::info_log_stream,
 		std::function<void(void *)>
@@ -58,7 +58,7 @@ LogLayer::LogLayer(std::string ID)
 	);
 
 	//warn_log
-	ddslink.addReader(
+	ddsLogLink.addReader(
 		"warn_log",
 		dls::topics::warn_log_stream,
 		std::function<void(void *)>
@@ -72,7 +72,7 @@ LogLayer::LogLayer(std::string ID)
 	);
 
 	//error_log
-	ddslink.addReader(
+	ddsLogLink.addReader(
 		"error_log",
 		dls::topics::error_log_stream,
 		std::function<void(void *)>
@@ -86,7 +86,7 @@ LogLayer::LogLayer(std::string ID)
 	);
 
 	//fatal_log
-	ddslink.addReader(
+	ddsLogLink.addReader(
 		"fatal_log",
 		dls::topics::fatal_log_stream,
 		std::function<void(void *)>
@@ -101,7 +101,7 @@ LogLayer::LogLayer(std::string ID)
 
 
 	//hyq_raw_log
-	ddslink.addReader(
+	ddsLogLink.addReader(
 		"hyq_raw_log",
 		dls::topics::low_level_estimation::hyqreal_raw,
 		std::function<void(void *)>
@@ -222,6 +222,13 @@ LogLayer::Status LogLayer::run()
 
 LogLayer::Status LogLayer::shutdown()
 {
+	int i = 0;
+	while(this->getParticipant()->getParticipants().size() > 1 && i < 10)
+	{
+		i++;
+		std::this_thread::sleep_for(std::chrono::milliseconds(500));
+	}
+
 	this->should_quit = true;
 	return getStatus();
 }

@@ -111,6 +111,8 @@ namespace dls
 		/// @return the ID of the layer
 		std::string getID();
 
+		dls::DDSParticipant* getParticipant();
+
 		// BEGIN critical section
 			mutable std::mutex components_mutex;
 			std::map<std::string, pComponent_t> components;
