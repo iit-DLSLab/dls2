@@ -38,19 +38,6 @@ BlindState& BlindState::operator= (BlindStateMsg msg)
 			i++;
 		}
 	}
-			
-	this->orientation.w() = msg.orientation()[0];
-	this->orientation.x() = msg.orientation()[1];
-	this->orientation.y() = msg.orientation()[2];
-	this->orientation.z() = msg.orientation()[3];
-
-	this->angular_velocity[0] = msg.ang_vel()[0];
-	this->angular_velocity[1] = msg.ang_vel()[1];
-	this->angular_velocity[2] = msg.ang_vel()[2];
-
-	this->angular_acceleration[0] = msg.ang_vel()[0];
-	this->angular_acceleration[1] = msg.ang_vel()[1];
-	this->angular_acceleration[2] = msg.ang_vel()[2];
 
 	// this->base_pose_world = msg.base_pose_world();
 	// this->base_velocity_world = msg.base_velocity_world();
@@ -78,20 +65,6 @@ BlindState::operator BlindStateMsg() const
 			i++;
 		}
 	}
-	
-	msg.orientation()[0] = this->orientation.w();
-	msg.orientation()[1] = this->orientation.x();
-	msg.orientation()[2] = this->orientation.y();
-	msg.orientation()[3] = this->orientation.z();
-
-	msg.ang_vel()[0] = this->angular_velocity[0];
-	msg.ang_vel()[1] = this->angular_velocity[1];
-	msg.ang_vel()[2] = this->angular_velocity[2];
-
-	msg.ang_acc()[0] = this->angular_acceleration[0]; 
-	msg.ang_acc()[1] = this->angular_acceleration[1];
-	msg.ang_acc()[2] = this->angular_acceleration[2];
-
 	// msg.base_pose_world(this->base_pose_world);
 	// msg.base_velocity_world(this->base_velocity_world);
 	// msg.base_acceleration_world(this->base_acceleration_world);

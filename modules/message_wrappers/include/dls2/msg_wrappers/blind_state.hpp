@@ -38,18 +38,6 @@ namespace dls
 		robotlib::JointState joint_acceleration;
 		robotlib::JointState joint_effort;
 
-		/// Angular velocity
-		///
-		Eigen::Vector3d angular_velocity;
-
-		/// Angular acceleration
-		///
-		Eigen::Vector3d angular_acceleration;
-
-		/// Orientation
-		///
-		Eigen::Quaternion<double> orientation;
-
 		Pose base_pose_world;
 		Screw base_velocity_world;
 		Screw base_acceleration_world;
