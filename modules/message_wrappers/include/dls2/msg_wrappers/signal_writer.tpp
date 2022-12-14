@@ -24,7 +24,7 @@ template <typename SignalType>
 SignalWriter<SignalType>::SignalWriter(const std::string& ID_, dls::DDSParticipant* participant, const dls::topicType& topic_, const std::shared_ptr<robotlib::RobotBase>& pRobot)
 	: Signal<SignalType>(ID_, participant, pRobot)
 {
-	this->ddsLink->addWriter(ID_, topic_);
+	participant->addWriter(ID_, topic_);
 }
 	
 template <typename SignalType>

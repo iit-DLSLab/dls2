@@ -31,7 +31,7 @@ Wrapper<MsgType>::~Wrapper()
 template <typename MsgType>
 void* Wrapper<MsgType>::getMsg()
 {
-    this->message = *this;
+    this->message = (MsgType) *this;
     return &(this->message);
 }
 

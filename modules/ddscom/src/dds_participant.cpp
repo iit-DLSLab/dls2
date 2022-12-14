@@ -101,6 +101,9 @@ namespace dls
 		std::string writerName_,
 		dls::topicType topicData_)
 	{
+		if(this->writers.find(writerName_) != this->writers.end())
+			throw std::runtime_error("THE WRITER " + writerName_ + " ALREADY EXISTS, YOU ARE TRYING TO CREATE TWICE");
+
 		auto topic = this->addTopic(topicData_);
 
 		if (topic == nullptr)
@@ -124,6 +127,9 @@ namespace dls
 		dls::topicType topicData_,
 		std::function<void(void *)> callback_)
 	{
+		if(this->readers.find(readerName_) != this->readers.end())
+			throw std::runtime_error("THE READER" + readerName_ + " ALREADY EXISTS, YOU ARE TRYING TO CREATE TWICE");
+
 		auto topic = this->addTopic(topicData_);
 
 		// error could not add topic
