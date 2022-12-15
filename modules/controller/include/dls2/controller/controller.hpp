@@ -62,7 +62,7 @@ namespace dls
         /// Pointer to the robot model
         const std::shared_ptr<const robotlib::RobotBase> pRobot;
 
-        dls::DDSParticipant* ddsLink;
+        dls::DDSParticipant ddsLink;
 };
 } // end namespace dls
 

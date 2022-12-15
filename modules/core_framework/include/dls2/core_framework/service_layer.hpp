@@ -45,7 +45,7 @@ namespace dls
 		    std::mutex services_mutex;
 	    // END critical section
 
-		dls::DDSWriter *ddsMonitor;	
+		dls::DDSWriter ddsMonitor;	
 	};
 } // end namespace dls
 

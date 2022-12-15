@@ -246,12 +246,14 @@ AppLayerComponent::Status PeriodicAppLayerComponent::stop()
 	this->should_run = false;
 
 	// unpause the component if it has been paused
-	{
-		std::lock_guard<std::mutex> lock(this->pause_mutex);
-		this->is_paused = false;
-		this->pause_request.notify_all();
-	}
+	// {
+	// 	std::lock_guard<std::mutex> lock(this->pause_mutex);
+	// 	this->is_paused = false;
+	// 	this->pause_request.notify_all();
+	// }
 
-	this->setStatus(Status::STOPPED);
+	scout << "STOPPING PERIODIC COMPONENT " << this->getID() << std::endl;
+
+	// this->setStatus(Status::STOPPED);
 	return this->getStatus();
 }

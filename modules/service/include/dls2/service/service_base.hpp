@@ -46,6 +46,8 @@ namespace dls
 		(
 			std::string& ID
 		);
+
+		virtual ~ServiceBase() = default;
 		
 		AppLayerComponent::Status run() override;
 

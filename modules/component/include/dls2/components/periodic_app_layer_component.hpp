@@ -40,6 +40,8 @@ namespace dls
 		/// @parma period the period length of each run epoch
 		PeriodicAppLayerComponent(const std::string &ID,const period_t &period);
 
+		virtual ~PeriodicAppLayerComponent() = default;
+
 		/// Runs the component
 		///
 		/// Automatically calls the abstract run function at the correct frequency

@@ -57,6 +57,8 @@ namespace dls
 			const dls::topicType& topic_out,
 			std::function<void(void *, void *)> callback
 		);
+
+		virtual ~Service() = default;
 		
 	private:
 		

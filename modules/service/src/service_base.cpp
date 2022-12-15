@@ -32,7 +32,7 @@ namespace dls
 	{
 		while(!this->should_quit)
 		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(500));
+			std::this_thread::sleep_for(std::chrono::milliseconds(200));
 		}
 
 		return this->getStatus();

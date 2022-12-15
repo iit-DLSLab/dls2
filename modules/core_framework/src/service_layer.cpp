@@ -24,13 +24,12 @@ using namespace dls;
 
 ServiceLayer::ServiceLayer(std::string ID_) 
 	: AppLayer(ID_)
-{
-    ddsMonitor = new dls::DDSWriter(
+	, ddsMonitor(
 		"ServiceLayer::monitor",
 		dls::domains::services,
 		dls::topics::command_send
-	);
-
+	)
+{
     command_manager.addCommand<std::string>
 	(
 		"loadService",
@@ -150,12 +149,13 @@ bool ServiceLayer::removeService(const std::string& ID)
 	auto pData = res->second;
 
     //shutdown service over the dds comunication layer
-	command_manager.callCommand("shutdown", {}, pData->getID());
+	scout << "### SENDING EXIT TO: " << pData->getID() << " ###" << std::endl;
+	command_manager.callCommand("exit", {}, pData->getID());
 
     //wait a little for service to exit
-	std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(200));
+	std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
 
-	if(pData->proc->running()){
+	if(pData->proc != nullptr && pData->proc->running()){
 		scout << "### SERVICE IS STILL RUNNING WAITING A LITTLE TO GET PROPPER EXIT ###" << std::endl;
 		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
 		if(pData->proc->running()){
@@ -179,7 +179,7 @@ ServiceLayer::Status ServiceLayer::shutdown()
 
 	this->should_quit = true;
 
-	setStatus(Status::STOP);
+	// setStatus(Status::STOP);
 
 	return getStatus();
 }
