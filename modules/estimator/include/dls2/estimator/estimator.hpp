@@ -38,7 +38,9 @@ namespace dls
 		typedef Estimator *create_t(std::string);
 		typedef void destroy_t(Estimator*);
 
-	protected:
+		dls::DDSParticipant* getParticipant();
+
+	private:
 		dls::DDSParticipant signalLink;		
 	};
 } // end namespace dls

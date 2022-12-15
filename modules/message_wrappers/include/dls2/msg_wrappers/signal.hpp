@@ -27,21 +27,18 @@ namespace dls
 	class Signal
 	{
 	public:
-		Signal(const std::string&, dls::DDSParticipant*, const std::shared_ptr<robotlib::RobotBase>&);
+		Signal(dls::DDSParticipant*, SignalType*);
 		Signal() = delete;
 		~Signal();
-		
-		SignalType* operator->();
 
-		std::string getID();
+		SignalType* operator->();
 		SignalType getData();
 	
 	protected:
-		std::string ID;
 		dls::DDSParticipant* ddsLink;
 
 		// BEGIN critical section
-			SignalType signal;
+			SignalType* signal;
 			mutable std::mutex signal_mutex;
 		// END crital section
 

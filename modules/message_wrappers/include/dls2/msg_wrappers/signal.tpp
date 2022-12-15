@@ -21,10 +21,9 @@
 using namespace dls;
 
 template <typename SignalType>
-Signal<SignalType>::Signal(const std::string& ID_, dls::DDSParticipant* participant, const std::shared_ptr<robotlib::RobotBase>& pRobot)
-	: ID(ID_)
-	, ddsLink(participant)
-	, signal(pRobot)
+Signal<SignalType>::Signal(dls::DDSParticipant* participant_, SignalType* signal_)
+	: ddsLink(participant_)
+	, signal(signal_)
 { }
 	
 template <typename SignalType>
@@ -35,19 +34,13 @@ template <typename SignalType>
 SignalType* Signal<SignalType>::operator->() 
 {
 	std::lock_guard<std::mutex> lock(this->signal_mutex);
-    return &this->signal;
-}
-
-template <typename SignalType>
-std::string Signal<SignalType>::getID()
-{
-	return this->ID_;
+    return this->signal;
 }
 
 template <typename SignalType>
 SignalType Signal<SignalType>::getData()
 {
-	return this->signal;
+	return *this->signal;
 }
 
 #endif /* end of include guard: SIGNAL_TPP */

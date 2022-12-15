@@ -25,3 +25,8 @@ Estimator::Estimator(const ID_t &ID_, const period_t &period_)
 		"Estimator::" + ID_,
 		dls::domains::signals)
 { }
+
+dls::DDSParticipant* Estimator::getParticipant()
+{
+	return &this->signalLink;
+}

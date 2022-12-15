@@ -21,17 +21,17 @@
 using namespace dls;
 
 template <typename SignalType>
-SignalReader<SignalType>::SignalReader(const std::string& ID_, dls::DDSParticipant* participant, const dls::topicType& topic_, const std::shared_ptr<robotlib::RobotBase>& pRobot)
-	: Signal<SignalType>(ID_, participant, pRobot)
+SignalReader<SignalType>::SignalReader(dls::DDSParticipant* participant_, const dls::topicType& topic_, SignalType* signal_)
+	: Signal<SignalType>(participant_, signal_)
 {
-	this->ddsLink->addReader(ID_,
+	this->ddsLink->addReader(topic_.first,
 		topic_,
 		std::function<void(void*)>
 		{
 			[&](void* tuple)
 			{
 				std::lock_guard<std::mutex> lock(this->signal_mutex);		
-				this->signal.loadMsg(tuple);
+				this->signal->loadMsg(tuple);
 			}
 		}
 	);

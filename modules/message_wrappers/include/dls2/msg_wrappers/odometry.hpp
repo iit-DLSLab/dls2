@@ -13,35 +13,34 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef CONTROLLER_DATA_CPP
-#define CONTROLLER_DATA_CPP
+#ifndef ODOMETRY_HPP
+#define ODOMETRY_HPP
 
-#include "dls2/controller/controller_data.hpp"
+#include "dls2/msg_wrappers/wrapper.hpp"
+#include "dls_messages/dds/t265_odometryPubSubTypes.h"
 
-using namespace dls;
+#include "robotlib/robot_base.hpp"
 
-ControllerData::ControllerData
-(
-	const std::string& ID,
-	dls::DDSParticipant* participant,
-	const dls::topicType& topic,
-	const std::shared_ptr<robotlib::RobotBase> &pRobot,
-	std::shared_ptr<math::SplineBase<double>> spline_in_,
-	std::shared_ptr<math::SplineBase<double>> spline_out_,
-	const std::chrono::duration<double> &duration_in,
-	const std::chrono::duration<double> &duration_out
-) 
-	: AppData(ID)
-	, premultiplier(0)
-	, spline_in_duration(duration_in)
-	, spline_out_duration(duration_out)
-	, pSpline_in(spline_in_)
-	, pSpline_out(spline_out_)
-	, control_signal(
-		participant, 
-		topic,
-		new ControlSignal(pRobot)
-	)
-{ }
+/// A struct representing the control signal that is output by a Controller
+namespace dls
+{
+    class Odometry : public Wrapper<T265OdometryMsg>
+    {
+    public:
+        Odometry();
+        Odometry(Odometry&);
+        virtual ~Odometry() = default;
 
-#endif /* end of include guard: CONTROL_SIGNAL_HPP_QCFRROHM */
+        operator T265OdometryMsg() const override;
+        Odometry& operator=(T265OdometryMsg&) override;
+        Odometry& operator=(const Odometry&);
+
+        Eigen::Vector3d position;
+        Eigen::Quaterniond orientation;
+
+        Eigen::Vector3d linear_velocity;
+        Eigen::Vector3d angular_velocity;
+        double timestamp;
+    };
+} // end namespace dls
+#endif /* end of include guard: ODOMETRY_HPP */

@@ -21,10 +21,10 @@
 using namespace dls;
 
 template <typename SignalType>
-SignalWriter<SignalType>::SignalWriter(const std::string& ID_, dls::DDSParticipant* participant, const dls::topicType& topic_, const std::shared_ptr<robotlib::RobotBase>& pRobot)
-	: Signal<SignalType>(ID_, participant, pRobot)
+SignalWriter<SignalType>::SignalWriter(dls::DDSParticipant* participant_, const dls::topicType& topic_, SignalType* signal_)
+	: Signal<SignalType>(participant_, signal_)
 {
-	participant->addWriter(ID_, topic_);
+	participant_->addWriter("signal_writer", topic_);
 }
 	
 template <typename SignalType>
@@ -35,7 +35,7 @@ template <typename SignalType>
 void SignalWriter<SignalType>::publish()
 {
 	std::lock_guard<std::mutex> lock(this->signal_mutex);
-	this->ddsLink->sendMessage(this->ID, this->signal.getMsg());
+	this->ddsLink->sendMessage("signal_writer", this->signal->getMsg());
 }
 
 #endif /* end of include guard: SIGNAL_WRITER_TPP */

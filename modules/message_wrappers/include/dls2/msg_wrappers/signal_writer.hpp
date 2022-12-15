@@ -24,7 +24,7 @@ namespace dls
 	class SignalWriter : public Signal<SignalType>
 	{
 	public:
-		SignalWriter(const std::string&, dls::DDSParticipant*, const dls::topicType&, const std::shared_ptr<robotlib::RobotBase>&);
+		SignalWriter(dls::DDSParticipant*, const dls::topicType&, SignalType*);
 		~SignalWriter();
 		
 		void publish();

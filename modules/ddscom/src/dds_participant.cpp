@@ -191,7 +191,10 @@ namespace dls
 	{
 		auto writer = this->writers.find(writerName);
 		if(writer == this->writers.end())
+		{
+			std::cout << "WRITER " << writerName << " DOES NOT EXISTS" << std::endl;
 			return false;
+		}
 		
 		return writer->second->write(msg);
 	}
