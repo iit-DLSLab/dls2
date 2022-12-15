@@ -35,6 +35,7 @@
 #include <dls_messages/dds/command_sendPubSubTypes.h>
 #include <dls_messages/dds/aliengo_rawPubSubTypes.h>
 #include <dls_messages/dds/legs_posePubSubTypes.h>
+#include <dls_messages/dds/t265_odometryPubSubTypes.h>
 #include <dls_messages/dds/param_serverPubSubTypes.h>
 #include "dls_messages/dds/doublePubSubTypes.h"
 
@@ -74,6 +75,7 @@ namespace dls
 		namespace high_level_estimation
 		{
 			extern dls::topicType legs_pose;
+			extern dls::topicType t265_odometry;
 		}
 
 		namespace low_level_estimation
