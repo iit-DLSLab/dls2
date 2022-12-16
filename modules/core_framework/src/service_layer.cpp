@@ -18,7 +18,6 @@
 #include "dls2/class_loader.hpp"
 #include "dls2/core_framework/options.hpp"
 
-
 using namespace dls;
 
 
@@ -133,7 +132,7 @@ bool ServiceLayer::loadService(const std::string& lib_name)
 	return true;
 }
 
-bool ServiceLayer::removeService(const std::string& ID)
+bool ServiceLayer::removeService(const std::string ID)
 {
 	// std::lock_guard<std::mutex> lock(this->services_mutex);
 
@@ -149,13 +148,12 @@ bool ServiceLayer::removeService(const std::string& ID)
 	auto pData = res->second;
 
     //shutdown service over the dds comunication layer
-	scout << "### SENDING EXIT TO: " << pData->getID() << " ###" << std::endl;
-	command_manager.callCommand("exit", {}, pData->getID());
+	command_manager.callCommand("exit", {}, ID);
 
-    //wait a little for service to exit
+    // wait a little for service to exit
 	std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
 
-	if(pData->proc != nullptr && pData->proc->running()){
+	if(pData->proc->running()){
 		scout << "### SERVICE IS STILL RUNNING WAITING A LITTLE TO GET PROPPER EXIT ###" << std::endl;
 		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
 		if(pData->proc->running()){
@@ -165,22 +163,22 @@ bool ServiceLayer::removeService(const std::string& ID)
 	}
 
 	pData->proc = nullptr;
-	this->services.erase(pData->getID());
-
+	this->services.erase(ID);
     return true;
 }
 
 ServiceLayer::Status ServiceLayer::shutdown()
 {
-	for(auto &pair : this->services)
-	{
-		this->removeService(pair.first);
-	}
+	std::vector<std::string> keys;
+	for(auto pair : this->services)
+		keys.push_back(pair.first);
+	
+	for(auto key : keys)
+		this->removeService(key);
 
 	this->should_quit = true;
 
-	// setStatus(Status::STOP);
-
+	setStatus(Status::STOP);
 	return getStatus();
 }
 

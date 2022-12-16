@@ -69,6 +69,9 @@ SimLayer::SimLayer(std::string ID)
 	);
 }
 
+SimLayer::~SimLayer()
+{ }
+
 // =============================================================================
 // Interface Override
 // =============================================================================
@@ -80,23 +83,22 @@ AppLayer::Status SimLayer::run()
 		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 	}
 
-    for(auto elem : this->components)
-    {
-        elem.second->stop();
-    }
-	
 	return getStatus();
 }
 
 
 AppLayer::Status SimLayer::shutdown()
 {
-	for(auto &elem : this->components)
-	{
-		removeSimulator(elem.first);
-	}
-	
+	std::vector<std::string> keys;
+	for(auto pair : this->components)
+		keys.push_back(pair.first);
+
+	for(auto key : keys)
+		this->removeSimulator(key);
+
 	this->should_quit = true;
+
+	setStatus(Status::STOP);
 	return getStatus();
 }
 

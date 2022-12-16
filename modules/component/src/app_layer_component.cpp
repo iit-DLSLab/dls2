@@ -57,6 +57,9 @@ AppLayerComponent::AppLayerComponent(const std::string &ID_)
 	);
 }
 
+AppLayerComponent::~AppLayerComponent()
+{ }
+
 // =============================================================================
 // Class Implementation
 // =============================================================================

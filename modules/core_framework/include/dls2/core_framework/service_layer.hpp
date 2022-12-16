@@ -35,7 +35,7 @@ namespace dls
 		std::string where() override {return "not yet implemented"; }
 
 		bool loadService(const std::string&);
-		bool removeService(const std::string&);
+		bool removeService(const std::string);
 
 		int numOfServices();
 
