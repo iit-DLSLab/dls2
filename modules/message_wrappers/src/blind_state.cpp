@@ -28,13 +28,29 @@ BlindState::BlindState(const std::shared_ptr<robotlib::RobotBase>& pRobot)
 	, joint_effort(pRobot->makeJointState())
 {}
 
-BlindState::BlindState(BlindState& from)
-	: joint_position(from.joint_position)
-	, joint_velocity(from.joint_velocity)
-	, joint_acceleration(from.joint_acceleration)
-	, joint_effort(from.joint_effort)
-	, time(from.time)
-{}
+BlindState& BlindState::operator= (BlindStateMsg msg)
+{
+	int i = 0;
+	for(auto &leg : this->joint_position)
+	{
+		for(auto &joint : *leg.data_)
+		{
+			this->joint_position[joint.key_] = msg.joint_pos()[i];
+			this->joint_velocity[joint.key_] = msg.joint_vel()[i];
+			this->joint_acceleration[joint.key_] = msg.joint_acc()[i];
+			this->joint_effort[joint.key_] = msg.joint_eff()[i]; 
+			i++;
+		}
+	}
+
+	// this->base_pose_world = msg.base_pose_world();
+	// this->base_velocity_world = msg.base_velocity_world();
+	// this->base_acceleration_world = msg.base_acceleration_world();
+
+	this->time = msg.time();
+
+	return *this;
+}
 
 BlindState::~BlindState()
 {}
@@ -55,20 +71,6 @@ BlindState::operator BlindStateMsg() const
 			i++;
 		}
 	}
-	
-	// msg.orientation()[0] = this->orientation.w();
-	// msg.orientation()[1] = this->orientation.x();
-	// msg.orientation()[2] = this->orientation.y();
-	// msg.orientation()[3] = this->orientation.z();
-
-	// msg.ang_vel()[0] = this->angular_velocity[0];
-	// msg.ang_vel()[1] = this->angular_velocity[1];
-	// msg.ang_vel()[2] = this->angular_velocity[2];
-
-	// msg.ang_acc()[0] = this->angular_acceleration[0]; 
-	// msg.ang_acc()[1] = this->angular_acceleration[1];
-	// msg.ang_acc()[2] = this->angular_acceleration[2];
-
 	// msg.base_pose_world(this->base_pose_world);
 	// msg.base_velocity_world(this->base_velocity_world);
 	// msg.base_acceleration_world(this->base_acceleration_world);
