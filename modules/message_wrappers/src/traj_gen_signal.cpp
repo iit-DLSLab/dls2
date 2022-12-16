@@ -37,44 +37,18 @@ TrajGenSignal::operator TrajGenMsg() const
 {
     TrajGenMsg msg;
 
-    // const double *p = this->desired_com_pose_world.toQuaternion().coeffs().data();
-	// std::copy(p, p + 4, msg.com_ori().begin());
+    int i = 0;
+    for(auto &foot_pair : this->foot)
+	{
+	 	msg.foot_pos()[i*3] = this->foot[foot_pair.key_].pos[0];
+        msg.foot_pos()[i*3 + 1] = this->foot[foot_pair.key_].pos[1];
+        msg.foot_pos()[i*3 + 2] = this->foot[foot_pair.key_].pos[2];
+
+        msg.stance()[i] = this->stance[foot_pair.key_];
+        i++;
+        std::cout << "##### Key: " << foot_pair.key_ << std::endl;
+    }
     
-    // for(int i = 0; i < 3; i++)
-    // {
-    //     msg.com_pos()[i] = this->desired_com_pose_world.toPosition()[i];
-    //     msg.com_lin_vel()[i] = this->desired_com_velocity_world.getLinear()[i];
-    //     msg.com_ang_vel()[i] = this->desired_com_velocity_world.getAngular()[i];
-    //     msg.com_lin_acc()[i] = this->desired_com_acceleration_world.getLinear()[i];
-    //     msg.com_ang_acc()[i] = this->desired_com_acceleration_world.getAngular()[i];
-    // }
-    
-    // // msg.desired_base_pose_world(this->desired_base_pose_world);
-    // // msg.desired_base_velocity_world(this->desired_base_velocity_world);
-    // // msg.desired_base_acceleration_world(this->desired_base_acceleration_world);
-
-    // int i = 0;
-	// for(auto &leg_pair : this->desired_joint_position)
-	// {
-	// 	for(auto &joint : *leg_pair.data_)
-    //     {
-    //         msg.joint_pos()[i] = this->desired_joint_position[joint.key_];
-    //         msg.joint_vel()[i] = this->desired_joint_velocity[joint.key_];
-    //         msg.joint_acc()[i] = this->desired_joint_acceleration[joint.key_];
-    //         msg.joint_eff()[i] = this->desired_joint_effort[joint.key_];
-    //         i++;
-    //     }
-    // }
-
-    // i = 0;
-    // for(auto &leg_pair : this->stance_legs)
-	// {
-    // 	msg.stance_feet()[i] = *leg_pair.data_;
-    //     i++;
-    // }
-
-	// // msg.desired_base_wrench(this->desired_base_wrench);
-
     return msg;
 }
 

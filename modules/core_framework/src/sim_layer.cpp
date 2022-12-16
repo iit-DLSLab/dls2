@@ -89,12 +89,8 @@ AppLayer::Status SimLayer::run()
 
 AppLayer::Status SimLayer::shutdown()
 {
-	std::vector<std::string> keys;
 	for(auto pair : this->components)
-		keys.push_back(pair.first);
-
-	for(auto key : keys)
-		this->removeSimulator(key);
+		pair.second->stop();
 
 	this->should_quit = true;
 
