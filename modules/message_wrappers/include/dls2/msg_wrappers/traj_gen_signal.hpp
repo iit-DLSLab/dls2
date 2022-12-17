@@ -35,7 +35,11 @@ namespace dls
 		TrajGenSignal &operator= (TrajGenMsg&) override;
 
     // private:
-        robotlib::LegDataMap<FootState> foot;
+        robotlib::LegDataMap<Eigen::Vector3d> foot_pos;
+        robotlib::LegDataMap<Eigen::Vector3d> foot_pos_HF;
+        robotlib::LegDataMap<Eigen::Vector3d> foot_vel;
+        robotlib::LegDataMap<Eigen::Vector3d> foot_vel_HF;
+        robotlib::LegDataMap<Eigen::Vector3d> foot_acc;
         robotlib::LegDataMap<Eigen::Vector3d> nom_touch_down;
         robotlib::LegDataMap<Eigen::Vector3d> touch_down;
         robotlib::LegDataMap<double> swing_period;

@@ -97,7 +97,25 @@ namespace dls
 		eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->delete_participant(this->participant);
 	}
 
-	eprosima::fastdds::dds::DataWriter *DDSParticipant::addWriter(
+	eprosima::fastdds::dds::DataWriter* DDSParticipant::getWriter(std::string name)
+	{
+		auto ret = this->writers.find(name);
+		if(ret != this->writers.end())
+			return ret->second;
+
+		return nullptr;
+	}
+
+	eprosima::fastdds::dds::DataReader* DDSParticipant::getReader(std::string name)
+	{
+		auto ret = this->readers.find(name);
+		if(ret != this->readers.end())
+			return ret->second;
+
+		return nullptr;
+	}
+
+	eprosima::fastdds::dds::DataWriter* DDSParticipant::addWriter(
 		std::string writerName_,
 		dls::topicType topicData_)
 	{

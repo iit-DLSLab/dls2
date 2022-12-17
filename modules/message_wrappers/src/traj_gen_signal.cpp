@@ -23,7 +23,11 @@
 using namespace dls;
 
 TrajGenSignal::TrajGenSignal(const std::shared_ptr<robotlib::RobotBase>& pRobot)
-    : foot(pRobot->makeLegDataMap<FootState>(FootState::Zero()))
+    : foot_pos(pRobot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
+    , foot_pos_HF(pRobot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
+    , foot_vel(pRobot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
+    , foot_vel_HF(pRobot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
+    , foot_acc(pRobot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
     , nom_touch_down(pRobot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
     , touch_down(pRobot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
     , swing_period(pRobot->makeLegDataMap<double>(0.0))
@@ -38,27 +42,27 @@ TrajGenSignal::operator TrajGenMsg() const
     TrajGenMsg msg;
 
     int i = 0;
-    for(auto &foot_pair : this->foot)
+    for(auto &foot_pair : this->foot_pos)
 	{
-	 	msg.foot_pos()[i*3] = this->foot[foot_pair.key_].pos[0];
-        msg.foot_pos()[i*3 + 1] = this->foot[foot_pair.key_].pos[1];
-        msg.foot_pos()[i*3 + 2] = this->foot[foot_pair.key_].pos[2];
+	 	msg.foot_pos()[i*3] = this->foot_pos[foot_pair.key_][0];
+        msg.foot_pos()[i*3 + 1] = this->foot_pos[foot_pair.key_][1];
+        msg.foot_pos()[i*3 + 2] = this->foot_pos[foot_pair.key_][2];
 
-        msg.foot_pos_HF()[i*3] = this->foot[foot_pair.key_].pos_HF[0];
-        msg.foot_pos_HF()[i*3 + 1] = this->foot[foot_pair.key_].pos_HF[1];
-        msg.foot_pos_HF()[i*3 + 2] = this->foot[foot_pair.key_].pos_HF[2];
+        msg.foot_pos_HF()[i*3] = this->foot_pos_HF[foot_pair.key_][0];
+        msg.foot_pos_HF()[i*3 + 1] = this->foot_pos_HF[foot_pair.key_][1];
+        msg.foot_pos_HF()[i*3 + 2] = this->foot_pos_HF[foot_pair.key_][2];
 
-        msg.foot_vel()[i*3] = this->foot[foot_pair.key_].vel[0];
-        msg.foot_vel()[i*3 + 1] = this->foot[foot_pair.key_].vel[1];
-        msg.foot_vel()[i*3 + 2] = this->foot[foot_pair.key_].vel[2];
+        msg.foot_vel()[i*3] = this->foot_vel[foot_pair.key_][0];
+        msg.foot_vel()[i*3 + 1] = this->foot_vel[foot_pair.key_][1];
+        msg.foot_vel()[i*3 + 2] = this->foot_vel[foot_pair.key_][2];
 
-        msg.foot_vel_HF()[i*3] = this->foot[foot_pair.key_].vel_HF[0];
-        msg.foot_vel_HF()[i*3 + 1] = this->foot[foot_pair.key_].vel_HF[1];
-        msg.foot_vel_HF()[i*3 + 2] = this->foot[foot_pair.key_].vel_HF[2];
+        msg.foot_vel_HF()[i*3] = this->foot_vel_HF[foot_pair.key_][0];
+        msg.foot_vel_HF()[i*3 + 1] = this->foot_vel_HF[foot_pair.key_][1];
+        msg.foot_vel_HF()[i*3 + 2] = this->foot_vel_HF[foot_pair.key_][2];
 
-        msg.foot_acc()[i*3] = this->foot[foot_pair.key_].acc[0];
-        msg.foot_acc()[i*3 + 1] = this->foot[foot_pair.key_].acc[1];
-        msg.foot_acc()[i*3 + 2] = this->foot[foot_pair.key_].acc[2];
+        msg.foot_acc()[i*3] = this->foot_acc[foot_pair.key_][0];
+        msg.foot_acc()[i*3 + 1] = this->foot_acc[foot_pair.key_][1];
+        msg.foot_acc()[i*3 + 2] = this->foot_acc[foot_pair.key_][2];
 
         msg.nom_touch_down()[i*3] = this->nom_touch_down[foot_pair.key_][0];
         msg.nom_touch_down()[i*3 + 1] = this->nom_touch_down[foot_pair.key_][1];
@@ -80,27 +84,27 @@ TrajGenSignal::operator TrajGenMsg() const
 TrajGenSignal &TrajGenSignal::operator= (TrajGenMsg &msg)
 {
     int i = 0;
-    for(auto &foot_pair : this->foot)
+    for(auto &foot_pair : this->foot_pos)
 	{
-	 	this->foot[foot_pair.key_].pos[0] = msg.foot_pos()[i*3];
-        this->foot[foot_pair.key_].pos[1] = msg.foot_pos()[i*3 + 1];
-        this->foot[foot_pair.key_].pos[2] = msg.foot_pos()[i*3 + 2];
+	 	this->foot_pos[foot_pair.key_][0] = msg.foot_pos()[i*3];
+        this->foot_pos[foot_pair.key_][1] = msg.foot_pos()[i*3 + 1];
+        this->foot_pos[foot_pair.key_][2] = msg.foot_pos()[i*3 + 2];
 
-        this->foot[foot_pair.key_].pos_HF[0] = msg.foot_pos_HF()[i*3];
-        this->foot[foot_pair.key_].pos_HF[1] = msg.foot_pos_HF()[i*3 + 1];
-        this->foot[foot_pair.key_].pos_HF[2] = msg.foot_pos_HF()[i*3 + 2];
+        this->foot_pos_HF[foot_pair.key_][0] = msg.foot_pos_HF()[i*3];
+        this->foot_pos_HF[foot_pair.key_][1] = msg.foot_pos_HF()[i*3 + 1];
+        this->foot_pos_HF[foot_pair.key_][2] = msg.foot_pos_HF()[i*3 + 2];
 
-        this->foot[foot_pair.key_].vel[0] = msg.foot_vel()[i*3];
-        this->foot[foot_pair.key_].vel[1] = msg.foot_vel()[i*3 + 1];
-        this->foot[foot_pair.key_].vel[2] = msg.foot_vel()[i*3 + 2];
+        this->foot_vel[foot_pair.key_][0] = msg.foot_vel()[i*3];
+        this->foot_vel[foot_pair.key_][1] = msg.foot_vel()[i*3 + 1];
+        this->foot_vel[foot_pair.key_][2] = msg.foot_vel()[i*3 + 2];
 
-        this->foot[foot_pair.key_].vel_HF[0] = msg.foot_vel_HF()[i*3];
-        this->foot[foot_pair.key_].vel_HF[1] = msg.foot_vel_HF()[i*3 + 1];
-        this->foot[foot_pair.key_].vel_HF[2] = msg.foot_vel_HF()[i*3 + 2];
+        this->foot_vel_HF[foot_pair.key_][0] = msg.foot_vel_HF()[i*3];
+        this->foot_vel_HF[foot_pair.key_][1] = msg.foot_vel_HF()[i*3 + 1];
+        this->foot_vel_HF[foot_pair.key_][2] = msg.foot_vel_HF()[i*3 + 2];
 
-        this->foot[foot_pair.key_].acc[0] = msg.foot_acc()[i*3];
-        this->foot[foot_pair.key_].acc[1] = msg.foot_acc()[i*3 + 1];
-        this->foot[foot_pair.key_].acc[2] = msg.foot_acc()[i*3 + 2];
+        this->foot_acc[foot_pair.key_][0] = msg.foot_acc()[i*3];
+        this->foot_acc[foot_pair.key_][1] = msg.foot_acc()[i*3 + 1];
+        this->foot_acc[foot_pair.key_][2] = msg.foot_acc()[i*3 + 2];
 
         this->nom_touch_down[foot_pair.key_][0] = msg.nom_touch_down()[i*3];
         this->nom_touch_down[foot_pair.key_][1] = msg.nom_touch_down()[i*3 + 1];

@@ -48,12 +48,15 @@ namespace dls
 		///
 		std::vector<std::string> getParticipants();
 
-		eprosima::fastdds::dds::DataWriter *addWriter(
+		eprosima::fastdds::dds::DataWriter* getWriter(std::string);
+		eprosima::fastdds::dds::DataReader* getReader(std::string);
+
+		eprosima::fastdds::dds::DataWriter* addWriter(
 			std::string    writerName,
 			dls::topicType topicData
 		);
 
-		eprosima::fastdds::dds::DataReader *addReader(
+		eprosima::fastdds::dds::DataReader* addReader(
 			std::string                 readerName,
 			dls::topicType				topicData,
 			std::function<void(void *)>	callback
