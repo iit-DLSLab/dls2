@@ -35,7 +35,7 @@ namespace dls
 
 		/// Default Destructor
 		///
-		~SimulatorBase() = default;
+		virtual ~SimulatorBase();
 
 		/// Print the state of this layer
 		///
@@ -52,10 +52,6 @@ namespace dls
         /// Emergency stop for this component
         ///
         Status eStop() override {return this->getStatus();};
-
-        // /// Normal stop for this component
-        // ///
-        // Status stop() override {return this->getStatus();};
 	};
 
 } // end namespace dls

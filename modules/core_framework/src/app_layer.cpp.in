@@ -175,7 +175,7 @@ bool AppLayer::loadComponentFromDisk(const std::string &name)
 		component = ClassLoader::loadClass<AppLayerComponent>
 		(
 			std::string("/usr/lib/dls2/lib") + name + ".so",
-			name
+			ID
 		);
 	}
 	catch (const std::exception &e)
@@ -188,7 +188,7 @@ bool AppLayer::loadComponentFromDisk(const std::string &name)
 			component = ClassLoader::loadClass<AppLayerComponent>
 			(
 				std::string("@DLS_INSTALL_COMPONENT_BASE_DIR@") + "/" + this->ID + "/" + name + ".so",
-				name
+				ID
 			);
 		}
 		catch (const std::exception &e)

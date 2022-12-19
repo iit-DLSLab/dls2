@@ -36,7 +36,7 @@ public:
 	/// @parm ID the name of this component
 	AppLayerComponent(const std::string &ID);
 
-	virtual ~AppLayerComponent() = default;
+	virtual ~AppLayerComponent();
 
 	/// Status of this component
 	///

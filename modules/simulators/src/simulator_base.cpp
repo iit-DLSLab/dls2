@@ -20,6 +20,7 @@ using namespace dls;
 
 SimulatorBase::SimulatorBase(std::string ID_) 
     : AppLayerComponent(ID_)
-{
+{ }
 
-}
+SimulatorBase::~SimulatorBase() 
+{ }

@@ -23,7 +23,11 @@
 using namespace dls;
 
 TrajGenSignal::TrajGenSignal(const std::shared_ptr<robotlib::RobotBase>& pRobot)
-    : foot(pRobot->makeLegDataMap<FootState>(FootState::Zero()))
+    : foot_pos(pRobot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
+    , foot_pos_HF(pRobot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
+    , foot_vel(pRobot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
+    , foot_vel_HF(pRobot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
+    , foot_acc(pRobot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
     , nom_touch_down(pRobot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
     , touch_down(pRobot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
     , swing_period(pRobot->makeLegDataMap<double>(0.0))
@@ -37,78 +41,84 @@ TrajGenSignal::operator TrajGenMsg() const
 {
     TrajGenMsg msg;
 
-    // const double *p = this->desired_com_pose_world.toQuaternion().coeffs().data();
-	// std::copy(p, p + 4, msg.com_ori().begin());
+    int i = 0;
+    for(auto &foot_pair : this->foot_pos)
+	{
+	 	msg.foot_pos()[i*3] = this->foot_pos[foot_pair.key_][0];
+        msg.foot_pos()[i*3 + 1] = this->foot_pos[foot_pair.key_][1];
+        msg.foot_pos()[i*3 + 2] = this->foot_pos[foot_pair.key_][2];
+
+        msg.foot_pos_HF()[i*3] = this->foot_pos_HF[foot_pair.key_][0];
+        msg.foot_pos_HF()[i*3 + 1] = this->foot_pos_HF[foot_pair.key_][1];
+        msg.foot_pos_HF()[i*3 + 2] = this->foot_pos_HF[foot_pair.key_][2];
+
+        msg.foot_vel()[i*3] = this->foot_vel[foot_pair.key_][0];
+        msg.foot_vel()[i*3 + 1] = this->foot_vel[foot_pair.key_][1];
+        msg.foot_vel()[i*3 + 2] = this->foot_vel[foot_pair.key_][2];
+
+        msg.foot_vel_HF()[i*3] = this->foot_vel_HF[foot_pair.key_][0];
+        msg.foot_vel_HF()[i*3 + 1] = this->foot_vel_HF[foot_pair.key_][1];
+        msg.foot_vel_HF()[i*3 + 2] = this->foot_vel_HF[foot_pair.key_][2];
+
+        msg.foot_acc()[i*3] = this->foot_acc[foot_pair.key_][0];
+        msg.foot_acc()[i*3 + 1] = this->foot_acc[foot_pair.key_][1];
+        msg.foot_acc()[i*3 + 2] = this->foot_acc[foot_pair.key_][2];
+
+        msg.nom_touch_down()[i*3] = this->nom_touch_down[foot_pair.key_][0];
+        msg.nom_touch_down()[i*3 + 1] = this->nom_touch_down[foot_pair.key_][1];
+        msg.nom_touch_down()[i*3 + 2] = this->nom_touch_down[foot_pair.key_][2];
+
+        msg.touch_down()[i*3] = this->touch_down[foot_pair.key_][0];
+        msg.touch_down()[i*3 + 1] = this->touch_down[foot_pair.key_][1];
+        msg.touch_down()[i*3 + 2] = this->touch_down[foot_pair.key_][2];
+
+        msg.swing_period()[i] = this->swing_period[foot_pair.key_];
+
+        msg.stance()[i] = this->stance[foot_pair.key_];
+        i++;
+    }
     
-    // for(int i = 0; i < 3; i++)
-    // {
-    //     msg.com_pos()[i] = this->desired_com_pose_world.toPosition()[i];
-    //     msg.com_lin_vel()[i] = this->desired_com_velocity_world.getLinear()[i];
-    //     msg.com_ang_vel()[i] = this->desired_com_velocity_world.getAngular()[i];
-    //     msg.com_lin_acc()[i] = this->desired_com_acceleration_world.getLinear()[i];
-    //     msg.com_ang_acc()[i] = this->desired_com_acceleration_world.getAngular()[i];
-    // }
-    
-    // // msg.desired_base_pose_world(this->desired_base_pose_world);
-    // // msg.desired_base_velocity_world(this->desired_base_velocity_world);
-    // // msg.desired_base_acceleration_world(this->desired_base_acceleration_world);
-
-    // int i = 0;
-	// for(auto &leg_pair : this->desired_joint_position)
-	// {
-	// 	for(auto &joint : *leg_pair.data_)
-    //     {
-    //         msg.joint_pos()[i] = this->desired_joint_position[joint.key_];
-    //         msg.joint_vel()[i] = this->desired_joint_velocity[joint.key_];
-    //         msg.joint_acc()[i] = this->desired_joint_acceleration[joint.key_];
-    //         msg.joint_eff()[i] = this->desired_joint_effort[joint.key_];
-    //         i++;
-    //     }
-    // }
-
-    // i = 0;
-    // for(auto &leg_pair : this->stance_legs)
-	// {
-    // 	msg.stance_feet()[i] = *leg_pair.data_;
-    //     i++;
-    // }
-
-	// // msg.desired_base_wrench(this->desired_base_wrench);
-
     return msg;
 }
 
 TrajGenSignal &TrajGenSignal::operator= (TrajGenMsg &msg)
 {
-    // desired_com_pose_world.set(Eigen::Vector3d(msg.com_pos().data()), Eigen::Quaterniond(msg.com_ori().data())),
-    // desired_com_velocity_world.setLinear(Eigen::Vector3d(msg.com_lin_vel().data()));
-    // desired_com_velocity_world.setAngular(Eigen::Vector3d(msg.com_ang_vel().data()));
-    // desired_com_acceleration_world.setLinear(Eigen::Vector3d(msg.com_lin_acc().data()));
-    // desired_com_acceleration_world.setAngular(Eigen::Vector3d(msg.com_ang_acc().data()));
+    int i = 0;
+    for(auto &foot_pair : this->foot_pos)
+	{
+	 	this->foot_pos[foot_pair.key_][0] = msg.foot_pos()[i*3];
+        this->foot_pos[foot_pair.key_][1] = msg.foot_pos()[i*3 + 1];
+        this->foot_pos[foot_pair.key_][2] = msg.foot_pos()[i*3 + 2];
 
-    // // desired_base_pose_world = msg.desired_base_pose_world();
-    // // desired_base_velocity_world = msg.desired_base_velocity_world();
-    // // desired_base_acceleration_world = msg.desired_base_acceleration_world();
+        this->foot_pos_HF[foot_pair.key_][0] = msg.foot_pos_HF()[i*3];
+        this->foot_pos_HF[foot_pair.key_][1] = msg.foot_pos_HF()[i*3 + 1];
+        this->foot_pos_HF[foot_pair.key_][2] = msg.foot_pos_HF()[i*3 + 2];
 
-    // int i = 0;
-    // for(auto &leg_pair : this->desired_joint_position)
-	// {
-	// 	for(auto &joint : *leg_pair.data_)
-    //     {
-    //         this->desired_joint_position[joint.key_] = msg.joint_pos()[i];
-    //         this->desired_joint_velocity[joint.key_] = msg.joint_vel()[i];
-    //         this->desired_joint_acceleration[joint.key_] = msg.joint_acc()[i];
-    //         this->desired_joint_effort[joint.key_] = msg.joint_eff()[i];
-    //         i++;
-    //     }
-    // }
+        this->foot_vel[foot_pair.key_][0] = msg.foot_vel()[i*3];
+        this->foot_vel[foot_pair.key_][1] = msg.foot_vel()[i*3 + 1];
+        this->foot_vel[foot_pair.key_][2] = msg.foot_vel()[i*3 + 2];
 
-    // i = 0;
-    // for(auto &leg_pair : this->stance_legs)
-	// {
-    // 	msg.stance_feet()[i] = *leg_pair.data_;
-    //     i++;
-    // }
+        this->foot_vel_HF[foot_pair.key_][0] = msg.foot_vel_HF()[i*3];
+        this->foot_vel_HF[foot_pair.key_][1] = msg.foot_vel_HF()[i*3 + 1];
+        this->foot_vel_HF[foot_pair.key_][2] = msg.foot_vel_HF()[i*3 + 2];
+
+        this->foot_acc[foot_pair.key_][0] = msg.foot_acc()[i*3];
+        this->foot_acc[foot_pair.key_][1] = msg.foot_acc()[i*3 + 1];
+        this->foot_acc[foot_pair.key_][2] = msg.foot_acc()[i*3 + 2];
+
+        this->nom_touch_down[foot_pair.key_][0] = msg.nom_touch_down()[i*3];
+        this->nom_touch_down[foot_pair.key_][1] = msg.nom_touch_down()[i*3 + 1];
+        this->nom_touch_down[foot_pair.key_][2] = msg.nom_touch_down()[i*3 + 2];
+
+        this->touch_down[foot_pair.key_][0] = msg.touch_down()[i*3];
+        this->touch_down[foot_pair.key_][1] = msg.touch_down()[i*3 + 1];
+        this->touch_down[foot_pair.key_][2] = msg.touch_down()[i*3 + 2];
+
+        this->swing_period[foot_pair.key_] = msg.swing_period()[i];
+
+        this->stance[foot_pair.key_] = msg.stance()[i];
+        i++;
+    }
 	
     return *this;
 }

@@ -88,7 +88,7 @@ int main(int argc, char **argv)
 {
     // give time to the logstrem connect to the logger layer
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    scout << "PROCESS LAUNCHER CALLED" << std::endl;
+    // scout << "PROCESS LAUNCHER CALLED" << std::endl;
     Args args = parse_args(argc, argv);
 
     // Load the component

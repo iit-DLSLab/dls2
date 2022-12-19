@@ -133,10 +133,10 @@ bool HardwareLayer::deactivateHardware(std::shared_ptr<AppData> pData)
 	std::lock_guard<std::mutex> lock(this->hardwares_mutex);
 
     //shutdown hardware over the dds comunication layer
-	command_manager.callCommand("shutdown", {}, pData->getID());
+	command_manager.callCommand("exit", {}, pData->getID());
 
     //wait a little for hardware to exit
-	std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(200));
+	std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
 
 	if(pData->proc->running()){
 		scout << "### HARDWARE IS STILL RUNNING WAITING A LITTLE TO GET PROPPER EXIT ###" << std::endl;
@@ -169,14 +169,15 @@ bool HardwareLayer::deactivateHardware(const std::string &ID)
 
 HardwareLayer::Status HardwareLayer::shutdown()
 {
-	for(auto &pair : this->hardwares)
-	{
-		this->deactivateHardware(pair.first);
-	}
+	std::vector<std::string> keys;
+	for(auto pair : this->hardwares)
+		keys.push_back(pair.first);
+	
+	for(auto key : keys)
+		this->deactivateHardware(key);
 
 	this->should_quit = true;
 
 	setStatus(Status::STOP);
-
 	return getStatus();
 }

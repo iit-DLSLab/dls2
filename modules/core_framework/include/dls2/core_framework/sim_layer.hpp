@@ -29,7 +29,7 @@ namespace dls
 
 		/// Default Destructor
 		///
-		~SimLayer() = default;
+		~SimLayer();
 
 		/// Run the layer
 		///

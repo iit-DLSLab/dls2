@@ -277,9 +277,8 @@ void forkLayer(const std::string &process_name, char **argv)
 		// 	app_panic_handler
 		// );
 		
-		layer_t *pLayer = new layer_t(process_name);
-		pLayer->run();
-		delete pLayer;
+		layer_t pLayer(process_name);
+		pLayer.run();
 		exit(EXIT_SUCCESS);
 	}
 	else

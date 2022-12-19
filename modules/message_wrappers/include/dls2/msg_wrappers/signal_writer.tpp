@@ -18,13 +18,21 @@
 
 #include "dls2/msg_wrappers/signal_writer.hpp"
 
+#include <experimental/random>
+
 using namespace dls;
 
 template <typename SignalType>
 SignalWriter<SignalType>::SignalWriter(dls::DDSParticipant* participant_, const dls::topicType& topic_, SignalType* signal_)
 	: Signal<SignalType>(participant_, signal_)
 {
-	participant_->addWriter("signal_writer", topic_);
+	int id = std::experimental::randint(100000, 999999);
+	while(participant_->getWriter(std::to_string(id)) != nullptr)
+		id = std::experimental::randint(100000, 999999);
+
+	this->ID = std::to_string(id);
+
+	participant_->addWriter(this->ID, topic_);
 }
 	
 template <typename SignalType>
@@ -35,7 +43,7 @@ template <typename SignalType>
 void SignalWriter<SignalType>::publish()
 {
 	std::lock_guard<std::mutex> lock(this->signal_mutex);
-	this->ddsLink->sendMessage("signal_writer", this->signal->getMsg());
+	this->ddsLink->sendMessage(this->ID, this->signal->getMsg());
 }
 
 #endif /* end of include guard: SIGNAL_WRITER_TPP */
