@@ -9,6 +9,8 @@ add_library(dls_message_wrappers
 		src/foot_state.cpp
 		src/traj_gen_signal.cpp
 		src/odometry.cpp
+		src/legs_pose.cpp
+		src/imu.cpp
 )
 
 set_property(TARGET dls_message_wrappers PROPERTY POSITION_INDEPENDENT_CODE ON)
