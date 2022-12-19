@@ -59,7 +59,7 @@ Imu::operator ImuMsg() const
 	{
 		msg.angular_velocity()[i] = this->angular_velocity[i];
 		msg.linear_acceleration()[i] = this->linear_acceleration[i];
-		for(int j=0; j++;j<3)
+		for(int j=0; j<3; j++)
 		{
 			msg.orientation_covariance()[i*3+j] = this->orientation_covariance(i,j);
 			msg.angular_velocity_covariance()[i*3+j] = this->angular_velocity_covariance(i,j);
@@ -84,7 +84,7 @@ Imu& Imu::operator= (ImuMsg& msg)
 	{
 		this->angular_velocity(i) = msg.angular_velocity()[i];
 		this->linear_acceleration(i) = msg.linear_acceleration()[i];
-		for(int j=0; j++;j<3)
+		for(int j=0; j<3; j++)
 		{
 			this->orientation_covariance(i,j) = msg.orientation_covariance()[i*3+j];
 			this->angular_velocity_covariance(i,j) = msg.angular_velocity_covariance()[i*3+j];
