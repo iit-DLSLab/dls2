@@ -35,6 +35,25 @@ namespace dls
         participantQos.wire_protocol().builtin.discovery_config.leaseDuration_announcementperiod = eprosima::fastrtps::Duration_t(1, 2);
 		participantQos.name(partName_);
 
+		participantQos.properties().properties().emplace_back("fastdds.statistics",
+            "HISTORY_LATENCY_TOPIC;" \
+            "NETWORK_LATENCY_TOPIC;" \
+            "PUBLICATION_THROUGHPUT_TOPIC;" \
+            "SUBSCRIPTION_THROUGHPUT_TOPIC;" \
+            "RTPS_SENT_TOPIC;" \
+            "RTPS_LOST_TOPIC;" \
+            "HEARTBEAT_COUNT_TOPIC;" \
+            "ACKNACK_COUNT_TOPIC;" \
+            "NACKFRAG_COUNT_TOPIC;" \
+            "GAP_COUNT_TOPIC;" \
+            "DATA_COUNT_TOPIC;" \
+            "RESENT_DATAS_TOPIC;" \
+            "SAMPLE_DATAS_TOPIC;" \
+            "PDP_PACKETS_TOPIC;" \
+            "EDP_PACKETS_TOPIC;" \
+            "DISCOVERY_TOPIC;" \
+            "PHYSICAL_DATA_TOPIC");
+
 		eprosima::fastdds::dds::StatusMask mask;
 
 		this->participant = eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->create_participant(
