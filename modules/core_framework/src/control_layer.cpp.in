@@ -89,7 +89,7 @@ ControlLayer::ControlLayer(std::string ID)
         {
 			return this->loadMotionGenerator(s);
 		}),
-		{{0,1},{2,3}},
+		{{0,1},{1,1},{2,3},{3,3}},
 		true
 	);
 	
@@ -100,6 +100,8 @@ ControlLayer::ControlLayer(std::string ID)
 		std::function<bool(std::string)>([&](std::string s)->bool
 		{
 			this->unloadMotionGenerator(s);
+			if(this->motion_generators.size() > 0)
+				return false;
             return true;
 		}),
 		{{1,0},{3,2}},
@@ -114,7 +116,7 @@ ControlLayer::ControlLayer(std::string ID)
 		{
 			return this->loadController(s);
 		}),
-		{{0,2},{1,3}},
+		{{0,2},{1,3},{2,2},{3,3}},
 		true
 	);
 
@@ -125,6 +127,8 @@ ControlLayer::ControlLayer(std::string ID)
 		std::function<bool(std::string)>([&](std::string s)->bool
 		{
 			return this->unloadController(s);
+			if(this->controllers.size() > 0)
+				return false;
 		}),
 		{{2,0},{3,1}},
 		true
