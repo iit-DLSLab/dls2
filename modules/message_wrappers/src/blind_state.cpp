@@ -49,9 +49,6 @@ BlindState::BlindState(BlindState& from)
 	, joint_velocity(from.joint_velocity)
 	, joint_acceleration(from.joint_acceleration)
 	, joint_effort(from.joint_effort)
-	, base_pose_world(from.base_pose_world)
-	, base_velocity_world(from.base_velocity_world)
-	, base_acceleration_world(from.base_acceleration_world)
 	, time(from.time)
 {
 	base_pos_world.setZero();

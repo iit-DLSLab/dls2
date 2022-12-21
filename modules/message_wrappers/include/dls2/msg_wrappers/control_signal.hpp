@@ -34,7 +34,7 @@ namespace dls
         };
 
         ControlSignal(const std::shared_ptr<robotlib::RobotBase>);
-        ControlSignal(ControlSignal&);
+        ControlSignal(const ControlSignal&);
         ControlSignal() = delete;
         ~ControlSignal();
 
