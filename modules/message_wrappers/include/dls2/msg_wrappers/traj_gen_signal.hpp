@@ -28,11 +28,12 @@ namespace dls
     {
     public:
         TrajGenSignal(const std::shared_ptr<robotlib::RobotBase>&);
+        TrajGenSignal(const TrajGenSignal&);
         TrajGenSignal() = delete;
         ~TrajGenSignal();
 
         operator TrajGenMsg() const override;
-		TrajGenSignal &operator= (TrajGenMsg&) override;
+		TrajGenSignal& operator= (TrajGenMsg&) override;
 
     // private:
         robotlib::LegDataMap<Eigen::Vector3d> foot_pos;
@@ -42,6 +43,9 @@ namespace dls
         robotlib::LegDataMap<Eigen::Vector3d> foot_acc;
         robotlib::LegDataMap<Eigen::Vector3d> nom_touch_down;
         robotlib::LegDataMap<Eigen::Vector3d> touch_down;
+        robotlib::LegDataMap<Eigen::Vector3d> normal_force_max;
+        robotlib::LegDataMap<Eigen::Vector3d> normal_force_min;
+        Eigen::Matrix<double, 6, 1> ffwdWrench;
         robotlib::LegDataMap<double> swing_period;
         robotlib::LegDataMap<bool> stance;
     };

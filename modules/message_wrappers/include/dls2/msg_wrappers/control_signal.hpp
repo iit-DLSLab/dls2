@@ -36,7 +36,7 @@ namespace dls
         ControlSignal(const std::shared_ptr<robotlib::RobotBase>);
         ControlSignal(ControlSignal&);
         ControlSignal() = delete;
-        virtual ~ControlSignal() = default;
+        ~ControlSignal();
 
         operator ControlSignalMsg() const override;
         ControlSignal& operator=(ControlSignalMsg&) override;

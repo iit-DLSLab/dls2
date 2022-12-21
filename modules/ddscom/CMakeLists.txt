@@ -16,6 +16,7 @@ target_link_libraries(dls_com
 		fastrtps
 		dls_domains
 		dls_topics
+		fastdds_statistics_backend
 )
 
 set_property(TARGET dls_com PROPERTY POSITION_INDEPENDENT_CODE TRUE)

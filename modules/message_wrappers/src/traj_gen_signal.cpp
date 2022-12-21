@@ -30,12 +30,28 @@ TrajGenSignal::TrajGenSignal(const std::shared_ptr<robotlib::RobotBase>& pRobot)
     , foot_acc(pRobot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
     , nom_touch_down(pRobot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
     , touch_down(pRobot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
+    , normal_force_max(pRobot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
+    , normal_force_min(pRobot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
     , swing_period(pRobot->makeLegDataMap<double>(0.0))
     , stance(pRobot->makeLegDataMap<bool>(false))
 {}
 
+TrajGenSignal::TrajGenSignal(const TrajGenSignal& from)
+    : foot_pos(from.foot_pos)
+    , foot_pos_HF(from.foot_pos_HF)
+    , foot_vel(from.foot_vel)
+    , foot_vel_HF(from.foot_vel_HF)
+    , foot_acc(from.foot_acc)
+    , nom_touch_down(from.nom_touch_down)
+    , touch_down(from.touch_down)
+    , normal_force_max(from.normal_force_max)
+    , normal_force_min(from.normal_force_min)
+    , swing_period(from.swing_period)
+    , stance(from.stance)
+{ }
+
 TrajGenSignal::~TrajGenSignal()
-{}
+{ }
 
 TrajGenSignal::operator TrajGenMsg() const
 {

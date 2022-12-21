@@ -23,10 +23,13 @@ ControlSignal::ControlSignal(const std::shared_ptr<robotlib::RobotBase> pRobot)
 	, time()
 { }
 
-ControlSignal::ControlSignal(ControlSignal& from) 
+ControlSignal::ControlSignal(const ControlSignal& from) 
     : torques(from.torques)
 	, signal_reconstruction_method(from.signal_reconstruction_method)
 	, time(from.time)
+{ }
+
+ControlSignal::~ControlSignal() 
 { }
 
 ControlSignal::operator ControlSignalMsg() const
