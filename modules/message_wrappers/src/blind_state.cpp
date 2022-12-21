@@ -33,6 +33,9 @@ BlindState::BlindState(BlindState& from)
 	, joint_velocity(from.joint_velocity)
 	, joint_acceleration(from.joint_acceleration)
 	, joint_effort(from.joint_effort)
+	, base_pose_world(from.base_pose_world)
+	, base_velocity_world(from.base_velocity_world)
+	, base_acceleration_world(from.base_acceleration_world)
 	, time(from.time)
 {}
 
@@ -55,9 +58,20 @@ BlindState::operator BlindStateMsg() const
 			i++;
 		}
 	}
-	// msg.base_pose_world(this->base_pose_world);
-	// msg.base_velocity_world(this->base_velocity_world);
-	// msg.base_acceleration_world(this->base_acceleration_world);
+
+	for(int i = 0; i < 3; i++)
+	{
+		msg.base_pos_world()[i] = this->base_pose_world.toPosition()[i];
+		msg.base_lin_vel_world()[i] = this->base_velocity_world.getLinear()[i];
+		msg.base_ang_vel_world()[i] = this->base_velocity_world.getAngular()[i];
+		msg.base_lin_acc_world()[i] = this->base_acceleration_world.getLinear()[i];
+		msg.base_ang_acc_world()[i] = this->base_acceleration_world.getAngular()[i];
+	}
+
+	msg.base_ori_world()[0] = this->base_pose_world.toQuaternion().x();
+	msg.base_ori_world()[1] = this->base_pose_world.toQuaternion().y();
+	msg.base_ori_world()[2] = this->base_pose_world.toQuaternion().z();
+	msg.base_ori_world()[3] = this->base_pose_world.toQuaternion().w();
 	
   	msg.time(this->time);
 
@@ -78,23 +92,15 @@ BlindState& BlindState::operator= (BlindStateMsg& msg)
 			i++;
 		}
 	}
-			
-	// this->orientation.w() = msg.orientation()[0];
-	// this->orientation.x() = msg.orientation()[1];
-	// this->orientation.y() = msg.orientation()[2];
-	// this->orientation.z() = msg.orientation()[3];
 
-	// this->angular_velocity[0] = msg.ang_vel()[0];
-	// this->angular_velocity[1] = msg.ang_vel()[1];
-	// this->angular_velocity[2] = msg.ang_vel()[2];
+	this->base_pose_world.set(Eigen::Vector3d(msg.base_pos_world().data()));
+	this->base_pose_world.set(Eigen::Quaterniond(msg.base_ori_world().data()));
 
-	// this->angular_acceleration[0] = msg.ang_vel()[0];
-	// this->angular_acceleration[1] = msg.ang_vel()[1];
-	// this->angular_acceleration[2] = msg.ang_vel()[2];
-
-	// this->base_pose_world = msg.base_pose_world();
-	// this->base_velocity_world = msg.base_velocity_world();
-	// this->base_acceleration_world = msg.base_acceleration_world();
+	this->base_velocity_world.setLinear(Eigen::Vector3d(msg.base_lin_vel_world().data()));
+	this->base_velocity_world.setAngular(Eigen::Vector3d(msg.base_ang_vel_world().data()));
+	
+	this->base_acceleration_world.setLinear(Eigen::Vector3d(msg.base_lin_acc_world().data()));
+	this->base_acceleration_world.setAngular(Eigen::Vector3d(msg.base_ang_acc_world().data()));
 
 	this->time = msg.time();
 
