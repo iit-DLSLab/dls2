@@ -29,7 +29,7 @@ namespace dls
 	class BlindState : public Wrapper<BlindStateMsg>
 	{
 	public:
-		BlindState(const std::shared_ptr<robotlib::RobotBase>&);
+		BlindState(const std::shared_ptr<robotlib::RobotBase>);
 		BlindState(BlindState&);
 		BlindState() = delete;
         ~BlindState();
@@ -37,16 +37,21 @@ namespace dls
 		operator BlindStateMsg() const override;
 		BlindState& operator= (BlindStateMsg&) override;
 
+		std::string robot_name;
+		robotlib::JointDataMap<std::string> joint_name;
 		robotlib::JointState joint_position;
 		robotlib::JointState joint_velocity;
 		robotlib::JointState joint_acceleration;
 		robotlib::JointState joint_effort;
 
-		Pose base_pose_world;
-		Screw base_velocity_world;
-		Screw base_acceleration_world;
+		Eigen::Vector3d base_pos_world;
+		Eigen::Quaterniond base_ori_world;
+		Eigen::Vector3d base_lin_vel_world;
+		Eigen::Vector3d base_ang_vel_world;
+		Eigen::Vector3d base_lin_acc_world;
+		Eigen::Vector3d base_ang_acc_world;
 
-		double time;
+		unsigned long long time;
 	};
 } // end namespace dls
 
