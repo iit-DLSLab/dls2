@@ -29,7 +29,7 @@ namespace dls
 {
 	struct GaitSignal : public Wrapper<GaitSignalMsg>
 	{
-		GaitSignal(const std::shared_ptr<robotlib::RobotBase>&);
+		GaitSignal(const std::shared_ptr<robotlib::RobotBase>);
 		GaitSignal(GaitSignal&);
 		GaitSignal() = delete;
 		virtual ~GaitSignal() = default;

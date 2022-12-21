@@ -18,7 +18,7 @@
 
 using namespace dls;
 
-GaitSignal::GaitSignal(const std::shared_ptr<robotlib::RobotBase> &pRobot) 
+GaitSignal::GaitSignal(const std::shared_ptr<robotlib::RobotBase> pRobot) 
     : desired_com_pose_world()
     , desired_com_velocity_world()
     , desired_com_acceleration_world()

@@ -33,7 +33,7 @@ namespace dls
             IMPULSE
         };
 
-        ControlSignal(const std::shared_ptr<robotlib::RobotBase>&);
+        ControlSignal(const std::shared_ptr<robotlib::RobotBase>);
         ControlSignal(ControlSignal&);
         ControlSignal() = delete;
         virtual ~ControlSignal() = default;
