@@ -123,14 +123,11 @@ BlindState& BlindState::operator= (BlindStateMsg& msg)
 		}
 	}
 
-	for(int i=0; i<3;i++)
-	{
-		this->base_pos_world(i) = msg.base_pos_world()[i];
-		this->base_lin_vel_world(i) = msg.base_lin_vel_world()[i];
-		this->base_ang_vel_world(i) = msg.base_ang_vel_world()[i];
-		this->base_lin_acc_world(i) = msg.base_lin_acc_world()[i];
-		this->base_ang_acc_world(i) = msg.base_ang_acc_world()[i];
-	}
+	this->base_pos_world = Eigen::Vector3d(msg.base_pos_world().data());
+	this->base_lin_vel_world = Eigen::Vector3d(msg.base_lin_vel_world().data());
+	this->base_ang_vel_world = Eigen::Vector3d(msg.base_ang_vel_world().data());
+	this->base_lin_acc_world = Eigen::Vector3d(msg.base_lin_acc_world().data());
+	this->base_ang_acc_world = Eigen::Vector3d(msg.base_ang_acc_world().data());
 
 	this->base_ori_world.x() = msg.base_ori_world()[0];
 	this->base_ori_world.y() = msg.base_ori_world()[1];
