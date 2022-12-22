@@ -12,8 +12,8 @@ add_library(dls_message_wrappers
 		src/legs_pose.cpp
 		src/imu.cpp
 		src/desired_torques.cpp
+		src/debug/leg_odometry_debug.cpp
 )
-
 set_property(TARGET dls_message_wrappers PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 target_include_directories(dls_message_wrappers
