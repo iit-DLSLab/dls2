@@ -49,19 +49,14 @@ BlindState::BlindState(BlindState& from)
 	, joint_velocity(from.joint_velocity)
 	, joint_acceleration(from.joint_acceleration)
 	, joint_effort(from.joint_effort)
+	, base_pos_world(from.base_pos_world)
+	, base_ori_world(from.base_ori_world)
+	, base_lin_vel_world(from.base_lin_vel_world)
+	, base_ang_vel_world(from.base_ang_vel_world)
+	, base_lin_acc_world(from.base_lin_acc_world)
+	, base_ang_acc_world(from.base_ang_acc_world)
 	, time(from.time)
-{
-	base_pos_world.setZero();
-	base_lin_vel_world.setZero();
-	base_ang_vel_world.setZero();
-	base_lin_acc_world.setZero();
-	base_ang_acc_world.setZero();
-
-	base_ori_world.x() = 0.0;
-	base_ori_world.y() = 0.0;
-	base_ori_world.z() = 0.0;
-	base_ori_world.w() = 1.0;
-}
+{ }
 
 BlindState::~BlindState()
 {}
