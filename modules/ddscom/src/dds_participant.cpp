@@ -35,7 +35,9 @@ namespace dls
         participantQos.wire_protocol().builtin.discovery_config.leaseDuration_announcementperiod = eprosima::fastrtps::Duration_t(1, 2);
 		participantQos.name(partName_);
 
-		participantQos.properties().properties().emplace_back("fastdds.statistics",
+		if(ENABLE_FASTDDS_STATISTICS)
+		{
+			participantQos.properties().properties().emplace_back("fastdds.statistics",
             "HISTORY_LATENCY_TOPIC;" \
             "NETWORK_LATENCY_TOPIC;" \
             "PUBLICATION_THROUGHPUT_TOPIC;" \
@@ -53,6 +55,7 @@ namespace dls
             "EDP_PACKETS_TOPIC;" \
             "DISCOVERY_TOPIC;" \
             "PHYSICAL_DATA_TOPIC");
+		}
 
 		eprosima::fastdds::dds::StatusMask mask;
 

@@ -1,3 +1,5 @@
+set(FASTDDS_STATISTICS OFF CACHE BOOL "Enable fastdds statistics")
+
 add_library(dls_com SHARED
 		src/dds_participant.cpp
 		src/dds_listeners.cpp
@@ -18,6 +20,8 @@ target_link_libraries(dls_com
 		dls_topics
 		fastdds_statistics_backend
 )
+
+target_compile_definitions(dls_com PRIVATE ENABLE_FASTDDS_STATISTICS=$<BOOL:${FASTDDS_STATISTICS}>)
 
 set_property(TARGET dls_com PROPERTY POSITION_INDEPENDENT_CODE TRUE)
 
