@@ -27,18 +27,18 @@ namespace dls
 	class Signal
 	{
 	public:
-		Signal(dls::DDSParticipant*, SignalType*);
+		Signal(dls::DDSParticipant*, const std::shared_ptr<SignalType>);
 		Signal() = delete;
 		~Signal();
 
-		SignalType* operator->();
+		std::shared_ptr<SignalType> operator->();
 		SignalType getData();
 	
 	protected:
 		dls::DDSParticipant* ddsLink;
 
 		// BEGIN critical section
-			SignalType* signal;
+			const std::shared_ptr<SignalType> signal;
 			mutable std::mutex signal_mutex;
 		// END crital section
 

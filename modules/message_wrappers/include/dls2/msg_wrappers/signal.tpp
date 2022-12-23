@@ -21,7 +21,7 @@
 using namespace dls;
 
 template <typename SignalType>
-Signal<SignalType>::Signal(dls::DDSParticipant* participant_, SignalType* signal_)
+Signal<SignalType>::Signal(dls::DDSParticipant* participant_, const std::shared_ptr<SignalType> signal_)
 	: ddsLink(participant_)
 	, signal(signal_)
 { }
@@ -31,7 +31,7 @@ Signal<SignalType>::~Signal()
 { }	
 
 template <typename SignalType>
-SignalType* Signal<SignalType>::operator->() 
+std::shared_ptr<SignalType> Signal<SignalType>::operator->() 
 {
 	std::lock_guard<std::mutex> lock(this->signal_mutex);
     return this->signal;
