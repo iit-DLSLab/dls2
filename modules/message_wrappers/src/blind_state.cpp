@@ -29,18 +29,7 @@ BlindState::BlindState(const std::shared_ptr<robotlib::RobotBase> pRobot)
 	, joint_acceleration(pRobot->makeJointState())
 	, joint_effort(pRobot->makeJointState())
 	, time(0)
-{
-	base_pos_world.setZero();
-	base_lin_vel_world.setZero();
-	base_ang_vel_world.setZero();
-	base_lin_acc_world.setZero();
-	base_ang_acc_world.setZero();
-
-	base_ori_world.x() = 0.0;
-	base_ori_world.y() = 0.0;
-	base_ori_world.z() = 0.0;
-	base_ori_world.w() = 1.0;
-}
+{ }
 
 BlindState::BlindState(BlindState& from)
 	: robot_name(from.robot_name)
@@ -49,22 +38,14 @@ BlindState::BlindState(BlindState& from)
 	, joint_velocity(from.joint_velocity)
 	, joint_acceleration(from.joint_acceleration)
 	, joint_effort(from.joint_effort)
+	, base_pose_world(from.base_pose_world)
+	, base_vel_world(from.base_vel_world)
+	, base_acc_world(from.base_acc_world)
 	, time(from.time)
-{
-	base_pos_world.setZero();
-	base_lin_vel_world.setZero();
-	base_ang_vel_world.setZero();
-	base_lin_acc_world.setZero();
-	base_ang_acc_world.setZero();
-
-	base_ori_world.x() = 0.0;
-	base_ori_world.y() = 0.0;
-	base_ori_world.z() = 0.0;
-	base_ori_world.w() = 1.0;
-}
+{ }
 
 BlindState::~BlindState()
-{}
+{ }
 
 BlindState::operator BlindStateMsg() const
 {
@@ -88,19 +69,19 @@ BlindState::operator BlindStateMsg() const
 
 	for(int i=0; i<3;i++)
 	{
-		msg.base_pos_world()[i] = this->base_pos_world(i);
-		msg.base_lin_vel_world()[i] = this->base_lin_vel_world(i);
-		msg.base_ang_vel_world()[i] = this->base_ang_vel_world(i);
-		msg.base_lin_acc_world()[i] = this->base_lin_acc_world(i);
-		msg.base_ang_acc_world()[i] = this->base_ang_acc_world(i);
+		msg.base_pos_world()[i] = this->base_pose_world.toPosition()[i];
+		msg.base_lin_vel_world()[i] = this->base_vel_world.getLinear()[i];
+		msg.base_ang_vel_world()[i] = this->base_vel_world.getAngular()[i];
+		msg.base_lin_acc_world()[i] = this->base_acc_world.getLinear()[i];
+		msg.base_ang_acc_world()[i] = this->base_acc_world.getAngular()[i];
 	}
 
-	msg.base_ori_world()[0] = this->base_ori_world.x();
-	msg.base_ori_world()[1] = this->base_ori_world.y();
-	msg.base_ori_world()[2] = this->base_ori_world.z();
-	msg.base_ori_world()[3] = this->base_ori_world.w();
+	msg.base_ori_world()[0] = this->base_pose_world.toQuaternion().x();
+	msg.base_ori_world()[1] = this->base_pose_world.toQuaternion().y();
+	msg.base_ori_world()[2] = this->base_pose_world.toQuaternion().z();
+	msg.base_ori_world()[3] = this->base_pose_world.toQuaternion().w();
 
-  	msg.time(this->time);
+	msg.time(this->time);
 
     return msg;
 }
@@ -123,16 +104,13 @@ BlindState& BlindState::operator= (BlindStateMsg& msg)
 		}
 	}
 
-	this->base_pos_world = Eigen::Vector3d(msg.base_pos_world().data());
-	this->base_lin_vel_world = Eigen::Vector3d(msg.base_lin_vel_world().data());
-	this->base_ang_vel_world = Eigen::Vector3d(msg.base_ang_vel_world().data());
-	this->base_lin_acc_world = Eigen::Vector3d(msg.base_lin_acc_world().data());
-	this->base_ang_acc_world = Eigen::Vector3d(msg.base_ang_acc_world().data());
+	this->base_pose_world.set(Eigen::Vector3d(msg.base_pos_world().data()));
+	this->base_pose_world.set(Eigen::Quaterniond(msg.base_ori_world().data()));
 
-	this->base_ori_world.x() = msg.base_ori_world()[0];
-	this->base_ori_world.y() = msg.base_ori_world()[1];
-	this->base_ori_world.z() = msg.base_ori_world()[2];
-	this->base_ori_world.w() = msg.base_ori_world()[3];
+	this->base_vel_world.setLinear(Eigen::Vector3d(msg.base_lin_vel_world().data()));
+	this->base_vel_world.setAngular(Eigen::Vector3d(msg.base_ang_vel_world().data()));
+	this->base_acc_world.setLinear(Eigen::Vector3d(msg.base_lin_acc_world().data()));
+	this->base_acc_world.setAngular(Eigen::Vector3d(msg.base_ang_acc_world().data()));
 
 	this->time = msg.time();
 

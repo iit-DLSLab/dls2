@@ -44,12 +44,9 @@ namespace dls
 		robotlib::JointState joint_acceleration;
 		robotlib::JointState joint_effort;
 
-		Eigen::Vector3d base_pos_world;
-		Eigen::Quaterniond base_ori_world;
-		Eigen::Vector3d base_lin_vel_world;
-		Eigen::Vector3d base_ang_vel_world;
-		Eigen::Vector3d base_lin_acc_world;
-		Eigen::Vector3d base_ang_acc_world;
+		dls::Pose base_pose_world;
+		dls::Screw base_vel_world;
+		dls::Screw base_acc_world;
 
 		unsigned long long time;
 	};
