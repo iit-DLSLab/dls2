@@ -43,8 +43,8 @@ namespace dls
         robotlib::LegDataMap<Eigen::Vector3d> foot_acc;
         robotlib::LegDataMap<Eigen::Vector3d> nom_touch_down;
         robotlib::LegDataMap<Eigen::Vector3d> touch_down;
-        robotlib::LegDataMap<Eigen::Vector3d> normal_force_max;
-        robotlib::LegDataMap<Eigen::Vector3d> normal_force_min;
+        robotlib::LegDataMap<double> normal_force_max;
+        robotlib::LegDataMap<double> normal_force_min;
         Eigen::Matrix<double, 6, 1> ffwdWrench;
         robotlib::LegDataMap<double> swing_period;
         robotlib::LegDataMap<bool> stance;
