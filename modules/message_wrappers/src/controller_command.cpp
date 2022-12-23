@@ -31,6 +31,15 @@ ControllerCommand::ControllerCommand(const std::shared_ptr<robotlib::RobotBase>&
     , des_base_vel_HF(Eigen::Matrix<double, 6, 1>::Zero())
 {}
 
+ControllerCommand::ControllerCommand(ControllerCommand& from)
+    : robot_height(from.robot_height)
+    , step_frequency(from.step_frequency)
+    , duty_factor(from.duty_factor)
+    , step_height(from.step_height)
+    , des_base_pos_HF(from.des_base_pos_HF)
+    , des_base_vel_HF(from.des_base_vel_HF)
+{}
+
 ControllerCommand::~ControllerCommand()
 {}
 

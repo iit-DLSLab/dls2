@@ -33,6 +33,7 @@ namespace dls
     {
         public:
             ControllerCommand(const std::shared_ptr<robotlib::RobotBase>&);
+            ControllerCommand(ControllerCommand&);
             ControllerCommand() = delete;
             ~ControllerCommand();
 
