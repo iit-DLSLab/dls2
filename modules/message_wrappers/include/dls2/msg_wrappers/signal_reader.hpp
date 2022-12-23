@@ -24,7 +24,7 @@ namespace dls
 	class SignalReader : public Signal<SignalType>
 	{
 	public:
-		SignalReader(dls::DDSParticipant*, const dls::topicType&, SignalType*);
+		SignalReader(dls::DDSParticipant*, const dls::topicType&, const std::shared_ptr<SignalType>);
 		~SignalReader();	
 	};
 } // end namespace dls

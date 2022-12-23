@@ -25,7 +25,7 @@ ControllerData::ControllerData
 	const std::string& ID,
 	dls::DDSParticipant* participant,
 	const dls::topicType& topic,
-	const std::shared_ptr<robotlib::RobotBase> &pRobot,
+	const std::shared_ptr<robotlib::RobotBase> pRobot,
 	std::shared_ptr<math::SplineBase<double>> spline_in_,
 	std::shared_ptr<math::SplineBase<double>> spline_out_,
 	const std::chrono::duration<double> &duration_in,
@@ -40,7 +40,7 @@ ControllerData::ControllerData
 	, control_signal(
 		participant, 
 		topic,
-		new ControlSignal(pRobot)
+		std::make_shared<ControlSignal>(pRobot)
 	)
 { }
 

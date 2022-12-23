@@ -35,7 +35,7 @@ namespace dls
             const std::string&,
             dls::DDSParticipant* participant,
             const dls::topicType& topic,
-            const std::shared_ptr<robotlib::RobotBase>&,
+            const std::shared_ptr<robotlib::RobotBase>,
             std::shared_ptr<math::SplineBase<double>> pSpline_in,
             std::shared_ptr<math::SplineBase<double>> pSpline_out,
             const std::chrono::duration<double> &duration_in,
