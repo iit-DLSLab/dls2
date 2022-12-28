@@ -168,7 +168,7 @@ namespace dls
 		std::function<void(void *)> callback_)
 	{
 		if(this->readers.find(readerName_) != this->readers.end())
-			throw std::runtime_error("THE READER" + readerName_ + " ALREADY EXISTS, YOU ARE TRYING TO CREATE TWICE");
+			throw std::runtime_error("THE READER " + readerName_ + " ALREADY EXISTS, YOU ARE TRYING TO CREATE TWICE");
 
 		auto topic = this->addTopic(topicData_);
 
@@ -190,6 +190,18 @@ namespace dls
 		}
 
 		return reader;
+	}
+
+	void DDSParticipant::deleteReader(const std::string reader_name)
+	{
+		ReturnCode_t result (this->subscriber->delete_datareader(this->getReader(reader_name)));
+
+		if(result==ReturnCode_t::RETCODE_PRECONDITION_NOT_MET)
+			throw std::runtime_error("THE READER " + reader_name + " DOES NOT BELONG TO THE SUBSCRIBER");
+		else if(result==ReturnCode_t::RETCODE_ERROR)
+			throw std::runtime_error("RETCODE_ERROR ERROR WHEN REMOVING THE READER " + reader_name);
+		
+		this->readers.erase(reader_name);
 	}
 
 	eprosima::fastdds::dds::Topic *DDSParticipant::addTopic(dls::topicType topicData_)

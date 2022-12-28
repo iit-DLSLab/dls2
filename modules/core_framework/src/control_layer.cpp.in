@@ -447,6 +447,12 @@ bool ControlLayer::unloadController(std::shared_ptr<ControllerData> pData)
 
 	pData->proc = nullptr;
 	this->controllers.erase(pData->getID());
+
+	//Remove the dataReader associated to pData (this allows to reload the same controller)
+	this->ddsLink->deleteReader(pData->getID());
+
+	std::cout << "UNLOADED CONTROLLER " << pData->getID() << std::endl;
+
     return true;
 }
 
