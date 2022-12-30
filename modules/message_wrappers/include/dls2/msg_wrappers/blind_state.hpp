@@ -48,6 +48,8 @@ namespace dls
 		dls::Screw base_vel_world;
 		dls::Screw base_acc_world;
 
+		robotlib::LegDataMap<bool> stance_legs;
+
 		unsigned long long time;
 	};
 } // end namespace dls
