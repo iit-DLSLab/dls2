@@ -58,9 +58,9 @@ namespace dls
 
         const ControlSignal::SignalReconstructionMethod signal_reconstruction_method;
 
-    private:
         /// Pointer to the robot model
         const std::shared_ptr<const robotlib::RobotBase> pRobot;
+    private:
 
         dls::DDSParticipant ddsLink;
 };
