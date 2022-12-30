@@ -240,6 +240,7 @@ void *ControlLayer::controlSignalGather(void *data)
     while (!layer->shouldQuit()) {
         auto now = std::chrono::high_resolution_clock::now();
         auto epoch = std::chrono::time_point_cast<std::chrono::milliseconds>(now).time_since_epoch();
+		desired_torques = 0;
 
 		// Read the control signals
 		{
@@ -250,7 +251,7 @@ void *ControlLayer::controlSignalGather(void *data)
 			for(auto pair : layer->controllers)
 			{
 				c_signal = pair.second->control_signal.getData();
-				desired_torques = pair.second->premultiplier*c_signal.torques;
+				desired_torques += pair.second->premultiplier*c_signal.torques;
 			}
 		}
 
