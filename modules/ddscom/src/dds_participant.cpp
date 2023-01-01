@@ -17,6 +17,8 @@
 #define DDSPARTICIPANT_CPP
 
 #include "dls2/util/messaging/dds_participant.hpp"
+#include <fastrtps/xmlparser/XMLProfileManager.h>
+#include <fastrtps/types/TypeObjectFactory.h>
 
 /// \cond doxygen_namespace_dls
 namespace dls
@@ -29,6 +31,7 @@ namespace dls
 		, topicListener(nullptr)
 	{
 		eprosima::fastdds::dds::DomainParticipantQos participantQos;
+		participantQos.wire_protocol().builtin.typelookup_config.use_client = true;
 		participantQos.wire_protocol().builtin.typelookup_config.use_server = true;
 		participantQos.wire_protocol().builtin.discovery_config.discoveryProtocol = eprosima::fastrtps::rtps::DiscoveryProtocol_t::SIMPLE;
 		participantQos.wire_protocol().builtin.discovery_config.leaseDuration = eprosima::fastrtps::Duration_t(3, 1);
@@ -147,7 +150,7 @@ namespace dls
 		auto topic = this->addTopic(topicData_);
 
 		if (topic == nullptr)
-			return nullptr;
+			throw std::runtime_error("THE WRITER " + writerName_ + " COULDN'T CREATE THE TOPIC " + topicData_.first);
 
 		auto writer = this->publisher->create_datawriter(
 			topic,
@@ -156,8 +159,10 @@ namespace dls
 			//&this->publisher_listener
 		);
 
-		if (writer != nullptr)
-			this->writers.insert({writerName_, writer});
+		if (writer == nullptr)
+			throw std::runtime_error("THE WRITER " + writerName_ + " COULDN'T BE CREATED");
+
+		this->writers.insert({writerName_, writer});
 
 		return writer;
 	}
@@ -195,29 +200,27 @@ namespace dls
 	eprosima::fastdds::dds::Topic *DDSParticipant::addTopic(dls::topicType topicData_)
 	{
 
-		auto search = this->topics.find(std::get<0>(topicData_));
+		auto search = this->topics.find(topicData_.first);
 
-		if (search != topics.end())
+		if(search != topics.end())
 			return search->second;
 
-		if (!this->types.contains(std::get<1>(topicData_).get_type_name())){
-			this->types.insert(std::get<1>(topicData_).get_type_name());
-			this->participant->register_type(std::get<1>(topicData_));
+		if(!participant->find_type(topicData_.second.get_type_name()))
+		{
+			topicData_.second->auto_fill_type_information(true);
+    		topicData_.second->auto_fill_type_object(false);
+			this->participant->register_type(topicData_.second);
 		}
 
 		auto topic = this->participant->create_topic(
-			std::get<0>(topicData_),
-			std::get<1>(topicData_).get_type_name(),
+			topicData_.first,
+			topicData_.second.get_type_name(),
 			eprosima::fastdds::dds::TOPIC_QOS_DEFAULT);
 
-		if (topic == nullptr)
-		{
-			// throw std::runtime_error(
-			// 	"Error: could not create publisher topic"
-			// );
-		}
+		if(topic == nullptr)
+			throw std::runtime_error("Error: could not create publisher topic");
 
-		this->topics.insert({std::get<0>(topicData_), topic});
+		this->topics.insert({topicData_.first, topic});
 
 		return topic;
 	}
@@ -235,7 +238,7 @@ namespace dls
 			std::cout << "WRITER " << writerName << " DOES NOT EXISTS" << std::endl;
 			return false;
 		}
-		
+
 		return writer->second->write(msg);
 	}
 
@@ -254,8 +257,34 @@ namespace dls
 			std::string type_name = info.info.typeName().to_string();
 
 			// Set Topic as discovered. If it is not new nothing happen
-			on_topic_discovery_(topic_name, type_name);
+			if(DDSParticipant::is_type_registered_in_participant_(type_name))
+				on_topic_discovery_(topic_name, type_name);
 		}
+	}
+
+	void DDSParticipant::on_type_information_received(
+        eprosima::fastdds::dds::DomainParticipant*,
+        const eprosima::fastrtps::string_255 topic_name,
+        const eprosima::fastrtps::string_255 type_name,
+        const eprosima::fastrtps::types::TypeInformation& type_information)
+	{
+		// Prepare callback that will be executed after registering type
+		std::function<void(const std::string&, const eprosima::fastrtps::types::DynamicType_ptr)> callback(
+			[this, topic_name]
+				(const std::string&, const eprosima::fastrtps::types::DynamicType_ptr type)
+			{
+				// std::cout << "Type discovered by lookup info: " << type->get_name() << " in topic: " << topic_name.to_string() << std::endl;
+				this->on_topic_discovery_(topic_name.to_string(), type->get_name());
+			});
+		
+		if(DDSParticipant::is_type_registered_in_participant_(type_name.to_string()))
+			return;
+
+		// Registering type and creating reader
+		participant->register_remote_type(
+			type_information,
+			type_name.to_string(),
+			callback);
 	}
 
 	void DDSParticipant::on_topic_discovery_(const std::string& topic_name, const std::string& type_name)
@@ -278,6 +307,92 @@ namespace dls
 	void DDSParticipant::setTopicListener(dls::DDSPartListener *listener_)
 	{
 		this->topicListener = listener_;
+	}
+
+
+	bool DDSParticipant::is_type_registered_in_participant_(
+        const std::string& type_name)
+	{
+		// Check type is registered in Participant
+		if (participant->find_type(type_name) != nullptr)
+		{
+			return true;
+		}
+
+		// It may happen that type is registered in XML and not in Participant
+		// If so, register it in Participant
+		if (is_type_registered_in_xml_(type_name))
+		{
+			// Create TypeSupport and register it
+			eprosima::fastdds::dds::TypeSupport(
+				new eprosima::fastrtps::types::DynamicPubSubType(
+					get_type_registered_(type_name))).register_type(participant);
+			return true;
+		}
+
+		// It could also be in TypeObjectFactory because it has been registered by other Participant (a previous one)
+		// and still be stored in the singleton
+		if (is_type_registered_in_factory_(type_name))
+		{
+			// Create TypeSupport and register it
+			eprosima::fastdds::dds::TypeSupport(
+				new eprosima::fastrtps::types::DynamicPubSubType(
+					get_type_registered_(type_name))).register_type(participant);
+			return true;
+		}
+
+		return false;
+	}
+
+	bool DDSParticipant::is_type_registered_in_xml_(
+			const std::string& type_name)
+	{
+		return nullptr != eprosima::fastrtps::xmlparser::XMLProfileManager::getDynamicTypeByName(type_name);
+	}
+
+	bool DDSParticipant::is_type_registered_in_factory_(
+			const std::string& type_name)
+	{
+		return nullptr !=  eprosima::fastrtps::types::TypeObjectFactory::get_instance()->get_type_object(type_name, true);
+	}
+
+	eprosima::fastrtps::types::DynamicType_ptr DDSParticipant::get_type_registered_(
+        const std::string& type_name)
+	{
+		// Get DynamicType builder
+		auto builder = eprosima::fastrtps::xmlparser::XMLProfileManager::getDynamicTypeByName(type_name);
+
+		// If not builder associated, the type does not exist
+		if (!builder)
+		{
+			// Check if it could be generated
+			// This case is when it has not been registered by XML
+			auto type_object =
+					eprosima::fastrtps::types::TypeObjectFactory::get_instance()->get_type_object(type_name,
+							true);
+			if (!type_object)
+			{
+				throw std::runtime_error("Dynamic type not registered");
+			}
+
+			auto type_id =
+					eprosima::fastrtps::types::TypeObjectFactory::get_instance()->get_type_identifier(type_name,
+							true);
+			if (!type_id)
+			{
+				throw std::runtime_error("Dynamic type not registered");
+			}
+
+			auto dyn_type = eprosima::fastrtps::types::TypeObjectFactory::get_instance()->build_dynamic_type(type_name,
+							type_id,
+							type_object);
+
+			return dyn_type;
+		}
+		else
+		{
+			return builder->build();
+		}
 	}
 
 } // namespace dls

@@ -29,7 +29,7 @@ namespace dls
     public:
         Odometry();
         Odometry(Odometry&);
-        virtual ~Odometry() = default;
+        ~Odometry();
 
         operator T265OdometryMsg() const override;
         Odometry& operator=(T265OdometryMsg&) override;

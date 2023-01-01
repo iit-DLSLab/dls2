@@ -4,6 +4,8 @@ add_library(dls_foxglove
 	SHARED
  		src/webserver.cpp
 		src/foxserver.cpp
+		src/dynamic_types_utils.cpp
+		src/utils.cpp
 )
 
 target_include_directories(dls_foxglove

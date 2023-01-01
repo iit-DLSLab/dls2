@@ -28,6 +28,9 @@ Odometry::Odometry(Odometry& from)
 	, timestamp(from.timestamp)
 { }
 
+Odometry::~Odometry()
+{ }
+
 Odometry::operator T265OdometryMsg() const
 {
 	T265OdometryMsg msg;

@@ -60,7 +60,6 @@ namespace dls
 		{
 			dls::topicType blind_state 			= dls::topicType("blind_state", new BlindStateMsgPubSubType());
 			dls::topicType hyq_raw 				= dls::topicType("hyq_raw", new HyQRawMsgPubSubType());
-			dls::topicType hyqreal_raw 			= dls::topicType("hyqreal_raw", new HyQRealRawMsgPubSubType());
             dls::topicType aliengo_raw 			= dls::topicType("aliengo_raw", new AliengoRawMsgPubSubType());
 			dls::topicType imu 					= dls::topicType("imu", new ImuMsgPubSubType());
 			dls::topicType joint_states			= dls::topicType("joint_states", new JointStateMsgPubSubType());

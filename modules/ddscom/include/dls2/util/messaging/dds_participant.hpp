@@ -23,6 +23,8 @@
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/domain/DomainParticipant.hpp>
 #include <fastdds/dds/domain/DomainParticipantListener.hpp>
+#include <fastrtps/types/DynamicDataHelper.hpp>
+#include <fastrtps/types/DynamicDataFactory.h>
 #include <fastdds/dds/publisher/Publisher.hpp>
 #include <fastdds/dds/subscriber/Subscriber.hpp>
 
@@ -66,10 +68,11 @@ namespace dls
 
 		void setTopicListener(dls::DDSPartListener *listener_);
 
+		bool is_type_registered_in_participant_(const std::string& type_name);
+		
 	private:
 		eprosima::fastdds::dds::DomainParticipant  					*participant;
 		std::map<std::string, eprosima::fastdds::dds::Topic *>  	topics;	
-		std::set<std::string>										types;
 		std::map<std::string, eprosima::fastdds::dds::DataReader *> readers;
 		std::map<std::string, eprosima::fastdds::dds::DataWriter *> writers;
 		std::vector<dls::DDSSubListener *>							subListeners;
@@ -85,8 +88,18 @@ namespace dls
 
 		void on_topic_discovery_(const std::string& topic_name, const std::string& type_name);
 
+		void on_type_information_received(
+			eprosima::fastdds::dds::DomainParticipant*,
+			const eprosima::fastrtps::string_255 topic_name,
+			const eprosima::fastrtps::string_255 type_name,
+			const eprosima::fastrtps::types::TypeInformation& type_information) override;
+
 		dls::DDSPartListener *topicListener;
 		std::unordered_map<std::string, std::string> discovery_database;
+
+		bool is_type_registered_in_xml_(const std::string& type_name);
+		bool is_type_registered_in_factory_(const std::string& type_name);
+		eprosima::fastrtps::types::DynamicType_ptr get_type_registered_(const std::string& type_name);
 	};
 	
 } // namespace dls

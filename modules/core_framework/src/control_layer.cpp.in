@@ -62,25 +62,20 @@ int sched_getattr(pid_t pid,
 // =============================================================================
 ControlLayer::ControlLayer(std::string ID) 
 	: AppLayer(ID)
+	, ddsSignalLink(ID, dls::domains::signals)
 	, pDefault_spline_in(std::make_shared<math::Ramp<double>> (0, 2, 0, 1))
 	, pDefault_spline_out(std::make_shared<math::Ramp<double>> (0, 2, 1, 0))
 	, default_duration_seconds(2)
+	, pRobot(robotlib::RobotFactory::openRobot(Options::robot_name))
+	, control_signal(
+		&ddsSignalLink, 
+		dls::topics::desired_torques, 
+		std::make_shared<DesiredTorques>(pRobot))
+	, torques(pRobot)
 	, scout(ID)
 	, clog(ID)
 	, cfatal(ID)
 {
-    try{
-        pRobot = robotlib::RobotFactory::openRobot(Options::robot_name);  
-    }
-    catch (const std::exception &e)
-    {
-	    std::cerr << e.what() << std::endl;
-    }
-
-	ddsLink = new dls::DDSParticipant(this->getID(), dls::domains::signals);
-
-	ddsLink->addWriter("desiredTorques", dls::topics::desired_torques);
-	
 	command_manager.addCommand<std::string>
 	(
 		"loadGenerator",
@@ -179,8 +174,6 @@ ControlLayer::ControlLayer(std::string ID)
 
 ControlLayer::~ControlLayer()
 {
-	delete ddsLink;
-	
 	for(auto pair : this->controllers){
 		pair.second = nullptr;
 	}
@@ -235,8 +228,6 @@ void *ControlLayer::controlSignalGather(void *data)
 
 	ControlLayer *layer = (ControlLayer*) data;	
 
-	robotlib::JointState desired_torques(layer->pRobot->makeJointState());
-
     while (!layer->shouldQuit()) {
         auto now = std::chrono::high_resolution_clock::now();
         auto epoch = std::chrono::time_point_cast<std::chrono::milliseconds>(now).time_since_epoch();
@@ -245,34 +236,30 @@ void *ControlLayer::controlSignalGather(void *data)
 		{
 			// std::lock_guard<std::mutex> lock(layer->controllers_mutex);
 
-            ControlSignal c_signal(layer->pRobot);
-            
 			for(auto pair : layer->controllers)
 			{
-				c_signal = pair.second->control_signal.getData();
-				desired_torques = pair.second->premultiplier*c_signal.torques;
+				layer->torques.desired_torques = pair.second->premultiplier * pair.second->control_signal.getData().torques;
 			}
 		}
 
-    	// Send the desired torques to HAL
-        if(layer->controllers.size() > 0)
-        {
-            layer->publishDesiredTorques(
-                layer->saturateTorques(desired_torques.vec_()),
-                std::chrono::duration_cast<std::chrono::microseconds>(epoch).count()
-            );
-        }
+    	// // Send the desired torques to HAL
+        // if(layer->controllers.size() > 0)
+        // {
+			layer->control_signal->desired_torques = layer->saturateTorques(layer->torques.desired_torques);
+            layer->control_signal->time = std::chrono::duration_cast<std::chrono::microseconds>(epoch).count();
+			layer->control_signal.publish();
+        // }
 
-        auto delta = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - now).count();
+        // auto delta = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - now).count();
 
-        if (delta > 990)
-        {
-            std::stringstream ss;
-		    ss << "Control Layer is probably breaking real-time. Has period of 1 mseconds but spent: " << delta << " useconds ";
-  		    // ss << "Control layer published torques " << desired_torques.transpose(); // << std::endl;
-		    // scout << "\033[F" << "\r" << ss.str() << std::endl;
-            layer->scout << ss.str() << std::endl;
-        }
+        // if (delta > 990)
+        // {
+        //     std::stringstream ss;
+		//     ss << "Control Layer is probably breaking real-time. Has period of 1 mseconds but spent: " << delta << " useconds ";
+  		//     // ss << "Control layer published torques " << desired_torques.transpose(); // << std::endl;
+		//     // scout << "\033[F" << "\r" << ss.str() << std::endl;
+        //     layer->scout << ss.str() << std::endl;
+        // }
 
     	sched_yield();
     }
@@ -340,7 +327,7 @@ std::string ControlLayer::where()
 	}
 	// Where Desired Torque
 	{
-		ss << "Last published torque: "	<< this->getPublishedDesiredTorques().transpose();
+		ss << "Last published torque: "	<< this->getPublishedDesiredTorques().vec_().transpose();
 	}
 
 	return ss.str();
@@ -358,7 +345,7 @@ bool ControlLayer::loadController(const std::string& lib_name)
 
     std::shared_ptr<ControllerData> pData = std::make_shared<ControllerData>(
 		lib_name,
-		this->ddsLink,
+		&(this->ddsSignalLink),
 		dls::topicType(lib_name, new ControlSignalMsgPubSubType()),
 		this->pRobot,
 		this->pDefault_spline_in,
@@ -532,28 +519,14 @@ bool ControlLayer::unloadMotionGenerator(const std::string& ID)
     return this->unloadMotionGenerator(pair_it->second);
 }
 
-Eigen::MatrixXd ControlLayer::saturateTorques(const Eigen::MatrixXd &req) const
+robotlib::JointState ControlLayer::saturateTorques(const robotlib::JointState& req) const
 {
 	// TODO("This is not implemented yet")
 	// TODO("Move this to the robot class")
 	return req;
 }
 
-void ControlLayer::publishDesiredTorques(const Eigen::VectorXd &torques, double time) // TODO Change type of time
-{
-	DesiredTorquesMsg msg;
-	msg.time() = time;
-	Eigen::VectorXd::Map(&msg.desired_torques()[0], torques.size()) = torques;
-
-	{
-		// std::lock_guard<std::mutex>	lock(this->last_published_desired_torques_mutex);
-		this->last_published_desired_torques = torques;
-	}
-
-	this->ddsLink->sendMessage("desiredTorques", &msg);
-}
-
-Eigen::VectorXd ControlLayer::getPublishedDesiredTorques(){
+robotlib::JointState ControlLayer::getPublishedDesiredTorques(){
 	// std::lock_guard<std::mutex>	lock(this->last_published_desired_torques_mutex);
-	return this->last_published_desired_torques;
+	return this->control_signal->desired_torques;
 }

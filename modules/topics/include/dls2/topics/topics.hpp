@@ -22,7 +22,6 @@
 #include <functional> 
 #include <dls_messages/dds/command_callPubSubTypes.h>
 #include <dls_messages/dds/stringmsgPubSubTypes.h>
-#include <dls_messages/dds/hyqreal_rawPubSubTypes.h>
 #include <dls_messages/dds/desired_torquesPubSubTypes.h>
 #include <dls_messages/dds/control_signalPubSubTypes.h>
 #include <dls_messages/dds/blind_statePubSubTypes.h>
@@ -82,7 +81,6 @@ namespace dls
 		{
 			extern dls::topicType blind_state;
 			extern dls::topicType hyq_raw;
-			extern dls::topicType hyqreal_raw;
             extern dls::topicType aliengo_raw;
 			extern dls::topicType imu;
 			extern dls::topicType joint_states;
