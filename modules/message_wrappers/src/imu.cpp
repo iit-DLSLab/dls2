@@ -73,7 +73,7 @@ Imu::operator ImuMsg() const
     return msg;
 }
 
-Imu& Imu::operator= (ImuMsg& msg)
+Imu& Imu::operator= (const ImuMsg& msg)
 {
 	this->orientation.x() = msg.orientation()[0];
 	this->orientation.y() = msg.orientation()[1];

@@ -33,7 +33,7 @@ namespace dls
         ~LegsPose();
 
 		operator LegsPoseMsg() const override;
-		LegsPose& operator= (LegsPoseMsg&) override;
+		LegsPose& operator= (const LegsPoseMsg&) override;
 
 		robotlib::LegDataMap<Eigen::Vector3d> lin_velocity;
 		robotlib::LegDataMap<Eigen::Vector3d> ang_velocity;

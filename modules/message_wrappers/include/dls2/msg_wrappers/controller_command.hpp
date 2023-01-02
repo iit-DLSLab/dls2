@@ -38,7 +38,7 @@ namespace dls
             ~ControllerCommand();
 
             operator ControllerCommandMsg() const override;
-		    ControllerCommand& operator= (ControllerCommandMsg&) override;
+		    ControllerCommand& operator= (const ControllerCommandMsg&) override;
             
         // private:
             double robot_height;

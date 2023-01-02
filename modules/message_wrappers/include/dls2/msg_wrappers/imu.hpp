@@ -33,7 +33,7 @@ namespace dls
         ~Imu();
 
 		operator ImuMsg() const override;
-		Imu& operator= (ImuMsg&) override;
+		Imu& operator= (const ImuMsg&) override;
 
 		Eigen::Quaterniond orientation;
 		Eigen::Matrix3d orientation_covariance;

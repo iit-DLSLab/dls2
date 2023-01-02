@@ -17,6 +17,7 @@
 #define WRAPPER_TPP
 
 #include "dls2/msg_wrappers/wrapper.hpp"
+#include <fastrtps/types/DynamicDataFactory.h>
 
 using namespace dls;
 
@@ -38,8 +39,14 @@ void* Wrapper<MsgType>::getMsg()
 template <typename MsgType>
 void Wrapper<MsgType>::loadMsg(void* tuple)
 {
+    // eprosima::fastrtps::types::DynamicData* data = (eprosima::fastrtps::types::DynamicData*) tuple;
+	// std::cout << "$$$ " << data->get_string_value(2) << std::endl;
+
     this->message = *((MsgType*) tuple);
-    *this = this->message;
+
+    // eprosima::fastrtps::types::DynamicData* data_2 = (eprosima::fastrtps::types::DynamicData*) (&(this->message));
+
+    // *this = this->message;
 }
 		
 #endif /* end of include guard: WRAPPER_TPP */

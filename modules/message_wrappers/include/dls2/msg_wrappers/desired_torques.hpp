@@ -33,7 +33,7 @@ namespace dls
         ~DesiredTorques();
 
 		operator DesiredTorquesMsg() const override;
-		DesiredTorques& operator= (DesiredTorquesMsg&) override;
+		DesiredTorques& operator= (const DesiredTorquesMsg&) override;
 		dls::DesiredTorques& operator=(const dls::DesiredTorques& from);
 
 		//data

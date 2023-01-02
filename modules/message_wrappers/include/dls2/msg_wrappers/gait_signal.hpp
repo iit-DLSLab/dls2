@@ -36,7 +36,7 @@ namespace dls
 		// GaitSignal(const std::shared_ptr<robotlib::RobotBase>&, GaitSignalMsg);
 		
 		operator GaitSignalMsg() const override;
-		GaitSignal& operator= (GaitSignalMsg&) override;
+		GaitSignal& operator= (const GaitSignalMsg&) override;
 
 		Pose desired_com_pose_world;            ///< The desired pose of the center of mass frame
 		Screw desired_com_velocity_world;        ///< The desired velocity of the center of mass frame

@@ -33,7 +33,7 @@ namespace dls
         ~TrunkControllerDebug();
 
 		operator TrunkControllerDebugMsg() const override;
-		TrunkControllerDebug& operator= (TrunkControllerDebugMsg&) override;
+		TrunkControllerDebug& operator= (const TrunkControllerDebugMsg&) override;
 
 		robotlib::LegDataMap<Eigen::Vector3d> feet_forces;
 		robotlib::LegDataMap<Eigen::Vector3d> desired_forces;

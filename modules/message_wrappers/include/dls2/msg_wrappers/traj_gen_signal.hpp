@@ -33,7 +33,7 @@ namespace dls
         ~TrajGenSignal();
 
         operator TrajGenMsg() const override;
-		TrajGenSignal& operator= (TrajGenMsg&) override;
+		TrajGenSignal& operator= (const TrajGenMsg&) override;
 
     // private:
         robotlib::LegDataMap<Eigen::Vector3d> foot_pos;

@@ -92,7 +92,7 @@ BlindState::operator BlindStateMsg() const
     return msg;
 }
 
-BlindState& BlindState::operator= (BlindStateMsg& msg)
+BlindState& BlindState::operator= (const BlindStateMsg& msg)
 {
 	this->robot_name = msg.robot_name();
 

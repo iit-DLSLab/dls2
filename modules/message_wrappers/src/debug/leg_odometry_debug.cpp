@@ -118,7 +118,7 @@ LegOdometryDebug::operator LegOdometryDebugMsg() const
     return msg;
 }
 
-LegOdometryDebug& LegOdometryDebug::operator= (LegOdometryDebugMsg& msg)
+LegOdometryDebug& LegOdometryDebug::operator= (const LegOdometryDebugMsg& msg)
 {
 	int i_leg = 0;
 	for(auto &leg : this->position_legs)

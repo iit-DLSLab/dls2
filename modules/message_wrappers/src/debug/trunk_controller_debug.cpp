@@ -58,7 +58,7 @@ TrunkControllerDebug::operator TrunkControllerDebugMsg() const
     return msg;
 }
 
-TrunkControllerDebug& TrunkControllerDebug::operator= (TrunkControllerDebugMsg& msg)
+TrunkControllerDebug& TrunkControllerDebug::operator= (const TrunkControllerDebugMsg& msg)
 {
 	int i_leg = 0;
 	for(auto &leg : this->feet_forces)

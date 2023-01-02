@@ -52,7 +52,7 @@ Odometry::operator T265OdometryMsg() const
 	return msg;
 }
 
-Odometry& Odometry::operator=(T265OdometryMsg& msg){
+Odometry& Odometry::operator=(const T265OdometryMsg& msg){
 
 	for(long unsigned int i = 0; i < msg.position().size(); i++)
 	{

@@ -38,8 +38,13 @@ SignalReader<SignalType>::SignalReader(dls::DDSParticipant* participant_, const 
 		{
 			[&](void* tuple)
 			{
-				std::lock_guard<std::mutex> lock(this->signal_mutex);		
+				// std::lock_guard<std::mutex> lock(this->signal_mutex);	
 				this->signal->loadMsg(tuple);
+
+				// eprosima::fastrtps::types::DynamicData* data = (eprosima::fastrtps::types::DynamicData*) tuple;
+				// // ((eprosima::fastrtps::types::DynamicData*) tuple)->return_loaned_value(data);
+
+				// std::cout << "$$$ " << data->get_string_value(2) << std::endl;
 			}
 		}
 	);

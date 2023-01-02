@@ -28,7 +28,7 @@ namespace dls
 		~Wrapper();
 		
 		virtual operator MsgType() const = 0;
-		virtual Wrapper &operator= (MsgType&) = 0;
+		virtual Wrapper &operator= (const MsgType&) = 0;
 
 		void* getMsg();
 		void loadMsg(void*);

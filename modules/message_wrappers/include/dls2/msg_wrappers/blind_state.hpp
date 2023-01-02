@@ -35,7 +35,7 @@ namespace dls
         ~BlindState();
 
 		operator BlindStateMsg() const override;
-		BlindState& operator= (BlindStateMsg&) override;
+		BlindState& operator= (const BlindStateMsg&) override;
 
 		std::string robot_name;
 		robotlib::JointDataMap<std::string> joint_name;

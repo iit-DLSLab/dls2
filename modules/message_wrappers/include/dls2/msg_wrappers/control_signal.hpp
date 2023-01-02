@@ -39,7 +39,7 @@ namespace dls
         ~ControlSignal();
 
         operator ControlSignalMsg() const override;
-        ControlSignal& operator=(ControlSignalMsg&) override;
+        ControlSignal& operator=(const ControlSignalMsg&) override;
         ControlSignal& operator=(const ControlSignal&);
 
         robotlib::JointState torques;

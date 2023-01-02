@@ -235,7 +235,7 @@ void *ControlLayer::controlSignalGather(void *data)
 		// Read the control signals
 		{
 			// std::lock_guard<std::mutex> lock(layer->controllers_mutex);
-
+			layer->torques.desired_torques = 2;
 			for(auto pair : layer->controllers)
 			{
 				layer->torques.desired_torques += pair.second->premultiplier * pair.second->control_signal.getData().torques;
@@ -434,9 +434,6 @@ bool ControlLayer::unloadController(std::shared_ptr<ControllerData> pData)
 
 	pData->proc = nullptr;
 	this->controllers.erase(pData->getID());
-
-	//Remove the dataReader associated to pData (this allows to reload the same controller)
-	this->getParticipant()->deleteReader(pData->getID());
 
 	std::cout << "UNLOADED CONTROLLER " << pData->getID() << std::endl;
 

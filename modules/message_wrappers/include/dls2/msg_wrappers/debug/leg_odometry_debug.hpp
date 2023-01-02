@@ -32,7 +32,7 @@ namespace dls
         ~LegOdometryDebug();
 
 		operator LegOdometryDebugMsg() const override;
-		LegOdometryDebug& operator= (LegOdometryDebugMsg&) override;
+		LegOdometryDebug& operator= (const LegOdometryDebugMsg&) override;
 
         //GROUND TRUTH POSE FROM GAZEBO
         Eigen::Vector3d position_gt;

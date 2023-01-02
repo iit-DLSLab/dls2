@@ -56,7 +56,7 @@ LegsPose::operator LegsPoseMsg() const
     return msg;
 }
 
-LegsPose& LegsPose::operator= (LegsPoseMsg& msg)
+LegsPose& LegsPose::operator= (const LegsPoseMsg& msg)
 {
 	int idx = 0;
 	for(auto &leg_pair : this->lin_velocity)

@@ -33,13 +33,17 @@ DesiredTorques::DesiredTorques(DesiredTorques& from)
 	, time(from.time)
 	, seq(from.seq)
 	, frame_id(from.frame_id)
-{}
+{
+	std::cout << "#### DES 1 " << from.frame_id << std::endl;
+}
 
 DesiredTorques::~DesiredTorques()
 {}
 
 DesiredTorques::operator DesiredTorquesMsg() const
 {
+	std::cout << "#### DES 2 " << this->frame_id << std::endl;
+
     DesiredTorquesMsg msg;
 
 	int i = 0;
@@ -59,8 +63,10 @@ DesiredTorques::operator DesiredTorquesMsg() const
     return msg;
 }
 
-DesiredTorques& DesiredTorques::operator= (DesiredTorquesMsg& msg)
+DesiredTorques& DesiredTorques::operator= (const DesiredTorquesMsg& msg)
 {
+	std::cout << "#### DES 3 " << msg.frame_id() << std::endl;
+
 	int i = 0;
 	for(auto &leg : this->desired_torques)
 	{
@@ -75,19 +81,16 @@ DesiredTorques& DesiredTorques::operator= (DesiredTorquesMsg& msg)
 	this->seq = msg.seq();
 	this->frame_id = msg.frame_id();
 
+	// std::cout << "@@@ " << ((eprosima::fastrtps::types::DynamicData*) emsg)->get_string_value(2) << std::endl;
+
 	return *this;
 }
 
 dls::DesiredTorques& dls::DesiredTorques::operator=(const dls::DesiredTorques& from)
 {
-	for(auto &leg : this->desired_torques)
-	{
-		for(auto &joint : *leg.data_)
-		{
-			this->desired_torques[joint.key_] = from.desired_torques[joint.key_];
-		}
-	}
+	std::cout << "#### DES 4 " << from.frame_id << std::endl;
 
+	this->desired_torques = from.desired_torques;
 	this->time = from.time;
 	this->seq = from.seq;
 	this->frame_id = from.frame_id;
