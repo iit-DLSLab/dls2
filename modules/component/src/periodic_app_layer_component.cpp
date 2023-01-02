@@ -232,7 +232,6 @@ AppLayerComponent::Status PeriodicAppLayerComponent::run()
 				);
 			}
 		}
-
 		sched_yield();
 
 	}while(this->should_run);

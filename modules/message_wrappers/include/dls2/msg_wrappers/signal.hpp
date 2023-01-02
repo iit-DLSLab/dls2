@@ -37,6 +37,8 @@ namespace dls
 	protected:
 		dls::DDSParticipant* ddsLink;
 
+		std::string ID;
+
 		// BEGIN critical section
 			const std::shared_ptr<SignalType> signal;
 			mutable std::mutex signal_mutex;

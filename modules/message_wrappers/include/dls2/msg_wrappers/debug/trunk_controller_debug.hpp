@@ -13,24 +13,32 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef SIGNAL_WRITER_HPP
-#define SIGNAL_WRITER_HPP
+#ifndef TRUNK_CONTROLLER_DEBUG_HPP
+#define TRUNK_CONTROLLER_DEBUG_HPP
 
-#include "dls2/msg_wrappers/signal.hpp"
+
+#include "robotlib/robot_base.hpp"
+
+#include "dls2/msg_wrappers/wrapper.hpp"
+#include "dls_messages/dds/debug_trunk_controller.h"
 
 namespace dls
 {
-	template <typename SignalType>
-	class SignalWriter : public Signal<SignalType>
+	class TrunkControllerDebug : public Wrapper<TrunkControllerDebugMsg>
 	{
 	public:
-		SignalWriter(dls::DDSParticipant*, const dls::topicType&, const std::shared_ptr<SignalType>);
-		~SignalWriter();
-		
-		void publish();
+		TrunkControllerDebug(const std::shared_ptr<robotlib::RobotBase>);
+		TrunkControllerDebug(TrunkControllerDebug&);
+		TrunkControllerDebug() = delete;
+        ~TrunkControllerDebug();
+
+		operator TrunkControllerDebugMsg() const override;
+		TrunkControllerDebug& operator= (TrunkControllerDebugMsg&) override;
+
+		robotlib::LegDataMap<Eigen::Vector3d> feet_forces;
+		robotlib::LegDataMap<Eigen::Vector3d> desired_forces;
+		Eigen::Matrix<double,6,1> desired_wrench;
 	};
 } // end namespace dls
 
-#include "dls2/msg_wrappers/signal_writer.tpp"
-
-#endif /* end of include guard: SIGNAL_WRITER_HPP */
+#endif /* end of include guard: TRUNK_CONTROLLER_DEBUG_HPP */

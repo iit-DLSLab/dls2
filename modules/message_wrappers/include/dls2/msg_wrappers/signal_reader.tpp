@@ -18,13 +18,21 @@
 
 #include "dls2/msg_wrappers/signal_reader.hpp"
 
+#include <experimental/random>
+
 using namespace dls;
 
 template <typename SignalType>
 SignalReader<SignalType>::SignalReader(dls::DDSParticipant* participant_, const dls::topicType& topic_, const std::shared_ptr<SignalType> signal_)
 	: Signal<SignalType>(participant_, signal_)
 {
-	this->ddsLink->addReader(topic_.first,
+	int id = std::experimental::randint(100000, 999999);
+	while(participant_->getReader(std::to_string(id)) != nullptr)
+		id = std::experimental::randint(100000, 999999);
+
+	this->ID = std::to_string(id);
+
+	this->ddsLink->addReader(this->ID,
 		topic_,
 		std::function<void(void*)>
 		{
@@ -39,6 +47,8 @@ SignalReader<SignalType>::SignalReader(dls::DDSParticipant* participant_, const 
 	
 template <typename SignalType>
 SignalReader<SignalType>::~SignalReader()
-{ }	
+{ 
+	this->ddsLink->deleteReader(this->ID);
+}	
 
 #endif /* end of include guard: SIGNAL_READER_TPP */

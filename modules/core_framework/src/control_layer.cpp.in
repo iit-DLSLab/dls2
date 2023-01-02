@@ -238,7 +238,7 @@ void *ControlLayer::controlSignalGather(void *data)
 
 			for(auto pair : layer->controllers)
 			{
-				layer->torques.desired_torques = pair.second->premultiplier * pair.second->control_signal.getData().torques;
+				layer->torques.desired_torques += pair.second->premultiplier * pair.second->control_signal.getData().torques;
 			}
 		}
 
@@ -250,16 +250,16 @@ void *ControlLayer::controlSignalGather(void *data)
 			layer->control_signal.publish();
         // }
 
-        // auto delta = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - now).count();
+        auto delta = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - now).count();
 
-        // if (delta > 990)
-        // {
-        //     std::stringstream ss;
-		//     ss << "Control Layer is probably breaking real-time. Has period of 1 mseconds but spent: " << delta << " useconds ";
-  		//     // ss << "Control layer published torques " << desired_torques.transpose(); // << std::endl;
-		//     // scout << "\033[F" << "\r" << ss.str() << std::endl;
-        //     layer->scout << ss.str() << std::endl;
-        // }
+        if (delta > 990)
+        {
+            std::stringstream ss;
+		    ss << "Control Layer is probably breaking real-time. Has period of 1 mseconds but spent: " << delta << " useconds ";
+  		    // ss << "Control layer published torques " << desired_torques.transpose(); // << std::endl;
+		    // scout << "\033[F" << "\r" << ss.str() << std::endl;
+            layer->scout << ss.str() << std::endl;
+        }
 
     	sched_yield();
     }
@@ -434,6 +434,12 @@ bool ControlLayer::unloadController(std::shared_ptr<ControllerData> pData)
 
 	pData->proc = nullptr;
 	this->controllers.erase(pData->getID());
+
+	//Remove the dataReader associated to pData (this allows to reload the same controller)
+	this->getParticipant()->deleteReader(pData->getID());
+
+	std::cout << "UNLOADED CONTROLLER " << pData->getID() << std::endl;
+
     return true;
 }
 

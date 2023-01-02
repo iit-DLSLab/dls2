@@ -167,13 +167,34 @@ namespace dls
 		return writer;
 	}
 
+	bool DDSParticipant::deleteWriter(const std::string& writer_name)
+	{
+		ReturnCode_t result (this->publisher->delete_datawriter(this->getWriter(writer_name)));
+
+		if(result == ReturnCode_t::RETCODE_PRECONDITION_NOT_MET)
+		{
+			std::cout <<  "THE WRITER " << writer_name << " DOES NOT BELONG TO THE SUBSCRIBER" << std::endl;
+			return false;
+		}
+		else if(result==ReturnCode_t::RETCODE_ERROR)
+		{
+			std::cout <<  "RETCODE_ERROR ERROR WHEN REMOVING THE WRITER " << writer_name << std::endl;
+		}
+		
+		this->writers.erase(writer_name);
+		return true;
+	}
+
 	eprosima::fastdds::dds::DataReader *DDSParticipant::addReader(
 		std::string readerName_,
 		dls::topicType topicData_,
 		std::function<void(void *)> callback_)
 	{
 		if(this->readers.find(readerName_) != this->readers.end())
-			throw std::runtime_error("THE READER" + readerName_ + " ALREADY EXISTS, YOU ARE TRYING TO CREATE TWICE");
+		{
+			std::cout << "THE READER " << readerName_ << " ALREADY EXISTS, YOU ARE TRYING TO CREATE TWICE" << std::endl;
+			return this->readers.find(readerName_)->second;
+		}		
 
 		auto topic = this->addTopic(topicData_);
 
@@ -195,6 +216,24 @@ namespace dls
 		}
 
 		return reader;
+	}
+
+	bool DDSParticipant::deleteReader(const std::string& reader_name)
+	{
+		ReturnCode_t result (this->subscriber->delete_datareader(this->getReader(reader_name)));
+
+		if(result == ReturnCode_t::RETCODE_PRECONDITION_NOT_MET)
+		{
+			std::cout <<  "THE READER " << reader_name << " DOES NOT BELONG TO THE SUBSCRIBER" << std::endl;
+			return false;
+		}
+		else if(result==ReturnCode_t::RETCODE_ERROR)
+		{
+			std::cout <<  "RETCODE_ERROR ERROR WHEN REMOVING THE READER " << reader_name << std::endl;
+		}
+		
+		this->readers.erase(reader_name);
+		return true;
 	}
 
 	eprosima::fastdds::dds::Topic *DDSParticipant::addTopic(dls::topicType topicData_)

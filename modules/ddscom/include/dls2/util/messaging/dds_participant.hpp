@@ -64,6 +64,9 @@ namespace dls
 			std::function<void(void *)>	callback
 		);
 
+		bool deleteReader(const std::string& reader_name);
+		bool deleteWriter(const std::string& writer_name);
+
 		bool sendMessage(std::string writerName, void *msg);
 
 		void setTopicListener(dls::DDSPartListener *listener_);
