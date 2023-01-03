@@ -24,15 +24,21 @@
 namespace dls
 {
 
-	DDSParticipant::DDSParticipant(std::string partName_, dls::domainType domain_)
+	DDSParticipant::DDSParticipant(std::string partName_, dls::domainType domain_, bool tupelookup_server)
     	: participant(nullptr)
         , publisher(nullptr)
         , subscriber(nullptr)
 		, topicListener(nullptr)
 	{
 		eprosima::fastdds::dds::DomainParticipantQos participantQos;
-		participantQos.wire_protocol().builtin.typelookup_config.use_client = true;
-		participantQos.wire_protocol().builtin.typelookup_config.use_server = true;
+		if (tupelookup_server)
+		{
+			participantQos.wire_protocol().builtin.typelookup_config.use_server = true;	
+		}
+		else
+		{
+			participantQos.wire_protocol().builtin.typelookup_config.use_client = true;
+		}
 		participantQos.wire_protocol().builtin.discovery_config.discoveryProtocol = eprosima::fastrtps::rtps::DiscoveryProtocol_t::SIMPLE;
 		participantQos.wire_protocol().builtin.discovery_config.leaseDuration = eprosima::fastrtps::Duration_t(3, 1);
         participantQos.wire_protocol().builtin.discovery_config.leaseDuration_announcementperiod = eprosima::fastrtps::Duration_t(1, 2);
@@ -312,13 +318,12 @@ namespace dls
 			[this, topic_name]
 				(const std::string&, const eprosima::fastrtps::types::DynamicType_ptr type)
 			{
-				// std::cout << "Type discovered by lookup info: " << type->get_name() << " in topic: " << topic_name.to_string() << std::endl;
 				this->on_topic_discovery_(topic_name.to_string(), type->get_name());
 			});
 		
 		if(DDSParticipant::is_type_registered_in_participant_(type_name.to_string()))
 			return;
-
+		
 		// Registering type and creating reader
 		participant->register_remote_type(
 			type_information,
@@ -339,8 +344,6 @@ namespace dls
 		{
 			this->topicListener->on_topic_discovery(topic_name, type_name);
 		}
-
-		// std::cout << "Topic discovered: " << topic_name << " [ " << type_name << " ]" << std::endl;
 	}
 
 	void DDSParticipant::setTopicListener(dls::DDSPartListener *listener_)
@@ -435,6 +438,5 @@ namespace dls
 	}
 
 } // namespace dls
-/// \endcond
 
 #endif /* end of include guard: DDSPARTICIPANT_CPP */

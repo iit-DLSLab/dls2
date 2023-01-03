@@ -25,7 +25,7 @@ namespace dls
 	{
 	public:
 		Wrapper();
-		~Wrapper();
+		virtual ~Wrapper();
 		
 		virtual operator MsgType() const = 0;
 		virtual Wrapper &operator= (const MsgType&) = 0;

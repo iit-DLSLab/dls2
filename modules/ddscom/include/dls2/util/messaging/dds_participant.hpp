@@ -41,7 +41,8 @@ namespace dls
 	public:
 		DDSParticipant(
 			std::string 	partName_,
-			dls::domainType domain_
+			dls::domainType domain_,
+			bool tupelookup_server = true
 		);
 
 		~DDSParticipant();

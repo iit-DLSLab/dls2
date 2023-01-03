@@ -235,20 +235,17 @@ void *ControlLayer::controlSignalGather(void *data)
 		// Read the control signals
 		{
 			// std::lock_guard<std::mutex> lock(layer->controllers_mutex);
-			layer->torques.desired_torques = 2;
+			layer->torques.desired_torques = 0;
 			for(auto pair : layer->controllers)
 			{
 				layer->torques.desired_torques += pair.second->premultiplier * pair.second->control_signal.getData().torques;
 			}
 		}
 
-    	// // Send the desired torques to HAL
-        // if(layer->controllers.size() > 0)
-        // {
-			layer->control_signal->desired_torques = layer->saturateTorques(layer->torques.desired_torques);
-            layer->control_signal->time = std::chrono::duration_cast<std::chrono::microseconds>(epoch).count();
-			layer->control_signal.publish();
-        // }
+    	// Send the desired torques to HAL
+		layer->control_signal->desired_torques = layer->saturateTorques(layer->torques.desired_torques);
+		layer->control_signal->time = std::chrono::duration_cast<std::chrono::microseconds>(epoch).count();
+		layer->control_signal.publish();
 
         auto delta = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - now).count();
 

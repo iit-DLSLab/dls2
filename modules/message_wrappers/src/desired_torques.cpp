@@ -26,24 +26,20 @@ DesiredTorques::DesiredTorques(const std::shared_ptr<robotlib::RobotBase> pRobot
 	, time(0.0)
 	, seq(0)
 	, frame_id(pRobot->getName())
-{}
+{ }
 
 DesiredTorques::DesiredTorques(DesiredTorques& from)
 	: desired_torques(from.desired_torques)
 	, time(from.time)
 	, seq(from.seq)
 	, frame_id(from.frame_id)
-{
-	std::cout << "#### DES 1 " << from.frame_id << std::endl;
-}
+{ }
 
 DesiredTorques::~DesiredTorques()
-{}
+{ }
 
 DesiredTorques::operator DesiredTorquesMsg() const
 {
-	std::cout << "#### DES 2 " << this->frame_id << std::endl;
-
     DesiredTorquesMsg msg;
 
 	int i = 0;
@@ -65,8 +61,6 @@ DesiredTorques::operator DesiredTorquesMsg() const
 
 DesiredTorques& DesiredTorques::operator= (const DesiredTorquesMsg& msg)
 {
-	std::cout << "#### DES 3 " << msg.frame_id() << std::endl;
-
 	int i = 0;
 	for(auto &leg : this->desired_torques)
 	{
@@ -81,15 +75,11 @@ DesiredTorques& DesiredTorques::operator= (const DesiredTorquesMsg& msg)
 	this->seq = msg.seq();
 	this->frame_id = msg.frame_id();
 
-	// std::cout << "@@@ " << ((eprosima::fastrtps::types::DynamicData*) emsg)->get_string_value(2) << std::endl;
-
 	return *this;
 }
 
-dls::DesiredTorques& dls::DesiredTorques::operator=(const dls::DesiredTorques& from)
+DesiredTorques& DesiredTorques::operator=(const DesiredTorques& from)
 {
-	std::cout << "#### DES 4 " << from.frame_id << std::endl;
-
 	this->desired_torques = from.desired_torques;
 	this->time = from.time;
 	this->seq = from.seq;

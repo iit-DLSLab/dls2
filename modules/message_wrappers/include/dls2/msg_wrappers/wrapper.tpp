@@ -39,14 +39,8 @@ void* Wrapper<MsgType>::getMsg()
 template <typename MsgType>
 void Wrapper<MsgType>::loadMsg(void* tuple)
 {
-    // eprosima::fastrtps::types::DynamicData* data = (eprosima::fastrtps::types::DynamicData*) tuple;
-	// std::cout << "$$$ " << data->get_string_value(2) << std::endl;
-
     this->message = *((MsgType*) tuple);
-
-    // eprosima::fastrtps::types::DynamicData* data_2 = (eprosima::fastrtps::types::DynamicData*) (&(this->message));
-
-    // *this = this->message;
+    *this = this->message;
 }
 		
 #endif /* end of include guard: WRAPPER_TPP */

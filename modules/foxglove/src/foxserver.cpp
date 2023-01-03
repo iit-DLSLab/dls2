@@ -16,7 +16,7 @@ static uint64_t nanosecondsSinceEpoch() {
 FoxServer::FoxServer()
     : serverThread(nullptr)
     , foxserver(8765, "example server")
-    , ddslink("FoxServer::monitor", dls::domains::signals)
+    , ddslink("FoxServer::monitor", dls::domains::signals, false)
 {
     this->serverThread = new std::thread(&FoxServer::serverFunc, this);
     ddslink.setTopicListener(this);
