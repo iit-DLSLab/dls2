@@ -63,6 +63,12 @@ public:
 	/// the Screw instance which owns it has gone out of scope
 	Eigen::Matrix<double, 6, 1> &data();
 
+	/// Returns a value by index
+	double& operator[](int index);
+
+	/// Returns a value by index for const object
+	const double& operator[](int index) const;
+
 private:
 
 	/// Data storage
