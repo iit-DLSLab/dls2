@@ -87,3 +87,13 @@ Eigen::Vector3d Screw::getAngular() const
 {
 	return this->eigen_vec.block<3, 1>(3, 0);
 }
+
+double& Screw::operator[](int index)
+{
+	return this->eigen_vec(index);
+}
+
+const double& Screw::operator[](int index) const
+{
+	return this->eigen_vec(index);
+}
