@@ -20,6 +20,8 @@
 #include <robotlib/robot_base.hpp>
 
 #include "dls2/msg_wrappers/wrapper.hpp"
+#include "dls2/msg_wrappers/pose.hpp"
+#include "dls2/msg_wrappers/screw.hpp"
 #include "dls_messages/dds/controller_command.h"
 
 namespace Eigen
@@ -45,8 +47,9 @@ namespace dls
             double step_frequency;
             double duty_factor;
             robotlib::LegDataMap<double> step_height;
-            Eigen::Vector6d des_base_pos_HF;
-            Eigen::Vector6d des_base_vel_HF;
+            Pose base_pose_HF;
+            dls::Screw base_vel_HF;
+            dls::Screw base_acc_HF;
     };
 }
 #endif // CONTROLLER_COMMANDS_HPP
