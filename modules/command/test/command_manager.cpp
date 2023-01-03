@@ -12,11 +12,6 @@ using namespace dls;
 //
 // These tests are therefore very coarse grained, aimed at only giving an
 // initial direction for investigation.
-TEST_CASE("Creating a command manager works", "[command manager]")
-{
-	CommandManager cm("test");
-}
-
 TEST_CASE("Creating a command manager and adding a command works", "[command manager]")
 {
 	CommandManager cm("test");
