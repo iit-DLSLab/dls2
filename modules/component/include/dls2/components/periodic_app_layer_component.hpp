@@ -57,11 +57,12 @@ namespace dls
 		/// correct rate
 		virtual void run(const std::chrono::system_clock::time_point&) = 0;
 
-	private:
+	protected:
 		/// The period of this component
 		///
 		const period_t period;
 
+	private:
 		/// Used to determine whether the periodic run function should be called
 		///
 		std::atomic_bool should_run;
