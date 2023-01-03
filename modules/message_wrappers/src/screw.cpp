@@ -20,7 +20,7 @@ using namespace dls;
 // Constructors
 // =============================================================================
 Screw::Screw():
-	eigen_vec()
+	eigen_vec(Eigen::Matrix<double,6,1>::Zero())
 { }
 
 Screw::Screw(const ScrewMsg &msg)
@@ -38,6 +38,7 @@ Screw::Screw(const ScrewMsg &msg)
 
 Screw::Screw(const Eigen::Vector3d& lin, const Eigen::Vector3d& ang)
 {
+	eigen_vec = Eigen::Matrix<double,6,1>::Zero();
 	this->setLinear(lin);
 	this->setLinear(ang);
 }
