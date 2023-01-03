@@ -114,8 +114,7 @@ BlindState& BlindState::operator= (BlindStateMsg& msg)
 	}
 
 	this->base_pose_world.set(Eigen::Vector3d(msg.base_pos_world().data()));
-	this->base_pose_world.set(Eigen::Quaterniond(msg.base_ori_world().data()));
-
+	this->base_pose_world.set(Eigen::Quaterniond(msg.base_ori_world()[3], msg.base_ori_world()[0], msg.base_ori_world()[1], msg.base_ori_world()[2]));
 	this->base_vel_world.setLinear(Eigen::Vector3d(msg.base_lin_vel_world().data()));
 	this->base_vel_world.setAngular(Eigen::Vector3d(msg.base_ang_vel_world().data()));
 	this->base_acc_world.setLinear(Eigen::Vector3d(msg.base_lin_acc_world().data()));
