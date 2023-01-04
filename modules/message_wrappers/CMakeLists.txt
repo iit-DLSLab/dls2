@@ -10,6 +10,7 @@ add_library(dls_message_wrappers
 		src/traj_gen_signal.cpp
 		src/odometry.cpp
 		src/legs_pose.cpp
+		src/attitude.cpp
 		src/imu.cpp
 		src/desired_torques.cpp
 		src/debug/leg_odometry_debug.cpp

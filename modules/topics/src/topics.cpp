@@ -54,6 +54,7 @@ namespace dls
 		{
 			dls::topicType legs_pose			= dls::topicType("legs_pose", new LegsPoseMsgPubSubType());
 			dls::topicType t265_odometry        = dls::topicType("t265_odometry", new T265OdometryMsgPubSubType());
+			dls::topicType attitude_estimation  = dls::topicType("attitude_estimation", new AttitudeMsgPubSubType());
 		}
 			
 		namespace low_level_estimation
