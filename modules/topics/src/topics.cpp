@@ -46,6 +46,7 @@ namespace dls
 		dls::topicType desired_torques 			= dls::topicType("desired_torques", new DesiredTorquesMsgPubSubType());
 		dls::topicType control_signal 			= dls::topicType("control_signal", new  ControlSignalMsgPubSubType());
 		dls::topicType gait_signal 				= dls::topicType("gait_signal", new  GaitSignalMsgPubSubType());
+		dls::topicType joy_signal				= dls::topicType("joy_signal", new  ControllerCommandMsgPubSubType());
 
 		// services
 		dls::topicType param_server 			= dls::topicType("add_double", new ParamServerMsgPubSubType());

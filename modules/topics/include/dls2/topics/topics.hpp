@@ -37,7 +37,8 @@
 #include <dls_messages/dds/t265_odometryPubSubTypes.h>
 #include <dls_messages/dds/attitude_estimationPubSubTypes.h>
 #include <dls_messages/dds/param_serverPubSubTypes.h>
-#include "dls_messages/dds/doublePubSubTypes.h"
+#include <dls_messages/dds/doublePubSubTypes.h>
+#include <dls_messages/dds/controller_commandPubSubTypes.h>
 
 namespace dls
 {
@@ -68,6 +69,7 @@ namespace dls
 		extern dls::topicType desired_torques;
 		extern dls::topicType control_signal;
 		extern dls::topicType gait_signal;
+		extern dls::topicType joy_signal;
 
 		// services
 		extern dls::topicType param_server;
