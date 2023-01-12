@@ -33,12 +33,12 @@ Imu::Imu()
 {}
 
 Imu::Imu(Imu& from)
-	: orientation(0.0, 0.0, 0.0, 1.0)
-	, orientation_covariance(Eigen::Matrix3d::Zero())
-	, angular_velocity(Eigen::Vector3d::Zero())
-	, angular_velocity_covariance(Eigen::Matrix3d::Zero())
-	, linear_acceleration(Eigen::Vector3d::Zero())
-	, linear_acceleration_covariance(Eigen::Matrix3d::Zero())
+	: orientation(from.orientation)
+	, orientation_covariance(from.orientation_covariance)
+	, angular_velocity(from.angular_velocity)
+	, angular_velocity_covariance(from.angular_velocity_covariance)
+	, linear_acceleration(from.linear_acceleration)
+	, linear_acceleration_covariance(from.linear_acceleration_covariance)
 	, time(from.time)
 	, frame_id(from.frame_id)
 {}
@@ -79,7 +79,6 @@ Imu& Imu::operator= (const ImuMsg& msg)
 	this->orientation.y() = msg.orientation()[1];
 	this->orientation.z() = msg.orientation()[2];
 	this->orientation.w() = msg.orientation()[3];
-
 	for(int i=0; i<3; i++)
 	{
 		this->angular_velocity(i) = msg.angular_velocity()[i];
