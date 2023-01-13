@@ -20,6 +20,7 @@
 #include "dls2/util/messaging/dds_participant.hpp"
 #include "dls2/topics/topics.hpp"
 #include "robotlib/robot_factory.hpp"
+#include "dls2/msg_wrappers/wrapper.hpp"
 
 namespace dls
 {
