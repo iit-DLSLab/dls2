@@ -54,7 +54,7 @@ StanceLegs::operator StanceLegsMsg() const
     return msg;
 }
 
-StanceLegs& StanceLegs::operator= (StanceLegsMsg& msg)
+StanceLegs& StanceLegs::operator= (const StanceLegsMsg& msg)
 {
 	this->robot_name = msg.robot_name();
 

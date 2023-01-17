@@ -35,7 +35,7 @@ namespace dls
         ~StanceLegs();
 
 		operator StanceLegsMsg() const override;
-		StanceLegs& operator= (StanceLegsMsg&) override;
+		StanceLegs& operator= (const StanceLegsMsg&) override;
 
 		std::string robot_name;
 

@@ -33,7 +33,7 @@ namespace dls
         ~BaseState();
 
 		operator BaseStateMsg() const override;
-		BaseState& operator= (BaseStateMsg&) override;
+		BaseState& operator= (const BaseStateMsg&) override;
 
 		std::string robot_name;
 

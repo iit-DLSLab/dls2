@@ -62,7 +62,7 @@ BaseState::operator BaseStateMsg() const
     return msg;
 }
 
-BaseState& BaseState::operator= (BaseStateMsg& msg)
+BaseState& BaseState::operator= (const BaseStateMsg& msg)
 {
 	this->robot_name = msg.robot_name();
 
