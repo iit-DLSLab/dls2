@@ -12,6 +12,7 @@ add_library(dls_message_wrappers
 		src/legs_pose.cpp
 		src/imu.cpp
 		src/desired_torques.cpp
+		src/stance_legs.cpp
 		src/base_state.cpp
 		src/debug/leg_odometry_debug.cpp
 		src/debug/trunk_controller_debug.cpp
