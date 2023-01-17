@@ -17,6 +17,7 @@
 #define WRAPPER_TPP
 
 #include "dls2/msg_wrappers/wrapper.hpp"
+#include <fastrtps/types/DynamicDataFactory.h>
 
 using namespace dls;
 

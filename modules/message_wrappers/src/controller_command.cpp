@@ -49,12 +49,14 @@ ControllerCommand::operator ControllerCommandMsg() const
     msg.robot_height() = this->robot_height;
     msg.step_frequency() = this->step_frequency;
     msg.duty_factor() = this->duty_factor;
+    
     int i {0};
     for(auto &leg_pair : this->step_height)
     {
-        msg.step_height()[i] = this->step_height[leg_pair.key_];
+        msg.step_height()[i++] = this->step_height[leg_pair.key_];
     }
-    for(int i=0;i<3;i++)
+
+    for(int i = 0; i < 3; i++)
     {
         msg.base_pos_HF()[i] = this->base_pose_HF.toPosition()(i);
         msg.base_lin_vel_HF()[i] = this->base_vel_HF.getLinear()(i);
@@ -68,7 +70,7 @@ ControllerCommand::operator ControllerCommandMsg() const
     return msg;
 }
 
-ControllerCommand& ControllerCommand::operator= (ControllerCommandMsg &msg)
+ControllerCommand& ControllerCommand::operator= (const ControllerCommandMsg &msg)
 {
     this->robot_height = msg.robot_height();
     this->step_frequency = msg.step_frequency();
@@ -77,9 +79,10 @@ ControllerCommand& ControllerCommand::operator= (ControllerCommandMsg &msg)
     int i {0};
     for(auto &leg_pair : this->step_height)
     {
-        this->step_height[leg_pair.key_] = msg.step_height()[i];
+        this->step_height[leg_pair.key_] = msg.step_height()[i++];
     }
-    for(int i=0;i<3;i++)
+
+    for(int i = 0; i < 3; i++)
     {
         this->base_pose_HF.set(Eigen::Vector3d((msg.base_pos_HF().data())));
         this->base_pose_HF.set(Eigen::Quaterniond(

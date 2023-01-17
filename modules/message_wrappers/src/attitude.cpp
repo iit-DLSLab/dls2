@@ -13,32 +13,25 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#include "dls2/msg_wrappers/odometry.hpp"
+#include "dls2/msg_wrappers/attitude.hpp"
 
 using namespace dls;
 
-Odometry::Odometry() 
+Attitude::Attitude() 
 { }
 
-Odometry::Odometry(Odometry& from)
-	: position(from.position)
-    , orientation(from.orientation)
-	, linear_velocity(from.linear_velocity)
+Attitude::Attitude(Attitude& from)
+    : orientation(from.orientation)
     , angular_velocity(from.angular_velocity)
 	, timestamp(from.timestamp)
 { }
 
-Odometry::~Odometry()
-{ }
-
-Odometry::operator T265OdometryMsg() const
+Attitude::operator AttitudeMsg() const
 {
-	T265OdometryMsg msg;
+	AttitudeMsg msg;
 
-	for(long unsigned int i = 0; i < msg.position().size(); i++)
+	for(long unsigned int i = 0; i < msg.angular_velocity().size(); i++)
 	{
-		msg.position()[i] = this->position[i];
-		msg.linear_velocity()[i] = this->linear_velocity[i];
     	msg.angular_velocity()[i] = this->angular_velocity[i];
 	}
 
@@ -52,12 +45,10 @@ Odometry::operator T265OdometryMsg() const
 	return msg;
 }
 
-Odometry& Odometry::operator=(const T265OdometryMsg& msg){
+Attitude& Attitude::operator=(const AttitudeMsg& msg){
 
-	for(long unsigned int i = 0; i < msg.position().size(); i++)
+	for(long unsigned int i = 0; i < msg.angular_velocity().size(); i++)
 	{
-		this->position[i] = msg.position()[i];
-		this->linear_velocity[i] = msg.linear_velocity()[i];
     	this->angular_velocity[i] = msg.angular_velocity()[i];
 	}
 	
@@ -71,11 +62,9 @@ Odometry& Odometry::operator=(const T265OdometryMsg& msg){
     return *this;
 }
 
-Odometry& Odometry::operator=(const Odometry& from)
+Attitude& Attitude::operator=(const Attitude& from)
 { 
-	this->position = from.position;
     this->orientation = from.orientation;
-	this->linear_velocity = from.linear_velocity;
     this->angular_velocity = from.angular_velocity;
 	this->timestamp = from.timestamp;
 	

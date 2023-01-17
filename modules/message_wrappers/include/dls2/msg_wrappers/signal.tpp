@@ -24,7 +24,11 @@ template <typename SignalType>
 Signal<SignalType>::Signal(dls::DDSParticipant* participant_, const std::shared_ptr<SignalType> signal_)
 	: ddsLink(participant_)
 	, signal(signal_)
-{ }
+{ 
+	static_assert(
+    std::is_convertible<SignalType*, Wrapper<typename SignalType::type>*>::value,
+    "Signal type should always derive (heritage) from dls::Wrapper class");
+}
 	
 template <typename SignalType>
 Signal<SignalType>::~Signal()

@@ -29,10 +29,10 @@ namespace dls
     public:
         Odometry();
         Odometry(Odometry&);
-        virtual ~Odometry() = default;
+        ~Odometry();
 
         operator T265OdometryMsg() const override;
-        Odometry& operator=(T265OdometryMsg&) override;
+        Odometry& operator=(const T265OdometryMsg&) override;
         Odometry& operator=(const Odometry&);
 
         Eigen::Vector3d position;

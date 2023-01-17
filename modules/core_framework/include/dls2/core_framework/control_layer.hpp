@@ -22,6 +22,8 @@
 #include "app_layer.hpp"
 #include "dls2/controller/controller.hpp"
 #include "dls2/motion_generator/motion_generator.hpp"
+#include "dls2/msg_wrappers/signal_writer.hpp"
+#include "dls2/msg_wrappers/desired_torques.hpp"
 
 #include <map>
 #include <memory>
@@ -109,7 +111,7 @@ public:
 
 	/// Returns the last published desired torques
 	///
-	Eigen::VectorXd getPublishedDesiredTorques();
+	robotlib::JointState getPublishedDesiredTorques();
 
 	std::string where() override;
 private:
@@ -119,13 +121,7 @@ private:
 	///
 	/// @param req The requested torques
 	/// @ret A saturated version of the torques that do not exceed safe limits
-	Eigen::MatrixXd saturateTorques(const Eigen::MatrixXd &req) const;
-
-	// ============================ Communincation =============================
-	// TODO Change type of time
-	/// Publish Torques to the rest of the framework
-	///
-	void publishDesiredTorques(const Eigen::VectorXd &, double time);
+	robotlib::JointState saturateTorques(const robotlib::JointState& req) const;
 
 	// ============================= Data Members ==============================
 	// BEGIN critical section
@@ -138,7 +134,7 @@ private:
 		std::mutex motion_mutex;
 	// END critical section
 	
-	dls::DDSParticipant* ddsLink;
+	dls::DDSParticipant ddsSignalLink;
 	
 	/// Default controller spline-in
 	///
@@ -152,10 +148,12 @@ private:
 	///
 	std::chrono::seconds default_duration_seconds;
 
-	// BEGIN critical section
-		std::mutex last_published_desired_torques_mutex;
-		Eigen::VectorXd last_published_desired_torques;
-	// END critical section
+	std::shared_ptr<robotlib::RobotBase> pRobot;
+
+	/// @brief Output signals
+	SignalWriter<DesiredTorques> control_signal;
+
+	DesiredTorques torques;
 
 	bool unloadController(std::shared_ptr<ControllerData> pData);
 
@@ -165,8 +163,6 @@ private:
 	pthread_t controlSignalGatherThread;
 
 	static void *controlSignalGather(void *data);
-
-	std::shared_ptr<robotlib::RobotBase> pRobot;
 
 	// ================================ Members ================================
 	logging::clogstream scout;

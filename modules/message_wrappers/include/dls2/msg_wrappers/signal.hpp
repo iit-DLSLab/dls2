@@ -20,6 +20,7 @@
 #include "dls2/util/messaging/dds_participant.hpp"
 #include "dls2/topics/topics.hpp"
 #include "robotlib/robot_factory.hpp"
+#include "dls2/msg_wrappers/wrapper.hpp"
 
 namespace dls
 {
@@ -36,6 +37,8 @@ namespace dls
 	
 	protected:
 		dls::DDSParticipant* ddsLink;
+
+		std::string ID;
 
 		// BEGIN critical section
 			const std::shared_ptr<SignalType> signal;

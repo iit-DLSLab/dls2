@@ -28,9 +28,6 @@ namespace dls
 		~SignalWriter();
 		
 		void publish();
-
-	private:
-		std::string ID;
 	};
 } // end namespace dls
 

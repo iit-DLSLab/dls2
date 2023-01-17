@@ -26,17 +26,17 @@ DesiredTorques::DesiredTorques(const std::shared_ptr<robotlib::RobotBase> pRobot
 	, time(0.0)
 	, seq(0)
 	, frame_id(pRobot->getName())
-{}
+{ }
 
 DesiredTorques::DesiredTorques(DesiredTorques& from)
 	: desired_torques(from.desired_torques)
 	, time(from.time)
 	, seq(from.seq)
 	, frame_id(from.frame_id)
-{}
+{ }
 
 DesiredTorques::~DesiredTorques()
-{}
+{ }
 
 DesiredTorques::operator DesiredTorquesMsg() const
 {
@@ -59,7 +59,7 @@ DesiredTorques::operator DesiredTorquesMsg() const
     return msg;
 }
 
-DesiredTorques& DesiredTorques::operator= (DesiredTorquesMsg& msg)
+DesiredTorques& DesiredTorques::operator= (const DesiredTorquesMsg& msg)
 {
 	int i = 0;
 	for(auto &leg : this->desired_torques)
@@ -78,16 +78,9 @@ DesiredTorques& DesiredTorques::operator= (DesiredTorquesMsg& msg)
 	return *this;
 }
 
-dls::DesiredTorques& dls::DesiredTorques::operator=(const dls::DesiredTorques& from)
+DesiredTorques& DesiredTorques::operator=(const DesiredTorques& from)
 {
-	for(auto &leg : this->desired_torques)
-	{
-		for(auto &joint : *leg.data_)
-		{
-			this->desired_torques[joint.key_] = from.desired_torques[joint.key_];
-		}
-	}
-
+	this->desired_torques = from.desired_torques;
 	this->time = from.time;
 	this->seq = from.seq;
 	this->frame_id = from.frame_id;

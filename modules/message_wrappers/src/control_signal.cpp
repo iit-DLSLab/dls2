@@ -49,7 +49,7 @@ ControlSignal::operator ControlSignalMsg() const
 	return msg;
 }
 
-ControlSignal& ControlSignal::operator=(ControlSignalMsg& msg){
+ControlSignal& ControlSignal::operator=(const ControlSignalMsg& msg){
 
 	this->signal_reconstruction_method = (dls::ControlSignal::SignalReconstructionMethod) msg.signal_reconstruction_method();
 	

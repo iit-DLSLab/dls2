@@ -142,7 +142,7 @@ GaitSignal::operator GaitSignalMsg() const
     return msg;
 }
 
-GaitSignal& GaitSignal::operator= (GaitSignalMsg &msg)
+GaitSignal& GaitSignal::operator= (const GaitSignalMsg &msg)
 {
     desired_com_pose_world.set(Eigen::Vector3d(msg.com_pos().data()), Eigen::Quaterniond(msg.com_ori().data())),
     desired_com_velocity_world.setLinear(Eigen::Vector3d(msg.com_lin_vel().data()));
@@ -170,7 +170,7 @@ GaitSignal& GaitSignal::operator= (GaitSignalMsg &msg)
     i = 0;
     for(auto &leg_pair : this->stance_legs)
 	{
-    	msg.stance_feet()[i] = *leg_pair.data_;
+    	*leg_pair.data_ = msg.stance_feet()[i];
         i++;
     }
 	

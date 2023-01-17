@@ -22,7 +22,6 @@
 #include <functional> 
 #include <dls_messages/dds/command_callPubSubTypes.h>
 #include <dls_messages/dds/stringmsgPubSubTypes.h>
-#include <dls_messages/dds/hyqreal_rawPubSubTypes.h>
 #include <dls_messages/dds/desired_torquesPubSubTypes.h>
 #include <dls_messages/dds/control_signalPubSubTypes.h>
 #include <dls_messages/dds/blind_statePubSubTypes.h>
@@ -36,8 +35,10 @@
 #include <dls_messages/dds/aliengo_rawPubSubTypes.h>
 #include <dls_messages/dds/legs_posePubSubTypes.h>
 #include <dls_messages/dds/t265_odometryPubSubTypes.h>
+#include <dls_messages/dds/attitude_estimationPubSubTypes.h>
 #include <dls_messages/dds/param_serverPubSubTypes.h>
-#include "dls_messages/dds/doublePubSubTypes.h"
+#include <dls_messages/dds/doublePubSubTypes.h>
+#include <dls_messages/dds/controller_commandPubSubTypes.h>
 
 namespace dls
 {
@@ -68,6 +69,7 @@ namespace dls
 		extern dls::topicType desired_torques;
 		extern dls::topicType control_signal;
 		extern dls::topicType gait_signal;
+		extern dls::topicType joy_signal;
 
 		// services
 		extern dls::topicType param_server;
@@ -76,13 +78,13 @@ namespace dls
 		{
 			extern dls::topicType legs_pose;
 			extern dls::topicType t265_odometry;
+			extern dls::topicType attitude_estimation;
 		}
 
 		namespace low_level_estimation
 		{
 			extern dls::topicType blind_state;
 			extern dls::topicType hyq_raw;
-			extern dls::topicType hyqreal_raw;
             extern dls::topicType aliengo_raw;
 			extern dls::topicType imu;
 			extern dls::topicType joint_states;

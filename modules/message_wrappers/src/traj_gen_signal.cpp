@@ -99,7 +99,7 @@ TrajGenSignal::operator TrajGenMsg() const
     return msg;
 }
 
-TrajGenSignal &TrajGenSignal::operator= (TrajGenMsg &msg)
+TrajGenSignal &TrajGenSignal::operator= (const TrajGenMsg &msg)
 {
     int i = 0;
     for(auto &leg_pair : this->foot_pos)

@@ -13,33 +13,32 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef LEGS_POSE_SIGNAL_HPP
-#define LEGS_POSE_SIGNAL_HPP
-
-
-#include "robotlib/robot_base.hpp"
+#ifndef ATTITUDE_HPP
+#define ATTITUDE_HPP
 
 #include "dls2/msg_wrappers/wrapper.hpp"
-#include "dls_messages/dds/legs_pose.h"
+#include "dls_messages/dds/attitude_estimationPubSubTypes.h"
 
+#include <Eigen/Dense>
+
+/// A struct representing the control signal that is output by a Controller
 namespace dls
 {
-	class LegsPose : public Wrapper<LegsPoseMsg>
-	{
-	public:
-		LegsPose(const std::shared_ptr<robotlib::RobotBase>&);
-		LegsPose(LegsPose&);
-		LegsPose() = delete;
-        ~LegsPose();
+    class Attitude : public Wrapper<AttitudeMsg>
+    {
+    public:
+        Attitude();
+        Attitude(Attitude&);
+        ~Attitude() = default;
 
-		operator LegsPoseMsg() const override;
-		LegsPose& operator= (const LegsPoseMsg&) override;
+        operator AttitudeMsg() const override;
+        Attitude& operator=(const AttitudeMsg&) override;
+        Attitude& operator=(const Attitude&);
 
-		robotlib::LegDataMap<Eigen::Vector3d> lin_velocity;
-		robotlib::LegDataMap<Eigen::Vector3d> ang_velocity;
+        Eigen::Quaterniond orientation;
 
-		double time;
-	};
+        Eigen::Vector3d angular_velocity;
+        double timestamp;
+    };
 } // end namespace dls
-
-#endif /* end of include guard: LEGS_POSE_SIGNAL_HPP */
+#endif /* end of include guard: ATTITUDE_HPP */

@@ -37,7 +37,9 @@ SignalWriter<SignalType>::SignalWriter(dls::DDSParticipant* participant_, const 
 	
 template <typename SignalType>
 SignalWriter<SignalType>::~SignalWriter()
-{ }	
+{ 
+	this->ddsLink->deleteWriter(this->ID);
+}	
 
 template <typename SignalType>
 void SignalWriter<SignalType>::publish()

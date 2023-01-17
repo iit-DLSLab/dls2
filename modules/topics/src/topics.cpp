@@ -46,6 +46,7 @@ namespace dls
 		dls::topicType desired_torques 			= dls::topicType("desired_torques", new DesiredTorquesMsgPubSubType());
 		dls::topicType control_signal 			= dls::topicType("control_signal", new  ControlSignalMsgPubSubType());
 		dls::topicType gait_signal 				= dls::topicType("gait_signal", new  GaitSignalMsgPubSubType());
+		dls::topicType joy_signal				= dls::topicType("joy_signal", new  ControllerCommandMsgPubSubType());
 
 		// services
 		dls::topicType param_server 			= dls::topicType("add_double", new ParamServerMsgPubSubType());
@@ -54,13 +55,13 @@ namespace dls
 		{
 			dls::topicType legs_pose			= dls::topicType("legs_pose", new LegsPoseMsgPubSubType());
 			dls::topicType t265_odometry        = dls::topicType("t265_odometry", new T265OdometryMsgPubSubType());
+			dls::topicType attitude_estimation  = dls::topicType("attitude_estimation", new AttitudeMsgPubSubType());
 		}
 			
 		namespace low_level_estimation
 		{
 			dls::topicType blind_state 			= dls::topicType("blind_state", new BlindStateMsgPubSubType());
 			dls::topicType hyq_raw 				= dls::topicType("hyq_raw", new HyQRawMsgPubSubType());
-			dls::topicType hyqreal_raw 			= dls::topicType("hyqreal_raw", new HyQRealRawMsgPubSubType());
             dls::topicType aliengo_raw 			= dls::topicType("aliengo_raw", new AliengoRawMsgPubSubType());
 			dls::topicType imu 					= dls::topicType("imu", new ImuMsgPubSubType());
 			dls::topicType joint_states			= dls::topicType("joint_states", new JointStateMsgPubSubType());
