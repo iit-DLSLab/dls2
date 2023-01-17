@@ -253,7 +253,7 @@ bool Options::validate()
 	// if show docs is enabled, main will just show the docs and exit
 	// Not doing more checks in that case
 	if(Options::show_docs)
-		return false;
+		return true;
 
     if(Options::launch_hardware && Options::launch_sim)
     {
