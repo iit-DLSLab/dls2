@@ -28,6 +28,9 @@ BlindState::BlindState(const std::shared_ptr<robotlib::RobotBase> pRobot)
 	, joint_velocity(pRobot->makeJointState())
 	, joint_acceleration(pRobot->makeJointState())
 	, joint_effort(pRobot->makeJointState())
+	, foot_position(pRobot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
+	, foot_velocity(pRobot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
+	, foot_acceleration(pRobot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
 	, stance_legs(pRobot->makeLegDataMap<bool>(false))
 	, time(0)
 { }
@@ -39,6 +42,9 @@ BlindState::BlindState(BlindState& from)
 	, joint_velocity(from.joint_velocity)
 	, joint_acceleration(from.joint_acceleration)
 	, joint_effort(from.joint_effort)
+	, foot_position(from.foot_position)
+	, foot_velocity(from.foot_velocity)
+	, foot_acceleration(from.foot_acceleration)
 	, base_pose_world(from.base_pose_world)
 	, base_vel_world(from.base_vel_world)
 	, base_acc_world(from.base_acc_world)
@@ -55,18 +61,23 @@ BlindState::operator BlindStateMsg() const
 
 	msg.robot_name() = this->robot_name;
 
-	int i = 0;
 	int leg_id = 0;
+	int leg_joint_id = 0;
 	for(auto &leg : this->joint_position)
 	{
+		leg_joint_id = 0;
+		int idx = leg_id*leg.key_->getNJoints();
 		for(auto &joint : *leg.data_)
 		{
-			msg.joint_name()[i] = this->joint_name[joint.key_];
-			msg.joint_pos()[i] = this->joint_position[joint.key_];
-			msg.joint_vel()[i] = this->joint_velocity[joint.key_];
-			msg.joint_acc()[i] = this->joint_acceleration[joint.key_];
-			msg.joint_eff()[i] = this->joint_effort[joint.key_]; 
-			i++;
+			msg.joint_name()[idx+leg_joint_id] = this->joint_name[joint.key_];
+			msg.joint_pos()[idx+leg_joint_id] = this->joint_position[joint.key_];
+			msg.joint_vel()[idx+leg_joint_id] = this->joint_velocity[joint.key_];
+			msg.joint_acc()[idx+leg_joint_id] = this->joint_acceleration[joint.key_];
+			msg.joint_eff()[idx+leg_joint_id] = this->joint_effort[joint.key_];
+			msg.foot_position()[idx+leg_joint_id] = this->foot_position[leg.key_][leg_joint_id];
+			msg.foot_velocity()[idx+leg_joint_id] = this->foot_velocity[leg.key_][leg_joint_id];
+			msg.foot_acceleration()[idx+leg_joint_id] = this->foot_acceleration[leg.key_][leg_joint_id];
+			leg_joint_id++;
 		}
 
 		msg.stance_legs()[leg_id] = this->stance_legs[leg.key_];
@@ -96,19 +107,23 @@ BlindState& BlindState::operator= (BlindStateMsg& msg)
 {
 	this->robot_name = msg.robot_name();
 
-	int i = 0;
 	int leg_id = 0;
 	for(auto &leg : this->joint_position)
 	{
+		int i = leg_id*leg.key_->getNJoints();
 		for(auto &joint : *leg.data_)
 		{
 			this->joint_name[joint.key_] = msg.joint_name()[i];
 			this->joint_position[joint.key_] = msg.joint_pos()[i];
 			this->joint_velocity[joint.key_] = msg.joint_vel()[i];
 			this->joint_acceleration[joint.key_] = msg.joint_acc()[i];
-			this->joint_effort[joint.key_] = msg.joint_eff()[i]; 
+			this->joint_effort[joint.key_] = msg.joint_eff()[i];
 			i++;
 		}
+		this->foot_position[leg.key_] = Eigen::Vector3d(msg.foot_position().data());
+		this->foot_velocity[leg.key_] = Eigen::Vector3d(msg.foot_velocity().data());
+		this->foot_acceleration[leg.key_] = Eigen::Vector3d(msg.foot_acceleration().data());
+
 		this->stance_legs[leg.key_] = msg.stance_legs()[leg_id];
 		leg_id++;
 	}
