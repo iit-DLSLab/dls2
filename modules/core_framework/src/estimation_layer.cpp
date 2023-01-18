@@ -46,11 +46,11 @@ EstimationLayer::EstimationLayer(std::string ID) :
 
 	command_manager.addCommand<std::string>
 	(
-		"removeEstimator",
-		"Remove a state estimator plugin",
+		"unloadEstimator",
+		"Unload a state estimator plugin",
 		std::function<bool(std::string)>([&](std::string s)->bool
         {
-			if(this->removeEstimator(s))
+			if(this->unloadEstimator(s))
 			{
 				if(this->numOfEstimators() == 0)
 					return true;
@@ -88,7 +88,7 @@ AppLayer::Status EstimationLayer::shutdown()
 		keys.push_back(pair.first);
 	
 	for(auto key : keys)
-		this->removeEstimator(key);
+		this->unloadEstimator(key);
 
 	this->should_quit = true;
 
@@ -151,7 +151,7 @@ bool EstimationLayer::loadEstimator(const Estimator::ID_t& lib_name)
 	return true;
 }
 
-bool EstimationLayer::removeEstimator(const Estimator::ID_t& ID)
+bool EstimationLayer::unloadEstimator(const Estimator::ID_t& ID)
 {
 	// std::lock_guard<std::mutex> lock(this->estimators_mutex);
 

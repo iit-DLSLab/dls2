@@ -351,8 +351,6 @@ bool ControlLayer::loadController(const std::string& lib_name)
 		default_duration_seconds
 	);
 
-    this->controllers.emplace(pData->getID(), pData);
-
     pData->proc = std::make_shared<boost::process::child>(std::vector<std::string>({
         "${DLS_INSTALL_RUNTIME_DIR}/child_process_launcher",
         pData->getID(),
@@ -391,6 +389,7 @@ bool ControlLayer::loadController(const std::string& lib_name)
 	}
 
 	pData->proc->detach();
+	this->controllers.emplace(pData->getID(), pData);
 	return true;
 }
 
@@ -463,8 +462,6 @@ bool ControlLayer::loadMotionGenerator(const std::string& lib_name)
 
 	std::shared_ptr<AppData> pData = std::make_shared<AppData>(lib_name);
 
-	this->motion_generators.emplace(pData->getID(), pData);
-
 	pData->proc = std::make_shared<boost::process::child>(std::vector<std::string>({
 		"${DLS_INSTALL_RUNTIME_DIR}/child_process_launcher",
 		lib_name,
@@ -480,6 +477,7 @@ bool ControlLayer::loadMotionGenerator(const std::string& lib_name)
     }
 
 	pData->proc->detach();	
+	this->motion_generators.emplace(pData->getID(), pData);
 	return true;
 }
 
