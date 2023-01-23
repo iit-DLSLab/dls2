@@ -69,6 +69,8 @@ class MotionGenerator : public PeriodicAppLayerComponent
 		void setHomeConfiguration(YAML::Node& config, const std::string& data_name);
 
 		void setFoldConfiguration(YAML::Node& config, const std::string& data_name);
+
+		void setConsoleFunctions();
 	};
 } // end namespace dls
 
