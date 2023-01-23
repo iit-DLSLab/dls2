@@ -38,6 +38,10 @@ namespace dls
         Eigen::Quaterniond orientation;
 
         Eigen::Vector3d angular_velocity;
+
+        Eigen::Vector3d euler_angles_imu;
+        Eigen::Vector3d euler_angles_est;
+        
         double timestamp;
     };
 } // end namespace dls
