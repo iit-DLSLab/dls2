@@ -65,12 +65,14 @@ class MotionGenerator : public PeriodicAppLayerComponent
 		robotlib::JointState home_configuration;
         robotlib::JointState fold_configuration;
 
-		dls::DDSParticipant* ddsLink;		
 		void setHomeConfiguration(YAML::Node& config, const std::string& data_name);
 
 		void setFoldConfiguration(YAML::Node& config, const std::string& data_name);
 
 		void setConsoleFunctions();
+
+	private:
+		dls::DDSParticipant* ddsLink;
 	};
 } // end namespace dls
 
