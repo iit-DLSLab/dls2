@@ -48,6 +48,8 @@ class MotionGenerator : public PeriodicAppLayerComponent
 		dls::DDSParticipant* getParticipant();
 		const robotlib::RobotBase* getRobot(); 
 
+		virtual bool goHome()= 0;
+		virtual bool goFold()= 0;
 	protected:
 		/// Function gets called each epoch.
         ///
