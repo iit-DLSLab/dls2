@@ -26,6 +26,8 @@ MotionGenerator::MotionGenerator
 ) 
 	: PeriodicAppLayerComponent(ID, period_)
 	, pRobot(pRobot_)
+	, home_configuration(pRobot->makeJointState(0.0))
+	, fold_configuration(pRobot->makeJointState(0.0))
 {
 	ddsLink = new dls::DDSParticipant("MotionGen::" + this->getID(), dls::domains::signals);
 }
@@ -43,4 +45,25 @@ dls::DDSParticipant* MotionGenerator::getParticipant()
 const robotlib::RobotBase* MotionGenerator::getRobot()
 {
 	return this->pRobot.get();
+void MotionGenerator::setHomeConfiguration(YAML::Node& config, const std::string& data_name)
+{
+	for(auto &leg_pair : this->home_configuration)
+	{
+		for(auto &joint_pair : *leg_pair.data_)
+		{
+			this->home_configuration[joint_pair.key_] = config[data_name][joint_pair.key_->getName()].as<double>();
+		}
+	}
+}
+
+void MotionGenerator::setFoldConfiguration(YAML::Node& config, const std::string& data_name)
+{
+	for(auto &leg_pair : this->fold_configuration)
+	{
+		for(auto &joint_pair : *leg_pair.data_)
+		{
+			this->fold_configuration[joint_pair.key_] = config[data_name][joint_pair.key_->getName()].as<double>();
+		}
+	}
+}
 }
