@@ -47,6 +47,8 @@ dls::DDSParticipant* MotionGenerator::getParticipant()
 const robotlib::RobotBase* MotionGenerator::getRobot()
 {
 	return this->pRobot.get();
+}
+
 void MotionGenerator::setHomeConfiguration(YAML::Node& config, const std::string& data_name)
 {
 	for(auto &leg_pair : this->home_configuration)
