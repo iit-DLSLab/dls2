@@ -70,6 +70,7 @@ namespace dls
 		extern dls::topicType control_signal;
 		extern dls::topicType gait_signal;
 		extern dls::topicType joy_signal;
+		extern dls::topicType controller_signal;
 
 		// services
 		extern dls::topicType param_server;

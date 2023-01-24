@@ -47,6 +47,7 @@ namespace dls
 		dls::topicType control_signal 			= dls::topicType("control_signal", new  ControlSignalMsgPubSubType());
 		dls::topicType gait_signal 				= dls::topicType("gait_signal", new  GaitSignalMsgPubSubType());
 		dls::topicType joy_signal				= dls::topicType("joy_signal", new  ControllerCommandMsgPubSubType());
+		dls::topicType controller_signal		= dls::topicType("controller_command", new  ControllerCommandMsgPubSubType());
 
 		// services
 		dls::topicType param_server 			= dls::topicType("add_double", new ParamServerMsgPubSubType());
