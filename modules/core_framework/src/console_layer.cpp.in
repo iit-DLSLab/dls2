@@ -302,7 +302,7 @@ char **dls::console_completion(const char *text, int start, int /*end*/)
 		auto commands = pInstance->command_manager.getCommandsList();
 		auto it = std::find_if(commands.begin(), commands.end(), [&](auto value) { return (text == value.first); });
 
-		if(it != commands.end())
+		if(it == commands.end())
 		{
 			matches = rl_completion_matches(text, arg_completion);
 		}
@@ -374,7 +374,7 @@ char *dls::arg_completion(const char * text, int state)
 {
 	static std::vector<std::string> files;
 	static size_t index;
-
+	
 	if(state == 0)
 	{
 		index = 0;
@@ -390,25 +390,33 @@ char *dls::arg_completion(const char * text, int state)
 		// 	files.push_back(el);
 		// }
 
-		std::filesystem::directory_iterator dir_it
+		std::vector<std::string> dirs({
+			std::string("${DLS_INSTALL_CONTROLLER_DIR}")
+		});
+
+		for(auto& dir : dirs)
+		{
+			std::filesystem::directory_iterator dir_it
 			(
-				std::filesystem::current_path()
+				// std::filesystem::current_path()
+				dir
 			);
 
-		for(auto &file : dir_it)
-		{
-			std::string filename(file.path().filename());
-			if
-			(
-				filename.find_first_of("lib") == 0 &&
-				filename.find_last_of(".so") == filename.size() - 1
-			)
+			for(auto &file : dir_it)
 			{
-				files.push_back
+				std::string filename(file.path().filename());
+				if
 				(
-					// strip "lib" and ".so" from file
-					filename.substr(3, filename.size() - 6)
-				);
+					filename.find_first_of("lib") == 0 &&
+					filename.find_last_of(".so") == filename.size() - 1
+				)
+				{
+					files.push_back
+					(
+						// strip "lib" and ".so" from file
+						filename.substr(3, filename.size() - 6)
+					);
+				}
 			}
 		}
 	}
@@ -442,6 +450,10 @@ char *dls::arg_completion(const char * text, int state)
 void dls::display_matches (char **matches, int num_matches, int max_length){
     UNUSED(num_matches);
     UNUSED(max_length);
+
+	std::stringstream ss(rl_line_buffer);
+	// 	std::string command_name;
+	// std::cout << ss >> command_name;
 
 	char **strs = matches;
 	std::multiset<std::string> strings;
@@ -484,6 +496,39 @@ void dls::display_matches (char **matches, int num_matches, int max_length){
 			}
 		}		
 	}
+
+
+	if(ss.str().find("loadController") != std::string::npos)
+	{
+		std::vector<std::string> dirs({
+			std::string("${DLS_INSTALL_CONTROLLER_DIR}")
+		});
+
+		std::cout << std::endl;
+
+		for(auto& dir : dirs)
+		{
+			std::filesystem::directory_iterator dir_it
+			(
+				dir
+			);
+
+			for(auto &file : dir_it)
+			{
+				std::string filename(file.path().filename());
+				if
+				(
+					filename.find_first_of("lib") == 0 &&
+					filename.find_last_of(".so") == filename.size() - 1
+				)
+				{
+					// strip "lib" and ".so" from file
+					std::cout << filename.substr(3, filename.size() - 6) << std::endl;
+				}
+			}
+		}
+	}
+
 	std::cout << std::endl;
 	rl_reset_line_state();
 }

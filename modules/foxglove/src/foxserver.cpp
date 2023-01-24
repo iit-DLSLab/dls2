@@ -22,7 +22,7 @@ FoxServer::FoxServer()
     ddslink.setTopicListener(this);
 
     this->setTimer = [&] {
-        this->timer = this->foxserver.getEndpoint().set_timer(20, [&](std::error_code const& ec) {
+        this->timer = this->foxserver.getEndpoint().set_timer(30, [&](std::error_code const& ec) {
             if (ec) 
             {
                 std::cerr << "timer error: " << ec.message() << std::endl;
@@ -139,13 +139,11 @@ void FoxServer::on_topic_discovery(const std::string& topic_name, const std::str
                 if(this->send_flags.find(chanFrame) != this->send_flags.end()) 
                     return;
 
-                auto epoch = nanosecondsSinceEpoch();
-          
                 std::ifstream jsonFramesFile("/usr/include/" + jsonMsg["robot_name"].get<std::string>() + "_description/foxglove/" + jsonMsg["robot_name"].get<std::string>() + "_frames.json");
 
                 json jsonFramesMsg = json::parse(jsonFramesFile);
                 
-                for(auto frame : jsonFramesMsg["transforms"])
+                for(auto& frame : jsonFramesMsg["transforms"])
                 {
                     if(frame["child_frame_id"] == "trunk")
                     {
@@ -184,7 +182,7 @@ void FoxServer::on_topic_discovery(const std::string& topic_name, const std::str
                             i++;
                         }
                     }
-                    foxserver.sendMessage(chanFrame, epoch, frame.dump());
+                    foxserver.sendMessage(chanFrame, nanosecondsSinceEpoch(), frame.dump());
                 }
                 this->send_flags.insert(chanFrame);
 			}

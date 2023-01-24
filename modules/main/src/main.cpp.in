@@ -150,15 +150,13 @@ int main(int argc, char **argv)
 	// 	kill_children
 	// );
 
-	
-	// if(Options::show_docs)
-	// {
-	// 	return system
-	// 	(
-	// 		"@DLS_INSTALL_SCRIPTS_DIR@/xdg-open "
-	// 		"@DLS_INSTALL_DEVELOPMENT_DOCS_DIR@/html/index.html"
-	// 	);
-	// }
+	if(Options::show_docs)
+	{
+		return system
+		(
+			"@DLS_INSTALL_SCRIPTS_DIR@/xdg-open @DLS_INSTALL_DEVELOPMENT_DOCS_DIR@/html/index.html >nul 2>nul &"
+		);
+	}
 
 	// Launch layers
 	if(Options::launch_log) 		forkLayer<LogLayer>("logLayer", argv);

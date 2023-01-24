@@ -3,10 +3,11 @@ add_compile_options("-std=c++17")
 dls_configure(src/version_info.cpp.in  VERSION_INFO_CPP)
 dls_configure(src/app_layer.cpp.in  APP_LAYER_CPP)
 dls_configure(src/control_layer.cpp.in  CONTROL_LAYER_CPP)
+dls_configure(src/console_layer.cpp.in  CONSOLE_LAYER_CPP)
 
 add_library(dls_framework
 	SHARED
-		src/console_layer.cpp
+		${CONSOLE_LAYER_CPP}
 		src/estimation_layer.cpp
 		src/hardware_layer.cpp
 		src/log_layer.cpp
