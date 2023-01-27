@@ -74,10 +74,13 @@ BlindState::operator BlindStateMsg() const
 			msg.joint_vel()[idx+leg_joint_id] = this->joint_velocity[joint.key_];
 			msg.joint_acc()[idx+leg_joint_id] = this->joint_acceleration[joint.key_];
 			msg.joint_eff()[idx+leg_joint_id] = this->joint_effort[joint.key_];
-			msg.foot_position()[idx+leg_joint_id] = this->foot_position[leg.key_][leg_joint_id];
-			msg.foot_velocity()[idx+leg_joint_id] = this->foot_velocity[leg.key_][leg_joint_id];
-			msg.foot_acceleration()[idx+leg_joint_id] = this->foot_acceleration[leg.key_][leg_joint_id];
 			leg_joint_id++;
+		}
+		for(int i=0; i<3;i++)
+		{
+			msg.foot_position()[i] = this->foot_position[leg.key_][i];
+			msg.foot_velocity()[i] = this->foot_velocity[leg.key_][i];
+			msg.foot_acceleration()[i] = this->foot_acceleration[leg.key_][i];
 		}
 
 		msg.stance_legs()[leg_id] = this->stance_legs[leg.key_];
