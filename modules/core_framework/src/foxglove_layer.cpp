@@ -13,35 +13,32 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef LOG_LAYER_HPP_IAHZ5BZG
-#define LOG_LAYER_HPP_IAHZ5BZG
+#include "dls2/core_framework/foxglove_layer.hpp"
 
-#include "app_layer.hpp"
-#include "dls2/util/messaging/dds_participant.hpp"
-#include "dls2/topics/topics.hpp"
+using namespace dls;
 
-namespace dls
+FoxgloveLayer::FoxgloveLayer(std::string ID) :
+	AppLayer(ID)
+{ 
+	scout << "Foxglove layer loaded" << std::endl;
+}
+
+FoxgloveLayer::~FoxgloveLayer()
+{ }
+
+AppLayer::Status FoxgloveLayer::run()
 {
-	// TODO this class was built with a lot of copy-pasting. Make it more elegant
-
-	/// Class responsible for handling the logging of the framework
-	///
-	class LogLayer : public AppLayer
+	while(!this->should_quit)
 	{
-	public:
-		LogLayer(std::string ID);
+		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(300));
+	}
+	return getStatus();
+}
 
-		Status run() override;
-		Status shutdown() override;
+AppLayer::Status FoxgloveLayer::shutdown()
+{
+	this->should_quit = true;
 
-		std::string where() override {return "not yet implemented"; }
-
-	private:
-		static std::string get_current_time();
-
-		DDSParticipant ddsLogLink;
-
-	};
-} // end namespace dls
-
-#endif /* end of include guard: LOG_LAYER_HPP_IAHZ5BZG */
+	setStatus(Status::STOP);
+	return getStatus();
+}

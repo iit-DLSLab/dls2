@@ -188,5 +188,4 @@ void FoxServer::on_topic_discovery(const std::string& topic_name, const std::str
 			}
 		});
     }
-
 }

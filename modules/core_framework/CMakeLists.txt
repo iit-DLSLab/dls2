@@ -9,6 +9,7 @@ add_library(dls_framework
 	SHARED
 		${CONSOLE_LAYER_CPP}
 		src/estimation_layer.cpp
+		src/foxglove_layer.cpp
 		src/hardware_layer.cpp
 		src/log_layer.cpp
 		src/options.cpp
