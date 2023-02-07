@@ -44,11 +44,11 @@ ServiceLayer::ServiceLayer(std::string ID_)
 
 	command_manager.addCommand<std::string>
 	(
-		"removeService",
+		"unloadService",
 		"Remove service",
 		std::function<bool(std::string)>([&](std::string s)->bool
         {
-			if(this->removeService(s))
+			if(this->unloadService(s))
 			{
 				if(this->numOfServices() == 0)
 					return true;
@@ -132,7 +132,7 @@ bool ServiceLayer::loadService(const std::string& lib_name)
 	return true;
 }
 
-bool ServiceLayer::removeService(const std::string ID)
+bool ServiceLayer::unloadService(const std::string ID)
 {
 	// std::lock_guard<std::mutex> lock(this->services_mutex);
 
@@ -174,7 +174,7 @@ ServiceLayer::Status ServiceLayer::shutdown()
 		keys.push_back(pair.first);
 	
 	for(auto key : keys)
-		this->removeService(key);
+		this->unloadService(key);
 
 	this->should_quit = true;
 

@@ -45,7 +45,7 @@ namespace dls
 
 	private:
 
-		bool removeSimulator(std::string);
+		bool unloadSimulator(std::string);
 	};
 } // end namespace dls
 
