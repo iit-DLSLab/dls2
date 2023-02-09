@@ -35,7 +35,7 @@ namespace dls
         Attitude& operator=(const AttitudeMsg&) override;
         Attitude& operator=(const Attitude&);
 
-        Eigen::Quaterniond orientation{Eigen::Quaterniond::Zero()};
+        Eigen::Quaterniond orientation;
 
         Eigen::Vector3d angular_velocity{Eigen::Vector3d::Zero()};
 
