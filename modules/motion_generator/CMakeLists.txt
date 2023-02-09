@@ -15,6 +15,7 @@ target_link_libraries(dls_motion_generator
 		robotlib
 		dls_framework_components
 		dls_message_wrappers
+        yaml-cpp
 )
 
 dls_install(dls_motion_generator)

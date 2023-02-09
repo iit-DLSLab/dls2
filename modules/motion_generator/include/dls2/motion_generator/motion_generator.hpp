@@ -24,6 +24,8 @@
 
 #include "robotlib/robot_factory.hpp"
 
+#include "yaml-cpp/yaml.h"
+
 // =============================================================================
 // Class Interface
 // =============================================================================
@@ -48,17 +50,29 @@ class MotionGenerator : public PeriodicAppLayerComponent
 		dls::DDSParticipant* getParticipant();
 		const robotlib::RobotBase* getRobot(); 
 
+		virtual bool goHome()= 0;
+		virtual bool goFold()= 0;
+
 	protected:
 		/// Function gets called each epoch.
         ///
         /// @param time The time when this function is called,
         virtual void run(const std::chrono::system_clock::time_point &time) = 0;
 
-	private:
 		/// Pointer to the robot model
-		const std::shared_ptr<const robotlib::RobotBase> pRobot;	
+		const std::shared_ptr<robotlib::RobotBase> pRobot;
 
-		dls::DDSParticipant* ddsLink;		
+		robotlib::JointState home_configuration;
+        robotlib::JointState fold_configuration;
+
+		void setHomeConfiguration(YAML::Node& config, const std::string& data_name);
+
+		void setFoldConfiguration(YAML::Node& config, const std::string& data_name);
+
+		void setConsoleFunctions();
+
+	private:
+		dls::DDSParticipant* ddsLink;
 	};
 } // end namespace dls
 

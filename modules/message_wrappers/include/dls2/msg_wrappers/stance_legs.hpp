@@ -13,40 +13,36 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef SIM_LAYER_HPP
-#define SIM_LAYER_HPP
+#ifndef STANCE_LEGS_HPP
+#define STANCE_LEGS_HPP
 
-#include "app_layer.hpp"
+
+#include "robotlib/robot_base.hpp"
+
+#include "dls2/msg_wrappers/wrapper.hpp"
+#include "dls2/msg_wrappers/pose.hpp"
+#include "dls2/msg_wrappers/screw.hpp"
+#include "dls_messages/dds/stance_legs.h"
 
 namespace dls
 {
-	class SimLayer : public AppLayer
+	class StanceLegs : public Wrapper<StanceLegsMsg>
 	{
 	public:
-		/// Default Constructor
-		///
-		SimLayer(std::string ID);
+		StanceLegs(const std::shared_ptr<robotlib::RobotBase>);
+		StanceLegs(StanceLegs&);
+		StanceLegs() = delete;
+        ~StanceLegs();
 
-		/// Default Destructor
-		///
-		~SimLayer();
+		operator StanceLegsMsg() const override;
+		StanceLegs& operator= (const StanceLegsMsg&) override;
 
-		/// Run the layer
-		///
-		Status run() override;
+		std::string robot_name;
 
-		/// Stop the layer
-		///
-		Status shutdown() override;
+		robotlib::LegDataMap<bool> stance_legs;
 
-		/// Print the state of this layer
-		///
-		std::string where() override{return "Base layer for simulators";}
-
-	private:
-
-		bool unloadSimulator(std::string);
+		unsigned long long time;
 	};
 } // end namespace dls
 
-#endif /* end of include guard: SIM_LAYER_HPP */
+#endif /* end of include guard: STANCE_LEGS_HPP */

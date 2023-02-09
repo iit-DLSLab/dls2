@@ -24,6 +24,8 @@ namespace dls
 	class Wrapper
 	{
 	public:
+		typedef MsgType type;
+
 		Wrapper();
 		virtual ~Wrapper();
 		

@@ -46,6 +46,8 @@ ControlSignal::operator ControlSignalMsg() const
 	}
 	
 	msg.signal_reconstruction_method((uint64_t)this->signal_reconstruction_method);
+	msg.time() = this->time;
+
 	return msg;
 }
 
@@ -61,6 +63,8 @@ ControlSignal& ControlSignal::operator=(const ControlSignalMsg& msg){
 			*joint_pair.data_ = msg.torques()[i++];
 		}
 	}
+
+	this->time = msg.time();
 
     return *this;
 }

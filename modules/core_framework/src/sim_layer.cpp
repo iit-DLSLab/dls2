@@ -41,11 +41,11 @@ SimLayer::SimLayer(std::string ID)
 
 	command_manager.addCommand<>
 	(
-		"removeSimulator",
+		"unloadSimulator",
 		"Terminates a instance of a simulator",
 		std::function<bool(std::string)>([&](std::string name_)->bool
         {
-            return removeSimulator(name_);
+            return unloadSimulator(name_);
 		}),
 		{{1,0}},
 		true
@@ -98,7 +98,7 @@ AppLayer::Status SimLayer::shutdown()
 	return getStatus();
 }
 
-bool SimLayer::removeSimulator(std::string name_)
+bool SimLayer::unloadSimulator(std::string name_)
 {
 	if(this->components.count(name_)){
         this->components[name_]->stop();

@@ -13,40 +13,30 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef SIM_LAYER_HPP
-#define SIM_LAYER_HPP
+#ifndef FOXGLOVE_LAYER_HPP
+#define FOXGLOVE_LAYER_HPP
 
 #include "app_layer.hpp"
+#include "foxglove/foxserver.hpp"
 
 namespace dls
 {
-	class SimLayer : public AppLayer
+/// Foxglove layer
+
+	class FoxgloveLayer : public AppLayer
 	{
 	public:
-		/// Default Constructor
-		///
-		SimLayer(std::string ID);
+		FoxgloveLayer(std::string ID);
+		~FoxgloveLayer();
 
-		/// Default Destructor
-		///
-		~SimLayer();
-
-		/// Run the layer
-		///
 		Status run() override;
-
-		/// Stop the layer
-		///
 		Status shutdown() override;
 
-		/// Print the state of this layer
-		///
-		std::string where() override{return "Base layer for simulators";}
+		std::string where() override {return "not yet implemented"; }
 
 	private:
-
-		bool unloadSimulator(std::string);
+        dls::FoxServer foxserver;
 	};
 } // end namespace dls
 
-#endif /* end of include guard: SIM_LAYER_HPP */
+#endif /* end of include guard: FOXGLOVE_LAYER_HPP */

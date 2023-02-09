@@ -42,6 +42,7 @@ bool Options::launch_console                = false;
 bool Options::launch_log                    = false;
 bool Options::launch_sim                    = false;
 bool Options::launch_service                = false;
+bool Options::launch_foxglove                = false;
 
 // real robot or simulation mode
 bool Options::simulation_mode               = true;
@@ -82,6 +83,7 @@ bool Options::parseArgs(int argc, char **argv)
 	Options::launch_log         =  false;
 	Options::launch_sim 		=  false;
 	Options::launch_service		=  false;
+	Options::launch_foxglove	=  false;
 
 	int opt;
 	while((opt = getopt_long(argc, argv, "r:sHl:vh::cd", long_options, nullptr)) != -1)
@@ -128,6 +130,7 @@ bool Options::parseArgs(int argc, char **argv)
 					const_cast<char*>("estimation"),
 					const_cast<char*>("sim"),
 					const_cast<char*>("service"),
+					const_cast<char*>("foxglove"),
 					nullptr
 				};
 				char *value;
@@ -169,6 +172,10 @@ bool Options::parseArgs(int argc, char **argv)
 						else if(std::strcmp(layer, "service") == 0)
 						{
                             Options::launch_service = true;
+						}
+						else if(std::strcmp(layer, "foxglove") == 0)
+						{
+                            Options::launch_foxglove = true;
 						}
 					}
 					else
@@ -253,7 +260,7 @@ bool Options::validate()
 	// if show docs is enabled, main will just show the docs and exit
 	// Not doing more checks in that case
 	if(Options::show_docs)
-		return false;
+		return true;
 
     if(Options::launch_hardware && Options::launch_sim)
     {
@@ -278,7 +285,8 @@ bool Options::validate()
 		!launch_console &&
 		!launch_log &&
 		!launch_sim &&
-		!launch_service
+		!launch_service &&
+		!launch_foxglove
 	)
 		return false;
 

@@ -128,7 +128,9 @@ namespace dls
 				[&](void *tuple)
 				{
 					CommandCallMsg* msg = (CommandCallMsg *)tuple;
-
+					// if the owner is known but it is not the one owning this command OR
+					// if the received command name is not equal to the name of this command
+					// do nothing
 					if ((msg->owner() != "" && msg->owner() != this->getOwner()) || msg->command_name() != this->getName())
 						return;
 

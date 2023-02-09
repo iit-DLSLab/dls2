@@ -13,40 +13,36 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef SIM_LAYER_HPP
-#define SIM_LAYER_HPP
+#ifndef BASE_STATE_HPP
+#define BASE_STATE_HPP
 
-#include "app_layer.hpp"
+#include "robotlib/robot_base.hpp"
+
+#include "dls2/msg_wrappers/wrapper.hpp"
+#include "dls2/msg_wrappers/pose.hpp"
+#include "dls2/msg_wrappers/screw.hpp"
+#include "dls_messages/dds/base_state.h"
 
 namespace dls
 {
-	class SimLayer : public AppLayer
+	class BaseState : public Wrapper<BaseStateMsg>
 	{
 	public:
-		/// Default Constructor
-		///
-		SimLayer(std::string ID);
+		BaseState();
+		BaseState(BaseState&);
+        ~BaseState();
 
-		/// Default Destructor
-		///
-		~SimLayer();
+		operator BaseStateMsg() const override;
+		BaseState& operator= (const BaseStateMsg&) override;
 
-		/// Run the layer
-		///
-		Status run() override;
+		std::string robot_name;
 
-		/// Stop the layer
-		///
-		Status shutdown() override;
+		dls::Pose pose;
+		dls::Screw velocity;
+		dls::Screw acceleration;
 
-		/// Print the state of this layer
-		///
-		std::string where() override{return "Base layer for simulators";}
-
-	private:
-
-		bool unloadSimulator(std::string);
+		unsigned long long time;
 	};
 } // end namespace dls
 
-#endif /* end of include guard: SIM_LAYER_HPP */
+#endif /* end of include guard: BASE_STATE_HPP */

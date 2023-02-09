@@ -32,6 +32,7 @@
 #include "dls2/core_framework/hardware_layer.hpp"
 #include "dls2/core_framework/control_layer.hpp"
 #include "dls2/core_framework/estimation_layer.hpp"
+#include "dls2/core_framework/foxglove_layer.hpp"
 #include "dls2/core_framework/log_layer.hpp"
 #include "dls2/core_framework/console_layer.hpp"
 #include "dls2/core_framework/sim_layer.hpp"
@@ -150,15 +151,13 @@ int main(int argc, char **argv)
 	// 	kill_children
 	// );
 
-	
-	// if(Options::show_docs)
-	// {
-	// 	return system
-	// 	(
-	// 		"@DLS_INSTALL_SCRIPTS_DIR@/xdg-open "
-	// 		"@DLS_INSTALL_DEVELOPMENT_DOCS_DIR@/html/index.html"
-	// 	);
-	// }
+	if(Options::show_docs)
+	{
+		return system
+		(
+			"@DLS_INSTALL_SCRIPTS_DIR@/xdg-open @DLS_INSTALL_DEVELOPMENT_DOCS_DIR@/html/index.html >nul 2>nul &"
+		);
+	}
 
 	// Launch layers
 	if(Options::launch_log) 		forkLayer<LogLayer>("logLayer", argv);
@@ -168,6 +167,7 @@ int main(int argc, char **argv)
 	if(Options::launch_estimation)	forkLayer<EstimationLayer>("estimationLayer", argv);
 	if(Options::launch_sim)		    forkLayer<SimLayer>("simLayer", argv);
 	if(Options::launch_service)	    forkLayer<ServiceLayer>("serviceLayer", argv);
+	if(Options::launch_foxglove)	forkLayer<FoxgloveLayer>("foxgloveLayer", argv);
 
 	//Time::set_use_simulated_time(Options::is_simulation());
 	if(Options::robot_name != "")
