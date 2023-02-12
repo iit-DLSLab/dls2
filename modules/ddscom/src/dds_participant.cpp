@@ -175,14 +175,16 @@ namespace dls
 
 	bool DDSParticipant::deleteWriter(const std::string& writer_name)
 	{
-		ReturnCode_t result (this->publisher->delete_datawriter(this->getWriter(writer_name)));
+		auto writer = this->getWriter(writer_name);
 
-		if(result == ReturnCode_t::RETCODE_PRECONDITION_NOT_MET)
-		{
+		if(writer == nullptr){
 			std::cout <<  "THE WRITER " << writer_name << " DOES NOT BELONG TO THE SUBSCRIBER" << std::endl;
 			return false;
 		}
-		else if(result==ReturnCode_t::RETCODE_ERROR)
+		
+		ReturnCode_t result (this->publisher->delete_datawriter(writer));
+
+		if(result == ReturnCode_t::RETCODE_ERROR)
 		{
 			std::cout <<  "RETCODE_ERROR ERROR WHEN REMOVING THE WRITER " << writer_name << std::endl;
 		}
@@ -226,14 +228,17 @@ namespace dls
 
 	bool DDSParticipant::deleteReader(const std::string& reader_name)
 	{
-		ReturnCode_t result (this->subscriber->delete_datareader(this->getReader(reader_name)));
+		auto reader = this->getReader(reader_name);
 
-		if(result == ReturnCode_t::RETCODE_PRECONDITION_NOT_MET)
+		if(reader == nullptr)
 		{
 			std::cout <<  "THE READER " << reader_name << " DOES NOT BELONG TO THE SUBSCRIBER" << std::endl;
 			return false;
 		}
-		else if(result==ReturnCode_t::RETCODE_ERROR)
+		
+		ReturnCode_t result (this->subscriber->delete_datareader(reader));
+
+		if(result == ReturnCode_t::RETCODE_ERROR)
 		{
 			std::cout <<  "RETCODE_ERROR ERROR WHEN REMOVING THE READER " << reader_name << std::endl;
 		}
