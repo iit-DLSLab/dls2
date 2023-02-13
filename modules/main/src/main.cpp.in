@@ -204,7 +204,7 @@ int main(int argc, char **argv)
 		auto it = child_datas.find(child_pid);
 		if(it != child_datas.end())
 		{
-			ss << it->second.name << " ";
+			ss << it->second.name;
 			// Ignoring WIFSTOPPED, WSTOPSIG, WIFCONTINUED
 			if(WIFEXITED(status))
 			{

@@ -100,7 +100,7 @@ namespace dls
 		// ensure args are correct size
 
 		if (args.size() != this->getNumArgs()){
-			std::cout << "Error: incorrect number of arguments" << std::endl;
+			std::cerr << "Error: incorrect number of arguments" << std::endl;
 			return false;
 		}
 

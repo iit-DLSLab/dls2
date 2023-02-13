@@ -148,7 +148,7 @@ int main(int argc, char **argv)
         // 	<< args.component_type << "' not found" << std::endl;
         scout << "Could not load component '" << args.component_name
                   << "' of type '" << args.component_type 
-                  << " Error msg: " << e.what() << std::endl;
+                  << ". Error msg: " << e.what() << std::endl;
         exit(EXIT_FAILURE);
     }
 
