@@ -165,7 +165,6 @@ private:
 	static void *controlSignalGather(void *data);
 
 	// ================================ Members ================================
-	logging::clogstream scout;
 	logging::clogstream clog;
 	logging::cfatalstream cfatal;
 };

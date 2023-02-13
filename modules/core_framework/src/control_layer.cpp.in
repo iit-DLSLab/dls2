@@ -72,7 +72,6 @@ ControlLayer::ControlLayer(std::string ID)
 		dls::topics::desired_torques, 
 		std::make_shared<DesiredTorques>(pRobot))
 	, torques(pRobot)
-	, scout(ID)
 	, clog(ID)
 	, cfatal(ID)
 {
@@ -147,7 +146,7 @@ ControlLayer::ControlLayer(std::string ID)
                 {
                     ss << elem.first << "\n";
                 }
-                this->scout << ss.str() << std::endl;
+                this->scout_sys << ss.str() << std::endl;
             }
             else if(s == "motion")
             {
@@ -157,11 +156,11 @@ ControlLayer::ControlLayer(std::string ID)
                 {
                     ss << elem.first << "\n";
                 }
-				this->scout << ss.str() << std::endl;
+				this->scout_sys << ss.str() << std::endl;
             }
             else
             {
-                scout << "Error: unrecognised argument" << std::endl;
+                scout_err << "Error: unrecognised argument" << std::endl;
                 return false;
             }
 
@@ -255,7 +254,7 @@ void *ControlLayer::controlSignalGather(void *data)
 		    ss << "Control Layer is probably breaking real-time. Has period of 1 mseconds but spent: " << delta << " useconds ";
   		    // ss << "Control layer published torques " << desired_torques.transpose(); // << std::endl;
 		    // scout << "\033[F" << "\r" << ss.str() << std::endl;
-            layer->scout << ss.str() << std::endl;
+            layer->scout_warn << ss.str() << std::endl;
         }
 
     	sched_yield();
@@ -361,11 +360,11 @@ bool ControlLayer::loadController(const std::string& lib_name)
     }));
 
     if (pData->proc == nullptr){
-        scout << "Controller process failed to launch" << std::endl;
+        scout_err << "Controller process failed to launch" << std::endl;
         return false;
     }
 
-    scout << "CONTROL LAYER IS LISTENING CONTROLLER " << pData->getID() << " ON TOPIC ControlLayer::Listener::" << pData->getID() <<  std::endl;
+    scout_sys << "CONTROL LAYER IS LISTENING CONTROLLER " << pData->getID() << " ON TOPIC ControlLayer::Listener::" << pData->getID() <<  std::endl;
 
 	// spline in the controller
 	//
@@ -420,10 +419,10 @@ bool ControlLayer::unloadController(std::shared_ptr<ControllerData> pData)
 	std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
 
 	if(pData->proc->running()){
-		scout << "### CONTROLLER IS STILL RUNNING WAITING A LITTLE TO GET PROPPER EXIT ###" << std::endl;
+		scout_sys << "### CONTROLLER IS STILL RUNNING WAITING A LITTLE TO GET PROPPER EXIT ###" << std::endl;
 		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
 		if(pData->proc->running()){
-			scout << "### FORCING CONTROLLER " << pData->proc->id() << " TO EXIT ###" << std::endl;
+			scout_sys << "### FORCING CONTROLLER " << pData->proc->id() << " TO EXIT ###" << std::endl;
 			kill(pData->proc->id(), SIGKILL);
 		}
 	}
@@ -472,7 +471,7 @@ bool ControlLayer::loadMotionGenerator(const std::string& lib_name)
 	}));
 
     if (pData->proc == nullptr){
-        scout << "Failed to launch motion generator process" << std::endl;
+        scout_err << "Failed to launch motion generator process" << std::endl;
 	    return false;
     }
 
@@ -492,10 +491,10 @@ bool ControlLayer::unloadMotionGenerator(std::shared_ptr<AppData> pData)
 	std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
 
 	if(pData->proc->running()){
-		scout << "### MOTION GENERATOR IS STILL RUNNING WAITING A LITTLE TO GET PROPPER EXIT ###" << std::endl;
+		scout_warn << "### MOTION GENERATOR IS STILL RUNNING WAITING A LITTLE TO GET PROPPER EXIT ###" << std::endl;
 		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
 		if(pData->proc->running()){
-			scout << "### FORCING MOTION GENERATOR EXIT ###" << std::endl;
+			scout_warn << "### FORCING MOTION GENERATOR EXIT ###" << std::endl;
 			kill(pData->proc->id(), SIGKILL);
 		}
 	}

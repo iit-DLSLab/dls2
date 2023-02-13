@@ -35,7 +35,7 @@ ServiceLayer::ServiceLayer(std::string ID_)
 		"Load a service",
 		std::function<bool(std::string)>([&](std::string type)->bool
         {	
-			scout << "loadServiceCalled" << std::endl;
+			scout_sys << "loadServiceCalled" << std::endl;
 			return this->loadService(type);
         }),
 		{{0,1},{1,1}},
@@ -63,7 +63,7 @@ ServiceLayer::ServiceLayer(std::string ID_)
 
 ServiceLayer::~ServiceLayer()
 {
-	scout << "#### SERVICE LAYER OFF ####" << std::endl;
+	scout_sys << "#### SERVICE LAYER OFF ####" << std::endl;
 }
 
 ServiceLayer::Status ServiceLayer::run()
@@ -85,7 +85,7 @@ bool ServiceLayer::loadService(const std::string& lib_name)
 	
 	if(this->services.find(lib_name) != this->services.end())
 	{
-		scout << "SERVICE " + lib_name + " IS ALREADY RUNNING" << std::endl;
+		scout_err << "SERVICE " + lib_name + " IS ALREADY RUNNING" << std::endl;
 		return false;
 	}
 
@@ -115,16 +115,16 @@ bool ServiceLayer::loadService(const std::string& lib_name)
 		}));
 
 		if (pData->proc == nullptr){
-			scout << "Service process failed to launch" << std::endl;
+			scout_err << "Service process failed to launch" << std::endl;
 			return false;
 		}
 
         if (!pData->proc->running()){
-			scout << "Service process failed to launch" << std::endl;
+			scout_err << "Service process failed to launch" << std::endl;
 			return false;
 		}
 
-		scout << "SERVICE " << pData->getID() << " IS ON" <<  std::endl;
+		scout_sys << "SERVICE " << pData->getID() << " IS ON" <<  std::endl;
 
 		this->services.emplace(pData->getID(), pData);
 	}
@@ -141,7 +141,7 @@ bool ServiceLayer::unloadService(const std::string ID)
 
 	if (res == this->services.end())
 	{
-		scout << "Service " + ID + " is not loaded" << std::endl;
+		scout_err << "Service " + ID + " is not loaded" << std::endl;
 		return false;
 	}
 
@@ -154,10 +154,10 @@ bool ServiceLayer::unloadService(const std::string ID)
 	std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
 
 	if(pData->proc->running()){
-		scout << "### SERVICE IS STILL RUNNING WAITING A LITTLE TO GET PROPPER EXIT ###" << std::endl;
+		scout_warn << "### SERVICE IS STILL RUNNING WAITING A LITTLE TO GET PROPPER EXIT ###" << std::endl;
 		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
 		if(pData->proc->running()){
-			scout << "### FORCING SERVICE " << pData->proc->id() << " TO EXIT ###" << std::endl;
+			scout_warn << "### FORCING SERVICE " << pData->proc->id() << " TO EXIT ###" << std::endl;
 			kill(pData->proc->id(), SIGKILL);
 		}
 	}

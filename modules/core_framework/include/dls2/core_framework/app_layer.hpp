@@ -126,10 +126,12 @@ namespace dls
 		///
 		CommandManager command_manager;
 
-
-		/// Console/Log output
-        ///
-		logging::clogstream scout;
+		//! Log system events
+		logging::clogstream scout_sys;
+		//! Log warning messages
+		logging::warnstream scout_warn;
+		//! Log errors that occurred, but from which the system can recover. Also log possible future fatal errors for the operator's attention.
+		logging::cerrstream scout_err;
 
 	private:
 		/// The ID of this layer

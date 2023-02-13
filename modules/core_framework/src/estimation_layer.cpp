@@ -62,7 +62,7 @@ EstimationLayer::EstimationLayer(std::string ID) :
 		true
 	);
 
-	scout << "ESTIMATION LAYER LOADED" << std::endl;
+	scout_sys << "ESTIMATION LAYER LOADED" << std::endl;
 }
 
 EstimationLayer::~EstimationLayer()
@@ -160,7 +160,7 @@ bool EstimationLayer::unloadEstimator(const Estimator::ID_t& ID)
 
 	if (res == this->estimators.end())
 	{
-		scout << "Estimator " + ID + " is not loaded" << std::endl;
+		scout_err << "Estimator " + ID + " is not loaded" << std::endl;
 		return false;
 	}
 
@@ -172,10 +172,10 @@ bool EstimationLayer::unloadEstimator(const Estimator::ID_t& ID)
 	std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
 
 	if(pData->proc->running()){
-		scout << "### ESTIMATOR IS STILL RUNNING WAITING A LITTLE TO GET PROPPER EXIT ###" << std::endl;
+		scout_warn << "### ESTIMATOR IS STILL RUNNING WAITING A LITTLE TO GET PROPPER EXIT ###" << std::endl;
 		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
 		if(pData->proc->running()){
-			scout << "### FORCING ESTIMATOR " << pData->proc->id() << " TO EXIT ###" << std::endl;
+			scout_warn << "### FORCING ESTIMATOR " << pData->proc->id() << " TO EXIT ###" << std::endl;
 			kill(pData->proc->id(), SIGKILL);
 		}
 	}

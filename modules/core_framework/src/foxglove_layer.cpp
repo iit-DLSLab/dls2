@@ -20,7 +20,7 @@ using namespace dls;
 FoxgloveLayer::FoxgloveLayer(std::string ID) :
 	AppLayer(ID)
 { 
-	scout << "Foxglove layer loaded" << std::endl;
+	scout_sys << "Foxglove layer loaded" << std::endl;
 }
 
 FoxgloveLayer::~FoxgloveLayer()

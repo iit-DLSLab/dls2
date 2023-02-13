@@ -27,7 +27,9 @@ AppLayer::AppLayer(const std::string &ID_)
     , components({})
     , should_quit(false)
     , command_manager(ID_)
-	, scout(ID_ + "Log")
+	, scout_sys(ID_)
+	, scout_warn(ID_)
+	, scout_err(ID_)
     , ID(ID_)
 	, ddsLink(ID_, dls::domains::layers)
 	, status_mutex()
@@ -170,7 +172,7 @@ bool AppLayer::loadComponentFromDisk(const std::string &name)
     const std::string ID {name};
 	if(this->components.find(ID) != this->components.end())
 	{
-		scout << name << " is already loaded." << std::endl;
+		scout_sys << name << " is already loaded." << std::endl;
 		return false;
 	}
 
@@ -186,7 +188,7 @@ bool AppLayer::loadComponentFromDisk(const std::string &name)
 	}
 	catch (const std::exception &e)
 	{
-        std::cout << e.what() << std::endl;
+        scout_err << e.what() << std::endl;
 
 		// Try from install location of this layer
 		try
@@ -199,11 +201,13 @@ bool AppLayer::loadComponentFromDisk(const std::string &name)
 		}
 		catch (const std::exception &e)
 		{
-            std::cerr << e.what() << std::endl;
-			// std::cerr << "Error: " << name << " not found" << std::endl;
+            scout_err << e.what() << std::endl;
+            scout_err << name << " not found" << std::endl;
             return false;
 		}
 	}
+
+	scout_sys << name << " is loaded." << std::endl;
 
 	this->addComponent(ID, component);
 	

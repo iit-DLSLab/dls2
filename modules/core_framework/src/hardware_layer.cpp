@@ -57,7 +57,7 @@ HardwareLayer::HardwareLayer(std::string ID_)
 
 HardwareLayer::~HardwareLayer()
 {
-	scout << "#### HARDWARE INTERFACE OFF ####" << std::endl;
+	scout_sys << "#### HARDWARE INTERFACE OFF ####" << std::endl;
 }
 
 HardwareLayer::Status HardwareLayer::run()
@@ -111,16 +111,16 @@ bool HardwareLayer::activateHardware(const std::string &robotType)
 		}));
 
 		if (pData->proc == nullptr){
-			scout << "Controller process failed to launch" << std::endl;
+			scout_err << "Controller process failed to launch" << std::endl;
 			return false;
 		}
 
         if (!pData->proc->running()){
-			scout << "Controller process failed to launch" << std::endl;
+			scout_err << "Controller process failed to launch" << std::endl;
 			return false;
 		}
 
-		scout << "HARDWARE LAYER OF " << pData->getID() << " IS ON" <<  std::endl;
+		scout_sys << "HARDWARE LAYER OF " << pData->getID() << " IS ON" <<  std::endl;
 
 		this->hardwares.emplace(pData->getID(), pData);
 	}
@@ -139,10 +139,10 @@ bool HardwareLayer::deactivateHardware(std::shared_ptr<AppData> pData)
 	std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
 
 	if(pData->proc->running()){
-		scout << "### HARDWARE IS STILL RUNNING WAITING A LITTLE TO GET PROPPER EXIT ###" << std::endl;
+		scout_warn << "### HARDWARE IS STILL RUNNING WAITING A LITTLE TO GET PROPPER EXIT ###" << std::endl;
 		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
 		if(pData->proc->running()){
-			scout << "### FORCING HARDWARE " << pData->proc->id() << " TO EXIT ###" << std::endl;
+			scout_warn << "### FORCING HARDWARE " << pData->proc->id() << " TO EXIT ###" << std::endl;
 			kill(pData->proc->id(), SIGKILL);
 		}
 	}

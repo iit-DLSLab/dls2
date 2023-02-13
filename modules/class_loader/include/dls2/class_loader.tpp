@@ -20,7 +20,6 @@
 #include <dlfcn.h>
 #include <sstream>
 #include "dls2/class_loader.hpp"
-#include "dls2/log/log.hpp"
 
 namespace dls
 {
@@ -35,7 +34,7 @@ std::shared_ptr<T> ClassLoader::loadClass
 	if(!T_lib)
 	{
 		std::stringstream ss;
-		ss << "Error: could not load object " << name << ": " << dlerror();
+		ss << "could not load object " << name << ": " << dlerror();
 		// std::cout << ss.str() << std::endl;
 		throw std::runtime_error(ss.str());
 	}
@@ -49,7 +48,7 @@ std::shared_ptr<T> ClassLoader::loadClass
 	if(!create_T)
 	{
 		std::stringstream ss;
-		ss	<< "Error: could not find instantiation code in " << name
+		ss	<< "could not find instantiation code in " << name
 			<< ". Did the module export the class?" << dlerror();
 		// std::cout << ss.str() << std::endl;
 		throw std::runtime_error(ss.str());
@@ -64,7 +63,7 @@ std::shared_ptr<T> ClassLoader::loadClass
 	if(!destroy_T)
 	{
 		std::stringstream ss;
-		ss	<< "Error: could not find destruction code in " << name
+		ss	<< "could not find destruction code in " << name
 			<< ". Did the module export the class?" << dlerror();
 		// std::cout << ss.str() << std::endl;
 		throw std::runtime_error(ss.str());
