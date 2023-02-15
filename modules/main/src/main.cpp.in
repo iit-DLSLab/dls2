@@ -165,7 +165,6 @@ int main(int argc, char **argv)
 	if(Options::launch_control)  	forkLayer<ControlLayer>("controlLayer", argv);
 	if(Options::launch_console)	 	forkLayer<ConsoleLayer>("consoleLayer", argv);
 	if(Options::launch_estimation)	forkLayer<EstimationLayer>("estimationLayer", argv);
-	if(Options::launch_sim)		    forkLayer<SimLayer>("simLayer", argv);
 	if(Options::launch_service)	    forkLayer<ServiceLayer>("serviceLayer", argv);
 	if(Options::launch_foxglove)	forkLayer<FoxgloveLayer>("foxgloveLayer", argv);
 

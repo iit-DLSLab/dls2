@@ -18,7 +18,7 @@
 
 #include "app_layer.hpp"
 #include "dls2/hardware/hardware.hpp"
-#include "dls2/components/app_data.hpp"
+#include "dls2/hardware/hardware_data.hpp"
 #include "dls2/util/messaging/dds_writer.hpp"
 
 #include <pthread.h>
@@ -27,8 +27,6 @@ namespace dls
 {
     class HardwareLayer : public AppLayer
     {
-        typedef void * (*THREADFUNCPTR)(void *);
-
     public:
         /// Default Constructor
 		///
@@ -38,19 +36,23 @@ namespace dls
 		///
         ~HardwareLayer();
 
+        /// Run the layer
+		///
         Status run() override;
 
+        /// Stop the layer
+		///
 	    Status shutdown() override;
 
         /// Activates a hardware
         ///
         /// @ret true if the hardware exists, false otherwise.
-        bool activateHardware(const std::string&);
+        bool loadHardware(const std::string&);
 
         /// Deactivates a hardware
         ///
         /// @ret true if the hardware was running, false otherwise
-        bool deactivateHardware(const std::string&);
+        bool unloadHardware(const std::string&);
 
 		/// Print the state of this layer
 		///
@@ -62,9 +64,7 @@ namespace dls
 		    std::mutex hardwares_mutex;
 	    // END critical section
 
-       	bool deactivateHardware(std::shared_ptr<AppData> pData);
-
-        dls::DDSWriter *ddsMonitor;	
+       	bool unloadHardware(std::shared_ptr<AppData> pData);
     };
 } // end namespace dls
 

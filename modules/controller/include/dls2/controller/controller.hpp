@@ -30,8 +30,6 @@ namespace dls
 {
     class Controller : public PeriodicAppLayerComponent
     {
-        // friend class ControlLayer;
-
     public:
         // Plugin typedefs
         typedef Controller* create_t(std::string);
