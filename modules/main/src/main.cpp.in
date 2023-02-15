@@ -35,7 +35,6 @@
 #include "dls2/core_framework/foxglove_layer.hpp"
 #include "dls2/core_framework/log_layer.hpp"
 #include "dls2/core_framework/console_layer.hpp"
-#include "dls2/core_framework/sim_layer.hpp"
 #include "dls2/core_framework/service_layer.hpp"
 #include "dls2/core_framework/options.hpp"
 #include "dls2/core_framework/version_info.hpp"
