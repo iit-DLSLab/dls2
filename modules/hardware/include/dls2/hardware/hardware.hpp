@@ -28,22 +28,15 @@ namespace dls
 {
     class Hardware : public PeriodicAppLayerComponent
     {
-        friend class HardwareLayer;
-        
     public:
-
-        using ID_t = std::string;
-
         typedef Hardware *create_t(std::string);
         typedef void destroy_t(Hardware*);
 
         Hardware
         (
-            const std::string&,                                        		 						///< The ID of the controller
-            const std::shared_ptr<robotlib::RobotBase>&,                   		 					///< A pointer to the robot model
-            const period_t&,                                     		 							///< The period of the controller
-            const dls::topicType& controlSignalTopic_ = dls::topics::control_signal,    			///< Topic where control signal should be published
-            const dls::topicType& rawSignalTopic_ = dls::topics::low_level_estimation::blind_state	///< Topic where raw signal is being published
+            const std::string& ID,                                       ///< The ID of the controller
+            const std::shared_ptr<robotlib::RobotBase>& robot,           ///< A pointer to the robot model
+            const period_t& period                               		 ///< The period of the controller
         );
 
         virtual ~Hardware() = default;
@@ -52,30 +45,17 @@ namespace dls
 
         bool readBeat();
 
+        dls::DDSParticipant* getParticipant();
 
     private:
 
-        std::atomic_bool should_run;
         std::atomic_bool heart_beat;
-
-        dls::topicType control_signal_topic;
-        dls::topicType blind_state_topic;        
-
-        void executeCommand(std::string cmd);
 
     protected:
         
-        /// Sends the raw info from the robot to the rest of the architecture
-        ///
-        void publishSignal();
-
         std::shared_ptr<robotlib::RobotBase> pRobot;
 
-        dls::DDSParticipant ddslink;
-        dls::DDSReader  	ddsMonitor;
-
-        BlindStateMsg blind_state;
-        DesiredTorquesMsg control_signal;
+        dls::DDSParticipant signalLink;
     };
 } // end namespace dls
 

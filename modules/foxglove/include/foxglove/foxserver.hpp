@@ -29,6 +29,8 @@ namespace dls {
 
         std::set<int> send_flags;
         std::set<int> timer_flags;
+
+        std::mutex sendFlagsMutex;
     };
 }
 

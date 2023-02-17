@@ -40,7 +40,6 @@ bool Options::launch_hardware               = false;
 bool Options::launch_control                = false;
 bool Options::launch_console                = false;
 bool Options::launch_log                    = false;
-bool Options::launch_sim                    = false;
 bool Options::launch_service                = false;
 bool Options::launch_foxglove                = false;
 
@@ -81,7 +80,6 @@ bool Options::parseArgs(int argc, char **argv)
 	Options::launch_control     =  false;
 	Options::launch_console     =  false;
 	Options::launch_log         =  false;
-	Options::launch_sim 		=  false;
 	Options::launch_service		=  false;
 	Options::launch_foxglove	=  false;
 
@@ -163,11 +161,6 @@ bool Options::parseArgs(int argc, char **argv)
 						else if(std::strcmp(layer, "estimation") == 0)
 						{
 							Options::launch_estimation = true;
-						}
-                        else if(std::strcmp(layer, "sim") == 0)
-						{
-							Options::simulation_mode = true;
-                            Options::launch_sim = true;
 						}
 						else if(std::strcmp(layer, "service") == 0)
 						{
@@ -262,7 +255,7 @@ bool Options::validate()
 	if(Options::show_docs)
 		return true;
 
-    if(Options::launch_hardware && Options::launch_sim)
+    if(Options::launch_hardware)
     {
 		std::cerr << "Error: choose between real and simulation, you can't have both" << std::endl;
 		Options::printUsage();
@@ -284,7 +277,6 @@ bool Options::validate()
 		!launch_control &&
 		!launch_console &&
 		!launch_log &&
-		!launch_sim &&
 		!launch_service &&
 		!launch_foxglove
 	)

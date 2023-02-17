@@ -1,5 +1,7 @@
-add_library(dls_hardware SHARED
-	src/hardware.cpp
+add_library(dls_hardware 
+	SHARED
+		src/hardware_data.cpp
+		src/hardware.cpp
 )
 
 set_property(TARGET dls_hardware PROPERTY POSITION_INDEPENDENT_CODE ON)

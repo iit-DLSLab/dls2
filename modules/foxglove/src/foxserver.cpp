@@ -30,6 +30,7 @@ FoxServer::FoxServer()
             }
             for (auto const &chan: this->timer_flags) 
             {
+                std::unique_lock<std::mutex> lock(this->sendFlagsMutex);
                 this->send_flags.erase(chan);
             }
 
@@ -53,7 +54,7 @@ void FoxServer::on_topic_discovery(const std::string& topic_name, const std::str
 {
     std::cout << "Topic discovered: " << topic_name << " [ " << type_name << " ]" << std::endl;
 
-    eprosima::fastrtps::types::DynamicType_ptr type_ = dds::get_type_registered_(type_name);
+    auto type_ = dds::get_type_registered_(type_name);
 
     auto jsonPair = dds::createJsonSchema(topic_name, type_);
 
@@ -70,8 +71,11 @@ void FoxServer::on_topic_discovery(const std::string& topic_name, const std::str
         dls::topicType({
             topic_name, 
             eprosima::fastdds::dds::TypeSupport(new eprosima::fastrtps::types::DynamicPubSubType(type_))}),
-            std::function<void(void *)>{[&, type_, jsonPair, channel](void *tuple)
+            std::function<void(void *)>{[&, type_name, jsonPair, channel](void *tuple)
             {
+                std::unique_lock<std::mutex> lock(this->sendFlagsMutex);
+                auto type_ = dds::get_type_registered_(type_name);
+
                 if(this->send_flags.find(channel) != this->send_flags.end())
                     return;
 
@@ -113,7 +117,8 @@ void FoxServer::on_topic_discovery(const std::string& topic_name, const std::str
         // this->timer_flags.insert(chanScene);
 
         // Handler for connection
-        foxserver.setSubscribeHandler([&, this](ChannelId chanId) {
+        foxserver.setSubscribeHandler([&](ChannelId chanId) {
+            std::unique_lock<std::mutex> lock(this->sendFlagsMutex);
             this->send_flags.erase(chanId);
         });
 
@@ -121,8 +126,10 @@ void FoxServer::on_topic_discovery(const std::string& topic_name, const std::str
 		dls::topics::low_level_estimation::blind_state,
 		std::function<void(void *)>
 		{
-            [&, chanFrame, chanScene, jsonPair, type_](void *tuple)
+            [&, chanFrame, chanScene, jsonPair, type_name](void *tuple)
 			{
+                std::unique_lock<std::mutex> lock(this->sendFlagsMutex);
+                auto type_ = dds::get_type_registered_(type_name);
 
                 nlohmann::json jsonMsg = jsonPair.second;
 

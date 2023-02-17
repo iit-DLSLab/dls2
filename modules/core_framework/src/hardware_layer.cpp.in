@@ -24,19 +24,13 @@ using namespace dls;
 HardwareLayer::HardwareLayer(std::string ID_) 
 	: AppLayer(ID_)
 {
-    ddsMonitor = new dls::DDSWriter(
-		"HardwareLayer::monitor",
-		dls::domains::hardwares,
-		dls::topics::command_send
-	);
-
     command_manager.addCommand<std::string>
 	(
 		"loadHardware",
 		"Load thel HAL of a robot",
 		std::function<bool(std::string)>([&](std::string type)->bool
         {
-			return this->activateHardware(type);
+			return this->loadHardware(type);
         }),
 		{{0,1}},
 		true
@@ -48,7 +42,7 @@ HardwareLayer::HardwareLayer(std::string ID_)
 		"Terminates the HAL of the robot",
 		std::function<bool(std::string)>([&](std::string name)->bool
         {
-            return this->deactivateHardware(name);
+            return this->unloadHardware(name);
 		}),
 		{{1,0}},
 		true
@@ -74,63 +68,39 @@ HardwareLayer::Status HardwareLayer::run()
 }
 
 
-bool HardwareLayer::activateHardware(const std::string &robotType)
+bool HardwareLayer::loadHardware(const std::string &lib_name)
 {
-    std::shared_ptr<AppData> pData;
+	// std::lock_guard<std::mutex> lock(this->hardwares_mutex);
 
-    for(long unsigned int i = 0; i <= hardwares.size(); i++){
-        std::string ID = robotType + "_" + std::to_string(i);
-        if(this->hardwares.find(ID) == this->hardwares.end())
-		{
-			pData = std::make_shared<AppData>(ID);
-            break;
-		}
-    }   
+	if(this->hardwares.size() > 0)
+		return false;
 
-	{
-		// std::lock_guard<std::mutex> lock(this->hardwares_mutex);
+	std::shared_ptr<HardwareData> pData = std::make_shared<HardwareData>(lib_name);
 
-		// launch the hardware
-		char *child_process_launcher = std::getenv("DLS_CHILD_PROCESS_LAUNCHER");
-		if(!child_process_launcher)
-		{
-			std::cerr <<
-				"ERROR: env variable DLS_CHILD_PROCESS_LAUNCHER not "
-				"defined.  This is probably an error with the launch script"
-			<< std::endl;
-			return false;
-		}
+	// launch the hardware
+	pData->proc = std::make_shared<boost::process::child>(std::vector<std::string>({
+		"${DLS_INSTALL_RUNTIME_DIR}/child_process_launcher",
+		pData->getID(),
+		lib_name,
+		"hardware",
+		Options::robot_name,
+        (Options::simulation_mode?"sim":"live")
+	}));
 
-		pData->proc = std::make_shared<boost::process::child>(std::vector<std::string>({
-			child_process_launcher,
-			pData->getID(),
-			robotType + "_hal",
-			"hardware",
-			robotType,
-            "live"
-		}));
-
-		if (pData->proc == nullptr){
-			scout_err << "Controller process failed to launch" << std::endl;
-			return false;
-		}
-
-        if (!pData->proc->running()){
-			scout_err << "Controller process failed to launch" << std::endl;
-			return false;
-		}
-
-		scout_sys << "HARDWARE LAYER OF " << pData->getID() << " IS ON" <<  std::endl;
-
-		this->hardwares.emplace(pData->getID(), pData);
+	if (pData->proc == nullptr){
+		scout_err << "Hardware process failed to launch" << std::endl;
+		return false;
 	}
+
+	pData->proc->detach();
+	this->hardwares.emplace(pData->getID(), pData);
 
 	return true;
 }
 
-bool HardwareLayer::deactivateHardware(std::shared_ptr<AppData> pData)
+bool HardwareLayer::unloadHardware(std::shared_ptr<AppData> pData)
 {
-	std::lock_guard<std::mutex> lock(this->hardwares_mutex);
+	// std::lock_guard<std::mutex> lock(this->hardwares_mutex);
 
     //shutdown hardware over the dds comunication layer
 	command_manager.callCommand("exit", {}, pData->getID());
@@ -150,10 +120,12 @@ bool HardwareLayer::deactivateHardware(std::shared_ptr<AppData> pData)
 	pData->proc = nullptr;
 	this->hardwares.erase(pData->getID());
 
-    return false;
+	scout_sys << "UNLOADED HARDWARE " << pData->getID() << std::endl;
+
+    return true;
 }
 
-bool HardwareLayer::deactivateHardware(const std::string &ID)
+bool HardwareLayer::unloadHardware(const std::string &ID)
 {
 	decltype(this->hardwares.find(ID)) pair_it;
 	{
@@ -164,7 +136,7 @@ bool HardwareLayer::deactivateHardware(const std::string &ID)
 			return false;
 	}
 
-    return this->deactivateHardware(pair_it->second);
+    return this->unloadHardware(pair_it->second);
 }
 
 HardwareLayer::Status HardwareLayer::shutdown()
@@ -174,7 +146,7 @@ HardwareLayer::Status HardwareLayer::shutdown()
 		keys.push_back(pair.first);
 	
 	for(auto key : keys)
-		this->deactivateHardware(key);
+		this->unloadHardware(key);
 
 	this->should_quit = true;
 
