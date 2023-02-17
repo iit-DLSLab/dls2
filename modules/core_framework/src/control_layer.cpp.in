@@ -364,8 +364,8 @@ bool ControlLayer::loadController(const std::string& lib_name)
         (Options::simulation_mode?"sim":"live")
     }));
 
-    if (pData->proc == nullptr){
-        scout_err << "Controller process failed to launch" << std::endl;
+    if (pData->proc == nullptr || pData->proc->wait_for(std::chrono::duration<double, std::milli>(1000))){
+        scout_err << "Controller " << lib_name <<" failed to launch" << std::endl;
         return false;
     }
 
@@ -480,9 +480,9 @@ bool ControlLayer::loadMotionGenerator(const std::string& lib_name)
 		(Options::simulation_mode?"sim":"live")
 	}));
 
-    if (pData->proc == nullptr){
-        scout_err << "Failed to launch motion generator process" << std::endl;
-	    return false;
+    if (pData->proc == nullptr || pData->proc->wait_for(std::chrono::duration<double, std::milli>(1000))){
+        scout_err << "motion generation " << lib_name <<" failed to launch" << std::endl;
+        return false;
     }
 
 	pData->proc->detach();	

@@ -113,13 +113,8 @@ bool ServiceLayer::loadService(const std::string& lib_name)
             "live"
 		}));
 
-		if (pData->proc == nullptr){
-			scout_err << "Service process failed to launch" << std::endl;
-			return false;
-		}
-
-        if (!pData->proc->running()){
-			scout_err << "Service process failed to launch" << std::endl;
+		if (pData->proc == nullptr || pData->proc->wait_for(std::chrono::duration<double, std::milli>(1000))){
+			scout_err << "Service " << lib_name << " failed to launch" << std::endl;
 			return false;
 		}
 

@@ -136,13 +136,8 @@ bool EstimationLayer::loadEstimator(const Estimator::ID_t& lib_name)
             "live"
 		}));
 
-		if (pData->proc == nullptr){
-			std::cout << "Estimator process failed to launch" << std::endl;
-			return false;
-		}
-
-        if (!pData->proc->running()){
-			std::cout << "Estimator process failed to launch" << std::endl;
+		if (pData->proc == nullptr || pData->proc->wait_for(std::chrono::duration<double, std::milli>(1000))){
+			scout_err << "Estimator " << lib_name << " failed to launch" << std::endl;
 			return false;
 		}
 
