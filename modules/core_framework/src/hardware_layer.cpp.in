@@ -47,6 +47,23 @@ HardwareLayer::HardwareLayer(std::string ID_)
 		{{1,0}},
 		true
 	);
+
+	command_manager.addCommand<>
+	(
+		"list",
+		"Lists all hardware running",
+		std::function<bool()>([&]()->bool
+        {
+            scout_sys << std::endl;
+            for(auto elem : this->hardwares){
+                scout_sys << elem.first << std::endl;
+            }
+            
+            return true;
+		}),
+		{{1,1}},
+		true
+	);
 }
 
 HardwareLayer::~HardwareLayer()
