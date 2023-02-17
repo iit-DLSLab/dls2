@@ -72,6 +72,12 @@ bool HardwareLayer::loadHardware(const std::string &lib_name)
 {
 	// std::lock_guard<std::mutex> lock(this->hardwares_mutex);
 
+	if(this->hardwares.find(lib_name) != this->hardwares.end())
+	{
+		scout_err << "hardware " << lib_name << " already loaded" << std::endl;
+        return false;
+	}
+
 	if(this->hardwares.size() > 0)
 		return false;
 
@@ -87,7 +93,7 @@ bool HardwareLayer::loadHardware(const std::string &lib_name)
         (Options::simulation_mode?"sim":"live")
 	}));
 
-	if (pData->proc == nullptr){
+	if (pData->proc == nullptr || pData->proc->wait_for(std::chrono::duration<double, std::milli>(1000))){
 		scout_err << "Hardware process failed to launch" << std::endl;
 		return false;
 	}
@@ -116,24 +122,25 @@ bool HardwareLayer::unloadHardware(std::shared_ptr<AppData> pData)
 			kill(pData->proc->id(), SIGKILL);
 		}
 	}
+	else
+	{
+		scout_sys << "hardware " << pData->getID() << " is unloaded" << std::endl;
+	}
 
 	pData->proc = nullptr;
 	this->hardwares.erase(pData->getID());
-
-	scout_sys << "UNLOADED HARDWARE " << pData->getID() << std::endl;
 
     return true;
 }
 
 bool HardwareLayer::unloadHardware(const std::string &ID)
 {
-	decltype(this->hardwares.find(ID)) pair_it;
-	{
-		std::lock_guard<std::mutex> lock(this->hardwares_mutex);
-		pair_it = this->hardwares.find(ID);
+	auto pair_it = this->hardwares.find(ID);
 
-		if(pair_it == this->hardwares.end()) 
-			return false;
+	if(pair_it == this->hardwares.end())
+	{
+		scout_err << "hardware " << ID << " is not loaded" << std::endl;
+		return false;
 	}
 
     return this->unloadHardware(pair_it->second);
