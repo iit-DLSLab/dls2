@@ -97,6 +97,7 @@ protected:
 	/// Print stream
 	///
 	logging::clogstream scout;
+	logging::cerrstream scout_err;
 
 private:
 	// BEGIN critical section

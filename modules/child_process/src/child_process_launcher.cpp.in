@@ -79,7 +79,8 @@ Args parse_args(int argc, char **argv);
 ///
 void signal_handler(int signal);
 
-logging::clogstream scout("process_launcher");
+logging::clogstream scout_sys("process_launcher");
+logging::cerrstream scout_err("process_launcher");
 
 // =============================================================================
 // Main
@@ -88,7 +89,7 @@ int main(int argc, char **argv)
 {
     // give time to the logstrem connect to the logger layer
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    // scout << "PROCESS LAUNCHER CALLED" << std::endl;
+    // scout_sys << "PROCESS LAUNCHER CALLED" << std::endl;
     Args args = parse_args(argc, argv);
 
     // Load the component
@@ -103,7 +104,7 @@ int main(int argc, char **argv)
         }
         else if (args.component_type == "motion_generator")
         {
-            scout << "LOADING MOTION GENERATOR FROM '" << std::string("${DLS_INSTALL_MOTION_GENERATOR_DIR}/lib") + args.lib_name + ".so'" << std::endl;
+            scout_sys << "LOADING MOTION GENERATOR FROM '" << std::string("${DLS_INSTALL_MOTION_GENERATOR_DIR}/lib") + args.lib_name + ".so'" << std::endl;
             pComponent =
                 ClassLoader::loadClass<MotionGenerator, std::string>(
                     std::string("${DLS_INSTALL_MOTION_GENERATOR_DIR}/lib") + args.lib_name + ".so",
@@ -111,7 +112,7 @@ int main(int argc, char **argv)
         }
         else if (args.component_type == "hardware")
         {
-            scout << "LOADING HARDWARE FROM '" << std::string("${DLS_INSTALL_HARDWARE_DIR}/lib") + args.lib_name + ".so'" << std::endl;
+            scout_sys << "LOADING HARDWARE FROM '" << std::string("${DLS_INSTALL_HARDWARE_DIR}/lib") + args.lib_name + ".so'" << std::endl;
             pComponent =
                 ClassLoader::loadClass<Hardware, std::string>(
                     std::string("${DLS_INSTALL_HARDWARE_DIR}/lib") + args.lib_name + ".so",
@@ -119,7 +120,7 @@ int main(int argc, char **argv)
         }
         else if (args.component_type == "estimator")
         {
-            scout << "LOADING ESTIMATOR FROM '" << std::string("${DLS_INSTALL_ESTIMATOR_DIR}/lib") + args.lib_name + ".so'" << std::endl;
+            scout_sys << "LOADING ESTIMATOR FROM '" << std::string("${DLS_INSTALL_ESTIMATOR_DIR}/lib") + args.lib_name + ".so'" << std::endl;
             pComponent =
                 ClassLoader::loadClass<Estimator, std::string>(
                     std::string("${DLS_INSTALL_ESTIMATOR_DIR}/lib") + args.lib_name + ".so",
@@ -127,7 +128,7 @@ int main(int argc, char **argv)
         }
         else if (args.component_type == "service")
         {
-            scout << "LOADING SERVICE FROM '" << std::string("${DLS_INSTALL_SERVICE_DIR}/lib") + args.lib_name + ".so'" << std::endl;
+            scout_sys << "LOADING SERVICE FROM '" << std::string("${DLS_INSTALL_SERVICE_DIR}/lib") + args.lib_name + ".so'" << std::endl;
             pComponent =
                 ClassLoader::loadClass<ServiceBase, std::string>(
                     std::string("${DLS_INSTALL_SERVICE_DIR}/lib") + args.lib_name + ".so",
@@ -135,18 +136,18 @@ int main(int argc, char **argv)
         }
         else
         {
-            scout << "component loading not yet implemented" << std::endl;
+            scout_err << "component loading not yet implemented" << std::endl;
             exit(EXIT_FAILURE);
         }
 
-        scout << "Loaded component " << pComponent->getID() << std::endl;
+        scout_sys << "Loaded component " << pComponent->getID() << std::endl;
     }
     catch (const std::exception &e)
     {
         // logging::cfatalstream s(process_handle);
         // s << "Component '" << args.component_name << "' of type '"
         // 	<< args.component_type << "' not found" << std::endl;
-        scout << "Could not load component '" << args.component_name
+        scout_err << "Could not load component '" << args.component_name
                   << "' of type '" << args.component_type 
                   << ". Error msg: " << e.what() << std::endl;
         exit(EXIT_FAILURE);
@@ -166,7 +167,7 @@ Args parse_args(int argc, char **argv)
 {
     if (argc != 6)
     {
-        std::cerr << "Error: incorrect number of arguments" << std::endl;
+        scout_err << "Error: incorrect number of arguments" << std::endl;
         exit(EXIT_FAILURE);
     }
     // for (size_t i = 1; i <= 5; i++)
@@ -206,15 +207,15 @@ Args parse_args(int argc, char **argv)
 
 void signal_handler(int signal)
 {
-    scout << "#### KILL SIGNAL RECEIVED" << std::endl;
+    scout_sys << "#### KILL SIGNAL RECEIVED" << std::endl;
     if (signal == SIGTERM)
     {
         pComponent->stop();
 
-        scout << pComponent->getID() << " received kill request" << std::endl;
+        scout_sys << pComponent->getID() << " received kill request" << std::endl;
         dls::AppLayerComponent::Status exit_status = pComponent->getStatus();
 
-        scout << "#### FROM KILLER pComp status " << static_cast<int>(exit_status) << std::endl;
+        scout_sys << "#### FROM KILLER pComp status " << static_cast<int>(exit_status) << std::endl;
         // pComponent = nullptr;
 
         // give fastrtps a moment to send its message

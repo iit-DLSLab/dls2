@@ -103,15 +103,16 @@ bool EstimationLayer::loadEstimator(const Estimator::ID_t& lib_name)
 {
     std::shared_ptr<AppData> pData;
 
-    for(long unsigned int i = 0; i <= estimators.size(); i++){
-        std::string ID = lib_name + "_" + std::to_string(i);
-        if(this->estimators.find(ID) == this->estimators.end())
-		{
-			pData = std::make_shared<AppData>(lib_name);
-			break;
-		}
-    }   
-
+	if(this->estimators.find(lib_name) == this->estimators.end())
+	{
+		pData = std::make_shared<AppData>(lib_name);
+	}
+	else
+	{
+		scout_err << "estimator " << lib_name << " already loaded" << std::endl;
+		return false;
+	}
+	
 	{
 		// std::lock_guard<std::mutex> lock(this->estimators_mutex);
 
@@ -119,7 +120,7 @@ bool EstimationLayer::loadEstimator(const Estimator::ID_t& lib_name)
 		char *child_process_launcher = std::getenv("DLS_CHILD_PROCESS_LAUNCHER");
 		if(!child_process_launcher)
 		{
-			std::cerr <<
+			scout_err <<
 				"ERROR: env variable DLS_CHILD_PROCESS_LAUNCHER not "
 				"defined.  This is probably an error with the launch script"
 			<< std::endl;
@@ -172,12 +173,16 @@ bool EstimationLayer::unloadEstimator(const Estimator::ID_t& ID)
 	std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
 
 	if(pData->proc->running()){
-		scout_warn << "### ESTIMATOR IS STILL RUNNING WAITING A LITTLE TO GET PROPPER EXIT ###" << std::endl;
+		scout_warn << "### ESTIMATOR " << ID << " IS STILL RUNNING WAITING A LITTLE TO GET PROPPER EXIT ###" << std::endl;
 		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
 		if(pData->proc->running()){
-			scout_warn << "### FORCING ESTIMATOR " << pData->proc->id() << " TO EXIT ###" << std::endl;
+			scout_warn << "### FORCING ESTIMATOR " << ID << " TO EXIT ###" << std::endl;
 			kill(pData->proc->id(), SIGKILL);
 		}
+	}
+	else
+	{
+		scout_sys << "Estimator " + ID + " is unloaded" << std::endl;
 	}
 
 	pData->proc = nullptr;

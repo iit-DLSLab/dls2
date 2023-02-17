@@ -34,8 +34,7 @@ ServiceLayer::ServiceLayer(std::string ID_)
 		"loadService",
 		"Load a service",
 		std::function<bool(std::string)>([&](std::string type)->bool
-        {	
-			scout_sys << "loadServiceCalled" << std::endl;
+        {
 			return this->loadService(type);
         }),
 		{{0,1},{1,1}},
@@ -85,7 +84,7 @@ bool ServiceLayer::loadService(const std::string& lib_name)
 	
 	if(this->services.find(lib_name) != this->services.end())
 	{
-		scout_err << "SERVICE " + lib_name + " IS ALREADY RUNNING" << std::endl;
+		scout_err << "service " + lib_name + " already loaded" << std::endl;
 		return false;
 	}
 
@@ -98,8 +97,8 @@ bool ServiceLayer::loadService(const std::string& lib_name)
 		char *child_process_launcher = std::getenv("DLS_CHILD_PROCESS_LAUNCHER");
 		if(!child_process_launcher)
 		{
-			std::cerr <<
-				"ERROR: env variable DLS_CHILD_PROCESS_LAUNCHER not "
+			scout_err <<
+				"env variable DLS_CHILD_PROCESS_LAUNCHER not "
 				"defined.  This is probably an error with the launch script"
 			<< std::endl;
 			return false;
@@ -154,12 +153,16 @@ bool ServiceLayer::unloadService(const std::string ID)
 	std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
 
 	if(pData->proc->running()){
-		scout_warn << "### SERVICE IS STILL RUNNING WAITING A LITTLE TO GET PROPPER EXIT ###" << std::endl;
+		scout_warn << "### SERVICE " << ID <<" IS STILL RUNNING WAITING A LITTLE TO GET PROPPER EXIT ###" << std::endl;
 		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
 		if(pData->proc->running()){
-			scout_warn << "### FORCING SERVICE " << pData->proc->id() << " TO EXIT ###" << std::endl;
+			scout_warn << "### FORCING SERVICE " << ID <<" TO EXIT ###" << std::endl;
 			kill(pData->proc->id(), SIGKILL);
 		}
+	}
+	else
+	{
+		scout_sys << "Service " + ID + " is unloaded" << std::endl;
 	}
 
 	pData->proc = nullptr;

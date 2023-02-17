@@ -24,6 +24,7 @@ using namespace dls;
 AppLayerComponent::AppLayerComponent(const std::string &ID_) 
 	: command_manager(ID_)
 	, scout(ID_)
+	, scout_err(ID_)
 	, status(Status::UNCONSTRUCTED)
 	, status_mutex()
     , ID(ID_)
