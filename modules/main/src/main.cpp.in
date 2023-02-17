@@ -167,7 +167,6 @@ int main(int argc, char **argv)
 	if(Options::launch_service)	    forkLayer<ServiceLayer>("serviceLayer", argv);
 	if(Options::launch_foxglove)	forkLayer<FoxgloveLayer>("foxgloveLayer", argv);
 
-	//Time::set_use_simulated_time(Options::is_simulation());
 	if(Options::robot_name != "")
 	{
 		CommandManager cmd_manager("main");

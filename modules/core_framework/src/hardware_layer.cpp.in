@@ -89,8 +89,7 @@ bool HardwareLayer::loadHardware(const std::string &lib_name)
 		pData->getID(),
 		lib_name,
 		"hardware",
-		Options::robot_name,
-        (Options::simulation_mode?"sim":"live")
+		Options::robot_name
 	}));
 
 	if (pData->proc == nullptr || pData->proc->wait_for(std::chrono::duration<double, std::milli>(1000))){

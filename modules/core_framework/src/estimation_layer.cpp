@@ -132,8 +132,7 @@ bool EstimationLayer::loadEstimator(const Estimator::ID_t& lib_name)
 			pData->getID(),
 			lib_name,
 			"estimator",
-			"aliengo",
-            "live"
+			"aliengo"
 		}));
 
 		if (pData->proc == nullptr || pData->proc->wait_for(std::chrono::duration<double, std::milli>(1000))){

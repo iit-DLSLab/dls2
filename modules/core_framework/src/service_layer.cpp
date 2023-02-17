@@ -109,8 +109,7 @@ bool ServiceLayer::loadService(const std::string& lib_name)
 			pData->getID(),
 			lib_name,
 			"service",
-			"",
-            "live"
+			""
 		}));
 
 		if (pData->proc == nullptr || pData->proc->wait_for(std::chrono::duration<double, std::milli>(1000))){

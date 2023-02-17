@@ -21,7 +21,6 @@
 // * component name                - name of the component to load
 // * <controller | motion_generator> - the type of the component to load A
 // * <hyq | hyqreal>               - the robot for which this component is loaded
-// * <sim | live>                  - whether it is simulated or live
 #include <iostream>
 #include <cstdlib>
 #include <memory>
@@ -59,8 +58,7 @@ struct Args
     Args() : component_name(),
              lib_name(),
              component_type(),
-             robot_name(),
-             launch_mode()
+             robot_name()
     {
     }
 
@@ -68,7 +66,6 @@ struct Args
     std::string lib_name;
     std::string component_type;
     std::string robot_name;
-    std::string launch_mode;
 };
 
 /// Parses the args and exits if the program if they are invalid
@@ -165,7 +162,7 @@ int main(int argc, char **argv)
 
 Args parse_args(int argc, char **argv)
 {
-    if (argc != 6)
+    if (argc != 5)
     {
         scout_err << "Error: incorrect number of arguments" << std::endl;
         exit(EXIT_FAILURE);
@@ -180,7 +177,6 @@ Args parse_args(int argc, char **argv)
     args.lib_name = argv[2];
     args.component_type = argv[3];
     args.robot_name = argv[4];
-    args.launch_mode = argv[5];
 
     if (
         args.component_type != "controller" &&
@@ -191,14 +187,6 @@ Args parse_args(int argc, char **argv)
         )
     {
         std::cerr << "Error: unknown component type '" << args.component_type << "'" << std::endl;
-        exit(EXIT_FAILURE);
-    }
-
-    if (
-        args.launch_mode != "sim" &&
-        args.launch_mode != "live")
-    {
-        std::cerr << "Error: unknown launch mode: '" << args.launch_mode << "'" << std::endl;
         exit(EXIT_FAILURE);
     }
 

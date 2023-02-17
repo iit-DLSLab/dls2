@@ -50,10 +50,6 @@ public:
 	/// Prints the command-line usage of the framework
 	static void printUsage();
 
-	/// Informs if the system is running in simulation or not
-	/// ### It needs to be globally visible not only in options
-	static bool is_simulation();
-
 	/// The raw argv and argc as passed to main
 	static char **argv;
 	static int argc;
@@ -66,9 +62,6 @@ public:
 	static bool launch_log;
 	static bool launch_service;
 	static bool launch_foxglove;
-
-	// Real robot or simulation mode
-	static bool simulation_mode;
 
 	static std::string robot_name;
 

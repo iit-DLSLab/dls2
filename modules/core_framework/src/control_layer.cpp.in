@@ -360,8 +360,7 @@ bool ControlLayer::loadController(const std::string& lib_name)
         pData->getID(),
 		lib_name,
         "controller",
-        Options::robot_name,
-        (Options::simulation_mode?"sim":"live")
+        Options::robot_name
     }));
 
     if (pData->proc == nullptr || pData->proc->wait_for(std::chrono::duration<double, std::milli>(1000))){
@@ -476,8 +475,7 @@ bool ControlLayer::loadMotionGenerator(const std::string& lib_name)
 		lib_name,
 		lib_name,
 		"motion_generator",
-		Options::robot_name,
-		(Options::simulation_mode?"sim":"live")
+		Options::robot_name
 	}));
 
     if (pData->proc == nullptr || pData->proc->wait_for(std::chrono::duration<double, std::milli>(1000))){
