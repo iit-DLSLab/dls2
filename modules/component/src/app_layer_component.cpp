@@ -23,7 +23,7 @@ using namespace dls;
 // =============================================================================
 AppLayerComponent::AppLayerComponent(const std::string &ID_) 
 	: command_manager(ID_)
-	, scout(ID_)
+	, scout_sys(ID_)
 	, scout_err(ID_)
 	, status(Status::UNCONSTRUCTED)
 	, status_mutex()
@@ -36,8 +36,8 @@ AppLayerComponent::AppLayerComponent(const std::string &ID_)
 		std::function<bool()>([&]()->bool
         {
 			auto s = where();
-			std::cout << s << std::endl;
-			scout     << s << std::endl;
+			scout_sys << s << std::endl;
+			scout_sys     << s << std::endl;
             return true;
 		}),
 		{},
