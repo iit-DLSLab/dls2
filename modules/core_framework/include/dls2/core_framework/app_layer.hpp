@@ -111,7 +111,7 @@ namespace dls
 		/// @return the ID of the layer
 		std::string getID();
 
-		dls::DDSParticipant* getParticipant();
+		std::shared_ptr<dls::DDSParticipant> getParticipant();
 
 		// BEGIN critical section
 			mutable std::mutex components_mutex;
@@ -140,7 +140,7 @@ namespace dls
 
 		/// DDS communication link
         ///
-		dls::DDSParticipant ddsLink;
+		std::shared_ptr<dls::DDSParticipant> ddsLink;
 
 		// BEGIN critical section
 			mutable std::mutex status_mutex;

@@ -179,7 +179,7 @@ ControlLayer::~ControlLayer()
 		pair.second = nullptr;
 	}
 
-	void *res;
+	void *res = nullptr; // do not need to save the thread exit status
 	pthread_join(controlSignalGatherThread, &res);
 }
 

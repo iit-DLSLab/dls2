@@ -23,11 +23,11 @@ using namespace dls;
 
 ServiceLayer::ServiceLayer(std::string ID_) 
 	: AppLayer(ID_)
-	, ddsMonitor(
+	, ddsMonitor(std::make_shared<dls::DDSWriter>(
 		"ServiceLayer::monitor",
 		dls::domains::services,
 		dls::topics::command_send
-	)
+	))
 {
     command_manager.addCommand<std::string>
 	(
