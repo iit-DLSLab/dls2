@@ -18,7 +18,7 @@ FoxServer::FoxServer()
     , foxserver(8765, "example server")
     , ddslink("FoxServer::monitor", dls::domains::signals, false)
 {
-    this->serverThread = new std::thread(&FoxServer::serverFunc, this);
+    this->serverThread = std::make_shared<std::thread>(&FoxServer::serverFunc, this);
     ddslink.setTopicListener(this);
 
     this->setTimer = [&] {
@@ -41,8 +41,7 @@ FoxServer::FoxServer()
     this->setTimer();
 }
 
-FoxServer::~FoxServer()
-{ }
+FoxServer::~FoxServer() {serverThread->join();}
 
 void FoxServer::serverFunc()
 {

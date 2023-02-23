@@ -20,7 +20,7 @@ namespace dls {
         void serverFunc();
         void on_topic_discovery(const std::string& topic_name, const std::string& type_name) override;
 
-        std::thread *serverThread;
+        std::shared_ptr<std::thread> serverThread;
         std::shared_ptr<boost::asio::steady_timer> timer;
         Server foxserver;
 
