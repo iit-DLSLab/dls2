@@ -31,7 +31,7 @@ namespace dls
         ControllerData
         (
             const std::string&,
-            dls::DDSParticipant* participant,
+            std::shared_ptr<dls::DDSParticipant> participant,
             const dls::topicType& topic,
             const std::shared_ptr<robotlib::RobotBase>,
             std::shared_ptr<math::SplineBase<double>> pSpline_in,

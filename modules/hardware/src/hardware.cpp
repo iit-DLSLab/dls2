@@ -29,15 +29,15 @@ Hardware::Hardware
 )
 	: PeriodicAppLayerComponent(name_, period_)
     , pRobot(pRobot_)
-	, signalLink(
+	, signalLink(std::make_shared<dls::DDSParticipant>(
 		"Hardware::" + name_,
 		dls::domains::signals
-	)
+	))
 { }
 
-dls::DDSParticipant* Hardware::getParticipant()
+std::shared_ptr<dls::DDSParticipant> Hardware::getParticipant()
 {
-	return &this->signalLink;
+	return this->signalLink;
 }
 
 bool Hardware::readBeat()
