@@ -229,12 +229,12 @@ namespace dls
 		if (topic == nullptr)
 			return nullptr;
 
-		DDSSubListener *listener = new DDSSubListener(callback_);
+		std::shared_ptr<dls::DDSSubListener> listener = std::make_shared<DDSSubListener>(callback_);
 
 		auto reader = this->subscriber->create_datareader(
 			topic,
 			eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT,
-			listener);
+			listener.get());
 
 		if (reader != nullptr)
 		{
