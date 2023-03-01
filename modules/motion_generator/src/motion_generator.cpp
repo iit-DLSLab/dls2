@@ -29,24 +29,22 @@ MotionGenerator::MotionGenerator
 	, home_configuration(pRobot->makeJointState(0.0))
 	, fold_configuration(pRobot->makeJointState(0.0))
 {
-	ddsLink = new dls::DDSParticipant("MotionGen::" + this->getID(), dls::domains::signals);
+	ddsLink = std::make_shared<dls::DDSParticipant>("MotionGen::" + this->getID(), dls::domains::signals);
 
 	setConsoleFunctions();
 }
 
 MotionGenerator::~MotionGenerator()
-{
-	delete ddsLink;
-}
+{}
 
-dls::DDSParticipant* MotionGenerator::getParticipant()
+std::shared_ptr<dls::DDSParticipant> MotionGenerator::getParticipant()
 {
 	return this->ddsLink;
 }
 
-const robotlib::RobotBase* MotionGenerator::getRobot()
+std::shared_ptr<const robotlib::RobotBase> MotionGenerator::getRobot()
 {
-	return this->pRobot.get();
+	return this->pRobot;
 }
 
 void MotionGenerator::setHomeConfiguration(YAML::Node& config, const std::string& data_name)

@@ -79,7 +79,7 @@ namespace dls
 		std::map<std::string, eprosima::fastdds::dds::Topic *>  	topics;	
 		std::map<std::string, eprosima::fastdds::dds::DataReader *> readers;
 		std::map<std::string, eprosima::fastdds::dds::DataWriter *> writers;
-		std::vector<dls::DDSSubListener *>							subListeners;
+		std::vector<std::shared_ptr<dls::DDSSubListener>>			subListeners;
 
 		eprosima::fastdds::dds::Publisher  *publisher;
         eprosima::fastdds::dds::Subscriber *subscriber;

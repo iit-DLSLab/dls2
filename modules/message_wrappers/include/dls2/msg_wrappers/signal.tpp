@@ -21,7 +21,7 @@
 using namespace dls;
 
 template <typename SignalType>
-Signal<SignalType>::Signal(dls::DDSParticipant* participant_, const std::shared_ptr<SignalType> signal_)
+Signal<SignalType>::Signal(std::shared_ptr<dls::DDSParticipant> participant_, const std::shared_ptr<SignalType> signal_)
 	: ddsLink(participant_)
 	, signal(signal_)
 { 

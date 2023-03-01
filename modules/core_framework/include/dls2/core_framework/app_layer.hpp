@@ -111,7 +111,7 @@ namespace dls
 		/// @return the ID of the layer
 		std::string getID();
 
-		dls::DDSParticipant* getParticipant();
+		std::shared_ptr<dls::DDSParticipant> getParticipant();
 
 		// BEGIN critical section
 			mutable std::mutex components_mutex;
@@ -126,10 +126,12 @@ namespace dls
 		///
 		CommandManager command_manager;
 
-
-		/// Console/Log output
-        ///
-		logging::clogstream scout;
+		//! Log system events
+		logging::clogstream scout_sys;
+		//! Log warning messages
+		logging::warnstream scout_warn;
+		//! Log errors that occurred, but from which the system can recover. Also log possible future fatal errors for the operator's attention.
+		logging::cerrstream scout_err;
 
 	private:
 		/// The ID of this layer
@@ -138,7 +140,7 @@ namespace dls
 
 		/// DDS communication link
         ///
-		dls::DDSParticipant ddsLink;
+		std::shared_ptr<dls::DDSParticipant> ddsLink;
 
 		// BEGIN critical section
 			mutable std::mutex status_mutex;

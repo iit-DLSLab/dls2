@@ -45,7 +45,7 @@ namespace dls
 			int sync() override;
 			bool flush_buffer();
 			dls::topicType topic;
-			dls::DDSWriter *ddsLogging;
+			std::shared_ptr<dls::DDSWriter> ddsLogging;
 
 			char *buf;
 			const std::string prefix;

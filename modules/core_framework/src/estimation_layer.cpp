@@ -26,7 +26,7 @@ EstimationLayer::EstimationLayer(std::string ID) :
 	AppLayer(ID),
 	estimators(),
 	estimators_mutex(),
-	ddsMonitor(new dls::DDSWriter(
+	ddsMonitor(std::make_shared<dls::DDSWriter>(
 		"EstimatorLayer::monitor",
 		dls::domains::estimators,
 		dls::topics::command_send
@@ -62,7 +62,7 @@ EstimationLayer::EstimationLayer(std::string ID) :
 		true
 	);
 
-	scout << "ESTIMATION LAYER LOADED" << std::endl;
+	scout_sys << "ESTIMATION LAYER LOADED" << std::endl;
 }
 
 EstimationLayer::~EstimationLayer()
@@ -103,15 +103,16 @@ bool EstimationLayer::loadEstimator(const Estimator::ID_t& lib_name)
 {
     std::shared_ptr<AppData> pData;
 
-    for(long unsigned int i = 0; i <= estimators.size(); i++){
-        std::string ID = lib_name + "_" + std::to_string(i);
-        if(this->estimators.find(ID) == this->estimators.end())
-		{
-			pData = std::make_shared<AppData>(lib_name);
-			break;
-		}
-    }   
-
+	if(this->estimators.find(lib_name) == this->estimators.end())
+	{
+		pData = std::make_shared<AppData>(lib_name);
+	}
+	else
+	{
+		scout_err << "estimator " << lib_name << " already loaded" << std::endl;
+		return false;
+	}
+	
 	{
 		// std::lock_guard<std::mutex> lock(this->estimators_mutex);
 
@@ -119,7 +120,7 @@ bool EstimationLayer::loadEstimator(const Estimator::ID_t& lib_name)
 		char *child_process_launcher = std::getenv("DLS_CHILD_PROCESS_LAUNCHER");
 		if(!child_process_launcher)
 		{
-			std::cerr <<
+			scout_err <<
 				"ERROR: env variable DLS_CHILD_PROCESS_LAUNCHER not "
 				"defined.  This is probably an error with the launch script"
 			<< std::endl;
@@ -131,17 +132,11 @@ bool EstimationLayer::loadEstimator(const Estimator::ID_t& lib_name)
 			pData->getID(),
 			lib_name,
 			"estimator",
-			"aliengo",
-            "live"
+			"aliengo"
 		}));
 
-		if (pData->proc == nullptr){
-			std::cout << "Estimator process failed to launch" << std::endl;
-			return false;
-		}
-
-        if (!pData->proc->running()){
-			std::cout << "Estimator process failed to launch" << std::endl;
+		if (pData->proc == nullptr || pData->proc->wait_for(std::chrono::duration<double, std::milli>(1000))){
+			scout_err << "Estimator " << lib_name << " failed to launch" << std::endl;
 			return false;
 		}
 
@@ -160,7 +155,7 @@ bool EstimationLayer::unloadEstimator(const Estimator::ID_t& ID)
 
 	if (res == this->estimators.end())
 	{
-		scout << "Estimator " + ID + " is not loaded" << std::endl;
+		scout_err << "Estimator " + ID + " is not loaded" << std::endl;
 		return false;
 	}
 
@@ -172,12 +167,16 @@ bool EstimationLayer::unloadEstimator(const Estimator::ID_t& ID)
 	std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
 
 	if(pData->proc->running()){
-		scout << "### ESTIMATOR IS STILL RUNNING WAITING A LITTLE TO GET PROPPER EXIT ###" << std::endl;
+		scout_warn << "### ESTIMATOR " << ID << " IS STILL RUNNING WAITING A LITTLE TO GET PROPPER EXIT ###" << std::endl;
 		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
 		if(pData->proc->running()){
-			scout << "### FORCING ESTIMATOR " << pData->proc->id() << " TO EXIT ###" << std::endl;
+			scout_warn << "### FORCING ESTIMATOR " << ID << " TO EXIT ###" << std::endl;
 			kill(pData->proc->id(), SIGKILL);
 		}
+	}
+	else
+	{
+		scout_sys << "Estimator " + ID + " is unloaded" << std::endl;
 	}
 
 	pData->proc = nullptr;
