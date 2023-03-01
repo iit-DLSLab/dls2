@@ -13,14 +13,20 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#include "dls2/simulators/simulator_base.hpp"
-#include <signal.h>
+#ifndef HARDWARE_DATA_CPP
+#define HARDWARE_DATA_CPP
+
+#include "dls2/hardware/hardware_data.hpp"
 
 using namespace dls;
 
-SimulatorBase::SimulatorBase(std::string ID_) 
-    : AppLayerComponent(ID_)
+HardwareData::HardwareData
+(
+	const std::string& ID,
+	const bool& is_real_
+) 
+	: AppData(ID)
+	, is_real(is_real_)
 { }
 
-SimulatorBase::~SimulatorBase() 
-{ }
+#endif /* end of include guard: CONTROL_SIGNAL_HPP_QCFRROHM */

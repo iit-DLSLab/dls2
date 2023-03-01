@@ -23,7 +23,7 @@
 using namespace dls;
 
 template <typename SignalType>
-SignalReader<SignalType>::SignalReader(dls::DDSParticipant* participant_, const dls::topicType& topic_, const std::shared_ptr<SignalType> signal_)
+SignalReader<SignalType>::SignalReader(std::shared_ptr<dls::DDSParticipant> participant_, const dls::topicType& topic_, const std::shared_ptr<SignalType> signal_)
 	: Signal<SignalType>(participant_, signal_)
 {
 	int id = std::experimental::randint(100000, 999999);

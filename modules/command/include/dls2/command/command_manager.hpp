@@ -113,7 +113,7 @@ namespace dls
 
 		/// Storage space for the commands
 		///
-		std::map<std::string, CommandBase*> commands;
+		std::map<std::string, std::shared_ptr<CommandBase>> commands;
 
 		/// Owner layer of the commands
 		///

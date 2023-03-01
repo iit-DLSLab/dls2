@@ -40,12 +40,8 @@ bool Options::launch_hardware               = false;
 bool Options::launch_control                = false;
 bool Options::launch_console                = false;
 bool Options::launch_log                    = false;
-bool Options::launch_sim                    = false;
 bool Options::launch_service                = false;
 bool Options::launch_foxglove                = false;
-
-// real robot or simulation mode
-bool Options::simulation_mode               = true;
 
 // show the documentation in a browser
 bool Options::show_docs                     = false;
@@ -67,7 +63,6 @@ bool Options::parseArgs(int argc, char **argv)
 	{
 		//long_name    required?           return_short?  short_version
 		{"robot",      required_argument,  nullptr,       'r'},
-		{"simulation", required_argument,  nullptr,       's'},
 		{"layers",     optional_argument,  nullptr,       'l'},
 		{"version",    no_argument,        nullptr,       'v'},
 		{"help",       no_argument,        nullptr,       'h'},
@@ -81,7 +76,6 @@ bool Options::parseArgs(int argc, char **argv)
 	Options::launch_control     =  false;
 	Options::launch_console     =  false;
 	Options::launch_log         =  false;
-	Options::launch_sim 		=  false;
 	Options::launch_service		=  false;
 	Options::launch_foxglove	=  false;
 
@@ -128,7 +122,6 @@ bool Options::parseArgs(int argc, char **argv)
 					const_cast<char*>("console"),
 					const_cast<char*>("log"),
 					const_cast<char*>("estimation"),
-					const_cast<char*>("sim"),
 					const_cast<char*>("service"),
 					const_cast<char*>("foxglove"),
 					nullptr
@@ -145,7 +138,6 @@ bool Options::parseArgs(int argc, char **argv)
 						auto layer = tokens[opt];
 						if(std::strcmp(layer, "hardware") == 0)
 						{
-                            Options::simulation_mode = false;
 							Options::launch_hardware = true;
 						}
 						else if(std::strcmp(layer, "control") == 0)
@@ -163,11 +155,6 @@ bool Options::parseArgs(int argc, char **argv)
 						else if(std::strcmp(layer, "estimation") == 0)
 						{
 							Options::launch_estimation = true;
-						}
-                        else if(std::strcmp(layer, "sim") == 0)
-						{
-							Options::simulation_mode = true;
-                            Options::launch_sim = true;
 						}
 						else if(std::strcmp(layer, "service") == 0)
 						{
@@ -251,24 +238,12 @@ void Options::printUsage()
 	<< std::endl;
 }
 
-bool Options::is_simulation(){
-	return simulation_mode;
-}
-
 bool Options::validate()
 {
 	// if show docs is enabled, main will just show the docs and exit
 	// Not doing more checks in that case
 	if(Options::show_docs)
 		return true;
-
-    if(Options::launch_hardware && Options::launch_sim)
-    {
-		std::cerr << "Error: choose between real and simulation, you can't have both" << std::endl;
-		Options::printUsage();
-		exit(EXIT_FAILURE);
-		return false;
-	}
 
 	// if((Options::launch_control || Options::launch_estimation) && !robot_is_specified)
 	// {
@@ -284,7 +259,6 @@ bool Options::validate()
 		!launch_control &&
 		!launch_console &&
 		!launch_log &&
-		!launch_sim &&
 		!launch_service &&
 		!launch_foxglove
 	)

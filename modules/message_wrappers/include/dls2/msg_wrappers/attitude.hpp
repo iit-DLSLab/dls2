@@ -37,10 +37,10 @@ namespace dls
 
         Eigen::Quaterniond orientation;
 
-        Eigen::Vector3d angular_velocity;
+        Eigen::Vector3d angular_velocity{Eigen::Vector3d::Zero()};
 
-        Eigen::Vector3d euler_angles_imu;
-        Eigen::Vector3d euler_angles_est;
+        Eigen::Vector3d euler_angles_imu{Eigen::Vector3d::Zero()};
+        Eigen::Vector3d euler_angles_est{Eigen::Vector3d::Zero()};
         
         double timestamp;
     };
