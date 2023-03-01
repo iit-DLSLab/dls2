@@ -103,27 +103,46 @@ namespace dls
 
 	DDSParticipant::~DDSParticipant()
 	{
+		const char* str=this->participant->get_qos().name();
+		const std::string participant_name = str;
 		// delete all data writers and data readers
-		this->publisher->delete_contained_entities();
-		this->subscriber->delete_contained_entities();
-
+		if (this->publisher->delete_contained_entities() != ReturnCode_t::RETCODE_OK)
+		{
+			std::cout << "CANNOT DELETE PUBLISHER CONTAINED ENTITIES FOR THE PARTICIPANT " << participant_name << std::endl;
+		}
+		if (this->subscriber->delete_contained_entities() != ReturnCode_t::RETCODE_OK)
+		{
+			std::cout << "CANNOT DELETE SUBSCRIBER CONTAINED ENTITIES FOR THE PARTICIPANT " << participant_name << std::endl;
+		}
+		
 		// delete publisher
 		if (this->publisher != nullptr)
-			this->participant->delete_publisher(this->publisher);
+		{
+			if (this->participant->delete_publisher(this->publisher) != ReturnCode_t::RETCODE_OK)
+			{
+				std::cout << "CANNOT DELETE PUBLISHER OF THE PARTICIPANT " << participant_name << std::endl;
+			}
+		}
 
 		// delete subscriber
 		if (this->subscriber != nullptr)
-			this->participant->delete_subscriber(this->subscriber);
-
-		for (auto elem : this->topics)
-			if (elem.second != nullptr)
-				this->participant->delete_topic(elem.second);
-
-		for (auto elem : this->subListeners)
 		{
-			delete elem;
+			if (this->participant->delete_subscriber(this->subscriber) != ReturnCode_t::RETCODE_OK)
+			{
+				std::cout << "CANNOT DELETE SUBSCRIBER OF THE PARTICIPANT " << participant_name << std::endl;
+			}
 		}
 
+		for (auto elem : this->topics)
+		{
+			if (elem.second != nullptr)
+			{
+				if(this->participant->delete_topic(elem.second) != ReturnCode_t::RETCODE_OK)
+				{
+					std::cout << "CANNOT REMOVE TOPIC " << elem.first << " OF THE PARTICIPANT " << participant_name << std::endl;
+				}
+			}
+		}
 		// delete participant
 		eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->delete_participant(this->participant);
 	}

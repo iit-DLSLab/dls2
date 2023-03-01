@@ -122,7 +122,7 @@ namespace dls
 		// BEGIN critical section
 			std::mutex              		response_mutex;
 			std::condition_variable 		received_response_cv;
-			res_pubsub_t*   				remote_response;
+			std::shared_ptr<res_pubsub_t>   remote_response;
 			bool                    		received_response;
 		// END critical section
 
