@@ -89,8 +89,7 @@ namespace dls
 		if(!this->isEnabled() || !this->isActive() || (this->ddslink == nullptr)) 
 			return;
 
-		delete this->ddslink;
-		this->ddslink = nullptr;
+		this->ddslink.reset();
 		this->active = false;
 	}
 
@@ -119,7 +118,7 @@ namespace dls
 		if (ddslink != nullptr)
 			return;
 				
-		ddslink = new dls::DDSReader(
+		ddslink = std::make_shared<dls::DDSReader>(
 			this->getOwner() + "::" + this->getName(),
 			dls::domains::command,
 			topics::command_call,
