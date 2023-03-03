@@ -41,7 +41,7 @@ namespace dls
 				std::lock_guard<std::mutex> lock(this->response_mutex);
 
 				res_pubsub_t response = *((res_pubsub_t*) tuple);
-				this->remote_response = new res_pubsub_t(response);
+				this->remote_response = std::make_shared<res_pubsub_t>(response);
 				
 				this->received_response_cv.notify_all();
 			})
@@ -65,7 +65,7 @@ namespace dls
 		if(this->remote_response != nullptr)
 		{
 			result = *this->remote_response;
-			delete this->remote_response;
+			this->remote_response.reset();
 		}
 	}
 
@@ -84,7 +84,7 @@ namespace dls
 		if(this->remote_response != nullptr)
 		{
 			result = *this->remote_response;
-			delete this->remote_response;
+			this->remote_response.reset();
 		}
 	}
 

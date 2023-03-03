@@ -38,10 +38,10 @@ namespace dls
 		typedef Estimator *create_t(std::string);
 		typedef void destroy_t(Estimator*);
 
-		dls::DDSParticipant* getParticipant();
+		std::shared_ptr<dls::DDSParticipant> getParticipant();
 
 	private:
-		dls::DDSParticipant signalLink;		
+		std::shared_ptr<dls::DDSParticipant> signalLink;		
 	};
 } // end namespace dls
 

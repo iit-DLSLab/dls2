@@ -47,8 +47,8 @@ class MotionGenerator : public PeriodicAppLayerComponent
 
 		virtual ~MotionGenerator();
 
-		dls::DDSParticipant* getParticipant();
-		const robotlib::RobotBase* getRobot(); 
+		std::shared_ptr<dls::DDSParticipant> getParticipant();
+		std::shared_ptr<const robotlib::RobotBase> getRobot(); 
 
 		virtual bool goHome()= 0;
 		virtual bool goFold()= 0;
@@ -72,7 +72,7 @@ class MotionGenerator : public PeriodicAppLayerComponent
 		void setConsoleFunctions();
 
 	private:
-		dls::DDSParticipant* ddsLink;
+		std::shared_ptr<dls::DDSParticipant> ddsLink;
 	};
 } // end namespace dls
 

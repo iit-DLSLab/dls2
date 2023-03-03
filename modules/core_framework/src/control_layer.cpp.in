@@ -62,13 +62,13 @@ int sched_getattr(pid_t pid,
 // =============================================================================
 ControlLayer::ControlLayer(std::string ID) 
 	: AppLayer(ID)
-	, ddsSignalLink(ID, dls::domains::signals)
+	, ddsSignalLink(std::make_shared<dls::DDSParticipant>(ID, dls::domains::signals))
 	, pDefault_spline_in(std::make_shared<math::Ramp<double>> (0, 2, 0, 1))
 	, pDefault_spline_out(std::make_shared<math::Ramp<double>> (0, 2, 1, 0))
 	, default_duration_seconds(2)
 	, pRobot(robotlib::RobotFactory::openRobot(Options::robot_name))
 	, control_signal(
-		&ddsSignalLink, 
+		ddsSignalLink, 
 		dls::topics::desired_torques, 
 		std::make_shared<DesiredTorques>(pRobot))
 	, torques(pRobot)
@@ -179,7 +179,7 @@ ControlLayer::~ControlLayer()
 		pair.second = nullptr;
 	}
 
-	void *res;
+	void *res = nullptr; // do not need to save the thread exit status
 	pthread_join(controlSignalGatherThread, &res);
 }
 
@@ -346,7 +346,7 @@ bool ControlLayer::loadController(const std::string& lib_name)
 
     std::shared_ptr<ControllerData> pData = std::make_shared<ControllerData>(
 		lib_name,
-		&(this->ddsSignalLink),
+		this->ddsSignalLink,
 		dls::topicType(lib_name, new ControlSignalMsgPubSubType()),
 		this->pRobot,
 		this->pDefault_spline_in,

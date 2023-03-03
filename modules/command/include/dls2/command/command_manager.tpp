@@ -31,7 +31,7 @@ namespace dls
 		bool enabled_
 	)
 	{
-		auto cmd = new dls::Command<arg_ts...>
+		std::shared_ptr<CommandBase> cmd = std::make_shared<Command<arg_ts...>>
 		(
 			name_,
 			this,

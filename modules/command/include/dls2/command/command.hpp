@@ -95,7 +95,7 @@ namespace dls
 
 		/// Link the command with the rest of the framework
 		///
-		dls::DDSReader *ddslink;
+		std::shared_ptr<dls::DDSReader> ddslink;
 
 		/// Register command on command domain
 		///

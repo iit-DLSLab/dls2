@@ -45,7 +45,7 @@ namespace dls
 
         bool readBeat();
 
-        dls::DDSParticipant* getParticipant();
+        std::shared_ptr<dls::DDSParticipant> getParticipant();
 
     private:
 
@@ -55,7 +55,7 @@ namespace dls
         
         std::shared_ptr<robotlib::RobotBase> pRobot;
 
-        dls::DDSParticipant signalLink;
+        std::shared_ptr<dls::DDSParticipant> signalLink;
     };
 } // end namespace dls
 

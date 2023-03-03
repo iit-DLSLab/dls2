@@ -26,7 +26,7 @@ EstimationLayer::EstimationLayer(std::string ID) :
 	AppLayer(ID),
 	estimators(),
 	estimators_mutex(),
-	ddsMonitor(new dls::DDSWriter(
+	ddsMonitor(std::make_shared<dls::DDSWriter>(
 		"EstimatorLayer::monitor",
 		dls::domains::estimators,
 		dls::topics::command_send

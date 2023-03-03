@@ -28,7 +28,7 @@ namespace dls
 	class Signal
 	{
 	public:
-		Signal(dls::DDSParticipant*, const std::shared_ptr<SignalType>);
+		Signal(std::shared_ptr<dls::DDSParticipant>, const std::shared_ptr<SignalType>);
 		Signal() = delete;
 		~Signal();
 
@@ -36,7 +36,7 @@ namespace dls
 		SignalType getData();
 	
 	protected:
-		dls::DDSParticipant* ddsLink;
+		std::shared_ptr<dls::DDSParticipant> ddsLink;
 
 		std::string ID;
 
