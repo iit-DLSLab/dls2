@@ -30,6 +30,7 @@ LegsPose::LegsPose(const std::shared_ptr<robotlib::RobotBase>& pRobot)
 LegsPose::LegsPose(LegsPose& from)
 	: lin_velocity(from.lin_velocity)
 	, ang_velocity(from.ang_velocity)
+	, base_velocity(from.base_velocity)
 	, time(from.time)
 {}
 
@@ -51,6 +52,10 @@ LegsPose::operator LegsPoseMsg() const
 		}
 	}
 
+	msg.base_velocity()[0] = this->base_velocity(0);
+	msg.base_velocity()[1] = this->base_velocity(1);
+	msg.base_velocity()[2] = this->base_velocity(2);
+
   	msg.time(this->time);
 
     return msg;
@@ -68,6 +73,10 @@ LegsPose& LegsPose::operator= (const LegsPoseMsg& msg)
 			idx++;
 		}
 	}
+
+	this->base_velocity[0] = msg.base_velocity()[0];
+	this->base_velocity[1] = msg.base_velocity()[1];
+	this->base_velocity[2] = msg.base_velocity()[2];
 
 	this->time = msg.time();
 
