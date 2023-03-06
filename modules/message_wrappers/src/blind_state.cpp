@@ -76,13 +76,15 @@ BlindState::operator BlindStateMsg() const
 			msg.joint_eff()[idx+leg_joint_id] = this->joint_effort[joint.key_];
 			leg_joint_id++;
 		}
-		for(int i=0; i<3;i++)
-		{
-			msg.foot_position()[i] = this->foot_position[leg.key_][i];
-			msg.foot_velocity()[i] = this->foot_velocity[leg.key_][i];
-			msg.foot_acceleration()[i] = this->foot_acceleration[leg.key_][i];
-		}
 
+		int idx_xyz = leg_id*3;
+		for(int i=0;i<3;i++)
+		{
+			msg.foot_position()[idx_xyz + i] = this->foot_position[leg.key_][i];
+			msg.foot_velocity()[idx_xyz + i] = this->foot_velocity[leg.key_][i];
+			msg.foot_acceleration()[idx_xyz + i] = this->foot_acceleration[leg.key_][i];
+		}
+		
 		msg.stance_legs()[leg_id] = this->stance_legs[leg.key_];
 		leg_id++;
 	}
@@ -123,9 +125,14 @@ BlindState& BlindState::operator= (const BlindStateMsg& msg)
 			this->joint_effort[joint.key_] = msg.joint_eff()[i];
 			i++;
 		}
-		this->foot_position[leg.key_] = Eigen::Vector3d(msg.foot_position().data());
-		this->foot_velocity[leg.key_] = Eigen::Vector3d(msg.foot_velocity().data());
-		this->foot_acceleration[leg.key_] = Eigen::Vector3d(msg.foot_acceleration().data());
+
+		int idx_xyz = leg_id*3;
+		for(int i=0;i<3;i++)
+		{
+			this->foot_position[leg.key_][i] = msg.foot_position()[idx_xyz+i];
+			this->foot_velocity[leg.key_][i] = msg.foot_velocity()[idx_xyz+i];
+			this->foot_acceleration[leg.key_][i] = msg.foot_acceleration()[idx_xyz+i];
+		}
 
 		this->stance_legs[leg.key_] = msg.stance_legs()[leg_id];
 		leg_id++;

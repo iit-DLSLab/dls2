@@ -20,7 +20,7 @@
 #include "robotlib/robot_base.hpp"
 
 #include "dls2/msg_wrappers/wrapper.hpp"
-#include "dls_messages/dds/legs_pose.h"
+#include "dls_messages/dds/legs_posePubSubTypes.h"
 
 namespace dls
 {
@@ -37,6 +37,8 @@ namespace dls
 
 		robotlib::LegDataMap<Eigen::Vector3d> lin_velocity;
 		robotlib::LegDataMap<Eigen::Vector3d> ang_velocity;
+
+		Eigen::Vector3d base_velocity{Eigen::Vector3d::Zero()};
 
 		double time;
 	};
