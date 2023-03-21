@@ -43,13 +43,7 @@ namespace dls
 
         virtual void run(const std::chrono::system_clock::time_point&) = 0;
 
-        bool readBeat();
-
         std::shared_ptr<dls::DDSParticipant> getParticipant();
-
-    private:
-
-        std::atomic_bool heart_beat;
 
     protected:
         
