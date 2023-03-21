@@ -43,6 +43,7 @@ namespace dls
 		robotlib::JointState joint_velocity;
 		robotlib::JointState joint_acceleration;
 		robotlib::JointState joint_effort;
+		robotlib::JointState joint_temperature;
 
 		// FEET
 		robotlib::LegDataMap<Eigen::Vector3d> foot_position;
