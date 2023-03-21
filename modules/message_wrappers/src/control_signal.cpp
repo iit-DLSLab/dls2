@@ -18,7 +18,7 @@
 using namespace dls;
 
 ControlSignal::ControlSignal(const std::shared_ptr<robotlib::RobotBase> pRobot) 
-    : torques(pRobot->makeJointState())
+    : torques(pRobot->makeJointState(0.0))
 	, signal_reconstruction_method(SignalReconstructionMethod::ZERO_ORDER_HOLD)
 	, time()
 { }
