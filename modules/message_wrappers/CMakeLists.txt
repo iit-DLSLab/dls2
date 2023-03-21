@@ -11,6 +11,7 @@ add_library(dls_message_wrappers
 		src/odometry.cpp
 		src/legs_pose.cpp
 		src/attitude.cpp
+		src/translation.cpp
 		src/imu.cpp
 		src/desired_torques.cpp
 		src/stance_legs.cpp
