@@ -52,6 +52,12 @@ class MotionGenerator : public PeriodicAppLayerComponent
 
 		virtual void goHome();
 		virtual void goFold();
+		virtual void runGoHome() = 0;
+		virtual void runGoFold() = 0;
+		/*!
+		@brief Function to inizialize motion generation data before activation and/or in the constructor
+		*/
+		virtual void init() = 0;
 		virtual void runPostures();
 
 
