@@ -28,6 +28,8 @@ MotionGenerator::MotionGenerator
 	, pRobot(pRobot_)
 	, home_configuration(pRobot->makeJointState(0.0))
 	, fold_configuration(pRobot->makeJointState(0.0))
+	, go_home_(false)
+	, go_fold_(false)
 {
 	ddsLink = std::make_shared<dls::DDSParticipant>("MotionGen::" + this->getID(), dls::domains::signals);
 
@@ -69,6 +71,15 @@ void MotionGenerator::setFoldConfiguration(YAML::Node& config, const std::string
 	}
 }
 
+void MotionGenerator::goHome()
+{
+	go_home_ = true;
+}
+
+void MotionGenerator::goFold()
+{
+	go_fold_ = true;
+}
 void MotionGenerator::setConsoleFunctions()
 {
 	command_manager.addCommand<>
