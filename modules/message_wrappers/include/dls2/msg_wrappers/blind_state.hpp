@@ -31,11 +31,12 @@ namespace dls
 	public:
 		BlindState(const std::shared_ptr<robotlib::RobotBase>);
 		BlindState(BlindState&);
-		BlindState() = delete;
-        ~BlindState();
+		~BlindState();
 
 		operator BlindStateMsg() const override;
 		BlindState& operator= (const BlindStateMsg&) override;
+
+		BlindState& operator= (const BlindState& from);
 
 		std::string robot_name;
 		robotlib::JointDataMap<std::string> joint_name;
