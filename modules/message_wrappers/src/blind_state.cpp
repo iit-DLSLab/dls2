@@ -28,6 +28,7 @@ BlindState::BlindState(const std::shared_ptr<robotlib::RobotBase> pRobot)
 	, joint_velocity(pRobot->makeJointState())
 	, joint_acceleration(pRobot->makeJointState())
 	, joint_effort(pRobot->makeJointState())
+	, joint_temperature(pRobot->makeJointState())
 	, foot_position(pRobot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
 	, foot_velocity(pRobot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
 	, foot_acceleration(pRobot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
@@ -42,6 +43,7 @@ BlindState::BlindState(BlindState& from)
 	, joint_velocity(from.joint_velocity)
 	, joint_acceleration(from.joint_acceleration)
 	, joint_effort(from.joint_effort)
+	, joint_temperature(from.joint_temperature)
 	, foot_position(from.foot_position)
 	, foot_velocity(from.foot_velocity)
 	, foot_acceleration(from.foot_acceleration)
@@ -74,6 +76,7 @@ BlindState::operator BlindStateMsg() const
 			msg.joint_vel()[idx+leg_joint_id] = this->joint_velocity[joint.key_];
 			msg.joint_acc()[idx+leg_joint_id] = this->joint_acceleration[joint.key_];
 			msg.joint_eff()[idx+leg_joint_id] = this->joint_effort[joint.key_];
+			msg.joint_temp()[idx+leg_joint_id] = this->joint_temperature[joint.key_];
 			leg_joint_id++;
 		}
 
@@ -123,6 +126,7 @@ BlindState& BlindState::operator= (const BlindStateMsg& msg)
 			this->joint_velocity[joint.key_] = msg.joint_vel()[i];
 			this->joint_acceleration[joint.key_] = msg.joint_acc()[i];
 			this->joint_effort[joint.key_] = msg.joint_eff()[i];
+			this->joint_temperature[joint.key_] = msg.joint_temp()[i];
 			i++;
 		}
 

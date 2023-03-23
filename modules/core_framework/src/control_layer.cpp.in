@@ -236,7 +236,7 @@ void *ControlLayer::controlSignalGather(void *data)
 		// Read the control signals
 		{
 			// std::lock_guard<std::mutex> lock(layer->controllers_mutex);
-			layer->torques.desired_torques = 0;
+			layer->torques.desired_torques = 0.0;
 			for(auto pair : layer->controllers)
 			{
 				layer->torques.desired_torques += pair.second->premultiplier * pair.second->control_signal.getData().torques;

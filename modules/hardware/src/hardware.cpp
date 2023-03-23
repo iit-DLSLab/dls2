@@ -40,12 +40,4 @@ std::shared_ptr<dls::DDSParticipant> Hardware::getParticipant()
 	return this->signalLink;
 }
 
-bool Hardware::readBeat()
-{
-    bool out = this->heart_beat;
-    this->heart_beat = false;
-
-    return out;
-}
-
 #endif /* end of include guard: HARDWARE_CPP */
