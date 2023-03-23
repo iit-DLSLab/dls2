@@ -80,6 +80,21 @@ void MotionGenerator::goFold()
 {
 	go_fold_ = true;
 }
+
+void MotionGenerator::runPostures()
+{
+	// Posture homing call
+	if(this->go_home_)
+	{
+		runGoHome();
+	}
+	// Posture folding call
+	else if(this->go_fold_)
+	{
+		runGoFold();
+	}
+}
+
 void MotionGenerator::setConsoleFunctions()
 {
 	command_manager.addCommand<>

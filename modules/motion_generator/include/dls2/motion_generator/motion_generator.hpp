@@ -52,6 +52,8 @@ class MotionGenerator : public PeriodicAppLayerComponent
 
 		virtual void goHome();
 		virtual void goFold();
+		virtual void runPostures();
+
 
 	protected:
 		/// Function gets called each epoch.
