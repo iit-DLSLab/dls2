@@ -103,9 +103,10 @@ void MotionGenerator::setConsoleFunctions()
 		"Go to home position",
 		std::function<bool()>([&]()->bool
 		{
-			return goHome();
+			goHome();
+			return true;
 		}),
-		{{0,0},{1,1}, {2,2}, {3,3}},
+		{{1,1}, {2,2}, {3,3}},
 		true
 	);
 
@@ -115,9 +116,10 @@ void MotionGenerator::setConsoleFunctions()
 		"Go to fold position",
 		std::function<bool()>([&]()->bool
 		{
-			return goFold();
+			goFold();
+			return true;
 		}),
-		{{0,0},{1,1}, {2,2}, {3,3}},
+		{{1,1}, {2,2}, {3,3}},
 		true
 	);
 }
