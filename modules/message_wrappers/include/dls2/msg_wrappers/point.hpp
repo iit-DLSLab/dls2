@@ -13,32 +13,26 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef VICON_HPP
-#define VICON_HPP
+#ifndef POINT_HPP
+#define POINT_HPP
 
 #include "dls2/msg_wrappers/wrapper.hpp"
-#include "dls_messages/dds/viconPubSubTypes.h"
-
-#include <Eigen/Dense>
+#include "dls_messages/dds/pointPubSubTypes.h"
 
 namespace dls
 {
-    class Vicon : public Wrapper<ViconMsg>
+    class Point : public Wrapper<PointMsg>
     {
     public:
-        Vicon();
-        Vicon(Vicon&);
-        ~Vicon();
+        Point();
+        Point(Point&);
+        ~Point();
 
-        operator ViconMsg() const override;
-        Vicon& operator=(const ViconMsg&) override;
-        Vicon& operator=(const Vicon&);
+        operator PointMsg() const override;
+        Point& operator=(const PointMsg&) override;
+        Point& operator=(const Point&);
 
-        double timestamp{};
-
-        Eigen::Vector3d robot_position{Eigen::Vector3d::Zero()};
-        Eigen::Quaterniond robot_orientation;
-        std::vector<Eigen::Vector3d> markers_positions{};
+        double timestamp{}, x{}, y{}, z{};        
     };
 } // end namespace dls
-#endif /* end of include guard: VICON_HPP */
+#endif /* end of include guard: POINT_HPP */

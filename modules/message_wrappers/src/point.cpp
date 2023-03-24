@@ -13,32 +13,55 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef VICON_HPP
-#define VICON_HPP
-
-#include "dls2/msg_wrappers/wrapper.hpp"
-#include "dls_messages/dds/viconPubSubTypes.h"
-
-#include <Eigen/Dense>
+#include "dls2/msg_wrappers/point.hpp"
 
 namespace dls
 {
-    class Vicon : public Wrapper<ViconMsg>
+    Point::Point()
+    { }
+
+    Point::Point(Point& from)
+        : timestamp(from.timestamp)
+        , x(from.x)
+        , y(from.y)
+        , z(from.z)
+    { }
+
+    Point::~Point()
+    { }
+
+    Point::operator PointMsg() const
     {
-    public:
-        Vicon();
-        Vicon(Vicon&);
-        ~Vicon();
+        PointMsg msg;
 
-        operator ViconMsg() const override;
-        Vicon& operator=(const ViconMsg&) override;
-        Vicon& operator=(const Vicon&);
+        msg.timestamp(this->timestamp);
 
-        double timestamp{};
+        msg.x(this->x);
+        msg.y(this->y);
+        msg.z(this->z);
 
-        Eigen::Vector3d robot_position{Eigen::Vector3d::Zero()};
-        Eigen::Quaterniond robot_orientation;
-        std::vector<Eigen::Vector3d> markers_positions{};
-    };
+        return msg;
+    }
+
+    Point& Point::operator=(const PointMsg& msg){
+
+        this->timestamp = msg.timestamp();
+
+        this->x = msg.x();
+        this->y = msg.y();
+        this->z = msg.z();
+
+        return *this;
+    }
+
+    Point& Point::operator=(const Point& from)
+    { 
+        this->timestamp = from.timestamp;
+
+        this->x = from.x;
+        this->y = from.y;
+        this->z = from.z;
+        
+        return *this;
+    }
 } // end namespace dls
-#endif /* end of include guard: VICON_HPP */
