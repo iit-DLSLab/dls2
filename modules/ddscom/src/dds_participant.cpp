@@ -75,10 +75,8 @@ namespace dls
 			mask.none()
 		);
 
-		if (this->participant == nullptr)
-		{
+		if (!this->participant)
 			throw std::runtime_error("Error: could not create participant");
-		}
 
 		// create publisher
 		this->publisher = this->participant->create_publisher(
@@ -103,6 +101,9 @@ namespace dls
 
 	DDSParticipant::~DDSParticipant()
 	{
+		if (!this->participant)
+			return;
+
 		const char* str=this->participant->get_qos().name();
 		const std::string participant_name = str;
 		// delete all data writers and data readers
@@ -268,13 +269,15 @@ namespace dls
 
 	eprosima::fastdds::dds::Topic *DDSParticipant::addTopic(dls::topicType topicData_)
 	{
+		if(!this->participant)
+			return nullptr;
 
 		auto search = this->topics.find(topicData_.first);
 
 		if(search != topics.end())
 			return search->second;
 
-		if(!participant->find_type(topicData_.second.get_type_name()))
+		if(!this->participant->find_type(topicData_.second.get_type_name()))
 		{
 			topicData_.second->auto_fill_type_information(true);
     		topicData_.second->auto_fill_type_object(false);
@@ -296,6 +299,9 @@ namespace dls
 
 	std::vector<std::string> DDSParticipant::getParticipants()
 	{
+		if(!this->participant)
+			return std::vector<std::string>(0);
+
 		return this->participant->get_participant_names();
 	}
 
@@ -337,6 +343,9 @@ namespace dls
         const eprosima::fastrtps::string_255 type_name,
         const eprosima::fastrtps::types::TypeInformation& type_information)
 	{
+		if(!this->participant)
+			return;
+
 		// Prepare callback that will be executed after registering type
 		std::function<void(const std::string&, const eprosima::fastrtps::types::DynamicType_ptr)> callback(
 			[this, topic_name]
@@ -344,12 +353,12 @@ namespace dls
 			{
 				this->on_topic_discovery_(topic_name.to_string(), type->get_name());
 			});
-		
+	
 		if(DDSParticipant::is_type_registered_in_participant_(type_name.to_string()))
 			return;
 		
 		// Registering type and creating reader
-		participant->register_remote_type(
+		this->participant->register_remote_type(
 			type_information,
 			type_name.to_string(),
 			callback);
@@ -376,14 +385,14 @@ namespace dls
 	}
 
 
-	bool DDSParticipant::is_type_registered_in_participant_(
-        const std::string& type_name)
+	bool DDSParticipant::is_type_registered_in_participant_(const std::string& type_name)
 	{
-		// Check type is registered in Participant
-		if (participant->find_type(type_name) != nullptr)
-		{
+
+		if (!this->participant)
+			return false;
+
+		if (this->participant->find_type(type_name))
 			return true;
-		}
 
 		// It may happen that type is registered in XML and not in Participant
 		// If so, register it in Participant
@@ -392,7 +401,7 @@ namespace dls
 			// Create TypeSupport and register it
 			eprosima::fastdds::dds::TypeSupport(
 				new eprosima::fastrtps::types::DynamicPubSubType(
-					get_type_registered_(type_name))).register_type(participant);
+					get_type_registered_(type_name))).register_type(this->participant);
 			return true;
 		}
 
@@ -403,7 +412,7 @@ namespace dls
 			// Create TypeSupport and register it
 			eprosima::fastdds::dds::TypeSupport(
 				new eprosima::fastrtps::types::DynamicPubSubType(
-					get_type_registered_(type_name))).register_type(participant);
+					get_type_registered_(type_name))).register_type(this->participant);
 			return true;
 		}
 
