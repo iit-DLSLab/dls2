@@ -154,4 +154,25 @@ BlindState& BlindState::operator= (const BlindStateMsg& msg)
 	return *this;
 }
 
+BlindState& BlindState::operator= (const BlindState& from)
+{
+	this->robot_name = from.robot_name;
+	this->joint_name = from.joint_name;
+	this->joint_position = from.joint_position;
+	this->joint_velocity = from.joint_velocity;
+	this->joint_acceleration = from.joint_acceleration;
+	this->joint_effort = from.joint_effort;
+	this->joint_temperature = from.joint_temperature;
+	this->foot_position = from.foot_position;
+	this->foot_velocity = from.foot_velocity;
+	this->foot_acceleration = from.foot_acceleration;
+	this->base_pose_world = from.base_pose_world;
+	this->base_vel_world = from.base_vel_world;
+	this->base_acc_world = from.base_acc_world;
+	this->stance_legs = from.stance_legs;
+	this->time = from.time;
+
+	return *this;
+}
+
 #endif // BLIND_STATE_CPP

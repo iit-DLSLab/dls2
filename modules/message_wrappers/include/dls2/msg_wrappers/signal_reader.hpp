@@ -26,6 +26,7 @@ namespace dls
 	public:
 		SignalReader(std::shared_ptr<dls::DDSParticipant>, const dls::topicType&, const std::shared_ptr<SignalType>);
 		~SignalReader();	
+		bool received;
 	};
 } // end namespace dls
 

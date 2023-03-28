@@ -13,44 +13,55 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef SIGNAL_READER_TPP
-#define SIGNAL_READER_TPP
+#include "dls2/msg_wrappers/point.hpp"
 
-#include "dls2/msg_wrappers/signal_reader.hpp"
-
-#include <experimental/random>
-
-using namespace dls;
-
-template <typename SignalType>
-SignalReader<SignalType>::SignalReader(std::shared_ptr<dls::DDSParticipant> participant_, const dls::topicType& topic_, const std::shared_ptr<SignalType> signal_)
-	: Signal<SignalType>(participant_, signal_)
-	, received(false)
+namespace dls
 {
-	int id = std::experimental::randint(100000, 999999);
-	while(participant_->getReader(std::to_string(id)) != nullptr)
-		id = std::experimental::randint(100000, 999999);
+    Point::Point()
+    { }
 
-	this->ID = std::to_string(id);
+    Point::Point(Point& from)
+        : timestamp(from.timestamp)
+        , x(from.x)
+        , y(from.y)
+        , z(from.z)
+    { }
 
-	this->ddsLink->addReader(this->ID,
-		topic_,
-		std::function<void(void*)>
-		{
-			[&](void* tuple)
-			{
-				std::lock_guard<std::mutex> lock(this->signal_mutex);
-				this->signal->loadMsg(tuple);
-				received = true;
-			}
-		}
-	);
-}
-	
-template <typename SignalType>
-SignalReader<SignalType>::~SignalReader()
-{ 
-	this->ddsLink->deleteReader(this->ID);
-}	
+    Point::~Point()
+    { }
 
-#endif /* end of include guard: SIGNAL_READER_TPP */
+    Point::operator PointMsg() const
+    {
+        PointMsg msg;
+
+        msg.timestamp(this->timestamp);
+
+        msg.x(this->x);
+        msg.y(this->y);
+        msg.z(this->z);
+
+        return msg;
+    }
+
+    Point& Point::operator=(const PointMsg& msg){
+
+        this->timestamp = msg.timestamp();
+
+        this->x = msg.x();
+        this->y = msg.y();
+        this->z = msg.z();
+
+        return *this;
+    }
+
+    Point& Point::operator=(const Point& from)
+    { 
+        this->timestamp = from.timestamp;
+
+        this->x = from.x;
+        this->y = from.y;
+        this->z = from.z;
+        
+        return *this;
+    }
+} // end namespace dls

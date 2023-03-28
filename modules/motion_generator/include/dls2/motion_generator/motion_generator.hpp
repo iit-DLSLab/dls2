@@ -50,8 +50,16 @@ class MotionGenerator : public PeriodicAppLayerComponent
 		std::shared_ptr<dls::DDSParticipant> getParticipant();
 		std::shared_ptr<const robotlib::RobotBase> getRobot(); 
 
-		virtual bool goHome()= 0;
-		virtual bool goFold()= 0;
+		virtual void goHome();
+		virtual void goFold();
+		virtual void runGoHome() = 0;
+		virtual void runGoFold() = 0;
+		/*!
+		@brief Function to inizialize motion generation data before activation and/or in the constructor
+		*/
+		virtual void init() = 0;
+		virtual void runPostures();
+
 
 	protected:
 		/// Function gets called each epoch.
@@ -70,6 +78,12 @@ class MotionGenerator : public PeriodicAppLayerComponent
 		void setFoldConfiguration(YAML::Node& config, const std::string& data_name);
 
 		void setConsoleFunctions();
+
+		//! Logic variable to enable goHome procedure
+		bool go_home_;
+
+		//! Logic variable to enable goFold procedure
+		bool go_fold_;
 
 	private:
 		std::shared_ptr<dls::DDSParticipant> ddsLink;
