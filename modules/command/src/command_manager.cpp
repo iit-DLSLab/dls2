@@ -281,4 +281,11 @@ void CommandManager::enableCommand(std::string name)
 		this->commands[name]->activate();
 }
 
+void CommandManager::changeTransitionSet(const std::string& command_name, const dls::CommandBase::LevelType& transition_set)
+{
+	if(this->commands.contains(command_name))
+		this->commands[command_name]->changeTransitionSet(transition_set);
+	else
+		std::cout << "Could not find command " << command_name << std::endl;
+}
 #endif /* end of include guard: COMMAND_MANAGER_CPP */

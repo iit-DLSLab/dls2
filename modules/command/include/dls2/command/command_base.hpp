@@ -124,6 +124,8 @@ namespace dls
         ///
 		bool testLevel(uint level);
 
+		void changeTransitionSet(const LevelType& transition_set);
+
 	protected:
 
 		/// Command execution level

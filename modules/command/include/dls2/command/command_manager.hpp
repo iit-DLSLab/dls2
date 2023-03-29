@@ -108,6 +108,7 @@ namespace dls
 		///
 		void enableCommand(std::string);
 
+		void changeTransitionSet(const std::string& command_name, const dls::CommandBase::LevelType& transition_set);
 
 	private:
 
