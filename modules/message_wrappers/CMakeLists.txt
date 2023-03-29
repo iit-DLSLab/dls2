@@ -2,6 +2,7 @@ add_library(dls_message_wrappers
 	SHARED
 		src/screw.cpp
 		src/blind_state.cpp
+		src/point.cpp
 		src/pose.cpp
 		src/gait_signal.cpp
 		src/control_signal.cpp
@@ -11,7 +12,8 @@ add_library(dls_message_wrappers
 		src/odometry.cpp
 		src/legs_pose.cpp
 		src/attitude.cpp
-		src/translation.cpp
+		src/translation.cpp		
+		src/vicon.cpp
 		src/imu.cpp
 		src/desired_torques.cpp
 		src/stance_legs.cpp

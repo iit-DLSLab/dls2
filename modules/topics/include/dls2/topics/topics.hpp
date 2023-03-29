@@ -37,6 +37,7 @@
 #include <dls_messages/dds/t265_odometryPubSubTypes.h>
 #include <dls_messages/dds/attitude_estimationPubSubTypes.h>
 #include <dls_messages/dds/sensor_fusionPubSubTypes.h>
+#include <dls_messages/dds/viconPubSubTypes.h>
 #include <dls_messages/dds/param_serverPubSubTypes.h>
 #include <dls_messages/dds/doublePubSubTypes.h>
 #include <dls_messages/dds/controller_commandPubSubTypes.h>
@@ -82,6 +83,7 @@ namespace dls
 			extern dls::topicType t265_odometry;
 			extern dls::topicType attitude_estimation;
 			extern dls::topicType sensor_fusion;
+			extern dls::topicType vicon;
 		}
 
 		namespace low_level_estimation
