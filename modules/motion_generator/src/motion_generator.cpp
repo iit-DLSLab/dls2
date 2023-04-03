@@ -122,4 +122,17 @@ void MotionGenerator::setConsoleFunctions()
 		{{1,1}, {2,2}, {3,3}},
 		true
 	);
+
+	command_manager.addCommand<>
+    (
+        "stopMotion",
+        "Stop motion generation",
+        std::function<bool()>([&]()->bool
+        {
+            this->stopMotion();
+            return true;
+        }),
+        {{2,1}},
+        true
+    );
 }

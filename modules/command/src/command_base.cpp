@@ -99,4 +99,8 @@ bool CommandBase::testLevel(uint level_)
 	return (this->transitionSet.find(level_) != this->transitionSet.end());
 }
 
+void CommandBase::changeTransitionSet(const LevelType& transition_set)
+{
+	this->transitionSet = transition_set;
+}
 #endif /* end of include guard: COMMAND_BASE_CPP */
