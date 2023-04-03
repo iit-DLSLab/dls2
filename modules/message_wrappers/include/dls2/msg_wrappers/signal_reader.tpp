@@ -23,8 +23,9 @@
 using namespace dls;
 
 template <typename SignalType>
-SignalReader<SignalType>::SignalReader(dls::DDSParticipant* participant_, const dls::topicType& topic_, const std::shared_ptr<SignalType> signal_)
+SignalReader<SignalType>::SignalReader(std::shared_ptr<dls::DDSParticipant> participant_, const dls::topicType& topic_, const std::shared_ptr<SignalType> signal_)
 	: Signal<SignalType>(participant_, signal_)
+	, received(false)
 {
 	int id = std::experimental::randint(100000, 999999);
 	while(participant_->getReader(std::to_string(id)) != nullptr)
@@ -40,6 +41,7 @@ SignalReader<SignalType>::SignalReader(dls::DDSParticipant* participant_, const 
 			{
 				std::lock_guard<std::mutex> lock(this->signal_mutex);
 				this->signal->loadMsg(tuple);
+				received = true;
 			}
 		}
 	);

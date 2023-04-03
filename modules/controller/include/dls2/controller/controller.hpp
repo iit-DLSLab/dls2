@@ -30,8 +30,6 @@ namespace dls
 {
     class Controller : public PeriodicAppLayerComponent
     {
-        // friend class ControlLayer;
-
     public:
         // Plugin typedefs
         typedef Controller* create_t(std::string);
@@ -47,8 +45,8 @@ namespace dls
 
         virtual ~Controller();
 
-        dls::DDSParticipant* getParticipant();
-		const robotlib::RobotBase* getRobot();
+        std::shared_ptr<dls::DDSParticipant> getParticipant();
+		std::shared_ptr<robotlib::RobotBase> getRobot();
 
     protected:
         /// Function gets called each epoch.
@@ -59,10 +57,10 @@ namespace dls
         const ControlSignal::SignalReconstructionMethod signal_reconstruction_method;
 
         /// Pointer to the robot model
-        const std::shared_ptr<const robotlib::RobotBase> pRobot;
+        const std::shared_ptr<robotlib::RobotBase> pRobot;
     private:
 
-        dls::DDSParticipant ddsLink;
+        std::shared_ptr<dls::DDSParticipant> ddsLink;
 };
 } // end namespace dls
 

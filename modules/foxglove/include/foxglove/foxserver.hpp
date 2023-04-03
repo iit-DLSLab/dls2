@@ -16,13 +16,11 @@ namespace dls {
         FoxServer();
         ~FoxServer();
 
-        void run();
-        void stop();
-
     private:
         void serverFunc();
-        void ddsBridgeFunc();
-        std::thread *serverThread;
+        void on_topic_discovery(const std::string& topic_name, const std::string& type_name) override;
+
+        std::shared_ptr<std::thread> serverThread;
         std::shared_ptr<boost::asio::steady_timer> timer;
         Server foxserver;
 
@@ -32,10 +30,7 @@ namespace dls {
         std::set<int> send_flags;
         std::set<int> timer_flags;
 
-        dds::TypeIntrospectionCollection numeric_data_info_;
-        dds::TypeIntrospectionCollection string_data_info_;
-
-        void on_topic_discovery(const std::string& topic_name, const std::string& type_name) override;
+        std::mutex sendFlagsMutex;
     };
 }
 

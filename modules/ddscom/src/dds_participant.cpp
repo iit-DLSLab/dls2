@@ -75,10 +75,8 @@ namespace dls
 			mask.none()
 		);
 
-		if (this->participant == nullptr)
-		{
+		if (!this->participant)
 			throw std::runtime_error("Error: could not create participant");
-		}
 
 		// create publisher
 		this->publisher = this->participant->create_publisher(
@@ -103,27 +101,49 @@ namespace dls
 
 	DDSParticipant::~DDSParticipant()
 	{
-		// delete all data writers and data readers
-		this->publisher->delete_contained_entities();
-		this->subscriber->delete_contained_entities();
+		if (!this->participant)
+			return;
 
+		const char* str=this->participant->get_qos().name();
+		const std::string participant_name = str;
+		// delete all data writers and data readers
+		if (this->publisher->delete_contained_entities() != ReturnCode_t::RETCODE_OK)
+		{
+			std::cout << "CANNOT DELETE PUBLISHER CONTAINED ENTITIES FOR THE PARTICIPANT " << participant_name << std::endl;
+		}
+		if (this->subscriber->delete_contained_entities() != ReturnCode_t::RETCODE_OK)
+		{
+			std::cout << "CANNOT DELETE SUBSCRIBER CONTAINED ENTITIES FOR THE PARTICIPANT " << participant_name << std::endl;
+		}
+		
 		// delete publisher
 		if (this->publisher != nullptr)
-			this->participant->delete_publisher(this->publisher);
+		{
+			if (this->participant->delete_publisher(this->publisher) != ReturnCode_t::RETCODE_OK)
+			{
+				std::cout << "CANNOT DELETE PUBLISHER OF THE PARTICIPANT " << participant_name << std::endl;
+			}
+		}
 
 		// delete subscriber
 		if (this->subscriber != nullptr)
-			this->participant->delete_subscriber(this->subscriber);
-
-		for (auto elem : this->topics)
-			if (elem.second != nullptr)
-				this->participant->delete_topic(elem.second);
-
-		for (auto elem : this->subListeners)
 		{
-			delete elem;
+			if (this->participant->delete_subscriber(this->subscriber) != ReturnCode_t::RETCODE_OK)
+			{
+				std::cout << "CANNOT DELETE SUBSCRIBER OF THE PARTICIPANT " << participant_name << std::endl;
+			}
 		}
 
+		for (auto elem : this->topics)
+		{
+			if (elem.second != nullptr)
+			{
+				if(this->participant->delete_topic(elem.second) != ReturnCode_t::RETCODE_OK)
+				{
+					std::cout << "CANNOT REMOVE TOPIC " << elem.first << " OF THE PARTICIPANT " << participant_name << std::endl;
+				}
+			}
+		}
 		// delete participant
 		eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->delete_participant(this->participant);
 	}
@@ -175,14 +195,16 @@ namespace dls
 
 	bool DDSParticipant::deleteWriter(const std::string& writer_name)
 	{
-		ReturnCode_t result (this->publisher->delete_datawriter(this->getWriter(writer_name)));
+		auto writer = this->getWriter(writer_name);
 
-		if(result == ReturnCode_t::RETCODE_PRECONDITION_NOT_MET)
-		{
+		if(writer == nullptr){
 			std::cout <<  "THE WRITER " << writer_name << " DOES NOT BELONG TO THE SUBSCRIBER" << std::endl;
 			return false;
 		}
-		else if(result==ReturnCode_t::RETCODE_ERROR)
+		
+		ReturnCode_t result (this->publisher->delete_datawriter(writer));
+
+		if(result == ReturnCode_t::RETCODE_ERROR)
 		{
 			std::cout <<  "RETCODE_ERROR ERROR WHEN REMOVING THE WRITER " << writer_name << std::endl;
 		}
@@ -208,12 +230,12 @@ namespace dls
 		if (topic == nullptr)
 			return nullptr;
 
-		DDSSubListener *listener = new DDSSubListener(callback_);
+		std::shared_ptr<dls::DDSSubListener> listener = std::make_shared<DDSSubListener>(callback_);
 
 		auto reader = this->subscriber->create_datareader(
 			topic,
 			eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT,
-			listener);
+			listener.get());
 
 		if (reader != nullptr)
 		{
@@ -226,14 +248,17 @@ namespace dls
 
 	bool DDSParticipant::deleteReader(const std::string& reader_name)
 	{
-		ReturnCode_t result (this->subscriber->delete_datareader(this->getReader(reader_name)));
+		auto reader = this->getReader(reader_name);
 
-		if(result == ReturnCode_t::RETCODE_PRECONDITION_NOT_MET)
+		if(reader == nullptr)
 		{
 			std::cout <<  "THE READER " << reader_name << " DOES NOT BELONG TO THE SUBSCRIBER" << std::endl;
 			return false;
 		}
-		else if(result==ReturnCode_t::RETCODE_ERROR)
+		
+		ReturnCode_t result (this->subscriber->delete_datareader(reader));
+
+		if(result == ReturnCode_t::RETCODE_ERROR)
 		{
 			std::cout <<  "RETCODE_ERROR ERROR WHEN REMOVING THE READER " << reader_name << std::endl;
 		}
@@ -244,13 +269,15 @@ namespace dls
 
 	eprosima::fastdds::dds::Topic *DDSParticipant::addTopic(dls::topicType topicData_)
 	{
+		if(!this->participant)
+			return nullptr;
 
 		auto search = this->topics.find(topicData_.first);
 
 		if(search != topics.end())
 			return search->second;
 
-		if(!participant->find_type(topicData_.second.get_type_name()))
+		if(!this->participant->find_type(topicData_.second.get_type_name()))
 		{
 			topicData_.second->auto_fill_type_information(true);
     		topicData_.second->auto_fill_type_object(false);
@@ -272,6 +299,9 @@ namespace dls
 
 	std::vector<std::string> DDSParticipant::getParticipants()
 	{
+		if(!this->participant)
+			return std::vector<std::string>(0);
+
 		return this->participant->get_participant_names();
 	}
 
@@ -313,6 +343,9 @@ namespace dls
         const eprosima::fastrtps::string_255 type_name,
         const eprosima::fastrtps::types::TypeInformation& type_information)
 	{
+		if(!this->participant)
+			return;
+
 		// Prepare callback that will be executed after registering type
 		std::function<void(const std::string&, const eprosima::fastrtps::types::DynamicType_ptr)> callback(
 			[this, topic_name]
@@ -320,12 +353,12 @@ namespace dls
 			{
 				this->on_topic_discovery_(topic_name.to_string(), type->get_name());
 			});
-		
+	
 		if(DDSParticipant::is_type_registered_in_participant_(type_name.to_string()))
 			return;
 		
 		// Registering type and creating reader
-		participant->register_remote_type(
+		this->participant->register_remote_type(
 			type_information,
 			type_name.to_string(),
 			callback);
@@ -352,14 +385,14 @@ namespace dls
 	}
 
 
-	bool DDSParticipant::is_type_registered_in_participant_(
-        const std::string& type_name)
+	bool DDSParticipant::is_type_registered_in_participant_(const std::string& type_name)
 	{
-		// Check type is registered in Participant
-		if (participant->find_type(type_name) != nullptr)
-		{
+
+		if (!this->participant)
+			return false;
+
+		if (this->participant->find_type(type_name))
 			return true;
-		}
 
 		// It may happen that type is registered in XML and not in Participant
 		// If so, register it in Participant
@@ -368,7 +401,7 @@ namespace dls
 			// Create TypeSupport and register it
 			eprosima::fastdds::dds::TypeSupport(
 				new eprosima::fastrtps::types::DynamicPubSubType(
-					get_type_registered_(type_name))).register_type(participant);
+					get_type_registered_(type_name))).register_type(this->participant);
 			return true;
 		}
 
@@ -379,7 +412,7 @@ namespace dls
 			// Create TypeSupport and register it
 			eprosima::fastdds::dds::TypeSupport(
 				new eprosima::fastrtps::types::DynamicPubSubType(
-					get_type_registered_(type_name))).register_type(participant);
+					get_type_registered_(type_name))).register_type(this->participant);
 			return true;
 		}
 

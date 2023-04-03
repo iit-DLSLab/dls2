@@ -19,14 +19,14 @@ TEST_CASE("A single publisher can publish to multiple subscribers", "[pubsub]")
 
 	dls::DDSWriter publisher("test_publisher", 0, topic);
 
-	std::vector<dls::DDSReader*> subscribers;
+	std::vector<std::shared_ptr<dls::DDSReader>> subscribers;
 
 	std::vector<size_t> counts;
 	counts.resize(number_of_subscribers + 10);
 
 	for(size_t i=0; i < number_of_subscribers; i++)
 	{
-		dls::DDSReader *sub = new dls::DDSReader
+		std::shared_ptr<dls::DDSReader> sub = std::make_shared<dls::DDSReader>
 		(
 			"reader" + std::to_string(i+1),
 			0,

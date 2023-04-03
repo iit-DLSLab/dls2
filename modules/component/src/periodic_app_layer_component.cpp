@@ -98,7 +98,7 @@ PeriodicAppLayerComponent::PeriodicAppLayerComponent(const std::string &ID, cons
 			this->is_paused = true;
 			this->pause_request.notify_all();
 			std::cout << this->getID() << " EXECUTION PAUSED" << std::endl;
-			scout << this->getID() << " paused execution" << std::endl;
+			scout_sys << this->getID() << " paused execution" << std::endl;
             return true;
 		}),
 		{{0,1}},
@@ -115,7 +115,7 @@ PeriodicAppLayerComponent::PeriodicAppLayerComponent(const std::string &ID, cons
 			this->is_paused = false;
 			this->pause_request.notify_all();
 			std::cout << this->getID() << " continued execution" << std::endl;
-			scout << this->getID() << " continued execution" << std::endl;
+			scout_sys << this->getID() << " continued execution" << std::endl;
             return true;
 		}),
 		{{1,0}},

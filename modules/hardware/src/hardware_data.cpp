@@ -13,40 +13,20 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef SIM_LAYER_HPP
-#define SIM_LAYER_HPP
+#ifndef HARDWARE_DATA_CPP
+#define HARDWARE_DATA_CPP
 
-#include "app_layer.hpp"
+#include "dls2/hardware/hardware_data.hpp"
 
-namespace dls
-{
-	class SimLayer : public AppLayer
-	{
-	public:
-		/// Default Constructor
-		///
-		SimLayer(std::string ID);
+using namespace dls;
 
-		/// Default Destructor
-		///
-		~SimLayer();
+HardwareData::HardwareData
+(
+	const std::string& ID,
+	const bool& is_real_
+) 
+	: AppData(ID)
+	, is_real(is_real_)
+{ }
 
-		/// Run the layer
-		///
-		Status run() override;
-
-		/// Stop the layer
-		///
-		Status shutdown() override;
-
-		/// Print the state of this layer
-		///
-		std::string where() override{return "Base layer for simulators";}
-
-	private:
-
-		bool removeSimulator(std::string);
-	};
-} // end namespace dls
-
-#endif /* end of include guard: SIM_LAYER_HPP */
+#endif /* end of include guard: CONTROL_SIGNAL_HPP_QCFRROHM */

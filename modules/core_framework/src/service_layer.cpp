@@ -23,19 +23,18 @@ using namespace dls;
 
 ServiceLayer::ServiceLayer(std::string ID_) 
 	: AppLayer(ID_)
-	, ddsMonitor(
+	, ddsMonitor(std::make_shared<dls::DDSWriter>(
 		"ServiceLayer::monitor",
 		dls::domains::services,
 		dls::topics::command_send
-	)
+	))
 {
     command_manager.addCommand<std::string>
 	(
 		"loadService",
 		"Load a service",
 		std::function<bool(std::string)>([&](std::string type)->bool
-        {	
-			scout << "loadServiceCalled" << std::endl;
+        {
 			return this->loadService(type);
         }),
 		{{0,1},{1,1}},
@@ -44,11 +43,11 @@ ServiceLayer::ServiceLayer(std::string ID_)
 
 	command_manager.addCommand<std::string>
 	(
-		"removeService",
+		"unloadService",
 		"Remove service",
 		std::function<bool(std::string)>([&](std::string s)->bool
         {
-			if(this->removeService(s))
+			if(this->unloadService(s))
 			{
 				if(this->numOfServices() == 0)
 					return true;
@@ -63,7 +62,7 @@ ServiceLayer::ServiceLayer(std::string ID_)
 
 ServiceLayer::~ServiceLayer()
 {
-	scout << "#### SERVICE LAYER OFF ####" << std::endl;
+	scout_sys << "#### SERVICE LAYER OFF ####" << std::endl;
 }
 
 ServiceLayer::Status ServiceLayer::run()
@@ -85,7 +84,7 @@ bool ServiceLayer::loadService(const std::string& lib_name)
 	
 	if(this->services.find(lib_name) != this->services.end())
 	{
-		scout << "SERVICE " + lib_name + " IS ALREADY RUNNING" << std::endl;
+		scout_err << "service " + lib_name + " already loaded" << std::endl;
 		return false;
 	}
 
@@ -98,8 +97,8 @@ bool ServiceLayer::loadService(const std::string& lib_name)
 		char *child_process_launcher = std::getenv("DLS_CHILD_PROCESS_LAUNCHER");
 		if(!child_process_launcher)
 		{
-			std::cerr <<
-				"ERROR: env variable DLS_CHILD_PROCESS_LAUNCHER not "
+			scout_err <<
+				"env variable DLS_CHILD_PROCESS_LAUNCHER not "
 				"defined.  This is probably an error with the launch script"
 			<< std::endl;
 			return false;
@@ -110,21 +109,15 @@ bool ServiceLayer::loadService(const std::string& lib_name)
 			pData->getID(),
 			lib_name,
 			"service",
-			"",
-            "live"
+			""
 		}));
 
-		if (pData->proc == nullptr){
-			scout << "Service process failed to launch" << std::endl;
+		if (pData->proc == nullptr || pData->proc->wait_for(std::chrono::duration<double, std::milli>(1000))){
+			scout_err << "Service " << lib_name << " failed to launch" << std::endl;
 			return false;
 		}
 
-        if (!pData->proc->running()){
-			scout << "Service process failed to launch" << std::endl;
-			return false;
-		}
-
-		scout << "SERVICE " << pData->getID() << " IS ON" <<  std::endl;
+		scout_sys << "SERVICE " << pData->getID() << " IS ON" <<  std::endl;
 
 		this->services.emplace(pData->getID(), pData);
 	}
@@ -132,7 +125,7 @@ bool ServiceLayer::loadService(const std::string& lib_name)
 	return true;
 }
 
-bool ServiceLayer::removeService(const std::string ID)
+bool ServiceLayer::unloadService(const std::string ID)
 {
 	// std::lock_guard<std::mutex> lock(this->services_mutex);
 
@@ -141,7 +134,7 @@ bool ServiceLayer::removeService(const std::string ID)
 
 	if (res == this->services.end())
 	{
-		scout << "Service " + ID + " is not loaded" << std::endl;
+		scout_err << "Service " + ID + " is not loaded" << std::endl;
 		return false;
 	}
 
@@ -154,12 +147,16 @@ bool ServiceLayer::removeService(const std::string ID)
 	std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
 
 	if(pData->proc->running()){
-		scout << "### SERVICE IS STILL RUNNING WAITING A LITTLE TO GET PROPPER EXIT ###" << std::endl;
+		scout_warn << "### SERVICE " << ID <<" IS STILL RUNNING WAITING A LITTLE TO GET PROPPER EXIT ###" << std::endl;
 		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
 		if(pData->proc->running()){
-			scout << "### FORCING SERVICE " << pData->proc->id() << " TO EXIT ###" << std::endl;
+			scout_warn << "### FORCING SERVICE " << ID <<" TO EXIT ###" << std::endl;
 			kill(pData->proc->id(), SIGKILL);
 		}
+	}
+	else
+	{
+		scout_sys << "Service " + ID + " is unloaded" << std::endl;
 	}
 
 	pData->proc = nullptr;
@@ -174,7 +171,7 @@ ServiceLayer::Status ServiceLayer::shutdown()
 		keys.push_back(pair.first);
 	
 	for(auto key : keys)
-		this->removeService(key);
+		this->unloadService(key);
 
 	this->should_quit = true;
 

@@ -31,11 +31,12 @@ namespace dls
 	public:
 		BlindState(const std::shared_ptr<robotlib::RobotBase>);
 		BlindState(BlindState&);
-		BlindState() = delete;
-        ~BlindState();
+		~BlindState();
 
 		operator BlindStateMsg() const override;
 		BlindState& operator= (const BlindStateMsg&) override;
+
+		BlindState& operator= (const BlindState& from);
 
 		std::string robot_name;
 		robotlib::JointDataMap<std::string> joint_name;
@@ -43,6 +44,12 @@ namespace dls
 		robotlib::JointState joint_velocity;
 		robotlib::JointState joint_acceleration;
 		robotlib::JointState joint_effort;
+		robotlib::JointState joint_temperature;
+
+		// FEET
+		robotlib::LegDataMap<Eigen::Vector3d> foot_position;
+		robotlib::LegDataMap<Eigen::Vector3d> foot_velocity;
+		robotlib::LegDataMap<Eigen::Vector3d> foot_acceleration;
 
 		dls::Pose base_pose_world;
 		dls::Screw base_vel_world;

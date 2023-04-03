@@ -134,7 +134,7 @@ private:
 		std::mutex motion_mutex;
 	// END critical section
 	
-	dls::DDSParticipant ddsSignalLink;
+	std::shared_ptr<dls::DDSParticipant> ddsSignalLink;
 	
 	/// Default controller spline-in
 	///
@@ -165,7 +165,6 @@ private:
 	static void *controlSignalGather(void *data);
 
 	// ================================ Members ================================
-	logging::clogstream scout;
 	logging::clogstream clog;
 	logging::cfatalstream cfatal;
 };

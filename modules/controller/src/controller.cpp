@@ -26,18 +26,18 @@ Controller::Controller(
 	: PeriodicAppLayerComponent(ID_, period_)
 	, signal_reconstruction_method(reconst_meth_)
 	, pRobot(robot_)
-	, ddsLink("Controller::" + this->getID(), dls::domains::signals)
+	, ddsLink(std::make_shared<dls::DDSParticipant>("Controller::" + this->getID(), dls::domains::signals))
 { }
 	
 Controller::~Controller()
 { }
 
-dls::DDSParticipant* Controller::getParticipant()
+std::shared_ptr<dls::DDSParticipant> Controller::getParticipant()
 {
-	return &this->ddsLink;
+	return this->ddsLink;
 }
 
-const robotlib::RobotBase* Controller::getRobot()
+std::shared_ptr<robotlib::RobotBase> Controller::getRobot()
 {
-	return this->pRobot.get();
+	return this->pRobot;
 }

@@ -33,7 +33,7 @@ LogStreamBuffer::LogStreamBuffer
 	std::string prefix_
 ) 
 	: topic(topic_)
-	, ddsLogging(new dls::DDSWriter(
+	, ddsLogging(std::make_shared<dls::DDSWriter>(
 			prefix_,
 	 		dls::domains::logging,
 			topic_
@@ -48,7 +48,6 @@ LogStreamBuffer::LogStreamBuffer
 LogStreamBuffer::~LogStreamBuffer()
 {
 	delete[] buf;
-	delete ddsLogging;
 }
 // -----------------------------------------------------------------------------
 // Interface Override

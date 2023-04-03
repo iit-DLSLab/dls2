@@ -89,8 +89,7 @@ namespace dls
 		if(!this->isEnabled() || !this->isActive() || (this->ddslink == nullptr)) 
 			return;
 
-		delete this->ddslink;
-		this->ddslink = nullptr;
+		this->ddslink.reset();
 		this->active = false;
 	}
 
@@ -100,7 +99,7 @@ namespace dls
 		// ensure args are correct size
 
 		if (args.size() != this->getNumArgs()){
-			std::cout << "Error: incorrect number of arguments" << std::endl;
+			std::cerr << "Error: incorrect number of arguments" << std::endl;
 			return false;
 		}
 
@@ -119,7 +118,7 @@ namespace dls
 		if (ddslink != nullptr)
 			return;
 				
-		ddslink = new dls::DDSReader(
+		ddslink = std::make_shared<dls::DDSReader>(
 			this->getOwner() + "::" + this->getName(),
 			dls::domains::command,
 			topics::command_call,
@@ -128,7 +127,9 @@ namespace dls
 				[&](void *tuple)
 				{
 					CommandCallMsg* msg = (CommandCallMsg *)tuple;
-
+					// if the owner is known but it is not the one owning this command OR
+					// if the received command name is not equal to the name of this command
+					// do nothing
 					if ((msg->owner() != "" && msg->owner() != this->getOwner()) || msg->command_name() != this->getName())
 						return;
 

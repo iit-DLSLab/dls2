@@ -6,6 +6,7 @@
 #include "dls2/application_framework/estimation_layer.hpp"
 #include "dls2/application_framework/hardware_layer.hpp"
 #include "dls2/application_framework/log_layer.hpp"
+#include "dls2/application_framework/foxglove_layer.hpp"
 #include "dls2/application_framework/options.hpp"
 #include "dls2/application_framework/version_info.hpp"
 
@@ -26,5 +27,6 @@ TEST_CASE("Creating a layer works", "[layer]")
 	EstimationLayer layer3;
 	HardwareLayer   layer5;
 	LogLayer        layer6;
+	FoxgloveLayer	layer7;
 }
 

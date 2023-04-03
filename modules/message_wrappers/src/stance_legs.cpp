@@ -13,47 +13,61 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef SIMULATOR_BASE_HPP
-#define SIMULATOR_BASE_HPP
 
-#include <iostream>
+#ifndef STANCE_LEGS_CPP
+#define STANCE_LEGS_CPP
 
-#include <dls2/components/app_layer_component.hpp>
-#include <dls2/command/command_manager.hpp>
+#include "dls2/msg_wrappers/stance_legs.hpp"
 
+using namespace dls;
 
-namespace dls
+StanceLegs::StanceLegs(const std::shared_ptr<robotlib::RobotBase> pRobot)
+	: robot_name("")
+	, stance_legs(pRobot->makeLegDataMap<bool>(false))
+	, time(0)
+{ }
+
+StanceLegs::StanceLegs(StanceLegs& from)
+	: robot_name(from.robot_name)
+	, stance_legs(from.stance_legs)
+	, time(from.time)
+{ }
+
+StanceLegs::~StanceLegs()
+{ }
+
+StanceLegs::operator StanceLegsMsg() const
 {
-	/// A interface for simulators in the framework
-	///
-	class SimulatorBase : protected AppLayerComponent
+    StanceLegsMsg msg;
+
+	msg.robot_name() = this->robot_name;
+
+	int leg_id = 0;
+	for(auto &leg : this->stance_legs)
 	{
-	public:
-		/// Default Constructor
-		///
-		SimulatorBase(std::string ID);
+		msg.stance_legs()[leg_id] = this->stance_legs[leg.key_];
+		leg_id++;
+	}
 
-		/// Default Destructor
-		///
-		virtual ~SimulatorBase();
+	msg.time(this->time);
 
-		/// Print the state of this layer
-		///
-		virtual std::string where() {return this->getID() + " simulator";}
+    return msg;
+}
 
-        /// Launch Simulator
-        ///
-		virtual void launchSim(std::string) = 0;
+StanceLegs& StanceLegs::operator= (const StanceLegsMsg& msg)
+{
+	this->robot_name = msg.robot_name();
 
-        /// Exits Simulator
-        ///
-		virtual void exitSim() = 0;
+	int leg_id = 0;
+	for(auto &leg : this->stance_legs)
+	{
+		this->stance_legs[leg.key_] = msg.stance_legs()[leg_id];
+		leg_id++;
+	}
 
-        /// Emergency stop for this component
-        ///
-        Status eStop() override {return this->getStatus();};
-	};
+	this->time = msg.time();
 
-} // end namespace dls
+	return *this;
+}
 
-#endif /* end of include guard: SIMULATOR_BASE_HPP */
+#endif // STANCE_LEGS_CPP

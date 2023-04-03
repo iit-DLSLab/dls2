@@ -18,7 +18,7 @@
 using namespace dls;
 
 ControlSignal::ControlSignal(const std::shared_ptr<robotlib::RobotBase> pRobot) 
-    : torques(pRobot->makeJointState())
+    : torques(pRobot->makeJointState(0.0))
 	, signal_reconstruction_method(SignalReconstructionMethod::ZERO_ORDER_HOLD)
 	, time()
 { }
@@ -46,6 +46,8 @@ ControlSignal::operator ControlSignalMsg() const
 	}
 	
 	msg.signal_reconstruction_method((uint64_t)this->signal_reconstruction_method);
+	msg.time() = this->time;
+
 	return msg;
 }
 
@@ -61,6 +63,8 @@ ControlSignal& ControlSignal::operator=(const ControlSignalMsg& msg){
 			*joint_pair.data_ = msg.torques()[i++];
 		}
 	}
+
+	this->time = msg.time();
 
     return *this;
 }

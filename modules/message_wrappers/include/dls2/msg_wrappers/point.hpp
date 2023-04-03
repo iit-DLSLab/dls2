@@ -13,14 +13,26 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#include "dls2/simulators/simulator_base.hpp"
-#include <signal.h>
+#ifndef POINT_HPP
+#define POINT_HPP
 
-using namespace dls;
+#include "dls2/msg_wrappers/wrapper.hpp"
+#include "dls_messages/dds/pointPubSubTypes.h"
 
-SimulatorBase::SimulatorBase(std::string ID_) 
-    : AppLayerComponent(ID_)
-{ }
+namespace dls
+{
+    class Point : public Wrapper<PointMsg>
+    {
+    public:
+        Point();
+        Point(Point&);
+        ~Point();
 
-SimulatorBase::~SimulatorBase() 
-{ }
+        operator PointMsg() const override;
+        Point& operator=(const PointMsg&) override;
+        Point& operator=(const Point&);
+
+        double timestamp{}, x{}, y{}, z{};        
+    };
+} // end namespace dls
+#endif /* end of include guard: POINT_HPP */

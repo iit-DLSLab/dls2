@@ -20,11 +20,9 @@
 #include "dls2/msg_wrappers/control_signal.hpp"
 #include "dls2/msg_wrappers/signal_reader.hpp"
 #include "dls2/math/ramp.hpp"
-#include <boost/process.hpp>
 
 #include <memory>
 
-/// A struct representing the control signal that is output by a Controller
 namespace dls
 {
     class ControllerData : public AppData
@@ -33,7 +31,7 @@ namespace dls
         ControllerData
         (
             const std::string&,
-            dls::DDSParticipant* participant,
+            std::shared_ptr<dls::DDSParticipant> participant,
             const dls::topicType& topic,
             const std::shared_ptr<robotlib::RobotBase>,
             std::shared_ptr<math::SplineBase<double>> pSpline_in,
@@ -52,4 +50,4 @@ namespace dls
     };
 }// end namespace dls
 
-#endif /* end of include guard: CONTROL_SIGNAL_HPP_QCFRROHM */
+#endif /* end of include guard: CONTROLLER_DATA_HPP */

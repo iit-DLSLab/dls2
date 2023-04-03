@@ -24,10 +24,16 @@ namespace dls
 	class Wrapper
 	{
 	public:
+		typedef MsgType type;
+
 		Wrapper();
 		virtual ~Wrapper();
 		
+        /*!
+         * @brief User defined conversion function
+         */
 		virtual operator MsgType() const = 0;
+
 		virtual Wrapper &operator= (const MsgType&) = 0;
 
 		void* getMsg();

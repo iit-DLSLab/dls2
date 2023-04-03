@@ -21,12 +21,12 @@ using namespace dls;
 // =============================================================================
 Estimator::Estimator(const ID_t &ID_, const period_t &period_) 
 	: PeriodicAppLayerComponent(ID_, period_)
-	, signalLink(
+	, signalLink(std::make_shared<dls::DDSParticipant>(
 		"Estimator::" + ID_,
-		dls::domains::signals)
+		dls::domains::signals))
 { }
 
-dls::DDSParticipant* Estimator::getParticipant()
+std::shared_ptr<dls::DDSParticipant> Estimator::getParticipant()
 {
-	return &this->signalLink;
+	return this->signalLink;
 }

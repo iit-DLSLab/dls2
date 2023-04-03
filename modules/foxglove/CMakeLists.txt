@@ -22,3 +22,11 @@ target_link_libraries(dls_foxglove
 )
 
 dls_install(dls_foxglove)
+
+install(
+	DIRECTORY 	json/
+	DESTINATION	/usr/lib/dls2/dls_foxglove
+	COMPONENT	dls_runtime
+	FILES_MATCHING
+		PATTERN "*.json"
+)

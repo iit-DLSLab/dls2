@@ -41,11 +41,11 @@ SimLayer::SimLayer(std::string ID)
 
 	command_manager.addCommand<>
 	(
-		"removeSimulator",
+		"unloadSimulator",
 		"Terminates a instance of a simulator",
 		std::function<bool(std::string)>([&](std::string name_)->bool
         {
-            return removeSimulator(name_);
+            return unloadSimulator(name_);
 		}),
 		{{1,0}},
 		true
@@ -57,9 +57,9 @@ SimLayer::SimLayer(std::string ID)
 		"Lists all simulators running",
 		std::function<bool()>([&]()->bool
         {
-            std::cout << std::endl;
+            scout_sys << std::endl;
             for(auto elem : this->components){
-                std::cout << elem.first << std::endl;
+                scout_sys << elem.first << std::endl;
             }
             
             return true;
@@ -98,17 +98,18 @@ AppLayer::Status SimLayer::shutdown()
 	return getStatus();
 }
 
-bool SimLayer::removeSimulator(std::string name_)
+bool SimLayer::unloadSimulator(std::string name_)
 {
 	if(this->components.count(name_)){
         this->components[name_]->stop();
         this->removeComponent(name_);
+		scout_sys << name_ << " is unloaded." << std::endl;
         if(!this->components.size())
             return true;
     }
     else
     {
-        std::cout << "There is no instance of the simulator with " << name_ << " name running" << std::endl;
+        scout_err << "There is no instance of the simulator with " << name_ << " name running" << std::endl;
     }
     return false;
 }

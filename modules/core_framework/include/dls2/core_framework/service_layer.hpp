@@ -35,7 +35,7 @@ namespace dls
 		std::string where() override {return "not yet implemented"; }
 
 		bool loadService(const std::string&);
-		bool removeService(const std::string);
+		bool unloadService(const std::string);
 
 		int numOfServices();
 
@@ -45,7 +45,7 @@ namespace dls
 		    std::mutex services_mutex;
 	    // END critical section
 
-		dls::DDSWriter ddsMonitor;	
+		std::shared_ptr<dls::DDSWriter> ddsMonitor;
 	};
 } // end namespace dls
 
