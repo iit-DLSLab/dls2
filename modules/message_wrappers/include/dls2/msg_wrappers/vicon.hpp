@@ -38,7 +38,9 @@ namespace dls
 
         Eigen::Vector3d robot_position{Eigen::Vector3d::Zero()};
         Eigen::Quaterniond robot_orientation;
-        std::vector<Eigen::Vector3d> markers_positions{};
+        // EDIT#3/7 use it when PlotJuggler plugin for FastDDS supports sequence data structures
+        // std::vector<Eigen::Vector3d> markers_positions{};
+        std::vector<double> markers_positions{};
     };
 } // end namespace dls
 #endif /* end of include guard: VICON_HPP */

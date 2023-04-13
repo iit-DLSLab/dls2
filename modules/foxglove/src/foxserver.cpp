@@ -51,6 +51,9 @@ void FoxServer::serverFunc()
 
 void FoxServer::on_topic_discovery(const std::string& topic_name, const std::string& type_name)
 {
+    if (type_name.find("eprosima::fastdds::statistics::") != std::string::npos)
+        return;
+
     std::cout << "Topic discovered: " << topic_name << " [ " << type_name << " ]" << std::endl;
 
     auto type_ = dds::get_type_registered_(type_name);

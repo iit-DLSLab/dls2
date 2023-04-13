@@ -73,12 +73,26 @@ void MotionGenerator::setFoldConfiguration(YAML::Node& config, const std::string
 
 void MotionGenerator::goHome()
 {
-	go_home_ = true;
+	if (!go_fold_)
+	{
+		go_home_ = true;
+	}
+	else
+	{
+		std::cout << "Cannot run Go Home procedure: another procedure is already running" << std::endl;
+	}
 }
 
 void MotionGenerator::goFold()
 {
-	go_fold_ = true;
+	if (!go_home_)
+	{
+		go_fold_ = true;
+	}
+	else
+	{
+		std::cout << "Cannot run Go Fold procedure: another procedure is already running" << std::endl;
+	}
 }
 
 void MotionGenerator::runPostures()
