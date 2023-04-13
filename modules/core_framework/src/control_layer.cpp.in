@@ -39,6 +39,8 @@
 
 #include "dls2/core_framework/options.hpp"
 
+#include <boost/circular_buffer.hpp>	
+
 using namespace dls;
 
 
@@ -217,9 +219,9 @@ void *ControlLayer::controlSignalGather(void *data)
 	attr.sched_policy = SCHED_DEADLINE;
 
     // Period defined in nanoseconds
-	attr.sched_runtime  = 1 * 1000 * 1000ULL;
-	attr.sched_period   = 1 * 1000 * 1000ULL;
-	attr.sched_deadline = 1 * 1000 * 1000ULL;
+	attr.sched_runtime  = 1000000ULL;
+	attr.sched_period   = 1000000ULL;
+	attr.sched_deadline = 1000000ULL;
 
     ret = sched_setattr(0, &attr, flags);
     if (ret < 0) {
@@ -228,19 +230,17 @@ void *ControlLayer::controlSignalGather(void *data)
     }
 
 	ControlLayer *layer = (ControlLayer*) data;	
+	boost::circular_buffer<int> delta(10);
 
     while (!layer->shouldQuit()) {
         auto now = std::chrono::high_resolution_clock::now();
         auto epoch = std::chrono::time_point_cast<std::chrono::milliseconds>(now).time_since_epoch();
 
 		// Read the control signals
+		layer->torques.desired_torques = 0.0;
+		for(auto pair : layer->controllers)
 		{
-			// std::lock_guard<std::mutex> lock(layer->controllers_mutex);
-			layer->torques.desired_torques = 0.0;
-			for(auto pair : layer->controllers)
-			{
-				layer->torques.desired_torques += pair.second->premultiplier * pair.second->control_signal.getData().torques;
-			}
+			layer->torques.desired_torques += pair.second->premultiplier * pair.second->control_signal.getData().torques;
 		}
 
     	// Send the desired torques to HAL
@@ -248,12 +248,16 @@ void *ControlLayer::controlSignalGather(void *data)
 		layer->control_signal->time = std::chrono::duration_cast<std::chrono::microseconds>(epoch).count();
 		layer->control_signal.publish();
 
-        auto delta = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - now).count();
+        delta.push_back(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - now).count());
 
-        if (delta > 990)
-        {
+		double mean{0};
+		for (auto const& elem : delta)
+      		mean += elem/delta.size();
+
+        if (mean > 990)
+	    {
             std::stringstream ss;
-		    ss << "Control Layer is probably breaking real-time. Has period of 1 mseconds but spent: " << delta << " useconds ";
+		    ss << "Control Layer is probably breaking real-time. Has period of 1 mseconds but spent: " << mean << " useconds ";
   		    // ss << "Control layer published torques " << desired_torques.transpose(); // << std::endl;
 		    // scout << "\033[F" << "\r" << ss.str() << std::endl;
             layer->scout_warn << ss.str() << std::endl;
