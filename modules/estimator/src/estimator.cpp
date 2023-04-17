@@ -19,8 +19,8 @@ using namespace dls;
 // =============================================================================
 // Constructors
 // =============================================================================
-Estimator::Estimator(const ID_t &ID_, const period_t &period_) 
-	: PeriodicAppLayerComponent(ID_, period_)
+Estimator::Estimator(const ID_t &ID_) 
+	: PeriodicAppLayerComponent(ID_)
 	, signalLink(std::make_shared<dls::DDSParticipant>(
 		"Estimator::" + ID_,
 		dls::domains::signals))

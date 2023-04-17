@@ -39,7 +39,6 @@ namespace dls
         (
             const std::string&,                                 ///< The ID of the controller
             const std::shared_ptr<robotlib::RobotBase>,        ///< A pointer to the robot model
-            const period_t&,                                    ///< The period of the controller
             const ControlSignal::SignalReconstructionMethod&    ///< Signal reconstruction used by this controller
         );
 

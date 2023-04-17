@@ -41,8 +41,7 @@ class MotionGenerator : public PeriodicAppLayerComponent
 		MotionGenerator
 		(
 			const std::string&,								///< The ID of the motion generator
-			const std::shared_ptr<robotlib::RobotBase>&,	///< A pointer to the robot model
-			const period_t& 								///< The period of the motion generator
+			const std::shared_ptr<robotlib::RobotBase>&	///< A pointer to the robot model
 		);
 
 		virtual ~MotionGenerator();

@@ -20,10 +20,9 @@ using namespace dls;
 Controller::Controller(
 	const std::string &ID_,
 	const std::shared_ptr<robotlib::RobotBase> robot_,
-	const period_t &period_,
 	const ControlSignal::SignalReconstructionMethod &reconst_meth_
 )
-	: PeriodicAppLayerComponent(ID_, period_)
+	: PeriodicAppLayerComponent(ID_)
 	, signal_reconstruction_method(reconst_meth_)
 	, pRobot(robot_)
 	, ddsLink(std::make_shared<dls::DDSParticipant>("Controller::" + this->getID(), dls::domains::signals))

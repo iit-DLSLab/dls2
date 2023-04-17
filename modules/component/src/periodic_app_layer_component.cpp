@@ -13,10 +13,6 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#define SCHED_DEADLINE       6
-#define __NR_sched_setattr           314
-#define __NR_sched_getattr           315
-
 #include <iostream>
 #include <thread>
 #include <chrono>
@@ -29,7 +25,6 @@
 #include "dls2/log/log.hpp"
 #endif
 
-#include <sys/types.h>
 #include <sys/wait.h>
 #include <cstdlib>
 #include <tuple>
@@ -41,25 +36,6 @@
 #include <mutex>
 #include <thread>
 #include <atomic>
-#include <boost/process.hpp>
-
-struct sched_attr {
-     __u32 size;
-
-     __u32 sched_policy;
-     __u64 sched_flags;
-
-     /* SCHED_NORMAL, SCHED_BATCH */
-     __s32 sched_nice;
-
-     /* SCHED_FIFO, SCHED_RR */
-     __u32 sched_priority;
-
-     /* SCHED_DEADLINE (nsec) */
-     __u64 sched_runtime;
-     __u64 sched_deadline;
-     __u64 sched_period;
-};
 
 int sched_setattr(pid_t pid,
                const struct sched_attr *attr,
@@ -80,14 +56,26 @@ using namespace dls;
 // =============================================================================
 // Constructors
 // =============================================================================
-PeriodicAppLayerComponent::PeriodicAppLayerComponent(const std::string &ID, const period_t &inPeriod) 
+PeriodicAppLayerComponent::PeriodicAppLayerComponent(const std::string &ID) 
 	: AppLayerComponent(ID)
-	, period(inPeriod)
+	, config_scheduler(YAML::LoadFile("/usr/include/dls2/schedulers/" + ID + "/scheduler.yaml"))
+	, period(std::chrono::milliseconds(config_scheduler["period"].as<int>()))
 	, should_run(false)
 	, pause_mutex()
 	, is_paused(false)
 	, pause_request()
 {
+	memset(&scheduler_attributes, 0, sizeof(struct sched_attr));
+	scheduler_attributes.size = sizeof(struct sched_attr);
+	scheduler_attributes.sched_policy = SCHED_DEADLINE;
+
+	// Period defined in nanoseconds
+	double sched_runtime_factor = config_scheduler["runtime_factor"].as<double>();
+	double sched_deadline_factor = config_scheduler["deadline_factor"].as<double>();
+	scheduler_attributes.sched_period  = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(period).count();
+	scheduler_attributes.sched_runtime = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(period*sched_runtime_factor).count();
+	scheduler_attributes.sched_deadline = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(period*sched_deadline_factor).count();
+
 	this->command_manager.addCommand<>
 	(
 		"pause",
@@ -132,20 +120,10 @@ AppLayerComponent::Status PeriodicAppLayerComponent::run()
 	this->should_run = true;
 	// auto next_loop_time = this->period + Time::now();
 
-	struct sched_attr attr;
     int ret;
     unsigned int flags = 0;
 
-	memset(&attr, 0, sizeof(struct sched_attr));
-	attr.size = sizeof(struct sched_attr);
-	attr.sched_policy = SCHED_DEADLINE;
-
-    // Period defined in nanoseconds
-    attr.sched_runtime  = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(period).count();
-	attr.sched_period   = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(period).count();
-	attr.sched_deadline = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(period).count();
-
-    ret = sched_setattr(0, &attr, flags);
+    ret = sched_setattr(0, &scheduler_attributes, flags);
     if (ret < 0) {
         perror("sched_setattr");
         exit(-1);

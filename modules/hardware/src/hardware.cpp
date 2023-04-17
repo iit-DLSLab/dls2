@@ -24,10 +24,9 @@ using robotlib::RobotBase;
 Hardware::Hardware
 (
 	const std::string& name_,
-	const std::shared_ptr<robotlib::RobotBase> &pRobot_,
-	const period_t &period_
+	const std::shared_ptr<robotlib::RobotBase> &pRobot_
 )
-	: PeriodicAppLayerComponent(name_, period_)
+	: PeriodicAppLayerComponent(name_)
     , pRobot(pRobot_)
 	, signalLink(std::make_shared<dls::DDSParticipant>(
 		"Hardware::" + name_,
