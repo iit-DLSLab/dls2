@@ -35,8 +35,7 @@ namespace dls
         Hardware
         (
             const std::string& ID,                                       ///< The ID of the controller
-            const std::shared_ptr<robotlib::RobotBase>& robot,           ///< A pointer to the robot model
-            const period_t& period                               		 ///< The period of the controller
+            const std::shared_ptr<robotlib::RobotBase>& robot           ///< A pointer to the robot model
         );
 
         virtual ~Hardware() = default;

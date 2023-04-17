@@ -29,8 +29,7 @@ namespace dls
 		using ID_t = std::string;
 		Estimator
 		(
-			const ID_t&,		///< The ID of this estimator
-			const period_t&		///< The period of this estimator
+			const ID_t&		///< The ID of this estimator
 		);
 		
 		virtual ~Estimator() = default;

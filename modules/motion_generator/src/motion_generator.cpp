@@ -21,10 +21,9 @@ using namespace dls;
 MotionGenerator::MotionGenerator
 (
 	const std::string &ID,
-	const std::shared_ptr<robotlib::RobotBase>& pRobot_,
-	const period_t &period_
+	const std::shared_ptr<robotlib::RobotBase>& pRobot_
 ) 
-	: PeriodicAppLayerComponent(ID, period_)
+	: PeriodicAppLayerComponent(ID)
 	, pRobot(pRobot_)
 	, home_configuration(pRobot->makeJointState(0.0))
 	, fold_configuration(pRobot->makeJointState(0.0))
