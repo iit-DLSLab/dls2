@@ -19,7 +19,7 @@
 // =============================================================================
 // Includes
 // =============================================================================
-#include "app_layer.hpp"
+#include "dls2/core/app_layer.hpp"
 #include "dls2/controller/controller.hpp"
 #include "dls2/motion_generator/motion_generator.hpp"
 #include "dls2/msg_wrappers/signal_writer.hpp"
@@ -82,7 +82,7 @@ public:
 	// ========================== Interface Overrides ==========================
 	Status run() override;
 
-	Status shutdown() override;
+	Status stop() override;
 
 	// ============================== Controllers ==============================
 	/// Loads a controller

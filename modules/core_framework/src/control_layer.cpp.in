@@ -188,7 +188,7 @@ ControlLayer::~ControlLayer()
 // =============================================================================
 // Interface Override Functions
 // =============================================================================
-ControlLayer::Status ControlLayer::run()
+Status ControlLayer::run()
 {
 	// TODO("spawn nonrealtime thread for user interaction")
 
@@ -269,7 +269,7 @@ void *ControlLayer::controlSignalGather(void *data)
     return NULL;
 }
 
-ControlLayer::Status ControlLayer::shutdown()
+Status ControlLayer::stop()
 {
 	std::vector<std::string> keys;
 	for(auto pair : this->motion_generators)
@@ -287,7 +287,7 @@ ControlLayer::Status ControlLayer::shutdown()
 	
 	this->should_quit = true;
 
-	setStatus(Status::STOP);
+	setStatus(Status::STOPPED);
 	return getStatus();
 }
 

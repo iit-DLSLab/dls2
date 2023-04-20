@@ -65,7 +65,7 @@ ServiceLayer::~ServiceLayer()
 	scout_sys << "#### SERVICE LAYER OFF ####" << std::endl;
 }
 
-ServiceLayer::Status ServiceLayer::run()
+Status ServiceLayer::run()
 {
 	// TODO("Check status of all components in the service layer, take corrective actions if requred")
 	setStatus(Status::RUNNING);
@@ -164,7 +164,7 @@ bool ServiceLayer::unloadService(const std::string ID)
     return true;
 }
 
-ServiceLayer::Status ServiceLayer::shutdown()
+Status ServiceLayer::stop()
 {
 	std::vector<std::string> keys;
 	for(auto pair : this->services)
@@ -175,7 +175,7 @@ ServiceLayer::Status ServiceLayer::shutdown()
 
 	this->should_quit = true;
 
-	setStatus(Status::STOP);
+	setStatus(Status::STOPPED);
 	return getStatus();
 }
 

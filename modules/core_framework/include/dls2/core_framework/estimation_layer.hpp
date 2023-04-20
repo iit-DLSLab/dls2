@@ -23,7 +23,7 @@
 #include <string>
 #include <thread>
 
-#include "app_layer.hpp"
+#include "dls2/core/app_layer.hpp"
 #include "dls2/estimator/estimator.hpp"
 #include "dls2/components/app_data.hpp"
 
@@ -41,7 +41,7 @@ namespace dls
 		~EstimationLayer();
 
 		Status run() override;
-		Status shutdown() override;
+		Status stop() override;
 
 		bool loadEstimator(const Estimator::ID_t&);
 		bool unloadEstimator(const Estimator::ID_t&);

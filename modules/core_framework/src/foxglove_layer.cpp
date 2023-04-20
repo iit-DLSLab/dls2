@@ -26,7 +26,7 @@ FoxgloveLayer::FoxgloveLayer(std::string ID) :
 FoxgloveLayer::~FoxgloveLayer()
 { }
 
-AppLayer::Status FoxgloveLayer::run()
+Status FoxgloveLayer::run()
 {
 	while(!this->should_quit)
 	{
@@ -35,10 +35,10 @@ AppLayer::Status FoxgloveLayer::run()
 	return getStatus();
 }
 
-AppLayer::Status FoxgloveLayer::shutdown()
+Status FoxgloveLayer::stop()
 {
 	this->should_quit = true;
 
-	setStatus(Status::STOP);
+	setStatus(Status::STOPPED);
 	return getStatus();
 }

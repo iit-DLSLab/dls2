@@ -16,7 +16,7 @@
 #ifndef FOXGLOVE_LAYER_HPP
 #define FOXGLOVE_LAYER_HPP
 
-#include "app_layer.hpp"
+#include "dls2/core/app_layer.hpp"
 #include "foxglove/foxserver.hpp"
 
 namespace dls
@@ -30,7 +30,7 @@ namespace dls
 		~FoxgloveLayer();
 
 		Status run() override;
-		Status shutdown() override;
+		Status stop() override;
 
 		std::string where() override {return "not yet implemented"; }
 

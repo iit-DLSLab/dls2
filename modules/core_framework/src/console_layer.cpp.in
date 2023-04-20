@@ -181,7 +181,7 @@ void ConsoleLayer::handle_signals(int){
 	abort();
 }
 
-ConsoleLayer::Status ConsoleLayer::run()
+Status ConsoleLayer::run()
 {
 	rl_set_signals();
 	signal(SIGINT, this->handle_signals);
@@ -254,7 +254,7 @@ ConsoleLayer::Status ConsoleLayer::run()
 	return getStatus();
 }
 
-ConsoleLayer::Status ConsoleLayer::shutdown()
+Status ConsoleLayer::stop()
 {
 	this->should_quit = true;
 	return getStatus();

@@ -100,7 +100,7 @@ LogLayer::LogLayer(std::string ID)
 	);
 }
 
-LogLayer::Status LogLayer::run()
+Status LogLayer::run()
 {
 	while(!this->should_quit)
 	{
@@ -110,7 +110,7 @@ LogLayer::Status LogLayer::run()
 	return this->getStatus();
 }
 
-LogLayer::Status LogLayer::shutdown()
+Status LogLayer::stop()
 {
 	int i = 0;
 	while(this->getParticipant()->getParticipants().size() > 1 && i < 10)

@@ -16,7 +16,7 @@
 #ifndef SERVICE_LAYER_HPP
 #define SERVICE_LAYER_HPP
 
-#include "app_layer.hpp"
+#include "dls2/core/app_layer.hpp"
 #include "dls2/components/app_data.hpp"
 
 namespace dls
@@ -30,7 +30,7 @@ namespace dls
 		~ServiceLayer();
 
 		Status run() override;
-		Status shutdown() override;
+		Status stop() override;
 
 		std::string where() override {return "not yet implemented"; }
 

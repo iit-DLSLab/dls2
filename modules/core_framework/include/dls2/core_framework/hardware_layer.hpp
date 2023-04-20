@@ -16,7 +16,7 @@
 #ifndef HARDWARE_LAYER_HPP_64INVL3T
 #define HARDWARE_LAYER_HPP_64INVL3T
 
-#include "app_layer.hpp"
+#include "dls2/core/app_layer.hpp"
 #include "dls2/hardware/hardware.hpp"
 #include "dls2/hardware/hardware_data.hpp"
 #include "dls2/util/messaging/dds_writer.hpp"
@@ -42,7 +42,7 @@ namespace dls
 
         /// Stop the layer
 		///
-	    Status shutdown() override;
+	    Status stop() override;
 
         /// Activates a hardware
         ///

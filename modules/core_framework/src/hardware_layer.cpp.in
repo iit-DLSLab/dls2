@@ -71,7 +71,7 @@ HardwareLayer::~HardwareLayer()
 	scout_sys << "#### HARDWARE INTERFACE OFF ####" << std::endl;
 }
 
-HardwareLayer::Status HardwareLayer::run()
+Status HardwareLayer::run()
 {
 	// TODO("Check status of all components in the control layer, take corrective actions if requred")
 	setStatus(Status::RUNNING);
@@ -162,7 +162,7 @@ bool HardwareLayer::unloadHardware(const std::string &ID)
     return this->unloadHardware(pair_it->second);
 }
 
-HardwareLayer::Status HardwareLayer::shutdown()
+Status HardwareLayer::stop()
 {
 	std::vector<std::string> keys;
 	for(auto pair : this->hardwares)
@@ -173,6 +173,6 @@ HardwareLayer::Status HardwareLayer::shutdown()
 
 	this->should_quit = true;
 
-	setStatus(Status::STOP);
+	setStatus(Status::STOPPED);
 	return getStatus();
 }

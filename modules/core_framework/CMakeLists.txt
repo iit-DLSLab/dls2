@@ -1,7 +1,6 @@
 add_compile_options("-std=c++17")
 
 dls_configure(src/version_info.cpp.in  VERSION_INFO_CPP)
-dls_configure(src/app_layer.cpp.in  APP_LAYER_CPP)
 dls_configure(src/control_layer.cpp.in  CONTROL_LAYER_CPP)
 dls_configure(src/console_layer.cpp.in  CONSOLE_LAYER_CPP)
 dls_configure(src/hardware_layer.cpp.in  HARDWARE_LAYER_CPP)
@@ -17,7 +16,6 @@ add_library(dls_framework
 		src/service_layer.cpp
 		${CONTROL_LAYER_CPP}
 		${VERSION_INFO_CPP}
-		${APP_LAYER_CPP}
 )
 
 set_property(TARGET dls_framework PROPERTY POSITION_INDEPENDENT_CODE ON)
@@ -37,6 +35,7 @@ target_link_libraries(dls_framework
         robotlib
 		dls_math
 		pthread
+		dls_core
 		dls_controller
 		dls_estimator
         dls_hardware

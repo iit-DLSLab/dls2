@@ -15,18 +15,12 @@
 *******************************************************************************/
 #ifndef CONSOLE_LAYER_HPP_BXNRZS8Q
 #define CONSOLE_LAYER_HPP_BXNRZS8Q
-// =============================================================================
-// Includes
-// =============================================================================
-// framework
-#include "app_layer.hpp"
 
-// stdlib
+// framework core
+#include "dls2/core/app_layer.hpp"
+
 #include <signal.h>
 
-// =============================================================================
-// Class Interface
-// =============================================================================
 namespace dls
 {
 	/// A console interface into the framework
@@ -56,7 +50,7 @@ namespace dls
 		/// Stop the console
 		///
 		/// Will cause `run` to stop running
-		Status shutdown() override;
+		Status stop() override;
 
 		/// Print the state of this layer
 		///
