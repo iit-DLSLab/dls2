@@ -21,6 +21,8 @@
 #include <map>
 #include <mutex>
 
+#include "dls2/core/app.hpp"
+
 #include "dls2/components/app_layer_component.hpp"
 #include "dls2/command/command_manager.hpp"
 #include "dls2/util/messaging/dds_participant.hpp"
@@ -30,58 +32,16 @@ namespace dls
 	/// An application layer
 	///
 	/// A layer can be launched and managed by the main application
-	class AppLayer
+	class AppLayer : public App
 	{
 	public:
 		using pComponent_t = std::shared_ptr<AppLayerComponent>;
 
-		/// The status of this layer
-		///
-		enum class Status
-		{
-			INITIALISING, ///< Layer is initialising
-			RUNNING,      ///< Layer is running normally
-			FATAL_ERROR,  ///< Layer has encountered a fatal error
-			E_STOP,       ///< Layer has performed an emergency stop
-			SUCCESS,      ///< Layer has executed succesfully
-			STOP          ///< Layer has been stopped
-		};
-
+		/// Constructor
 		AppLayer(const std::string &ID);
+
+		/// Destructor
 		virtual ~AppLayer();
-
-		/// Get the status of the layer
-		///
-		/// @ret the layer's status
-		Status getStatus() const;
-
-		// TODO Make protected
-		/// Set the status of the layer
-		///
-		/// @param status the status
-		void setStatus(Status status);
-
-		/// Runs the layer
-		///
-		virtual Status run() = 0;
-
-		/// Shutdown the layer
-		///
-		virtual Status shutdown() = 0;
-
-		/// Prints the state of the layer
-		///
-		virtual std::string where() = 0;
-
-		/// Verify if the layer should terminate
-		///
-		bool shouldQuit();
-
-        /// Emergency stop
-		///
-		/// If a layer does not override this function, it defaults to the layer's
-		/// shutdown function
-		virtual Status eStop();
 
 	protected:
 		/// Adds a component to this layer
@@ -106,11 +66,8 @@ namespace dls
 		/// exist
 		AppLayerComponent::Status getComponentStatus(const std::string &name);
 
-		/// Get the ID of the layer
-		///
-		/// @return the ID of the layer
-		std::string getID();
-
+		/// Get the dds communication participant of the layer
+		/// @return pointer to the participant
 		std::shared_ptr<dls::DDSParticipant> getParticipant();
 
 		// BEGIN critical section
@@ -118,34 +75,10 @@ namespace dls
 			std::map<std::string, pComponent_t> components;
 		// END critical section
 
-		/// Flag of the running loop
-		/// Exits when set to true
-		bool should_quit;
-
-		/// Stores commands registered in the layer
-		///
-		CommandManager command_manager;
-
-		//! Log system events
-		logging::clogstream scout_sys;
-		//! Log warning messages
-		logging::warnstream scout_warn;
-		//! Log errors that occurred, but from which the system can recover. Also log possible future fatal errors for the operator's attention.
-		logging::cerrstream scout_err;
-
 	private:
-		/// The ID of this layer
-		///
-		const std::string ID;
-
 		/// DDS communication link
         ///
 		std::shared_ptr<dls::DDSParticipant> ddsLink;
-
-		// BEGIN critical section
-			mutable std::mutex status_mutex;
-			Status status;
-		// END critical section
 
 	};
 } // end namespace dls
