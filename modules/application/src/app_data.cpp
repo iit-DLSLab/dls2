@@ -13,28 +13,23 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef APP_DATA_HPP
-#define APP_DATA_HPP
+#ifndef APP_DATA_CPP
+#define APP_DATA_CPP
 
-#include "dls2/util/messaging/dds_reader.hpp"
-#include <boost/process.hpp>
+#include "dls2/application/app_data.hpp"
 
-/// A struct representing the control signal that is output by a Controller
-namespace dls
+using namespace dls;
+
+AppData::AppData(const std::string& ID_) 
+    : proc(nullptr)
+    , ID(ID_)
+{ }
+
+AppData::~AppData(){}
+
+std::string AppData::getID()
 {
-	class AppData
-    {
-    public:
-        AppData(const std::string&);
-        ~AppData();
+    return this->ID;
+}
 
-        std::string getID();
-
-        std::shared_ptr<boost::process::child> proc;
-
-    private:
-        std::string ID;
-    };
-}// end namespace dls
-
-#endif /* end of include guard: APP_DATA_HPP */
+#endif /* end of include guard: APP_DATA_CPP*/

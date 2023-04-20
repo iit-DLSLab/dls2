@@ -19,7 +19,7 @@
 // =============================================================================
 // Includes
 // =============================================================================
-#include "dls2/core/app_layer.hpp"
+#include "dls2/application/layer.hpp"
 #include "dls2/controller/controller.hpp"
 #include "dls2/motion_generator/motion_generator.hpp"
 #include "dls2/msg_wrappers/signal_writer.hpp"
@@ -39,29 +39,6 @@
 
 #include <pthread.h>
 
-// #define SCHED_DEADLINE       6
-// #define __NR_sched_setattr           314
-// #define __NR_sched_getattr           315
-
-
-// struct sched_attr {
-//      __u32 size;
-
-//      __u32 sched_policy;
-//      __u64 sched_flags;
-
-//      /* SCHED_NORMAL, SCHED_BATCH */
-//      __s32 sched_nice;
-
-//      /* SCHED_FIFO, SCHED_RR */
-//      __u32 sched_priority;
-
-//      /* SCHED_DEADLINE (nsec) */
-//      __u64 sched_runtime;
-//      __u64 sched_deadline;
-//      __u64 sched_period;
-// };
-
 // =============================================================================
 // Class Interface
 // =============================================================================
@@ -71,51 +48,49 @@ namespace dls
 /// Control layer
 ///
 /// Responsible for managing controllers and motion generators
-class ControlLayer : public AppLayer
+class ControlLayer : public Layer
 {
 	typedef void * (*THREADFUNCPTR)(void *);
 	
 public:
+	/// Constructor	
 	ControlLayer(std::string ID);
+
+	/// Destructor
 	~ControlLayer();
 
-	// ========================== Interface Overrides ==========================
-	Status run() override;
+	/// @brief  run method overide
+	/// @return status of the control layer.
+	AppStatus run() override;
 
-	Status stop() override;
+	/// @brief stop method override
+	/// @return current status of the control layer.
+	AppStatus stop() override;
 
-	// ============================== Controllers ==============================
 	/// Loads a controller
-	///
-	/// @ret true if the controller exists, false otherwise.
-	/// See also ControlLayer::unloadController
+	/// @return true if the controller loads correctly.
 	bool loadController(const std::string&);
 
 	/// Unloads a controller
-	///
-	/// @ret true if the controller exists, false otherwise
-	/// See also ControlLayer::loadController
+	/// @return true if the controller unloads correctly.
 	bool unloadController(const std::string&);
 
-	// ============================ Motion Generators ============================
 	/// Loads a motion generator
-	///
-	/// This will stop any other running motion generators
-	/// @ret true if the controller exists, false otherwise. See also
-	/// ControlLayer::unloadMotionGenerators
+	/// @return true if the generator loaded correctly.
 	bool loadMotionGenerator(const std::string&);
 
 	/// Unloads the current motion generator
-	///
+	/// @return true if the generator unloads correctly.
 	bool unloadMotionGenerator(const std::string&);
 
 	/// Returns the last published desired torques
-	///
 	robotlib::JointState getPublishedDesiredTorques();
 
+	/// Outputs info about the control layer
+	/// @return returns a string with all the info.
 	std::string where() override;
-private:
 
+private:
 	// TODO("This should be put in the robot class")
 	/// Saturates torques so that they do not exceed safe limits
 	///

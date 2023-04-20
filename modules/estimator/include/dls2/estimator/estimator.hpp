@@ -18,12 +18,12 @@
 
 #include <string>
 
-#include "dls2/components/periodic_app_layer_component.hpp"
+#include "dls2/application/periodic_app.hpp"
 #include "robotlib/robot_base.hpp"
 
 namespace dls
 {
-	class Estimator : public PeriodicAppLayerComponent
+	class Estimator : public PeriodicApp
 	{
 	public:
 		using ID_t = std::string;

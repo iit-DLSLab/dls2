@@ -14,7 +14,6 @@ add_library(dls_framework
 		src/log_layer.cpp
 		src/options.cpp
 		src/service_layer.cpp
-		${CONTROL_LAYER_CPP}
 		${VERSION_INFO_CPP}
 )
 
@@ -35,8 +34,11 @@ target_link_libraries(dls_framework
         robotlib
 		dls_math
 		pthread
-		dls_core
+		dls_com
+		dls_app
 		dls_controller
+		dls_command
+		dls_message_wrappers
 		dls_estimator
         dls_hardware
 		dls_service
@@ -45,10 +47,46 @@ target_link_libraries(dls_framework
 		dls_topics
 		dls_class_loader
 		dls_foxglove
-		fastcdr
-		fastrtps
+		dls_time
+		dls_messages
+)
+
+add_library(dls_control_layer
+	SHARED
+		${CONTROL_LAYER_CPP}
+)
+
+target_include_directories(dls_control_layer
+	PUBLIC
+		include
+	PRIVATE
+		src
+)
+
+target_link_libraries(dls_control_layer
+	PRIVATE
+		robotlib
+		dls_math
+		pthread
+		dls_com
+		dls_app
+		dls_controller
+		dls_command
+		dls_message_wrappers
+		dls_estimator
+		dls_hardware
+		dls_service
+		dls_motion_generator
+		dls_domains
+		dls_topics
+		dls_class_loader
+		dls_foxglove
+		dls_time
+		dls_framework
+		dls_messages
 )
 
 dls_install(dls_framework)
+dls_install(dls_control_layer)
 
 add_subdirectory(test)

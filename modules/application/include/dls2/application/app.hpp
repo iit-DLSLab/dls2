@@ -16,7 +16,7 @@
 #ifndef APP_HPP
 #define APP_HPP
 
-#include "dls2/core/app_status.hpp"
+#include "dls2/application/app_status.hpp"
 #include "dls2/command/command_manager.hpp"
 #include "dls2/log/log.hpp"
 
@@ -27,8 +27,11 @@ namespace dls
 	class App
 	{
 	public:
+		typedef App *create_t(const std::string&);
+		typedef void destroy_t(App*);
 
 		/// Constructor
+		/// @parm ID the name of this app
 		App(const std::string &ID);
 
 		/// Destructor
@@ -42,20 +45,20 @@ namespace dls
 		/// Get the status of the app
 		///
 		/// @ret the app's status
-		Status getStatus() const;
+		AppStatus getStatus() const;
 
 		/// Set the status of the app
 		///
 		/// @param status the status
-		void setStatus(Status status);
+		void setStatus(AppStatus status);
 
 		/// Runs the app
 		///
-		virtual Status run() = 0;
+		virtual AppStatus run() = 0;
 
 		/// Shutdown the app
 		///
-		virtual Status stop() = 0;
+		virtual AppStatus stop() = 0;
 
 		/// Prints the state of the app
 		///
@@ -69,7 +72,7 @@ namespace dls
 		///
 		/// If a app does not override this function, it defaults to the app's
 		/// stop function
-		virtual Status eStop();
+		virtual AppStatus eStop();
 
 		/// Flag of the running loop
 		/// Exits when set to true
@@ -95,7 +98,7 @@ namespace dls
 
 		// BEGIN critical section
 			mutable std::mutex status_mutex;
-			Status status;
+			AppStatus status;
 		// END critical section
 
 	};

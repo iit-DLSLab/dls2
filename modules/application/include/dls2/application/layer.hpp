@@ -13,35 +13,30 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef APP_LAYER_HPP_H7JRIVPM
-#define APP_LAYER_HPP_H7JRIVPM
+#ifndef LAYER_HPP_H7JRIVPM
+#define LAYER_HPP_H7JRIVPM
 
-#include <functional>
-#include <memory>
-#include <map>
-#include <mutex>
-
-#include "dls2/core/app.hpp"
-
-#include "dls2/components/app_layer_component.hpp"
-#include "dls2/command/command_manager.hpp"
-#include "dls2/util/messaging/dds_participant.hpp"
+#include "dls2/application/app.hpp"
 
 namespace dls
 {
 	/// An application layer
 	///
 	/// A layer can be launched and managed by the main application
-	class AppLayer : public App
+	class Layer : public App
 	{
 	public:
-		using pComponent_t = std::shared_ptr<AppLayerComponent>;
+		using pComponent_t = std::shared_ptr<App>;
+
+		typedef Layer *create_t(const std::string&);
+		typedef void destroy_t(Layer*);
 
 		/// Constructor
-		AppLayer(const std::string &ID);
+		/// @parm ID the name of this layer
+		Layer(const std::string &ID);
 
 		/// Destructor
-		virtual ~AppLayer();
+		virtual ~Layer();
 
 	protected:
 		/// Adds a component to this layer
@@ -64,7 +59,7 @@ namespace dls
 		///
 		/// @return the status of the component, or UNCONSTRUCTED if it does not
 		/// exist
-		AppLayerComponent::Status getComponentStatus(const std::string &name);
+		AppStatus getComponentStatus(const std::string &name);
 
 		/// Get the dds communication participant of the layer
 		/// @return pointer to the participant
@@ -83,4 +78,4 @@ namespace dls
 	};
 } // end namespace dls
 
-#endif /* end of include guard: APP_LAYER_HPP_H7JRIVPM */
+#endif /* end of include guard: LAYER_HPP_H7JRIVPM */

@@ -10,7 +10,7 @@ target_include_directories(dls_profile
 )
 
 target_link_libraries(dls_profile
-	PUBLIC
+	PRIVATE
 		yaml-cpp
 )
 

@@ -13,21 +13,6 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-// =============================================================================
-// Includes
-// =============================================================================
-#include <memory>
-#include <signal.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <cstring>
-#include <sstream>
-#include <thread>
-
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <sys/prctl.h>
-#include <sys/mman.h>
 
 #include "dls2/core_framework/hardware_layer.hpp"
 #include "dls2/core_framework/control_layer.hpp"
@@ -39,10 +24,7 @@
 #include "dls2/core_framework/options.hpp"
 #include "dls2/core_framework/version_info.hpp"
 
-#include "dls2/util/time/time.hpp"
-
-#include "dls2/log/log.hpp"
-#include "dls2/command/command.hpp"
+#include <sys/prctl.h>
 
 using namespace dls;
 
@@ -68,6 +50,8 @@ struct ChildData
 // in size.
 std::map<pid_t, ChildData> child_datas;
 
+std::map<std::string, std::shared_ptr<AppData>> layers;
+
 // =============================================================================
 // Prtototypes
 // =============================================================================
@@ -84,6 +68,8 @@ template <class layer_t>
 void forkLayer(const std::string &process_name, char **argv);
 
 int initVars();
+
+void loadLayer(const std::string&);
 
 
 // =============================================================================
@@ -158,23 +144,25 @@ int main(int argc, char **argv)
 		);
 	}
 
-	// Launch layers
-	if(Options::launch_log) 		forkLayer<LogLayer>("logLayer", argv);
-	if(Options::launch_hardware) 	forkLayer<HardwareLayer>("hardwareLayer", argv);
-	if(Options::launch_control)  	forkLayer<ControlLayer>("controlLayer", argv);
-	if(Options::launch_console)	 	forkLayer<ConsoleLayer>("consoleLayer", argv);
-	if(Options::launch_estimation)	forkLayer<EstimationLayer>("estimationLayer", argv);
-	if(Options::launch_service)	    forkLayer<ServiceLayer>("serviceLayer", argv);
-	if(Options::launch_foxglove)	forkLayer<FoxgloveLayer>("foxgloveLayer", argv);
+	if(Options::launch_control) loadLayer("dls_control_layer");
 
-	if(Options::robot_name != "")
-	{
-		CommandManager cmd_manager("main");
-		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-		cmd_manager.callCommand("loadService", {"dls_param_server"}, "serviceLayer");
-		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-		cmd_manager.callCommand("setParam", {"robot_name", Options::robot_name}, "dls_param_server");
-	}
+	// Launch layers
+	// if(Options::launch_log) 		forkLayer<LogLayer>("logLayer", argv);
+	// if(Options::launch_hardware) 	forkLayer<HardwareLayer>("hardwareLayer", argv);
+	// if(Options::launch_control)  	forkLayer<ControlLayer>("controlLayer", argv);
+	// if(Options::launch_console)	 	forkLayer<ConsoleLayer>("consoleLayer", argv);
+	// if(Options::launch_estimation)	forkLayer<EstimationLayer>("estimationLayer", argv);
+	// if(Options::launch_service)	    forkLayer<ServiceLayer>("serviceLayer", argv);
+	// if(Options::launch_foxglove)	forkLayer<FoxgloveLayer>("foxgloveLayer", argv);
+
+	// if(Options::robot_name != "")
+	// {
+	// 	CommandManager cmd_manager("main");
+	// 	std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+	// 	cmd_manager.callCommand("loadService", {"dls_param_server"}, "serviceLayer");
+	// 	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+	// 	cmd_manager.callCommand("setParam", {"robot_name", Options::robot_name}, "dls_param_server");
+	// }
 
 	// Initiate log streams
 	// Does not initiate these before fork actions, dds will break
@@ -185,42 +173,42 @@ int main(int argc, char **argv)
 	// loop is exited when there are no more children
 	while(true)
 	{		
-		std::stringstream ss;
-		int status;
-		pid_t child_pid = wait(&status);
+		// std::stringstream ss;
+		// int status;
+		// pid_t child_pid = wait(&status);
 		
-		if(child_pid == -1)
-		{
-			// if no more children left
-			if(errno == ECHILD)
-			{
-				break;
-			}
-		}
+		// if(child_pid == -1)
+		// {
+		// 	// if no more children left
+		// 	if(errno == ECHILD)
+		// 	{
+		// 		break;
+		// 	}
+		// }
 
-		auto it = child_datas.find(child_pid);
-		if(it != child_datas.end())
-		{
-			ss << it->second.name;
-			// Ignoring WIFSTOPPED, WSTOPSIG, WIFCONTINUED
-			if(WIFEXITED(status))
-			{
-				ss << " exited normally with exit status " << WEXITSTATUS(status);
-			}
-			if(WIFSIGNALED(status))
-			{
-				ss << " exited by signal " << WTERMSIG(status);
+		// auto it = child_datas.find(child_pid);
+		// if(it != child_datas.end())
+		// {
+		// 	ss << it->second.name;
+		// 	// Ignoring WIFSTOPPED, WSTOPSIG, WIFCONTINUED
+		// 	if(WIFEXITED(status))
+		// 	{
+		// 		ss << " exited normally with exit status " << WEXITSTATUS(status);
+		// 	}
+		// 	if(WIFSIGNALED(status))
+		// 	{
+		// 		ss << " exited by signal " << WTERMSIG(status);
 
-				#ifdef WCOREDUMP
-				if(WCOREDUMP(status)) // not available on all unix implementations
-				{
-					ss << " and had a core dump";
-				}
-				#endif
-			}
-			ss.flush();
-		}
-		outstream << ss.str() << std::endl;	
+		// 		#ifdef WCOREDUMP
+		// 		if(WCOREDUMP(status)) // not available on all unix implementations
+		// 		{
+		// 			ss << " and had a core dump";
+		// 		}
+		// 		#endif
+		// 	}
+		// 	ss.flush();
+		// }
+		// outstream << ss.str() << std::endl;	
 	}
 	
 	std::cout << "=== FRAMEWORK NODE STOPPED ===" << std::endl;
@@ -289,3 +277,31 @@ void forkLayer(const std::string &process_name, char **argv)
 	}
 }
 
+
+void loadLayer(const std::string& name)
+{
+	// if(this->controllers.find(lib_name) != this->controllers.end())
+	// {
+	// 	scout_err << "Controller " << lib_name << " already loaded" << std::endl;
+    //     return false;
+	// }
+
+    std::shared_ptr<AppData> pData = std::make_shared<AppData>(name);
+
+    pData->proc = std::make_shared<boost::process::child>(std::vector<std::string>({
+        "${DLS_INSTALL_RUNTIME_DIR}/child_process_launcher",
+        pData->getID(),
+		name,
+        "layer",
+        Options::robot_name
+    }));
+
+    if (pData->proc == nullptr || pData->proc->wait_for(std::chrono::duration<double, std::milli>(1000))){
+        // scout_err << "Layer " << lib_name <<" failed to launch" << std::endl;
+		std::cout << "Layer " << name <<" failed to launch" << std::endl;
+        return;
+    }
+
+	pData->proc->detach();
+	layers.emplace(pData->getID(), pData);
+}

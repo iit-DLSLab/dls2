@@ -14,10 +14,13 @@ target_include_directories(dls_foxglove
 )
 
 target_link_libraries(dls_foxglove
-	PUBLIC
+	PRIVATE
         boost_system
         pthread
-		dls_framework_components
+		dls_app
+		dls_com
+		dls_topics
+		dls_domains
 		fastrtps
 )
 

@@ -13,23 +13,23 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef APP_DATA_CPP
-#define APP_DATA_CPP
+#ifndef APP_STATUS_HPP
+#define APP_STATUS_HPP
 
-#include "dls2/components/app_data.hpp"
-
-using namespace dls;
-
-AppData::AppData(const std::string& ID_) 
-    : proc(nullptr)
-    , ID(ID_)
-{ }
-
-AppData::~AppData(){}
-
-std::string AppData::getID()
+namespace dls
 {
-    return this->ID;
-}
+	enum class AppStatus
+	{
+		UNCONSTRUCTED,    ///< App has not been built
+		INITIALISING, 	  ///< App is initialising
+		RUNNING,          ///< App is running normally
+		FATAL_ERROR,      ///< App has had a fatal error
+		E_STOP,           ///< App has performed an emergency stop
+		SUCCESS,          ///< App finshed succesfully
+		FAIL,             ///< App failed
+		STOPPED,          ///< App stopped
+		BREAKING_REALTIME ///< App is breaking realtime
+	};
+} // end namespace dls
 
-#endif /* end of include guard: APP_DATA_CPP*/
+#endif /* end of include guard: APP_STATUS */

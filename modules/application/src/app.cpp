@@ -13,23 +13,74 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef APP_STATUS_HPP
-#define APP_STATUS_HPP
+#include "dls2/application/app.hpp"
 
-namespace dls
+using namespace dls;
+
+App::App(const std::string &ID_) 
+    : should_quit(false)
+    , command_manager(ID_)
+	, scout_sys(ID_)
+	, scout_warn(ID_)
+	, scout_err(ID_)
+    , ID(ID_)
+	, status_mutex()
+	, status(AppStatus::INITIALISING)
+	
 {
-	enum class Status
-	{
-		UNCONSTRUCTED,    ///< App has not been built
-		INITIALISING, 	  ///< App is initialising
-		RUNNING,          ///< App is running normally
-		FATAL_ERROR,      ///< App has had a fatal error
-		E_STOP,           ///< App has performed an emergency stop
-		SUCCESS,          ///< App finshed succesfully
-		FAIL,             ///< App failed
-		STOPPED,          ///< App stopped
-		BREAKING_REALTIME ///< App is breaking realtime
-	};
-} // end namespace dls
+	command_manager.addCommand<>
+	(
+		"shutdown",
+		"Shutdown the " + ID + " app",
+        std::function<bool()>([&]()->bool
+        {
+			this->stop();
+            return true;
+		}),
+		{},
+		true
+	);
 
-#endif /* end of include guard: APP_STATUS */
+	command_manager.addCommand<>
+	(
+		"where",
+		"Prints the state of " + this->ID,
+		std::function<bool()>([&]()->bool
+        {
+			std::cout << where() << std::endl;
+            return true;
+		}),
+		{},
+		true
+	);
+}
+
+App::~App()
+{ }
+
+std::string App::getID()
+{
+	return this->ID;
+}
+
+AppStatus App::getStatus() const
+{
+	std::lock_guard<std::mutex> lock(this->status_mutex);
+	return this->status;
+}
+
+void App::setStatus(AppStatus s)
+{
+	std::lock_guard<std::mutex> lock(this->status_mutex);
+	this->status = s;
+}
+
+bool App::shouldQuit()
+{
+	return should_quit;
+}
+
+AppStatus App::eStop()
+{
+	return this->stop();
+}

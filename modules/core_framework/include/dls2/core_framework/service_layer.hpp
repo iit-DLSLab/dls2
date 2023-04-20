@@ -16,21 +16,21 @@
 #ifndef SERVICE_LAYER_HPP
 #define SERVICE_LAYER_HPP
 
-#include "dls2/core/app_layer.hpp"
-#include "dls2/components/app_data.hpp"
+#include "dls2/application/layer.hpp"
+#include "dls2/application/app_data.hpp"
 
 namespace dls
 {
 	/// Class responsible for handling different services
 	///
-	class ServiceLayer : public AppLayer
+	class ServiceLayer : public Layer
 	{
 	public:
 		ServiceLayer(std::string ID);
 		~ServiceLayer();
 
-		Status run() override;
-		Status stop() override;
+		AppStatus run() override;
+		AppStatus stop() override;
 
 		std::string where() override {return "not yet implemented"; }
 

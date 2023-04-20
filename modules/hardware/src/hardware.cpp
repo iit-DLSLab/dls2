@@ -26,7 +26,7 @@ Hardware::Hardware
 	const std::string& name_,
 	const std::shared_ptr<robotlib::RobotBase> &pRobot_
 )
-	: PeriodicAppLayerComponent(name_)
+	: PeriodicApp(name_)
     , pRobot(pRobot_)
 	, signalLink(std::make_shared<dls::DDSParticipant>(
 		"Hardware::" + name_,

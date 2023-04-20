@@ -22,7 +22,7 @@
 using namespace dls;
 
 SimLayer::SimLayer(std::string ID) 
-	: AppLayer(ID)
+	: Layer(ID)
 {
 	command_manager.addCommand<std::string>
 	(
@@ -76,7 +76,7 @@ SimLayer::~SimLayer()
 // Interface Override
 // =============================================================================
 
-AppLayer::Status SimLayer::run()
+Layer::AppStatus SimLayer::run()
 {
 	while(!this->should_quit)
 	{
@@ -87,14 +87,14 @@ AppLayer::Status SimLayer::run()
 }
 
 
-AppLayer::Status SimLayer::shutdown()
+Layer::AppStatus SimLayer::shutdown()
 {
 	for(auto pair : this->components)
 		pair.second->stop();
 
 	this->should_quit = true;
 
-	setStatus(Status::STOP);
+	setStatus(AppStatus::STOP);
 	return getStatus();
 }
 

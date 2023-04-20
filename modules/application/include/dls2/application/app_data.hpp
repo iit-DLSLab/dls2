@@ -13,76 +13,27 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#include <iostream>
+#ifndef APP_DATA_HPP
+#define APP_DATA_HPP
 
-#include "dls2/core/app.hpp"
+#include <boost/process.hpp>
 
-using namespace dls;
-
-App::App(const std::string &ID_) 
-    : should_quit(false)
-    , command_manager(ID_)
-	, scout_sys(ID_)
-	, scout_warn(ID_)
-	, scout_err(ID_)
-    , ID(ID_)
-	, status_mutex()
-	, status(Status::INITIALISING)
-	
+/// A struct representing the app process
+namespace dls
 {
-	command_manager.addCommand<>
-	(
-		"shutdown",
-		"Shutdown the " + ID + " app",
-        std::function<bool()>([&]()->bool
-        {
-			this->stop();
-            return true;
-		}),
-		{},
-		true
-	);
+	class AppData
+    {
+    public:
+        AppData(const std::string&);
+        ~AppData();
 
-	command_manager.addCommand<>
-	(
-		"where",
-		"Prints the state of " + this->ID,
-		std::function<bool()>([&]()->bool
-        {
-			std::cout << where() << std::endl;
-            return true;
-		}),
-		{},
-		true
-	);
-}
+        std::string getID();
 
-App::~App()
-{ }
+        std::shared_ptr<boost::process::child> proc;
 
-std::string App::getID()
-{
-	return this->ID;
-}
+    private:
+        std::string ID;
+    };
+}// end namespace dls
 
-Status App::getStatus() const
-{
-	std::lock_guard<std::mutex> lock(this->status_mutex);
-	return this->status;
-}
-
-void App::setStatus(Status s)
-{
-	std::lock_guard<std::mutex> lock(this->status_mutex);
-	this->status = s;
-}
-
-bool App::shouldQuit()
-{
-	return should_quit;
-}
-
-Status App::eStop()
-{
-	return this->stop();
-}
+#endif /* end of include guard: APP_DATA_HPP */

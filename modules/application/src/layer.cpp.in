@@ -13,14 +13,12 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#include <iostream>
-
-#include "dls2/core/app_layer.hpp"
+#include "dls2/application/layer.hpp"
 #include "dls2/class_loader.hpp"
 
 using namespace dls;
 
-AppLayer::AppLayer(const std::string &ID_) 
+Layer::Layer(const std::string &ID_) 
 	: App(ID_)
 	, components_mutex()
     , components({})
@@ -51,72 +49,29 @@ AppLayer::AppLayer(const std::string &ID_)
 		{},
 		true
 	);
-
-	// command_manager.addCommand<void, std::string>
-	// (
-	// 	"addComponent",
-	// 	"loads a component into " + this->ID,
-	// 	std::function<void(std::string)>
-	// 	(
-	// 		[&](std::string name)
-	// 		{
-	// 			this->loadComponentFromDisk(name);
-	// 		}
-	// 	)
-	// );
-
-	// command_manager.addCommand<void, std::string>
-	// (
-	// 	"removeComponent",
-	// 	"removes a component from " + this->ID,
-	// 	std::function<void(std::string)>
-	// 	(
-	// 		[&](std::string name)
-	// 		{
-	// 			this->removeComponent(name);
-	// 		}
-	// 	)
-	// );
-
-	// command_manager.addCommand<int, std::string>
-	// (
-	// 	"getComponentStatus",
-	// 	"gets the status of a component running inside " + this->ID,
-	// 	std::function<int(std::string)>
-	// 	(
-	// 		[&](std::string name)
-	// 		{
-	// 			return static_cast<int>(this->getComponentStatus(name));
-	// 		}
-	// 	)
-	// );
 }
 
-AppLayer::~AppLayer()
+Layer::~Layer()
 { }
 
-// =============================================================================
-// Member Functions
-// =============================================================================
-
-std::shared_ptr<dls::DDSParticipant> AppLayer::getParticipant()
+std::shared_ptr<dls::DDSParticipant> Layer::getParticipant()
 {
 	return ddsLink;
 }
 
-void AppLayer::addComponent(const std::string &name, pComponent_t component)
+void Layer::addComponent(const std::string &name, pComponent_t component)
 {
 	std::lock_guard<std::mutex> lock(this->components_mutex);
 	this->components[name] = component;
 }
 
-void AppLayer::removeComponent(const std::string &name)
+void Layer::removeComponent(const std::string &name)
 {
 	std::lock_guard<std::mutex> lock(this->components_mutex);
 	this->components.erase(name);
 }
 
-AppLayerComponent::Status AppLayer::getComponentStatus(const std::string &name)
+AppStatus Layer::getComponentStatus(const std::string &name)
 {
 	std::lock_guard<std::mutex> lock(this->components_mutex);
 	auto it = this->components.find(name);
@@ -127,29 +82,24 @@ AppLayerComponent::Status AppLayer::getComponentStatus(const std::string &name)
 	}
 	else
 	{
-		return AppLayerComponent::Status::UNCONSTRUCTED;
+		return AppStatus::UNCONSTRUCTED;
 	}
 }
 
-bool AppLayer::loadComponentFromDisk(const std::string &name)
+bool Layer::loadComponentFromDisk(const std::string &name)
 {
-    // int idx = 1;
-    // std::string ID = name + "_" + std::to_string(idx);
-    // while(this->components.count(ID)){
-    //     ID = name + "_" + std::to_string(++idx);
-    // }
-    const std::string ID {name};
+    const std::string ID(name);
 	if(this->components.find(ID) != this->components.end())
 	{
 		scout_sys << name << " is already loaded." << std::endl;
 		return false;
 	}
 
-	std::shared_ptr<AppLayerComponent> component;
+	std::shared_ptr<App> component;
 	// First try from the current directory
 	try
 	{
-		component = ClassLoader::loadClass<AppLayerComponent>
+		component = ClassLoader::loadClass<App>
 		(
 			std::string("/usr/lib/dls2/lib") + name + ".so",
 			ID
@@ -162,7 +112,7 @@ bool AppLayer::loadComponentFromDisk(const std::string &name)
 		// Try from install location of this layer
 		try
 		{
-			component = ClassLoader::loadClass<AppLayerComponent>
+			component = ClassLoader::loadClass<App>
 			(
 				std::string("@DLS_INSTALL_COMPONENT_BASE_DIR@") + "/" + this->getID() + "/" + name + ".so",
 				ID

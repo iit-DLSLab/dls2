@@ -22,7 +22,7 @@ using namespace dls;
 
 
 ServiceLayer::ServiceLayer(std::string ID_) 
-	: AppLayer(ID_)
+	: Layer(ID_)
 	, ddsMonitor(std::make_shared<dls::DDSWriter>(
 		"ServiceLayer::monitor",
 		dls::domains::services,
@@ -65,10 +65,10 @@ ServiceLayer::~ServiceLayer()
 	scout_sys << "#### SERVICE LAYER OFF ####" << std::endl;
 }
 
-Status ServiceLayer::run()
+AppStatus ServiceLayer::run()
 {
 	// TODO("Check status of all components in the service layer, take corrective actions if requred")
-	setStatus(Status::RUNNING);
+	setStatus(AppStatus::RUNNING);
 
 	while(!this->shouldQuit())
 	{
@@ -164,7 +164,7 @@ bool ServiceLayer::unloadService(const std::string ID)
     return true;
 }
 
-Status ServiceLayer::stop()
+AppStatus ServiceLayer::stop()
 {
 	std::vector<std::string> keys;
 	for(auto pair : this->services)
@@ -175,7 +175,7 @@ Status ServiceLayer::stop()
 
 	this->should_quit = true;
 
-	setStatus(Status::STOPPED);
+	setStatus(AppStatus::STOPPED);
 	return getStatus();
 }
 

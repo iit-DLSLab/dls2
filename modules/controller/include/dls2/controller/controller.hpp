@@ -19,7 +19,7 @@
 // =============================================================================
 // Includes
 // =============================================================================
-#include "dls2/components/periodic_app_layer_component.hpp"
+#include "dls2/application/periodic_app.hpp"
 #include "dls2/controller/controller_data.hpp"
 
 #include "dls2/util/messaging/dds_participant.hpp"
@@ -28,7 +28,7 @@
 
 namespace dls
 {
-    class Controller : public PeriodicAppLayerComponent
+    class Controller : public PeriodicApp
     {
     public:
         // Plugin typedefs

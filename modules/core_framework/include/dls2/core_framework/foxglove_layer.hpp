@@ -16,21 +16,21 @@
 #ifndef FOXGLOVE_LAYER_HPP
 #define FOXGLOVE_LAYER_HPP
 
-#include "dls2/core/app_layer.hpp"
+#include "dls2/application/layer.hpp"
 #include "foxglove/foxserver.hpp"
 
 namespace dls
 {
 /// Foxglove layer
 
-	class FoxgloveLayer : public AppLayer
+	class FoxgloveLayer : public Layer
 	{
 	public:
 		FoxgloveLayer(std::string ID);
 		~FoxgloveLayer();
 
-		Status run() override;
-		Status stop() override;
+		AppStatus run() override;
+		AppStatus stop() override;
 
 		std::string where() override {return "not yet implemented"; }
 

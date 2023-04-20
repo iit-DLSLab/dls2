@@ -11,9 +11,13 @@ target_include_directories(dls_service
 )
 
 target_link_libraries(dls_service
-	PUBLIC
+	PRIVATE
 		dls_com
-		dls_framework_components
+		dls_app
+		dls_command
+		dls_topics
+		dls_domains
+		dls_logging
 )
 
 dls_install(dls_service)

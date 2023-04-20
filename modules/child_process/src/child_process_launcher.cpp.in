@@ -36,6 +36,7 @@
 #include "dls2/estimator/estimator.hpp"
 #include "dls2/service/service_base.hpp"
 #include "dls2/log/log.hpp"
+#include "dls2/application/layer.hpp"
 
 #include "robotlib/robot_factory.hpp"
 
@@ -48,7 +49,7 @@ using namespace dls;
 // Globals
 // =============================================================================
 // required to be global for visibility from signal handler
-std::shared_ptr<AppLayerComponent> pComponent;
+std::shared_ptr<App> pComponent;
 
 // =============================================================================
 // Classes
@@ -92,7 +93,15 @@ int main(int argc, char **argv)
     // Load the component
     try
     {
-        if (args.component_type == "controller")
+        if (args.component_type == "layer")
+        {
+            std::cout << "LOADING LAYER FROM '" << std::string("${DLS_INSTALL_RUNTIME_DIR}/lib") + args.lib_name + ".so'" << std::endl;
+            pComponent =
+                ClassLoader::loadClass<Layer, std::string>(
+                    std::string("${DLS_INSTALL_RUNTIME_DIR}/lib") + args.lib_name + ".so",
+                    args.component_name);
+        }
+        else if (args.component_type == "controller")
         {
             pComponent =
                 ClassLoader::loadClass<Controller, std::string>(
@@ -179,6 +188,7 @@ Args parse_args(int argc, char **argv)
     args.robot_name = argv[4];
 
     if (
+        args.component_type != "layer" &&
         args.component_type != "controller" &&
         args.component_type != "motion_generator" &&
         args.component_type != "hardware" &&
@@ -201,7 +211,7 @@ void signal_handler(int signal)
         pComponent->stop();
 
         scout_sys << pComponent->getID() << " received kill request" << std::endl;
-        dls::AppLayerComponent::Status exit_status = pComponent->getStatus();
+        AppStatus exit_status = pComponent->getStatus();
 
         scout_sys << "#### FROM KILLER pComp status " << static_cast<int>(exit_status) << std::endl;
         // pComponent = nullptr;

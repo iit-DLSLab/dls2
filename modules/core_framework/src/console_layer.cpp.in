@@ -57,7 +57,7 @@ ConsoleLayer *pInstance = nullptr;
 // Constructors
 // =============================================================================
 ConsoleLayer::ConsoleLayer(std::string ID) 
-	: AppLayer(ID)
+	: Layer(ID)
 {
 	pInstance = this;
 
@@ -181,7 +181,7 @@ void ConsoleLayer::handle_signals(int){
 	abort();
 }
 
-Status ConsoleLayer::run()
+AppStatus ConsoleLayer::run()
 {
 	rl_set_signals();
 	signal(SIGINT, this->handle_signals);
@@ -254,7 +254,7 @@ Status ConsoleLayer::run()
 	return getStatus();
 }
 
-Status ConsoleLayer::stop()
+AppStatus ConsoleLayer::stop()
 {
 	this->should_quit = true;
 	return getStatus();

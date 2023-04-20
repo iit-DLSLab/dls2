@@ -63,7 +63,7 @@ int sched_getattr(pid_t pid,
 // Constructors
 // =============================================================================
 ControlLayer::ControlLayer(std::string ID) 
-	: AppLayer(ID)
+	: Layer(ID)
 	, ddsSignalLink(std::make_shared<dls::DDSParticipant>(ID, dls::domains::signals))
 	, pDefault_spline_in(std::make_shared<math::Ramp<double>> (0, 2, 0, 1))
 	, pDefault_spline_out(std::make_shared<math::Ramp<double>> (0, 2, 1, 0))
@@ -188,12 +188,12 @@ ControlLayer::~ControlLayer()
 // =============================================================================
 // Interface Override Functions
 // =============================================================================
-Status ControlLayer::run()
+AppStatus ControlLayer::run()
 {
 	// TODO("spawn nonrealtime thread for user interaction")
 
 	// TODO("Check status of all components in the control layer, take corrective actions if requred")
-	setStatus(Status::RUNNING);
+	setStatus(AppStatus::RUNNING);
 
 	// real-time thread that gather all the control sinals and sends to robot
     pthread_create(&controlSignalGatherThread, NULL, (THREADFUNCPTR) &ControlLayer::controlSignalGather, this);
@@ -269,7 +269,7 @@ void *ControlLayer::controlSignalGather(void *data)
     return NULL;
 }
 
-Status ControlLayer::stop()
+AppStatus ControlLayer::stop()
 {
 	std::vector<std::string> keys;
 	for(auto pair : this->motion_generators)
@@ -287,7 +287,7 @@ Status ControlLayer::stop()
 	
 	this->should_quit = true;
 
-	setStatus(Status::STOPPED);
+	setStatus(AppStatus::STOPPED);
 	return getStatus();
 }
 
@@ -546,4 +546,17 @@ robotlib::JointState ControlLayer::saturateTorques(const robotlib::JointState& r
 robotlib::JointState ControlLayer::getPublishedDesiredTorques(){
 	// std::lock_guard<std::mutex>	lock(this->last_published_desired_torques_mutex);
 	return this->control_signal->desired_torques;
+}
+
+extern "C" Layer *create(std::string ID_)
+{
+	std::cout << "Loading control layer " << ID_ << std::endl;
+	auto p = new ControlLayer(ID_);
+	std::cout << "loaded control layer with ID: " << p->getID() << std::endl;
+	return p;
+}
+
+extern "C" void destroy(Layer *p)
+{
+	delete p;
 }

@@ -23,9 +23,9 @@
 #include <string>
 #include <thread>
 
-#include "dls2/core/app_layer.hpp"
+#include "dls2/application/layer.hpp"
 #include "dls2/estimator/estimator.hpp"
-#include "dls2/components/app_data.hpp"
+#include "dls2/application/app_data.hpp"
 
 #include <pthread.h>
 
@@ -34,14 +34,14 @@ namespace dls
 // TODO build and document this class
 /// Estimation layer
 
-	class EstimationLayer : public AppLayer
+	class EstimationLayer : public Layer
 	{
 	public:
 		EstimationLayer(std::string ID);
 		~EstimationLayer();
 
-		Status run() override;
-		Status stop() override;
+		AppStatus run() override;
+		AppStatus stop() override;
 
 		bool loadEstimator(const Estimator::ID_t&);
 		bool unloadEstimator(const Estimator::ID_t&);
