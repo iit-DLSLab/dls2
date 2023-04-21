@@ -16,7 +16,7 @@
 #ifndef HARDWARE_DATA_HPP
 #define HARDWARE_DATA_HPP
 
-#include "dls2/components/app_data.hpp"
+#include "dls2/application/app_data.hpp"
 
 namespace dls
 {

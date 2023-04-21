@@ -22,7 +22,7 @@
 using namespace dls;
 
 HardwareLayer::HardwareLayer(std::string ID_) 
-	: AppLayer(ID_)
+	: Layer(ID_)
 {
     command_manager.addCommand<std::string>
 	(
@@ -71,10 +71,10 @@ HardwareLayer::~HardwareLayer()
 	scout_sys << "#### HARDWARE INTERFACE OFF ####" << std::endl;
 }
 
-HardwareLayer::Status HardwareLayer::run()
+AppStatus HardwareLayer::run()
 {
 	// TODO("Check status of all components in the control layer, take corrective actions if requred")
-	setStatus(Status::RUNNING);
+	setStatus(AppStatus::RUNNING);
 
 	while(!this->shouldQuit())
 	{
@@ -162,7 +162,7 @@ bool HardwareLayer::unloadHardware(const std::string &ID)
     return this->unloadHardware(pair_it->second);
 }
 
-HardwareLayer::Status HardwareLayer::shutdown()
+AppStatus HardwareLayer::stop()
 {
 	std::vector<std::string> keys;
 	for(auto pair : this->hardwares)
@@ -173,6 +173,6 @@ HardwareLayer::Status HardwareLayer::shutdown()
 
 	this->should_quit = true;
 
-	setStatus(Status::STOP);
+	setStatus(AppStatus::STOPPED);
 	return getStatus();
 }

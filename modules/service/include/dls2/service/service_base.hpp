@@ -16,7 +16,7 @@
 #ifndef SERVICE_BASE_HPP
 #define SERVICE_BASE_HPP
 
-#include "dls2/components/periodic_app_layer_component.hpp"
+#include "dls2/application/app.hpp"
 
 namespace dls
 {
@@ -30,7 +30,7 @@ namespace dls
 	/// that is sent to the server
 	/// \tparam res_pubsub_t the PubSubType corresponding to the response
 	/// message that is received from the server
-	class ServiceBase : public AppLayerComponent
+	class ServiceBase : public App
 	{
 	public:
 		
@@ -49,9 +49,9 @@ namespace dls
 
 		virtual ~ServiceBase() = default;
 		
-		AppLayerComponent::Status run() override;
+		AppStatus run() override;
 
-        AppLayerComponent::Status stop() override;
+        AppStatus stop() override;
 
 		/// Print the state of this layer
 		///
@@ -59,7 +59,7 @@ namespace dls
 
         /// Emergency stop for this component
         ///
-        Status eStop() override {return this->getStatus();};
+        AppStatus eStop() override {return this->getStatus();};
 
 	private:
 		

@@ -9,9 +9,14 @@ target_include_directories(dls_estimator
 )
 
 target_link_libraries(dls_estimator
-	PUBLIC
+	PRIVATE
 		robotlib
-		dls_framework_components
+		dls_app
+		dls_command
+		dls_com
+		dls_topics
+		dls_domains
+		dls_logging
 )
 
 dls_install(dls_estimator)

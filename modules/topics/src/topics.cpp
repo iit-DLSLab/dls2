@@ -36,8 +36,8 @@ namespace dls
 		dls::topicType command_feedback			= dls::topicType("command_feedback", new StringMsgPubSubType());
 
 		// simulation
-		std::string simulation_time 			= "simulation_time";
 		dls::topicType simulation_pause 		= dls::topicType("simulation_pause", new BoolMsgPubSubType());
+		dls::topicType time_rate				= dls::topicType("time_rate", new DoubleMsgPubSubType());
 
 		// development pool
 		dls::topicType develop_testbench		= dls::topicType("develop_testbench", new StringMsgPubSubType());

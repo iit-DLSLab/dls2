@@ -13,28 +13,45 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef APP_DATA_HPP
-#define APP_DATA_HPP
+#ifndef SUPERVISOR_CPP
+#define SUPERVISOR_CPP
 
-#include "dls2/util/messaging/dds_reader.hpp"
-#include <boost/process.hpp>
+#include "dls2/supervisor/supervisor.hpp"
+#include "dls2/domains/domains.hpp"
 
-/// A struct representing the control signal that is output by a Controller
 namespace dls
 {
-	class AppData
+
+	Supervisor::Supervisor(std::string ID_)
+    : ID(ID_)
+    , layersLink(ID, dls::domains::layers)
+	{ }
+
+    Supervisor::~Supervisor()
+	{ }
+
+    std::string Supervisor::getID()
     {
-    public:
-        AppData(const std::string&);
-        ~AppData();
+        return this->ID;
+    }
 
-        std::string getID();
+    int Supervisor::getNumLayers()
+    {
+        // return layersLink.getParticipants().size()-1;
+        auto layers = layersLink.getParticipants();
 
-        std::shared_ptr<boost::process::child> proc;
+        return std::count_if(layers.begin(), layers.end(), [](std::string s) { return s.find("Layer") != std::string::npos; });
+    }
 
-    private:
-        std::string ID;
-    };
-}// end namespace dls
+    std::list<std::string> Supervisor::getLayersNames()
+    {
+        auto layers = layersLink.getParticipants();
+        std::list<std::string> layers_list(layers.begin(), layers.end()); 
 
-#endif /* end of include guard: APP_DATA_HPP */
+        layers_list.remove(this->getID());
+        return layers_list;
+    }
+
+}
+
+#endif /* end of include guard: SUPERVISOR_CPP */

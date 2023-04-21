@@ -18,7 +18,7 @@
 using namespace dls;
 
 FoxgloveLayer::FoxgloveLayer(std::string ID) :
-	AppLayer(ID)
+	Layer(ID)
 { 
 	scout_sys << "Foxglove layer loaded" << std::endl;
 }
@@ -26,7 +26,7 @@ FoxgloveLayer::FoxgloveLayer(std::string ID) :
 FoxgloveLayer::~FoxgloveLayer()
 { }
 
-AppLayer::Status FoxgloveLayer::run()
+AppStatus FoxgloveLayer::run()
 {
 	while(!this->should_quit)
 	{
@@ -35,10 +35,10 @@ AppLayer::Status FoxgloveLayer::run()
 	return getStatus();
 }
 
-AppLayer::Status FoxgloveLayer::shutdown()
+AppStatus FoxgloveLayer::stop()
 {
 	this->should_quit = true;
 
-	setStatus(Status::STOP);
+	setStatus(AppStatus::STOPPED);
 	return getStatus();
 }

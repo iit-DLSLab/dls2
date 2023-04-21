@@ -16,7 +16,7 @@
 #ifndef HARDWARE_LAYER_HPP_64INVL3T
 #define HARDWARE_LAYER_HPP_64INVL3T
 
-#include "app_layer.hpp"
+#include "dls2/application/layer.hpp"
 #include "dls2/hardware/hardware.hpp"
 #include "dls2/hardware/hardware_data.hpp"
 #include "dls2/util/messaging/dds_writer.hpp"
@@ -25,7 +25,7 @@
 
 namespace dls
 {
-    class HardwareLayer : public AppLayer
+    class HardwareLayer : public Layer
     {
     public:
         /// Default Constructor
@@ -38,11 +38,11 @@ namespace dls
 
         /// Run the layer
 		///
-        Status run() override;
+        AppStatus run() override;
 
         /// Stop the layer
 		///
-	    Status shutdown() override;
+	    AppStatus stop() override;
 
         /// Activates a hardware
         ///

@@ -23,7 +23,7 @@
 using namespace dls;
 
 LogLayer::LogLayer(std::string ID)
-	: AppLayer(ID)
+	: Layer(ID)
 	, ddsLogLink(
 		"log_layer",
 		dls::domains::logging
@@ -100,7 +100,7 @@ LogLayer::LogLayer(std::string ID)
 	);
 }
 
-LogLayer::Status LogLayer::run()
+AppStatus LogLayer::run()
 {
 	while(!this->should_quit)
 	{
@@ -110,7 +110,7 @@ LogLayer::Status LogLayer::run()
 	return this->getStatus();
 }
 
-LogLayer::Status LogLayer::shutdown()
+AppStatus LogLayer::stop()
 {
 	int i = 0;
 	while(this->getParticipant()->getParticipants().size() > 1 && i < 10)

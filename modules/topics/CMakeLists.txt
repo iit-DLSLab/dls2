@@ -9,7 +9,7 @@ target_include_directories(dls_topics
 )
 
 target_link_libraries(dls_topics
-	PUBLIC
+	PRIVATE
 		dls_messages
 )
 

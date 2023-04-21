@@ -41,7 +41,7 @@ bool Options::launch_control                = false;
 bool Options::launch_console                = false;
 bool Options::launch_log                    = false;
 bool Options::launch_service                = false;
-bool Options::launch_foxglove                = false;
+bool Options::launch_foxglove               = false;
 
 // show the documentation in a browser
 bool Options::show_docs                     = false;

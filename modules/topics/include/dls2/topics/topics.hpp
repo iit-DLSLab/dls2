@@ -61,8 +61,8 @@ namespace dls
 		extern dls::topicType command_feedback;
 
 		// simulation
-		extern std::string simulation_time;
 		extern dls::topicType simulation_pause;
+		extern dls::topicType time_rate;
 
 		// development pool
 		extern dls::topicType develop_testbench;
@@ -76,7 +76,7 @@ namespace dls
 
 		// services
 		extern dls::topicType param_server;
-		
+				
 		namespace high_level_estimation
 		{
 			extern dls::topicType legs_pose;
