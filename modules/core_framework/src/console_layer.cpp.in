@@ -177,14 +177,14 @@ ConsoleLayer::~ConsoleLayer(){
 // Interface Override
 // =============================================================================
 // Signal handler for exiting from console
-void ConsoleLayer::handle_signals(int){
-	abort();
-}
+// void ConsoleLayer::handle_signals(int){
+// 	abort();
+// }
 
 AppStatus ConsoleLayer::run()
 {
 	rl_set_signals();
-	signal(SIGINT, this->handle_signals);
+	// signal(SIGINT, this->handle_signals);
 
 	while(!this->should_quit)
 	{

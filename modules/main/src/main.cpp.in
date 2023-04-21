@@ -23,6 +23,7 @@
 #include "dls2/core_framework/service_layer.hpp"
 #include "dls2/core_framework/options.hpp"
 #include "dls2/core_framework/version_info.hpp"
+#include "dls2/supervisor/supervisor.hpp"
 
 #include <sys/prctl.h>
 
@@ -45,6 +46,8 @@ void loadLayer(const std::string&, const std::string&);
 
 std::mutex quit_mutex;
 bool should_quit = false;
+
+Supervisor super("core");
 
 /// Stores commands registered in the app
 ///
@@ -78,7 +81,7 @@ int main(int argc, char **argv)
 	command_manager.addCommand<>
 	(
 		"shutdown",
-		"Shutdown the core",
+		"Shutdown the core. It will only exits after all the layers exits.",
 		std::function<bool()>([&]()->bool
 		{
 			std::lock_guard<std::mutex> lock(quit_mutex);
@@ -130,28 +133,14 @@ int main(int argc, char **argv)
 
 	// Monitor the layers
 	// loop is exited when there are no more children
-	while(true)
+	while(!should_quit || (super.getNumLayers() > 0))
 	{	
-		//TODO: implement here the supervisor	
-		{
-			std::lock_guard<std::mutex> lock(quit_mutex);
-			if(should_quit)
-				break;
-		}
+		//TODO: implement here the supervisory actions	
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(500));
 	}
 
-	// while(layers.size() > 0)
-	// {
-
-	// 	for(auto& elem : layers)
-	// 	{
-	// 		if (elem.second->proc->joinable())
-	// 			elem.second->proc->join();
-	// 	}
-	// }
-	
 	std::cout << "=== FRAMEWORK NODE STOPPED ===" << std::endl;
 	exit(EXIT_SUCCESS);
 	// return 0;

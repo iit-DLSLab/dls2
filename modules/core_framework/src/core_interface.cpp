@@ -10,8 +10,6 @@
 extern "C" Layer *create(const std::string& type, const std::string& ID_)
 {
 	Layer* p = nullptr;
-	std::cout << "Loading " << type << " layer" << std::endl;
-	
 	if (type == "log")
 	{
 		p = new LogLayer(ID_);
