@@ -77,8 +77,6 @@ Args parse_args(int argc, char **argv);
 ///
 void signal_handler(int signal);
 
-void change_process_name(char **argv, const std::string &name);
-
 logging::clogstream scout_sys("process_launcher");
 logging::cerrstream scout_err("process_launcher");
 
@@ -92,8 +90,6 @@ int main(int argc, char **argv)
     // scout_sys << "PROCESS LAUNCHER CALLED" << std::endl;
     Args args = parse_args(argc, argv);
 
-    change_process_name(argv, args.lib_name);
-
     // Load the component
     try
     {
@@ -104,11 +100,9 @@ int main(int argc, char **argv)
                 ClassLoader::loadClass<Layer, std::string, std::string>(
                     std::string("${DLS_INSTALL_LIB_DIR}/libdls_framework.so"),
                     args.lib_name,
-                    args.component_name);
-
-            change_process_name(argv, args.lib_name);
+                    args.robot_name);
         }
-        else if (args.component_type == "args.component_name")
+        else if (args.component_type == "controller")
         {
             scout_sys << "LOADING CONTROLLER FROM '" << std::string("${DLS_INSTALL_CONTROLLER_DIR}/lib") + args.lib_name + ".so'" << std::endl;
             pComponent =
@@ -169,7 +163,7 @@ int main(int argc, char **argv)
     std::signal(SIGINT, signal_handler);
 
     prctl(PR_SET_NAME, args.component_name.c_str());
-
+    
     pComponent->run();
 
     return 0;
@@ -222,14 +216,4 @@ void signal_handler(int signal)
         // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         exit(static_cast<int>(exit_status));
     }
-}
-
-void change_process_name(char **argv, const std::string &name)
-{
-	// change info in /proc/$pid/cmdline
-	int alloted_space = std::strlen(argv[0]);
-	std::strncpy(argv[0], name.c_str(), alloted_space);
-
-	// change info in /proc/$pid/status
-	prctl(PR_SET_NAME, name.c_str());
 }

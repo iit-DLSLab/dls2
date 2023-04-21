@@ -71,6 +71,19 @@ PeriodicApp::PeriodicApp(const std::string &ID)
 		{{1,0}},
 		true
 	);
+
+	this->command_manager.addCommand<>
+	(
+		"setrate",
+		"Set time rate execution of " + this->getID(),
+		std::function<bool(double)>([&](double rate)->bool
+		{
+			this->time_rate = rate;
+            return true;
+		}),
+		{},
+		true
+	);
 }
 
 AppStatus PeriodicApp::run()

@@ -54,7 +54,7 @@ class ControlLayer : public Layer
 	
 public:
 	/// Constructor	
-	ControlLayer(std::string ID);
+	ControlLayer(std::string ID, std::string robot_name);
 
 	/// Destructor
 	~ControlLayer();

@@ -7,36 +7,36 @@
 #include "dls2/core_framework/foxglove_layer.hpp"
 
 
-extern "C" Layer *create(const std::string& type, const std::string& ID_)
+extern "C" Layer *create(const std::string& type, const std::string& robot_name)
 {
 	Layer* p = nullptr;
 	if (type == "log")
 	{
-		p = new LogLayer(ID_);
+		p = new LogLayer("LogLayer");
 	}	
 	else if (type == "hardware")	
 	{
-		p = new HardwareLayer(ID_);
+		p = new HardwareLayer("HardwareLayer");
 	}
 	else if (type == "control")
 	{
-		p = new ControlLayer(ID_);
+		p = new ControlLayer("ControlLayer", robot_name);
 	}
 	else if (type == "console")	
 	{
-		p = new ConsoleLayer(ID_);
+		p = new ConsoleLayer("ConsoleLayer");
 	}
 	else if (type == "estimation")	
 	{
-		p = new EstimationLayer(ID_);
+		p = new EstimationLayer("EstimationLayer");
 	}
 	else if (type == "service")	
 	{
-		p = new ServiceLayer(ID_);
+		p = new ServiceLayer("ServiceLayer");
 	}
 	else if (type == "foxglove")	
 	{
-		p = new FoxgloveLayer(ID_);
+		p = new FoxgloveLayer("FoxgloveLayer");
 	}
 
 
