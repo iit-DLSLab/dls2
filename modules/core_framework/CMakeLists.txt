@@ -8,6 +8,7 @@ dls_configure(src/hardware_layer.cpp.in  HARDWARE_LAYER_CPP)
 add_library(dls_framework
 	SHARED
 		${CONSOLE_LAYER_CPP}
+		${CONTROL_LAYER_CPP}
 		src/estimation_layer.cpp
 		src/foxglove_layer.cpp
 		${HARDWARE_LAYER_CPP}
@@ -15,6 +16,7 @@ add_library(dls_framework
 		src/options.cpp
 		src/service_layer.cpp
 		${VERSION_INFO_CPP}
+		src/core_interface.cpp
 )
 
 set_property(TARGET dls_framework PROPERTY POSITION_INDEPENDENT_CODE ON)
@@ -51,42 +53,6 @@ target_link_libraries(dls_framework
 		dls_messages
 )
 
-add_library(dls_control_layer
-	SHARED
-		${CONTROL_LAYER_CPP}
-)
-
-target_include_directories(dls_control_layer
-	PUBLIC
-		include
-	PRIVATE
-		src
-)
-
-target_link_libraries(dls_control_layer
-	PRIVATE
-		robotlib
-		dls_math
-		pthread
-		dls_com
-		dls_app
-		dls_controller
-		dls_command
-		dls_message_wrappers
-		dls_estimator
-		dls_hardware
-		dls_service
-		dls_motion_generator
-		dls_domains
-		dls_topics
-		dls_class_loader
-		dls_foxglove
-		dls_time
-		dls_framework
-		dls_messages
-)
-
 dls_install(dls_framework)
-dls_install(dls_control_layer)
 
 add_subdirectory(test)

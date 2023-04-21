@@ -68,7 +68,7 @@ ControlLayer::ControlLayer(std::string ID)
 	, pDefault_spline_in(std::make_shared<math::Ramp<double>> (0, 2, 0, 1))
 	, pDefault_spline_out(std::make_shared<math::Ramp<double>> (0, 2, 1, 0))
 	, default_duration_seconds(2)
-	, pRobot(robotlib::RobotFactory::openRobot(Options::robot_name))
+	, pRobot(robotlib::RobotFactory::openRobot("aliengo"))
 	, control_signal(
 		ddsSignalLink, 
 		dls::topics::desired_torques, 
@@ -77,6 +77,7 @@ ControlLayer::ControlLayer(std::string ID)
 	, clog(ID)
 	, cfatal(ID)
 {
+	std::cout << "CONTROL LAYER IS HARDCODED TO ALIENGO" << std::endl;
 	command_manager.addCommand<std::string>
 	(
 		"loadGenerator",
@@ -546,17 +547,4 @@ robotlib::JointState ControlLayer::saturateTorques(const robotlib::JointState& r
 robotlib::JointState ControlLayer::getPublishedDesiredTorques(){
 	// std::lock_guard<std::mutex>	lock(this->last_published_desired_torques_mutex);
 	return this->control_signal->desired_torques;
-}
-
-extern "C" Layer *create(std::string ID_)
-{
-	std::cout << "Loading control layer " << ID_ << std::endl;
-	auto p = new ControlLayer(ID_);
-	std::cout << "loaded control layer with ID: " << p->getID() << std::endl;
-	return p;
-}
-
-extern "C" void destroy(Layer *p)
-{
-	delete p;
 }

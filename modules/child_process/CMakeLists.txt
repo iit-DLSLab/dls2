@@ -14,7 +14,6 @@ target_link_libraries(child_process_launcher
 		dl
 		urdf
 		dls_framework
-		dls_control_layer
 		fastcdr
 		fastrtps
 )
