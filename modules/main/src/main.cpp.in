@@ -42,7 +42,7 @@ void change_process_name(char **argv, const std::string &name);
 
 int initVars();
 
-void loadLayer(const std::string&, const std::string&);
+bool loadLayer(const std::string&, const std::string&);
 
 std::mutex quit_mutex;
 bool should_quit = false;
@@ -112,24 +112,31 @@ int main(int argc, char **argv)
 		);
 	}
 
+	if(Options::launch_log) 
+		if(loadLayer("log", "LogLayer"))
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+	if(!super.containsLayer("ServiceLayer"))
+	{
+		if(!loadLayer("service", "ServiceLayer"))
+		{
+			std::cout << "[ERROR] Service Layers could not run" << std::endl;
+		}
+	}
+
+	if(Options::robot_name != "")
+	{
+		command_manager.callCommand("loadService", {"dls_param_server"}, "serviceLayer");
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		command_manager.callCommand("setParam", {"robot_name", Options::robot_name}, "dls_param_server");
+	}
+
 	// Launch layers
-	if(Options::launch_log) 		loadLayer("log", "LogLayer");
 	if(Options::launch_hardware) 	loadLayer("hardware", "HardwareLayer");
 	if(Options::launch_control)  	loadLayer("control", "ControlLayer");
 	if(Options::launch_console)	 	loadLayer("console", "ConsoleLayer");
 	if(Options::launch_estimation)	loadLayer("estimation", "EstimationLayer");
-	if(Options::launch_service)	    loadLayer("service", "ServiceLayer");
 	if(Options::launch_foxglove)	loadLayer("foxglove", "FoxgloveLayer");
-
-	// if(Options::robot_name != "")
-	// {
-	// 	CommandManager cmd_manager("main");
-	// 	std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-	// 	cmd_manager.callCommand("loadService", {"dls_param_server"}, "serviceLayer");
-	// 	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-	// 	cmd_manager.callCommand("setParam", {"robot_name", Options::robot_name}, "dls_param_server");
-	// }
-	
 
 	// Monitor the layers
 	// loop is exited when there are no more children
@@ -159,7 +166,7 @@ void change_process_name(char **argv, const std::string &name)
 	prctl(PR_SET_NAME, name.c_str());
 }
 
-void loadLayer(const std::string& lib, const std::string& ID)
+bool loadLayer(const std::string& lib, const std::string& ID)
 {
 	// if(this->controllers.find(lib_name) != this->controllers.end())
 	// {
@@ -180,9 +187,10 @@ void loadLayer(const std::string& lib, const std::string& ID)
     if (pData->proc == nullptr || pData->proc->wait_for(std::chrono::duration<double, std::milli>(1000))){
         // scout_err << "Layer " << lib_name <<" failed to launch" << std::endl;
 		std::cout << "Layer " << lib <<" failed to launch" << std::endl;
-        return;
+        return false;
     }
 
 	pData->proc->detach();
 	layers.emplace(pData->getID(), pData);
+	return true;
 }

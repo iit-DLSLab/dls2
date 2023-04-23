@@ -34,7 +34,8 @@ namespace dls
         std::string getID();
 
 		int getNumLayers();
-		std::list<std::string> getLayersNames();
+		std::vector<std::string> getLayersNames();
+		bool containsLayer(std::string name);
 
 	private:
 

@@ -80,6 +80,16 @@ void signal_handler(int signal);
 logging::clogstream scout_sys("process_launcher");
 logging::cerrstream scout_err("process_launcher");
 
+void change_process_name(char **argv, const std::string &name)
+{
+	// change info in /proc/$pid/cmdline
+	int alloted_space = std::strlen(argv[0]);
+	std::strncpy(argv[0], name.c_str(), alloted_space);
+
+	// change info in /proc/$pid/status
+	prctl(PR_SET_NAME, name.c_str());
+}
+
 // =============================================================================
 // Main
 // =============================================================================
@@ -162,7 +172,9 @@ int main(int argc, char **argv)
     // Register signal handler
     std::signal(SIGINT, signal_handler);
 
-    prctl(PR_SET_NAME, args.component_name.c_str());
+    change_process_name(argv, args.component_name.c_str());
+
+    scout_sys << "Loaded component " << pComponent->getID() << std::endl;
 
     pComponent->run();
 

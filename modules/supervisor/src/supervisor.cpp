@@ -43,14 +43,18 @@ namespace dls
         return std::count_if(layers.begin(), layers.end(), [](std::string s) { return s.find("Layer") != std::string::npos; });
     }
 
-    std::list<std::string> Supervisor::getLayersNames()
+    std::vector<std::string> Supervisor::getLayersNames()
+    {
+        return layersLink.getParticipants();
+    }
+
+    bool Supervisor::containsLayer(std::string name)
     {
         auto layers = layersLink.getParticipants();
-        std::list<std::string> layers_list(layers.begin(), layers.end()); 
 
-        layers_list.remove(this->getID());
-        return layers_list;
+        return (std::find(layers.begin(), layers.end(), name) != layers.end()); 
     }
+
 
 }
 

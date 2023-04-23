@@ -230,7 +230,7 @@ void *ControlLayer::controlSignalGather(void *data)
     }
 
 	ControlLayer *layer = (ControlLayer*) data;	
-	boost::circular_buffer<int> delta(10);
+	boost::circular_buffer<int> delta(100);
 
     while (!layer->shouldQuit()) {
         auto now = std::chrono::high_resolution_clock::now();
