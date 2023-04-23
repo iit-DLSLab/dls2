@@ -163,7 +163,7 @@ int main(int argc, char **argv)
     std::signal(SIGINT, signal_handler);
 
     prctl(PR_SET_NAME, args.component_name.c_str());
-    
+
     pComponent->run();
 
     return 0;

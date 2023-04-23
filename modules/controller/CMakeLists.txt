@@ -11,7 +11,7 @@ target_include_directories(dls_controller
 )
 
 target_link_libraries(dls_controller
-	PRIVATE
+	PUBLIC
 		robotlib
 		dls_math
 		dls_app

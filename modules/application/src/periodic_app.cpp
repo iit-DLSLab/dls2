@@ -26,8 +26,11 @@ PeriodicApp::PeriodicApp(const std::string &ID)
 	, pause_mutex()
 	, is_paused(false)
 	, pause_request()
-	, time_rate(1)
+	, time_factor()
 {
+    this->pid = syscall(SYS_gettid);
+	this->cur_time_factor = this->time_factor.getRealTimeFactor();
+
 	memset(&scheduler_attributes, 0, sizeof(struct sched_attr));
 	scheduler_attributes.size = sizeof(struct sched_attr);
 	scheduler_attributes.sched_policy = SCHED_DEADLINE;
@@ -36,9 +39,9 @@ PeriodicApp::PeriodicApp(const std::string &ID)
 	double sched_runtime_factor = config_scheduler["runtime_factor"].as<double>();
 	double sched_deadline_factor = config_scheduler["deadline_factor"].as<double>();
 
-	scheduler_attributes.sched_period  = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(period*time_rate).count();
-	scheduler_attributes.sched_runtime = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(period*sched_runtime_factor*time_rate).count();
-	scheduler_attributes.sched_deadline = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(period*sched_deadline_factor*time_rate).count();
+	scheduler_attributes.sched_period  = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(period*cur_time_factor).count();
+	scheduler_attributes.sched_runtime = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(period*sched_runtime_factor*cur_time_factor).count();
+	scheduler_attributes.sched_deadline = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(period*sched_deadline_factor*cur_time_factor).count();
 
 	this->command_manager.addCommand<>
 	(
@@ -71,19 +74,6 @@ PeriodicApp::PeriodicApp(const std::string &ID)
 		{{1,0}},
 		true
 	);
-
-	this->command_manager.addCommand<>
-	(
-		"setrate",
-		"Set time rate execution of " + this->getID(),
-		std::function<bool(double)>([&](double rate)->bool
-		{
-			this->time_rate = rate;
-            return true;
-		}),
-		{},
-		true
-	);
 }
 
 AppStatus PeriodicApp::run()
@@ -102,13 +92,13 @@ AppStatus PeriodicApp::run()
 	do
 	{
 		// Calculate when the next period needs to start
-		auto next_loop_time = this->period + Time::now();
+		auto next_loop_time = this->period + std::chrono::system_clock::now();
 
 		// Run one epoch
-		run(std::chrono::time_point_cast<std::chrono::system_clock::duration, std::chrono::system_clock, std::chrono::duration<double>>(Time::now()));
+		run(std::chrono::time_point_cast<std::chrono::system_clock::duration, std::chrono::system_clock, std::chrono::duration<double>>(std::chrono::system_clock::now()));
 
 		// Check realtime
-		if(Time::now() > next_loop_time)
+		if(std::chrono::system_clock::now() > next_loop_time)
 		{
 		 	setStatus(AppStatus::BREAKING_REALTIME);
 		}
@@ -125,6 +115,31 @@ AppStatus PeriodicApp::run()
 				);
 			}
 		}
+
+		if(abs(this->time_factor.getRealTimeFactor() - this->cur_time_factor) > 0.02)
+		{
+			this->cur_time_factor = this->time_factor.getRealTimeFactor();
+
+			memset(&scheduler_attributes, 0, sizeof(struct sched_attr));
+			scheduler_attributes.size = sizeof(struct sched_attr);
+			scheduler_attributes.sched_policy = SCHED_DEADLINE;
+
+			double sched_runtime_factor = config_scheduler["runtime_factor"].as<double>();
+			double sched_deadline_factor = config_scheduler["deadline_factor"].as<double>();
+
+			scheduler_attributes.sched_period  = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(period*cur_time_factor).count();
+			scheduler_attributes.sched_runtime = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(period*sched_runtime_factor*cur_time_factor).count();
+			scheduler_attributes.sched_deadline = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(period*sched_deadline_factor*cur_time_factor).count();
+
+			unsigned int flags = 0;
+			auto ret = sched_setattr(pid, &scheduler_attributes, flags);
+			if (ret < 0) {
+				perror("sched_setattr");
+				// exit(-1);
+			}
+		}
+
+
 		sched_yield();
 
 	}while(!this->should_quit);

@@ -62,7 +62,7 @@ namespace dls
 
 		// simulation
 		extern dls::topicType simulation_pause;
-		extern dls::topicType time_rate;
+		extern dls::topicType time_factor;
 
 		// development pool
 		extern dls::topicType develop_testbench;

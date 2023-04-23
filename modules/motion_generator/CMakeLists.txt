@@ -11,7 +11,7 @@ target_include_directories(dls_motion_generator
 
 
 target_link_libraries(dls_motion_generator
-	PRIVATE
+	PUBLIC
 		robotlib
 		dls_app
 		dls_command

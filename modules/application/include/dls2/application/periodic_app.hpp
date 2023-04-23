@@ -19,6 +19,8 @@
 #include "dls2/application/app.hpp"
 
 #include <dls2/application/sched_attr.hpp>
+#include <dls2/util/time/time.hpp>
+
 #include <boost/process.hpp>
 #include <yaml-cpp/yaml.h>
 
@@ -84,7 +86,11 @@ namespace dls
 
 		/// The component's time rate
 		///
-		double time_rate;
+		Time time_factor;
+
+		double cur_time_factor;
+
+		pid_t pid;
 	};
 } // end namespace dls
 

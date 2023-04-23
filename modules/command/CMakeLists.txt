@@ -10,7 +10,7 @@ target_include_directories(dls_command
 )
 
 target_link_libraries(dls_command
-	PRIVATE
+	PUBLIC
 		dls_com
 		dls_topics
 		dls_domains

@@ -10,12 +10,12 @@ target_include_directories(child_process_launcher
 )
 
 target_link_libraries(child_process_launcher
-	PRIVATE
+	PUBLIC
 		dl
 		urdf
 		dls_framework
 		fastcdr
-		fastrtps
+		fastrtps		
 )
 
 dls_install(child_process_launcher)

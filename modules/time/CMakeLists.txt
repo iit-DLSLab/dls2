@@ -10,7 +10,7 @@ target_include_directories(dls_time
 )
 
 target_link_libraries(dls_time
-	PRIVATE
+	PUBLIC
 		dls_com
 		dls_topics
 		dls_domains

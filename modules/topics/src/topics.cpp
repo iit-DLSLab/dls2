@@ -37,7 +37,7 @@ namespace dls
 
 		// simulation
 		dls::topicType simulation_pause 		= dls::topicType("simulation_pause", new BoolMsgPubSubType());
-		dls::topicType time_rate				= dls::topicType("time_rate", new DoubleMsgPubSubType());
+		dls::topicType time_factor				= dls::topicType("time_factor", new DoubleMsgPubSubType());
 
 		// development pool
 		dls::topicType develop_testbench		= dls::topicType("develop_testbench", new StringMsgPubSubType());

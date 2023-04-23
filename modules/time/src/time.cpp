@@ -18,97 +18,45 @@
 
 using namespace dls;
 
-bool Time::use_simulated_time = false;
-std::chrono::duration<double> Time::time_offset(0);
-std::shared_ptr<DDSReader> Time::pPause_sub = nullptr;
-bool Time::simulation_paused(false);
-decltype(std::chrono::system_clock::now()) Time::pause_start_time;
-
-// -----------------------------------------------------------------------------
-// Member Functions
-// -----------------------------------------------------------------------------
-void Time::set_use_simulated_time(bool b)
+Time::Time()
+	: time_factor(1)
+	, timeLink("Time::timeLink", dls::domains::signals)
 {
-	Time::use_simulated_time = b;
-	if(b)
-	{
-		if(Time::pPause_sub == nullptr)
+	timeLink.addReader(
+		"Time::sinc", 
+		dls::topics::time_factor,
+		std::function<void(void *)>
 		{
-			Time::pPause_sub = std::make_shared<DDSReader>(
-				"Time::timeSource",
-				dls::domains::signals,
-				dls::topics::simulation_pause,
-				std::function<void(void *)>
-				{
-					[&](void *tuple)
-					{	
-						BoolMsg msg = *((BoolMsg *)tuple);
-						
-						// std::cout << "Got pause bool: " << msg.val() << std::endl;
-						if(msg.val()) // if paused
-						{
-							Time::pause_start_time = std::chrono::system_clock::now();
-						}
-						else
-						{
-							Time::time_offset += std::chrono::system_clock::now() - Time::pause_start_time;
-						}
-						Time::simulation_paused = msg.val();
-						// DMSG("Real time: " << std::chrono::system_clock::now().time_since_epoch().count() << " simulation time: " << Time::now().time_since_epoch().count());
-					}
-				}
-			);
+			[&](void *tuple)
+			{	
+				DoubleMsg msg = *((DoubleMsg *)tuple);
+					
+				if(msg.value() > 1)
+					Time::time_factor = msg.value();
+			}
 		}
-	}
-	else
-	{
-		// Time::pTime_sub = nullptr;
-		Time::pPause_sub = nullptr;
-	}
+	);
+
+	timeLink.addWriter("time_writer", dls::topics::time_factor);
 }
 
-Time::time_point_t Time::now()
+Time::~Time()
+{ }
+
+double Time::getRealTimeFactor()
 {
-	if(Time::use_simulated_time)
-	{
-		if(Time::simulation_paused)
-		{
-			return pause_start_time - Time::time_offset;
-		}
-		else
-		{
-			return std::chrono::system_clock::now() - Time::time_offset;
-		}
-	}
-	else
-	{
-		return std::chrono::system_clock::now();
-	}
+	return this->time_factor;
 }
 
-void Time::sleep_until(time_point_t tp)
+void Time::setRealTimeFactor(double factor)
 {
-	if(use_simulated_time)
-	{
-		auto sim_now = Time::now();
-		while(sim_now < tp)
-		{
-			// Most often, the simulation will not be paused. Therefore, in the
-			// general case, this loop is executed only once
+	if(factor < 1)
+		return;
 
-			// When the simulation is paused, we do not care about performance.
-			// The minimum amount of time that we need to sleep is the wall time
-			// plus the remainder of the sleep time. This is the case if the
-			// application is unpaused just as the sleep is entered. If the
-			// application is not unpaused during this period, the simulated
-			// time will not advance and the minimum sleep time will be the same
-			// in the next loop
-			std::this_thread::sleep_for(tp - sim_now);
-			sim_now = Time::now();
-		}
-	}
-	else
-	{
-		std::this_thread::sleep_until(tp);
-	}
+	this->time_factor = factor;
+
+	DoubleMsg msg;
+	msg.value(factor);
+
+	this->timeLink.sendMessage("time_writer", (void*) &msg);
 }

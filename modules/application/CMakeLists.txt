@@ -21,7 +21,8 @@ target_include_directories(dls_app
 )
 
 target_link_libraries(dls_app
-	PRIVATE
+	PUBLIC
+		yaml-cpp
 		dls_com
 		dls_time
 		dls_command

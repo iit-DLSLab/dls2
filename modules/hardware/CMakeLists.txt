@@ -12,7 +12,7 @@ target_include_directories(dls_hardware
 )
 
 target_link_libraries(dls_hardware
-	PRIVATE
+	PUBLIC
 		robotlib
 		dls_app
 		dls_command

@@ -13,7 +13,7 @@ target_include_directories(dls_com
 )
 
 target_link_libraries(dls_com
-	PRIVATE
+	PUBLIC
 		fastcdr
 		fastrtps
 		dls_domains

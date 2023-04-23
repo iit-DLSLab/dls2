@@ -10,7 +10,7 @@ add_executable(dynamic_legged_systems_framework
 )
 
 target_link_libraries(dynamic_legged_systems_framework
-	PRIVATE
+	PUBLIC
 		dls_framework
 		dls_supervisor
 		fastcdr

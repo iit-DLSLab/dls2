@@ -5,6 +5,8 @@
 //#include <tuple>
 #include <unistd.h>
 //#include <pthread.h>
+#include <sys/syscall.h>
+#include <sys/types.h>
 
 #define SCHED_DEADLINE       	6
 #define __NR_sched_setattr      314

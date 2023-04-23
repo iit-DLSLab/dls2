@@ -14,7 +14,7 @@ target_include_directories(dls_foxglove
 )
 
 target_link_libraries(dls_foxglove
-	PRIVATE
+	PUBLIC
         boost_system
         pthread
 		dls_app

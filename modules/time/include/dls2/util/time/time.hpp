@@ -16,7 +16,7 @@
 #ifndef TIME_HPP_2XUSQ5WF
 #define TIME_HPP_2XUSQ5WF
 
-#include "dls2/util/messaging/dds_reader.hpp"
+#include "dls2/util/messaging/dds_participant.hpp"
 
 #include <chrono>
 #include <memory>
@@ -29,26 +29,22 @@ namespace dls
 	///
 	class Time
 	{
-		using time_point_t = std::chrono::time_point
-			<std::chrono::system_clock, std::chrono::duration<double>>;
-
 	public:
-		static void set_use_simulated_time(bool);
-		static time_point_t now();
-		static void sleep_until(time_point_t);
-		static decltype(std::chrono::system_clock::now()) pause_start_time;
+		Time();
+		~Time();
+
+		double getRealTimeFactor();
+		void setRealTimeFactor(double);
 
 	private:
-		static bool use_simulated_time;
-	
+		
 		/// The offset between simulated time and real time
 		/// Keeps track of the time difference between real time and wall time
 		///
-		static std::chrono::duration<double> time_offset;
+		double time_factor;
 		
-		// static std::shared_ptr<SubscriberBase<TimeMsgPubSubType>> pTime_sub;
-		static std::shared_ptr<DDSReader> pPause_sub;
-		static bool simulation_paused;
+		DDSParticipant timeLink;
+		
 	};
 
 } // namespace dls

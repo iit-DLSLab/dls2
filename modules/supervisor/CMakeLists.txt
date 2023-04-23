@@ -11,7 +11,7 @@ target_include_directories(dls_supervisor
 )
 
 target_link_libraries(dls_supervisor
-	PRIVATE
+	PUBLIC
 		dls_com
 		dls_command
 		dls_topics
