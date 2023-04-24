@@ -13,6 +13,7 @@ target_link_libraries(dynamic_legged_systems_framework
 	PUBLIC
 		dls_framework
 		dls_supervisor
+		dls_param_server
 		fastcdr
 		fastrtps
 )
