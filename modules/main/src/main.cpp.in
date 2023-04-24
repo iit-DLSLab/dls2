@@ -126,7 +126,7 @@ int main(int argc, char **argv)
 
 	if(Options::robot_name != "")
 	{
-		command_manager.callCommand("loadService", {"dls_param_server"}, "serviceLayer");
+		command_manager.callCommand("loadService", {"dls_param_server"}, "ServiceLayer");
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		command_manager.callCommand("setParam", {"robot_name", Options::robot_name}, "dls_param_server");
 	}
