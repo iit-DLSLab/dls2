@@ -147,10 +147,20 @@ int main(int argc, char **argv)
         else if (args.component_type == "service")
         {
             scout_sys << "LOADING SERVICE FROM '" << std::string("${DLS_INSTALL_SERVICE_DIR}/lib") + args.lib_name + ".so'" << std::endl;
-            pComponent =
-                ClassLoader::loadClass<ServiceBase, std::string>(
-                    std::string("${DLS_INSTALL_SERVICE_DIR}/lib") + args.lib_name + ".so",
-                    args.component_name);
+            try
+            {
+                pComponent =
+                    ClassLoader::loadClass<ServiceBase, std::string>(
+                        std::string("${DLS_INSTALL_SERVICE_DIR}/lib") + args.lib_name + ".so",
+                        args.component_name);
+            }
+            catch (const std::exception &e)
+	        {
+                pComponent =
+                    ClassLoader::loadClass<ServiceBase, std::string>(
+                        std::string("/usr/lib/dls2/lib") + args.lib_name + ".so",
+                        args.component_name);
+            }
         }
         else
         {
