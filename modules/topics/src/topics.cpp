@@ -68,6 +68,7 @@ namespace dls
             dls::topicType aliengo_raw 			= dls::topicType("aliengo_raw", new AliengoRawMsgPubSubType());
 			dls::topicType imu 					= dls::topicType("imu", new ImuMsgPubSubType());
 			dls::topicType joint_states			= dls::topicType("joint_states", new JointStateMsgPubSubType());
+			dls::topicType t265_state			= dls::topicType("t265_camera", new T265StateMsgPubSubType());			
 		}
 	}
 }
