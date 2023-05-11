@@ -19,8 +19,8 @@
 #include "robotlib/robot_base.hpp"
 
 #include "dls2/msg_wrappers/wrapper.hpp"
-#include "dls2/msg_wrappers/pose.hpp"
-#include "dls2/msg_wrappers/screw.hpp"
+// #include "dls2/msg_wrappers/pose.hpp"
+// #include "dls2/msg_wrappers/screw.hpp"
 #include "dls_messages/dds/t265_state.h"
 
 namespace dls
@@ -34,14 +34,16 @@ namespace dls
 
 		operator T265StateMsg() const override;
 		T265State& operator= (const T265StateMsg&) override;
+		T265State& operator= (const T265State&);
 
 		std::string robot_name;
 
-		dls::Pose pose;
-		dls::Screw velocity;
-		dls::Screw acceleration;
+        Eigen::Vector3d position;
+        Eigen::Quaterniond orientation;
 
-		unsigned long long time;
+        Eigen::Vector3d linear_velocity;
+        Eigen::Vector3d angular_velocity;
+        double timestamp;
 	};
 } // end namespace dls
 
