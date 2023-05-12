@@ -3,8 +3,9 @@
 
 #pragma once
 
-#include "foxglove/webserver.hpp"
-#include "foxglove/dynamic_types_utils.hpp"
+#include "webserver.hpp"
+#include "dynamic_types_utils.hpp"
+#include "mcap/writer.hpp"
 
 namespace dls {
 
@@ -23,6 +24,8 @@ namespace dls {
         std::shared_ptr<std::thread> serverThread;
         std::shared_ptr<boost::asio::steady_timer> timer;
         Server foxserver;
+
+        mcap::McapWriter mcap_writer_;
 
         dls::DDSParticipant ddslink;
         std::function<void()> setTimer;
