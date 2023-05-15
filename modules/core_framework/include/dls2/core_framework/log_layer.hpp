@@ -19,6 +19,7 @@
 #include "dls2/application/layer.hpp"
 #include "dls2/util/messaging/dds_participant.hpp"
 #include "dls2/topics/topics.hpp"
+#include "foxglove/foxserver.hpp"
 
 namespace dls
 {
@@ -41,6 +42,7 @@ namespace dls
 
 		DDSParticipant ddsLogLink;
 
+		dls::FoxServer foxserver;
 	};
 } // end namespace dls
 

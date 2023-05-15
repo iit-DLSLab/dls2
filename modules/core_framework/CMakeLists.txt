@@ -10,7 +10,6 @@ add_library(dls_framework
 		${CONSOLE_LAYER_CPP}
 		${CONTROL_LAYER_CPP}
 		src/estimation_layer.cpp
-		src/foxglove_layer.cpp
 		${HARDWARE_LAYER_CPP}
 		src/log_layer.cpp
 		src/options.cpp

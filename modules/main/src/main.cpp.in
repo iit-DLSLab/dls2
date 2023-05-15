@@ -17,7 +17,6 @@
 #include "dls2/core_framework/hardware_layer.hpp"
 #include "dls2/core_framework/control_layer.hpp"
 #include "dls2/core_framework/estimation_layer.hpp"
-#include "dls2/core_framework/foxglove_layer.hpp"
 #include "dls2/core_framework/log_layer.hpp"
 #include "dls2/core_framework/console_layer.hpp"
 #include "dls2/core_framework/service_layer.hpp"
@@ -136,7 +135,6 @@ int main(int argc, char **argv)
 	if(Options::launch_control)  	loadLayer("control", "ControlLayer");
 	if(Options::launch_console)	 	loadLayer("console", "ConsoleLayer");
 	if(Options::launch_estimation)	loadLayer("estimation", "EstimationLayer");
-	if(Options::launch_foxglove)	loadLayer("foxglove", "FoxgloveLayer");
 
 	// Monitor the layers
 	// loop is exited when there are no more children
