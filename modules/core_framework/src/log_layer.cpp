@@ -24,13 +24,13 @@ using namespace dls;
 
 LogLayer::LogLayer(std::string ID)
 	: Layer(ID)
-	, ddsLogLink(
+	, ddsLogLink_(
 		"log_layer",
 		dls::domains::logging
 	)
 {
 	//debug_log
-	ddsLogLink.addReader(
+	ddsLogLink_.addReader(
 		"debug_log",
 		dls::topics::debug_log_stream,
 		std::function<void(void *)>
@@ -44,7 +44,7 @@ LogLayer::LogLayer(std::string ID)
 	);
 
 	//info_log
-	ddsLogLink.addReader(
+	ddsLogLink_.addReader(
 		"info_log",
 		dls::topics::info_log_stream,
 		std::function<void(void *)>
@@ -58,7 +58,7 @@ LogLayer::LogLayer(std::string ID)
 	);
 
 	//warn_log
-	ddsLogLink.addReader(
+	ddsLogLink_.addReader(
 		"warn_log",
 		dls::topics::warn_log_stream,
 		std::function<void(void *)>
@@ -72,7 +72,7 @@ LogLayer::LogLayer(std::string ID)
 	);
 
 	//error_log
-	ddsLogLink.addReader(
+	ddsLogLink_.addReader(
 		"error_log",
 		dls::topics::error_log_stream,
 		std::function<void(void *)>
@@ -86,7 +86,7 @@ LogLayer::LogLayer(std::string ID)
 	);
 
 	//fatal_log
-	ddsLogLink.addReader(
+	ddsLogLink_.addReader(
 		"fatal_log",
 		dls::topics::fatal_log_stream,
 		std::function<void(void *)>

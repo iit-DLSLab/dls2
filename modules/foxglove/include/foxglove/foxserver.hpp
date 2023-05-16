@@ -21,19 +21,19 @@ namespace dls {
         void serverFunc();
         void on_topic_discovery(const std::string& topic_name, const std::string& type_name) override;
 
-        std::shared_ptr<std::thread> serverThread;
-        std::shared_ptr<boost::asio::steady_timer> timer;
-        Server foxserver;
+        std::shared_ptr<std::thread> server_thread_;
+        std::shared_ptr<boost::asio::steady_timer> timer_;
+        Server webserver_;  // Foxglove web server
 
         mcap::McapWriter mcap_writer_;
 
-        dls::DDSParticipant ddslink;
-        std::function<void()> setTimer;
+        dls::DDSParticipant dds_link_;
+        std::function<void()> set_timer_;
 
-        std::set<int> send_flags;
-        std::set<int> timer_flags;
+        std::set<int> send_flags_;
+        std::set<int> timer_flags_;
 
-        std::mutex sendFlagsMutex;
+        std::mutex send_flags_mutex_;
     };
 }
 

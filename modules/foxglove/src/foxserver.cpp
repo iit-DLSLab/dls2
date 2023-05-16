@@ -15,9 +15,9 @@ static uint64_t nanosecondsSinceEpoch() {
 }
 
 FoxServer::FoxServer()
-    : serverThread(nullptr)
-    , foxserver(8765, "example server")
-    , ddslink("FoxServer::monitor", dls::domains::signals, false)
+    : server_thread_(nullptr)
+    , webserver_(8765, "example server")
+    , dds_link_("FoxServer::monitor", dls::domains::signals, false)
 {
      // Initialize an MCAP writer with the "json" profile and write the MCAP file
     {
@@ -28,27 +28,27 @@ FoxServer::FoxServer()
         }
     }
 
-    this->serverThread = std::make_shared<std::thread>(&FoxServer::serverFunc, this);
-    ddslink.setTopicListener(this);
+    this->server_thread_ = std::make_shared<std::thread>(&FoxServer::serverFunc, this);
+    dds_link_.setTopicListener(this);
 
-    this->setTimer = [&] {
-        this->timer = this->foxserver.getEndpoint().set_timer(30, [&](std::error_code const& ec) {
+    this->set_timer_ = [&] {
+        this->timer_ = this->webserver_.getEndpoint().set_timer(30, [&](std::error_code const& ec) {
             if (ec) 
             {
                 std::cerr << "timer error: " << ec.message() << std::endl;
                 return;
             }
-            for (auto const &chan: this->timer_flags) 
+            for (auto const &chan: this->timer_flags_)
             {
-                std::unique_lock<std::mutex> lock(this->sendFlagsMutex);
-                this->send_flags.erase(chan);
+                std::unique_lock<std::mutex> lock(this->send_flags_mutex_);
+                this->send_flags_.erase(chan);
             }
 
-            this->setTimer();
+            this->set_timer_();
         });
     };
 
-    this->setTimer();
+    this->set_timer_();
 }
 
 FoxServer::~FoxServer()
@@ -56,12 +56,12 @@ FoxServer::~FoxServer()
     // Finish writing the MCAP file
     mcap_writer_.close();
 
-    serverThread->join();
+    server_thread_->join();
 }
 
 void FoxServer::serverFunc()
 {
-    foxserver.run();
+    webserver_.run();
     std::cout << "#### Foxglove Server Stopped #####" << std::endl;
 } 
 
@@ -76,14 +76,14 @@ void FoxServer::on_topic_discovery(const std::string& topic_name, const std::str
 
     auto jsonPair = dds::createJsonSchema(topic_name, type_);
 
-    auto channel = this->foxserver.addChannel({
+    auto channel = this->webserver_.addChannel({
         topic_name,
         "json",
         jsonPair.first["title"],
         jsonPair.first.dump()
     });
 
-    this->timer_flags.insert(channel);
+    this->timer_flags_.insert(channel);
 
     // Register a MCAP channel ID
     mcap::ChannelId mcap_channel_id;
@@ -99,24 +99,24 @@ void FoxServer::on_topic_discovery(const std::string& topic_name, const std::str
 
     mcap::Message mcap_msg;
 
-    this->ddslink.addReader(topic_name,
+    this->dds_link_.addReader(topic_name,
         dls::topicType({
             topic_name, 
             eprosima::fastdds::dds::TypeSupport(new eprosima::fastrtps::types::DynamicPubSubType(type_))}),
             std::function<void(void *)>{[&, type_name, jsonPair, channel, mcap_channel_id](void *tuple)
             {
-                std::unique_lock<std::mutex> lock(this->sendFlagsMutex);
+                std::unique_lock<std::mutex> lock(this->send_flags_mutex_);
                 auto type_ = dds::get_type_registered_(type_name);
 
-                if(this->send_flags.find(channel) != this->send_flags.end())
+                if(this->send_flags_.find(channel) != this->send_flags_.end())
                     return;
 
                 nlohmann::json jsonVar = jsonPair.second;
 
                 dds::getDataToJson(topic_name, type_, (eprosima::fastrtps::types::DynamicData*) tuple, jsonVar);
 
-                foxserver.sendMessage(channel, nanosecondsSinceEpoch(), jsonVar.dump());
-                this->send_flags.insert(channel);
+                webserver_.sendMessage(channel, nanosecondsSinceEpoch(), jsonVar.dump());
+                this->send_flags_.insert(channel);
 
                 // Apparently, it needs to store the value in a separate variable before filling the mcap_msg.data field
                 std::string serialized_json = jsonVar.dump();
@@ -143,14 +143,14 @@ void FoxServer::on_topic_discovery(const std::string& topic_name, const std::str
         std::ifstream jsonFrameSchemaFile("/usr/lib/dls2/dls_foxglove/FrameTransform.json");
         json jsonFrameSchema = json::parse(jsonFrameSchemaFile);
 
-        const auto chanFrame = this->foxserver.addChannel({
+        const auto chanFrame = this->webserver_.addChannel({
             "frames",
             "json",
             jsonFrameSchema["title"],
             jsonFrameSchema.dump()
         });
 
-        this->timer_flags.insert(chanFrame);
+        this->timer_flags_.insert(chanFrame);
 
         // Register a MCAP channel ID for foxglove.FrameTransforms
         mcap::ChannelId mcap_channel_id_frame;
@@ -168,14 +168,14 @@ void FoxServer::on_topic_discovery(const std::string& topic_name, const std::str
         std::ifstream jsonSceneSchemaFile("/usr/lib/dls2/dls_foxglove/SceneUpdate.json");
         json jsonSceneSchema = json::parse(jsonSceneSchemaFile);
 
-        auto chanScene = this->foxserver.addChannel({
+        auto chanScene = this->webserver_.addChannel({
             "scene",
             "json",
             jsonSceneSchema["title"],
             jsonSceneSchema.dump()
         });
 
-        // this->timer_flags.insert(chanScene);
+        // this->timer_flags_.insert(chanScene);
 
         // Register a MCAP channel ID for foxglove.SceneUpdate
         mcap::ChannelId mcap_channel_id_scene;
@@ -190,33 +190,33 @@ void FoxServer::on_topic_discovery(const std::string& topic_name, const std::str
         }
 
         // Handler for connection
-        foxserver.setSubscribeHandler([&](ChannelId chanId) {
-            std::unique_lock<std::mutex> lock(this->sendFlagsMutex);
-            this->send_flags.erase(chanId);
+        webserver_.setSubscribeHandler([&](ChannelId chanId) {
+            std::unique_lock<std::mutex> lock(this->send_flags_mutex_);
+            this->send_flags_.erase(chanId);
         });
 
-        this->ddslink.addReader("blind_state_foxglove",
+        this->dds_link_.addReader("blind_state_foxglove",
 		dls::topics::low_level_estimation::blind_state,
 		std::function<void(void *)>
 		{
             [&, chanFrame, chanScene, jsonPair, type_name, mcap_channel_id_frame, mcap_channel_id_scene](void *tuple)
 			{
-                std::unique_lock<std::mutex> lock(this->sendFlagsMutex);
+                std::unique_lock<std::mutex> lock(this->send_flags_mutex_);
                 auto type_ = dds::get_type_registered_(type_name);
 
                 nlohmann::json jsonMsg = jsonPair.second;
 
                 dds::getDataToJson(topic_name, type_, (eprosima::fastrtps::types::DynamicData*) tuple, jsonMsg);
 
-                if(this->send_flags.find(chanScene) == this->send_flags.end())
+                if(this->send_flags_.find(chanScene) == this->send_flags_.end())
                 {
                     std::ifstream jsonRobotFile("/usr/include/" + jsonMsg["robot_name"].get<std::string>() + "_description/foxglove/" + jsonMsg["robot_name"].get<std::string>() + ".json");
 
                     // Apparently, it needs to store the value in a separate variable before filling the mcap_msg.data field
                     std::string serialized_json_scene = json::parse(jsonRobotFile).dump();
 
-                    foxserver.sendMessage(chanScene, nanosecondsSinceEpoch(), serialized_json_scene);
-                    this->send_flags.insert(chanScene);
+                    webserver_.sendMessage(chanScene, nanosecondsSinceEpoch(), serialized_json_scene);
+                    this->send_flags_.insert(chanScene);
 
                     // Fill the message to be sent on the MCAP channel
                     //mcap::Message mcap_msg;
@@ -234,7 +234,7 @@ void FoxServer::on_topic_discovery(const std::string& topic_name, const std::str
                     }
                 }
 
-                if(this->send_flags.find(chanFrame) != this->send_flags.end()) 
+                if(this->send_flags_.find(chanFrame) != this->send_flags_.end())
                     return;
 
                 std::ifstream jsonFramesFile("/usr/include/" + jsonMsg["robot_name"].get<std::string>() + "_description/foxglove/" + jsonMsg["robot_name"].get<std::string>() + "_frames.json");
@@ -280,9 +280,9 @@ void FoxServer::on_topic_discovery(const std::string& topic_name, const std::str
                             i++;
                         }
                     }
-                    foxserver.sendMessage(chanFrame, nanosecondsSinceEpoch(), frame.dump());
+                    webserver_.sendMessage(chanFrame, nanosecondsSinceEpoch(), frame.dump());
                 }
-                this->send_flags.insert(chanFrame);
+                this->send_flags_.insert(chanFrame);
 
                 // Apparently, it needs to store the value in a separate variable before filling the mcap_msg.data field
                 std::string serialized_json_frame = jsonFramesMsg.dump();
