@@ -19,15 +19,6 @@ FoxServer::FoxServer()
     , webserver_(8765, "example server")
     , dds_link_("FoxServer::monitor", dls::domains::signals, false)
 {
-     // Initialize an MCAP writer with the "json" profile and write the MCAP file
-    {
-        auto mcap_writer_status = mcap_writer_.open("mcap_recording.mcap", mcap::McapWriterOptions("json"));
-        if (!mcap_writer_status.ok())
-        {
-          std::cerr << "Failed to open the MCAP file for writing: " << mcap_writer_status.message << std::endl;
-        }
-    }
-
     this->server_thread_ = std::make_shared<std::thread>(&FoxServer::serverFunc, this);
     dds_link_.setTopicListener(this);
 
@@ -54,14 +45,61 @@ FoxServer::FoxServer()
 FoxServer::~FoxServer()
 {
     // Finish writing the MCAP file
-    mcap_writer_.close();
+    if(mcap_ongoing_recording_)
+    {
+        mcap_writer_.close();
+        mcap_msg_ = {};
+        mcap_topics_channels_.clear();
+    }
 
     server_thread_->join();
+
+    webserver_.stop();
+}
+
+void FoxServer::record_mcap_log(bool record_mcap, const std::string& timestamp)
+{
+    // Start recording a new MCAP log file
+    if(record_mcap)
+    {
+        // Close the current MCAP log file before recording, in case you did not stop the previous one
+        if(mcap_ongoing_recording_)
+        {
+            mcap_writer_.close();
+            mcap_msg_ = {};
+            mcap_topics_channels_.clear();
+        }
+
+        std::cout << "Start recording an MCAP log" << std::endl;
+
+        // Initialize an MCAP writer with the "json" profile and write the MCAP file
+        auto mcap_writer_status = mcap_writer_.open("mcap_log_" + timestamp + ".mcap", mcap::McapWriterOptions("json"));
+
+        if (!mcap_writer_status.ok())
+        {
+          std::cerr << "Failed to open the MCAP file for writing: " << mcap_writer_status.message << std::endl;
+        }
+    }
+    // Stop recording the current MCAP log file
+    else
+    {
+        if(mcap_ongoing_recording_)
+        {
+            std::cout << "Stop recording the MCAP log" << std::endl;
+
+            mcap_writer_.close();
+            mcap_msg_ = {};
+            mcap_topics_channels_.clear();
+        }
+    }
+
+    mcap_ongoing_recording_ = record_mcap;
 }
 
 void FoxServer::serverFunc()
 {
     webserver_.run();
+
     std::cout << "#### Foxglove Server Stopped #####" << std::endl;
 } 
 
@@ -85,25 +123,10 @@ void FoxServer::on_topic_discovery(const std::string& topic_name, const std::str
 
     this->timer_flags_.insert(channel);
 
-    // Register a MCAP channel ID
-    mcap::ChannelId mcap_channel_id;
-    {
-        mcap::Schema mcap_schema(type_name, "jsonschema", jsonPair.first.dump());
-        mcap_writer_.addSchema(mcap_schema);
-
-        mcap::Channel mcap_channel(topic_name, "json", mcap_schema.id);
-        mcap_writer_.addChannel(mcap_channel);
-
-        mcap_channel_id = mcap_channel.id;
-    }
-
-    mcap::Message mcap_msg;
-
-    this->dds_link_.addReader(topic_name,
-        dls::topicType({
-            topic_name, 
-            eprosima::fastdds::dds::TypeSupport(new eprosima::fastrtps::types::DynamicPubSubType(type_))}),
-            std::function<void(void *)>{[&, type_name, jsonPair, channel, mcap_channel_id](void *tuple)
+    this->dds_link_.addReader(
+            topic_name,
+            dls::topicType({topic_name, eprosima::fastdds::dds::TypeSupport(new eprosima::fastrtps::types::DynamicPubSubType(type_))}),
+            std::function<void(void *)>{[&, topic_name, type_name, jsonPair, channel](void *tuple)
             {
                 std::unique_lock<std::mutex> lock(this->send_flags_mutex_);
                 auto type_ = dds::get_type_registered_(type_name);
@@ -118,21 +141,38 @@ void FoxServer::on_topic_discovery(const std::string& topic_name, const std::str
                 webserver_.sendMessage(channel, nanosecondsSinceEpoch(), jsonVar.dump());
                 this->send_flags_.insert(channel);
 
-                // Apparently, it needs to store the value in a separate variable before filling the mcap_msg.data field
-                std::string serialized_json = jsonVar.dump();
-
                 // Fill the message to be sent on the MCAP channel
-                mcap_msg.channelId = mcap_channel_id;
-                mcap_msg.logTime = nanosecondsSinceEpoch(); // Required nanosecond timestamp
-                mcap_msg.publishTime = mcap_msg.logTime; // Set to logTime if not available
-                mcap_msg.data = reinterpret_cast<const std::byte*>(serialized_json.data());
-                mcap_msg.dataSize = serialized_json.size();
-
-                auto mcap_writer_output = mcap_writer_.write(mcap_msg);
-
-                if (!mcap_writer_output.ok())
+                if(mcap_ongoing_recording_)
                 {
-                    std::cerr << "Failed to write the MCAP message: " << mcap_writer_output.message << std::endl;
+                    // Apparently, it needs to store the value in a separate variable before filling the mcap_msg_.data field
+                    std::string serialized_json = jsonVar.dump();
+
+                    // Update the channel ID, add schema and channel to the writer, only if:
+                    // - new topics are discovered
+                    // - a new MCAP log is started after a previous one has been stopped
+                    if (mcap_topics_channels_.find(topic_name) == mcap_topics_channels_.end())
+                    {
+                        mcap::Schema mcap_schema(type_name, "jsonschema", jsonPair.first.dump());
+                        mcap_writer_.addSchema(mcap_schema);
+
+                        mcap::Channel mcap_channel(topic_name, "json", mcap_schema.id);
+                        mcap_writer_.addChannel(mcap_channel);
+
+                        mcap_topics_channels_.insert(std::pair<std::string, mcap::ChannelId>(topic_name, mcap_channel.id));
+                    }
+
+                    mcap_msg_.channelId = mcap_topics_channels_.find(topic_name)->second;
+                    mcap_msg_.logTime = nanosecondsSinceEpoch(); // Required nanosecond timestamp
+                    mcap_msg_.publishTime = mcap_msg_.logTime; // Set to logTime if not available
+                    mcap_msg_.data = reinterpret_cast<const std::byte*>(serialized_json.data());
+                    mcap_msg_.dataSize = serialized_json.size();
+
+                    auto mcap_writer_output = mcap_writer_.write(mcap_msg_);
+
+                    if (!mcap_writer_output.ok())
+                    {
+                        std::cerr << "Failed to write the MCAP message: " << mcap_writer_output.message << std::endl;
+                    }
                 }
             }}
     );
@@ -152,18 +192,6 @@ void FoxServer::on_topic_discovery(const std::string& topic_name, const std::str
 
         this->timer_flags_.insert(chanFrame);
 
-        // Register a MCAP channel ID for foxglove.FrameTransforms
-        mcap::ChannelId mcap_channel_id_frame;
-        {
-            mcap::Schema mcap_schema_frame("foxglove.FrameTransforms", "jsonschema", jsonFrameSchema.dump());
-            mcap_writer_.addSchema(mcap_schema_frame);
-
-            mcap::Channel mcap_channel_frame("frames", "json", mcap_schema_frame.id);
-            mcap_writer_.addChannel(mcap_channel_frame);
-
-            mcap_channel_id_frame = mcap_channel_frame.id;
-        }
-
         // Update scene
         std::ifstream jsonSceneSchemaFile("/usr/lib/dls2/dls_foxglove/SceneUpdate.json");
         json jsonSceneSchema = json::parse(jsonSceneSchemaFile);
@@ -177,30 +205,17 @@ void FoxServer::on_topic_discovery(const std::string& topic_name, const std::str
 
         // this->timer_flags_.insert(chanScene);
 
-        // Register a MCAP channel ID for foxglove.SceneUpdate
-        mcap::ChannelId mcap_channel_id_scene;
-        {
-            mcap::Schema mcap_schema_scene("foxglove.SceneUpdate", "jsonschema", jsonSceneSchema.dump());
-            mcap_writer_.addSchema(mcap_schema_scene);
-
-            mcap::Channel mcap_channel_scene("scene", "json", mcap_schema_scene.id);
-            mcap_writer_.addChannel(mcap_channel_scene);
-
-            mcap_channel_id_scene = mcap_channel_scene.id;
-        }
-
         // Handler for connection
         webserver_.setSubscribeHandler([&](ChannelId chanId) {
             std::unique_lock<std::mutex> lock(this->send_flags_mutex_);
             this->send_flags_.erase(chanId);
         });
 
-        this->dds_link_.addReader("blind_state_foxglove",
-		dls::topics::low_level_estimation::blind_state,
-		std::function<void(void *)>
-		{
-            [&, chanFrame, chanScene, jsonPair, type_name, mcap_channel_id_frame, mcap_channel_id_scene](void *tuple)
-			{
+        this->dds_link_.addReader(
+            "blind_state_foxglove",
+            dls::topics::low_level_estimation::blind_state,
+            std::function<void(void *)>{[&, topic_name, chanFrame, chanScene, jsonPair, jsonFrameSchema, jsonSceneSchema, type_name](void *tuple)
+            {
                 std::unique_lock<std::mutex> lock(this->send_flags_mutex_);
                 auto type_ = dds::get_type_registered_(type_name);
 
@@ -212,25 +227,41 @@ void FoxServer::on_topic_discovery(const std::string& topic_name, const std::str
                 {
                     std::ifstream jsonRobotFile("/usr/include/" + jsonMsg["robot_name"].get<std::string>() + "_description/foxglove/" + jsonMsg["robot_name"].get<std::string>() + ".json");
 
-                    // Apparently, it needs to store the value in a separate variable before filling the mcap_msg.data field
-                    std::string serialized_json_scene = json::parse(jsonRobotFile).dump();
+                    // Apparently, it needs to store the value in a separate variable before filling the mcap_msg_.data field
+                    std::string serialized_json = json::parse(jsonRobotFile).dump();
 
-                    webserver_.sendMessage(chanScene, nanosecondsSinceEpoch(), serialized_json_scene);
+                    webserver_.sendMessage(chanScene, nanosecondsSinceEpoch(), serialized_json);
                     this->send_flags_.insert(chanScene);
 
                     // Fill the message to be sent on the MCAP channel
-                    //mcap::Message mcap_msg;
-                    mcap_msg.channelId = mcap_channel_id_scene;
-                    mcap_msg.logTime = nanosecondsSinceEpoch(); // Required nanosecond timestamp
-                    mcap_msg.publishTime = mcap_msg.logTime; // Set to logTime if not available
-                    mcap_msg.data = reinterpret_cast<const std::byte*>(serialized_json_scene.data());
-                    mcap_msg.dataSize = serialized_json_scene.size();
-
-                    auto mcap_writer_output_scene = mcap_writer_.write(mcap_msg);
-
-                    if (!mcap_writer_output_scene.ok())
+                    if(mcap_ongoing_recording_)
                     {
-                        std::cerr << "Failed to write the MCAP scene message: " << mcap_writer_output_scene.message << std::endl;
+                        // Update the channel ID, add schema and channel to the writer, only if:
+                        // - new topics are discovered
+                        // - a new MCAP log is started after a previous one has been stopped
+                        if (mcap_topics_channels_.find("scene") == mcap_topics_channels_.end())
+                        {
+                            mcap::Schema mcap_schema("foxglove.SceneUpdate", "jsonschema", jsonSceneSchema.dump());
+                            mcap_writer_.addSchema(mcap_schema);
+
+                            mcap::Channel mcap_channel("scene", "json", mcap_schema.id);
+                            mcap_writer_.addChannel(mcap_channel);
+
+                            mcap_topics_channels_.insert(std::pair<std::string, mcap::ChannelId>("scene", mcap_channel.id));
+                        }
+
+                        mcap_msg_.channelId = mcap_topics_channels_.find("scene")->second;
+                        mcap_msg_.logTime = nanosecondsSinceEpoch(); // Required nanosecond timestamp
+                        mcap_msg_.publishTime = mcap_msg_.logTime; // Set to logTime if not available
+                        mcap_msg_.data = reinterpret_cast<const std::byte*>(serialized_json.data());
+                        mcap_msg_.dataSize = serialized_json.size();
+
+                        auto mcap_writer_output = mcap_writer_.write(mcap_msg_);
+
+                        if (!mcap_writer_output.ok())
+                        {
+                            std::cerr << "Failed to write the MCAP scene message: " << mcap_writer_output.message << std::endl;
+                        }
                     }
                 }
 
@@ -284,24 +315,40 @@ void FoxServer::on_topic_discovery(const std::string& topic_name, const std::str
                 }
                 this->send_flags_.insert(chanFrame);
 
-                // Apparently, it needs to store the value in a separate variable before filling the mcap_msg.data field
-                std::string serialized_json_frame = jsonFramesMsg.dump();
-
                 // Fill the message to be sent on the MCAP channel
-                //mcap::Message mcap_msg;
-                mcap_msg.channelId = mcap_channel_id_frame;
-                mcap_msg.logTime = nanosecondsSinceEpoch(); // Required nanosecond timestamp
-                mcap_msg.publishTime = mcap_msg.logTime; // Set to logTime if not available
-                mcap_msg.data = reinterpret_cast<const std::byte*>(serialized_json_frame.data());
-                mcap_msg.dataSize = serialized_json_frame.size();
-
-                auto mcap_writer_output_frame = mcap_writer_.write(mcap_msg);
-
-                if (!mcap_writer_output_frame.ok())
+                if(mcap_ongoing_recording_)
                 {
-                    std::cerr << "Failed to write the MCAP frame message: " << mcap_writer_output_frame.message << std::endl;
+                    // Apparently, it needs to store the value in a separate variable before filling the mcap_msg_.data field
+                    std::string serialized_json = jsonFramesMsg.dump();
+
+                    // Update the channel ID, add schema and channel to the writer, only if:
+                    // - new topics are discovered
+                    // - a new MCAP log is started after a previous one has been stopped
+                    if (mcap_topics_channels_.find("frames") == mcap_topics_channels_.end())
+                    {
+                        mcap::Schema mcap_schema("foxglove.FrameTransforms", "jsonschema", jsonFrameSchema.dump());
+                        mcap_writer_.addSchema(mcap_schema);
+
+                        mcap::Channel mcap_channel("frames", "json", mcap_schema.id);
+                        mcap_writer_.addChannel(mcap_channel);
+
+                        mcap_topics_channels_.insert(std::pair<std::string, mcap::ChannelId>("frames", mcap_channel.id));
+                    }
+
+                    mcap_msg_.channelId = mcap_topics_channels_.find("frames")->second;
+                    mcap_msg_.logTime = nanosecondsSinceEpoch(); // Required nanosecond timestamp
+                    mcap_msg_.publishTime = mcap_msg_.logTime; // Set to logTime if not available
+                    mcap_msg_.data = reinterpret_cast<const std::byte*>(serialized_json.data());
+                    mcap_msg_.dataSize = serialized_json.size();
+
+                    auto mcap_writer_output = mcap_writer_.write(mcap_msg_);
+
+                    if (!mcap_writer_output.ok())
+                    {
+                        std::cerr << "Failed to write the MCAP frame message: " << mcap_writer_output.message << std::endl;
+                    }
                 }
-			}
-		});
+            }}
+        );
     }
 }

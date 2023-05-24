@@ -6,6 +6,7 @@
 #include "webserver.hpp"
 #include "dynamic_types_utils.hpp"
 #include "mcap/writer.hpp"
+#include <map>
 
 namespace dls {
 
@@ -17,6 +18,8 @@ namespace dls {
         FoxServer();
         ~FoxServer();
 
+        void record_mcap_log(bool record_mcap, const std::string& timestamp = std::string());
+
     private:
         void serverFunc();
         void on_topic_discovery(const std::string& topic_name, const std::string& type_name) override;
@@ -26,6 +29,9 @@ namespace dls {
         Server webserver_;  // Foxglove web server
 
         mcap::McapWriter mcap_writer_;
+        mcap::Message mcap_msg_;
+        bool mcap_ongoing_recording_{false};
+        std::map<std::string, mcap::ChannelId> mcap_topics_channels_{};
 
         dls::DDSParticipant dds_link_;
         std::function<void()> set_timer_;

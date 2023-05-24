@@ -98,6 +98,34 @@ LogLayer::LogLayer(std::string ID)
 			}
 		}
 	);
+
+	// Start recording an MCAP log file
+	command_manager.addCommand<>
+    (
+        "startRecording",
+        "Start recording an MCAP log file",
+        std::function<bool()>([&]()->bool
+        {
+			foxserver_.record_mcap_log(true, LogLayer::get_current_time());
+			return true;
+        }),
+        {{}},
+        true
+    );
+
+	// Stop recording the MCAP log file
+	command_manager.addCommand<>
+    (
+        "stopRecording",
+        "Stop recording the MCAP log file",
+        std::function<bool()>([&]()->bool
+        {
+			foxserver_.record_mcap_log(false);
+			return true;
+        }),
+        {{}},
+        true
+    );
 }
 
 AppStatus LogLayer::run()
@@ -129,7 +157,7 @@ std::string LogLayer::get_current_time()
     struct tm  tstruct;
     char       buf[256];
     tstruct = *localtime(&now);
-    strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
+    strftime(buf, sizeof(buf), "%y-%m-%d_%H.%M.%S", &tstruct);
 
 	return buf;
 }
