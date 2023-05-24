@@ -223,39 +223,40 @@ void FoxServer::on_topic_discovery(const std::string& topic_name, const std::str
 
                 dds::getDataToJson(topic_name, type_, (eprosima::fastrtps::types::DynamicData*) tuple, jsonMsg);
 
+                std::ifstream jsonRobotFile("/usr/include/" + jsonMsg["robot_name"].get<std::string>() + "_description/foxglove/" + jsonMsg["robot_name"].get<std::string>() + ".json");
+
+                // Apparently, it needs to store the value in a separate variable before filling the mcap_msg_.data field
+                std::string serialized_json_scene = json::parse(jsonRobotFile).dump();
+
                 if(this->send_flags_.find(chanScene) == this->send_flags_.end())
                 {
-                    std::ifstream jsonRobotFile("/usr/include/" + jsonMsg["robot_name"].get<std::string>() + "_description/foxglove/" + jsonMsg["robot_name"].get<std::string>() + ".json");
-
-                    // Apparently, it needs to store the value in a separate variable before filling the mcap_msg_.data field
-                    std::string serialized_json = json::parse(jsonRobotFile).dump();
-
-                    webserver_.sendMessage(chanScene, nanosecondsSinceEpoch(), serialized_json);
+                    webserver_.sendMessage(chanScene, nanosecondsSinceEpoch(), serialized_json_scene);
                     this->send_flags_.insert(chanScene);
+                }
 
-                    // Fill the message to be sent on the MCAP channel
-                    if(mcap_ongoing_recording_)
+                // Fill the message to be sent on the MCAP channel
+                if(mcap_ongoing_recording_)
+                {
+                    // Update the channel ID, add schema and channel to the writer, only if:
+                    // - new topics are discovered
+                    // - a new MCAP log is started after a previous one has been stopped
+                    if (mcap_topics_channels_.find("scene") == mcap_topics_channels_.end())
                     {
-                        // Update the channel ID, add schema and channel to the writer, only if:
-                        // - new topics are discovered
-                        // - a new MCAP log is started after a previous one has been stopped
-                        if (mcap_topics_channels_.find("scene") == mcap_topics_channels_.end())
-                        {
-                            mcap::Schema mcap_schema("foxglove.SceneUpdate", "jsonschema", jsonSceneSchema.dump());
-                            mcap_writer_.addSchema(mcap_schema);
+                        mcap::Schema mcap_schema("foxglove.SceneUpdate", "jsonschema", jsonSceneSchema.dump());
+                        mcap_writer_.addSchema(mcap_schema);
 
-                            mcap::Channel mcap_channel("scene", "json", mcap_schema.id);
-                            mcap_writer_.addChannel(mcap_channel);
+                        mcap::Channel mcap_channel("scene", "json", mcap_schema.id);
+                        mcap_writer_.addChannel(mcap_channel);
 
-                            mcap_topics_channels_.insert(std::pair<std::string, mcap::ChannelId>("scene", mcap_channel.id));
-                        }
+                        mcap_topics_channels_.insert(std::pair<std::string, mcap::ChannelId>("scene", mcap_channel.id));
 
                         mcap_msg_.channelId = mcap_topics_channels_.find("scene")->second;
                         mcap_msg_.logTime = nanosecondsSinceEpoch(); // Required nanosecond timestamp
                         mcap_msg_.publishTime = mcap_msg_.logTime; // Set to logTime if not available
-                        mcap_msg_.data = reinterpret_cast<const std::byte*>(serialized_json.data());
-                        mcap_msg_.dataSize = serialized_json.size();
+                        mcap_msg_.data = reinterpret_cast<const std::byte*>(serialized_json_scene.data());
+                        mcap_msg_.dataSize = serialized_json_scene.size();
 
+                        // In this case, we write a single message for the "scene" data, to not uselessly overload the message since the published values are alwasy the same
                         auto mcap_writer_output = mcap_writer_.write(mcap_msg_);
 
                         if (!mcap_writer_output.ok())
