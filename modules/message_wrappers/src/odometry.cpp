@@ -23,6 +23,7 @@ Odometry::Odometry()
 Odometry::Odometry(Odometry& from)
 	: position(from.position)
     , orientation(from.orientation)
+	, orientation_rpy(from.orientation_rpy)
 	, linear_velocity(from.linear_velocity)
     , angular_velocity(from.angular_velocity)
 	, timestamp(from.timestamp)
@@ -46,6 +47,9 @@ Odometry::operator T265OdometryMsg() const
 	msg.orientation()[1] = this->orientation.y();
 	msg.orientation()[2] = this->orientation.z();
 	msg.orientation()[3] = this->orientation.w();
+	msg.orientation_rpy()[0] = orientation_rpy(0);
+	msg.orientation_rpy()[1] = orientation_rpy(1);
+	msg.orientation_rpy()[2] = orientation_rpy(2);
 
 	msg.timestamp(this->timestamp);
 
@@ -65,6 +69,9 @@ Odometry& Odometry::operator=(const T265OdometryMsg& msg){
 	this->orientation.y() = msg.orientation()[1];
 	this->orientation.z() = msg.orientation()[2];
 	this->orientation.w() = msg.orientation()[3];
+	this-> orientation_rpy(0) = msg.orientation_rpy()[0];
+	this-> orientation_rpy(1) = msg.orientation_rpy()[1];
+	this-> orientation_rpy(2) = msg.orientation_rpy()[2];
 
 	this->timestamp = msg.timestamp();
 
@@ -75,6 +82,7 @@ Odometry& Odometry::operator=(const Odometry& from)
 { 
 	this->position = from.position;
     this->orientation = from.orientation;
+    this->orientation_rpy = from.orientation_rpy;
 	this->linear_velocity = from.linear_velocity;
     this->angular_velocity = from.angular_velocity;
 	this->timestamp = from.timestamp;

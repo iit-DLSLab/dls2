@@ -54,6 +54,7 @@ namespace dls
 		dls::Pose base_pose_world;
 		dls::Screw base_vel_world;
 		dls::Screw base_acc_world;
+		Eigen::Vector3d base_ori_world_rpy;
 
 		robotlib::LegDataMap<bool> stance_legs;
 

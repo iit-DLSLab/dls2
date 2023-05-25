@@ -32,6 +32,7 @@ BlindState::BlindState(const std::shared_ptr<robotlib::RobotBase> pRobot)
 	, foot_position(pRobot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
 	, foot_velocity(pRobot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
 	, foot_acceleration(pRobot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
+	, base_ori_world_rpy(Eigen::Vector3d::Zero())
 	, stance_legs(pRobot->makeLegDataMap<bool>(false))
 	, time(0)
 { }
@@ -50,6 +51,7 @@ BlindState::BlindState(BlindState& from)
 	, base_pose_world(from.base_pose_world)
 	, base_vel_world(from.base_vel_world)
 	, base_acc_world(from.base_acc_world)
+	, base_ori_world_rpy(from.base_ori_world_rpy)
 	, stance_legs(from.stance_legs)
 	, time(from.time)
 { }
@@ -99,6 +101,7 @@ BlindState::operator BlindStateMsg() const
 		msg.base_ang_vel_world()[i] = this->base_vel_world.getAngular()[i];
 		msg.base_lin_acc_world()[i] = this->base_acc_world.getLinear()[i];
 		msg.base_ang_acc_world()[i] = this->base_acc_world.getAngular()[i];
+		msg.base_ori_world_rpy()[i] = this->base_ori_world_rpy[i];
 	}
 
 	msg.base_ori_world()[0] = this->base_pose_world.toQuaternion().x();
@@ -148,6 +151,7 @@ BlindState& BlindState::operator= (const BlindStateMsg& msg)
 	this->base_vel_world.setAngular(Eigen::Vector3d(msg.base_ang_vel_world().data()));
 	this->base_acc_world.setLinear(Eigen::Vector3d(msg.base_lin_acc_world().data()));
 	this->base_acc_world.setAngular(Eigen::Vector3d(msg.base_ang_acc_world().data()));
+	this->base_ori_world_rpy = Eigen::Vector3d(msg.base_ori_world_rpy()[0], msg.base_ori_world_rpy()[1], msg.base_ori_world_rpy()[2]);
 
 	this->time = msg.time();
 
@@ -169,6 +173,7 @@ BlindState& BlindState::operator= (const BlindState& from)
 	this->base_pose_world = from.base_pose_world;
 	this->base_vel_world = from.base_vel_world;
 	this->base_acc_world = from.base_acc_world;
+	this->base_ori_world_rpy = from.base_ori_world_rpy;
 	this->stance_legs = from.stance_legs;
 	this->time = from.time;
 
