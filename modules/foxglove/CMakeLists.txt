@@ -22,8 +22,7 @@ target_link_libraries(dls_foxglove
 		dls_topics
 		dls_domains
 		fastrtps
-		lz4		# Dependency for MCAP
-		zstd	# Dependency for MCAP
+		dls_mcap
 )
 
 dls_install(dls_foxglove)

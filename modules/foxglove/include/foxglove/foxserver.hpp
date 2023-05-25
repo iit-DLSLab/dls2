@@ -5,13 +5,10 @@
 
 #include "webserver.hpp"
 #include "dynamic_types_utils.hpp"
-#include "mcap/writer.hpp"
-#include <map>
+#include "mcap_utils.hpp"
 
-namespace dls {
-
-    using json = nlohmann::json;
-
+namespace dls
+{
     class FoxServer : public dls::DDSPartListener
     {
     public:
@@ -28,10 +25,7 @@ namespace dls {
         std::shared_ptr<boost::asio::steady_timer> timer_;
         Server webserver_;  // Foxglove web server
 
-        mcap::McapWriter mcap_writer_;
-        mcap::Message mcap_msg_;
-        bool mcap_ongoing_recording_{false};
-        std::map<std::string, mcap::ChannelId> mcap_topics_channels_{};
+        dls::MCAPUtils mcap_utils_;
 
         dls::DDSParticipant dds_link_;
         std::function<void()> set_timer_;
