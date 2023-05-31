@@ -99,18 +99,19 @@ namespace dls
                     if(this->send_flags_.find(channel) != this->send_flags_.end())
                         return;
 
-                    nlohmann::json jsonVar = jsonPair.second;
+                    nlohmann::json json_pair_first = jsonPair.first;
+                    nlohmann::json json_pair_second = jsonPair.second;
 
-                    dds::getDataToJson(topic_name, type_, (eprosima::fastrtps::types::DynamicData*) tuple, jsonVar);
+                    dds::getDataToJson(topic_name, type_, (eprosima::fastrtps::types::DynamicData*) tuple, json_pair_second);
 
-                    webserver_.sendMessage(channel, nanosecondsSinceEpoch(), jsonVar.dump());
+                    webserver_.sendMessage(channel, nanosecondsSinceEpoch(), json_pair_second.dump());
                     this->send_flags_.insert(channel);
 
                     // Write an MCAP message with the topic data
                     if(mcap_utils_.isRecordingOngoing())
                     {
-                        const auto schema_data{jsonPair.first.dump()};
-                        const auto message_data{jsonPair.second.dump()};
+                        const auto schema_data{json_pair_first.dump()};
+                        const auto message_data{json_pair_second.dump()};
 
                         mcap_utils_.writeMessage(topic_name, type_name, schema_data, message_data, nanosecondsSinceEpoch());
                     }
