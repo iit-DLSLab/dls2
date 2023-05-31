@@ -91,11 +91,10 @@ namespace dls
 		//! Log errors that occurred, but from which the system can recover. Also log possible future fatal errors for the operator's attention.
 		logging::cerrstream scout_err;
 
-	private:
 		/// The ID of this app
 		///
 		const std::string ID;
-
+	private:
 		// BEGIN critical section
 			mutable std::mutex status_mutex;
 			AppStatus status;

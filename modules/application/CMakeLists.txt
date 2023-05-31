@@ -1,4 +1,8 @@
 add_compile_options("-std=c++2a")
+set(DEBUG_SCHEDULER OFF CACHE BOOL "Enable run time collection of periodic application components")
+if (DEBUG_SCHEDULER)
+	add_definitions(-DDEBUG_SCHEDULER=1)
+endif(DEBUG_SCHEDULER)
 
 dls_configure(src/layer.cpp.in  LAYER_CPP)
 
