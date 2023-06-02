@@ -61,7 +61,6 @@ public:
 	static bool launch_console;
 	static bool launch_log;
 	static bool launch_service;
-	static bool launch_foxglove;
 
 	static std::string robot_name;
 
