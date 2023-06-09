@@ -16,6 +16,9 @@
 
 #include "dls2/application/periodic_app.hpp"
 #include "dls2/util/time/time.hpp"
+#include <fstream>
+#include <filesystem>
+
 
 using namespace dls;
 
@@ -36,8 +39,8 @@ PeriodicApp::PeriodicApp(const std::string &ID)
 	scheduler_attributes.sched_policy = SCHED_DEADLINE;
 
 	// Period defined in nanoseconds
-	double sched_runtime_factor = config_scheduler["runtime_factor"].as<double>();
-	double sched_deadline_factor = config_scheduler["deadline_factor"].as<double>();
+	sched_runtime_factor = config_scheduler["runtime_factor"].as<double>();
+	sched_deadline_factor = config_scheduler["deadline_factor"].as<double>();
 
 	scheduler_attributes.sched_period  = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(period*cur_time_factor).count();
 	scheduler_attributes.sched_runtime = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(period*sched_runtime_factor*cur_time_factor).count();
@@ -89,13 +92,30 @@ AppStatus PeriodicApp::run()
         exit(-1);
     }
 
+	#if DEBUG_SCHEDULER
+	// Defini static variables to be used to debug the run time
+	std::vector<double> run_time_vector;
+	#endif
+
 	do
 	{
 		// Calculate when the next period needs to start
 		auto next_loop_time = this->period + std::chrono::system_clock::now();
 
 		// Run one epoch
+		#if DEBUG_SCHEDULER
+		// Get current start time
+		const std::chrono::system_clock::time_point start = std::chrono::high_resolution_clock::now();
+		#endif
 		run(std::chrono::time_point_cast<std::chrono::system_clock::duration, std::chrono::system_clock, std::chrono::duration<double>>(std::chrono::system_clock::now()));
+		#if DEBUG_SCHEDULER
+		// Get current stop time
+		const std::chrono::system_clock::time_point stop = std::chrono::high_resolution_clock::now();
+		// Get enlapsed run time
+		double run_time = (std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start).count())/1000000000.0;
+		// Collect run time
+		run_time_vector.push_back(run_time);
+		#endif
 
 		// Check realtime
 		if(std::chrono::system_clock::now() > next_loop_time)
@@ -143,6 +163,48 @@ AppStatus PeriodicApp::run()
 		sched_yield();
 
 	}while(!this->should_quit);
+
+	#if DEBUG_SCHEDULER
+	// Define debug folder
+	const std::string debug_folder (std::string(std::getenv("HOME"))+"/dls2_debug_scheduler");
+	// Create debug folder if it does not exist
+	if(!std::filesystem::exists(debug_folder))
+	{
+		std::filesystem::create_directory(debug_folder);
+	}
+	// Write statistics in a file
+	std::ofstream out(debug_folder+"/"+this->ID+".txt");
+	std::vector<double> run_time_vector_unsorted = run_time_vector;
+	// Largest run time values
+	const int num_max_run_time(10);
+	std::sort(run_time_vector.begin(), run_time_vector.end(), std::greater<double>());
+	run_time_vector.erase( unique(run_time_vector.begin(), run_time_vector.end() ), run_time_vector.end());
+	out << "LARGEST " << num_max_run_time << " RUN TIME:\n";
+	for(int i=0; i<num_max_run_time; i++)
+	{
+		out << std::to_string(run_time_vector[i]) + "\n";
+	}
+	// Print info about if the run time has taken more or less than the period
+	double period_seconds(period.count()/1000000.0);
+	out << "\nperiod = "+std::to_string(period_seconds) +"\n"
+			+ "runtime_factor = "+std::to_string(sched_runtime_factor) +"\n"
+			+ "deadline_factor = "+std::to_string(sched_deadline_factor) +"\n";
+	if(run_time_vector[0]>(period_seconds))
+	{
+		out << "\nThe run function has taken more than the desired period, that's bad! :(";
+	}
+	else
+	{
+		out << "\nThe run function has always taken less that the desired period, that's good! :)";
+	}
+	out << "\n----------------------------------------------------------------------------------------------------\nALL RUN TIME:\n";
+	// All run time values
+	for(double v : run_time_vector_unsorted)
+	{
+		out << std::to_string(v) + "\n";
+	}
+	
+	#endif
 
 	return this->getStatus();
 }
