@@ -13,32 +13,38 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#include "dls2/core_framework/foxglove_layer.hpp"
+#ifndef T265_STATE_HPP
+#define T265_STATE_HPP
 
-using namespace dls;
+#include "robotlib/robot_base.hpp"
 
-FoxgloveLayer::FoxgloveLayer(std::string ID) :
-	Layer(ID)
-{ 
-	scout_sys << "Foxglove layer loaded" << std::endl;
-}
+#include "dls2/msg_wrappers/wrapper.hpp"
+// #include "dls2/msg_wrappers/pose.hpp"
+// #include "dls2/msg_wrappers/screw.hpp"
+#include "dls_messages/dds/t265_state.h"
 
-FoxgloveLayer::~FoxgloveLayer()
-{ }
-
-AppStatus FoxgloveLayer::run()
+namespace dls
 {
-	while(!this->should_quit)
+	class T265State : public Wrapper<T265StateMsg>
 	{
-		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(300));
-	}
-	return getStatus();
-}
+	public:
+		T265State();
+		T265State(T265State&);
+        ~T265State();
 
-AppStatus FoxgloveLayer::stop()
-{
-	this->should_quit = true;
+		operator T265StateMsg() const override;
+		T265State& operator= (const T265StateMsg&) override;
+		T265State& operator= (const T265State&);
 
-	setStatus(AppStatus::STOPPED);
-	return getStatus();
-}
+		std::string robot_name;
+
+        Eigen::Vector3d position;
+        Eigen::Quaterniond orientation;
+
+        Eigen::Vector3d linear_velocity;
+        Eigen::Vector3d angular_velocity;
+        double timestamp;
+	};
+} // end namespace dls
+
+#endif /* end of include guard: T265_STATE_HPP */

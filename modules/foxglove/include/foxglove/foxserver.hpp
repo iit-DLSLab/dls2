@@ -3,34 +3,37 @@
 
 #pragma once
 
-#include "foxglove/webserver.hpp"
-#include "foxglove/dynamic_types_utils.hpp"
+#include "webserver.hpp"
+#include "dynamic_types_utils.hpp"
+#include "mcap_utils.hpp"
 
-namespace dls {
-
-    using json = nlohmann::json;
-
+namespace dls
+{
     class FoxServer : public dls::DDSPartListener
     {
     public:
         FoxServer();
         ~FoxServer();
 
+        void record_mcap_log(bool record_mcap, const std::string& timestamp = std::string());
+
     private:
         void serverFunc();
         void on_topic_discovery(const std::string& topic_name, const std::string& type_name) override;
 
-        std::shared_ptr<std::thread> serverThread;
-        std::shared_ptr<boost::asio::steady_timer> timer;
-        Server foxserver;
+        std::shared_ptr<std::thread> server_thread_;
+        std::shared_ptr<boost::asio::steady_timer> timer_;
+        Server webserver_;  // Foxglove web server
 
-        dls::DDSParticipant ddslink;
-        std::function<void()> setTimer;
+        dls::MCAPUtils mcap_utils_;
 
-        std::set<int> send_flags;
-        std::set<int> timer_flags;
+        dls::DDSParticipant dds_link_;
+        std::function<void()> set_timer_;
 
-        std::mutex sendFlagsMutex;
+        std::set<int> send_flags_;
+        std::set<int> timer_flags_;
+
+        std::mutex send_flags_mutex_;
     };
 }
 

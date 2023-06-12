@@ -4,8 +4,6 @@
 #include "dls2/core_framework/console_layer.hpp"
 #include "dls2/core_framework/estimation_layer.hpp"
 #include "dls2/core_framework/service_layer.hpp"
-#include "dls2/core_framework/foxglove_layer.hpp"
-
 
 extern "C" Layer *create(const std::string& type, const std::string& robot_name)
 {
@@ -34,11 +32,6 @@ extern "C" Layer *create(const std::string& type, const std::string& robot_name)
 	{
 		p = new ServiceLayer("ServiceLayer");
 	}
-	else if (type == "foxglove")	
-	{
-		p = new FoxgloveLayer("FoxgloveLayer");
-	}
-
 
 	return p;
 }
