@@ -19,6 +19,7 @@
 #include "dls2/application/layer.hpp"
 #include "dls2/util/messaging/dds_participant.hpp"
 #include "dls2/topics/topics.hpp"
+#include "foxglove/foxserver.hpp"
 
 namespace dls
 {
@@ -39,8 +40,9 @@ namespace dls
 	private:
 		static std::string get_current_time();
 
-		DDSParticipant ddsLogLink;
+		DDSParticipant ddsLogLink_;
 
+		dls::FoxServer foxserver_;
 	};
 } // end namespace dls
 

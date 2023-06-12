@@ -41,6 +41,7 @@
 #include <dls_messages/dds/param_serverPubSubTypes.h>
 #include <dls_messages/dds/doublePubSubTypes.h>
 #include <dls_messages/dds/controller_commandPubSubTypes.h>
+#include <dls_messages/dds/t265_statePubSubTypes.h>
 
 namespace dls
 {
@@ -93,6 +94,7 @@ namespace dls
             extern dls::topicType aliengo_raw;
 			extern dls::topicType imu;
 			extern dls::topicType joint_states;
+			extern dls::topicType t265_state;
 		}
 	}
 }

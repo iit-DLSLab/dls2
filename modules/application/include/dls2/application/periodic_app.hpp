@@ -91,6 +91,9 @@ namespace dls
 		double cur_time_factor;
 
 		pid_t pid;
+
+		double sched_runtime_factor;
+		double sched_deadline_factor;
 	};
 } // end namespace dls
 

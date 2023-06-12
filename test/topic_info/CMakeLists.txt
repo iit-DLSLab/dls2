@@ -9,3 +9,16 @@ target_link_libraries(topic_info
 		dls_com
 		dls_debug
 )
+
+add_executable(dls_hz
+	src/message_hz.cpp
+)
+
+target_link_libraries(dls_hz
+	dls_framework
+	dls_messages
+	fastrtps
+	fastcdr
+)
+
+dls_install(dls_hz)

@@ -13,31 +13,38 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#include "dls2/msg_wrappers/attitude.hpp"
+#include "dls2/msg_wrappers/t265_state.hpp"
 
 using namespace dls;
 
-Attitude::Attitude() 
+T265State::T265State()
+	// : robot_name("")
+	// , time(0)
 { }
 
-Attitude::Attitude(Attitude& from)
-    : orientation(from.orientation)
-	, orient_imu(from.orient_imu)
+T265State::T265State(T265State& from)
+	: robot_name(from.robot_name)
+	, position(from.position)
+    , orientation(from.orientation)
+	, linear_velocity(from.linear_velocity)
     , angular_velocity(from.angular_velocity)
-	, euler_angles_imu(from.euler_angles_imu)
-	, euler_angles_est(from.euler_angles_est)
 	, timestamp(from.timestamp)
 { }
 
-Attitude::operator AttitudeMsg() const
-{
-	AttitudeMsg msg;
+T265State::~T265State()
+{ }
 
-	for(long unsigned int i = 0; i < msg.angular_velocity().size(); i++)
+T265State::operator T265StateMsg() const
+{
+    T265StateMsg msg;
+
+	msg.robot_name() = this->robot_name;
+
+	for(int i=0; i<3;i++)
 	{
-    	msg.angular_velocity()[i] = this->angular_velocity[i];
-		msg.euler_angles_imu()[i] = this->euler_angles_imu[i];
-		msg.euler_angles_est()[i] = this->euler_angles_est[i];
+		msg.position()[i] = this->position[i];
+		msg.linear_velocity()[i] = this->linear_velocity[i];
+		msg.angular_velocity()[i] = this->angular_velocity[i];
 	}
 
 	msg.orientation()[0] = this->orientation.x();
@@ -45,23 +52,25 @@ Attitude::operator AttitudeMsg() const
 	msg.orientation()[2] = this->orientation.z();
 	msg.orientation()[3] = this->orientation.w();
 
-	msg.orient_imu()[0] = this->orient_imu.x();
-	msg.orient_imu()[1] = this->orient_imu.y();
-	msg.orient_imu()[2] = this->orient_imu.z();
-	msg.orient_imu()[3] = this->orient_imu.w();
-
 	msg.timestamp(this->timestamp);
 
-	return msg;
+    return msg;
 }
 
-Attitude& Attitude::operator=(const AttitudeMsg& msg){
+T265State& T265State::operator= (const T265StateMsg& msg)
+{
+	this->robot_name = msg.robot_name();
 
-	for(long unsigned int i = 0; i < msg.angular_velocity().size(); i++)
+	// this->pose.set(Eigen::Vector3d(msg.position().data()));
+	// this->pose.set(Eigen::Quaterniond(msg.orientation()[3], msg.orientation()[0], msg.orientation()[1], msg.orientation()[2]));
+	// this->velocity.setLinear(Eigen::Vector3d(msg.linear_velocity().data()));
+	// this->velocity.setAngular(Eigen::Vector3d(msg.angular_velocity().data()));
+
+	for(long unsigned int i = 0; i < msg.position().size(); i++)
 	{
+		this->position[i] = msg.position()[i];
+		this->linear_velocity[i] = msg.linear_velocity()[i];
     	this->angular_velocity[i] = msg.angular_velocity()[i];
-		this->euler_angles_imu[i] = msg.euler_angles_imu()[i];
-		this->euler_angles_est[i] = msg.euler_angles_est()[i];
 	}
 	
 	this->orientation.x() = msg.orientation()[0];
@@ -69,24 +78,19 @@ Attitude& Attitude::operator=(const AttitudeMsg& msg){
 	this->orientation.z() = msg.orientation()[2];
 	this->orientation.w() = msg.orientation()[3];
 
-	this->orient_imu.x() = msg.orient_imu()[0];
-	this->orient_imu.y() = msg.orient_imu()[1];
-	this->orient_imu.z() = msg.orient_imu()[2];
-	this->orient_imu.w() = msg.orient_imu()[3];
-
 	this->timestamp = msg.timestamp();
 
-    return *this;
+	return *this;
 }
 
-Attitude& Attitude::operator=(const Attitude& from)
+T265State& T265State::operator=(const T265State& from)
 { 
+	this->position = from.position;
     this->orientation = from.orientation;
-	this->orient_imu = from.orient_imu;
+	this->linear_velocity = from.linear_velocity;
     this->angular_velocity = from.angular_velocity;
-    this->euler_angles_imu = from.euler_angles_imu;
-	this->euler_angles_est = from.euler_angles_est;
 	this->timestamp = from.timestamp;
 	
 	return *this;
 }
+

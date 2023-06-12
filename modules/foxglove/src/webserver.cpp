@@ -5,7 +5,6 @@
 #include <iostream>
 #include <thread>
 
-using json = nlohmann::json;
 using namespace boost;
 using namespace dls;
 
@@ -58,14 +57,14 @@ void Server::handleConnectionOpened(ConnHandle hdl)
                           hdl
                         });
 
-  con->send(json({
+  con->send(nlohmann::json({
                    {"op", "serverInfo"},
                    {"name", _name},
-                   {"capabilities", json::array()},
+                   {"capabilities", nlohmann::json::array()},
                  })
               .dump());
 
-  json channels;
+  nlohmann::json channels;
   for (const auto& [id, channel] : _channels) {
     channels.push_back(channel);
   }
@@ -129,7 +128,7 @@ void Server::run()
   _server.run();
 }
 
-void Server::sendJson(ConnHandle hdl, json&& payload) 
+void Server::sendJson(ConnHandle hdl, nlohmann::json&& payload) 
 {
   try {
     _server.send(hdl, std::move(payload).dump(), OpCode::TEXT);
@@ -163,7 +162,7 @@ void Server::handleMessage(ConnHandle hdl, MessagePtr msg)
     auto& clientInfo = _clients.at(hdl);
 
     const auto& payloadStr = msg->get_payload();
-    const json payload = json::parse(payloadStr);
+    const nlohmann::json payload = nlohmann::json::parse(payloadStr);
     const std::string& op = payload.at("op").get<std::string>();
 
     if (op == "subscribe") {
@@ -171,22 +170,22 @@ void Server::handleMessage(ConnHandle hdl, MessagePtr msg)
         SubscriptionId subId = sub.at("id");
         ChannelId channelId = sub.at("channelId");
         if (clientInfo.subscriptions.find(subId) != clientInfo.subscriptions.end()) {
-          sendJson(hdl, json{
-                          {"op", "status"},
-                          {"level", StatusLevel::ERROR},
-                          {"message", "Client subscription id " + std::to_string(subId) +
-                                        " was already used; ignoring subscription"},
-                        });
+          sendJson(hdl, nlohmann::json{
+                                      {"op", "status"},
+                                      {"level", StatusLevel::ERROR},
+                                      {"message", "Client subscription id " + std::to_string(subId) +
+                                                    " was already used; ignoring subscription"},
+                                    });
           continue;
         }
         const auto& channelIt = _channels.find(channelId);
         if (channelIt == _channels.end()) {
-          sendJson(hdl, json{
-                          {"op", "status"},
-                          {"level", StatusLevel::WARNING},
-                          {"message", "Channel " + std::to_string(channelId) +
-                                        " is not available; ignoring subscription"},
-                        });
+          sendJson(hdl, nlohmann::json{
+                                      {"op", "status"},
+                                      {"level", StatusLevel::WARNING},
+                                      {"message", "Channel " + std::to_string(channelId) +
+                                                    " is not available; ignoring subscription"},
+                                    });
           continue;
         }
         _server.get_alog().write(
@@ -204,12 +203,12 @@ void Server::handleMessage(ConnHandle hdl, MessagePtr msg)
         SubscriptionId subId = subIdJson;
         const auto& sub = clientInfo.subscriptions.find(subId);
         if (sub == clientInfo.subscriptions.end()) {
-          sendJson(hdl, json{
-                          {"op", "status"},
-                          {"level", StatusLevel::WARNING},
-                          {"message", "Client subscription id " + std::to_string(subId) +
-                                        " did not exist; ignoring unsubscription"},
-                        });
+          sendJson(hdl, nlohmann::json{
+                                      {"op", "status"},
+                                      {"level", StatusLevel::WARNING},
+                                      {"message", "Client subscription id " + std::to_string(subId) +
+                                                    " did not exist; ignoring unsubscription"},
+                                    });
           continue;
         }
         ChannelId chanId = sub->second;

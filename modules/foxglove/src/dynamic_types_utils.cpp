@@ -463,8 +463,6 @@ jsonPair createJsonSchema(const std::string& title, const DynamicType_ptr& type)
     ss << "}" << std::endl;
     ss << "}" << std::endl;
 
-    // std::cout << ss.str();
-
     return jsonPair({nlohmann::json::parse(ss.str()), jsonVar});
 }
 
