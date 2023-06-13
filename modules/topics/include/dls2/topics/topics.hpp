@@ -42,6 +42,7 @@
 #include <dls_messages/dds/doublePubSubTypes.h>
 #include <dls_messages/dds/controller_commandPubSubTypes.h>
 #include <dls_messages/dds/t265_statePubSubTypes.h>
+#include <dls_messages/dds/slip_flagPubSubTypes.h>
 
 namespace dls
 {
@@ -95,6 +96,7 @@ namespace dls
 			extern dls::topicType imu;
 			extern dls::topicType joint_states;
 			extern dls::topicType t265_state;
+			extern dls::topicType slip_flag;
 		}
 	}
 }
