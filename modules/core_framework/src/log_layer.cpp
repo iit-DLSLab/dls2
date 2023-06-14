@@ -126,6 +126,38 @@ LogLayer::LogLayer(std::string ID)
         {{}},
         true
     );
+
+	// Start the playback of an MCAP log file
+	command_manager.addCommand<>
+    (
+        "startPlaybackMCAP",
+        "Start reading an MCAP log file and publish its data on DDS topics",
+        std::function<bool(std::string mcap_log_file)>([&](const std::string &mcap_log_file)->bool
+        {
+			if(!mcap_log_file.empty())
+			{
+				foxserver_.playback_mcap_log(true, mcap_log_file);
+				return true;
+			}
+			return false;
+        }),
+        {{}},
+        true
+    );
+
+	// Start the playback of an MCAP log file
+	command_manager.addCommand<>
+    (
+        "stopPlaybackMCAP",
+        "Stop reading an MCAP log file and stop publishing its data on DDS topics",
+        std::function<bool()>([&]()->bool
+        {
+			foxserver_.playback_mcap_log(false);
+			return true;
+        }),
+        {{}},
+        true
+    );
 }
 
 AppStatus LogLayer::run()

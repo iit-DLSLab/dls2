@@ -1,5 +1,5 @@
-#ifndef MCAP_HPP
-#define MCAP_HPP
+#ifndef MCAP_WRITER_UTILS_HPP
+#define MCAP_WRITER_UTILS_HPP
 
 #include "mcap/writer.hpp"
 #include <nlohmann/json.hpp>
@@ -7,11 +7,11 @@
 
 namespace dls
 {
-    class MCAPUtils
+    class MCAPWriterUtils
     {
     public:
-        MCAPUtils();
-        ~MCAPUtils();
+        MCAPWriterUtils();
+        ~MCAPWriterUtils();
 
     	/**
 		 * @brief Get the MCAP Writer object
@@ -38,7 +38,7 @@ namespace dls
         bool isRecordingOngoing();
 
     	/**
-		 * @brief Start recording a new MCAP log file
+		 * @brief Initialize the MCAP writer to start recording an MCAP log file
 		 * @return void
 		 */
         void startRecording(const std::string& timestamp);
@@ -79,6 +79,7 @@ namespace dls
 		 * @brief MCAP writer 
 		 */
         mcap::McapWriter mcap_writer_{};
+
 		/**
 		 * @brief MCAP message 
 		 */
@@ -99,6 +100,11 @@ namespace dls
 		 * @brief Used to verify if "scene" data have been recorded (to record it only once for each MCAP log file)
 		 */
 		bool scene_recorded_{false};
+
+		/**
+		 * @brief Used to valorize the sequence field of MCAP message and so, enumerating the messages in an MCAP log file
+		 */
+		int sequence_counter_{};
     };
 } //namespace dls
 

@@ -1,20 +1,24 @@
 add_compile_options("-std=c++17")
 
-add_library(dls_mcap
-	SHARED
- 		src/mcap_utils.cpp
-)
+# Common libraries/folders to be linked/included
+set(LIBS lz4 zstd dls_com dls_message_wrappers)
+set(DIRS "include" "include/third_party")
 
-target_include_directories(dls_mcap
-	PUBLIC
-		include
-		include/third_party
-)
+# MCAP writer library
+add_library(dls_mcap_writer SHARED src/mcap_writer_utils.cpp)
+target_include_directories(dls_mcap_writer PUBLIC ${DIRS})
+target_link_libraries(dls_mcap_writer PUBLIC ${LIBS})
 
-target_link_libraries(dls_mcap
-	PUBLIC
-		lz4
-		zstd
-)
+# MCAP reader library
+add_library(dls_mcap_reader SHARED src/mcap_reader_utils.cpp)
+target_include_directories(dls_mcap_reader PUBLIC ${DIRS})
+target_link_libraries(dls_mcap_reader PUBLIC ${LIBS})
 
+# MCAP interface library
+add_library(dls_mcap INTERFACE)
+target_link_libraries(dls_mcap INTERFACE dls_mcap_writer dls_mcap_reader)
+
+# Installation of MCAP libraries
+dls_install(dls_mcap_writer)
+dls_install(dls_mcap_reader)
 dls_install(dls_mcap)
