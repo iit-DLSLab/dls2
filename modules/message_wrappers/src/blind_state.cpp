@@ -22,8 +22,7 @@
 using namespace dls;
 
 BlindState::BlindState(const std::shared_ptr<robotlib::RobotBase> pRobot)
-	: robot_name("")
-	, joint_name(pRobot->makeJointDataMap<std::string>(""))
+	: joint_name(pRobot->makeJointDataMap<std::string>(""))
 	, joint_position(pRobot->makeJointState())
 	, joint_velocity(pRobot->makeJointState())
 	, joint_acceleration(pRobot->makeJointState())
@@ -32,13 +31,16 @@ BlindState::BlindState(const std::shared_ptr<robotlib::RobotBase> pRobot)
 	, foot_position(pRobot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
 	, foot_velocity(pRobot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
 	, foot_acceleration(pRobot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
+	, base_pose_world()
+	, base_vel_world()
+	, base_acc_world()
 	, stance_legs(pRobot->makeLegDataMap<bool>(false))
-	, time(0)
+	, time(0.0)
+	, robot_name(pRobot->getName())
 { }
 
 BlindState::BlindState(BlindState& from)
-	: robot_name(from.robot_name)
-	, joint_name(from.joint_name) 
+	: joint_name(from.joint_name) 
 	, joint_position(from.joint_position)
 	, joint_velocity(from.joint_velocity)
 	, joint_acceleration(from.joint_acceleration)
@@ -52,6 +54,7 @@ BlindState::BlindState(BlindState& from)
 	, base_acc_world(from.base_acc_world)
 	, stance_legs(from.stance_legs)
 	, time(from.time)
+	, robot_name(from.robot_name)
 { }
 
 BlindState::~BlindState()
@@ -61,7 +64,7 @@ BlindState::operator BlindStateMsg() const
 {
     BlindStateMsg msg;
 
-	msg.robot_name() = this->robot_name;
+	msg.robot_name(this->robot_name);
 
 	int leg_id = 0;
 	int leg_joint_id = 0;
