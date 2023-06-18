@@ -69,7 +69,7 @@ namespace dls
 			dls::topicType imu 					= dls::topicType("imu", new ImuMsgPubSubType());
 			dls::topicType joint_states			= dls::topicType("joint_states", new JointStateMsgPubSubType());
 			dls::topicType t265_state			= dls::topicType("t265_state", new T265StateMsgPubSubType());
-			dls::topicType slip_flag			= dls::topicType("slip_flag", new T265StateMsgPubSubType());			
+			dls::topicType slip_flag			= dls::topicType("slip_flag", new SlipFlagMsgPubSubType());			
 		}
 	}
 }
