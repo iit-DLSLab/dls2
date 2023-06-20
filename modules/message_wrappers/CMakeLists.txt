@@ -21,6 +21,7 @@ add_library(dls_message_wrappers
 		src/debug/leg_odometry_debug.cpp
 		src/debug/trunk_controller_debug.cpp
 		src/t265_state.cpp
+		src/slip_flag.cpp
 )
 set_property(TARGET dls_message_wrappers PROPERTY POSITION_INDEPENDENT_CODE ON)
 

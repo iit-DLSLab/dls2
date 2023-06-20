@@ -20,9 +20,8 @@
 #include "robotlib/robot_base.hpp"
 
 #include "dls2/msg_wrappers/wrapper.hpp"
-#include "dls2/msg_wrappers/pose.hpp"
-#include "dls2/msg_wrappers/screw.hpp"
 #include "dls_messages/dds/slip_flag.h"
+#include "dls_messages/dds/slip_flagPubSubTypes.h"
 
 namespace dls
 {
@@ -41,7 +40,7 @@ namespace dls
 
 		robotlib::LegDataMap<bool> slip_flag;
 
-		unsigned long long time;
+		double time;
 	};
 } // end namespace dls
 

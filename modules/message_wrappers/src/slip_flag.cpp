@@ -22,9 +22,9 @@
 using namespace dls;
 
 SlipFlag::SlipFlag(const std::shared_ptr<robotlib::RobotBase> pRobot)
-	: robot_name("")
+	: robot_name(pRobot->getName())
 	, slip_flag(pRobot->makeLegDataMap<bool>(false))
-	, time(0)
+	, time(0.0)
 { }
 
 SlipFlag::SlipFlag(SlipFlag& from)
