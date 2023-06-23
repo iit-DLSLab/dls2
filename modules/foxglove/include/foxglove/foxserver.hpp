@@ -5,7 +5,8 @@
 
 #include "webserver.hpp"
 #include "dynamic_types_utils.hpp"
-#include "mcap_utils.hpp"
+#include "mcap_writer_utils.hpp"
+#include "mcap_reader_utils.hpp"
 
 namespace dls
 {
@@ -16,6 +17,7 @@ namespace dls
         ~FoxServer();
 
         void record_mcap_log(bool record_mcap, const std::string& timestamp = std::string());
+        void playback_mcap_log(bool playback_mcap, const std::string &mcap_log_file = std::string());
 
     private:
         void serverFunc();
@@ -25,7 +27,8 @@ namespace dls
         std::shared_ptr<boost::asio::steady_timer> timer_;
         Server webserver_;  // Foxglove web server
 
-        dls::MCAPUtils mcap_utils_;
+        dls::MCAPWriterUtils mcap_writer_utils_;
+        dls::MCAPReaderUtils mcap_reader_utils_;
 
         dls::DDSParticipant dds_link_;
         std::function<void()> set_timer_;

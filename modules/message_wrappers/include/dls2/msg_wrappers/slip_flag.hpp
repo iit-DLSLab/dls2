@@ -13,35 +13,35 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef ODOMETRY_HPP
-#define ODOMETRY_HPP
+#ifndef SLIP_FLAG_HPP
+#define SLIP_FLAG_HPP
 
-#include "dls2/msg_wrappers/wrapper.hpp"
-#include "dls_messages/dds/t265_odometryPubSubTypes.h"
 
 #include "robotlib/robot_base.hpp"
 
-/// A struct representing the control signal that is output by a Controller
+#include "dls2/msg_wrappers/wrapper.hpp"
+#include "dls_messages/dds/slip_flag.h"
+#include "dls_messages/dds/slip_flagPubSubTypes.h"
+
 namespace dls
 {
-    class Odometry : public Wrapper<T265OdometryMsg>
-    {
-    public:
-        Odometry();
-        Odometry(Odometry&);
-        ~Odometry();
+	class SlipFlag : public Wrapper<SlipFlagMsg>
+	{
+	public:
+		SlipFlag(const std::shared_ptr<robotlib::RobotBase>);
+		SlipFlag(SlipFlag&);
+		SlipFlag() = delete;
+        ~SlipFlag();
 
-        operator T265OdometryMsg() const override;
-        Odometry& operator=(const T265OdometryMsg&) override;
-        Odometry& operator=(const Odometry&);
+		operator SlipFlagMsg() const override;
+		SlipFlag& operator= (const SlipFlagMsg&) override;
 
-        Eigen::Vector3d position;
-        Eigen::Quaterniond orientation;
-        Eigen::Vector3d orientation_rpy;
+		std::string robot_name;
 
-        Eigen::Vector3d linear_velocity;
-        Eigen::Vector3d angular_velocity;
-        double timestamp;
-    };
+		robotlib::LegDataMap<bool> slip_flag;
+
+		double time;
+	};
 } // end namespace dls
-#endif /* end of include guard: ODOMETRY_HPP */
+
+#endif /* end of include guard: SLIP_FLAG_HPP */

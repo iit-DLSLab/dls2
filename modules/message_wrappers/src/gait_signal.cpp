@@ -176,3 +176,18 @@ GaitSignal& GaitSignal::operator= (const GaitSignalMsg &msg)
 	
     return *this;
 }
+
+GaitSignal& GaitSignal::operator=(const GaitSignal& from)
+{
+    this->desired_com_pose_world = from.desired_com_pose_world;
+    this->desired_com_velocity_world = from.desired_com_velocity_world;
+    this->desired_com_acceleration_world = from.desired_com_acceleration_world;
+
+	this->desired_joint_position = from.desired_joint_position;
+    this->desired_joint_velocity = from.desired_joint_velocity;
+    this->desired_joint_acceleration = from.desired_joint_acceleration;
+    this->desired_joint_effort = from.desired_joint_effort;
+	this->stance_legs = from.stance_legs;
+
+	return *this;
+}

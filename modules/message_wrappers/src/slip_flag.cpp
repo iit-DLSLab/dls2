@@ -13,35 +13,61 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef ODOMETRY_HPP
-#define ODOMETRY_HPP
 
-#include "dls2/msg_wrappers/wrapper.hpp"
-#include "dls_messages/dds/t265_odometryPubSubTypes.h"
+#ifndef SLIP_FLAG_CPP
+#define SLIP_FLAG_CPP
 
-#include "robotlib/robot_base.hpp"
+#include "dls2/msg_wrappers/slip_flag.hpp"
 
-/// A struct representing the control signal that is output by a Controller
-namespace dls
+using namespace dls;
+
+SlipFlag::SlipFlag(const std::shared_ptr<robotlib::RobotBase> pRobot)
+	: robot_name(pRobot->getName())
+	, slip_flag(pRobot->makeLegDataMap<bool>(false))
+	, time(0.0)
+{ }
+
+SlipFlag::SlipFlag(SlipFlag& from)
+	: robot_name(from.robot_name)
+	, slip_flag(from.slip_flag)
+	, time(from.time)
+{ }
+
+SlipFlag::~SlipFlag()
+{ }
+
+SlipFlag::operator SlipFlagMsg() const
 {
-    class Odometry : public Wrapper<T265OdometryMsg>
-    {
-    public:
-        Odometry();
-        Odometry(Odometry&);
-        ~Odometry();
+    SlipFlagMsg msg;
 
-        operator T265OdometryMsg() const override;
-        Odometry& operator=(const T265OdometryMsg&) override;
-        Odometry& operator=(const Odometry&);
+	msg.robot_name() = this->robot_name;
 
-        Eigen::Vector3d position;
-        Eigen::Quaterniond orientation;
-        Eigen::Vector3d orientation_rpy;
+	int leg_id = 0;
+	for(auto &leg : this->slip_flag)
+	{
+		msg.slip_flag()[leg_id] = this->slip_flag[leg.key_];
+		leg_id++;
+	}
 
-        Eigen::Vector3d linear_velocity;
-        Eigen::Vector3d angular_velocity;
-        double timestamp;
-    };
-} // end namespace dls
-#endif /* end of include guard: ODOMETRY_HPP */
+	msg.time(this->time);
+
+    return msg;
+}
+
+SlipFlag& SlipFlag::operator= (const SlipFlagMsg& msg)
+{
+	this->robot_name = msg.robot_name();
+
+	int leg_id = 0;
+	for(auto &leg : this->slip_flag)
+	{
+		this->slip_flag[leg.key_] = msg.slip_flag()[leg_id];
+		leg_id++;
+	}
+
+	this->time = msg.time();
+
+	return *this;
+}
+
+#endif // SLIP_FLAG_CPP

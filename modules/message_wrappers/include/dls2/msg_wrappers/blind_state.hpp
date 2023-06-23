@@ -38,7 +38,6 @@ namespace dls
 
 		BlindState& operator= (const BlindState& from);
 
-		std::string robot_name;
 		robotlib::JointDataMap<std::string> joint_name;
 		robotlib::JointState joint_position;
 		robotlib::JointState joint_velocity;
@@ -54,10 +53,12 @@ namespace dls
 		dls::Pose base_pose_world;
 		dls::Screw base_vel_world;
 		dls::Screw base_acc_world;
+		Eigen::Vector3d base_ori_world_rpy;
 
 		robotlib::LegDataMap<bool> stance_legs;
 
-		unsigned long long time;
+		double time;
+		std::string robot_name;
 	};
 } // end namespace dls
 
