@@ -37,6 +37,7 @@ namespace dls
 
         Eigen::Vector3d position;
         Eigen::Quaterniond orientation;
+        Eigen::Vector3d orientation_rpy;
 
         Eigen::Vector3d linear_velocity;
         Eigen::Vector3d angular_velocity;
