@@ -13,60 +13,22 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-// =============================================================================
-// Includes
-// =============================================================================
-#include <memory>
-#include <signal.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <cstring>
-#include <sstream>
-#include <thread>
-
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <sys/prctl.h>
-#include <sys/mman.h>
 
 #include "dls2/core_framework/hardware_layer.hpp"
 #include "dls2/core_framework/control_layer.hpp"
 #include "dls2/core_framework/estimation_layer.hpp"
-#include "dls2/core_framework/foxglove_layer.hpp"
 #include "dls2/core_framework/log_layer.hpp"
 #include "dls2/core_framework/console_layer.hpp"
 #include "dls2/core_framework/service_layer.hpp"
 #include "dls2/core_framework/options.hpp"
 #include "dls2/core_framework/version_info.hpp"
+#include "dls2/supervisor/supervisor.hpp"
 
-#include "dls2/util/time/time.hpp"
-
-#include "dls2/log/log.hpp"
-#include "dls2/command/command.hpp"
+#include <sys/prctl.h>
 
 using namespace dls;
 
-/// Child proccess data
-///
-struct ChildData
-{
-	ChildData(const std::string &name_, pid_t pid_) :
-		name(name_), pid(pid_)
-	{ }
-
-	/// Name of procses as reported to users
-	///
-	std::string name;
-
-	/// PID of process
-	///
-	pid_t pid;
-};
-
-// TODO this is a global variable that is accessed only inside of this file. At
-// some point it will need to be refactored, since this file is steadily growing
-// in size.
-std::map<pid_t, ChildData> child_datas;
+std::map<std::string, std::shared_ptr<AppData>> layers;
 
 // =============================================================================
 // Prtototypes
@@ -77,53 +39,28 @@ std::map<pid_t, ChildData> child_datas;
 /// this function may truncate the name if it is too long for the alloted space
 void change_process_name(char **argv, const std::string &name);
 
-/// Forks the process and launches the application containing a layer specified
-/// by the template argument
-///
-template <class layer_t>
-void forkLayer(const std::string &process_name, char **argv);
-
 int initVars();
 
+bool loadLayer(const std::string&, const std::string&);
+
+std::mutex quit_mutex;
+bool should_quit = false;
+
+Supervisor super("core");
+
+/// Stores commands registered in the app
+///
+CommandManager command_manager("dls_framework");
 
 // =============================================================================
 // Signal Handlers
 // =============================================================================
 // These used to be lambdas, but it seems not all compilers can install a lambda
 // as a signal handler
-// void kill_children(int)
-// {
-// 	/*
-// 	for(auto &el : child_datas)
-// 	{
-// 		kill(el.first, SIGINT);
-// 	}
-// 	*/
-// 	pApp->stop();
-// }
-
-// void stop_app_handler(int)
-// {
-// 	pApp->stop();
-// 	exit(EXIT_SUCCESS);
-// }
-
-// void app_panic_handler(int)
-// {
-// 	pApp->panic();
-// 	std::cout << "framework level segfault detected" << std::endl;
-
-// 	// remove segfault signal handler
-// 	signal(SIGSEGV, SIG_DFL);
-
-// 	// force segfault now that it is handled in this process. This
-// 	// will signal the monitor procss that a segfault occured here
-// 	kill(getpid(), SIGSEGV);
-
-// 	// alternatively, could exit like this:
-// 	// exit(SOME_SEGFAULT_ENUM);
-// 	// then, the monitor would have to respond to that exit value
-// }
+void shutdown_all(int)
+{
+	command_manager.callCommand("shutdown", {"all"});
+}
 
 // =============================================================================
 // Main Logic
@@ -136,19 +73,35 @@ int main(int argc, char **argv)
 		std::cout << "Debug build" << std::endl;
 	#endif
 
+	// Initiate log streams
+	logging::clogstream outstream("fwkMonitorStream");
+	logging::cfatalstream sfatal("fwkMonitorFatal");
+
+	command_manager.addCommand<>
+	(
+		"shutdown",
+		"Shutdown the core. It will only exits after all the layers exits.",
+		std::function<bool()>([&]()->bool
+		{
+			std::lock_guard<std::mutex> lock(quit_mutex);
+			should_quit = true;
+			return true;
+		}),
+		{},
+		true
+	);
+
 	// Parse arguments and verify if they are valid and if there is anything to 
 	// do or just print the usage
 	if (!Options::parseArgs(argc, argv))
 		return 0;
 
-    // When the user presses CTRL-C, make sure that all child processes are
-	// killed. If this is not done, the child processes will inherit from the
-	// base process and continue to run even if the framework exits.
-	// signal
-	// (
-	// 	SIGINT,
-	// 	kill_children
-	// );
+    // When the user presses CTRL-C, make sure that all layers are shutdown.
+	signal
+	(
+		SIGINT,
+		shutdown_all
+	);
 
 	if(Options::show_docs)
 	{
@@ -158,73 +111,44 @@ int main(int argc, char **argv)
 		);
 	}
 
-	// Launch layers
-	if(Options::launch_log) 		forkLayer<LogLayer>("logLayer", argv);
-	if(Options::launch_hardware) 	forkLayer<HardwareLayer>("hardwareLayer", argv);
-	if(Options::launch_control)  	forkLayer<ControlLayer>("controlLayer", argv);
-	if(Options::launch_console)	 	forkLayer<ConsoleLayer>("consoleLayer", argv);
-	if(Options::launch_estimation)	forkLayer<EstimationLayer>("estimationLayer", argv);
-	if(Options::launch_service)	    forkLayer<ServiceLayer>("serviceLayer", argv);
-	if(Options::launch_foxglove)	forkLayer<FoxgloveLayer>("foxgloveLayer", argv);
+	if(Options::launch_log) 
+		if(loadLayer("log", "LogLayer"))
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+	if(!super.containsLayer("ServiceLayer"))
+	{
+		if(!loadLayer("service", "ServiceLayer"))
+		{
+			std::cout << "[ERROR] Service Layers could not run" << std::endl;
+		}
+	}
 
 	if(Options::robot_name != "")
 	{
-		CommandManager cmd_manager("main");
-		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-		cmd_manager.callCommand("loadService", {"dls_param_server"}, "serviceLayer");
+		command_manager.callCommand("loadService", {"dls_param_server"}, "ServiceLayer");
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-		cmd_manager.callCommand("setParam", {"robot_name", Options::robot_name}, "dls_param_server");
+		command_manager.callCommand("setParam", {"robot_name", Options::robot_name}, "dls_param_server");
 	}
 
-	// Initiate log streams
-	// Does not initiate these before fork actions, dds will break
-	logging::clogstream outstream("fwkMonitorStream");
-	logging::cfatalstream sfatal("fwkMonitorFatal");
+	// Launch layers
+	if(Options::launch_hardware) 	loadLayer("hardware", "HardwareLayer");
+	if(Options::launch_control)  	loadLayer("control", "ControlLayer");
+	if(Options::launch_console)	 	loadLayer("console", "ConsoleLayer");
+	if(Options::launch_estimation)	loadLayer("estimation", "EstimationLayer");
 
-	// Monitor the child processes
+	// Monitor the layers
 	// loop is exited when there are no more children
-	while(true)
-	{		
-		std::stringstream ss;
-		int status;
-		pid_t child_pid = wait(&status);
-		
-		if(child_pid == -1)
-		{
-			// if no more children left
-			if(errno == ECHILD)
-			{
-				break;
-			}
-		}
+	while(!should_quit || (super.getNumLayers() > 0))
+	{	
+		//TODO: implement here the supervisory actions	
 
-		auto it = child_datas.find(child_pid);
-		if(it != child_datas.end())
-		{
-			ss << it->second.name;
-			// Ignoring WIFSTOPPED, WSTOPSIG, WIFCONTINUED
-			if(WIFEXITED(status))
-			{
-				ss << " exited normally with exit status " << WEXITSTATUS(status);
-			}
-			if(WIFSIGNALED(status))
-			{
-				ss << " exited by signal " << WTERMSIG(status);
 
-				#ifdef WCOREDUMP
-				if(WCOREDUMP(status)) // not available on all unix implementations
-				{
-					ss << " and had a core dump";
-				}
-				#endif
-			}
-			ss.flush();
-		}
-		outstream << ss.str() << std::endl;	
+		std::this_thread::sleep_for(std::chrono::milliseconds(500));
 	}
-	
+
 	std::cout << "=== FRAMEWORK NODE STOPPED ===" << std::endl;
-	return 0;
+	exit(EXIT_SUCCESS);
+	// return 0;
 }
 
 // =============================================================================
@@ -240,52 +164,31 @@ void change_process_name(char **argv, const std::string &name)
 	prctl(PR_SET_NAME, name.c_str());
 }
 
-template <class layer_t>
-void forkLayer(const std::string &process_name, char **argv)
+bool loadLayer(const std::string& lib, const std::string& ID)
 {
-	const pid_t pid = fork();
-	if(pid == -1)
-	{
-		auto error = errno;
-		std::cerr << "Could not fork" << std::endl;
-		switch(error)
-		{
-			case EAGAIN:
-				std::cout << "Thread limit reached or SCHED_DEADLINE used" << std::endl;
-				break;
-			case ENOMEM:
-				std::cout << "Out of memory" << std::endl;
-				break;
-		}
-	}
-	else if(pid == 0)
-	{
-		change_process_name(argv, process_name);
+	// if(this->controllers.find(lib_name) != this->controllers.end())
+	// {
+	// 	scout_err << "Controller " << lib_name << " already loaded" << std::endl;
+    //     return false;
+	// }
 
-		// // register shutdown handler
-		// signal
-		// (
-		// 	SIGINT,
-		// 	stop_app_handler
-		// );
-		// signal
-		// (
-		// 	SIGSEGV,
-		// 	app_panic_handler
-		// );
-		
-		layer_t pLayer(process_name);
-		pLayer.run();
-		exit(EXIT_SUCCESS);
-	}
-	else
-	{
-		child_datas.emplace
-		(
-			std::piecewise_construct,
-			std::forward_as_tuple(pid),
-			std::forward_as_tuple(process_name, pid)
-		);
-	}
+    std::shared_ptr<AppData> pData = std::make_shared<AppData>(ID);
+
+    pData->proc = std::make_shared<boost::process::child>(std::vector<std::string>({
+        "${DLS_INSTALL_RUNTIME_DIR}/child_process_launcher",
+        pData->getID(),
+		lib,
+        "layer",
+        Options::robot_name
+    }));
+
+    if (pData->proc == nullptr || pData->proc->wait_for(std::chrono::duration<double, std::milli>(1000))){
+        // scout_err << "Layer " << lib_name <<" failed to launch" << std::endl;
+		std::cout << "Layer " << lib <<" failed to launch" << std::endl;
+        return false;
+    }
+
+	pData->proc->detach();
+	layers.emplace(pData->getID(), pData);
+	return true;
 }
-

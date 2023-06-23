@@ -22,6 +22,7 @@ Attitude::Attitude()
 
 Attitude::Attitude(Attitude& from)
     : orientation(from.orientation)
+	, orient_imu(from.orient_imu)
     , angular_velocity(from.angular_velocity)
 	, euler_angles_imu(from.euler_angles_imu)
 	, euler_angles_est(from.euler_angles_est)
@@ -44,6 +45,11 @@ Attitude::operator AttitudeMsg() const
 	msg.orientation()[2] = this->orientation.z();
 	msg.orientation()[3] = this->orientation.w();
 
+	msg.orient_imu()[0] = this->orient_imu.x();
+	msg.orient_imu()[1] = this->orient_imu.y();
+	msg.orient_imu()[2] = this->orient_imu.z();
+	msg.orient_imu()[3] = this->orient_imu.w();
+
 	msg.timestamp(this->timestamp);
 
 	return msg;
@@ -63,6 +69,11 @@ Attitude& Attitude::operator=(const AttitudeMsg& msg){
 	this->orientation.z() = msg.orientation()[2];
 	this->orientation.w() = msg.orientation()[3];
 
+	this->orient_imu.x() = msg.orient_imu()[0];
+	this->orient_imu.y() = msg.orient_imu()[1];
+	this->orient_imu.z() = msg.orient_imu()[2];
+	this->orient_imu.w() = msg.orient_imu()[3];
+
 	this->timestamp = msg.timestamp();
 
     return *this;
@@ -71,6 +82,7 @@ Attitude& Attitude::operator=(const AttitudeMsg& msg){
 Attitude& Attitude::operator=(const Attitude& from)
 { 
     this->orientation = from.orientation;
+	this->orient_imu = from.orient_imu;
     this->angular_velocity = from.angular_velocity;
     this->euler_angles_imu = from.euler_angles_imu;
 	this->euler_angles_est = from.euler_angles_est;

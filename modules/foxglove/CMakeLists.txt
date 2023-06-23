@@ -17,8 +17,12 @@ target_link_libraries(dls_foxglove
 	PUBLIC
         boost_system
         pthread
-		dls_framework_components
+		dls_app
+		dls_com
+		dls_topics
+		dls_domains
 		fastrtps
+		dls_mcap
 )
 
 dls_install(dls_foxglove)

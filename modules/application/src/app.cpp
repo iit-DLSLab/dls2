@@ -13,41 +13,25 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#include <iostream>
-#include "dls2/components/app_layer_component.hpp"
+#include "dls2/application/app.hpp"
 
 using namespace dls;
 
-// =============================================================================
-// Constructors
-// =============================================================================
-AppLayerComponent::AppLayerComponent(const std::string &ID_) 
-	: command_manager(ID_)
+App::App(const std::string &ID_) 
+    : should_quit(false)
+    , command_manager(ID_)
 	, scout_sys(ID_)
+	, scout_warn(ID_)
 	, scout_err(ID_)
-	, status(Status::UNCONSTRUCTED)
-	, status_mutex()
     , ID(ID_)
+	, status_mutex()
+	, status(AppStatus::INITIALISING)
+	
 {
-	this->command_manager.addCommand<>
-	(
-		"where",
-		std::string("Prints the state of ") + this->getID(),
-		std::function<bool()>([&]()->bool
-        {
-			auto s = where();
-			scout_sys << s << std::endl;
-			scout_sys     << s << std::endl;
-            return true;
-		}),
-		{},
-	 	true
-	);
-
 	command_manager.addCommand<>
 	(
-		"exit",
-		"Exits the " + ID + " component",
+		"shutdown",
+		"Shutdown the " + ID + " app",
         std::function<bool()>([&]()->bool
         {
 			this->stop();
@@ -56,26 +40,47 @@ AppLayerComponent::AppLayerComponent(const std::string &ID_)
 		{},
 		true
 	);
+
+	command_manager.addCommand<>
+	(
+		"where",
+		"Prints the state of " + this->ID,
+		std::function<bool()>([&]()->bool
+        {
+			std::cout << where() << std::endl;
+            return true;
+		}),
+		{},
+		true
+	);
 }
 
-AppLayerComponent::~AppLayerComponent()
+App::~App()
 { }
 
-// =============================================================================
-// Class Implementation
-// =============================================================================
-AppLayerComponent::Status AppLayerComponent::getStatus()
+std::string App::getID()
+{
+	return this->ID;
+}
+
+AppStatus App::getStatus() const
 {
 	std::lock_guard<std::mutex> lock(this->status_mutex);
 	return this->status;
 }
 
-void AppLayerComponent::setStatus(Status s)
+void App::setStatus(AppStatus s)
 {
+	std::lock_guard<std::mutex> lock(this->status_mutex);
 	this->status = s;
 }
 
-std::string AppLayerComponent::getID()
+bool App::shouldQuit()
 {
-	return this->ID;
+	return should_quit;
+}
+
+AppStatus App::eStop()
+{
+	return this->stop();
 }

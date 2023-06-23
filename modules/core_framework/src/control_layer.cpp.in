@@ -62,13 +62,13 @@ int sched_getattr(pid_t pid,
 // =============================================================================
 // Constructors
 // =============================================================================
-ControlLayer::ControlLayer(std::string ID) 
-	: AppLayer(ID)
+ControlLayer::ControlLayer(std::string ID, std::string robot_name) 
+	: Layer(ID)
 	, ddsSignalLink(std::make_shared<dls::DDSParticipant>(ID, dls::domains::signals))
 	, pDefault_spline_in(std::make_shared<math::Ramp<double>> (0, 2, 0, 1))
 	, pDefault_spline_out(std::make_shared<math::Ramp<double>> (0, 2, 1, 0))
 	, default_duration_seconds(2)
-	, pRobot(robotlib::RobotFactory::openRobot(Options::robot_name))
+	, pRobot(robotlib::RobotFactory::openRobot(robot_name))
 	, control_signal(
 		ddsSignalLink, 
 		dls::topics::desired_torques, 
@@ -188,12 +188,12 @@ ControlLayer::~ControlLayer()
 // =============================================================================
 // Interface Override Functions
 // =============================================================================
-ControlLayer::Status ControlLayer::run()
+AppStatus ControlLayer::run()
 {
 	// TODO("spawn nonrealtime thread for user interaction")
 
 	// TODO("Check status of all components in the control layer, take corrective actions if requred")
-	setStatus(Status::RUNNING);
+	setStatus(AppStatus::RUNNING);
 
 	// real-time thread that gather all the control sinals and sends to robot
     pthread_create(&controlSignalGatherThread, NULL, (THREADFUNCPTR) &ControlLayer::controlSignalGather, this);
@@ -230,7 +230,7 @@ void *ControlLayer::controlSignalGather(void *data)
     }
 
 	ControlLayer *layer = (ControlLayer*) data;	
-	boost::circular_buffer<int> delta(10);
+	boost::circular_buffer<int> delta(100);
 
     while (!layer->shouldQuit()) {
         auto now = std::chrono::high_resolution_clock::now();
@@ -269,7 +269,7 @@ void *ControlLayer::controlSignalGather(void *data)
     return NULL;
 }
 
-ControlLayer::Status ControlLayer::shutdown()
+AppStatus ControlLayer::stop()
 {
 	std::vector<std::string> keys;
 	for(auto pair : this->motion_generators)
@@ -287,7 +287,7 @@ ControlLayer::Status ControlLayer::shutdown()
 	
 	this->should_quit = true;
 
-	setStatus(Status::STOP);
+	setStatus(AppStatus::STOPPED);
 	return getStatus();
 }
 
@@ -364,7 +364,7 @@ bool ControlLayer::loadController(const std::string& lib_name)
         pData->getID(),
 		lib_name,
         "controller",
-        Options::robot_name
+		this->pRobot->getName()
     }));
 
     if (pData->proc == nullptr || pData->proc->wait_for(std::chrono::duration<double, std::milli>(1000))){
@@ -479,7 +479,7 @@ bool ControlLayer::loadMotionGenerator(const std::string& lib_name)
 		lib_name,
 		lib_name,
 		"motion_generator",
-		Options::robot_name
+		this->pRobot->getName()
 	}));
 
     if (pData->proc == nullptr || pData->proc->wait_for(std::chrono::duration<double, std::milli>(1000))){

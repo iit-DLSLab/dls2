@@ -16,7 +16,7 @@
 #ifndef HARDWARE_HPP
 #define HARDWARE_HPP
 
-#include "dls2/components/periodic_app_layer_component.hpp"
+#include "dls2/application/periodic_app.hpp"
 
 #include "dls2/util/messaging/dds_participant.hpp"
 #include "robotlib/robot_factory.hpp"
@@ -26,7 +26,7 @@
 
 namespace dls
 {
-    class Hardware : public PeriodicAppLayerComponent
+    class Hardware : public PeriodicApp
     {
     public:
         typedef Hardware *create_t(std::string);

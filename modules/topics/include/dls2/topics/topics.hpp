@@ -41,6 +41,7 @@
 #include <dls_messages/dds/param_serverPubSubTypes.h>
 #include <dls_messages/dds/doublePubSubTypes.h>
 #include <dls_messages/dds/controller_commandPubSubTypes.h>
+#include <dls_messages/dds/t265_statePubSubTypes.h>
 
 namespace dls
 {
@@ -61,8 +62,8 @@ namespace dls
 		extern dls::topicType command_feedback;
 
 		// simulation
-		extern std::string simulation_time;
 		extern dls::topicType simulation_pause;
+		extern dls::topicType time_factor;
 
 		// development pool
 		extern dls::topicType develop_testbench;
@@ -76,7 +77,7 @@ namespace dls
 
 		// services
 		extern dls::topicType param_server;
-		
+				
 		namespace high_level_estimation
 		{
 			extern dls::topicType legs_pose;
@@ -93,6 +94,7 @@ namespace dls
             extern dls::topicType aliengo_raw;
 			extern dls::topicType imu;
 			extern dls::topicType joint_states;
+			extern dls::topicType t265_state;
 		}
 	}
 }

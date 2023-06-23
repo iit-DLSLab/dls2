@@ -15,23 +15,17 @@
 *******************************************************************************/
 #ifndef CONSOLE_LAYER_HPP_BXNRZS8Q
 #define CONSOLE_LAYER_HPP_BXNRZS8Q
-// =============================================================================
-// Includes
-// =============================================================================
-// framework
-#include "app_layer.hpp"
 
-// stdlib
+// framework core
+#include "dls2/application/layer.hpp"
+
 #include <signal.h>
 
-// =============================================================================
-// Class Interface
-// =============================================================================
 namespace dls
 {
 	/// A console interface into the framework
 	///
-	class ConsoleLayer : public AppLayer
+	class ConsoleLayer : public Layer
 	{
 		// Console completion is handled by readline, which is a C-library.
 		// Therefore, need to declare this as a friend
@@ -51,12 +45,12 @@ namespace dls
 		/// Run the console
 		///
 		/// This is a blocking call that enters an infinite loop
-		Status run() override;
+		AppStatus run() override;
 
 		/// Stop the console
 		///
 		/// Will cause `run` to stop running
-		Status shutdown() override;
+		AppStatus stop() override;
 
 		/// Print the state of this layer
 		///

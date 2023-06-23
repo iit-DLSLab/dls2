@@ -23,14 +23,14 @@
 using namespace dls;
 
 LogLayer::LogLayer(std::string ID)
-	: AppLayer(ID)
-	, ddsLogLink(
+	: Layer(ID)
+	, ddsLogLink_(
 		"log_layer",
 		dls::domains::logging
 	)
 {
 	//debug_log
-	ddsLogLink.addReader(
+	ddsLogLink_.addReader(
 		"debug_log",
 		dls::topics::debug_log_stream,
 		std::function<void(void *)>
@@ -44,7 +44,7 @@ LogLayer::LogLayer(std::string ID)
 	);
 
 	//info_log
-	ddsLogLink.addReader(
+	ddsLogLink_.addReader(
 		"info_log",
 		dls::topics::info_log_stream,
 		std::function<void(void *)>
@@ -58,7 +58,7 @@ LogLayer::LogLayer(std::string ID)
 	);
 
 	//warn_log
-	ddsLogLink.addReader(
+	ddsLogLink_.addReader(
 		"warn_log",
 		dls::topics::warn_log_stream,
 		std::function<void(void *)>
@@ -72,7 +72,7 @@ LogLayer::LogLayer(std::string ID)
 	);
 
 	//error_log
-	ddsLogLink.addReader(
+	ddsLogLink_.addReader(
 		"error_log",
 		dls::topics::error_log_stream,
 		std::function<void(void *)>
@@ -86,7 +86,7 @@ LogLayer::LogLayer(std::string ID)
 	);
 
 	//fatal_log
-	ddsLogLink.addReader(
+	ddsLogLink_.addReader(
 		"fatal_log",
 		dls::topics::fatal_log_stream,
 		std::function<void(void *)>
@@ -98,9 +98,37 @@ LogLayer::LogLayer(std::string ID)
 			}
 		}
 	);
+
+	// Start recording an MCAP log file
+	command_manager.addCommand<>
+    (
+        "startRecording",
+        "Start recording an MCAP log file",
+        std::function<bool()>([&]()->bool
+        {
+			foxserver_.record_mcap_log(true, LogLayer::get_current_time());
+			return true;
+        }),
+        {{}},
+        true
+    );
+
+	// Stop recording the MCAP log file
+	command_manager.addCommand<>
+    (
+        "stopRecording",
+        "Stop recording the MCAP log file",
+        std::function<bool()>([&]()->bool
+        {
+			foxserver_.record_mcap_log(false);
+			return true;
+        }),
+        {{}},
+        true
+    );
 }
 
-LogLayer::Status LogLayer::run()
+AppStatus LogLayer::run()
 {
 	while(!this->should_quit)
 	{
@@ -110,7 +138,7 @@ LogLayer::Status LogLayer::run()
 	return this->getStatus();
 }
 
-LogLayer::Status LogLayer::shutdown()
+AppStatus LogLayer::stop()
 {
 	int i = 0;
 	while(this->getParticipant()->getParticipants().size() > 1 && i < 10)
@@ -129,7 +157,7 @@ std::string LogLayer::get_current_time()
     struct tm  tstruct;
     char       buf[256];
     tstruct = *localtime(&now);
-    strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
+    strftime(buf, sizeof(buf), "%y-%m-%d_%H.%M.%S", &tstruct);
 
 	return buf;
 }

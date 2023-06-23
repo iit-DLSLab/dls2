@@ -1,0 +1,135 @@
+/*******************************************************************************
+*                                                       ,----,                 *
+*                                                     .'   .' \                *
+*                                                   ,----,'    |               *
+*               ________  ___       ________        |    :  .  ;               *
+*              |\   ___ \|\  \     |\   ____\       ;    |.'  /                *
+*              \ \  \_|\ \ \  \    \ \  \___|_      `----'/  ;                 *
+*               \ \  \ \\ \ \  \    \ \_____  \       /  ;  /                  *
+*                \ \  \_\\ \ \  \____\|____|\  \     ;  /  /-,                 *
+*                 \ \_______\ \_______\____\_\  \   /  /  /.`|                 *
+*                  \|_______|\|_______|\_________\./__;      :                 *
+*                                     \|_________||   :    .'                  *
+*                                                 ;   | .'                     *
+*                                                 `---'                        *
+*******************************************************************************/
+#include "dls2/application/layer.hpp"
+#include "dls2/class_loader.hpp"
+
+using namespace dls;
+
+Layer::Layer(const std::string &ID_) 
+	: App(ID_)
+	, components_mutex()
+    , components({})
+	, ddsLink(std::make_shared<dls::DDSParticipant>(ID_, dls::domains::layers))	
+{
+	command_manager.addCommand<>
+	(
+		"shutdown",
+		"Shutdown the " + this->getID() + " layer",
+        std::function<bool()>([&]()->bool
+        {
+			this->stop();
+            return true;
+		}),
+		{},
+		true
+	);
+
+	command_manager.addCommand<>
+	(
+		"where",
+		"Prints the state of " + this->getID(),
+		std::function<bool()>([&]()->bool
+        {
+			std::cout << where() << std::endl;
+            return true;
+		}),
+		{},
+		true
+	);
+}
+
+Layer::~Layer()
+{ }
+
+std::shared_ptr<dls::DDSParticipant> Layer::getParticipant()
+{
+	return ddsLink;
+}
+
+void Layer::addComponent(const std::string &name, pComponent_t component)
+{
+	std::lock_guard<std::mutex> lock(this->components_mutex);
+	this->components[name] = component;
+}
+
+void Layer::removeComponent(const std::string &name)
+{
+	std::lock_guard<std::mutex> lock(this->components_mutex);
+	this->components.erase(name);
+}
+
+AppStatus Layer::getComponentStatus(const std::string &name)
+{
+	std::lock_guard<std::mutex> lock(this->components_mutex);
+	auto it = this->components.find(name);
+
+	if(it != this->components.end())
+	{
+		return it->second->getStatus();
+	}
+	else
+	{
+		return AppStatus::UNCONSTRUCTED;
+	}
+}
+
+bool Layer::loadComponentFromDisk(const std::string &name)
+{
+    const std::string ID(name);
+	if(this->components.find(ID) != this->components.end())
+	{
+		scout_sys << name << " is already loaded." << std::endl;
+		return false;
+	}
+
+	std::shared_ptr<App> component;
+	// First try from the current directory
+	try
+	{
+		component = ClassLoader::loadClass<App>
+		(
+			std::string("/usr/lib/dls2/lib") + name + ".so",
+			ID
+		);
+	}
+	catch (const std::exception &e)
+	{
+        scout_err << e.what() << std::endl;
+
+		// Try from install location of this layer
+		try
+		{
+			component = ClassLoader::loadClass<App>
+			(
+				std::string("@DLS_INSTALL_COMPONENT_BASE_DIR@") + "/" + this->getID() + "/" + name + ".so",
+				ID
+			);
+		}
+		catch (const std::exception &e)
+		{
+            scout_err << e.what() << std::endl;
+            scout_err << name << " not found" << std::endl;
+            return false;
+		}
+	}
+
+	scout_sys << name << " is loaded." << std::endl;
+
+	this->addComponent(ID, component);
+	
+    return true;
+
+}

@@ -44,8 +44,8 @@ public:
 
 	void run(const std::chrono::system_clock::time_point &time) override;
 
-	// Status stop() override { return getStatus(); }
-	Status eStop() override { return getStatus(); }
+	// AppStatus stop() override { return getStatus(); }
+	AppStatus eStop() override { return getStatus(); }
 
 	std::string where() override;
 

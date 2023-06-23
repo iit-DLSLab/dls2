@@ -14,8 +14,13 @@ target_link_libraries(dls_controller
 	PUBLIC
 		robotlib
 		dls_math
-		dls_framework_components
+		dls_app
+		dls_command
+		dls_logging
 		dls_message_wrappers
+		dls_com
+		dls_topics
+		dls_domains
 )
 
 dls_install(dls_controller)

@@ -23,7 +23,7 @@
 #include <chrono>
 #include <mutex>
 
-#include "dls2/components/periodic_app_layer_component.hpp"
+#include "dls2/application/app.hpp"
 
 #include "dls2/util/messaging/dds_reader.hpp"
 #include "dls2/util/messaging/dds_writer.hpp"

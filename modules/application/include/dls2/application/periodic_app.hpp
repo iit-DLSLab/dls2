@@ -13,46 +13,23 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef PERIODIC_APP_LAYER_COMPONENT_HPP_RY9LWBZG
-#define PERIODIC_APP_LAYER_COMPONENT_HPP_RY9LWBZG
-#include "dls2/components/app_layer_component.hpp"
-#include "yaml-cpp/yaml.h"
+#ifndef PERIODIC_APP_HPP_RY9LWBZG
+#define PERIODIC_APP_HPP_RY9LWBZG
 
-#include <condition_variable>
-#include <chrono>
-#include <atomic>
-#include <mutex>
+#include "dls2/application/app.hpp"
+
+#include <dls2/application/sched_attr.hpp>
+#include <dls2/util/time/time.hpp>
 
 #include <boost/process.hpp>
-
-#define SCHED_DEADLINE       6
-#define __NR_sched_setattr           314
-#define __NR_sched_getattr           315
-
-struct sched_attr {
-	__u32 size;
-
-	__u32 sched_policy;
-	__u64 sched_flags;
-
-	/* SCHED_NORMAL, SCHED_BATCH */
-	__s32 sched_nice;
-
-	/* SCHED_FIFO, SCHED_RR */
-	__u32 sched_priority;
-
-	/* SCHED_DEADLINE (nsec) */
-	__u64 sched_runtime;
-	__u64 sched_deadline;
-	__u64 sched_period;
-};
+#include <yaml-cpp/yaml.h>
 
 namespace dls
 {
 	/// Periodic component
 	///
 	/// This class automatically calls its own run function at a given period
-	class PeriodicAppLayerComponent : public AppLayerComponent
+	class PeriodicApp : public App
 	{
 	public:
 
@@ -61,18 +38,18 @@ namespace dls
 		/// Constructor
 		///
 		/// @param ID the name of this component
-		PeriodicAppLayerComponent(const std::string &ID);
+		PeriodicApp(const std::string &ID);
 
-		virtual ~PeriodicAppLayerComponent() = default;
+		virtual ~PeriodicApp() = default;
 
 		/// Runs the component
 		///
 		/// Automatically calls the abstract run function at the correct frequency
-		Status run() override;
+		AppStatus run() override;
 
 		/// Stops this component
 		///
-		Status stop() override;
+		AppStatus stop() override;
 
 		/// Virtual run function
 		///
@@ -89,9 +66,6 @@ namespace dls
 		const period_t period;
 
 	private:
-		/// Used to determine whether the periodic run function should be called
-		///
-		std::atomic_bool should_run;
 
 		// BEGIN critical section
 			/// mutex handling pausing and unpausing
@@ -109,7 +83,18 @@ namespace dls
 
 		//! Attrributes of the scheduler
 		struct sched_attr scheduler_attributes;
+
+		/// The component's time rate
+		///
+		Time time_factor;
+
+		double cur_time_factor;
+
+		pid_t pid;
+
+		double sched_runtime_factor;
+		double sched_deadline_factor;
 	};
 } // end namespace dls
 
-#endif /* end of include guard: PERIODIC_APP_LAYER_COMPONENT_HPP_RY9LWBZG */
+#endif /* end of include guard: PERIODIC_APP_HPP_RY9LWBZG */

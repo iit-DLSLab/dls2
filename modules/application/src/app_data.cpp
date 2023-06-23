@@ -13,30 +13,23 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef FOXGLOVE_LAYER_HPP
-#define FOXGLOVE_LAYER_HPP
+#ifndef APP_DATA_CPP
+#define APP_DATA_CPP
 
-#include "app_layer.hpp"
-#include "foxglove/foxserver.hpp"
+#include "dls2/application/app_data.hpp"
 
-namespace dls
+using namespace dls;
+
+AppData::AppData(const std::string& ID_) 
+    : proc(nullptr)
+    , ID(ID_)
+{ }
+
+AppData::~AppData(){}
+
+std::string AppData::getID()
 {
-/// Foxglove layer
+    return this->ID;
+}
 
-	class FoxgloveLayer : public AppLayer
-	{
-	public:
-		FoxgloveLayer(std::string ID);
-		~FoxgloveLayer();
-
-		Status run() override;
-		Status shutdown() override;
-
-		std::string where() override {return "not yet implemented"; }
-
-	private:
-        dls::FoxServer foxserver;
-	};
-} // end namespace dls
-
-#endif /* end of include guard: FOXGLOVE_LAYER_HPP */
+#endif /* end of include guard: APP_DATA_CPP*/

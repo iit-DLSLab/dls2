@@ -24,11 +24,11 @@ namespace dls
 	// Service Implementation
 	// =========================================================================
 	ServiceBase::ServiceBase(std::string& ID_)
-	    : AppLayerComponent(ID_)
+	    : App(ID_)
 		, should_quit(false)
 	{ }
 
-    AppLayerComponent::Status ServiceBase::run()
+    AppStatus ServiceBase::run()
 	{
 		while(!this->should_quit)
 		{
@@ -38,7 +38,7 @@ namespace dls
 		return this->getStatus();
 	}
 
-	AppLayerComponent::Status ServiceBase::stop()
+	AppStatus ServiceBase::stop()
 	{
 		this->should_quit = true;
 

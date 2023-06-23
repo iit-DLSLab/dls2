@@ -22,7 +22,6 @@
 
 namespace dls {
 
-  using json = nlohmann::json;
   using namespace std::placeholders;
 
   using AsioServer = websocketpp::server<websocketpp::config::asio>;
@@ -55,7 +54,7 @@ namespace dls {
         : ChannelWithoutId(std::move(ch))
         , id(id) {}
 
-    friend void to_json(json& j, const Channel& channel) 
+    friend void to_json(nlohmann::json& j, const Channel& channel) 
     {
       j = {
         {"id", channel.id},
@@ -143,7 +142,7 @@ namespace dls {
     void handleConnectionClosed(ConnHandle hdl);
     void handleMessage(ConnHandle hdl, MessagePtr msg);
 
-    void sendJson(ConnHandle hdl, json&& payload);
+    void sendJson(ConnHandle hdl, nlohmann::json&& payload);
     void sendBinary(ConnHandle hdl, const std::vector<uint8_t>& payload);
 
     bool anySubscribed(ChannelId chanId) const;

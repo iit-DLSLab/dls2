@@ -17,6 +17,9 @@ set(DLS_INSTALL_RUNTIME_DIR /usr/bin/dls2
 	CACHE STRING "Directory where framework executables are stored"
 )
 
+set(DLS_INSTALL_LIB_DIR /usr/lib/dls2
+	CACHE STRING "Directory where framework shared object libraries are stored"
+)
 set(DLS_INSTALL_MOTION_GENERATOR_DIR /usr/lib/dls2/motion_generators
 	CACHE STRING "Directory where shared object libraries for motion generators are stored"
 )

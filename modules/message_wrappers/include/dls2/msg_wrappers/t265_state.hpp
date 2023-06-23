@@ -13,23 +13,38 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef APP_DATA_CPP
-#define APP_DATA_CPP
+#ifndef T265_STATE_HPP
+#define T265_STATE_HPP
 
-#include "dls2/components/app_data.hpp"
+#include "robotlib/robot_base.hpp"
 
-using namespace dls;
+#include "dls2/msg_wrappers/wrapper.hpp"
+// #include "dls2/msg_wrappers/pose.hpp"
+// #include "dls2/msg_wrappers/screw.hpp"
+#include "dls_messages/dds/t265_state.h"
 
-AppData::AppData(const std::string& ID_) 
-    : proc(nullptr)
-    , ID(ID_)
-{ }
-
-AppData::~AppData(){}
-
-std::string AppData::getID()
+namespace dls
 {
-    return this->ID;
-}
+	class T265State : public Wrapper<T265StateMsg>
+	{
+	public:
+		T265State();
+		T265State(T265State&);
+        ~T265State();
 
-#endif /* end of include guard: APP_DATA_CPP*/
+		operator T265StateMsg() const override;
+		T265State& operator= (const T265StateMsg&) override;
+		T265State& operator= (const T265State&);
+
+		std::string robot_name;
+
+        Eigen::Vector3d position;
+        Eigen::Quaterniond orientation;
+
+        Eigen::Vector3d linear_velocity;
+        Eigen::Vector3d angular_velocity;
+        double timestamp;
+	};
+} // end namespace dls
+
+#endif /* end of include guard: T265_STATE_HPP */

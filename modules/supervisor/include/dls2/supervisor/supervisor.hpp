@@ -13,32 +13,39 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#include "dls2/core_framework/foxglove_layer.hpp"
+#ifndef SUPERVISOR_HPP
+#define SUPERVISOR_HPP
 
-using namespace dls;
+#include <string>
+#include <vector>
+#include <list>
 
-FoxgloveLayer::FoxgloveLayer(std::string ID) :
-	AppLayer(ID)
-{ 
-	scout_sys << "Foxglove layer loaded" << std::endl;
-}
+#include "dls2/command/command_manager.hpp"
+#include "dls2/util/messaging/dds_participant.hpp"
 
-FoxgloveLayer::~FoxgloveLayer()
-{ }
-
-AppLayer::Status FoxgloveLayer::run()
+namespace dls
 {
-	while(!this->should_quit)
+	class Supervisor
 	{
-		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(300));
-	}
-	return getStatus();
-}
+	public:
+		Supervisor(std::string ID);
+		~Supervisor();
 
-AppLayer::Status FoxgloveLayer::shutdown()
-{
-	this->should_quit = true;
+        std::string getID();
 
-	setStatus(Status::STOP);
-	return getStatus();
-}
+		int getNumLayers();
+		std::vector<std::string> getLayersNames();
+		bool containsLayer(std::string name);
+
+	private:
+
+        std::string ID;
+		
+        dls::DDSParticipant layersLink;
+
+	};
+
+	
+} // end namespace dls
+
+#endif /* end of include guard: SUPERVISOR_HPP */

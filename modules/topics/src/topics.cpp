@@ -36,8 +36,8 @@ namespace dls
 		dls::topicType command_feedback			= dls::topicType("command_feedback", new StringMsgPubSubType());
 
 		// simulation
-		std::string simulation_time 			= "simulation_time";
 		dls::topicType simulation_pause 		= dls::topicType("simulation_pause", new BoolMsgPubSubType());
+		dls::topicType time_factor				= dls::topicType("time_factor", new DoubleMsgPubSubType());
 
 		// development pool
 		dls::topicType develop_testbench		= dls::topicType("develop_testbench", new StringMsgPubSubType());
@@ -68,6 +68,7 @@ namespace dls
             dls::topicType aliengo_raw 			= dls::topicType("aliengo_raw", new AliengoRawMsgPubSubType());
 			dls::topicType imu 					= dls::topicType("imu", new ImuMsgPubSubType());
 			dls::topicType joint_states			= dls::topicType("joint_states", new JointStateMsgPubSubType());
+			dls::topicType t265_state			= dls::topicType("t265_state", new T265StateMsgPubSubType());			
 		}
 	}
 }

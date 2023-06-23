@@ -13,28 +13,23 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef APP_DATA_HPP
-#define APP_DATA_HPP
+#ifndef APP_STATUS_HPP
+#define APP_STATUS_HPP
 
-#include "dls2/util/messaging/dds_reader.hpp"
-#include <boost/process.hpp>
-
-/// A struct representing the control signal that is output by a Controller
 namespace dls
 {
-	class AppData
-    {
-    public:
-        AppData(const std::string&);
-        ~AppData();
+	enum class AppStatus
+	{
+		UNCONSTRUCTED,    ///< App has not been built
+		INITIALISING, 	  ///< App is initialising
+		RUNNING,          ///< App is running normally
+		FATAL_ERROR,      ///< App has had a fatal error
+		E_STOP,           ///< App has performed an emergency stop
+		SUCCESS,          ///< App finshed succesfully
+		FAIL,             ///< App failed
+		STOPPED,          ///< App stopped
+		BREAKING_REALTIME ///< App is breaking realtime
+	};
+} // end namespace dls
 
-        std::string getID();
-
-        std::shared_ptr<boost::process::child> proc;
-
-    private:
-        std::string ID;
-    };
-}// end namespace dls
-
-#endif /* end of include guard: APP_DATA_HPP */
+#endif /* end of include guard: APP_STATUS */

@@ -13,7 +13,12 @@ target_include_directories(dls_motion_generator
 target_link_libraries(dls_motion_generator
 	PUBLIC
 		robotlib
-		dls_framework_components
+		dls_app
+		dls_command
+		dls_logging
+		dls_com
+		dls_topics
+		dls_domains
 		dls_message_wrappers
         yaml-cpp
 )

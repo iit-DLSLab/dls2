@@ -19,7 +19,7 @@
 // =============================================================================
 // Includes
 // =============================================================================
-#include "dls2/components/periodic_app_layer_component.hpp"
+#include "dls2/application/periodic_app.hpp"
 #include "dls2/util/messaging/dds_participant.hpp"
 
 #include "robotlib/robot_factory.hpp"
@@ -31,7 +31,7 @@
 // =============================================================================
 namespace dls
 {
-class MotionGenerator : public PeriodicAppLayerComponent
+class MotionGenerator : public PeriodicApp
 {
 	public:
 		typedef MotionGenerator *create_t(std::string);
