@@ -109,6 +109,7 @@ int main(int argc, char **argv)
             pComponent =
                 ClassLoader::loadClass<Layer, std::string, std::string>(
                     std::string("${DLS_INSTALL_LIB_DIR}/libdls_framework.so"),
+                    args.component_name,
                     args.lib_name,
                     args.robot_name);
         }

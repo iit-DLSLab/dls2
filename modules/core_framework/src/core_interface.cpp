@@ -5,32 +5,32 @@
 #include "dls2/core_framework/estimation_layer.hpp"
 #include "dls2/core_framework/service_layer.hpp"
 
-extern "C" Layer *create(const std::string& type, const std::string& robot_name)
+extern "C" Layer *create(const std::string& layer_name, const std::string& type, const std::string& robot_name)
 {
 	Layer* p = nullptr;
 	if (type == "log")
 	{
-		p = new LogLayer("LogLayer");
+		p = new LogLayer(layer_name);
 	}	
 	else if (type == "hardware")	
 	{
-		p = new HardwareLayer("HardwareLayer");
+		p = new HardwareLayer(layer_name);
 	}
 	else if (type == "control")
 	{
-		p = new ControlLayer("ControlLayer", robot_name);
+		p = new ControlLayer(layer_name, robot_name);
 	}
 	else if (type == "console")	
 	{
-		p = new ConsoleLayer("ConsoleLayer");
+		p = new ConsoleLayer(layer_name);
 	}
 	else if (type == "estimation")	
 	{
-		p = new EstimationLayer("EstimationLayer");
+		p = new EstimationLayer(layer_name);
 	}
 	else if (type == "service")	
 	{
-		p = new ServiceLayer("ServiceLayer");
+		p = new ServiceLayer(layer_name);
 	}
 
 	return p;
