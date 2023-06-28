@@ -10,7 +10,7 @@ target_include_directories(dls_mcap_writer PUBLIC ${DIRS})
 target_link_libraries(dls_mcap_writer PUBLIC ${LIBS})
 
 # MCAP reader library
-add_library(dls_mcap_reader SHARED src/mcap_reader_utils.cpp)
+add_library(dls_mcap_reader SHARED src/mcap_reader_utils.cpp src/mcap_reader_support.cpp)
 target_include_directories(dls_mcap_reader PUBLIC ${DIRS})
 target_link_libraries(dls_mcap_reader PUBLIC ${LIBS})
 
