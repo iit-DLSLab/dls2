@@ -22,9 +22,9 @@ Attitude::Attitude()
 
 Attitude::Attitude(Attitude& from)
     : orientation(from.orientation)
-	, orient_imu(from.orient_imu)
+	, orient_t265(from.orient_t265)
     , angular_velocity(from.angular_velocity)
-	, euler_angles_imu(from.euler_angles_imu)
+	, euler_angles_t265(from.euler_angles_t265)
 	, euler_angles_est(from.euler_angles_est)
 	, timestamp(from.timestamp)
 { }
@@ -36,7 +36,7 @@ Attitude::operator AttitudeMsg() const
 	for(long unsigned int i = 0; i < msg.angular_velocity().size(); i++)
 	{
     	msg.angular_velocity()[i] = this->angular_velocity[i];
-		msg.euler_angles_imu()[i] = this->euler_angles_imu[i];
+		msg.euler_angles_t265()[i] = this->euler_angles_t265[i];
 		msg.euler_angles_est()[i] = this->euler_angles_est[i];
 	}
 
@@ -45,10 +45,10 @@ Attitude::operator AttitudeMsg() const
 	msg.orientation()[2] = this->orientation.z();
 	msg.orientation()[3] = this->orientation.w();
 
-	msg.orient_imu()[0] = this->orient_imu.x();
-	msg.orient_imu()[1] = this->orient_imu.y();
-	msg.orient_imu()[2] = this->orient_imu.z();
-	msg.orient_imu()[3] = this->orient_imu.w();
+	msg.orient_t265()[0] = this->orient_t265.x();
+	msg.orient_t265()[1] = this->orient_t265.y();
+	msg.orient_t265()[2] = this->orient_t265.z();
+	msg.orient_t265()[3] = this->orient_t265.w();
 
 	msg.timestamp(this->timestamp);
 
@@ -60,7 +60,7 @@ Attitude& Attitude::operator=(const AttitudeMsg& msg){
 	for(long unsigned int i = 0; i < msg.angular_velocity().size(); i++)
 	{
     	this->angular_velocity[i] = msg.angular_velocity()[i];
-		this->euler_angles_imu[i] = msg.euler_angles_imu()[i];
+		this->euler_angles_t265[i] = msg.euler_angles_t265()[i];
 		this->euler_angles_est[i] = msg.euler_angles_est()[i];
 	}
 	
@@ -69,10 +69,10 @@ Attitude& Attitude::operator=(const AttitudeMsg& msg){
 	this->orientation.z() = msg.orientation()[2];
 	this->orientation.w() = msg.orientation()[3];
 
-	this->orient_imu.x() = msg.orient_imu()[0];
-	this->orient_imu.y() = msg.orient_imu()[1];
-	this->orient_imu.z() = msg.orient_imu()[2];
-	this->orient_imu.w() = msg.orient_imu()[3];
+	this->orient_t265.x() = msg.orient_t265()[0];
+	this->orient_t265.y() = msg.orient_t265()[1];
+	this->orient_t265.z() = msg.orient_t265()[2];
+	this->orient_t265.w() = msg.orient_t265()[3];
 
 	this->timestamp = msg.timestamp();
 
@@ -82,9 +82,9 @@ Attitude& Attitude::operator=(const AttitudeMsg& msg){
 Attitude& Attitude::operator=(const Attitude& from)
 { 
     this->orientation = from.orientation;
-	this->orient_imu = from.orient_imu;
+	this->orient_t265 = from.orient_t265;
     this->angular_velocity = from.angular_velocity;
-    this->euler_angles_imu = from.euler_angles_imu;
+    this->euler_angles_t265 = from.euler_angles_t265;
 	this->euler_angles_est = from.euler_angles_est;
 	this->timestamp = from.timestamp;
 	
