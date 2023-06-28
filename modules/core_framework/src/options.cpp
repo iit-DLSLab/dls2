@@ -125,7 +125,7 @@ bool Options::parseArgs(int argc, char **argv)
 					nullptr
 				};
 				char *value;
-				int opt;
+				// int opt;
 				char *subopts = optarg;
 				
 				while(*subopts != '\0')
@@ -171,7 +171,8 @@ bool Options::parseArgs(int argc, char **argv)
 							std::cout << std::endl;
 							goto invalid_command_line;
 						}
-					opt = getsubopt(&subopts, tokens, &value);
+					// opt = getsubopt(&subopts, tokens, &value);
+					getsubopt(&subopts, tokens, &value);
 				}
 				break;
 			}
