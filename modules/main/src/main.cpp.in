@@ -134,7 +134,7 @@ int main(int argc, char **argv)
 	if(Options::launch_hardware) 	loadLayer("hardware", "HardwareLayer");
 	if(Options::launch_control)  	loadLayer("control", "ControlLayer");
 	if(Options::launch_console)	 	loadLayer("console", "ConsoleLayer");
-	if(Options::launch_estimation)	loadLayer("estimation", "EstimationLayer");
+	if(Options::launch_estimation)	loadLayer("estimation", Options::estimation_layer_name);
 
 	// Monitor the layers
 	// loop is exited when there are no more children
