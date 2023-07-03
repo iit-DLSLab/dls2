@@ -36,11 +36,11 @@ namespace dls
         Attitude& operator=(const Attitude&);
 
         Eigen::Quaterniond orientation;
-        Eigen::Quaterniond orient_imu;
+        Eigen::Quaterniond orient_t265;
 
         Eigen::Vector3d angular_velocity{Eigen::Vector3d::Zero()};
 
-        Eigen::Vector3d euler_angles_imu{Eigen::Vector3d::Zero()};
+        Eigen::Vector3d euler_angles_t265{Eigen::Vector3d::Zero()};
         Eigen::Vector3d euler_angles_est{Eigen::Vector3d::Zero()};
         
         double timestamp;

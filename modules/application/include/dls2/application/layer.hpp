@@ -28,7 +28,7 @@ namespace dls
 	public:
 		using pComponent_t = std::shared_ptr<App>;
 
-		typedef Layer *create_t(const std::string& type, const std::string& name);
+		typedef Layer *create_t(const std::string& layer_name, const std::string& type, const std::string& name);
 		typedef void destroy_t(Layer*);
 
 		/// Constructor
