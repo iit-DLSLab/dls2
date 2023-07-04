@@ -40,7 +40,7 @@ namespace dls
         Eigen::Quaterniond robot_orientation;
         // EDIT#3/7 use it when PlotJuggler plugin for FastDDS supports sequence data structures
         // std::vector<Eigen::Vector3d> markers_positions{};
-        std::vector<double> markers_positions{};
+        std::array<double, 21> markers_positions{};
     };
 } // end namespace dls
 #endif /* end of include guard: VICON_HPP */

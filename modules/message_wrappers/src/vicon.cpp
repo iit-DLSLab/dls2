@@ -59,7 +59,8 @@ namespace dls
 
         for(unsigned int marker_index{0}; marker_index < this->markers_positions.size(); ++marker_index)
         {
-            msg.markers_positions().push_back(this->markers_positions.at(marker_index));
+            // msg.markers_positions().push_back(this->markers_positions.at(marker_index));
+            msg.markers_positions()[marker_index] = this->markers_positions[marker_index];
         }
 
         return msg;
@@ -90,7 +91,8 @@ namespace dls
 
         for(unsigned int marker_index{0}; marker_index < msg.markers_positions().size(); ++marker_index)
         {
-            this->markers_positions.push_back(msg.markers_positions().at(marker_index));
+            // this->markers_positions.push_back(msg.markers_positions().at(marker_index));
+            this->markers_positions[marker_index] = msg.markers_positions()[marker_index];
         }
 
         return *this;
