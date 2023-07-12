@@ -19,7 +19,6 @@
 #include "dls2/application/layer.hpp"
 #include "dls2/util/messaging/dds_participant.hpp"
 #include "dls2/topics/topics.hpp"
-#include "foxglove/foxserver.hpp"
 
 namespace dls
 {
@@ -38,11 +37,7 @@ namespace dls
 		std::string where() override {return "not yet implemented"; }
 
 	private:
-		static std::string get_current_time();
-
-		DDSParticipant ddsLogLink_;
-
-		dls::FoxServer foxserver_;
+		std::shared_ptr<dls::DDSParticipant> dds_participant_;
 	};
 } // end namespace dls
 

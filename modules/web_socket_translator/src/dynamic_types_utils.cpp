@@ -29,8 +29,8 @@
 #include <fastrtps/types/TypeObjectFactory.h>
 
 
-#include "foxglove/dynamic_types_utils.hpp"
-#include "foxglove/utils.hpp"
+#include "dls2/web_socket_translator/dynamic_types_utils.hpp"
+#include "dls2/web_socket_translator/utils.hpp"
 
 namespace dls {
 namespace dds {

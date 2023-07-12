@@ -23,7 +23,7 @@
 #define _EPROSIMA_PLOTJUGGLERFASTDDSPLUGIN_PLUGINS_DATASTREAMERPLUGIN_UTILS_DYNAMICTYPESUTILS_HPP_
 
 #include <fastrtps/types/DynamicData.h>
-#include "foxglove/types.hpp"
+#include "dls2/web_socket_translator/types.hpp"
 #include <nlohmann/json.hpp>
 
 namespace dls {

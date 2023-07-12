@@ -39,6 +39,7 @@
 #include <dls_messages/dds/sensor_fusionPubSubTypes.h>
 #include <dls_messages/dds/viconPubSubTypes.h>
 #include <dls_messages/dds/param_serverPubSubTypes.h>
+#include <dls_messages/dds/web_socket_translatorPubSubTypes.h>
 #include <dls_messages/dds/doublePubSubTypes.h>
 #include <dls_messages/dds/controller_commandPubSubTypes.h>
 #include <dls_messages/dds/t265_statePubSubTypes.h>
@@ -78,6 +79,7 @@ namespace dls
 
 		// services
 		extern dls::topicType param_server;
+		extern dls::topicType web_socket_translator;
 				
 		namespace high_level_estimation
 		{
