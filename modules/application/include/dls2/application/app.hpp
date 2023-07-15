@@ -96,10 +96,11 @@ namespace dls
 		const std::string ID;
 	private:
 		// BEGIN critical section
-			mutable std::mutex status_mutex;
-			AppStatus status;
+		mutable std::mutex status_mutex;
+		AppStatus status;
 		// END critical section
-
+	protected:
+		std::string get_current_time();
 	};
 } // end namespace dls
 

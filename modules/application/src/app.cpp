@@ -55,8 +55,7 @@ App::App(const std::string &ID_)
 	);
 }
 
-App::~App()
-{ }
+App::~App(){}
 
 std::string App::getID()
 {
@@ -83,4 +82,15 @@ bool App::shouldQuit()
 AppStatus App::eStop()
 {
 	return this->stop();
+}
+
+std::string App::get_current_time()
+{
+	time_t     now = time(0);
+    struct tm  tstruct;
+    char       buf[256];
+    tstruct = *localtime(&now);
+    strftime(buf, sizeof(buf), "%y-%m-%d_%H.%M.%S", &tstruct);
+
+	return buf;
 }

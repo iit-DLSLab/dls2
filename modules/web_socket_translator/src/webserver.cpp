@@ -1,9 +1,4 @@
-#include <foxglove/foxserver.hpp>
-
-#include <atomic>
-#include <chrono>
-#include <iostream>
-#include <thread>
+#include "dls2/web_socket_translator/webserver.hpp"
 
 using namespace boost;
 using namespace dls;
