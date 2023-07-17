@@ -51,6 +51,7 @@ namespace dls
 
 		// services
 		dls::topicType param_server 			= dls::topicType("add_double", new ParamServerMsgPubSubType());
+		dls::topicType web_socket_translator 	= dls::topicType("web_socket_translator", new WebSocketTranslatorMsgPubSubType());
 
 		namespace high_level_estimation
 		{

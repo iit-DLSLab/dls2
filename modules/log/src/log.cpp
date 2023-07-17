@@ -109,18 +109,18 @@ cdbgstream::~cdbgstream()
 clogstream::clogstream(const std::string &prefix, std::size_t buffer_size) :
 	std::ostream
 	(
-		// new LogStreamBuffer
-		// (
-		// 	dls::topics::info_log_stream,
-		// 	buffer_size,
-		// 	prefix
-		// )
+		new LogStreamBuffer
+		(
+			dls::topics::info_log_stream,
+			buffer_size,
+			prefix
+		)
 	)
 { }
 
 clogstream::~clogstream()
 {
-	// delete rdbuf();
+	delete rdbuf();
 }
 // -----------------------------------------------------------------------------
 // Cout Stream
