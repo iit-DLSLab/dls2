@@ -125,7 +125,7 @@ bool HardwareLayer::unloadHardware(std::shared_ptr<AppData> pData)
 	// std::lock_guard<std::mutex> lock(this->hardwares_mutex);
 
     //shutdown hardware over the dds comunication layer
-	command_manager.callCommand("exit", {}, pData->getID());
+	command_manager.callCommand("shutdown", {}, pData->getID());
 
     //wait a little for hardware to exit
 	std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
