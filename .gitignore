@@ -20,3 +20,4 @@ catkin_ws/packaging/dls2_ws/DEBIAN/control
 catkin_ws/packaging/dls2_ws.deb
 catkin_ws/dls2_ws
 .vscode/
+/nohup.out
