@@ -91,9 +91,9 @@ int main(int argc, char** argv)
 	{
 		topic = dls::topics::desired_torques;
 	}
-	else if(topic_name == "mpc_generator")
+	else if(topic_name == "mpc_controller")
 	{
-		topic = dls::topicType("mpc_generator", new  ControlSignalMsgPubSubType());
+		topic = dls::topicType("mpc_controller", new  ControlSignalMsgPubSubType());
 	}
 	else
 	{

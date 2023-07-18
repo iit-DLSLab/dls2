@@ -109,8 +109,12 @@ bool HardwareLayer::loadHardware(const std::string &lib_name)
 		Options::robot_name
 	}));
 
-	if (pData->proc == nullptr || pData->proc->wait_for(std::chrono::duration<double, std::milli>(1000))){
-		scout_err << "Hardware process failed to launch" << std::endl;
+	if (pData->proc == nullptr){
+		scout_err << "Hardware " << lib_name <<" failed to launch: nullptr" << std::endl;
+		return false;
+	}
+	else if (pData->proc->wait_for(std::chrono::duration<double, std::milli>(1000))){
+		scout_err << "Hardware " << lib_name <<" failed to launch: expired timeout" << std::endl;
 		return false;
 	}
 

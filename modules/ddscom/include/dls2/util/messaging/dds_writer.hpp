@@ -28,7 +28,8 @@ namespace dls
 		DDSWriter(
 			std::string     			partName_,
 			dls::domainType 			domain_,
-			dls::topicType  			topic_
+			dls::topicType  			topic_,
+			eprosima::fastdds::dds::DataWriterQos qos_ = eprosima::fastdds::dds::DATAWRITER_QOS_DEFAULT
 		);
 
 		virtual ~DDSWriter();

@@ -180,7 +180,8 @@ namespace dls
 
 	eprosima::fastdds::dds::DataWriter* DDSParticipant::addWriter(
 		std::string writerName_,
-		dls::topicType topicData_)
+		dls::topicType topicData_,
+		eprosima::fastdds::dds::DataWriterQos qos)
 	{
 		if(this->writers.find(writerName_) != this->writers.end())
 			throw std::runtime_error("THE WRITER " + writerName_ + " ALREADY EXISTS, YOU ARE TRYING TO CREATE TWICE");
@@ -192,7 +193,7 @@ namespace dls
 
 		auto writer = this->publisher->create_datawriter(
 			topic,
-			eprosima::fastdds::dds::DATAWRITER_QOS_DEFAULT,
+			qos,
 			nullptr
 			//&this->publisher_listener
 		);
@@ -228,7 +229,8 @@ namespace dls
 	eprosima::fastdds::dds::DataReader *DDSParticipant::addReader(
 		std::string readerName_,
 		dls::topicType topicData_,
-		std::function<void(void *)> callback_)
+		std::function<void(void *)> callback_,
+		eprosima::fastdds::dds::DataReaderQos qos)
 	{
 		if(this->readers.find(readerName_) != this->readers.end())
 		{
@@ -246,7 +248,7 @@ namespace dls
 
 		auto reader = this->subscriber->create_datareader(
 			topic,
-			eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT,
+			qos,
 			listener.get());
 
 		if (reader != nullptr)
