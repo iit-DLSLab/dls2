@@ -122,7 +122,7 @@ namespace dls
 
 		/// fastdds remote commands monitor
 		///
-		dls::DDSWriter commands_monitor;	
+		std::shared_ptr<dls::DDSWriter> commands_monitor;
 
 		/// Current command running level
 		///

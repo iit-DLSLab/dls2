@@ -56,13 +56,15 @@ namespace dls
 
 		eprosima::fastdds::dds::DataWriter* addWriter(
 			std::string    writerName,
-			dls::topicType topicData
+			dls::topicType topicData,
+			eprosima::fastdds::dds::DataWriterQos qos = eprosima::fastdds::dds::DATAWRITER_QOS_DEFAULT
 		);
 
 		eprosima::fastdds::dds::DataReader* addReader(
 			std::string                 readerName,
 			dls::topicType				topicData,
-			std::function<void(void *)>	callback
+			std::function<void(void *)>	callback,
+			eprosima::fastdds::dds::DataReaderQos qos = eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT
 		);
 
 		bool deleteReader(const std::string& reader_name);
