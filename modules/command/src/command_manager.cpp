@@ -23,15 +23,20 @@ using namespace dls;
 CommandManager::CommandManager(std::string owner_)
 	: commands()
 	, owner(owner_)
-	, commands_monitor(
-		owner_+"::commands_monitor",
-		domains::command,
-		dls::topics::command_call
-	)
 	, level(0)
 	, levelThread(&CommandManager::levelWatcher, this)
 	, should_exit(false)
-{ }
+{
+	eprosima::fastdds::dds::DataWriterQos qos(eprosima::fastdds::dds::DATAWRITER_QOS_DEFAULT);
+	qos.reliability().kind = eprosima::fastdds::dds::RELIABLE_RELIABILITY_QOS;
+	qos.durability().kind = eprosima::fastdds::dds::TRANSIENT_LOCAL_DURABILITY_QOS;
+	commands_monitor = std::make_shared<dls::DDSWriter>(
+		owner_+"::commands_monitor",
+		domains::command,
+		dls::topics::command_call,
+		qos
+	);
+ }
 
 CommandManager::~CommandManager()
 {
@@ -128,7 +133,7 @@ std::multimap<std::string, std::string> CommandManager::find
 std::multimap<std::string, std::string> CommandManager::getCommandsList()
 {
 	// get all the remote commands
-	auto remCommands = commands_monitor.getParticipants();
+	auto remCommands = commands_monitor->getParticipants();
 	// remove the monitors
 	std::erase_if(remCommands, [](std::string value) { return (value.find("monitor") != std::string::npos); });
 
@@ -147,7 +152,7 @@ std::multimap<std::string, std::string> CommandManager::getCommandsList()
 
 std::set<std::string> CommandManager::getOwnersList()
 {
-	auto remCommands = commands_monitor.getParticipants();
+	auto remCommands = commands_monitor->getParticipants();
 
 	std::set<std::string> set;
 	for(auto it = commands.begin(); it != commands.end(); ++it)
@@ -219,7 +224,7 @@ void CommandManager::sendMessage(std::pair<std::string, std::string> cmdData_, s
 	msg.command_name(cmdData_.first);
 	msg.args(outString);
 
-	this->commands_monitor.sendMessage(&msg);
+	this->commands_monitor->sendMessage(&msg);
 }
 
 std::string CommandManager::getOwner()

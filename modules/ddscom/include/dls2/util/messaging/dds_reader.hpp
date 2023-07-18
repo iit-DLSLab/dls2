@@ -28,7 +28,8 @@ namespace dls
 			std::string     			partName_,
 			dls::domainType 			domain_,
 			dls::topicType  			topic_,
-			std::function<void(void *)> callback_
+			std::function<void(void *)> callback_,
+			eprosima::fastdds::dds::DataReaderQos qos_ = eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT
 		);
 		virtual ~DDSReader();
 

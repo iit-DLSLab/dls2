@@ -23,11 +23,12 @@ namespace dls
 	DDSWriter::DDSWriter(
 		std::string     partName_,
 		dls::domainType domain_,
-		dls::topicType  topic_
+		dls::topicType  topic_,
+		eprosima::fastdds::dds::DataWriterQos qos_
 	)
 		: DDSParticipant(partName_, domain_)
 	{
-		this->writer = this->addWriter("unicWriter", topic_);
+		this->writer = this->addWriter("unicWriter", topic_, qos_);
 	}
 
 	DDSWriter::~DDSWriter(){}
