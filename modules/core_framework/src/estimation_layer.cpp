@@ -135,8 +135,12 @@ bool EstimationLayer::loadEstimator(const Estimator::ID_t& lib_name)
 			"aliengo"
 		}));
 
-		if (pData->proc == nullptr || pData->proc->wait_for(std::chrono::duration<double, std::milli>(1000))){
-			scout_err << "Estimator " << lib_name << " failed to launch" << std::endl;
+		if (pData->proc == nullptr){
+			scout_err << "Estimator " << lib_name <<" failed to launch: nullptr" << std::endl;
+			return false;
+		}
+		else if (pData->proc->wait_for(std::chrono::duration<double, std::milli>(1000))){
+			scout_err << "Estimator " << lib_name <<" failed to launch: expired timeout" << std::endl;
 			return false;
 		}
 

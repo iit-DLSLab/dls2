@@ -112,8 +112,12 @@ bool ServiceLayer::loadService(const std::string& lib_name)
 			""
 		}));
 
-		if (pData->proc == nullptr || pData->proc->wait_for(std::chrono::duration<double, std::milli>(1000))){
-			scout_err << "Service " << lib_name << " failed to launch" << std::endl;
+		if (pData->proc == nullptr){
+			scout_err << "Service " << lib_name <<" failed to launch: nullptr" << std::endl;
+			return false;
+		}
+		else if (pData->proc->wait_for(std::chrono::duration<double, std::milli>(1000))){
+			scout_err << "Service " << lib_name <<" failed to launch: expired timeout" << std::endl;
 			return false;
 		}
 
