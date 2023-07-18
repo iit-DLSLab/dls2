@@ -141,7 +141,7 @@ bool ServiceLayer::unloadService(const std::string ID)
 	auto pData = res->second;
 
     //shutdown service over the dds comunication layer
-	command_manager.callCommand("exit", {}, ID);
+	command_manager.callCommand("shutdown", {}, ID);
 
     // wait a little for service to exit
 	std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));

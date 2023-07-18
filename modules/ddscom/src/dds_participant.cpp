@@ -20,6 +20,8 @@
 #include <fastrtps/xmlparser/XMLProfileManager.h>
 #include <fastrtps/types/TypeObjectFactory.h>
 
+#include <fastdds/rtps/transport/UDPv4TransportDescriptor.h>
+
 /// \cond doxygen_namespace_dls
 namespace dls
 {
@@ -43,6 +45,16 @@ namespace dls
 		participantQos.wire_protocol().builtin.discovery_config.leaseDuration = eprosima::fastrtps::Duration_t(3, 1);
         participantQos.wire_protocol().builtin.discovery_config.leaseDuration_announcementperiod = eprosima::fastrtps::Duration_t(1, 2);
 		participantQos.name(partName_);
+
+		// Create a UDP descriptor for the new transport.
+		auto udp_transport = std::make_shared<eprosima::fastdds::rtps::UDPv4TransportDescriptor>();
+		// udp_transport->sendBufferSize = 9216;
+		// udp_transport->receiveBufferSize = 9216;
+		// udp_transport->non_blocking_send = true; // it avoids to wait for the available space in the UDP socket buffer
+		// Link the Transport Layer to the Participant.
+		participantQos.transport().user_transports.push_back(udp_transport);
+		// Avoid using the default transport (i.e. SHM)
+		participantQos.transport().use_builtin_transports = false;
 
 		if(ENABLE_FASTDDS_STATISTICS)
 		{

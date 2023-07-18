@@ -38,7 +38,7 @@ namespace dls
 	protected:
 		std::shared_ptr<dls::DDSParticipant> ddsLink;
 
-		std::string ID;
+		std::string ID_{};
 
 		// BEGIN critical section
 			const std::shared_ptr<SignalType> signal;

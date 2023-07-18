@@ -1,8 +1,3 @@
-CMakeLists.txt.user
-catkin_ws/.catkin_workspace
-catkin_ws/build
-catkin_ws/devel
-catkin_ws/install
 bin
 build
 compile_commands.json
@@ -15,8 +10,5 @@ Release/
 build-debug
 build-release
 install
-catkin_ws/packaging/dls2_ws/DEBIAN/control
 .setup.lock
-catkin_ws/packaging/dls2_ws.deb
-catkin_ws/dls2_ws
 .vscode/

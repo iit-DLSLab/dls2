@@ -31,9 +31,9 @@ SignalReader<SignalType>::SignalReader(std::shared_ptr<dls::DDSParticipant> part
 	while(participant_->getReader(std::to_string(id)) != nullptr)
 		id = std::experimental::randint(100000, 999999);
 
-	this->ID = std::to_string(id);
+	this->ID_ = std::to_string(id);
 
-	this->ddsLink->addReader(this->ID,
+	this->ddsLink->addReader(this->ID_,
 		topic_,
 		std::function<void(void*)>
 		{
@@ -50,7 +50,7 @@ SignalReader<SignalType>::SignalReader(std::shared_ptr<dls::DDSParticipant> part
 template <typename SignalType>
 SignalReader<SignalType>::~SignalReader()
 { 
-	this->ddsLink->deleteReader(this->ID);
+	this->ddsLink->deleteReader(this->ID_);
 }	
 
 #endif /* end of include guard: SIGNAL_READER_TPP */

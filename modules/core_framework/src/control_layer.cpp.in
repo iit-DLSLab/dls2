@@ -420,7 +420,7 @@ bool ControlLayer::unloadController(std::shared_ptr<ControllerData> pData)
 
 	// std::lock_guard<std::mutex> lock(this->controllers_mutex);
 
-	command_manager.callCommand("exit", {}, pData->getID());
+	command_manager.callCommand("shutdown", {}, pData->getID());
 
     //wait a little for motion exit
 	std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
@@ -497,7 +497,7 @@ bool ControlLayer::unloadMotionGenerator(std::shared_ptr<AppData> pData)
 	// std::lock_guard<std::mutex> lock(this->motion_mutex);
 
 	//shutdown controller over the dds comunication layer
-	command_manager.callCommand("exit", {}, pData->getID());
+	command_manager.callCommand("shutdown", {}, pData->getID());
 
 	// wait a little for motion exit
 	std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
