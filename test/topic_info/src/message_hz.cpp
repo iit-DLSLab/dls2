@@ -91,6 +91,10 @@ int main(int argc, char** argv)
 	{
 		topic = dls::topics::desired_torques;
 	}
+	else if(topic_name == "mpc_generator")
+	{
+		topic = dls::topicType("mpc_generator", new  ControlSignalMsgPubSubType());
+	}
 	else
 	{
 		std::cout << "Wrong topic name" << std::endl;

@@ -161,7 +161,7 @@ bool EstimationLayer::unloadEstimator(const Estimator::ID_t& ID)
 
 	auto pData = res->second;
 
-	command_manager.callCommand("exit", {}, pData->getID());
+	command_manager.callCommand("shutdown", {}, pData->getID());
 
     //wait a little for hardware to exit
 	std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));

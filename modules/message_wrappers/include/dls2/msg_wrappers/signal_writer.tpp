@@ -30,22 +30,22 @@ SignalWriter<SignalType>::SignalWriter(std::shared_ptr<dls::DDSParticipant> part
 	while(participant_->getWriter(std::to_string(id)) != nullptr)
 		id = std::experimental::randint(100000, 999999);
 
-	this->ID = std::to_string(id);
+	this->ID_ = std::to_string(id);
 
-	participant_->addWriter(this->ID, topic_);
+	participant_->addWriter(this->ID_, topic_);
 }
 	
 template <typename SignalType>
 SignalWriter<SignalType>::~SignalWriter()
 { 
-	this->ddsLink->deleteWriter(this->ID);
+	this->ddsLink->deleteWriter(this->ID_);
 }	
 
 template <typename SignalType>
 void SignalWriter<SignalType>::publish()
 {
 	std::lock_guard<std::mutex> lock(this->signal_mutex);
-	this->ddsLink->sendMessage(this->ID, this->signal->getMsg());
+	this->ddsLink->sendMessage(this->ID_, this->signal->getMsg());
 }
 
 #endif /* end of include guard: SIGNAL_WRITER_TPP */

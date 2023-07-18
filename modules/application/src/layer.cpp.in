@@ -23,33 +23,7 @@ Layer::Layer(const std::string &ID_)
 	, components_mutex()
     , components({})
 	, ddsLink(std::make_shared<dls::DDSParticipant>(ID_, dls::domains::layers))	
-{
-	command_manager.addCommand<>
-	(
-		"shutdown",
-		"Shutdown the " + this->getID() + " layer",
-        std::function<bool()>([&]()->bool
-        {
-			this->stop();
-            return true;
-		}),
-		{},
-		true
-	);
-
-	command_manager.addCommand<>
-	(
-		"where",
-		"Prints the state of " + this->getID(),
-		std::function<bool()>([&]()->bool
-        {
-			std::cout << where() << std::endl;
-            return true;
-		}),
-		{},
-		true
-	);
-}
+{ }
 
 Layer::~Layer()
 { }
