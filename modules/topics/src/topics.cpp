@@ -1,18 +1,4 @@
-/*******************************************************************************
-*                                                       ,----,                 *
-*                                                     .'   .' \                *
-*                                                   ,----,'    |               *
-*               ________  ___       ________        |    :  .  ;               *
-*              |\   ___ \|\  \     |\   ____\       ;    |.'  /                *
-*              \ \  \_|\ \ \  \    \ \  \___|_      `----'/  ;                 *
-*               \ \  \ \\ \ \  \    \ \_____  \       /  ;  /                  *
-*                \ \  \_\\ \ \  \____\|____|\  \     ;  /  /-,                 *
-*                 \ \_______\ \_______\____\_\  \   /  /  /.`|                 *
-*                  \|_______|\|_______|\_________\./__;      :                 *
-*                                     \|_________||   :    .'                  *
-*                                                 ;   | .'                     *
-*                                                 `---'                        *
-*******************************************************************************/
+
 #ifndef TOPICS_CPP
 #define TOPICS_CPP
 
@@ -51,7 +37,6 @@ namespace dls
 
 		// services
 		dls::topicType param_server 			= dls::topicType("add_double", new ParamServerMsgPubSubType());
-		dls::topicType web_socket_translator 	= dls::topicType("web_socket_translator", new WebSocketTranslatorMsgPubSubType());
 
 		namespace high_level_estimation
 		{

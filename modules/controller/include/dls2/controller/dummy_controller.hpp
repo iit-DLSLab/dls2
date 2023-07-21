@@ -1,25 +1,10 @@
-/*******************************************************************************
-*                                                       ,----,                 *
-*                                                     .'   .' \                *
-*                                                   ,----,'    |               *
-*               ________  ___       ________        |    :  .  ;               *
-*              |\   ___ \|\  \     |\   ____\       ;    |.'  /                *
-*              \ \  \_|\ \ \  \    \ \  \___|_      `----'/  ;                 *
-*               \ \  \ \\ \ \  \    \ \_____  \       /  ;  /                  *
-*                \ \  \_\\ \ \  \____\|____|\  \     ;  /  /-,                 *
-*                 \ \_______\ \_______\____\_\  \   /  /  /.`|                 *
-*                  \|_______|\|_______|\_________\./__;      :                 *
-*                                     \|_________||   :    .'                  *
-*                                                 ;   | .'                     *
-*                                                 `---'                        *
-*******************************************************************************/
 #ifndef DUMMY_CONTROLLER_HPP_YGHMJHQN
 #define DUMMY_CONTROLLER_HPP_YGHMJHQN
 
 #include <iostream>
 
 #include "dls2/controller/controller.hpp"
-#include "dls2/util/service/service.hpp"
+#include "dls2/util/service/service_server.hpp"
 #include "dls2/command/command.hpp"
 #include "dls2/log/log.hpp"
 
@@ -54,7 +39,7 @@ private:
 	// logging::clogstream outstream;
 	// logging::clogstream logstream;
 
-	// Service<StringMsgPubSubType, StringMsgPubSubType> service;
+	// ServiceServer<StringMsgPubSubType, StringMsgPubSubType> service_server_;
 };
 } // end namespace dls
 

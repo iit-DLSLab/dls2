@@ -9,23 +9,10 @@ namespace dls
     }
 
 	WebSocketTranslator::WebSocketTranslator(std::string& ID) 
-		: Service(
-			ID,
-			dls::topics::web_socket_translator,
-			dls::topicType(dls::topics::web_socket_translator.first + "_response", new WebSocketTranslatorMsgPubSubType()),
-			[this](void* req, void* res) -> void
-			{
-				// TODO: Remove
-				WebSocketTranslatorMsg* request_msg = (WebSocketTranslatorMsg*) req;
-				WebSocketTranslatorMsg* result_msg = (WebSocketTranslatorMsg*) res;
-
-				request_msg->name() = "WebSocketTranslator";
-				result_msg->name() = "WebSocketTranslator";
-				return;
-			})
+		: Service(ID)
 		, command_manager_(ID)
         , server_thread_(nullptr)
-        , webserver_(8765, "example server")
+        , webserver_(8765, "webserver")
         , dds_participant_(std::make_shared<dls::DDSParticipant>("Web_Socket_Translator::monitor", dls::domains::signals, false))
     {
         this->server_thread_ = std::make_shared<std::thread>(&WebSocketTranslator::serverFunc, this);

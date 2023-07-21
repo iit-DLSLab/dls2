@@ -1,18 +1,4 @@
-/*******************************************************************************
-*                                                       ,----,                 *
-*                                                     .'   .' \                *
-*                                                   ,----,'    |               *
-*               ________  ___       ________        |    :  .  ;               *
-*              |\   ___ \|\  \     |\   ____\       ;    |.'  /                *
-*              \ \  \_|\ \ \  \    \ \  \___|_      `----'/  ;                 *
-*               \ \  \ \\ \ \  \    \ \_____  \       /  ;  /                  *
-*                \ \  \_\\ \ \  \____\|____|\  \     ;  /  /-,                 *
-*                 \ \_______\ \_______\____\_\  \   /  /  /.`|                 *
-*                  \|_______|\|_______|\_________\./__;      :                 *
-*                                     \|_________||   :    .'                  *
-*                                                 ;   | .'                     *
-*                                                 `---'                        *
-*******************************************************************************/
+
 #ifndef TOPICS_HPP_1NBJMKZJ
 #define TOPICS_HPP_1NBJMKZJ
 
@@ -39,7 +25,6 @@
 #include <dls_messages/dds/sensor_fusionPubSubTypes.h>
 #include <dls_messages/dds/viconPubSubTypes.h>
 #include <dls_messages/dds/param_serverPubSubTypes.h>
-#include <dls_messages/dds/web_socket_translatorPubSubTypes.h>
 #include <dls_messages/dds/doublePubSubTypes.h>
 #include <dls_messages/dds/controller_commandPubSubTypes.h>
 #include <dls_messages/dds/t265_statePubSubTypes.h>
@@ -79,7 +64,6 @@ namespace dls
 
 		// services
 		extern dls::topicType param_server;
-		extern dls::topicType web_socket_translator;
 				
 		namespace high_level_estimation
 		{
