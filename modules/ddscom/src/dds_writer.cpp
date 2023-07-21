@@ -28,7 +28,7 @@ namespace dls
 	)
 		: DDSParticipant(partName_, domain_)
 	{
-		this->writer = this->addWriter("unicWriter", topic_, qos_);
+		this->writer = this->addWriter(partName_, topic_, qos_);
 	}
 
 	DDSWriter::~DDSWriter(){}

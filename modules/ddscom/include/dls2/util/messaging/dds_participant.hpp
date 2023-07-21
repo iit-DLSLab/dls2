@@ -54,6 +54,9 @@ namespace dls
 		eprosima::fastdds::dds::DataWriter* getWriter(std::string);
 		eprosima::fastdds::dds::DataReader* getReader(std::string);
 
+		std::shared_ptr<dls::DDSSubListener> getSubListener(const std::string&);
+		std::shared_ptr<dls::DDSPubListener> getPubListener(const std::string&);
+
 		eprosima::fastdds::dds::DataWriter* addWriter(
 			std::string    writerName,
 			dls::topicType topicData,
@@ -81,7 +84,8 @@ namespace dls
 		std::map<std::string, eprosima::fastdds::dds::Topic *>  	topics;	
 		std::map<std::string, eprosima::fastdds::dds::DataReader *> readers;
 		std::map<std::string, eprosima::fastdds::dds::DataWriter *> writers;
-		std::vector<std::shared_ptr<dls::DDSSubListener>>			subListeners;
+		std::map<std::string, std::shared_ptr<dls::DDSSubListener>>	subListeners;
+		std::map<std::string, std::shared_ptr<dls::DDSPubListener>>	pubListeners;
 
 		eprosima::fastdds::dds::Publisher  *publisher;
         eprosima::fastdds::dds::Subscriber *subscriber;

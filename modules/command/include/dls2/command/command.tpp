@@ -120,7 +120,7 @@ namespace dls
 		// Define QoS for the data reader
 		eprosima::fastdds::dds::DataReaderQos qos(eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT);
 		qos.reliability().kind = eprosima::fastdds::dds::RELIABLE_RELIABILITY_QOS;
-		qos.durability().kind = eprosima::fastdds::dds::TRANSIENT_LOCAL_DURABILITY_QOS;
+
 		// Create the data reader
 		ddslink = std::make_shared<dls::DDSReader>(
 			this->getOwner() + "::" + this->getName(),

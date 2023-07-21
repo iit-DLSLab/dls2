@@ -37,11 +37,11 @@ namespace dls
 	{
 		if(info.current_count_change == 1){
 			// publisher matched
-			this->matched_count = info.total_count;
+			this->matched_count = info.current_count;
 		}
 		else if(info.current_count_change == -1){
 			// publisher unmatched
-			this->matched_count = info.total_count;
+			this->matched_count = info.current_count;
 		}
 		else{
 			// invalid

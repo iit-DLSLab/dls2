@@ -178,6 +178,28 @@ namespace dls
 		return nullptr;
 	}
 
+	std::shared_ptr<dls::DDSSubListener> DDSParticipant::getSubListener(const std::string& name)
+	{
+		auto ret = this->subListeners.find(name);
+		if(ret != this->subListeners.end())
+			return ret->second;
+
+		throw std::runtime_error("No listener of for the reader " + name + "is found. Returning null pointer.");
+
+		return nullptr;
+	}
+
+	std::shared_ptr<dls::DDSPubListener> DDSParticipant::getPubListener(const std::string& name)
+	{
+		auto ret = this->pubListeners.find(name);
+		if(ret != this->pubListeners.end())
+			return ret->second;
+
+		throw std::runtime_error("No listener of for the writer " + name + "is found. Returning null pointer.");
+
+		return nullptr;
+	}
+
 	eprosima::fastdds::dds::DataWriter* DDSParticipant::addWriter(
 		std::string writerName_,
 		dls::topicType topicData_,
@@ -190,11 +212,12 @@ namespace dls
 
 		if (topic == nullptr)
 			throw std::runtime_error("THE WRITER " + writerName_ + " COULDN'T CREATE THE TOPIC " + topicData_.first);
+		std::shared_ptr<dls::DDSPubListener> listener = std::make_shared<DDSPubListener>();
 
 		auto writer = this->publisher->create_datawriter(
 			topic,
 			qos,
-			nullptr
+			listener.get()
 			//&this->publisher_listener
 		);
 
@@ -202,6 +225,7 @@ namespace dls
 			throw std::runtime_error("THE WRITER " + writerName_ + " COULDN'T BE CREATED");
 
 		this->writers.insert({writerName_, writer});
+		this->pubListeners.insert({writerName_, listener});
 
 		return writer;
 	}
@@ -254,7 +278,7 @@ namespace dls
 		if (reader != nullptr)
 		{
 			this->readers.insert({readerName_, reader});
-			this->subListeners.push_back(listener);
+			this->subListeners.insert({readerName_, listener});
 		}
 
 		return reader;
