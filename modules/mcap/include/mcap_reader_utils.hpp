@@ -3,6 +3,7 @@
 
 #include "mcap/reader.hpp"
 #include "mcap_support/mcap_reader_support.hpp"
+#include "dls2/log/log.hpp"
 #include <nlohmann/json.hpp>
 
 namespace dls
@@ -60,12 +61,17 @@ namespace dls
 		 * @brief MCAP reader 
 		 */
 		mcap::McapReader mcap_reader_{};
-		mcap_reader_support::MCAPReaderSupport mcap_reader_support_;
+		std::shared_ptr<mcap_reader_support::MCAPReaderSupport> mcap_reader_support_;
 
 		/**
 		 * @brief Used to verify if there is an ongoing playback of an MCAP log file
 		 */
         bool mcap_ongoing_playback_{false};
+
+		/**
+		 * @brief Used to print information in Log layer
+		 */
+		dls::logging::clogstream clogstream_;
     };
 } //namespace dls
 

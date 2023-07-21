@@ -2,6 +2,7 @@
 #define MCAP_WRITER_UTILS_HPP
 
 #include "mcap/writer.hpp"
+#include "dls2/log/log.hpp"
 #include <nlohmann/json.hpp>
 #include <map>
 
@@ -105,6 +106,11 @@ namespace dls
 		 * @brief Used to valorize the sequence field of MCAP message and so, enumerating the messages in an MCAP log file
 		 */
 		int sequence_counter_{};
+
+		/**
+		 * @brief Used to print information in Log layer
+		 */
+		dls::logging::clogstream clogstream_;
     };
 } //namespace dls
 

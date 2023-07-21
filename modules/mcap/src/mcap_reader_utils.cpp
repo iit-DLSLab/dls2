@@ -4,7 +4,10 @@
 
 namespace dls
 {
-    MCAPReaderUtils::MCAPReaderUtils() {}
+    MCAPReaderUtils::MCAPReaderUtils()
+        : mcap_reader_support_(std::make_shared<mcap_reader_support::MCAPReaderSupport>())
+        , clogstream_("MCAPReaderUtils")
+        {}
 
     MCAPReaderUtils::~MCAPReaderUtils()
     {
@@ -53,19 +56,21 @@ namespace dls
             }
             else
             {
-                std::cout << "Start playback of an MCAP log file" << std::endl;
+                clogstream_ << "Start playback of an MCAP log file" << std::endl;
 
                 setPlaybackStatus(true);
 
                 readMCAPLog(false);
 
-                stopPlayback();
+                clogstream_ << "End of MCAP log file" << std::endl;
+
+                resetData();
             }
         }
         // Return if there is an error (e.g. the path to the MCAP file is not valid)
         catch(const std::string& error)
         {
-            std::cout << error << std::endl;
+            clogstream_ << error << std::endl;
             return;
         }
     }
@@ -74,13 +79,11 @@ namespace dls
     {
         if(isPlaybackOngoing())
         {
-            std::cout << "Stop playback of the MCAP log file" << std::endl;
-
-            resetData();
+            clogstream_ << "Stop playback of the MCAP log file" << std::endl;
 
             setPlaybackStatus(false);
         }
-        else { std::cout << "No MCAP log playback ongoing" << std::endl; }
+        else { clogstream_ << "No MCAP log playback ongoing" << std::endl; }
     }
 
     void MCAPReaderUtils::readMCAPLog(bool print_mcap_log)
@@ -115,19 +118,19 @@ namespace dls
             }
 
             // Publish the MCAP message on DDS topic
-            mcap_reader_support_.publishMessageOnTopic(it, parsed);
+            mcap_reader_support_->publishMessageOnTopic(it, parsed);
 
             // Print the MCAP log file content for debug
             if (print_mcap_log)
             {
-                std::cout << it->message.sequence << ") " << it->channel->topic << "\t\t\t Time: " << it->message.logTime << std::endl;
+                clogstream_ << it->message.sequence << ") " << it->channel->topic << "\t\t\t Time: " << it->message.logTime << std::endl;
 
-                std::cout << "{" << std::endl;
+                clogstream_ << "{" << std::endl;
                 for (auto kv : parsed.items())
                 {
-                    std::cout << "\t" << kv.key() << ": " << kv.value() << std::endl;
+                    clogstream_ << "\t" << kv.key() << ": " << kv.value() << std::endl;
                 }
-                std::cout << "}" << std::endl;
+                clogstream_ << "}" << std::endl;
             }
         }
     }
