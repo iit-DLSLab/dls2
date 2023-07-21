@@ -11,7 +11,7 @@
 
 namespace dls
 {
-	class WebSocketTranslator : public dls::Service<WebSocketTranslatorMsg, WebSocketTranslatorMsg>, public dls::DDSPartListener
+	class WebSocketTranslator : public dls::Service, public dls::DDSPartListener
 	{
 	public:
 		WebSocketTranslator(std::string& ID);

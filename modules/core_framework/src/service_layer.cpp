@@ -21,8 +21,8 @@
 using namespace dls;
 
 
-ServiceLayer::ServiceLayer(std::string ID_) 
-	: Layer(ID_)
+ServiceLayer::ServiceLayer(std::string ID) 
+	: Layer(ID)
 	, ddsMonitor(std::make_shared<dls::DDSWriter>(
 		"ServiceLayer::monitor",
 		dls::domains::services,

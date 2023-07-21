@@ -13,8 +13,8 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef SERVICE_TPP
-#define SERVICE_TPP
+#ifndef SERVICE_CLIENT_TPP
+#define SERVICE_CLIENT_TPP
 
 #include "dls2/service/service_client.hpp"
 
@@ -106,4 +106,4 @@ namespace dls
 
 } // end namespace dls
 
-#endif /* end of include guard: SERVICE_TPP */
+#endif /* end of include guard: SERVICE_CLIENT_TPP */

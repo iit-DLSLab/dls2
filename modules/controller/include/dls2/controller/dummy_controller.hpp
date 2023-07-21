@@ -19,7 +19,7 @@
 #include <iostream>
 
 #include "dls2/controller/controller.hpp"
-#include "dls2/util/service/service.hpp"
+#include "dls2/util/service/service_server.hpp"
 #include "dls2/command/command.hpp"
 #include "dls2/log/log.hpp"
 
@@ -54,7 +54,7 @@ private:
 	// logging::clogstream outstream;
 	// logging::clogstream logstream;
 
-	// Service<StringMsgPubSubType, StringMsgPubSubType> service;
+	// ServiceServer<StringMsgPubSubType, StringMsgPubSubType> service_server_;
 };
 } // end namespace dls
 

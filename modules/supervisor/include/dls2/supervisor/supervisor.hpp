@@ -39,7 +39,7 @@ namespace dls
 
 	private:
 
-        std::string ID;
+        std::string ID_;
 		
         dls::DDSParticipant layersLink;
 

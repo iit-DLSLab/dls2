@@ -93,7 +93,7 @@ namespace dls
 
 		/// The ID of this app
 		///
-		const std::string ID;
+		const std::string ID_;
 	private:
 		// BEGIN critical section
 		mutable std::mutex status_mutex;

@@ -22,8 +22,8 @@
 namespace dls
 {
 
-	Supervisor::Supervisor(std::string ID_)
-    : ID(ID_)
+	Supervisor::Supervisor(std::string ID)
+    : ID_(ID)
     , layersLink(ID, dls::domains::layers)
 	{ }
 
@@ -32,7 +32,7 @@ namespace dls
 
     std::string Supervisor::getID()
     {
-        return this->ID;
+        return this->ID_;
     }
 
     int Supervisor::getNumLayers()

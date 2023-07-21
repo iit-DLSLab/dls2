@@ -24,61 +24,24 @@
 #include <mutex>
 
 #include "dls2/service/service_base.hpp"
-#include "dls2/util/messaging/dds_reader.hpp"
-#include "dls2/util/messaging/dds_writer.hpp"
 
 namespace dls
 {
 	// =========================================================================
-	// Service Server Class Declaration
+	// Service (Server) Class Declaration (with no request/response parameters)
 	// =========================================================================
 	/// A class representing a service that can be called asynchronously from
 	/// external processes
-	///
-	/// \tparam req_pubsub_t the PubSubType corresponding to the request message
-	/// that is sent to the server
-	/// \tparam res_pubsub_t the PubSubType corresponding to the response
-	/// message that is received from the server
 
-	template <typename req_pubsub_t, typename res_pubsub_t>
 	class Service : public ServiceBase
 	{
 	public:
 		
-		/// Creates a service
-		///
-		/// @param topic    the topic on which this service listens for requests
-		/// @param callback a pointer to a callback function that is called when
-		///                 this service receives a request
-		Service
-		(
-			std::string& ID,
-			const dls::topicType& topic_in,
-			const dls::topicType& topic_out,
-			std::function<void(void *, void *)> callback
-		);
-
+		/// Creates a service (server)
+		Service(std::string& ID);
 		virtual ~Service() = default;
-		
-	private:
-		
-		dls::topicType service_topic_in;
-		dls::topicType service_topic_out;
-		/// Subscriber waiting for a request message
-		///
-		dls::DDSReader request_subscriber;
-		dls::DDSWriter response_publisher;
-
-		/// The callback to call when a request is received
-		///
-		/// The return from this callback will automatically be sent to the
-		/// client that made the request
-		std::function<void(void *, void*)> callback;
-
 	};
 
 } // end namespace dls
 
-#include "dls2/service/service.tpp" 
-
-#endif /* end of include guard: SERVICE_HPP */
+#endif // SERVICE_HPP

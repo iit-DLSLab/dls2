@@ -13,16 +13,16 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef SERVICE_TPP
-#define SERVICE_TPP
+#ifndef SERVICE_SERVER_TPP
+#define SERVICE_SERVER_TPP
 
-#include "dls2/service/service.hpp"
+#include "dls2/service/service_server.hpp"
 
 namespace dls
 {
 	template <typename req_pubsub_t, typename res_pubsub_t>
-	Service<req_pubsub_t, res_pubsub_t>::Service(std::string& ID_, const dls::topicType &topic_in_, const dls::topicType &topic_out_, std::function<void(void *, void *)> callback_)
-	    : ServiceBase(ID_)
+	ServiceServer<req_pubsub_t, res_pubsub_t>::ServiceServer(std::string& ID, const dls::topicType &topic_in_, const dls::topicType &topic_out_, std::function<void(void *, void *)> callback_)
+	    : ServiceBase(ID)
 		, service_topic_in(topic_in_)
         , service_topic_out(topic_out_)
 		, request_subscriber(
@@ -50,4 +50,4 @@ namespace dls
 	{ }
 }
 
-#endif /* end of include guard: SERVICE_TPP */
+#endif /* end of include guard: SERVICE_SERVER_TPP */

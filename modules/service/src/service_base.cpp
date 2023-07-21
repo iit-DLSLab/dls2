@@ -23,8 +23,8 @@ namespace dls
 	// =========================================================================
 	// Service Implementation
 	// =========================================================================
-	ServiceBase::ServiceBase(std::string& ID_)
-	    : App(ID_)
+	ServiceBase::ServiceBase(std::string& ID)
+	    : App(ID)
 		, should_quit(false)
 	{ }
 

@@ -13,10 +13,19 @@
 *                                                 ;   | .'                     *
 *                                                 `---'                        *
 *******************************************************************************/
-#ifndef SERVICE_BASE_HPP
-#define SERVICE_BASE_HPP
+#ifndef SERVICE_SERVER_HPP
+#define SERVICE_SERVER_HPP
 
-#include "dls2/application/app.hpp"
+// =============================================================================
+// Includes
+// =============================================================================
+#include <condition_variable>
+#include <chrono>
+#include <mutex>
+
+#include "dls2/service/service_base.hpp"
+#include "dls2/util/messaging/dds_reader.hpp"
+#include "dls2/util/messaging/dds_writer.hpp"
 
 namespace dls
 {
@@ -30,41 +39,46 @@ namespace dls
 	/// that is sent to the server
 	/// \tparam res_pubsub_t the PubSubType corresponding to the response
 	/// message that is received from the server
-	class ServiceBase : public App
+
+	template <typename req_pubsub_t, typename res_pubsub_t>
+	class ServiceServer : public ServiceBase
 	{
 	public:
 		
-		typedef ServiceBase *create_t(std::string);
-        typedef void destroy_t(ServiceBase*);
-
-		/// Creates a service
+		/// Creates a service server
 		///
 		/// @param topic    the topic on which this service listens for requests
 		/// @param callback a pointer to a callback function that is called when
 		///                 this service receives a request
-		ServiceBase(std::string& ID);
+		ServiceServer
+		(
+			std::string& ID,
+			const dls::topicType& topic_in,
+			const dls::topicType& topic_out,
+			std::function<void(void *, void *)> callback
+		);
 
-		virtual ~ServiceBase() = default;
+		virtual ~ServiceServer() = default;
 		
-		AppStatus run() override;
-
-        AppStatus stop() override;
-
-		/// Print the state of this layer
-		///
-		virtual std::string where() {return "Parameter server";}
-
-        /// Emergency stop for this component
-        ///
-        AppStatus eStop() override {return this->getStatus();};
-
 	private:
 		
-		bool should_quit;
+		dls::topicType service_topic_in;
+		dls::topicType service_topic_out;
+		/// Subscriber waiting for a request message
+		///
+		dls::DDSReader request_subscriber;
+		dls::DDSWriter response_publisher;
+
+		/// The callback to call when a request is received
+		///
+		/// The return from this callback will automatically be sent to the
+		/// client that made the request
+		std::function<void(void *, void*)> callback;
 
 	};
 
-	
 } // end namespace dls
 
-#endif /* end of include guard: SERVICE_BASE_HPP */
+#include "dls2/service/service_server.tpp" 
+
+#endif /* end of include guard: SERVICE_SERVER_HPP */

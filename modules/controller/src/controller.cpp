@@ -18,11 +18,11 @@
 using namespace dls;
 
 Controller::Controller(
-	const std::string &ID_,
+	const std::string &ID,
 	const std::shared_ptr<robotlib::RobotBase> robot_,
 	const ControlSignal::SignalReconstructionMethod &reconst_meth_
 )
-	: PeriodicApp(ID_)
+	: PeriodicApp(ID)
 	, signal_reconstruction_method(reconst_meth_)
 	, pRobot(robot_)
 	, ddsLink(std::make_shared<dls::DDSParticipant>("Controller::" + this->getID(), dls::domains::signals))

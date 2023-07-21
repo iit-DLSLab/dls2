@@ -17,13 +17,13 @@
 
 using namespace dls;
 
-App::App(const std::string &ID_) 
+App::App(const std::string &ID) 
     : should_quit(false)
-    , command_manager(ID_)
-	, scout_sys(ID_)
-	, scout_warn(ID_)
-	, scout_err(ID_)
-    , ID(ID_)
+    , command_manager(ID)
+	, scout_sys(ID)
+	, scout_warn(ID)
+	, scout_err(ID)
+    , ID_(ID)
 	, status_mutex()
 	, status(AppStatus::INITIALISING)
 	
@@ -31,7 +31,7 @@ App::App(const std::string &ID_)
 	command_manager.addCommand<>
 	(
 		"shutdown",
-		"Shutdown the " + ID + " app",
+		"Shutdown the " + ID_ + " app",
         std::function<bool()>([&]()->bool
         {
 			this->stop();
@@ -44,7 +44,7 @@ App::App(const std::string &ID_)
 	command_manager.addCommand<>
 	(
 		"where",
-		"Prints the state of " + this->ID,
+		"Prints the state of " + this->ID_,
 		std::function<bool()>([&]()->bool
         {
 			std::cout << where() << std::endl;
@@ -59,7 +59,7 @@ App::~App(){}
 
 std::string App::getID()
 {
-	return this->ID;
+	return this->ID_;
 }
 
 AppStatus App::getStatus() const

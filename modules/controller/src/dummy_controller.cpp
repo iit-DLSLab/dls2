@@ -35,7 +35,7 @@ DummyController::DummyController
 	// command_manager(),
 	// outstream(getID()),
 	// logstream(getID()),
-	// service
+	// service_server_
 	// (
 	// 	"dls_dummy_controller_service",
 	// 	[](StringMsg msg)

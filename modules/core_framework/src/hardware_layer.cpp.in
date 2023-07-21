@@ -21,8 +21,8 @@
 
 using namespace dls;
 
-HardwareLayer::HardwareLayer(std::string ID_) 
-	: Layer(ID_)
+HardwareLayer::HardwareLayer(std::string ID) 
+	: Layer(ID)
 {
     command_manager.addCommand<std::string>
 	(

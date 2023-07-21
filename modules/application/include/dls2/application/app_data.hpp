@@ -32,7 +32,7 @@ namespace dls
         std::shared_ptr<boost::process::child> proc;
 
     private:
-        std::string ID;
+        std::string ID_;
     };
 }// end namespace dls
 

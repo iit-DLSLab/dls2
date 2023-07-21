@@ -18,11 +18,11 @@
 
 using namespace dls;
 
-Layer::Layer(const std::string &ID_) 
-	: App(ID_)
+Layer::Layer(const std::string &ID) 
+	: App(ID)
 	, components_mutex()
     , components({})
-	, ddsLink(std::make_shared<dls::DDSParticipant>(ID_, dls::domains::layers))	
+	, ddsLink(std::make_shared<dls::DDSParticipant>(ID, dls::domains::layers))	
 { }
 
 Layer::~Layer()
