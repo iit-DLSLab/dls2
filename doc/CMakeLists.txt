@@ -207,8 +207,8 @@ add_custom_command(
 	OUTPUT
 		${DLS_1_DEST}/dls.1.gz
 		${DLS_2_DEST}/dls.2.gz
-	COMMAND gzip ${DLS_1}
-	COMMAND gzip ${DLS_2}
+	COMMAND gzip -k ${DLS_1}
+	COMMAND gzip -k ${DLS_2}
 	WORKING_DIRECTORY ${DLS_1_DEST}
 )
 
