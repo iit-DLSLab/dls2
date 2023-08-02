@@ -61,6 +61,9 @@ ConsoleLayer::ConsoleLayer(std::string ID)
 	// Turn off the default file matching completion
 	rl_completion_entry_function = [](const char *, int)->char*{return nullptr;};
 
+	// Launch servers in the domains
+	launch_servers();
+
     command_manager.addCommand<>
 	(
 		"list",
@@ -252,6 +255,20 @@ AppStatus ConsoleLayer::stop()
 std::string ConsoleLayer::build_prompt()
 {
 	return "> ";
+}
+
+void ConsoleLayer::launch_servers()
+{
+	servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer", dls::domains::users, dls::ParticipantType::SERVER));
+	servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer", dls::domains::layers, dls::ParticipantType::SERVER));
+	servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer", dls::domains::command, dls::ParticipantType::SERVER));
+	servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer", dls::domains::signals, dls::ParticipantType::SERVER));
+	servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer", dls::domains::controllers, dls::ParticipantType::SERVER));
+	servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer", dls::domains::hardwares, dls::ParticipantType::SERVER));
+	servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer", dls::domains::consoles, dls::ParticipantType::SERVER));
+	servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer", dls::domains::logging, dls::ParticipantType::SERVER));
+	servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer", dls::domains::services, dls::ParticipantType::SERVER));
+	servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer", dls::domains::estimators, dls::ParticipantType::SERVER));
 }
 
 // =============================================================================

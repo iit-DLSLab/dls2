@@ -121,6 +121,8 @@ std::multimap<std::string, std::string> CommandManager::getCommandsList()
 	auto remCommands = commands_monitor->getParticipants();
 	// remove the monitors
 	std::erase_if(remCommands, [](std::string value) { return (value.find("monitor") != std::string::npos); });
+	// remove the servers
+	std::erase_if(remCommands, [](std::string value) { return (value.find("DiscoveryServer") != std::string::npos); });
 
 	// create a list of commands
 	std::multimap<std::string, std::string> cmds;

@@ -13,7 +13,7 @@ namespace dls
 		, command_manager_(ID)
         , server_thread_(nullptr)
         , webserver_(8765, "webserver")
-        , dds_participant_(std::make_shared<dls::DDSParticipant>("Web_Socket_Translator::monitor", dls::domains::signals, false))
+        , dds_participant_(std::make_shared<dls::DDSParticipant>("Web_Socket_Translator::monitor", dls::domains::signals, dls::ParticipantType::CLIENT, false))
     {
         this->server_thread_ = std::make_shared<std::thread>(&WebSocketTranslator::serverFunc, this);
         dds_participant_->setTopicListener(this);
