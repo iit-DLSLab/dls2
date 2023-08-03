@@ -1,92 +1,96 @@
-/*******************************************************************************
-*                                                       ,----,                 *
-*                                                     .'   .' \                *
-*                                                   ,----,'    |               *
-*               ________  ___       ________        |    :  .  ;               *
-*              |\   ___ \|\  \     |\   ____\       ;    |.'  /                *
-*              \ \  \_|\ \ \  \    \ \  \___|_      `----'/  ;                 *
-*               \ \  \ \\ \ \  \    \ \_____  \       /  ;  /                  *
-*                \ \  \_\\ \ \  \____\|____|\  \     ;  /  /-,                 *
-*                 \ \_______\ \_______\____\_\  \   /  /  /.`|                 *
-*                  \|_______|\|_______|\_________\./__;      :                 *
-*                                     \|_________||   :    .'                  *
-*                                                 ;   | .'                     *
-*                                                 `---'                        *
-*******************************************************************************/
+
 #include "dls2/msg_wrappers/attitude.hpp"
 
-using namespace dls;
+Attitude::Attitude()
+    : frame_id_("")
+	, sequence_id_(0)
+	, timestamp_(0.0)
+	, orientation_(Eigen::Quaterniond::Identity())
+	, orient_t265_(Eigen::Quaterniond::Identity())
+    , angular_velocity_(Eigen::Vector3d::Zero())
+	, euler_angles_t265_(Eigen::Vector3d::Zero())
+	, euler_angles_estimation_(Eigen::Vector3d::Zero())
+{}
 
-Attitude::Attitude() 
-{ }
+Attitude::Attitude(Attitude& attitude)
+    : frame_id_(attitude.frame_id_)
+	, sequence_id_(attitude.sequence_id_)
+	, timestamp_(attitude.timestamp_)
+	, orientation_(attitude.orientation_)
+	, orient_t265_(attitude.orient_t265_)
+    , angular_velocity_(attitude.angular_velocity_)
+	, euler_angles_t265_(attitude.euler_angles_t265_)
+	, euler_angles_estimation_(attitude.euler_angles_estimation_)
+{}
 
-Attitude::Attitude(Attitude& from)
-    : orientation(from.orientation)
-	, orient_t265(from.orient_t265)
-    , angular_velocity(from.angular_velocity)
-	, euler_angles_t265(from.euler_angles_t265)
-	, euler_angles_est(from.euler_angles_est)
-	, timestamp(from.timestamp)
-{ }
+Attitude::~Attitude(){}
 
 Attitude::operator AttitudeMsg() const
 {
-	AttitudeMsg msg;
+	AttitudeMsg attitude_msg;
 
-	for(long unsigned int i = 0; i < msg.angular_velocity().size(); i++)
+	attitude_msg.frame_id(frame_id_);
+	attitude_msg.sequence_id(sequence_id_);
+	attitude_msg.timestamp(timestamp_);
+
+	attitude_msg.orientation()[0] = orientation_.x();
+	attitude_msg.orientation()[1] = orientation_.y();
+	attitude_msg.orientation()[2] = orientation_.z();
+	attitude_msg.orientation()[3] = orientation_.w();
+
+	attitude_msg.orient_t265()[0] = orient_t265_.x();
+	attitude_msg.orient_t265()[1] = orient_t265_.y();
+	attitude_msg.orient_t265()[2] = orient_t265_.z();
+	attitude_msg.orient_t265()[3] = orient_t265_.w();
+
+	for(unsigned int i{0}; i<3; i++)
 	{
-    	msg.angular_velocity()[i] = this->angular_velocity[i];
-		msg.euler_angles_t265()[i] = this->euler_angles_t265[i];
-		msg.euler_angles_est()[i] = this->euler_angles_est[i];
+    	attitude_msg.angular_velocity()[i] = angular_velocity_[i];
+		attitude_msg.euler_angles_t265()[i] = euler_angles_t265_[i];
+		attitude_msg.euler_angles_estimation()[i] = euler_angles_estimation_[i];
 	}
 
-	msg.orientation()[0] = this->orientation.x();
-	msg.orientation()[1] = this->orientation.y();
-	msg.orientation()[2] = this->orientation.z();
-	msg.orientation()[3] = this->orientation.w();
-
-	msg.orient_t265()[0] = this->orient_t265.x();
-	msg.orient_t265()[1] = this->orient_t265.y();
-	msg.orient_t265()[2] = this->orient_t265.z();
-	msg.orient_t265()[3] = this->orient_t265.w();
-
-	msg.timestamp(this->timestamp);
-
-	return msg;
+	return attitude_msg;
 }
 
-Attitude& Attitude::operator=(const AttitudeMsg& msg){
+Attitude& Attitude::operator=(const AttitudeMsg& attitude_msg)
+{
+	frame_id_ = attitude_msg.frame_id();
+	sequence_id_ = attitude_msg.sequence_id();	
+	timestamp_ = attitude_msg.timestamp();
 
-	for(long unsigned int i = 0; i < msg.angular_velocity().size(); i++)
+	orientation_.x() = attitude_msg.orientation()[0];
+	orientation_.y() = attitude_msg.orientation()[1];
+	orientation_.z() = attitude_msg.orientation()[2];
+	orientation_.w() = attitude_msg.orientation()[3];
+
+	orient_t265_.x() = attitude_msg.orient_t265()[0];
+	orient_t265_.y() = attitude_msg.orient_t265()[1];
+	orient_t265_.z() = attitude_msg.orient_t265()[2];
+	orient_t265_.w() = attitude_msg.orient_t265()[3];
+
+	for(unsigned int i{0}; i<3; i++)
 	{
-    	this->angular_velocity[i] = msg.angular_velocity()[i];
-		this->euler_angles_t265[i] = msg.euler_angles_t265()[i];
-		this->euler_angles_est[i] = msg.euler_angles_est()[i];
+    	angular_velocity_[i] = attitude_msg.angular_velocity()[i];
+		euler_angles_t265_[i] = attitude_msg.euler_angles_t265()[i];
+		euler_angles_estimation_[i] = attitude_msg.euler_angles_estimation()[i];
 	}
-	
-	this->orientation.x() = msg.orientation()[0];
-	this->orientation.y() = msg.orientation()[1];
-	this->orientation.z() = msg.orientation()[2];
-	this->orientation.w() = msg.orientation()[3];
-
-	this->orient_t265.x() = msg.orient_t265()[0];
-	this->orient_t265.y() = msg.orient_t265()[1];
-	this->orient_t265.z() = msg.orient_t265()[2];
-	this->orient_t265.w() = msg.orient_t265()[3];
-
-	this->timestamp = msg.timestamp();
 
     return *this;
 }
 
-Attitude& Attitude::operator=(const Attitude& from)
+Attitude& Attitude::operator=(const Attitude& attitude)
 { 
-    this->orientation = from.orientation;
-	this->orient_t265 = from.orient_t265;
-    this->angular_velocity = from.angular_velocity;
-    this->euler_angles_t265 = from.euler_angles_t265;
-	this->euler_angles_est = from.euler_angles_est;
-	this->timestamp = from.timestamp;
+	frame_id_ = attitude.frame_id_;
+	sequence_id_ = attitude.sequence_id_;
+	timestamp_ = attitude.timestamp_;
+
+    orientation_ = attitude.orientation_;
+	orient_t265_ = attitude.orient_t265_;
+
+    angular_velocity_ = attitude.angular_velocity_;
+    euler_angles_t265_ = attitude.euler_angles_t265_;
+	euler_angles_estimation_ = attitude.euler_angles_estimation_;
 	
 	return *this;
 }

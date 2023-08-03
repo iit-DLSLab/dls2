@@ -5,13 +5,13 @@
 #include <string>
 #include <unordered_map>
 
-#include "dls2/service/service.hpp"
+#include "dls2/service/service_server.hpp"
 #include "dls2/command/command_manager.hpp"
 #include "dls2/log/log.hpp"
 
 namespace dls
 {
-	class ParameterServer : public dls::Service<ParamServerMsg, ParamServerMsg>
+	class ParameterServer : public dls::ServiceServer<ParamServerMsg, ParamServerMsg>
 	{
 	public:
 		ParameterServer(std::string&);

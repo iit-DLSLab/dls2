@@ -11,11 +11,11 @@
 
 namespace dls
 {
-	class WebSocketTranslator : public dls::Service<WebSocketTranslatorMsg, WebSocketTranslatorMsg>, public dls::DDSPartListener
+	class WebSocketTranslator : public dls::Service, public dls::DDSPartListener
 	{
 	public:
 		WebSocketTranslator(std::string& ID);
-		~WebSocketTranslator();
+		virtual ~WebSocketTranslator();
 
 	private:
         void serverFunc();
@@ -32,8 +32,8 @@ namespace dls
 
         std::shared_ptr<dls::DDSParticipant> dds_participant_;
 
-        dls::MCAPWriterUtils mcap_writer_utils_;
-        dls::MCAPReaderUtils mcap_reader_utils_;
+        std::shared_ptr<dls::MCAPWriterUtils> mcap_writer_utils_;
+        std::shared_ptr<dls::MCAPReaderUtils> mcap_reader_utils_;
 
         std::function<void()> set_timer_;
 

@@ -1,90 +1,69 @@
-/*******************************************************************************
-*                                                       ,----,                 *
-*                                                     .'   .' \                *
-*                                                   ,----,'    |               *
-*               ________  ___       ________        |    :  .  ;               *
-*              |\   ___ \|\  \     |\   ____\       ;    |.'  /                *
-*              \ \  \_|\ \ \  \    \ \  \___|_      `----'/  ;                 *
-*               \ \  \ \\ \ \  \    \ \_____  \       /  ;  /                  *
-*                \ \  \_\\ \ \  \____\|____|\  \     ;  /  /-,                 *
-*                 \ \_______\ \_______\____\_\  \   /  /  /.`|                 *
-*                  \|_______|\|_______|\_________\./__;      :                 *
-*                                     \|_________||   :    .'                  *
-*                                                 ;   | .'                     *
-*                                                 `---'                        *
-*******************************************************************************/
 
-#ifndef DESIRED_TORQUES_CPP
-#define DESIRED_TORQUES_CPP
 
 #include "dls2/msg_wrappers/desired_torques.hpp"
 
-using namespace dls;
+DesiredTorques::DesiredTorques(const std::shared_ptr<robotlib::RobotBase> robot)
+    : frame_id_("")
+	, sequence_id_(0)
+	, timestamp_(0.0)
+	, desired_torques_(robot->makeJointState())
+{}
 
-DesiredTorques::DesiredTorques(const std::shared_ptr<robotlib::RobotBase> pRobot)
-	: desired_torques(pRobot->makeJointState())
-	, time(0.0)
-	, seq(0)
-	, frame_id(pRobot->getName())
-{ }
+DesiredTorques::DesiredTorques(DesiredTorques& desired_torques)
+	: frame_id_(desired_torques.frame_id_)
+	, sequence_id_(desired_torques.sequence_id_)
+	, timestamp_(desired_torques.timestamp_)
+	, desired_torques_(desired_torques.desired_torques_)
+{}
 
-DesiredTorques::DesiredTorques(DesiredTorques& from)
-	: desired_torques(from.desired_torques)
-	, time(from.time)
-	, seq(from.seq)
-	, frame_id(from.frame_id)
-{ }
-
-DesiredTorques::~DesiredTorques()
-{ }
+DesiredTorques::~DesiredTorques(){}
 
 DesiredTorques::operator DesiredTorquesMsg() const
 {
-    DesiredTorquesMsg msg;
+    DesiredTorquesMsg desired_torques_msg;
 
-	int i = 0;
-	for(auto &leg : this->desired_torques)
+	desired_torques_msg.frame_id(frame_id_);
+	desired_torques_msg.sequence_id(sequence_id_);
+  	desired_torques_msg.timestamp(timestamp_);
+
+	int i{0};
+	for(auto &leg : desired_torques_)
 	{
 		for(auto &joint : *leg.data_)
 		{
-			msg.desired_torques()[i] = this->desired_torques[joint.key_]; 
+			desired_torques_msg.desired_torques()[i] = desired_torques_[joint.key_]; 
 			i++;
 		}
 	}
 
-  	msg.time(this->time);
-	msg.seq(this->seq);
-	msg.frame_id(this->frame_id);
-
-    return msg;
+    return desired_torques_msg;
 }
 
-DesiredTorques& DesiredTorques::operator= (const DesiredTorquesMsg& msg)
+DesiredTorques& DesiredTorques::operator= (const DesiredTorquesMsg& desired_torques_msg)
 {
-	int i = 0;
-	for(auto &leg : this->desired_torques)
+	frame_id_ = desired_torques_msg.frame_id();
+	sequence_id_ = desired_torques_msg.sequence_id();
+	timestamp_ = desired_torques_msg.timestamp();
+
+	int i{0};
+	for(auto &leg : desired_torques_)
 	{
 		for(auto &joint : *leg.data_)
 		{
-			this->desired_torques[joint.key_] = msg.desired_torques()[i];
+			desired_torques_[joint.key_] = desired_torques_msg.desired_torques()[i];
 			i++;
 		}
 	}
 
-	this->time = msg.time();
-	this->seq = msg.seq();
-	this->frame_id = msg.frame_id();
-
 	return *this;
 }
 
-DesiredTorques& DesiredTorques::operator=(const DesiredTorques& from)
+DesiredTorques& DesiredTorques::operator=(const DesiredTorques& desired_torques)
 {
-	this->desired_torques = from.desired_torques;
-	this->time = from.time;
-	this->seq = from.seq;
-	this->frame_id = from.frame_id;
+	frame_id_ = desired_torques.frame_id_;
+	sequence_id_ = desired_torques.sequence_id_;
+	timestamp_ = desired_torques.timestamp_;
+	desired_torques_ = desired_torques.desired_torques_;
 
 	return *this;
 }
-#endif // DESIRED_TORQUES_CPP

@@ -1,18 +1,4 @@
-/*******************************************************************************
-*                                                       ,----,                 *
-*                                                     .'   .' \                *
-*                                                   ,----,'    |               *
-*               ________  ___       ________        |    :  .  ;               *
-*              |\   ___ \|\  \     |\   ____\       ;    |.'  /                *
-*              \ \  \_|\ \ \  \    \ \  \___|_      `----'/  ;                 *
-*               \ \  \ \\ \ \  \    \ \_____  \       /  ;  /                  *
-*                \ \  \_\\ \ \  \____\|____|\  \     ;  /  /-,                 *
-*                 \ \_______\ \_______\____\_\  \   /  /  /.`|                 *
-*                  \|_______|\|_______|\_________\./__;      :                 *
-*                                     \|_________||   :    .'                  *
-*                                                 ;   | .'                     *
-*                                                 `---'                        *
-*******************************************************************************/
+
 #ifndef TOPICS_CPP
 #define TOPICS_CPP
 
@@ -36,7 +22,6 @@ namespace dls
 		dls::topicType command_feedback			= dls::topicType("command_feedback", new StringMsgPubSubType());
 
 		// simulation
-		dls::topicType simulation_pause 		= dls::topicType("simulation_pause", new BoolMsgPubSubType());
 		dls::topicType time_factor				= dls::topicType("time_factor", new DoubleMsgPubSubType());
 
 		// development pool
@@ -51,7 +36,6 @@ namespace dls
 
 		// services
 		dls::topicType param_server 			= dls::topicType("add_double", new ParamServerMsgPubSubType());
-		dls::topicType web_socket_translator 	= dls::topicType("web_socket_translator", new WebSocketTranslatorMsgPubSubType());
 
 		namespace high_level_estimation
 		{
@@ -65,11 +49,7 @@ namespace dls
 		namespace low_level_estimation
 		{
 			dls::topicType blind_state 			= dls::topicType("blind_state", new BlindStateMsgPubSubType());
-			dls::topicType hyq_raw 				= dls::topicType("hyq_raw", new HyQRawMsgPubSubType());
-            dls::topicType aliengo_raw 			= dls::topicType("aliengo_raw", new AliengoRawMsgPubSubType());
 			dls::topicType imu 					= dls::topicType("imu", new ImuMsgPubSubType());
-			dls::topicType joint_states			= dls::topicType("joint_states", new JointStateMsgPubSubType());
-			dls::topicType t265_state			= dls::topicType("t265_state", new T265StateMsgPubSubType());
 			dls::topicType slip_flag			= dls::topicType("slip_flag", new SlipFlagMsgPubSubType());			
 		}
 	}
