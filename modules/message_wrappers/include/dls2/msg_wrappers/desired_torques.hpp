@@ -1,50 +1,31 @@
-/*******************************************************************************
-*                                                       ,----,                 *
-*                                                     .'   .' \                *
-*                                                   ,----,'    |               *
-*               ________  ___       ________        |    :  .  ;               *
-*              |\   ___ \|\  \     |\   ____\       ;    |.'  /                *
-*              \ \  \_|\ \ \  \    \ \  \___|_      `----'/  ;                 *
-*               \ \  \ \\ \ \  \    \ \_____  \       /  ;  /                  *
-*                \ \  \_\\ \ \  \____\|____|\  \     ;  /  /-,                 *
-*                 \ \_______\ \_______\____\_\  \   /  /  /.`|                 *
-*                  \|_______|\|_______|\_________\./__;      :                 *
-*                                     \|_________||   :    .'                  *
-*                                                 ;   | .'                     *
-*                                                 `---'                        *
-*******************************************************************************/
+
 #ifndef DESIRED_TORQUES_SIGNAL_HPP
 #define DESIRED_TORQUES_SIGNAL_HPP
 
-
-#include "robotlib/robot_base.hpp"
-
 #include "dls2/msg_wrappers/wrapper.hpp"
 #include "dls_messages/dds/desired_torques.h"
+#include "robotlib/robot_base.hpp"
 
 namespace dls
 {
 	class DesiredTorques : public Wrapper<DesiredTorquesMsg>
 	{
 	public:
-		DesiredTorques(const std::shared_ptr<robotlib::RobotBase>);
-		DesiredTorques(DesiredTorques&);
+		DesiredTorques(const std::shared_ptr<robotlib::RobotBase> robot);
+		DesiredTorques(DesiredTorques& desired_torques);
 		DesiredTorques() = delete;
-        ~DesiredTorques();
+        virtual ~DesiredTorques();
 
 		operator DesiredTorquesMsg() const override;
-		DesiredTorques& operator= (const DesiredTorquesMsg&) override;
-		dls::DesiredTorques& operator=(const dls::DesiredTorques& from);
+		DesiredTorques& operator= (const DesiredTorquesMsg& desired_torques_msg) override;
+		DesiredTorques& operator=(const dls::DesiredTorques& desired_torques);
 
-		//data
-		robotlib::JointState desired_torques;
+		std::string frame_id_{};
+		uint32_t sequence_id_{};
+		double timestamp_{};
 
-		// header
-		double time; // microsseconds
-		int seq;
-		std::string frame_id;
-
+		robotlib::JointState desired_torques_;
 	};
-} // end namespace dls
+} // namespace dls
 
-#endif /* end of include guard: DESIRED_TORQUES_SIGNAL_HPP */
+#endif

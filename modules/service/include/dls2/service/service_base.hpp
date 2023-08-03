@@ -1,18 +1,4 @@
-/*******************************************************************************
-*                                                       ,----,                 *
-*                                                     .'   .' \                *
-*                                                   ,----,'    |               *
-*               ________  ___       ________        |    :  .  ;               *
-*              |\   ___ \|\  \     |\   ____\       ;    |.'  /                *
-*              \ \  \_|\ \ \  \    \ \  \___|_      `----'/  ;                 *
-*               \ \  \ \\ \ \  \    \ \_____  \       /  ;  /                  *
-*                \ \  \_\\ \ \  \____\|____|\  \     ;  /  /-,                 *
-*                 \ \_______\ \_______\____\_\  \   /  /  /.`|                 *
-*                  \|_______|\|_______|\_________\./__;      :                 *
-*                                     \|_________||   :    .'                  *
-*                                                 ;   | .'                     *
-*                                                 `---'                        *
-*******************************************************************************/
+
 #ifndef SERVICE_BASE_HPP
 #define SERVICE_BASE_HPP
 
@@ -42,10 +28,7 @@ namespace dls
 		/// @param topic    the topic on which this service listens for requests
 		/// @param callback a pointer to a callback function that is called when
 		///                 this service receives a request
-		ServiceBase
-		(
-			std::string& ID
-		);
+		ServiceBase(std::string& ID);
 
 		virtual ~ServiceBase() = default;
 		

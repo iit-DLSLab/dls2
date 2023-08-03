@@ -1,100 +1,100 @@
-/*******************************************************************************
-*                                                       ,----,                 *
-*                                                     .'   .' \                *
-*                                                   ,----,'    |               *
-*               ________  ___       ________        |    :  .  ;               *
-*              |\   ___ \|\  \     |\   ____\       ;    |.'  /                *
-*              \ \  \_|\ \ \  \    \ \  \___|_      `----'/  ;                 *
-*               \ \  \ \\ \ \  \    \ \_____  \       /  ;  /                  *
-*                \ \  \_\\ \ \  \____\|____|\  \     ;  /  /-,                 *
-*                 \ \_______\ \_______\____\_\  \   /  /  /.`|                 *
-*                  \|_______|\|_______|\_________\./__;      :                 *
-*                                     \|_________||   :    .'                  *
-*                                                 ;   | .'                     *
-*                                                 `---'                        *
-*******************************************************************************/
-
-#ifndef IMU_CPP
-#define IMU_CPP
 
 #include "dls2/msg_wrappers/imu.hpp"
 
-using namespace dls;
-
 Imu::Imu()
-	: orientation(0.0, 0.0, 0.0, 1.0)
-	, orientation_covariance(Eigen::Matrix3d::Zero())
-	, angular_velocity(Eigen::Vector3d::Zero())
-	, angular_velocity_covariance(Eigen::Matrix3d::Zero())
-	, linear_acceleration(Eigen::Vector3d::Zero())
-	, linear_acceleration_covariance(Eigen::Matrix3d::Zero())
-	, time(0.0)
-	, frame_id("")
+    : frame_id_("")
+	, sequence_id_(0)
+	, timestamp_(0.0)
+	, orientation_(Eigen::Quaterniond::Identity())
+	, orientation_covariance_(Eigen::Matrix3d::Zero())
+	, angular_velocity_(Eigen::Vector3d::Zero())
+	, angular_velocity_covariance_(Eigen::Matrix3d::Zero())
+	, linear_acceleration_(Eigen::Vector3d::Zero())
+	, linear_acceleration_covariance_(Eigen::Matrix3d::Zero())
 {}
 
-Imu::Imu(Imu& from)
-	: orientation(from.orientation)
-	, orientation_covariance(from.orientation_covariance)
-	, angular_velocity(from.angular_velocity)
-	, angular_velocity_covariance(from.angular_velocity_covariance)
-	, linear_acceleration(from.linear_acceleration)
-	, linear_acceleration_covariance(from.linear_acceleration_covariance)
-	, time(from.time)
-	, frame_id(from.frame_id)
+Imu::Imu(Imu& imu)
+    : frame_id_(imu.frame_id_)
+	, sequence_id_(imu.sequence_id_)
+	, timestamp_(imu.timestamp_)
+	, orientation_(imu.orientation_)
+	, orientation_covariance_(imu.orientation_covariance_)
+	, angular_velocity_(imu.angular_velocity_)
+	, angular_velocity_covariance_(imu.angular_velocity_covariance_)
+	, linear_acceleration_(imu.linear_acceleration_)
+	, linear_acceleration_covariance_(imu.linear_acceleration_covariance_)
 {}
 
-Imu::~Imu()
-{}
+Imu::~Imu(){}
 
 Imu::operator ImuMsg() const
 {
-	ImuMsg msg;
+	ImuMsg imu_msg;
 
-	msg.orientation()[0] = this->orientation.x();
-	msg.orientation()[1] = this->orientation.y();
-	msg.orientation()[2] = this->orientation.z();
-	msg.orientation()[3] = this->orientation.w();
+	imu_msg.frame_id(frame_id_);
+	imu_msg.sequence_id(sequence_id_);
+	imu_msg.timestamp(timestamp_);
 
-	for(int i=0; i<3; i++)
+	imu_msg.orientation()[0] = orientation_.x();
+	imu_msg.orientation()[1] = orientation_.y();
+	imu_msg.orientation()[2] = orientation_.z();
+	imu_msg.orientation()[3] = orientation_.w();
+
+	for(unsigned int i{0}; i<3; i++)
 	{
-		msg.angular_velocity()[i] = this->angular_velocity[i];
-		msg.linear_acceleration()[i] = this->linear_acceleration[i];
-		for(int j=0; j<3; j++)
+		imu_msg.angular_velocity()[i] = angular_velocity_[i];
+		imu_msg.linear_acceleration()[i] = linear_acceleration_[i];
+
+		for(unsigned int j{0}; j<3; j++)
 		{
-			msg.orientation_covariance()[i*3+j] = this->orientation_covariance(i,j);
-			msg.angular_velocity_covariance()[i*3+j] = this->angular_velocity_covariance(i,j);
-			msg.linear_acceleration_covariance()[i*3+j] = this->linear_acceleration_covariance(i,j);
+			imu_msg.orientation_covariance()[i*3+j] = orientation_covariance_(i,j);
+			imu_msg.angular_velocity_covariance()[i*3+j] = angular_velocity_covariance_(i,j);
+			imu_msg.linear_acceleration_covariance()[i*3+j] = linear_acceleration_covariance_(i,j);
 		}
 	}
 
-	msg.time(this->time);
-	msg.frame_id(this->frame_id);
-
-    return msg;
+    return imu_msg;
 }
 
-Imu& Imu::operator= (const ImuMsg& msg)
+Imu& Imu::operator= (const ImuMsg& imu_msg)
 {
-	this->orientation.x() = msg.orientation()[0];
-	this->orientation.y() = msg.orientation()[1];
-	this->orientation.z() = msg.orientation()[2];
-	this->orientation.w() = msg.orientation()[3];
-	for(int i=0; i<3; i++)
+	frame_id_ = imu_msg.frame_id();
+	sequence_id_ = imu_msg.sequence_id();
+	timestamp_ = imu_msg.timestamp();
+
+	orientation_.x() = imu_msg.orientation()[0];
+	orientation_.y() = imu_msg.orientation()[1];
+	orientation_.z() = imu_msg.orientation()[2];
+	orientation_.w() = imu_msg.orientation()[3];
+
+	for(unsigned int i{0}; i<3; i++)
 	{
-		this->angular_velocity(i) = msg.angular_velocity()[i];
-		this->linear_acceleration(i) = msg.linear_acceleration()[i];
-		for(int j=0; j<3; j++)
+		angular_velocity_(i) = imu_msg.angular_velocity()[i];
+		linear_acceleration_(i) = imu_msg.linear_acceleration()[i];
+
+		for(unsigned int j{0}; j<3; j++)
 		{
-			this->orientation_covariance(i,j) = msg.orientation_covariance()[i*3+j];
-			this->angular_velocity_covariance(i,j) = msg.angular_velocity_covariance()[i*3+j];
-			this->linear_acceleration_covariance(i,j) = msg.linear_acceleration_covariance()[i*3+j];
+			orientation_covariance_(i,j) = imu_msg.orientation_covariance()[i*3+j];
+			angular_velocity_covariance_(i,j) = imu_msg.angular_velocity_covariance()[i*3+j];
+			linear_acceleration_covariance_(i,j) = imu_msg.linear_acceleration_covariance()[i*3+j];
 		}
 	}
-
-	this->time = msg.time();
-	this->frame_id = msg.frame_id();
 
 	return *this;
 }
 
-#endif // IMU_CPP
+Imu& Imu::operator=(const Imu& imu)
+{
+    frame_id_ = imu.frame_id_;
+	sequence_id_ = imu.sequence_id_;
+	timestamp_ = imu.timestamp_;
+
+	orientation_ = imu.orientation_;
+	orientation_covariance_ = imu.orientation_covariance_;
+	angular_velocity_ = imu.angular_velocity_;
+	angular_velocity_covariance_ = imu.angular_velocity_covariance_;
+	linear_acceleration_ = imu.linear_acceleration_;
+	linear_acceleration_covariance_ = imu.linear_acceleration_covariance_;
+
+	return *this;
+}

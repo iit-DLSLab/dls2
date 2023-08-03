@@ -1,24 +1,9 @@
-/*******************************************************************************
-*                                                       ,----,                 *
-*                                                     .'   .' \                *
-*                                                   ,----,'    |               *
-*               ________  ___       ________        |    :  .  ;               *
-*              |\   ___ \|\  \     |\   ____\       ;    |.'  /                *
-*              \ \  \_|\ \ \  \    \ \  \___|_      `----'/  ;                 *
-*               \ \  \ \\ \ \  \    \ \_____  \       /  ;  /                  *
-*                \ \  \_\\ \ \  \____\|____|\  \     ;  /  /-,                 *
-*                 \ \_______\ \_______\____\_\  \   /  /  /.`|                 *
-*                  \|_______|\|_______|\_________\./__;      :                 *
-*                                     \|_________||   :    .'                  *
-*                                                 ;   | .'                     *
-*                                                 `---'                        *
-*******************************************************************************/
+
 #ifndef ATTITUDE_HPP
 #define ATTITUDE_HPP
 
 #include "dls2/msg_wrappers/wrapper.hpp"
-#include "dls_messages/dds/attitude_estimationPubSubTypes.h"
-
+#include "dls_messages/dds/attitude.h"
 #include <Eigen/Dense>
 
 /// A struct representing the control signal that is output by a Controller
@@ -28,22 +13,24 @@ namespace dls
     {
     public:
         Attitude();
-        Attitude(Attitude&);
-        ~Attitude() = default;
+        Attitude(Attitude& attitude);
+        virtual ~Attitude();
 
         operator AttitudeMsg() const override;
-        Attitude& operator=(const AttitudeMsg&) override;
-        Attitude& operator=(const Attitude&);
+        Attitude& operator=(const AttitudeMsg& attitude_msg) override;
+        Attitude& operator=(const Attitude& attitude);
 
-        Eigen::Quaterniond orientation;
-        Eigen::Quaterniond orient_t265;
+        std::string frame_id_{};
+        uint32_t sequence_id_{};
+        double timestamp_{};
 
-        Eigen::Vector3d angular_velocity{Eigen::Vector3d::Zero()};
+        Eigen::Quaterniond orientation_{Eigen::Quaterniond::Identity()};
+        Eigen::Quaterniond orient_t265_{Eigen::Quaterniond::Identity()};
 
-        Eigen::Vector3d euler_angles_t265{Eigen::Vector3d::Zero()};
-        Eigen::Vector3d euler_angles_est{Eigen::Vector3d::Zero()};
-        
-        double timestamp;
+        Eigen::Vector3d angular_velocity_{Eigen::Vector3d::Zero()};
+        Eigen::Vector3d euler_angles_t265_{Eigen::Vector3d::Zero()};
+        Eigen::Vector3d euler_angles_estimation_{Eigen::Vector3d::Zero()};        
     };
-} // end namespace dls
-#endif /* end of include guard: ATTITUDE_HPP */
+} // namespace dls
+
+#endif

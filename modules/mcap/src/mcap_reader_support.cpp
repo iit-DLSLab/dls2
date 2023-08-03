@@ -33,7 +33,7 @@ namespace dls
                     int i{0};
                     for (const auto& value : item.value().items())
                     {
-                        (*signal_writer_)->angular_velocity(i) = value.value();
+                        (*signal_writer_)->angular_velocity_(i) = value.value();
                         i++;
                     }
                 }
@@ -42,7 +42,7 @@ namespace dls
                     int i{0};
                     for (const auto& value : item.value().items())
                     {
-                        (*signal_writer_)->angular_velocity_covariance(i) = value.value();
+                        (*signal_writer_)->angular_velocity_covariance_(i) = value.value();
                         i++;
                     }
                 }
@@ -51,7 +51,7 @@ namespace dls
                     int i{0};
                     for (const auto& value : item.value().items())
                     {
-                        (*signal_writer_)->linear_acceleration(i) = value.value();
+                        (*signal_writer_)->linear_acceleration_(i) = value.value();
                         i++;
                     }
                 }
@@ -60,7 +60,7 @@ namespace dls
                     int i{0};
                     for (const auto& value : item.value().items())
                     {
-                        (*signal_writer_)->linear_acceleration_covariance(i) = value.value();
+                        (*signal_writer_)->linear_acceleration_covariance_(i) = value.value();
                         i++;
                     }
                 }
@@ -73,27 +73,27 @@ namespace dls
                         values.push_back(value.value());
                     }
 
-                    (*signal_writer_)->orientation.x() = values.at(0);
-                    (*signal_writer_)->orientation.y() = values.at(1);
-                    (*signal_writer_)->orientation.z() = values.at(2);
-                    (*signal_writer_)->orientation.w() = values.at(3);
+                    (*signal_writer_)->orientation_.x() = values.at(0);
+                    (*signal_writer_)->orientation_.y() = values.at(1);
+                    (*signal_writer_)->orientation_.z() = values.at(2);
+                    (*signal_writer_)->orientation_.w() = values.at(3);
                 }
                 else if((item.key()).compare("orientation_covariance") == 0)
                 {
                     int i{0};
                     for (const auto& value : item.value().items())
                     {
-                        (*signal_writer_)->orientation_covariance(i) = value.value();
+                        (*signal_writer_)->orientation_covariance_(i) = value.value();
                         i++;
                     }
                 }
-                else if((item.key()).compare("time") == 0)
+                else if((item.key()).compare("timestamp") == 0)
                 {
-                    (*signal_writer_)->time = item.value();
+                    (*signal_writer_)->timestamp_ = item.value();
                 }
                 else if((item.key()).compare("frame_id") == 0)
                 {
-                    (*signal_writer_)->frame_id = item.value();
+                    (*signal_writer_)->frame_id_ = item.value();
                 }
             }
         }
@@ -115,7 +115,7 @@ namespace dls
         {
             for (auto item : parsed_message.items())
             {
-                if((item.key()).compare("joint_pos") == 0)
+                if((item.key()).compare("joints_position") == 0)
                 {
                     std::vector<double> values{};
                     for (const auto& value : item.value().items())
@@ -124,19 +124,19 @@ namespace dls
                     }
 
                     int leg_id{0};
-                    for(auto &leg : (*signal_writer_)->desired_joint_position)
+                    for(auto &leg : (*signal_writer_)->desired_joints_position_)
                     {
                         int i{leg_id*leg.key_->getNJoints()};
                         for(auto &joint : *leg.data_)
                         {
-                            (*signal_writer_)->desired_joint_position[joint.key_] = values.at(i);
+                            (*signal_writer_)->desired_joints_position_[joint.key_] = values.at(i);
                             i++;
                         }
                         leg_id++;
                     }                              
                 }
 
-                if((item.key()).compare("joint_vel") == 0)
+                if((item.key()).compare("joints_velocity") == 0)
                 {
                     std::vector<double> values{};
                     for (const auto& value : item.value().items())
@@ -145,12 +145,12 @@ namespace dls
                     }
 
                     int leg_id{0};
-                    for(auto &leg : (*signal_writer_)->desired_joint_position)
+                    for(auto &leg : (*signal_writer_)->desired_joints_velocity_)
                     {
                         int i{leg_id*leg.key_->getNJoints()};
                         for(auto &joint : *leg.data_)
                         {
-                            (*signal_writer_)->desired_joint_velocity[joint.key_] = values.at(i);
+                            (*signal_writer_)->desired_joints_velocity_[joint.key_] = values.at(i);
                             i++;
                         }
                         leg_id++;
@@ -178,10 +178,10 @@ namespace dls
             {
                 if((item.key()).compare("robot_name") == 0)
                 {
-                    (*signal_writer_)->robot_name = item.value();
+                    (*signal_writer_)->robot_name_ = item.value();
                 }
 
-                if((item.key()).compare("joint_pos") == 0)
+                if((item.key()).compare("joints_position") == 0)
                 {
                     std::vector<double> values{};
                     for (const auto& value : item.value().items())
@@ -190,19 +190,19 @@ namespace dls
                     }
 
                     int leg_id = 0;
-                    for(auto &leg : (*signal_writer_)->joint_position)
+                    for(auto &leg : (*signal_writer_)->joints_position_)
                     {
                         int i = leg_id*leg.key_->getNJoints();
                         for(auto &joint : *leg.data_)
                         {
-                            (*signal_writer_)->joint_position[joint.key_] = values.at(i);
+                            (*signal_writer_)->joints_position_[joint.key_] = values.at(i);
                             i++;
                         }
                         leg_id++;
                     }                              
                 }
 
-                if((item.key()).compare("joint_vel") == 0)
+                if((item.key()).compare("joints_velocity") == 0)
                 {
                     std::vector<double> values{};
                     for (const auto& value : item.value().items())
@@ -211,12 +211,12 @@ namespace dls
                     }
 
                     int leg_id = 0;
-                    for(auto &leg : (*signal_writer_)->joint_position)
+                    for(auto &leg : (*signal_writer_)->joints_position_)
                     {
                         int i = leg_id*leg.key_->getNJoints();
                         for(auto &joint : *leg.data_)
                         {
-                            (*signal_writer_)->joint_velocity[joint.key_] = values.at(i);
+                            (*signal_writer_)->joints_velocity_[joint.key_] = values.at(i);
                             i++;
                         }
                         leg_id++;
@@ -232,16 +232,16 @@ namespace dls
                     }
 
                     int leg_id = 0;
-                    for(auto &leg : (*signal_writer_)->joint_position)
+                    for(auto &leg : (*signal_writer_)->joints_position_)
                     {
-                        (*signal_writer_)->stance_legs[leg.key_] = values.at(leg_id);  
+                        (*signal_writer_)->stance_legs_[leg.key_] = values.at(leg_id);  
                         leg_id++;                        
                     }                              
                 }
             
-                if((item.key()).compare("time") == 0)
+                if((item.key()).compare("timestamp") == 0)
                 {
-                    (*signal_writer_)->time = item.value();
+                    (*signal_writer_)->timestamp_ = item.value();
                 }
             }
         }
@@ -254,7 +254,7 @@ namespace dls
         {
             topic_name_ = "t265_odometry";
             topic_type_ = dls::topicType(dls::topics::high_level_estimation::t265_odometry.first, new T265OdometryMsgPubSubType());
-            signal_writer_ = std::make_shared<SignalWriter<Odometry>>(dds_participant_, topic_type_, std::make_shared<Odometry>());
+            signal_writer_ = std::make_shared<SignalWriter<T265Odometry>>(dds_participant_, topic_type_, std::make_shared<T265Odometry>());
         }
         MCAPT265Odometry::~MCAPT265Odometry(){}
 
@@ -268,7 +268,7 @@ namespace dls
                     int i{0};
                     for (const auto& value : item.value().items())
                     {
-                        (*signal_writer_)->position(i) = value.value();
+                        (*signal_writer_)->position_(i) = value.value();
                         i++;
                     }
                 }
@@ -278,7 +278,7 @@ namespace dls
                     int i{0};
                     for (const auto& value : item.value().items())
                     {
-                        (*signal_writer_)->linear_velocity(i) = value.value();
+                        (*signal_writer_)->linear_velocity_(i) = value.value();
                         i++;
                     }
                 }
@@ -288,7 +288,7 @@ namespace dls
                     int i{0};
                     for (const auto& value : item.value().items())
                     {
-                        (*signal_writer_)->angular_velocity(i) = value.value();
+                        (*signal_writer_)->angular_velocity_(i) = value.value();
                         i++;
                     }
                 }
@@ -302,19 +302,19 @@ namespace dls
                         values.push_back(value.value());
                     }
 
-                    (*signal_writer_)->orientation.x() = values.at(0);
-                    (*signal_writer_)->orientation.y() = values.at(1);
-                    (*signal_writer_)->orientation.z() = values.at(2);
-                    (*signal_writer_)->orientation.w() = values.at(3);
+                    (*signal_writer_)->orientation_.x() = values.at(0);
+                    (*signal_writer_)->orientation_.y() = values.at(1);
+                    (*signal_writer_)->orientation_.z() = values.at(2);
+                    (*signal_writer_)->orientation_.w() = values.at(3);
                 }
 
                 if((item.key()).compare("timestamp") == 0)
                 {
-                    (*signal_writer_)->timestamp = item.value();
+                    (*signal_writer_)->timestamp_ = item.value();
                 }
             }
         }
-        const std::shared_ptr<SignalWriter<Odometry>> MCAPT265Odometry::getSignalWriter() { return signal_writer_; }
+        const std::shared_ptr<SignalWriter<T265Odometry>> MCAPT265Odometry::getSignalWriter() { return signal_writer_; }
 
         /**
 		 * @brief MCAPReaderSupport implementation

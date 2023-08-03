@@ -1,186 +1,192 @@
-/*******************************************************************************
-*                                                       ,----,                 *
-*                                                     .'   .' \                *
-*                                                   ,----,'    |               *
-*               ________  ___       ________        |    :  .  ;               *
-*              |\   ___ \|\  \     |\   ____\       ;    |.'  /                *
-*              \ \  \_|\ \ \  \    \ \  \___|_      `----'/  ;                 *
-*               \ \  \ \\ \ \  \    \ \_____  \       /  ;  /                  *
-*                \ \  \_\\ \ \  \____\|____|\  \     ;  /  /-,                 *
-*                 \ \_______\ \_______\____\_\  \   /  /  /.`|                 *
-*                  \|_______|\|_______|\_________\./__;      :                 *
-*                                     \|_________||   :    .'                  *
-*                                                 ;   | .'                     *
-*                                                 `---'                        *
-*******************************************************************************/
-
-#ifndef BLIND_STATE_CPP
-#define BLIND_STATE_CPP
-
 #include "dls2/msg_wrappers/blind_state.hpp"
 
-using namespace dls;
+BlindState::BlindState(const std::shared_ptr<robotlib::RobotBase> robot)
+	: frame_id_("")
+	, sequence_id_(0)
+	, timestamp_(0.0)
+	, robot_name_(robot->getName())
+	, joints_name_(robot->makeJointDataMap<std::string>(""))
+	, joints_position_(robot->makeJointState())
+	, joints_velocity_(robot->makeJointState())
+	, joints_acceleration_(robot->makeJointState())
+	, joints_effort_(robot->makeJointState())
+	, joints_temperature_(robot->makeJointState())
+	, feet_position_(robot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
+	, feet_velocity_(robot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
+	, feet_acceleration_(robot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
+	, terrain_inclination_(Eigen::Vector3d::Zero())
+	, surface_normal_(Eigen::Vector3d::Zero())
+	, base_pose_world_(Eigen::Vector3d::Zero(), Eigen::Quaterniond::Identity())
+	, base_orientation_world_rpy_(Eigen::Vector3d::Zero())
+	, base_velocity_world_(Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero())
+	, base_acceleration_world_(Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero())
+	, stance_legs_(robot->makeLegDataMap<bool>(false))
+{}
 
-BlindState::BlindState(const std::shared_ptr<robotlib::RobotBase> pRobot)
-	: joint_name(pRobot->makeJointDataMap<std::string>(""))
-	, joint_position(pRobot->makeJointState())
-	, joint_velocity(pRobot->makeJointState())
-	, joint_acceleration(pRobot->makeJointState())
-	, joint_effort(pRobot->makeJointState())
-	, joint_temperature(pRobot->makeJointState())
-	, foot_position(pRobot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
-	, foot_velocity(pRobot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
-	, foot_acceleration(pRobot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
-	, base_pose_world()
-	, base_vel_world()
-	, base_acc_world()
-	, base_ori_world_rpy(Eigen::Vector3d::Zero())
-	, stance_legs(pRobot->makeLegDataMap<bool>(false))
-	, time(0.0)
-	, robot_name(pRobot->getName())
-{ }
+BlindState::BlindState(BlindState& blind_state)
+	: frame_id_(blind_state.frame_id_)
+	, sequence_id_(blind_state.sequence_id_)
+	, timestamp_(blind_state.timestamp_)
+	, robot_name_(blind_state.robot_name_)
+	, joints_name_(blind_state.joints_name_) 
+	, joints_position_(blind_state.joints_position_)
+	, joints_velocity_(blind_state.joints_velocity_)
+	, joints_acceleration_(blind_state.joints_acceleration_)
+	, joints_effort_(blind_state.joints_effort_)
+	, joints_temperature_(blind_state.joints_temperature_)
+	, feet_position_(blind_state.feet_position_)
+	, feet_velocity_(blind_state.feet_velocity_)
+	, feet_acceleration_(blind_state.feet_acceleration_)
+	, terrain_inclination_(blind_state.terrain_inclination_)
+	, surface_normal_(blind_state.surface_normal_)
+	, base_pose_world_(blind_state.base_pose_world_)
+	, base_orientation_world_rpy_(blind_state.base_orientation_world_rpy_)
+	, base_velocity_world_(blind_state.base_velocity_world_)
+	, base_acceleration_world_(blind_state.base_acceleration_world_)
+	, stance_legs_(blind_state.stance_legs_)
+{}
 
-BlindState::BlindState(BlindState& from)
-	: joint_name(from.joint_name) 
-	, joint_position(from.joint_position)
-	, joint_velocity(from.joint_velocity)
-	, joint_acceleration(from.joint_acceleration)
-	, joint_effort(from.joint_effort)
-	, joint_temperature(from.joint_temperature)
-	, foot_position(from.foot_position)
-	, foot_velocity(from.foot_velocity)
-	, foot_acceleration(from.foot_acceleration)
-	, base_pose_world(from.base_pose_world)
-	, base_vel_world(from.base_vel_world)
-	, base_acc_world(from.base_acc_world)
-	, base_ori_world_rpy(from.base_ori_world_rpy)
-	, stance_legs(from.stance_legs)
-	, time(from.time)
-	, robot_name(from.robot_name)
-{ }
-
-BlindState::~BlindState()
-{ }
+BlindState::~BlindState(){}
 
 BlindState::operator BlindStateMsg() const
 {
-    BlindStateMsg msg;
+    BlindStateMsg blind_state_msg;
 
-	msg.robot_name(this->robot_name);
+	blind_state_msg.frame_id(frame_id_);
+	blind_state_msg.sequence_id(sequence_id_);
+	blind_state_msg.timestamp(timestamp_);
 
-	int leg_id = 0;
-	int leg_joint_id = 0;
-	for(auto &leg : this->joint_position)
+	blind_state_msg.robot_name(robot_name_);
+
+	int leg_id{0};
+	int leg_joint_id{0};
+
+	for(auto &leg : joints_position_)
 	{
 		leg_joint_id = 0;
 		int idx = leg_id*leg.key_->getNJoints();
 		for(auto &joint : *leg.data_)
 		{
-			msg.joint_name()[idx+leg_joint_id] = this->joint_name[joint.key_];
-			msg.joint_pos()[idx+leg_joint_id] = this->joint_position[joint.key_];
-			msg.joint_vel()[idx+leg_joint_id] = this->joint_velocity[joint.key_];
-			msg.joint_acc()[idx+leg_joint_id] = this->joint_acceleration[joint.key_];
-			msg.joint_eff()[idx+leg_joint_id] = this->joint_effort[joint.key_];
-			msg.joint_temp()[idx+leg_joint_id] = this->joint_temperature[joint.key_];
+			blind_state_msg.joints_name()[idx+leg_joint_id] = joints_name_[joint.key_];
+			blind_state_msg.joints_position()[idx+leg_joint_id] = joints_position_[joint.key_];
+			blind_state_msg.joints_velocity()[idx+leg_joint_id] = joints_velocity_[joint.key_];
+			blind_state_msg.joints_acceleration()[idx+leg_joint_id] = joints_acceleration_[joint.key_];
+			blind_state_msg.joints_effort()[idx+leg_joint_id] = joints_effort_[joint.key_];
+			blind_state_msg.joints_temperature()[idx+leg_joint_id] = joints_temperature_[joint.key_];
 			leg_joint_id++;
 		}
 
 		int idx_xyz = leg_id*3;
-		for(int i=0;i<3;i++)
+		for(unsigned int i{0}; i<3; i++)
 		{
-			msg.foot_position()[idx_xyz + i] = this->foot_position[leg.key_][i];
-			msg.foot_velocity()[idx_xyz + i] = this->foot_velocity[leg.key_][i];
-			msg.foot_acceleration()[idx_xyz + i] = this->foot_acceleration[leg.key_][i];
+			blind_state_msg.feet_position()[idx_xyz + i] = feet_position_[leg.key_][i];
+			blind_state_msg.feet_velocity()[idx_xyz + i] = feet_velocity_[leg.key_][i];
+			blind_state_msg.feet_acceleration()[idx_xyz + i] = feet_acceleration_[leg.key_][i];
 		}
 		
-		msg.stance_legs()[leg_id] = this->stance_legs[leg.key_];
+		blind_state_msg.stance_legs()[leg_id] = stance_legs_[leg.key_];
 		leg_id++;
 	}
 
-	for(int i=0; i<3;i++)
+	for(unsigned int i{0}; i<3; i++)
 	{
-		msg.base_pos_world()[i] = this->base_pose_world.toPosition()[i];
-		msg.base_lin_vel_world()[i] = this->base_vel_world.getLinear()[i];
-		msg.base_ang_vel_world()[i] = this->base_vel_world.getAngular()[i];
-		msg.base_lin_acc_world()[i] = this->base_acc_world.getLinear()[i];
-		msg.base_ang_acc_world()[i] = this->base_acc_world.getAngular()[i];
-		msg.base_ori_world_rpy()[i] = this->base_ori_world_rpy[i];
+		blind_state_msg.terrain_inclination()[i] = terrain_inclination_[i];
+		blind_state_msg.surface_normal()[i] = surface_normal_[i];
+
+		blind_state_msg.base_position_world()[i] = base_pose_world_.toPosition()[i];
+		blind_state_msg.base_orientation_world_rpy()[i] = base_orientation_world_rpy_[i];
+		blind_state_msg.base_linear_velocity_world()[i] = base_velocity_world_.getLinear()[i];
+		blind_state_msg.base_angular_velocity_world()[i] = base_velocity_world_.getAngular()[i];
+		blind_state_msg.base_linear_acceleration_world()[i] = base_acceleration_world_.getLinear()[i];
+		blind_state_msg.base_angular_acceleration_world()[i] = base_acceleration_world_.getAngular()[i];
 	}
 
-	msg.base_ori_world()[0] = this->base_pose_world.toQuaternion().x();
-	msg.base_ori_world()[1] = this->base_pose_world.toQuaternion().y();
-	msg.base_ori_world()[2] = this->base_pose_world.toQuaternion().z();
-	msg.base_ori_world()[3] = this->base_pose_world.toQuaternion().w();
+	blind_state_msg.base_orientation_world()[0] = base_pose_world_.toQuaternion().x();
+	blind_state_msg.base_orientation_world()[1] = base_pose_world_.toQuaternion().y();
+	blind_state_msg.base_orientation_world()[2] = base_pose_world_.toQuaternion().z();
+	blind_state_msg.base_orientation_world()[3] = base_pose_world_.toQuaternion().w();
 
-	msg.time(this->time);
-
-    return msg;
+    return blind_state_msg;
 }
 
-BlindState& BlindState::operator= (const BlindStateMsg& msg)
+BlindState& BlindState::operator=(const BlindStateMsg& blind_state_msg)
 {
-	this->robot_name = msg.robot_name();
+	frame_id_ = blind_state_msg.frame_id();
+	sequence_id_ = blind_state_msg.sequence_id();
+	timestamp_ = blind_state_msg.timestamp();
 
-	int leg_id = 0;
-	for(auto &leg : this->joint_position)
+	robot_name_ = blind_state_msg.robot_name();
+
+	int leg_id{0};
+	for(auto &leg : joints_position_)
 	{
 		int i = leg_id*leg.key_->getNJoints();
+
 		for(auto &joint : *leg.data_)
 		{
-			this->joint_name[joint.key_] = msg.joint_name()[i];
-			this->joint_position[joint.key_] = msg.joint_pos()[i];
-			this->joint_velocity[joint.key_] = msg.joint_vel()[i];
-			this->joint_acceleration[joint.key_] = msg.joint_acc()[i];
-			this->joint_effort[joint.key_] = msg.joint_eff()[i];
-			this->joint_temperature[joint.key_] = msg.joint_temp()[i];
+			joints_name_[joint.key_] = blind_state_msg.joints_name()[i];
+			joints_position_[joint.key_] = blind_state_msg.joints_position()[i];
+			joints_velocity_[joint.key_] = blind_state_msg.joints_velocity()[i];
+			joints_acceleration_[joint.key_] = blind_state_msg.joints_acceleration()[i];
+			joints_effort_[joint.key_] = blind_state_msg.joints_effort()[i];
+			joints_temperature_[joint.key_] = blind_state_msg.joints_temperature()[i];
 			i++;
 		}
 
 		int idx_xyz = leg_id*3;
-		for(int i=0;i<3;i++)
+		for(unsigned int i{0}; i<3; i++)
 		{
-			this->foot_position[leg.key_][i] = msg.foot_position()[idx_xyz+i];
-			this->foot_velocity[leg.key_][i] = msg.foot_velocity()[idx_xyz+i];
-			this->foot_acceleration[leg.key_][i] = msg.foot_acceleration()[idx_xyz+i];
+			feet_position_[leg.key_][i] = blind_state_msg.feet_position()[idx_xyz+i];
+			feet_velocity_[leg.key_][i] = blind_state_msg.feet_velocity()[idx_xyz+i];
+			feet_acceleration_[leg.key_][i] = blind_state_msg.feet_acceleration()[idx_xyz+i];
 		}
 
-		this->stance_legs[leg.key_] = msg.stance_legs()[leg_id];
+		stance_legs_[leg.key_] = blind_state_msg.stance_legs()[leg_id];
 		leg_id++;
 	}
 
-	this->base_pose_world.set(Eigen::Vector3d(msg.base_pos_world().data()));
-	this->base_pose_world.set(Eigen::Quaterniond(msg.base_ori_world()[3], msg.base_ori_world()[0], msg.base_ori_world()[1], msg.base_ori_world()[2]));
-	this->base_vel_world.setLinear(Eigen::Vector3d(msg.base_lin_vel_world().data()));
-	this->base_vel_world.setAngular(Eigen::Vector3d(msg.base_ang_vel_world().data()));
-	this->base_acc_world.setLinear(Eigen::Vector3d(msg.base_lin_acc_world().data()));
-	this->base_acc_world.setAngular(Eigen::Vector3d(msg.base_ang_acc_world().data()));
-	this->base_ori_world_rpy = Eigen::Vector3d(msg.base_ori_world_rpy()[0], msg.base_ori_world_rpy()[1], msg.base_ori_world_rpy()[2]);
+	terrain_inclination_ = Eigen::Vector3d(blind_state_msg.terrain_inclination()[0], blind_state_msg.terrain_inclination()[1], blind_state_msg.terrain_inclination()[2]);
+	surface_normal_ = Eigen::Vector3d(blind_state_msg.surface_normal()[0], blind_state_msg.surface_normal()[1], blind_state_msg.surface_normal()[2]);
 
-	this->time = msg.time();
+	base_pose_world_.set(Eigen::Vector3d(blind_state_msg.base_position_world().data()));
+	base_pose_world_.set(Eigen::Quaterniond(blind_state_msg.base_orientation_world()[3], blind_state_msg.base_orientation_world()[0], blind_state_msg.base_orientation_world()[1], blind_state_msg.base_orientation_world()[2]));
+	base_orientation_world_rpy_ = Eigen::Vector3d(blind_state_msg.base_orientation_world_rpy()[0], blind_state_msg.base_orientation_world_rpy()[1], blind_state_msg.base_orientation_world_rpy()[2]);
+	base_velocity_world_.setLinear(Eigen::Vector3d(blind_state_msg.base_linear_velocity_world().data()));
+	base_velocity_world_.setAngular(Eigen::Vector3d(blind_state_msg.base_angular_velocity_world().data()));
+	base_acceleration_world_.setLinear(Eigen::Vector3d(blind_state_msg.base_linear_acceleration_world().data()));
+	base_acceleration_world_.setAngular(Eigen::Vector3d(blind_state_msg.base_angular_acceleration_world().data()));
 
 	return *this;
 }
 
-BlindState& BlindState::operator= (const BlindState& from)
+BlindState& BlindState::operator=(const BlindState& blind_state)
 {
-	this->robot_name = from.robot_name;
-	this->joint_name = from.joint_name;
-	this->joint_position = from.joint_position;
-	this->joint_velocity = from.joint_velocity;
-	this->joint_acceleration = from.joint_acceleration;
-	this->joint_effort = from.joint_effort;
-	this->joint_temperature = from.joint_temperature;
-	this->foot_position = from.foot_position;
-	this->foot_velocity = from.foot_velocity;
-	this->foot_acceleration = from.foot_acceleration;
-	this->base_pose_world = from.base_pose_world;
-	this->base_vel_world = from.base_vel_world;
-	this->base_acc_world = from.base_acc_world;
-	this->base_ori_world_rpy = from.base_ori_world_rpy;
-	this->stance_legs = from.stance_legs;
-	this->time = from.time;
+	frame_id_ = blind_state.frame_id_;
+	sequence_id_ = blind_state.sequence_id_;
+	timestamp_ = blind_state.timestamp_;
+
+	robot_name_ = blind_state.robot_name_;
+
+	joints_name_ = blind_state.joints_name_;
+	joints_position_ = blind_state.joints_position_;
+	joints_velocity_ = blind_state.joints_velocity_;
+	joints_acceleration_ = blind_state.joints_acceleration_;
+	joints_effort_ = blind_state.joints_effort_;
+	joints_temperature_ = blind_state.joints_temperature_;
+
+	feet_position_ = blind_state.feet_position_;
+	feet_velocity_ = blind_state.feet_velocity_;
+	feet_acceleration_ = blind_state.feet_acceleration_;
+
+	terrain_inclination_ = blind_state.terrain_inclination_;
+	surface_normal_ = blind_state.surface_normal_;
+
+	base_pose_world_ = blind_state.base_pose_world_;
+	base_orientation_world_rpy_ = blind_state.base_orientation_world_rpy_;
+	base_velocity_world_ = blind_state.base_velocity_world_;
+	base_acceleration_world_ = blind_state.base_acceleration_world_;
+
+	stance_legs_ = blind_state.stance_legs_;
 
 	return *this;
 }
-
-#endif // BLIND_STATE_CPP

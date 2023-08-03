@@ -9,24 +9,13 @@ namespace dls
     }
 
 	WebSocketTranslator::WebSocketTranslator(std::string& ID) 
-		: Service(
-			ID,
-			dls::topics::web_socket_translator,
-			dls::topicType(dls::topics::web_socket_translator.first + "_response", new WebSocketTranslatorMsgPubSubType()),
-			[this](void* req, void* res) -> void
-			{
-				// TODO: Remove
-				WebSocketTranslatorMsg* request_msg = (WebSocketTranslatorMsg*) req;
-				WebSocketTranslatorMsg* result_msg = (WebSocketTranslatorMsg*) res;
-
-				request_msg->name() = "WebSocketTranslator";
-				result_msg->name() = "WebSocketTranslator";
-				return;
-			})
+		: Service(ID)
 		, command_manager_(ID)
         , server_thread_(nullptr)
-        , webserver_(8765, "example server")
+        , webserver_(8765, "webserver")
         , dds_participant_(std::make_shared<dls::DDSParticipant>("Web_Socket_Translator::monitor", dls::domains::signals, false))
+        , mcap_writer_utils_(std::make_shared<dls::MCAPWriterUtils>())
+        , mcap_reader_utils_(std::make_shared<dls::MCAPReaderUtils>())
     {
         this->server_thread_ = std::make_shared<std::thread>(&WebSocketTranslator::serverFunc, this);
         dds_participant_->setTopicListener(this);
@@ -113,7 +102,7 @@ namespace dls
 		scout_sys << "SERVICE " + ID + " IS RUNNING" << std::endl;
 	}
 
-	WebSocketTranslator::~WebSocketTranslator() 
+	WebSocketTranslator::~WebSocketTranslator()
 	{
         server_thread_->join();
 
@@ -169,12 +158,12 @@ namespace dls
                     this->send_flags_.insert(channel);
 
                     // Write an MCAP message with the topic data
-                    if(mcap_writer_utils_.isRecordingOngoing())
+                    if(mcap_writer_utils_->isRecordingOngoing())
                     {
                         const auto schema_data{json_pair_first.dump()};
                         const auto message_data{json_pair_second.dump()};
 
-                        mcap_writer_utils_.writeMessage(topic_name, type_name, schema_data, message_data, nanosecondsSinceEpoch());
+                        mcap_writer_utils_->writeMessage(topic_name, type_name, schema_data, message_data, nanosecondsSinceEpoch());
                     }
                 }}
         );
@@ -237,12 +226,12 @@ namespace dls
                     }
 
                     // Write an MCAP message with the "scene" data
-                    if(mcap_writer_utils_.isRecordingOngoing())
+                    if(mcap_writer_utils_->isRecordingOngoing())
                     {
                         const auto schema_data{jsonSceneSchema.dump()};
                         const auto message_data{serialized_json_scene};
 
-                        mcap_writer_utils_.writeMessage("scene", "foxglove.SceneUpdate", schema_data, message_data, nanosecondsSinceEpoch());
+                        mcap_writer_utils_->writeMessage("scene", "foxglove.SceneUpdate", schema_data, message_data, nanosecondsSinceEpoch());
                     }
 
                     if(this->send_flags_.find(chanFrame) != this->send_flags_.end())
@@ -296,12 +285,12 @@ namespace dls
                     this->send_flags_.insert(chanFrame);
 
                     // Write an MCAP message with the "frame" data
-                    if(mcap_writer_utils_.isRecordingOngoing())
+                    if(mcap_writer_utils_->isRecordingOngoing())
                     {
                         const auto schema_data{jsonFrameSchema.dump()};
                         const auto message_data{jsonFramesMsg.dump()};
 
-                        mcap_writer_utils_.writeMessage("frames", "foxglove.FrameTransforms", schema_data, message_data, nanosecondsSinceEpoch());
+                        mcap_writer_utils_->writeMessage("frames", "foxglove.FrameTransforms", schema_data, message_data, nanosecondsSinceEpoch());
                     }
                 }}
             );
@@ -313,12 +302,12 @@ namespace dls
         // Start recording a new MCAP log file
         if(record_mcap)
         {
-            mcap_writer_utils_.startRecording(timestamp);
+            mcap_writer_utils_->startRecording(timestamp);
         }
         // Stop recording the current MCAP log file
         else
         {
-            mcap_writer_utils_.stopRecording();
+            mcap_writer_utils_->stopRecording();
         }
     }
 
@@ -327,12 +316,12 @@ namespace dls
         // Start the playback of an MCAP log file
         if(playback_mcap)
         {
-            mcap_reader_utils_.startPlayback(mcap_log_file);
+            mcap_reader_utils_->startPlayback(mcap_log_file);
         }
         // Stop the playback of the MCAP log file
         else
         {
-            mcap_reader_utils_.stopPlayback();
+            mcap_reader_utils_->stopPlayback();
         }
     }
 

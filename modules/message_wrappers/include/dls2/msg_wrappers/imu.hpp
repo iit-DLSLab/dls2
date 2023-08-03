@@ -1,26 +1,9 @@
-/*******************************************************************************
-*                                                       ,----,                 *
-*                                                     .'   .' \                *
-*                                                   ,----,'    |               *
-*               ________  ___       ________        |    :  .  ;               *
-*              |\   ___ \|\  \     |\   ____\       ;    |.'  /                *
-*              \ \  \_|\ \ \  \    \ \  \___|_      `----'/  ;                 *
-*               \ \  \ \\ \ \  \    \ \_____  \       /  ;  /                  *
-*                \ \  \_\\ \ \  \____\|____|\  \     ;  /  /-,                 *
-*                 \ \_______\ \_______\____\_\  \   /  /  /.`|                 *
-*                  \|_______|\|_______|\_________\./__;      :                 *
-*                                     \|_________||   :    .'                  *
-*                                                 ;   | .'                     *
-*                                                 `---'                        *
-*******************************************************************************/
 #ifndef IMU_SIGNAL_HPP
 #define IMU_SIGNAL_HPP
 
-
-#include "robotlib/robot_base.hpp"
-
 #include "dls2/msg_wrappers/wrapper.hpp"
 #include "dls_messages/dds/imu.h"
+#include "robotlib/robot_base.hpp"
 
 namespace dls
 {
@@ -28,23 +11,24 @@ namespace dls
 	{
 	public:
 		Imu();
-		Imu(Imu&);
-
-        ~Imu();
+		Imu(Imu& imu);
+        virtual ~Imu();
 
 		operator ImuMsg() const override;
-		Imu& operator= (const ImuMsg&) override;
+		Imu& operator=(const ImuMsg& imu_msg) override;
+        Imu& operator=(const Imu& imu);
 
-		Eigen::Quaterniond orientation;
-		Eigen::Matrix3d orientation_covariance;
-		Eigen::Vector3d angular_velocity;
-		Eigen::Matrix3d angular_velocity_covariance;
-		Eigen::Vector3d linear_acceleration;
-		Eigen::Matrix3d linear_acceleration_covariance;
+		std::string frame_id_{};
+		uint32_t sequence_id_{};
+		double timestamp_{};
 
-		double time;
-		std::string frame_id;
+		Eigen::Quaterniond orientation_{Eigen::Quaterniond::Identity()};
+		Eigen::Matrix3d orientation_covariance_{Eigen::Matrix3d::Zero()};
+		Eigen::Vector3d angular_velocity_{Eigen::Vector3d::Zero()};
+		Eigen::Matrix3d angular_velocity_covariance_{Eigen::Matrix3d::Zero()};
+		Eigen::Vector3d linear_acceleration_{Eigen::Vector3d::Zero()};
+		Eigen::Matrix3d linear_acceleration_covariance_{Eigen::Matrix3d::Zero()};
 	};
-} // end namespace dls
+} // namespace dls
 
-#endif /* end of include guard: IMU_SIGNAL_HPP */
+#endif

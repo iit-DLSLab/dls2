@@ -1,73 +1,70 @@
-/*******************************************************************************
-*                                                       ,----,                 *
-*                                                     .'   .' \                *
-*                                                   ,----,'    |               *
-*               ________  ___       ________        |    :  .  ;               *
-*              |\   ___ \|\  \     |\   ____\       ;    |.'  /                *
-*              \ \  \_|\ \ \  \    \ \  \___|_      `----'/  ;                 *
-*               \ \  \ \\ \ \  \    \ \_____  \       /  ;  /                  *
-*                \ \  \_\\ \ \  \____\|____|\  \     ;  /  /-,                 *
-*                 \ \_______\ \_______\____\_\  \   /  /  /.`|                 *
-*                  \|_______|\|_______|\_________\./__;      :                 *
-*                                     \|_________||   :    .'                  *
-*                                                 ;   | .'                     *
-*                                                 `---'                        *
-*******************************************************************************/
-
-#ifndef SLIP_FLAG_CPP
-#define SLIP_FLAG_CPP
-
 #include "dls2/msg_wrappers/slip_flag.hpp"
 
-using namespace dls;
+SlipFlag::SlipFlag(const std::shared_ptr<robotlib::RobotBase> robot)
+	: frame_id_("")
+	, sequence_id_(0)
+	, timestamp_(0.0)
+	, robot_name_(robot->getName())
+	, slip_flag_(robot->makeLegDataMap<bool>(false))
+{}
 
-SlipFlag::SlipFlag(const std::shared_ptr<robotlib::RobotBase> pRobot)
-	: robot_name(pRobot->getName())
-	, slip_flag(pRobot->makeLegDataMap<bool>(false))
-	, time(0.0)
-{ }
+SlipFlag::SlipFlag(SlipFlag& slip_flag)
+    : frame_id_(slip_flag.frame_id_)
+	, sequence_id_(slip_flag.sequence_id_)
+	, timestamp_(slip_flag.timestamp_)
+	, robot_name_(slip_flag.robot_name_)
+	, slip_flag_(slip_flag.slip_flag_)
+{}
 
-SlipFlag::SlipFlag(SlipFlag& from)
-	: robot_name(from.robot_name)
-	, slip_flag(from.slip_flag)
-	, time(from.time)
-{ }
-
-SlipFlag::~SlipFlag()
-{ }
+SlipFlag::~SlipFlag(){}
 
 SlipFlag::operator SlipFlagMsg() const
 {
-    SlipFlagMsg msg;
+    SlipFlagMsg slip_flag_msg;
 
-	msg.robot_name() = this->robot_name;
+	slip_flag_msg.frame_id(frame_id_);
+	slip_flag_msg.sequence_id(sequence_id_);
+	slip_flag_msg.timestamp(timestamp_);
 
-	int leg_id = 0;
-	for(auto &leg : this->slip_flag)
+	slip_flag_msg.robot_name() = robot_name_;
+
+	int leg_id{0};
+	for(auto &leg : slip_flag_)
 	{
-		msg.slip_flag()[leg_id] = this->slip_flag[leg.key_];
+		slip_flag_msg.slip_flag()[leg_id] = slip_flag_[leg.key_];
 		leg_id++;
 	}
 
-	msg.time(this->time);
-
-    return msg;
+    return slip_flag_msg;
 }
 
-SlipFlag& SlipFlag::operator= (const SlipFlagMsg& msg)
+SlipFlag& SlipFlag::operator=(const SlipFlagMsg& slip_flag_msg)
 {
-	this->robot_name = msg.robot_name();
+	frame_id_ = slip_flag_msg.frame_id();
+	sequence_id_ = slip_flag_msg.sequence_id();
+	timestamp_ = slip_flag_msg.timestamp();
 
-	int leg_id = 0;
-	for(auto &leg : this->slip_flag)
+	robot_name_ = slip_flag_msg.robot_name();
+
+	int leg_id{0};
+	for(auto &leg : slip_flag_)
 	{
-		this->slip_flag[leg.key_] = msg.slip_flag()[leg_id];
+		slip_flag_[leg.key_] = slip_flag_msg.slip_flag()[leg_id];
 		leg_id++;
 	}
-
-	this->time = msg.time();
 
 	return *this;
 }
 
-#endif // SLIP_FLAG_CPP
+SlipFlag& SlipFlag::operator=(const SlipFlag& slip_flag)
+{
+    frame_id_ = slip_flag.frame_id_;
+	sequence_id_ = slip_flag.sequence_id_;
+	timestamp_ = slip_flag.timestamp_;
+
+	robot_name_ = slip_flag.robot_name_;
+
+	slip_flag_ = slip_flag.slip_flag_;
+
+	return *this;
+}
