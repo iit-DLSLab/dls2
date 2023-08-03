@@ -1,10 +1,9 @@
 
-#ifndef CONTROL_SIGNAL_HPP_QCFRROHM
-#define CONTROL_SIGNAL_HPP_QCFRROHM
+#ifndef CONTROL_SIGNAL_HPP
+#define CONTROL_SIGNAL_HPP
 
 #include "dls2/msg_wrappers/wrapper.hpp"
-#include "dls_messages/dds/control_signalPubSubTypes.h"
-
+#include "dls_messages/dds/control_signal.h"
 #include "robotlib/robot_base.hpp"
 
 /// A struct representing the control signal that is output by a Controller
@@ -19,18 +18,22 @@ namespace dls
             IMPULSE
         };
 
-        ControlSignal(const std::shared_ptr<robotlib::RobotBase>);
-        ControlSignal(const ControlSignal&);
+        ControlSignal(const std::shared_ptr<robotlib::RobotBase> robot);
+        ControlSignal(const ControlSignal& control_signal);
         ControlSignal() = delete;
-        ~ControlSignal();
+        virtual ~ControlSignal();
 
         operator ControlSignalMsg() const override;
-        ControlSignal& operator=(const ControlSignalMsg&) override;
-        ControlSignal& operator=(const ControlSignal&);
+        ControlSignal& operator=(const ControlSignalMsg& control_signal_msg) override;
+        ControlSignal& operator=(const ControlSignal& control_signal);
 
-        robotlib::JointState torques;
-        SignalReconstructionMethod signal_reconstruction_method;
-        double time;
+		std::string frame_id_{};
+		uint32_t sequence_id_{};
+		double timestamp_{};
+
+        robotlib::JointState torques_;
+        SignalReconstructionMethod signal_reconstruction_method_{};
     };
-} // end namespace dls
-#endif /* end of include guard: CONTROL_SIGNAL_HPP_QCFRROHM */
+} // namespace dls
+
+#endif

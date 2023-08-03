@@ -111,44 +111,6 @@ dls_configure_atonly(include/service.md.in SERVICE_MD_FILE)
 file(READ ${SERVICE_MD_FILE} SERVICE_MD)
 
 # ------------------------------------------------------------------------------
-# Message Generation
-# ------------------------------------------------------------------------------
-# Build the graphical representation of the project tree
-execute_process(
-	COMMAND
-		tree --noreport
-	WORKING_DIRECTORY
-		${CMAKE_CURRENT_SOURCE_DIR}/dls2_examples/example_message_generation
-	OUTPUT_VARIABLE
-		EXAMPLE_MESSAGE_GENERATION_PROJECT_TREE
-)
-
-file(READ dls2_examples/example_message_generation/CMakeLists.txt
-	EXAMPLE_MESSAGE_GENERATION_TOP_LEVEL_CMAKELSTS_TXT
-)
-
-file(READ dls2_examples/example_message_generation/msg/bool.idl
-	EXAMPLE_MESSAGE_GENERATiON_BOOL_IDL
-)
-
-file(READ dls2_examples/example_message_generation/msg/CMakeLists.txt
-	EXAMPLE_MESSAGE_GENERATION_MSG_CMAKELISTS_TXT
-)
-
-file(READ
-	dls2_examples/example_message_generation/src/example_message_generation.cpp
-	EXAMPLE_MESSAGE_GENERATiON_SRC_EXAMPLE_MESSAGE_GENERATION_CPP
-)
-
-file(READ
-	dls2_examples/example_message_generation/src/CMakeLists.txt
-	EXAMPLE_MESSAGE_GENERATION_SRC_CMAKELISTS_TXT
-)
-
-dls_configure_atonly(include/message_generation.md.in MESSAGE_GENERATION_MD_FILE)
-file(READ ${MESSAGE_GENERATION_MD_FILE} MESSAGE_GENERATION_MD)
-
-# ------------------------------------------------------------------------------
 # Packaging
 # ------------------------------------------------------------------------------
 file(READ include/packaging.md PACKAGING_MD)

@@ -11,7 +11,7 @@
 #include "dls2/msg_wrappers/imu.hpp"
 #include "dls2/msg_wrappers/gait_signal.hpp"
 #include "dls2/msg_wrappers/blind_state.hpp"
-#include "dls2/msg_wrappers/odometry.hpp"
+#include "dls2/msg_wrappers/t265_odometry.hpp"
 
 #include <nlohmann/json.hpp>
 
@@ -100,10 +100,10 @@ namespace dls
 
             virtual const std::string& getTopicName() override;
             virtual void fillMessage(const nlohmann::json& parsed_message) override;
-            const std::shared_ptr<SignalWriter<Odometry>> getSignalWriter();
+            const std::shared_ptr<SignalWriter<T265Odometry>> getSignalWriter();
 
         private:
-            std::shared_ptr<SignalWriter<Odometry>> signal_writer_;
+            std::shared_ptr<SignalWriter<T265Odometry>> signal_writer_;
         };
 
         /**

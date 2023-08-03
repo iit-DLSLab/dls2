@@ -1,85 +1,107 @@
-
-
-#ifndef CONTROLLER_COMMAND_CPP
-#define CONTROLLER_COMMAND_CPP
-
-
 #include "dls2/msg_wrappers/controller_command.hpp"
 
-using namespace dls;
-
-ControllerCommand::ControllerCommand(const std::shared_ptr<robotlib::RobotBase>& pRobot)
-    : robot_height{0.3}
-    , step_frequency{0.5}
-    , duty_factor{0.55}
-    , step_height(pRobot->makeLegDataMap<double>(0.08))
-    , base_pose_HF(Eigen::Vector3d::Zero(), Eigen::Quaterniond::Identity())
-    , base_vel_HF(Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero())
+ControllerCommand::ControllerCommand(const std::shared_ptr<robotlib::RobotBase> robot)
+    : frame_id_("")
+	, sequence_id_(0)
+	, timestamp_(0.0)
+    , robot_height_(0.3)
+    , step_frequency_(0.5)
+    , duty_factor_(0.55)
+    , step_height_(robot->makeLegDataMap<double>(0.08))
+    , base_pose_HF_(Eigen::Vector3d::Zero(), Eigen::Quaterniond::Identity())
+    , base_velocity_HF_(Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero())
 {}
 
-ControllerCommand::ControllerCommand(ControllerCommand& from)
-    : robot_height(from.robot_height)
-    , step_frequency(from.step_frequency)
-    , duty_factor(from.duty_factor)
-    , step_height(from.step_height)
-    , base_pose_HF(from.base_pose_HF)
-    , base_vel_HF(from.base_vel_HF)
+ControllerCommand::ControllerCommand(ControllerCommand& controller_command)
+    : frame_id_(controller_command.frame_id_)
+	, sequence_id_(controller_command.sequence_id_)
+	, timestamp_(controller_command.timestamp_)
+    , robot_height_(controller_command.robot_height_)
+    , step_frequency_(controller_command.step_frequency_)
+    , duty_factor_(controller_command.duty_factor_)
+    , step_height_(controller_command.step_height_)
+    , base_pose_HF_(controller_command.base_pose_HF_)
+    , base_velocity_HF_(controller_command.base_velocity_HF_)
 {}
 
-ControllerCommand::~ControllerCommand()
-{}
+ControllerCommand::~ControllerCommand(){}
 
 ControllerCommand::operator ControllerCommandMsg() const
 {
-    ControllerCommandMsg msg;
-    msg.robot_height() = this->robot_height;
-    msg.step_frequency() = this->step_frequency;
-    msg.duty_factor() = this->duty_factor;
+    ControllerCommandMsg controller_command_msg;
+
+	controller_command_msg.frame_id(frame_id_);
+	controller_command_msg.sequence_id(sequence_id_);
+	controller_command_msg.timestamp(timestamp_);
+
+    controller_command_msg.robot_height() = robot_height_;
+    controller_command_msg.step_frequency() = step_frequency_;
+    controller_command_msg.duty_factor() = duty_factor_;
     
     int i {0};
-    for(auto &leg_pair : this->step_height)
+    for(auto &leg_pair : step_height_)
     {
-        msg.step_height()[i++] = this->step_height[leg_pair.key_];
+        controller_command_msg.step_height()[i++] = step_height_[leg_pair.key_];
     }
 
-    for(int i = 0; i < 3; i++)
+    for(unsigned int i{0}; i<3; i++)
     {
-        msg.base_pos_HF()[i] = this->base_pose_HF.toPosition()(i);
-        msg.base_lin_vel_HF()[i] = this->base_vel_HF.getLinear()(i);
-        msg.base_ang_vel_HF()[i] = this->base_vel_HF.getAngular()(i);
+        controller_command_msg.base_position_HF()[i] = base_pose_HF_.toPosition()(i);
+        controller_command_msg.base_linear_velocity_HF()[i] = base_velocity_HF_.getLinear()(i);
+        controller_command_msg.base_angular_velocity_HF()[i] = base_velocity_HF_.getAngular()(i);
     }
 
-    msg.base_ori_HF()[0] = this->base_pose_HF.toQuaternion().x();
-	msg.base_ori_HF()[1] = this->base_pose_HF.toQuaternion().y();
-	msg.base_ori_HF()[2] = this->base_pose_HF.toQuaternion().z();
-	msg.base_ori_HF()[3] = this->base_pose_HF.toQuaternion().w();
-    return msg;
+    controller_command_msg.base_orientation_HF()[0] = base_pose_HF_.toQuaternion().x();
+	controller_command_msg.base_orientation_HF()[1] = base_pose_HF_.toQuaternion().y();
+	controller_command_msg.base_orientation_HF()[2] = base_pose_HF_.toQuaternion().z();
+	controller_command_msg.base_orientation_HF()[3] = base_pose_HF_.toQuaternion().w();
+
+    return controller_command_msg;
 }
 
-ControllerCommand& ControllerCommand::operator= (const ControllerCommandMsg &msg)
+ControllerCommand& ControllerCommand::operator= (const ControllerCommandMsg &controller_command_msg)
 {
-    this->robot_height = msg.robot_height();
-    this->step_frequency = msg.step_frequency();
-    this->duty_factor = msg.duty_factor();
+    frame_id_ = controller_command_msg.frame_id();
+    sequence_id_ = controller_command_msg.sequence_id();
+    timestamp_ = controller_command_msg.timestamp();
+
+    robot_height_ = controller_command_msg.robot_height();
+    step_frequency_ = controller_command_msg.step_frequency();
+    duty_factor_ = controller_command_msg.duty_factor();
     
     int i {0};
-    for(auto &leg_pair : this->step_height)
+    for(auto &leg_pair : step_height_)
     {
-        this->step_height[leg_pair.key_] = msg.step_height()[i++];
+        step_height_[leg_pair.key_] = controller_command_msg.step_height()[i++];
     }
 
-    for(int i = 0; i < 3; i++)
+    for(int i{0}; i < 3; i++)
     {
-        this->base_pose_HF.set(Eigen::Vector3d((msg.base_pos_HF().data())));
-        this->base_pose_HF.set(Eigen::Quaterniond(
-                                            msg.base_ori_HF()[3],
-                                            msg.base_ori_HF()[0],
-                                            msg.base_ori_HF()[1],
-                                            msg.base_ori_HF()[2]));
-	    this->base_vel_HF.setLinear(Eigen::Vector3d(msg.base_lin_vel_HF().data()));
-	    this->base_vel_HF.setAngular(Eigen::Vector3d(msg.base_ang_vel_HF().data()));
+        base_pose_HF_.set(Eigen::Vector3d((controller_command_msg.base_position_HF().data())));
+        base_pose_HF_.set(Eigen::Quaterniond(controller_command_msg.base_orientation_HF()[3],
+                                             controller_command_msg.base_orientation_HF()[0],
+                                             controller_command_msg.base_orientation_HF()[1],
+                                             controller_command_msg.base_orientation_HF()[2]));
+	    base_velocity_HF_.setLinear(Eigen::Vector3d(controller_command_msg.base_linear_velocity_HF().data()));
+	    base_velocity_HF_.setAngular(Eigen::Vector3d(controller_command_msg.base_angular_velocity_HF().data()));
     }
+
     return *this;
 }
 
-#endif // CONTROLLER_COMMAND_CPP
+ControllerCommand& ControllerCommand::operator=(const ControllerCommand& controller_command)
+{
+    frame_id_ = controller_command.frame_id_;
+	sequence_id_ = controller_command.sequence_id_;
+	timestamp_ = controller_command.timestamp_;
+
+    robot_height_ = controller_command.robot_height_;
+    step_frequency_ = controller_command.step_frequency_;
+    duty_factor_ = controller_command.duty_factor_;
+    step_height_ = controller_command.step_height_;
+
+    base_pose_HF_ = controller_command.base_pose_HF_;
+    base_velocity_HF_ = controller_command.base_velocity_HF_;
+
+	return *this;
+}

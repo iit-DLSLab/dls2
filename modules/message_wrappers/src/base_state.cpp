@@ -1,67 +1,84 @@
 
-
-#ifndef BASE_STATE_CPP
-#define BASE_STATE_CPP
-
 #include "dls2/msg_wrappers/base_state.hpp"
 
-using namespace dls;
+BaseState::BaseState(const std::shared_ptr<robotlib::RobotBase> robot)
+    : frame_id_("")
+	, sequence_id_(0)
+	, timestamp_(0.0)
+	, robot_name_(robot->getName())
+	, pose_(Eigen::Vector3d::Zero(), Eigen::Quaterniond::Identity())
+	, velocity_(Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero())
+	, acceleration_(Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero())
+{}
 
-BaseState::BaseState()
-	: robot_name("")
-	, time(0)
-{ }
+BaseState::BaseState(BaseState& base_state)
+    : frame_id_(base_state.frame_id_)
+	, sequence_id_(base_state.sequence_id_)
+	, timestamp_(base_state.timestamp_)
+	, robot_name_(base_state.robot_name_)
+	, pose_(base_state.pose_)
+	, velocity_(base_state.velocity_)
+	, acceleration_(base_state.acceleration_)
+{}
 
-BaseState::BaseState(BaseState& from)
-	: robot_name(from.robot_name)
-	, pose(from.pose)
-	, velocity(from.velocity)
-	, acceleration(from.acceleration)
-	, time(from.time)
-{ }
-
-BaseState::~BaseState()
-{ }
+BaseState::~BaseState(){}
 
 BaseState::operator BaseStateMsg() const
 {
-    BaseStateMsg msg;
+    BaseStateMsg base_state_msg;
 
-	msg.robot_name() = this->robot_name;
+	base_state_msg.frame_id(frame_id_);
+	base_state_msg.sequence_id(sequence_id_);
+	base_state_msg.timestamp(timestamp_);
 
-	for(int i=0; i<3;i++)
+	base_state_msg.robot_name(robot_name_);
+
+	for(unsigned int i{0}; i<3; i++)
 	{
-		msg.position()[i] = this->pose.toPosition()[i];
-		msg.linear_velocity()[i] = this->velocity.getLinear()[i];
-		msg.angular_velocity()[i] = this->velocity.getAngular()[i];
-		msg.linear_acceleration()[i] = this->acceleration.getLinear()[i];
-		msg.angular_acceleration()[i] = this->acceleration.getAngular()[i];
+		base_state_msg.position()[i] = pose_.toPosition()[i];
+		base_state_msg.linear_velocity()[i] = velocity_.getLinear()[i];
+		base_state_msg.angular_velocity()[i] = velocity_.getAngular()[i];
+		base_state_msg.linear_acceleration()[i] = acceleration_.getLinear()[i];
+		base_state_msg.angular_acceleration()[i] = acceleration_.getAngular()[i];
 	}
 
-	msg.orientation()[0] = this->pose.toQuaternion().x();
-	msg.orientation()[1] = this->pose.toQuaternion().y();
-	msg.orientation()[2] = this->pose.toQuaternion().z();
-	msg.orientation()[3] = this->pose.toQuaternion().w();
+	base_state_msg.orientation()[0] = pose_.toQuaternion().x();
+	base_state_msg.orientation()[1] = pose_.toQuaternion().y();
+	base_state_msg.orientation()[2] = pose_.toQuaternion().z();
+	base_state_msg.orientation()[3] = pose_.toQuaternion().w();
 
-	msg.time(this->time);
-
-    return msg;
+    return base_state_msg;
 }
 
-BaseState& BaseState::operator= (const BaseStateMsg& msg)
+BaseState& BaseState::operator=(const BaseStateMsg& base_state_msg)
 {
-	this->robot_name = msg.robot_name();
+	frame_id_ = base_state_msg.frame_id();
+	sequence_id_ = base_state_msg.sequence_id();
+	timestamp_ = base_state_msg.timestamp();
 
-	this->pose.set(Eigen::Vector3d(msg.position().data()));
-	this->pose.set(Eigen::Quaterniond(msg.orientation()[3], msg.orientation()[0], msg.orientation()[1], msg.orientation()[2]));
-	this->velocity.setLinear(Eigen::Vector3d(msg.linear_velocity().data()));
-	this->velocity.setAngular(Eigen::Vector3d(msg.angular_velocity().data()));
-	this->acceleration.setLinear(Eigen::Vector3d(msg.linear_acceleration().data()));
-	this->acceleration.setAngular(Eigen::Vector3d(msg.angular_acceleration().data()));
+	robot_name_ = base_state_msg.robot_name();
 
-	this->time = msg.time();
+	pose_.set(Eigen::Vector3d(base_state_msg.position().data()));
+	pose_.set(Eigen::Quaterniond(base_state_msg.orientation()[3], base_state_msg.orientation()[0], base_state_msg.orientation()[1], base_state_msg.orientation()[2]));
+	velocity_.setLinear(Eigen::Vector3d(base_state_msg.linear_velocity().data()));
+	velocity_.setAngular(Eigen::Vector3d(base_state_msg.angular_velocity().data()));
+	acceleration_.setLinear(Eigen::Vector3d(base_state_msg.linear_acceleration().data()));
+	acceleration_.setAngular(Eigen::Vector3d(base_state_msg.angular_acceleration().data()));
 
 	return *this;
 }
 
-#endif // BASE_STATE_CPP
+BaseState& BaseState::operator=(const BaseState& base_state)
+{
+    frame_id_ = base_state.frame_id_;
+	sequence_id_ = base_state.sequence_id_;
+	timestamp_ = base_state.timestamp_;
+
+	robot_name_ = base_state.robot_name_;
+
+	pose_ = base_state.pose_;
+	velocity_ = base_state.velocity_;
+	acceleration_ = base_state.acceleration_;
+
+	return *this;
+}
