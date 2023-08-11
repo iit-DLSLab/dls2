@@ -19,15 +19,18 @@ LogStreamBuffer::LogStreamBuffer
 	std::string prefix_
 ) 
 	: topic(topic_)
-	, ddsLogging(std::make_shared<dls::DDSWriter>(
-			prefix_,
-	 		dls::domains::logging,
-			topic_
-		)
-	)
 	, buf(new char[buffer_size])
 	, prefix(prefix_ + ": ")
 {
+	eprosima::fastdds::dds::DataWriterQos qos(eprosima::fastdds::dds::DATAWRITER_QOS_DEFAULT);
+	qos.reliability().kind = eprosima::fastdds::dds::RELIABLE_RELIABILITY_QOS;
+	qos.history().kind = eprosima::fastdds::dds::KEEP_ALL_HISTORY_QOS;
+	ddsLogging = std::make_shared<dls::DDSWriter>(
+				prefix_,
+				dls::domains::logging,
+				topic_,
+				qos
+			);
 	setp(buf, buf + buffer_size -1);
 }
 
