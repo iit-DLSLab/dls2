@@ -17,6 +17,7 @@ namespace dls
 	char *command_completion(const char *text, int state);
 	char *arg_completion(const char *text, int state);
 	void display_matches(char **matches, int num_matches, int max_length);
+	int event(void);
 	const uint ncols_completion = 3;
 }
 
@@ -60,6 +61,10 @@ ConsoleLayer::ConsoleLayer(std::string ID)
 
 	// Turn off the default file matching completion
 	rl_completion_entry_function = [](const char *, int)->char*{return nullptr;};
+
+	// Make readline reading rl_done variable, set when shutting down the control layer in the stop() function.
+	// When rl_done variable is set to a value !=0, readline return immediately. So the console layer will not wait for a character before exiting
+	rl_event_hook = event;
 
 	// Launch servers in the domains
 	launch_servers();
@@ -246,6 +251,9 @@ AppStatus ConsoleLayer::run()
 AppStatus ConsoleLayer::stop()
 {
 	this->should_quit = true;
+
+	// When rl_done variable is set to a value !=0, readline return immediately. So the console layer will not wait for a character before exiting
+	rl_done = 1;
 	return getStatus();
 }
 
@@ -535,6 +543,8 @@ void dls::display_matches (char **matches, int num_matches, int max_length){
 	std::cout << std::endl;
 	rl_reset_line_state();
 }
+
+int dls::event(void){return 0;}
 
 std::string trim(const std::string &s)
 {
