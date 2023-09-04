@@ -102,6 +102,13 @@ namespace dls
 			const eprosima::fastrtps::string_255 type_name,
 			const eprosima::fastrtps::types::TypeInformation& type_information) override;
 
+		void on_type_discovery(
+				eprosima::fastdds::dds::DomainParticipant* participant,
+				const eprosima::fastrtps::rtps::SampleIdentity& request_sample_id,
+				const eprosima::fastrtps::string_255& topic,
+				const eprosima::fastrtps::types::TypeIdentifier* identifier,
+				const eprosima::fastrtps::types::TypeObject* object,
+				eprosima::fastrtps::types::DynamicType_ptr dyn_type) override;
 
 		bool is_type_registered_in_xml_(const std::string& type_name);
 		bool is_type_registered_in_factory_(const std::string& type_name);

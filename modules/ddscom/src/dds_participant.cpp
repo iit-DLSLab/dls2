@@ -335,8 +335,8 @@ namespace dls
 
 		if(!this->participant->find_type(topicData_.second.get_type_name()))
 		{
-			topicData_.second->auto_fill_type_information(true);
-    		topicData_.second->auto_fill_type_object(false);
+			topicData_.second->auto_fill_type_information(false);
+    		topicData_.second->auto_fill_type_object(true);
 			this->participant->register_type(topicData_.second);
 		}
 
@@ -418,6 +418,27 @@ namespace dls
 			type_information,
 			type_name.to_string(),
 			callback);
+	}
+
+	void DDSParticipant::on_type_discovery(
+			eprosima::fastdds::dds::DomainParticipant* participant,
+			const eprosima::fastrtps::rtps::SampleIdentity& request_sample_id,
+			const eprosima::fastrtps::string_255& topic,
+			const eprosima::fastrtps::types::TypeIdentifier* identifier,
+			const eprosima::fastrtps::types::TypeObject* object,
+			eprosima::fastrtps::types::DynamicType_ptr dyn_type)
+	{
+		static_cast<void>(participant); // remove compilation warnings
+		static_cast<void>(request_sample_id); // remove compilation warnings
+		static_cast<void>(identifier); // remove compilation warnings
+		static_cast<void>(object); // remove compilation warnings
+		// Create TypeSupport and register it
+		eprosima::fastdds::dds::TypeSupport(
+			new eprosima::fastrtps::types::DynamicPubSubType(dyn_type)).register_type(participant);
+
+		// In case this callback is sent, it means that the type is already registered, so notify
+		// TODO in future it would be better to update every topic in this type name, and not just the one calling here
+		on_topic_discovery_(topic.to_string(), dyn_type->get_name());
 	}
 
 	void DDSParticipant::on_topic_discovery_(const std::string& topic_name, const std::string& type_name)
