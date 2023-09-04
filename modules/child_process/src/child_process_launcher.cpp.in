@@ -60,7 +60,7 @@ Args parse_args(int argc, char **argv);
 
 /// Handles killing the component
 ///
-void signal_handler(int signal);
+// void signal_handler(int signal);
 
 logging::clogstream scout_sys("process_launcher");
 logging::cerrstream scout_err("process_launcher");
@@ -166,7 +166,7 @@ int main(int argc, char **argv)
     }
 
     // Register signal handler
-    std::signal(SIGINT, signal_handler);
+    // std::signal(SIGINT, signal_handler);
 
     change_process_name(argv, args.component_name.c_str());
 
@@ -211,17 +211,17 @@ Args parse_args(int argc, char **argv)
     return args;
 }
 
-void signal_handler(int signal)
-{
-    if (signal == SIGINT)
-    {
-        pComponent->stop();
+// void signal_handler(int signal)
+// {
+//     if (signal == SIGINT)
+//     {
+//         pComponent->stop();
 
-        // std::cout << pComponent->getID() << " received kill request" << std::endl;
-        AppStatus exit_status = pComponent->getStatus();
+//         // std::cout << pComponent->getID() << " received kill request" << std::endl;
+//         AppStatus exit_status = pComponent->getStatus();
 
-        // give fastrtps a moment to send its message
-        // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-        exit(static_cast<int>(exit_status));
-    }
-}
+//         // give fastrtps a moment to send its message
+//         // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+//         exit(static_cast<int>(exit_status));
+//     }
+// }
