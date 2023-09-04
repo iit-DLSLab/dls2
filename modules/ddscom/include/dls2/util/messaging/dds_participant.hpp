@@ -22,20 +22,14 @@
 /// \cond doxygen_namespace_dls
 namespace dls
 {
-	enum class ParticipantType
-	{
-		CLIENT = 0,
-		SERVER = 1
-	};
-
 	class DDSParticipant : public eprosima::fastdds::dds::DomainParticipantListener 
 	{
 
 	public:
 		DDSParticipant(
-			std::string 	partName_,
+			std::string	partName_,
 			dls::domainType domain_,
-			dls::ParticipantType part_type = dls::ParticipantType::CLIENT,
+			eprosima::fastrtps::rtps::DiscoveryProtocol_t part_type = eprosima::fastrtps::rtps::DiscoveryProtocol_t::CLIENT,
 			bool tupelookup_server = true
 		);
 

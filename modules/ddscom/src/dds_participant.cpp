@@ -11,7 +11,7 @@
 namespace dls
 {
 
-	DDSParticipant::DDSParticipant(std::string partName_, dls::domainType domain_, dls::ParticipantType part_type, bool tupelookup_server)
+	DDSParticipant::DDSParticipant(std::string partName_, dls::domainType domain_, eprosima::fastrtps::rtps::DiscoveryProtocol_t part_type, bool tupelookup_server)
     	: participant(nullptr)
         , publisher(nullptr)
         , subscriber(nullptr)
@@ -39,11 +39,11 @@ namespace dls
 		server_locator.port = server_port;
 
 		// participantQos.wire_protocol().builtin.discovery_config.discoveryProtocol = eprosima::fastrtps::rtps::DiscoveryProtocol_t::SIMPLE;
-		// Set participant QoS depending on if it is a CLIENT or a SERVER
-		if(part_type == dls::ParticipantType::CLIENT)
+		// Set participant QoS depending on if it is a CLIENT, a SERVER or a SUPER CLIENT
+		participantQos.wire_protocol().builtin.discovery_config.discoveryProtocol = part_type;
+		if(	part_type == eprosima::fastrtps::rtps::DiscoveryProtocol_t::CLIENT ||
+			part_type == eprosima::fastrtps::rtps::DiscoveryProtocol_t::SUPER_CLIENT) // -- Configure the participant as CLIENT or SUPER_CLIENT
 		{
-			// -- Configure the current participant as CLIENT
-			participantQos.wire_protocol().builtin.discovery_config.discoveryProtocol = eprosima::fastrtps::rtps::DiscoveryProtocol_t::CLIENT;
 			// -- Add the server locator in the metatraffic unicast locator list of the remote server attributes
 			eprosima::fastrtps::rtps::RemoteServerAttributes remote_server_attr;
 			remote_server_attr.metatrafficUnicastLocatorList.push_back(server_locator);
@@ -52,10 +52,8 @@ namespace dls
 			// -- Connect to the remote server
 			participantQos.wire_protocol().builtin.discovery_config.m_DiscoveryServers.push_back(remote_server_attr);
 		}
-		else if (part_type == dls::ParticipantType::SERVER)
+		else if (part_type == eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER)// -- Configure the participant as SERVER
 		{
-			// -- Configure the current participant as SERVER
-			participantQos.wire_protocol().builtin.discovery_config.discoveryProtocol = eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER;
 			// -- Add the server locator to the metatraffic uncast locator list
 			participantQos.wire_protocol().builtin.metatrafficUnicastLocatorList.push_back(server_locator);
 			// -- Set the GUID prefix to identify this server
