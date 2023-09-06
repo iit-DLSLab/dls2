@@ -104,7 +104,7 @@ void DummyController::run(const std::chrono::system_clock::time_point &time)
 	}
 
 	ControlSignal s;
-	s.torques.resize(12);
+	s.torques_.resize(12);
 
 	publishSignal(s);
 

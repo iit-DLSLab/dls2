@@ -157,7 +157,7 @@ AppStatus PeriodicApp::run()
 		std::filesystem::create_directory(debug_folder);
 	}
 	// Write statistics in a file
-	std::ofstream out(debug_folder+"/"+this->ID+".txt");
+	std::ofstream out(debug_folder+"/"+this->ID_+".txt");
 	std::vector<double> run_time_vector_unsorted = run_time_vector;
 	// Largest run time values
 	const int num_max_run_time(10);

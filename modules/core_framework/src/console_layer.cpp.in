@@ -76,10 +76,27 @@ ConsoleLayer::ConsoleLayer(std::string ID)
 		std::function<bool()>([&]()->bool
 		{
             auto cmds = command_manager.getCommandsList();
-            for (auto elem : cmds){
-                std::cout << elem.second << "::" << elem.first << std::endl; // clear
 
-            }
+			// Temporary map to store the multimap elements
+			std::map<std::string, std::set<std::string>> commands_map{};
+
+			// Store the multimap elements in the map by key (generic process) and values (set of commands relative to the process)
+            for (auto elem : cmds)
+			{
+				commands_map[elem.second].insert(elem.first);
+			}
+
+			// Show commands of the different processes sorted by key and values
+			for(const auto& process : commands_map)
+			{
+				for(const auto& command : process.second)
+				{
+					std::cout << process.first << "::" << command << std::endl;
+				}
+			}
+
+			commands_map.clear();
+
             return true;
         }),
 		{{0,0}},

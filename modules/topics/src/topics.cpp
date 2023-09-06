@@ -22,7 +22,6 @@ namespace dls
 		dls::topicType command_feedback			= dls::topicType("command_feedback", new StringMsgPubSubType());
 
 		// simulation
-		dls::topicType simulation_pause 		= dls::topicType("simulation_pause", new BoolMsgPubSubType());
 		dls::topicType time_factor				= dls::topicType("time_factor", new DoubleMsgPubSubType());
 
 		// development pool
@@ -50,11 +49,7 @@ namespace dls
 		namespace low_level_estimation
 		{
 			dls::topicType blind_state 			= dls::topicType("blind_state", new BlindStateMsgPubSubType());
-			dls::topicType hyq_raw 				= dls::topicType("hyq_raw", new HyQRawMsgPubSubType());
-            dls::topicType aliengo_raw 			= dls::topicType("aliengo_raw", new AliengoRawMsgPubSubType());
 			dls::topicType imu 					= dls::topicType("imu", new ImuMsgPubSubType());
-			dls::topicType joint_states			= dls::topicType("joint_states", new JointStateMsgPubSubType());
-			dls::topicType t265_state			= dls::topicType("t265_state", new T265StateMsgPubSubType());
 			dls::topicType slip_flag			= dls::topicType("slip_flag", new SlipFlagMsgPubSubType());			
 		}
 	}

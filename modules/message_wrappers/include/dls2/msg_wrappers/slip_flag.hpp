@@ -2,32 +2,31 @@
 #ifndef SLIP_FLAG_HPP
 #define SLIP_FLAG_HPP
 
-
-#include "robotlib/robot_base.hpp"
-
 #include "dls2/msg_wrappers/wrapper.hpp"
 #include "dls_messages/dds/slip_flag.h"
-#include "dls_messages/dds/slip_flagPubSubTypes.h"
+#include "robotlib/robot_base.hpp"
 
 namespace dls
 {
 	class SlipFlag : public Wrapper<SlipFlagMsg>
 	{
 	public:
-		SlipFlag(const std::shared_ptr<robotlib::RobotBase>);
-		SlipFlag(SlipFlag&);
+		SlipFlag(const std::shared_ptr<robotlib::RobotBase> robot);
+		SlipFlag(SlipFlag& slip_flag);
 		SlipFlag() = delete;
-        ~SlipFlag();
+        virtual ~SlipFlag();
 
 		operator SlipFlagMsg() const override;
-		SlipFlag& operator= (const SlipFlagMsg&) override;
+		SlipFlag& operator=(const SlipFlagMsg& slip_flag_msg) override;
+		SlipFlag& operator=(const SlipFlag& slip_flag);
 
-		std::string robot_name;
+		std::string frame_id_{};
+		uint32_t sequence_id_{};
+		double timestamp_{};
 
-		robotlib::LegDataMap<bool> slip_flag;
-
-		double time;
+		std::string robot_name_{};
+		robotlib::LegDataMap<bool> slip_flag_;
 	};
-} // end namespace dls
+} // namespace dls
 
-#endif /* end of include guard: SLIP_FLAG_HPP */
+#endif

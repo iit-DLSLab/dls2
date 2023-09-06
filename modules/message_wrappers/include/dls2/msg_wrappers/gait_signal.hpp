@@ -1,12 +1,11 @@
 
-#ifndef GAIT_SIGNAL_HPP_DLF4YRRS
-#define GAIT_SIGNAL_HPP_DLF4YRRS
+#ifndef GAIT_SIGNAL_HPP
+#define GAIT_SIGNAL_HPP
 
 #include "dls2/msg_wrappers/wrapper.hpp"
 #include "dls_messages/dds/gait_signal.h"
-#include "dls2/msg_wrappers/screw.hpp"
 #include "dls2/msg_wrappers/pose.hpp"
-
+#include "dls2/msg_wrappers/screw.hpp"
 #include <robotlib/robot_base.hpp>
 
 /// A structure containing the data streams that make up the signal at the
@@ -15,41 +14,31 @@ namespace dls
 {
 	struct GaitSignal : public Wrapper<GaitSignalMsg>
 	{
-		GaitSignal(const std::shared_ptr<robotlib::RobotBase>);
-		GaitSignal(GaitSignal&);
+		GaitSignal(const std::shared_ptr<robotlib::RobotBase> robot);
+		GaitSignal(GaitSignal& gait_signal);
 		GaitSignal() = delete;
-		virtual ~GaitSignal() = default;
-		// GaitSignal(const std::shared_ptr<robotlib::RobotBase>&, GaitSignalMsg);
+		virtual ~GaitSignal();
 		
 		operator GaitSignalMsg() const override;
-		GaitSignal& operator= (const GaitSignalMsg&) override;
-		GaitSignal& operator=(const GaitSignal& from);
+		GaitSignal& operator= (const GaitSignalMsg& gait_signal_msg) override;
+		GaitSignal& operator=(const GaitSignal& gait_signal);
 
-		Pose desired_com_pose_world;            ///< The desired pose of the center of mass frame
-		Screw desired_com_velocity_world;        ///< The desired velocity of the center of mass frame
-		Screw desired_com_acceleration_world;    ///< The desired accleration of the center of mass frame
+		std::string frame_id_{};
+		uint32_t sequence_id_{};
+		double timestamp_{};
 
-		// Pose desired_base_pose_world;            ///< The desired pose of the base frame
-		// Screw desired_base_velocity_world;        ///< The desired velocity of the base frame
-		// Screw desired_base_acceleration_world;    ///< The desired acceleration of the base frame
+		Pose desired_com_pose_world_;            ///< The desired pose of the center of mass frame
+		Screw desired_com_velocity_world_;        ///< The desired velocity of the center of mass frame
+		Screw desired_com_acceleration_world_;    ///< The desired accleration of the center of mass frame
 
-		/// The desired joint state
-		///
-		/// This object contaisn the desired joint position, velocity and
-		/// acceleration. The effort field corresponds to the desired feed-forward
-		/// torques
-		robotlib::JointState desired_joint_position;
-		robotlib::JointState desired_joint_velocity;
-		robotlib::JointState desired_joint_acceleration;
-		robotlib::JointState desired_joint_effort;
-			
-		/// Data map of legs that are in contact with the ground
-		///
-		robotlib::LegDataMap<bool> stance_legs;
+		/// Desired joint position, velocity and acceleration.
+		/// The effort field corresponds to the desired feed-forward torques
+		robotlib::JointState desired_joints_position_;
+		robotlib::JointState desired_joints_velocity_;
+		robotlib::JointState desired_joints_acceleration_;
+		robotlib::JointState desired_joints_effort_;
 
-		/// Desired wrench on the base
-		///
-		// Screw desired_base_wrench;
+		robotlib::LegDataMap<bool> stance_legs_;
 	};
-} // end namespace dls
-#endif /* end of include guard: GAIT_SIGNAL_HPP_DLF4YRRS */
+} // namespace dls
+#endif

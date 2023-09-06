@@ -38,7 +38,7 @@ void DummyMotionGenerator::run(const std::chrono::system_clock::time_point &time
 	GaitSignal data;
 
 	Eigen::Vector3d com_position; com_position << 10, 2, 33;
-	data.desired_com_pose_world = Pose(com_position);
+	data.desired_com_pose_world_ = Pose(com_position);
 
 	std::cout << "Dummy motion generator sending message" << std::endl;
 	StringMsg msg; msg.msg() = "Hello from dummy motion generator";

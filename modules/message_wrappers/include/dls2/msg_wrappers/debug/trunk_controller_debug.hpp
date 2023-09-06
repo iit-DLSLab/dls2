@@ -2,29 +2,32 @@
 #ifndef TRUNK_CONTROLLER_DEBUG_HPP
 #define TRUNK_CONTROLLER_DEBUG_HPP
 
-
-#include "robotlib/robot_base.hpp"
-
 #include "dls2/msg_wrappers/wrapper.hpp"
-#include "dls_messages/dds/debug_trunk_controller.h"
+#include "dls_messages/dds/trunk_controller_debug.h"
+#include "robotlib/robot_base.hpp"
 
 namespace dls
 {
 	class TrunkControllerDebug : public Wrapper<TrunkControllerDebugMsg>
 	{
 	public:
-		TrunkControllerDebug(const std::shared_ptr<robotlib::RobotBase>);
-		TrunkControllerDebug(TrunkControllerDebug&);
+		TrunkControllerDebug(const std::shared_ptr<robotlib::RobotBase> robot);
+		TrunkControllerDebug(TrunkControllerDebug& trunk_controller_debug);
 		TrunkControllerDebug() = delete;
-        ~TrunkControllerDebug();
+        virtual ~TrunkControllerDebug();
 
 		operator TrunkControllerDebugMsg() const override;
-		TrunkControllerDebug& operator= (const TrunkControllerDebugMsg&) override;
+		TrunkControllerDebug& operator=(const TrunkControllerDebugMsg& trunk_controller_debug_msg) override;
+		TrunkControllerDebug& operator=(const TrunkControllerDebug& trunk_controller_debug);
 
-		robotlib::LegDataMap<Eigen::Vector3d> feet_forces;
-		robotlib::LegDataMap<Eigen::Vector3d> desired_forces;
-		Eigen::Matrix<double,6,1> desired_wrench;
+		std::string frame_id_{};
+		uint32_t sequence_id_{};
+		double timestamp_{};
+
+		robotlib::LegDataMap<Eigen::Vector3d> feet_forces_;
+		robotlib::LegDataMap<Eigen::Vector3d> desired_forces_;
+		Eigen::Matrix<double,6,1> desired_wrench_{};
 	};
-} // end namespace dls
+} // namespace dls
 
-#endif /* end of include guard: TRUNK_CONTROLLER_DEBUG_HPP */
+#endif

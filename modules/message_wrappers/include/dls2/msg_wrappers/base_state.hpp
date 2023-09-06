@@ -2,33 +2,36 @@
 #ifndef BASE_STATE_HPP
 #define BASE_STATE_HPP
 
-#include "robotlib/robot_base.hpp"
-
 #include "dls2/msg_wrappers/wrapper.hpp"
+#include "dls_messages/dds/base_state.h"
 #include "dls2/msg_wrappers/pose.hpp"
 #include "dls2/msg_wrappers/screw.hpp"
-#include "dls_messages/dds/base_state.h"
+#include "robotlib/robot_base.hpp"
 
 namespace dls
 {
 	class BaseState : public Wrapper<BaseStateMsg>
 	{
 	public:
-		BaseState();
-		BaseState(BaseState&);
-        ~BaseState();
+		BaseState(const std::shared_ptr<robotlib::RobotBase> robot);
+		BaseState(BaseState& base_state);
+		BaseState() = delete;
+        virtual ~BaseState();
 
 		operator BaseStateMsg() const override;
-		BaseState& operator= (const BaseStateMsg&) override;
+		BaseState& operator=(const BaseStateMsg& base_state_msg) override;
+        BaseState& operator=(const BaseState& base_state);
 
-		std::string robot_name;
+		std::string frame_id_{};
+		uint32_t sequence_id_{};
+		double timestamp_{};
 
-		dls::Pose pose;
-		dls::Screw velocity;
-		dls::Screw acceleration;
+		std::string robot_name_{};
 
-		unsigned long long time;
+		dls::Pose pose_{};
+		dls::Screw velocity_{};
+		dls::Screw acceleration_{};
 	};
-} // end namespace dls
+} // namespace dls
 
-#endif /* end of include guard: BASE_STATE_HPP */
+#endif

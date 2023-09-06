@@ -15,14 +15,12 @@
 #include "dls_messages/dds/desired_torquesPubSubTypes.h"
 #include "dls_messages/dds/gait_signalPubSubTypes.h"
 #include "dls_messages/dds/headerPubSubTypes.h"
-#include "dls_messages/dds/hello_worldPubSubTypes.h"
 #include "dls_messages/dds/imuPubSubTypes.h"
 #include "dls_messages/dds/joint_statePubSubTypes.h"
 #include "dls_messages/dds/posePubSubTypes.h"
 #include "dls_messages/dds/screwPubSubTypes.h"
 #include "dls_messages/dds/stringmsgPubSubTypes.h"
 #include "dls_messages/dds/timePubSubTypes.h"
-#include "dls_messages/dds/vec3PubSubTypes.h"
 
 
 
@@ -220,27 +218,21 @@ void TopicInfo::hz(const std::string &topic)
 			DesiredTorquesMsgPubSubType  type3;
 			GaitSignalMsgPubSubType      type4;
 			// HeaderMsgPubSubType          type5;
-			HelloWorldPubSubType         type6;
 			ImuMsgPubSubType             type7;
-			JointStateMsgPubSubType      type8;
 			PoseMsgPubSubType            type9;
 			ScrewMsgPubSubType           type10;
 			StringMsgPubSubType          type11;
-			// TimeMsgPubSubType            type12;
-			Vec3MsgPubSubType            type13;
 			Domain::registerType(participant, &type0);
 			Domain::registerType(participant, &type1);
 			Domain::registerType(participant, &type2);
 			Domain::registerType(participant, &type3);
 			Domain::registerType(participant, &type4);
 			// Domain::registerType(participant, &type5);
-			Domain::registerType(participant, &type6);
 			Domain::registerType(participant, &type7);
 			Domain::registerType(participant, &type8);
 			Domain::registerType(participant, &type9);
 			Domain::registerType(participant, &type10);
 			Domain::registerType(participant, &type11);
-			// Domain::registerType(participant, &type12);
 			Domain::registerType(participant, &type13);
 
 			SubscriberAttributes subscriber_attr;

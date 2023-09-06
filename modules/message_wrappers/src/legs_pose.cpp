@@ -1,72 +1,84 @@
-
-
-#ifndef LEGS_POSE_CPP
-#define LEGS_POSE_CPP
-
 #include "dls2/msg_wrappers/legs_pose.hpp"
 
-using namespace dls;
-
-LegsPose::LegsPose(const std::shared_ptr<robotlib::RobotBase>& pRobot)
-	: lin_velocity(pRobot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
-	, ang_velocity(pRobot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
-	, time(0.0)
+LegsPose::LegsPose(const std::shared_ptr<robotlib::RobotBase> robot)
+    : frame_id_("")
+	, sequence_id_(0)
+	, timestamp_(0.0)
+	, linear_velocity_(robot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
+	, angular_velocity_(robot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
+	, base_velocity_(Eigen::Vector3d::Zero())
 {}
 
-LegsPose::LegsPose(LegsPose& from)
-	: lin_velocity(from.lin_velocity)
-	, ang_velocity(from.ang_velocity)
-	, base_velocity(from.base_velocity)
-	, time(from.time)
+LegsPose::LegsPose(LegsPose& legs_pose)
+    : frame_id_(legs_pose.frame_id_)
+	, sequence_id_(legs_pose.sequence_id_)
+	, timestamp_(legs_pose.timestamp_)
+	, linear_velocity_(legs_pose.linear_velocity_)
+	, angular_velocity_(legs_pose.angular_velocity_)
+	, base_velocity_(legs_pose.base_velocity_)
 {}
 
-LegsPose::~LegsPose()
-{}
+LegsPose::~LegsPose(){}
 
 LegsPose::operator LegsPoseMsg() const
 {
-    LegsPoseMsg msg;
+    LegsPoseMsg legs_pose_msg;
 
-	int idx = 0;
-	for(auto &leg_pair : this->lin_velocity)
+	legs_pose_msg.frame_id(frame_id_);
+	legs_pose_msg.sequence_id(sequence_id_);
+	legs_pose_msg.timestamp(timestamp_);
+
+	int idx{0};
+	for(auto &leg_pair : linear_velocity_)
 	{
-		for(int i=0; i<3; i++)
+		for(unsigned int i{0}; i<3; i++)
 		{
-			msg.lin_velocity()[idx] = this->lin_velocity[leg_pair.key_](i);
-			msg.ang_velocity()[idx] = this->ang_velocity[leg_pair.key_](i);
+			legs_pose_msg.linear_velocity()[idx] = linear_velocity_[leg_pair.key_](i);
+			legs_pose_msg.angular_velocity()[idx] = angular_velocity_[leg_pair.key_](i);
 			idx++;
 		}
 	}
 
-	msg.base_velocity()[0] = this->base_velocity(0);
-	msg.base_velocity()[1] = this->base_velocity(1);
-	msg.base_velocity()[2] = this->base_velocity(2);
+	legs_pose_msg.base_velocity()[0] = base_velocity_(0);
+	legs_pose_msg.base_velocity()[1] = base_velocity_(1);
+	legs_pose_msg.base_velocity()[2] = base_velocity_(2);
 
-  	msg.time(this->time);
-
-    return msg;
+    return legs_pose_msg;
 }
 
-LegsPose& LegsPose::operator= (const LegsPoseMsg& msg)
+LegsPose& LegsPose::operator=(const LegsPoseMsg& legs_pose_msg)
 {
-	int idx = 0;
-	for(auto &leg_pair : this->lin_velocity)
+	frame_id_ = legs_pose_msg.frame_id();
+	sequence_id_ = legs_pose_msg.sequence_id();
+	timestamp_ = legs_pose_msg.timestamp();
+
+	int idx{0};
+	for(auto &leg_pair : linear_velocity_)
 	{
 		for(int i=0; i<3; i++)
 		{
-			this->lin_velocity[leg_pair.key_](i) = msg.lin_velocity()[idx];
-			this->ang_velocity[leg_pair.key_](i) = msg.ang_velocity()[idx];
+			linear_velocity_[leg_pair.key_](i) = legs_pose_msg.linear_velocity()[idx];
+			angular_velocity_[leg_pair.key_](i) = legs_pose_msg.angular_velocity()[idx];
 			idx++;
 		}
 	}
 
-	this->base_velocity[0] = msg.base_velocity()[0];
-	this->base_velocity[1] = msg.base_velocity()[1];
-	this->base_velocity[2] = msg.base_velocity()[2];
-
-	this->time = msg.time();
+	base_velocity_[0] = legs_pose_msg.base_velocity()[0];
+	base_velocity_[1] = legs_pose_msg.base_velocity()[1];
+	base_velocity_[2] = legs_pose_msg.base_velocity()[2];
 
 	return *this;
 }
 
-#endif // LEGS_POSE_CPP
+LegsPose& LegsPose::operator=(const LegsPose& legs_pose)
+{
+	frame_id_ = legs_pose.frame_id_;
+	sequence_id_ = legs_pose.sequence_id_;
+	timestamp_ = legs_pose.timestamp_;
+
+	linear_velocity_ = legs_pose.linear_velocity_;
+	angular_velocity_ = legs_pose.angular_velocity_;
+	base_velocity_ = legs_pose.base_velocity_;
+
+	return *this;
+}

@@ -1,179 +1,128 @@
-
-
 #include "dls2/msg_wrappers/gait_signal.hpp"
 
-using namespace dls;
+GaitSignal::GaitSignal(const std::shared_ptr<robotlib::RobotBase> robot) 
+    : frame_id_("")
+	, sequence_id_(0)
+	, timestamp_(0.0)
+    , desired_com_pose_world_(Eigen::Vector3d::Zero(), Eigen::Quaterniond::Identity())
+    , desired_com_velocity_world_(Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero())
+    , desired_com_acceleration_world_(Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero())
+    , desired_joints_position_(robot->makeJointState())
+    , desired_joints_velocity_(robot->makeJointState())
+    , desired_joints_acceleration_(robot->makeJointState())
+    , desired_joints_effort_(robot->makeJointState())
+    , stance_legs_(robot->makeLegDataMap<bool>(false))
+{}
 
-GaitSignal::GaitSignal(const std::shared_ptr<robotlib::RobotBase> pRobot) 
-    : desired_com_pose_world()
-    , desired_com_velocity_world()
-    , desired_com_acceleration_world()
-    // , desired_base_pose_world()
-    // , desired_base_velocity_world()
-    // , desired_base_acceleration_world()
-    , desired_joint_position(pRobot->makeJointState())
-    , desired_joint_velocity(pRobot->makeJointState())
-    , desired_joint_acceleration(pRobot->makeJointState())
-    , desired_joint_effort(pRobot->makeJointState())
-    , stance_legs(pRobot->makeLegDataMap<bool>(false))
-	// , desired_base_wrench()
-{ }
+GaitSignal::GaitSignal(GaitSignal& gait_signal)
+    : frame_id_(gait_signal.frame_id_)
+	, sequence_id_(gait_signal.sequence_id_)
+	, timestamp_(gait_signal.timestamp_)
+    , desired_com_pose_world_(gait_signal.desired_com_pose_world_)
+    , desired_com_velocity_world_(gait_signal.desired_com_velocity_world_)
+    , desired_com_acceleration_world_(gait_signal.desired_com_acceleration_world_)
+	, desired_joints_position_(gait_signal.desired_joints_position_)
+    , desired_joints_velocity_(gait_signal.desired_joints_velocity_)
+    , desired_joints_acceleration_(gait_signal.desired_joints_acceleration_)
+    , desired_joints_effort_(gait_signal.desired_joints_effort_)
+	, stance_legs_(gait_signal.stance_legs_)
+{}
 
-GaitSignal::GaitSignal(GaitSignal &from) :
+GaitSignal::~GaitSignal(){}
 
-    desired_com_pose_world(from.desired_com_pose_world),
-    desired_com_velocity_world(from.desired_com_velocity_world),
-    desired_com_acceleration_world(from.desired_com_acceleration_world),
-
-    // desired_base_pose_world(from.desired_base_pose_world),
-    // desired_base_velocity_world(from.desired_base_velocity_world),
-    // desired_base_acceleration_world(from.desired_base_acceleration_world),
-
-	desired_joint_position(from.desired_joint_position),
-    desired_joint_velocity(from.desired_joint_velocity),
-    desired_joint_acceleration(from.desired_joint_acceleration),
-    desired_joint_effort(from.desired_joint_effort),
-	stance_legs(from.stance_legs)
-
-	// desired_base_wrench(from.desired_base_wrench)
-{ }
-
-// GaitSignal::GaitSignal(const std::shared_ptr<robotlib::RobotBase> &pRobot, GaitSignalMsg msg) :
-//     desired_com_pose_world(Eigen::Vector3d(msg.com_pos().data()), Eigen::Quaterniond(msg.com_ori().data())),
-//     desired_com_velocity_world(Eigen::Vector3d(msg.com_lin_vel().data()), Eigen::Vector3d(msg.com_ang_vel().data())),
-//     desired_com_acceleration_world(Eigen::Vector3d(msg.com_lin_acc().data()), Eigen::Vector3d(msg.com_ang_acc().data())),
-
-//     // desired_base_pose_world(msg.desired_base_pose_world()),
-//     // desired_base_velocity_world(msg.desired_base_velocity_world()),
-//     // desired_base_acceleration_world(msg.desired_base_acceleration_world()),
-
-// 	desired_joint_position(pRobot->makeJointState()),
-//     desired_joint_velocity(pRobot->makeJointState()),
-//     desired_joint_acceleration(pRobot->makeJointState()),
-//     desired_joint_effort(pRobot->makeJointState()),
-
-// 	stance_legs(pRobot->makeLegDataMap<bool>(false))
-
-// 	// desired_base_wrench(msg.desired_base_wrench())
-// {
-//     int i = 0;
-//     for(auto &leg : this->desired_joint_position)
-//     {
-//         for(auto &joint : *leg.data_)
-//         {
-//             this->desired_joint_position[joint.key_] = msg.joint_pos()[i];
-//             this->desired_joint_velocity[joint.key_] = msg.joint_vel()[i];
-//             this->desired_joint_acceleration[joint.key_] = msg.joint_acc()[i];
-//             this->desired_joint_effort[joint.key_] = msg.joint_eff()[i];
-
-//             i++;
-//         }
-//     }
-
-//     i = 0;
-//     for(auto &leg_pair : this->stance_legs)
-// 	{
-//     	*leg_pair.data_ = msg.stance_feet()[i];
-//         i++;
-//     }
-	
-    
-// }
-
-// -----------------------------------------------------------------------------
-// Type Casting
-// -----------------------------------------------------------------------------
 GaitSignal::operator GaitSignalMsg() const
 {
-    GaitSignalMsg msg;
+    GaitSignalMsg gait_signal_msg;
 
-    const double *p = this->desired_com_pose_world.toQuaternion().coeffs().data();
-	std::copy(p, p + 4, msg.com_ori().begin());
+	gait_signal_msg.frame_id(frame_id_);
+	gait_signal_msg.sequence_id(sequence_id_);
+	gait_signal_msg.timestamp(timestamp_);
+
+    const double *p = desired_com_pose_world_.toQuaternion().coeffs().data();
+	std::copy(p, p + 4, gait_signal_msg.com_orientation().begin());
     
-    for(int i = 0; i < 3; i++)
+    for(unsigned int i{0}; i<3; i++)
     {
-        msg.com_pos()[i] = this->desired_com_pose_world.toPosition()[i];
-        msg.com_lin_vel()[i] = this->desired_com_velocity_world.getLinear()[i];
-        msg.com_ang_vel()[i] = this->desired_com_velocity_world.getAngular()[i];
-        msg.com_lin_acc()[i] = this->desired_com_acceleration_world.getLinear()[i];
-        msg.com_ang_acc()[i] = this->desired_com_acceleration_world.getAngular()[i];
+        gait_signal_msg.com_position()[i] = desired_com_pose_world_.toPosition()[i];
+        gait_signal_msg.com_linear_velocity()[i] = desired_com_velocity_world_.getLinear()[i];
+        gait_signal_msg.com_angular_velocity()[i] = desired_com_velocity_world_.getAngular()[i];
+        gait_signal_msg.com_linear_acceleration()[i] = desired_com_acceleration_world_.getLinear()[i];
+        gait_signal_msg.com_angular_acceleration()[i] = desired_com_acceleration_world_.getAngular()[i];
     }
-    
-    // msg.desired_base_pose_world(this->desired_base_pose_world);
-    // msg.desired_base_velocity_world(this->desired_base_velocity_world);
-    // msg.desired_base_acceleration_world(this->desired_base_acceleration_world);
 
-    int i = 0;
-	for(auto &leg_pair : this->desired_joint_position)
+    int i{0};
+	for(auto &leg_pair : desired_joints_position_)
 	{
 		for(auto &joint : *leg_pair.data_)
         {
-            msg.joint_pos()[i] = this->desired_joint_position[joint.key_];
-            msg.joint_vel()[i] = this->desired_joint_velocity[joint.key_];
-            msg.joint_acc()[i] = this->desired_joint_acceleration[joint.key_];
-            msg.joint_eff()[i] = this->desired_joint_effort[joint.key_];
+            gait_signal_msg.joints_position()[i] = desired_joints_position_[joint.key_];
+            gait_signal_msg.joints_velocity()[i] = desired_joints_velocity_[joint.key_];
+            gait_signal_msg.joints_acceleration()[i] = desired_joints_acceleration_[joint.key_];
+            gait_signal_msg.joints_effort()[i] = desired_joints_effort_[joint.key_];
             i++;
         }
     }
 
     i = 0;
-    for(auto &leg_pair : this->stance_legs)
+    for(auto &leg_pair : stance_legs_)
 	{
-    	msg.stance_feet()[i] = *leg_pair.data_;
+    	gait_signal_msg.stance_legs()[i] = *leg_pair.data_;
         i++;
     }
 
-	// msg.desired_base_wrench(this->desired_base_wrench);
-
-    return msg;
+    return gait_signal_msg;
 }
 
-GaitSignal& GaitSignal::operator= (const GaitSignalMsg &msg)
+GaitSignal& GaitSignal::operator=(const GaitSignalMsg &gait_signal_msg)
 {
-    desired_com_pose_world.set(Eigen::Vector3d(msg.com_pos().data()), Eigen::Quaterniond(msg.com_ori().data())),
-    desired_com_velocity_world.setLinear(Eigen::Vector3d(msg.com_lin_vel().data()));
-    desired_com_velocity_world.setAngular(Eigen::Vector3d(msg.com_ang_vel().data()));
-    desired_com_acceleration_world.setLinear(Eigen::Vector3d(msg.com_lin_acc().data()));
-    desired_com_acceleration_world.setAngular(Eigen::Vector3d(msg.com_ang_acc().data()));
+	frame_id_ = gait_signal_msg.frame_id();
+	sequence_id_ = gait_signal_msg.sequence_id();
+	timestamp_ = gait_signal_msg.timestamp();
 
-    // desired_base_pose_world = msg.desired_base_pose_world();
-    // desired_base_velocity_world = msg.desired_base_velocity_world();
-    // desired_base_acceleration_world = msg.desired_base_acceleration_world();
+    desired_com_pose_world_.set(Eigen::Vector3d(gait_signal_msg.com_position().data()), Eigen::Quaterniond(gait_signal_msg.com_orientation().data())),
+    desired_com_velocity_world_.setLinear(Eigen::Vector3d(gait_signal_msg.com_linear_velocity().data()));
+    desired_com_velocity_world_.setAngular(Eigen::Vector3d(gait_signal_msg.com_angular_velocity().data()));
+    desired_com_acceleration_world_.setLinear(Eigen::Vector3d(gait_signal_msg.com_linear_acceleration().data()));
+    desired_com_acceleration_world_.setAngular(Eigen::Vector3d(gait_signal_msg.com_angular_acceleration().data()));
 
-    int i = 0;
-    for(auto &leg_pair : this->desired_joint_position)
+    int i{0};
+    for(auto &leg_pair : desired_joints_position_)
 	{
 		for(auto &joint : *leg_pair.data_)
         {
-            this->desired_joint_position[joint.key_] = msg.joint_pos()[i];
-            this->desired_joint_velocity[joint.key_] = msg.joint_vel()[i];
-            this->desired_joint_acceleration[joint.key_] = msg.joint_acc()[i];
-            this->desired_joint_effort[joint.key_] = msg.joint_eff()[i];
+            desired_joints_position_[joint.key_] = gait_signal_msg.joints_position()[i];
+            desired_joints_velocity_[joint.key_] = gait_signal_msg.joints_velocity()[i];
+            desired_joints_acceleration_[joint.key_] = gait_signal_msg.joints_acceleration()[i];
+            desired_joints_effort_[joint.key_] = gait_signal_msg.joints_effort()[i];
             i++;
         }
     }
 
     i = 0;
-    for(auto &leg_pair : this->stance_legs)
+    for(auto &leg_pair : stance_legs_)
 	{
-    	*leg_pair.data_ = msg.stance_feet()[i];
+    	*leg_pair.data_ = gait_signal_msg.stance_legs()[i];
         i++;
     }
 	
     return *this;
 }
 
-GaitSignal& GaitSignal::operator=(const GaitSignal& from)
+GaitSignal& GaitSignal::operator=(const GaitSignal& gait_signal)
 {
-    this->desired_com_pose_world = from.desired_com_pose_world;
-    this->desired_com_velocity_world = from.desired_com_velocity_world;
-    this->desired_com_acceleration_world = from.desired_com_acceleration_world;
+    frame_id_ = gait_signal.frame_id_;
+	sequence_id_ = gait_signal.sequence_id_;
+	timestamp_ = gait_signal.timestamp_;
 
-	this->desired_joint_position = from.desired_joint_position;
-    this->desired_joint_velocity = from.desired_joint_velocity;
-    this->desired_joint_acceleration = from.desired_joint_acceleration;
-    this->desired_joint_effort = from.desired_joint_effort;
-	this->stance_legs = from.stance_legs;
+    desired_com_pose_world_ = gait_signal.desired_com_pose_world_;
+    desired_com_velocity_world_ = gait_signal.desired_com_velocity_world_;
+    desired_com_acceleration_world_ = gait_signal.desired_com_acceleration_world_;
+
+	desired_joints_position_ = gait_signal.desired_joints_position_;
+    desired_joints_velocity_ = gait_signal.desired_joints_velocity_;
+    desired_joints_acceleration_ = gait_signal.desired_joints_acceleration_;
+    desired_joints_effort_ = gait_signal.desired_joints_effort_;
+	stance_legs_ = gait_signal.stance_legs_;
 
 	return *this;
 }

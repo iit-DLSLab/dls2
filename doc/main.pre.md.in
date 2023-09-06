@@ -68,11 +68,6 @@ documentation of a component.
 
 @SERVICE_MD@
 
-<a name="msggen">
-## Generating a New Message Type
-
-@MESSAGE_GENERATION_MD@
-
 <a name="building-a-new-controller"></a>
 ## Building a new controller
 

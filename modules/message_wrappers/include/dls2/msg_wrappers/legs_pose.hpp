@@ -1,33 +1,33 @@
-
-#ifndef LEGS_POSE_SIGNAL_HPP
-#define LEGS_POSE_SIGNAL_HPP
-
-
-#include "robotlib/robot_base.hpp"
+#ifndef LEGS_POSE_HPP
+#define LEGS_POSE_HPP
 
 #include "dls2/msg_wrappers/wrapper.hpp"
-#include "dls_messages/dds/legs_posePubSubTypes.h"
+#include "dls_messages/dds/legs_pose.h"
+#include "robotlib/robot_base.hpp"
 
 namespace dls
 {
 	class LegsPose : public Wrapper<LegsPoseMsg>
 	{
 	public:
-		LegsPose(const std::shared_ptr<robotlib::RobotBase>&);
-		LegsPose(LegsPose&);
+		LegsPose(const std::shared_ptr<robotlib::RobotBase> robot);
+		LegsPose(LegsPose& legs_pose);
 		LegsPose() = delete;
-        ~LegsPose();
+        virtual ~LegsPose();
 
 		operator LegsPoseMsg() const override;
-		LegsPose& operator= (const LegsPoseMsg&) override;
+		LegsPose& operator=(const LegsPoseMsg& legs_pose_msg) override;
+		LegsPose& operator=(const LegsPose& legs_pose);
 
-		robotlib::LegDataMap<Eigen::Vector3d> lin_velocity;
-		robotlib::LegDataMap<Eigen::Vector3d> ang_velocity;
+		std::string frame_id_{};
+		uint32_t sequence_id_{};
+		double timestamp_{};
 
-		Eigen::Vector3d base_velocity{Eigen::Vector3d::Zero()};
+		robotlib::LegDataMap<Eigen::Vector3d> linear_velocity_;
+		robotlib::LegDataMap<Eigen::Vector3d> angular_velocity_;
 
-		double time;
+		Eigen::Vector3d base_velocity_{Eigen::Vector3d::Zero()};
 	};
-} // end namespace dls
+} // namespace dls
 
-#endif /* end of include guard: LEGS_POSE_SIGNAL_HPP */
+#endif

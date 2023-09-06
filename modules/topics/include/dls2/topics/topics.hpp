@@ -12,22 +12,16 @@
 #include <dls_messages/dds/control_signalPubSubTypes.h>
 #include <dls_messages/dds/blind_statePubSubTypes.h>
 #include <dls_messages/dds/gait_signalPubSubTypes.h>
-#include <dls_messages/dds/timePubSubTypes.h>
-#include <dls_messages/dds/boolPubSubTypes.h>
-#include <dls_messages/dds/joint_statePubSubTypes.h>
-#include <dls_messages/dds/hyq_rawPubSubTypes.h>
 #include <dls_messages/dds/imuPubSubTypes.h>
 #include <dls_messages/dds/command_sendPubSubTypes.h>
-#include <dls_messages/dds/aliengo_rawPubSubTypes.h>
 #include <dls_messages/dds/legs_posePubSubTypes.h>
 #include <dls_messages/dds/t265_odometryPubSubTypes.h>
-#include <dls_messages/dds/attitude_estimationPubSubTypes.h>
+#include <dls_messages/dds/attitudePubSubTypes.h>
 #include <dls_messages/dds/sensor_fusionPubSubTypes.h>
 #include <dls_messages/dds/viconPubSubTypes.h>
 #include <dls_messages/dds/param_serverPubSubTypes.h>
 #include <dls_messages/dds/doublePubSubTypes.h>
 #include <dls_messages/dds/controller_commandPubSubTypes.h>
-#include <dls_messages/dds/t265_statePubSubTypes.h>
 #include <dls_messages/dds/slip_flagPubSubTypes.h>
 
 namespace dls
@@ -49,7 +43,6 @@ namespace dls
 		extern dls::topicType command_feedback;
 
 		// simulation
-		extern dls::topicType simulation_pause;
 		extern dls::topicType time_factor;
 
 		// development pool
@@ -77,11 +70,7 @@ namespace dls
 		namespace low_level_estimation
 		{
 			extern dls::topicType blind_state;
-			extern dls::topicType hyq_raw;
-            extern dls::topicType aliengo_raw;
 			extern dls::topicType imu;
-			extern dls::topicType joint_states;
-			extern dls::topicType t265_state;
 			extern dls::topicType slip_flag;
 		}
 	}
