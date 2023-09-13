@@ -90,7 +90,7 @@ int main(int argc, char **argv)
     {
         if (args.component_type == "layer")
         {
-            scout_sys << "LOADING " << args.component_name << std::endl;
+            // scout_sys << "LOADING " << args.component_name << std::endl;
             pComponent =
                 ClassLoader::loadClass<Layer, std::string, std::string>(
                     std::string("${DLS_INSTALL_LIB_DIR}/libdls_framework.so"),
@@ -100,7 +100,7 @@ int main(int argc, char **argv)
         }
         else if (args.component_type == "controller")
         {
-            scout_sys << "LOADING CONTROLLER FROM '" << std::string("${DLS_INSTALL_CONTROLLER_DIR}/lib") + args.lib_name + ".so'" << std::endl;
+            // scout_sys << "LOADING CONTROLLER FROM '" << std::string("${DLS_INSTALL_CONTROLLER_DIR}/lib") + args.lib_name + ".so'" << std::endl;
             pComponent =
                 ClassLoader::loadClass<Controller, std::string>(
                     std::string("${DLS_INSTALL_CONTROLLER_DIR}/lib") + args.lib_name + ".so",
@@ -108,7 +108,7 @@ int main(int argc, char **argv)
         }
         else if (args.component_type == "motion_generator")
         {
-            scout_sys << "LOADING MOTION GENERATOR FROM '" << std::string("${DLS_INSTALL_MOTION_GENERATOR_DIR}/lib") + args.lib_name + ".so'" << std::endl;
+            // scout_sys << "LOADING MOTION GENERATOR FROM '" << std::string("${DLS_INSTALL_MOTION_GENERATOR_DIR}/lib") + args.lib_name + ".so'" << std::endl;
             pComponent =
                 ClassLoader::loadClass<MotionGenerator, std::string>(
                     std::string("${DLS_INSTALL_MOTION_GENERATOR_DIR}/lib") + args.lib_name + ".so",
@@ -116,7 +116,7 @@ int main(int argc, char **argv)
         }
         else if (args.component_type == "hardware")
         {
-            scout_sys << "LOADING HARDWARE FROM '" << std::string("${DLS_INSTALL_HARDWARE_DIR}/lib") + args.lib_name + ".so'" << std::endl;
+            // scout_sys << "LOADING HARDWARE FROM '" << std::string("${DLS_INSTALL_HARDWARE_DIR}/lib") + args.lib_name + ".so'" << std::endl;
             pComponent =
                 ClassLoader::loadClass<Hardware, std::string>(
                     std::string("${DLS_INSTALL_HARDWARE_DIR}/lib") + args.lib_name + ".so",
@@ -124,7 +124,7 @@ int main(int argc, char **argv)
         }
         else if (args.component_type == "estimator")
         {
-            scout_sys << "LOADING ESTIMATOR FROM '" << std::string("${DLS_INSTALL_ESTIMATOR_DIR}/lib") + args.lib_name + ".so'" << std::endl;
+            // scout_sys << "LOADING ESTIMATOR FROM '" << std::string("${DLS_INSTALL_ESTIMATOR_DIR}/lib") + args.lib_name + ".so'" << std::endl;
             pComponent =
                 ClassLoader::loadClass<Estimator, std::string>(
                     std::string("${DLS_INSTALL_ESTIMATOR_DIR}/lib") + args.lib_name + ".so",
@@ -132,7 +132,7 @@ int main(int argc, char **argv)
         }
         else if (args.component_type == "service")
         {
-            scout_sys << "LOADING SERVICE FROM '" << std::string("${DLS_INSTALL_SERVICE_DIR}/lib") + args.lib_name + ".so'" << std::endl;
+            // scout_sys << "LOADING SERVICE FROM '" << std::string("${DLS_INSTALL_SERVICE_DIR}/lib") + args.lib_name + ".so'" << std::endl;
             try
             {
                 pComponent =
