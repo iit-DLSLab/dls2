@@ -56,12 +56,6 @@ namespace dls
 		/// Handler to the shutdown SIGINT (ctrl+c) signal
 		/// 
 		static void handle_signals(int);
-
-		/// List of discovery servers
-		std::vector<std::shared_ptr<dls::DDSParticipant>> servers;
-
-		/// Launch the servers in the domains
-		void launch_servers();
 	};
 } // end namespace dls
 

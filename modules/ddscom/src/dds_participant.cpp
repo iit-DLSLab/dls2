@@ -36,7 +36,8 @@ namespace dls
 		// Define server locator
 		eprosima::fastrtps::rtps::Locator_t server_locator;
 		eprosima::fastrtps::rtps::IPLocator::setIPv4(server_locator, server_ip);
-		server_locator.port = server_port;
+		eprosima::fastrtps::rtps::IPLocator::setPhysicalPort(server_locator, server_port);
+		server_locator.kind = LOCATOR_KIND_UDPv4;
 
 		// participantQos.wire_protocol().builtin.discovery_config.discoveryProtocol = eprosima::fastrtps::rtps::DiscoveryProtocol_t::SIMPLE;
 		// Set participant QoS depending on if it is a CLIENT, a SERVER or a SUPER CLIENT
@@ -52,7 +53,7 @@ namespace dls
 			// -- Connect to the remote server
 			participantQos.wire_protocol().builtin.discovery_config.m_DiscoveryServers.push_back(remote_server_attr);
 		}
-		else if (part_type == eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER)// -- Configure the participant as SERVER
+		else if (part_type == eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER) // -- Configure the participant as SERVER
 		{
 			// -- Add the server locator to the metatraffic uncast locator list
 			participantQos.wire_protocol().builtin.metatrafficUnicastLocatorList.push_back(server_locator);

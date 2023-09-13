@@ -151,6 +151,7 @@ int main(int argc, char **argv)
         else
         {
             scout_err << "component loading not yet implemented" << std::endl;
+            usleep(1000000);
             exit(EXIT_FAILURE);
         }
     }
@@ -162,6 +163,7 @@ int main(int argc, char **argv)
         scout_err << "Could not load component '" << args.component_name
                   << "' of type '" << args.component_type 
                   << ". Error msg: " << e.what() << std::endl;
+            usleep(1000000);
         exit(EXIT_FAILURE);
     }
 

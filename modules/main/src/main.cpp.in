@@ -29,10 +29,15 @@ int initVars();
 
 bool loadLayer(const std::string&, const std::string&);
 
+void launch_servers();
+
 std::mutex quit_mutex;
 bool should_quit = false;
 
 Supervisor super("core");
+
+//! List of discovery servers
+std::vector<std::shared_ptr<dls::DDSParticipant>> servers;
 
 /// Stores commands registered in the app
 ///
@@ -119,8 +124,13 @@ int main(int argc, char **argv)
 	// Launch layers
 	if(Options::launch_hardware) 	loadLayer("hardware", "HardwareLayer");
 	if(Options::launch_control)  	loadLayer("control", "ControlLayer");
-	if(Options::launch_console)	 	loadLayer("console", "ConsoleLayer");
 	if(Options::launch_estimation)	loadLayer("estimation", Options::estimation_layer_name);
+	if(Options::launch_console)	 	
+	{
+		loadLayer("console", "ConsoleLayer");
+		// Launch servers in the domains
+		launch_servers();
+	};
 
 	// Monitor the layers
 	// loop is exited when there are no more children
@@ -186,4 +196,18 @@ bool loadLayer(const std::string& lib, const std::string& ID)
 	pData->proc->detach();
 	layers.emplace(pData->getID(), pData);
 	return true;
+}
+
+void launch_servers()
+{
+	servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer", dls::domains::users, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER));
+	servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer", dls::domains::layers, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER));
+	servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer", dls::domains::command, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER));
+	servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer", dls::domains::signals, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER));
+	servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer", dls::domains::controllers, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER));
+	servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer", dls::domains::hardwares, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER));
+	servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer", dls::domains::consoles, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER));
+	servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer", dls::domains::logging, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER));
+	servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer", dls::domains::services, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER));
+	servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer", dls::domains::estimators, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER));
 }
