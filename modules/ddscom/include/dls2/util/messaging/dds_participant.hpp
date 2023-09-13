@@ -38,6 +38,7 @@ namespace dls
 		/// Retrieves a list of all participants in the domain of the participant
 		///
 		std::vector<std::string> getParticipants();
+		std::multimap<std::string, eprosima::fastrtps::rtps::GUID_t> getDiscoveredParticipantsInfo();
 
 		eprosima::fastdds::dds::DataWriter* getWriter(std::string);
 		eprosima::fastdds::dds::DataReader* getReader(std::string);
@@ -89,6 +90,17 @@ namespace dls
 		YAML::Node config;
 
 		eprosima::fastdds::dds::Topic* addTopic(dls::topicType topicData_);
+
+		std::multimap<std::string, eprosima::fastrtps::rtps::GUID_t> discovered_participants_info;
+
+		/*!
+		* @brief Custom Callback on_participant_discovery
+		* @param[in] participant domain participant discovering a new domain participant
+		* @param[in] info information about the discovered domain participant
+		*/
+		void on_participant_discovery(
+			eprosima::fastdds::dds::DomainParticipant* participant,
+			eprosima::fastrtps::rtps::ParticipantDiscoveryInfo&& info) override;
 
 		void on_publisher_discovery(
             eprosima::fastdds::dds::DomainParticipant* participant,

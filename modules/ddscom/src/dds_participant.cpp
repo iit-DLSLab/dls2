@@ -362,6 +362,11 @@ namespace dls
 		return this->participant->get_participant_names();
 	}
 
+	std::multimap<std::string, eprosima::fastrtps::rtps::GUID_t> DDSParticipant::getDiscoveredParticipantsInfo()
+	{
+		return this->discovered_participants_info;
+	}
+
 	bool DDSParticipant::sendMessage(std::string writerName, void *msg)
 	{
 		auto writer = this->writers.find(writerName);
@@ -372,6 +377,21 @@ namespace dls
 		}
 
 		return writer->second->write(msg);
+	}
+
+	void DDSParticipant::on_participant_discovery(
+            eprosima::fastdds::dds::DomainParticipant* participant,
+            eprosima::fastrtps::rtps::ParticipantDiscoveryInfo&& info)
+	{
+		static_cast<void>(participant);
+		if (info.status == eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DISCOVERY_STATUS::DISCOVERED_PARTICIPANT)
+		{
+			discovered_participants_info.insert({static_cast<std::string>(info.info.m_participantName), info.info.m_guid});
+		}
+		else if (info.status == eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DISCOVERY_STATUS::REMOVED_PARTICIPANT)
+		{
+			discovered_participants_info.erase(static_cast<std::string>(info.info.m_participantName));
+		}
 	}
 
 	void DDSParticipant::on_publisher_discovery(

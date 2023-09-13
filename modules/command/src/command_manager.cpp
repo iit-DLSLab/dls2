@@ -14,7 +14,7 @@ CommandManager::CommandManager(std::string owner_)
 {
 	eprosima::fastdds::dds::DataWriterQos qos(eprosima::fastdds::dds::DATAWRITER_QOS_DEFAULT);
 	qos.reliability().kind = eprosima::fastdds::dds::RELIABLE_RELIABILITY_QOS;
-	qos.reliability().max_blocking_time = 1000; // waiting 1s for the arraival confirmation from the data reader
+	qos.reliability().max_blocking_time = 10000; // waiting at most 10s for the arraival confirmation from the data reader
 	commands_monitor = std::make_shared<dls::DDSWriter>(
 		owner_+"::commands_monitor",
 		domains::command,
@@ -117,26 +117,24 @@ std::multimap<std::string, std::string> CommandManager::find
 
 std::multimap<std::string, std::string> CommandManager::getCommandsList()
 {
-	// get all the remote commands
-	auto remCommands = commands_monitor->getParticipants();
-	// remove the monitors
-	std::erase_if(remCommands, [](std::string value) { return (value.find("monitor") != std::string::npos); });
-	// remove the servers
-	std::erase_if(remCommands, [](std::string value) { return (value.find("DiscoveryServer") != std::string::npos); });
-
-	// create a list of commands
-	std::multimap<std::string, std::string> cmds;
-	// In order to display only the matched data readers (so only the commands ready to receive a message), the list of commands needs to be populated only by the commands matching with commands_monitor. Currently, in the FastDDS API it is not possible to check which data reader is matching with a data writer from the data writer side. It is not even possible to get the list of all data reader of domain/participant. It is possible instead to get the current number of matched data reader.
-	// So, to provide robustness about command execution, the list of commands is not empty only if all the commands match with commands_monitor, otherwise an empty list is returned.
-	// This is done by getting the commands names from the list of participants in the domain and then checking if the number of participants is equal to the number of matched data reader. In fact, it may happens that, even if the domain participant is running, one of its data reader is not ready yet, leading to console command issue like "need to retype twice a command to execute it"
+	// Get discovered participant info
+	auto discovered_participants_info = commands_monitor->getDiscoveredParticipantsInfo();
+	// Get writer listener
 	auto command_publisher_listener = commands_monitor->getPubListener(owner+"::commands_monitor");
-	if(static_cast<long unsigned int>(command_publisher_listener->matched_count) == remCommands.size())
+	// Get matched datareaders instances
+	auto matched_datareaders_instances = command_publisher_listener->matched_datareaders_instances;
+	// Find the domain participant name associated to each matched data reader, and save the name (corresponding to the command name)
+	std::multimap<std::string, std::string> cmds;
+	for(auto datareader_instance : matched_datareaders_instances)
 	{
-		for(auto elem :remCommands)
+		for(auto participant_info : discovered_participants_info)
 		{
-			size_t idx = elem.find("::");
-			if (idx != std::string::npos)
-				cmds.insert({elem.substr(idx+2, elem.size()), elem.substr(0, idx)});
+			if(participant_info.second.guidPrefix == eprosima::fastrtps::rtps::iHandle2GUID(datareader_instance).guidPrefix)
+			{
+				const std::string participant_name (participant_info.first);
+				size_t idx = participant_name.find("::");
+				cmds.insert({participant_name.substr(idx+2, participant_name.size()), participant_name.substr(0, idx)});
+			}
 		}
 	}
 	return cmds;

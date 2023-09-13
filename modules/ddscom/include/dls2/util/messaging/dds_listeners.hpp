@@ -29,6 +29,8 @@ namespace dls
 		) override;
 
 		std::atomic_int matched_count;
+
+		std::vector<eprosima::fastdds::dds::InstanceHandle_t> matched_datareaders_instances;
 	};
 
 	// =====================================================================
