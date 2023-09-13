@@ -188,7 +188,7 @@ bool loadLayer(const std::string& lib, const std::string& ID)
 		std::cout << "Layer " << lib <<" failed to launch: nullptr" << std::endl;
 		return false;
 	}
-	else if (pData->proc->wait_for(std::chrono::duration<double, std::milli>(1000))){
+	else if (pData->proc->wait_for(std::chrono::duration<double, std::milli>(1500))){
 		std::cout << "Layer " << lib <<" failed to launch: expired timeout" << std::endl;
 		return false;
 	}
