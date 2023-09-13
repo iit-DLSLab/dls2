@@ -33,7 +33,7 @@ namespace dls
 			bool tupelookup_server = true
 		);
 
-		~DDSParticipant();
+		virtual ~DDSParticipant();
 
 		/// Retrieves a list of all participants in the domain of the participant
 		///
