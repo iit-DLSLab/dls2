@@ -1,18 +1,4 @@
-/*******************************************************************************
-*                                                       ,----,                 *
-*                                                     .'   .' \                *
-*                                                   ,----,'    |               *
-*               ________  ___       ________        |    :  .  ;               *
-*              |\   ___ \|\  \     |\   ____\       ;    |.'  /                *
-*              \ \  \_|\ \ \  \    \ \  \___|_      `----'/  ;                 *
-*               \ \  \ \\ \ \  \    \ \_____  \       /  ;  /                  *
-*                \ \  \_\\ \ \  \____\|____|\  \     ;  /  /-,                 *
-*                 \ \_______\ \_______\____\_\  \   /  /  /.`|                 *
-*                  \|_______|\|_______|\_________\./__;      :                 *
-*                                     \|_________||   :    .'                  *
-*                                                 ;   | .'                     *
-*                                                 `---'                        *
-*******************************************************************************/
+
 
 #include "dls2/core_framework/hardware_layer.hpp"
 #include "dls2/core_framework/control_layer.hpp"
@@ -134,7 +120,7 @@ int main(int argc, char **argv)
 	if(Options::launch_hardware) 	loadLayer("hardware", "HardwareLayer");
 	if(Options::launch_control)  	loadLayer("control", "ControlLayer");
 	if(Options::launch_console)	 	loadLayer("console", "ConsoleLayer");
-	if(Options::launch_estimation)	loadLayer("estimation", "EstimationLayer");
+	if(Options::launch_estimation)	loadLayer("estimation", Options::estimation_layer_name);
 
 	// Monitor the layers
 	// loop is exited when there are no more children
@@ -182,11 +168,14 @@ bool loadLayer(const std::string& lib, const std::string& ID)
         Options::robot_name
     }));
 
-    if (pData->proc == nullptr || pData->proc->wait_for(std::chrono::duration<double, std::milli>(1000))){
-        // scout_err << "Layer " << lib_name <<" failed to launch" << std::endl;
-		std::cout << "Layer " << lib <<" failed to launch" << std::endl;
-        return false;
-    }
+	if (pData->proc == nullptr){
+		std::cout << "Layer " << lib <<" failed to launch: nullptr" << std::endl;
+		return false;
+	}
+	else if (pData->proc->wait_for(std::chrono::duration<double, std::milli>(1000))){
+		std::cout << "Layer " << lib <<" failed to launch: expired timeout" << std::endl;
+		return false;
+	}
 
 	pData->proc->detach();
 	layers.emplace(pData->getID(), pData);

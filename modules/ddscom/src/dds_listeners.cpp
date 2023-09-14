@@ -1,18 +1,4 @@
-/*******************************************************************************
-*                                                       ,----,                 *
-*                                                     .'   .' \                *
-*                                                   ,----,'    |               *
-*               ________  ___       ________        |    :  .  ;               *
-*              |\   ___ \|\  \     |\   ____\       ;    |.'  /                *
-*              \ \  \_|\ \ \  \    \ \  \___|_      `----'/  ;                 *
-*               \ \  \ \\ \ \  \    \ \_____  \       /  ;  /                  *
-*                \ \  \_\\ \ \  \____\|____|\  \     ;  /  /-,                 *
-*                 \ \_______\ \_______\____\_\  \   /  /  /.`|                 *
-*                  \|_______|\|_______|\_________\./__;      :                 *
-*                                     \|_________||   :    .'                  *
-*                                                 ;   | .'                     *
-*                                                 `---'                        *
-*******************************************************************************/
+
 #ifndef DDSLISTENERS_CPP
 #define DDSLISTENERS_CPP
 
@@ -37,11 +23,11 @@ namespace dls
 	{
 		if(info.current_count_change == 1){
 			// publisher matched
-			this->matched_count = info.total_count;
+			this->matched_count = info.current_count;
 		}
 		else if(info.current_count_change == -1){
 			// publisher unmatched
-			this->matched_count = info.total_count;
+			this->matched_count = info.current_count;
 		}
 		else{
 			// invalid

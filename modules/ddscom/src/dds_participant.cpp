@@ -1,24 +1,11 @@
-/*******************************************************************************
- *                                                       ,----,                 *
- *                                                     .'   .' \                *
- *                                                   ,----,'    |               *
- *               ________  ___       ________        |    :  .  ;               *
- *              |\   ___ \|\  \     |\   ____\       ;    |.'  /                *
- *              \ \  \_|\ \ \  \    \ \  \___|_      `----'/  ;                 *
- *               \ \  \ \\ \ \  \    \ \_____  \       /  ;  /                  *
- *                \ \  \_\\ \ \  \____\|____|\  \     ;  /  /-,                 *
- *                 \ \_______\ \_______\____\_\  \   /  /  /.`|                 *
- *                  \|_______|\|_______|\_________\./__;      :                 *
- *                                     \|_________||   :    .'                  *
- *                                                 ;   | .'                     *
- *                                                 `---'                        *
- *******************************************************************************/
 #ifndef DDSPARTICIPANT_CPP
 #define DDSPARTICIPANT_CPP
 
 #include "dls2/util/messaging/dds_participant.hpp"
 #include <fastrtps/xmlparser/XMLProfileManager.h>
 #include <fastrtps/types/TypeObjectFactory.h>
+
+#include <fastdds/rtps/transport/UDPv4TransportDescriptor.h>
 
 /// \cond doxygen_namespace_dls
 namespace dls
@@ -43,6 +30,16 @@ namespace dls
 		participantQos.wire_protocol().builtin.discovery_config.leaseDuration = eprosima::fastrtps::Duration_t(3, 1);
         participantQos.wire_protocol().builtin.discovery_config.leaseDuration_announcementperiod = eprosima::fastrtps::Duration_t(1, 2);
 		participantQos.name(partName_);
+
+		// Create a UDP descriptor for the new transport.
+		auto udp_transport = std::make_shared<eprosima::fastdds::rtps::UDPv4TransportDescriptor>();
+		// udp_transport->sendBufferSize = 9216;
+		// udp_transport->receiveBufferSize = 9216;
+		// udp_transport->non_blocking_send = true; // it avoids to wait for the available space in the UDP socket buffer
+		// Link the Transport Layer to the Participant.
+		participantQos.transport().user_transports.push_back(udp_transport);
+		// Avoid using the default transport (i.e. SHM)
+		participantQos.transport().use_builtin_transports = false;
 
 		if(ENABLE_FASTDDS_STATISTICS)
 		{
@@ -166,9 +163,32 @@ namespace dls
 		return nullptr;
 	}
 
+	std::shared_ptr<dls::DDSSubListener> DDSParticipant::getSubListener(const std::string& name)
+	{
+		auto ret = this->subListeners.find(name);
+		if(ret != this->subListeners.end())
+			return ret->second;
+
+		throw std::runtime_error("No listener of for the reader " + name + "is found. Returning null pointer.");
+
+		return nullptr;
+	}
+
+	std::shared_ptr<dls::DDSPubListener> DDSParticipant::getPubListener(const std::string& name)
+	{
+		auto ret = this->pubListeners.find(name);
+		if(ret != this->pubListeners.end())
+			return ret->second;
+
+		throw std::runtime_error("No listener of for the writer " + name + "is found. Returning null pointer.");
+
+		return nullptr;
+	}
+
 	eprosima::fastdds::dds::DataWriter* DDSParticipant::addWriter(
 		std::string writerName_,
-		dls::topicType topicData_)
+		dls::topicType topicData_,
+		eprosima::fastdds::dds::DataWriterQos qos)
 	{
 		if(this->writers.find(writerName_) != this->writers.end())
 			throw std::runtime_error("THE WRITER " + writerName_ + " ALREADY EXISTS, YOU ARE TRYING TO CREATE TWICE");
@@ -177,11 +197,12 @@ namespace dls
 
 		if (topic == nullptr)
 			throw std::runtime_error("THE WRITER " + writerName_ + " COULDN'T CREATE THE TOPIC " + topicData_.first);
+		std::shared_ptr<dls::DDSPubListener> listener = std::make_shared<DDSPubListener>();
 
 		auto writer = this->publisher->create_datawriter(
 			topic,
-			eprosima::fastdds::dds::DATAWRITER_QOS_DEFAULT,
-			nullptr
+			qos,
+			listener.get()
 			//&this->publisher_listener
 		);
 
@@ -189,6 +210,7 @@ namespace dls
 			throw std::runtime_error("THE WRITER " + writerName_ + " COULDN'T BE CREATED");
 
 		this->writers.insert({writerName_, writer});
+		this->pubListeners.insert({writerName_, listener});
 
 		return writer;
 	}
@@ -216,7 +238,8 @@ namespace dls
 	eprosima::fastdds::dds::DataReader *DDSParticipant::addReader(
 		std::string readerName_,
 		dls::topicType topicData_,
-		std::function<void(void *)> callback_)
+		std::function<void(void *)> callback_,
+		eprosima::fastdds::dds::DataReaderQos qos)
 	{
 		if(this->readers.find(readerName_) != this->readers.end())
 		{
@@ -234,13 +257,13 @@ namespace dls
 
 		auto reader = this->subscriber->create_datareader(
 			topic,
-			eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT,
+			qos,
 			listener.get());
 
 		if (reader != nullptr)
 		{
 			this->readers.insert({readerName_, reader});
-			this->subListeners.push_back(listener);
+			this->subListeners.insert({readerName_, listener});
 		}
 
 		return reader;

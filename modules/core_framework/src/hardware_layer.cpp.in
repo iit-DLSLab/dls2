@@ -1,18 +1,4 @@
-/*******************************************************************************
-*                                                       ,----,                 *
-*                                                     .'   .' \                *
-*                                                   ,----,'    |               *
-*               ________  ___       ________        |    :  .  ;               *
-*              |\   ___ \|\  \     |\   ____\       ;    |.'  /                *
-*              \ \  \_|\ \ \  \    \ \  \___|_      `----'/  ;                 *
-*               \ \  \ \\ \ \  \    \ \_____  \       /  ;  /                  *
-*                \ \  \_\\ \ \  \____\|____|\  \     ;  /  /-,                 *
-*                 \ \_______\ \_______\____\_\  \   /  /  /.`|                 *
-*                  \|_______|\|_______|\_________\./__;      :                 *
-*                                     \|_________||   :    .'                  *
-*                                                 ;   | .'                     *
-*                                                 `---'                        *
-*******************************************************************************/
+
 #include "dls2/core_framework/hardware_layer.hpp"
 
 #include "dls2/class_loader.hpp"
@@ -21,8 +7,8 @@
 
 using namespace dls;
 
-HardwareLayer::HardwareLayer(std::string ID_) 
-	: Layer(ID_)
+HardwareLayer::HardwareLayer(std::string ID) 
+	: Layer(ID)
 {
     command_manager.addCommand<std::string>
 	(
@@ -109,8 +95,12 @@ bool HardwareLayer::loadHardware(const std::string &lib_name)
 		Options::robot_name
 	}));
 
-	if (pData->proc == nullptr || pData->proc->wait_for(std::chrono::duration<double, std::milli>(1000))){
-		scout_err << "Hardware process failed to launch" << std::endl;
+	if (pData->proc == nullptr){
+		scout_err << "Hardware " << lib_name <<" failed to launch: nullptr" << std::endl;
+		return false;
+	}
+	else if (pData->proc->wait_for(std::chrono::duration<double, std::milli>(1000))){
+		scout_err << "Hardware " << lib_name <<" failed to launch: expired timeout" << std::endl;
 		return false;
 	}
 
@@ -125,7 +115,7 @@ bool HardwareLayer::unloadHardware(std::shared_ptr<AppData> pData)
 	// std::lock_guard<std::mutex> lock(this->hardwares_mutex);
 
     //shutdown hardware over the dds comunication layer
-	command_manager.callCommand("exit", {}, pData->getID());
+	command_manager.callCommand("shutdown", {}, pData->getID());
 
     //wait a little for hardware to exit
 	std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));

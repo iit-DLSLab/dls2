@@ -1,7 +1,7 @@
 #include "dls2/util/messaging/dds_reader.hpp"
 #include "dls_messages/dds/controller_commandPubSubTypes.h"
-#include "dls_messages/dds/traj_genPubSubTypes.h"
-#include "dls_messages/dds/debug_trunk_controllerPubSubTypes.h"
+#include "dls_messages/dds/trajectory_generatorPubSubTypes.h"
+#include "dls_messages/dds/trunk_controller_debugPubSubTypes.h"
 #include <dls_messages/dds/base_statePubSubTypes.h>
 
 #include <iostream>
@@ -67,9 +67,9 @@ int main(int argc, char** argv)
 	{
 		topic = dls::topics::controller_signal;
 	}
-	else if(topic_name == "traj_gen_signal")
+	else if(topic_name == "trajectory_generator")
 	{
-		topic = dls::topicType("trajGenSignal", new  TrajGenMsgPubSubType());
+		topic = dls::topicType("trajectory_generator", new  TrajectoryGeneratorMsgPubSubType());
 	}
 	else if(topic_name == "t265_odometry")
 	{
@@ -90,6 +90,10 @@ int main(int argc, char** argv)
 	else if(topic_name == "desired_torques")
 	{
 		topic = dls::topics::desired_torques;
+	}
+	else if(topic_name == "mpc_controller")
+	{
+		topic = dls::topicType("mpc_controller", new  ControlSignalMsgPubSubType());
 	}
 	else
 	{

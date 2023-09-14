@@ -1,55 +1,14 @@
-/*******************************************************************************
-*                                                       ,----,                 *
-*                                                     .'   .' \                *
-*                                                   ,----,'    |               *
-*               ________  ___       ________        |    :  .  ;               *
-*              |\   ___ \|\  \     |\   ____\       ;    |.'  /                *
-*              \ \  \_|\ \ \  \    \ \  \___|_      `----'/  ;                 *
-*               \ \  \ \\ \ \  \    \ \_____  \       /  ;  /                  *
-*                \ \  \_\\ \ \  \____\|____|\  \     ;  /  /-,                 *
-*                 \ \_______\ \_______\____\_\  \   /  /  /.`|                 *
-*                  \|_______|\|_______|\_________\./__;      :                 *
-*                                     \|_________||   :    .'                  *
-*                                                 ;   | .'                     *
-*                                                 `---'                        *
-*******************************************************************************/
 #include "dls2/application/layer.hpp"
 #include "dls2/class_loader.hpp"
 
 using namespace dls;
 
-Layer::Layer(const std::string &ID_) 
-	: App(ID_)
+Layer::Layer(const std::string &ID) 
+	: App(ID)
 	, components_mutex()
     , components({})
-	, ddsLink(std::make_shared<dls::DDSParticipant>(ID_, dls::domains::layers))	
-{
-	command_manager.addCommand<>
-	(
-		"shutdown",
-		"Shutdown the " + this->getID() + " layer",
-        std::function<bool()>([&]()->bool
-        {
-			this->stop();
-            return true;
-		}),
-		{},
-		true
-	);
-
-	command_manager.addCommand<>
-	(
-		"where",
-		"Prints the state of " + this->getID(),
-		std::function<bool()>([&]()->bool
-        {
-			std::cout << where() << std::endl;
-            return true;
-		}),
-		{},
-		true
-	);
-}
+	, ddsLink(std::make_shared<dls::DDSParticipant>(ID, dls::domains::layers))	
+{ }
 
 Layer::~Layer()
 { }

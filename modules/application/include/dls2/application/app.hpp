@@ -1,18 +1,3 @@
-/*******************************************************************************
-*                                                       ,----,                 *
-*                                                     .'   .' \                *
-*                                                   ,----,'    |               *
-*               ________  ___       ________        |    :  .  ;               *
-*              |\   ___ \|\  \     |\   ____\       ;    |.'  /                *
-*              \ \  \_|\ \ \  \    \ \  \___|_      `----'/  ;                 *
-*               \ \  \ \\ \ \  \    \ \_____  \       /  ;  /                  *
-*                \ \  \_\\ \ \  \____\|____|\  \     ;  /  /-,                 *
-*                 \ \_______\ \_______\____\_\  \   /  /  /.`|                 *
-*                  \|_______|\|_______|\_________\./__;      :                 *
-*                                     \|_________||   :    .'                  *
-*                                                 ;   | .'                     *
-*                                                 `---'                        *
-*******************************************************************************/
 #ifndef APP_HPP
 #define APP_HPP
 
@@ -93,13 +78,14 @@ namespace dls
 
 		/// The ID of this app
 		///
-		const std::string ID;
+		const std::string ID_;
 	private:
 		// BEGIN critical section
-			mutable std::mutex status_mutex;
-			AppStatus status;
+		mutable std::mutex status_mutex;
+		AppStatus status;
 		// END critical section
-
+	protected:
+		std::string get_current_time();
 	};
 } // end namespace dls
 

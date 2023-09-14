@@ -1,18 +1,4 @@
-/*******************************************************************************
-*                                                       ,----,                 *
-*                                                     .'   .' \                *
-*                                                   ,----,'    |               *
-*               ________  ___       ________        |    :  .  ;               *
-*              |\   ___ \|\  \     |\   ____\       ;    |.'  /                *
-*              \ \  \_|\ \ \  \    \ \  \___|_      `----'/  ;                 *
-*               \ \  \ \\ \ \  \    \ \_____  \       /  ;  /                  *
-*                \ \  \_\\ \ \  \____\|____|\  \     ;  /  /-,                 *
-*                 \ \_______\ \_______\____\_\  \   /  /  /.`|                 *
-*                  \|_______|\|_______|\_________\./__;      :                 *
-*                                     \|_________||   :    .'                  *
-*                                                 ;   | .'                     *
-*                                                 `---'                        *
-*******************************************************************************/
+
 #ifndef LOG_LAYER_CPP_DLJLOFSG
 #define LOG_LAYER_CPP_DLJLOFSG
 
@@ -24,13 +10,10 @@ using namespace dls;
 
 LogLayer::LogLayer(std::string ID)
 	: Layer(ID)
-	, ddsLogLink_(
-		"log_layer",
-		dls::domains::logging
-	)
+	, dds_participant_(std::make_shared<dls::DDSParticipant>("log_layer", dls::domains::logging))
 {
 	//debug_log
-	ddsLogLink_.addReader(
+	dds_participant_->addReader(
 		"debug_log",
 		dls::topics::debug_log_stream,
 		std::function<void(void *)>
@@ -38,13 +21,13 @@ LogLayer::LogLayer(std::string ID)
 			[&](void *tuple)
 			{
 				StringMsg *msg = (StringMsg*) tuple;
-				std::cout << '\r' << LogLayer::get_current_time() << ": DEBUG: " <<  msg->msg() << std::flush;
+				std::cout << '\r' << get_current_time() << ": DEBUG: " <<  msg->msg() << std::flush;
 			}
 		}
 	);
 
 	//info_log
-	ddsLogLink_.addReader(
+	dds_participant_->addReader(
 		"info_log",
 		dls::topics::info_log_stream,
 		std::function<void(void *)>
@@ -52,13 +35,13 @@ LogLayer::LogLayer(std::string ID)
 			[&](void *tuple)
 			{
 				StringMsg *msg = (StringMsg*) tuple;
-				std::cout << '\r' << LogLayer::get_current_time() << ": INFO: " <<  msg->msg() << std::flush;
+				std::cout << '\r' << get_current_time() << ": INFO: " <<  msg->msg() << std::flush;
 			}
 		}
 	);
 
 	//warn_log
-	ddsLogLink_.addReader(
+	dds_participant_->addReader(
 		"warn_log",
 		dls::topics::warn_log_stream,
 		std::function<void(void *)>
@@ -66,13 +49,13 @@ LogLayer::LogLayer(std::string ID)
 			[&](void *tuple)
 			{
 				StringMsg *msg = (StringMsg*) tuple;
-				std::cout << '\r' << LogLayer::get_current_time() << ": WARN: " <<  msg->msg() << std::flush;
+				std::cout << '\r' << get_current_time() << ": WARN: " <<  msg->msg() << std::flush;
 			}
 		}
 	);
 
 	//error_log
-	ddsLogLink_.addReader(
+	dds_participant_->addReader(
 		"error_log",
 		dls::topics::error_log_stream,
 		std::function<void(void *)>
@@ -80,13 +63,13 @@ LogLayer::LogLayer(std::string ID)
 			[&](void *tuple)
 			{
 				StringMsg *msg = (StringMsg*) tuple;
-				std::cout << '\r' << LogLayer::get_current_time() << ": ERROR: " <<  msg->msg() << std::flush;
+				std::cout << '\r' << get_current_time() << ": ERROR: " <<  msg->msg() << std::flush;
 			}
 		}
 	);
 
 	//fatal_log
-	ddsLogLink_.addReader(
+	dds_participant_->addReader(
 		"fatal_log",
 		dls::topics::fatal_log_stream,
 		std::function<void(void *)>
@@ -94,70 +77,10 @@ LogLayer::LogLayer(std::string ID)
 			[&](void *tuple)
 			{
 				StringMsg *msg = (StringMsg*) tuple;
-				std::cout << '\r' << LogLayer::get_current_time() << ": FATAL: " <<  msg->msg() << std::flush;
+				std::cout << '\r' << get_current_time() << ": FATAL: " <<  msg->msg() << std::flush;
 			}
 		}
 	);
-
-	// Start recording an MCAP log file
-	command_manager.addCommand<>
-    (
-        "startRecording",
-        "Start recording an MCAP log file",
-        std::function<bool()>([&]()->bool
-        {
-			foxserver_.record_mcap_log(true, LogLayer::get_current_time());
-			return true;
-        }),
-        {{}},
-        true
-    );
-
-	// Stop recording the MCAP log file
-	command_manager.addCommand<>
-    (
-        "stopRecording",
-        "Stop recording the MCAP log file",
-        std::function<bool()>([&]()->bool
-        {
-			foxserver_.record_mcap_log(false);
-			return true;
-        }),
-        {{}},
-        true
-    );
-
-	// Start the playback of an MCAP log file
-	command_manager.addCommand<>
-    (
-        "startPlaybackMCAP",
-        "Start reading an MCAP log file and publish its data on DDS topics",
-        std::function<bool(std::string mcap_log_file)>([&](const std::string &mcap_log_file)->bool
-        {
-			if(!mcap_log_file.empty())
-			{
-				foxserver_.playback_mcap_log(true, mcap_log_file);
-				return true;
-			}
-			return false;
-        }),
-        {{}},
-        true
-    );
-
-	// Start the playback of an MCAP log file
-	command_manager.addCommand<>
-    (
-        "stopPlaybackMCAP",
-        "Stop reading an MCAP log file and stop publishing its data on DDS topics",
-        std::function<bool()>([&]()->bool
-        {
-			foxserver_.playback_mcap_log(false);
-			return true;
-        }),
-        {{}},
-        true
-    );
 }
 
 AppStatus LogLayer::run()
@@ -167,7 +90,7 @@ AppStatus LogLayer::run()
 		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 	}
 
-	return this->getStatus();
+	return getStatus();
 }
 
 AppStatus LogLayer::stop()
@@ -183,14 +106,4 @@ AppStatus LogLayer::stop()
 	return getStatus();
 }
 
-std::string LogLayer::get_current_time()
-{
-	time_t     now = time(0);
-    struct tm  tstruct;
-    char       buf[256];
-    tstruct = *localtime(&now);
-    strftime(buf, sizeof(buf), "%y-%m-%d_%H.%M.%S", &tstruct);
-
-	return buf;
-}
 #endif /* end of include guard: LOG_LAYER_CPP_DLJLOFSG */

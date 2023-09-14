@@ -14,6 +14,7 @@ target_link_libraries(dynamic_legged_systems_framework
 		dls_framework
 		dls_supervisor
 		dls_param_server
+		dls_web_socket_translator
 		fastcdr
 		fastrtps
 )

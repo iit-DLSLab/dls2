@@ -22,7 +22,7 @@
 #include <filesystem>
 #include <sstream>
 
-#include "foxglove/utils.hpp"
+#include "dls2/web_socket_translator/utils.hpp"
 
 namespace dls {
 

@@ -1,18 +1,4 @@
-/*******************************************************************************
-*                                                       ,----,                 *
-*                                                     .'   .' \                *
-*                                                   ,----,'    |               *
-*               ________  ___       ________        |    :  .  ;               *
-*              |\   ___ \|\  \     |\   ____\       ;    |.'  /                *
-*              \ \  \_|\ \ \  \    \ \  \___|_      `----'/  ;                 *
-*               \ \  \ \\ \ \  \    \ \_____  \       /  ;  /                  *
-*                \ \  \_\\ \ \  \____\|____|\  \     ;  /  /-,                 *
-*                 \ \_______\ \_______\____\_\  \   /  /  /.`|                 *
-*                  \|_______|\|_______|\_________\./__;      :                 *
-*                                     \|_________||   :    .'                  *
-*                                                 ;   | .'                     *
-*                                                 `---'                        *
-*******************************************************************************/
+
 #include "dls2/core_framework/service_layer.hpp"
 
 #include "dls2/class_loader.hpp"
@@ -21,8 +7,8 @@
 using namespace dls;
 
 
-ServiceLayer::ServiceLayer(std::string ID_) 
-	: Layer(ID_)
+ServiceLayer::ServiceLayer(std::string ID) 
+	: Layer(ID)
 	, ddsMonitor(std::make_shared<dls::DDSWriter>(
 		"ServiceLayer::monitor",
 		dls::domains::services,
@@ -112,8 +98,12 @@ bool ServiceLayer::loadService(const std::string& lib_name)
 			""
 		}));
 
-		if (pData->proc == nullptr || pData->proc->wait_for(std::chrono::duration<double, std::milli>(1000))){
-			scout_err << "Service " << lib_name << " failed to launch" << std::endl;
+		if (pData->proc == nullptr){
+			scout_err << "Service " << lib_name <<" failed to launch: nullptr" << std::endl;
+			return false;
+		}
+		else if (pData->proc->wait_for(std::chrono::duration<double, std::milli>(1000))){
+			scout_err << "Service " << lib_name <<" failed to launch: expired timeout" << std::endl;
 			return false;
 		}
 
@@ -141,7 +131,7 @@ bool ServiceLayer::unloadService(const std::string ID)
 	auto pData = res->second;
 
     //shutdown service over the dds comunication layer
-	command_manager.callCommand("exit", {}, ID);
+	command_manager.callCommand("shutdown", {}, ID);
 
     // wait a little for service to exit
 	std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));

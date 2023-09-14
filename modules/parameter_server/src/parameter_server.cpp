@@ -6,7 +6,7 @@
 namespace dls
 {
 	ParameterServer::ParameterServer(std::string& ID) 
-		: Service(
+		: ServiceServer(
 			ID,
 			dls::topics::param_server,
 			dls::topicType(dls::topics::param_server.first + "_response", new ParamServerMsgPubSubType()),

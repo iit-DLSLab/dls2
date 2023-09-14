@@ -1,18 +1,4 @@
-/*******************************************************************************
-*                                                       ,----,                 *
-*                                                     .'   .' \                *
-*                                                   ,----,'    |               *
-*               ________  ___       ________        |    :  .  ;               *
-*              |\   ___ \|\  \     |\   ____\       ;    |.'  /                *
-*              \ \  \_|\ \ \  \    \ \  \___|_      `----'/  ;                 *
-*               \ \  \ \\ \ \  \    \ \_____  \       /  ;  /                  *
-*                \ \  \_\\ \ \  \____\|____|\  \     ;  /  /-,                 *
-*                 \ \_______\ \_______\____\_\  \   /  /  /.`|                 *
-*                  \|_______|\|_______|\_________\./__;      :                 *
-*                                     \|_________||   :    .'                  *
-*                                                 ;   | .'                     *
-*                                                 `---'                        *
-*******************************************************************************/
+
 #ifndef DDSPARTICIPANT_HPP
 #define DDSPARTICIPANT_HPP
 
@@ -54,15 +40,20 @@ namespace dls
 		eprosima::fastdds::dds::DataWriter* getWriter(std::string);
 		eprosima::fastdds::dds::DataReader* getReader(std::string);
 
+		std::shared_ptr<dls::DDSSubListener> getSubListener(const std::string&);
+		std::shared_ptr<dls::DDSPubListener> getPubListener(const std::string&);
+
 		eprosima::fastdds::dds::DataWriter* addWriter(
 			std::string    writerName,
-			dls::topicType topicData
+			dls::topicType topicData,
+			eprosima::fastdds::dds::DataWriterQos qos = eprosima::fastdds::dds::DATAWRITER_QOS_DEFAULT
 		);
 
 		eprosima::fastdds::dds::DataReader* addReader(
 			std::string                 readerName,
 			dls::topicType				topicData,
-			std::function<void(void *)>	callback
+			std::function<void(void *)>	callback,
+			eprosima::fastdds::dds::DataReaderQos qos = eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT
 		);
 
 		bool deleteReader(const std::string& reader_name);
@@ -79,7 +70,8 @@ namespace dls
 		std::map<std::string, eprosima::fastdds::dds::Topic *>  	topics;	
 		std::map<std::string, eprosima::fastdds::dds::DataReader *> readers;
 		std::map<std::string, eprosima::fastdds::dds::DataWriter *> writers;
-		std::vector<std::shared_ptr<dls::DDSSubListener>>			subListeners;
+		std::map<std::string, std::shared_ptr<dls::DDSSubListener>>	subListeners;
+		std::map<std::string, std::shared_ptr<dls::DDSPubListener>>	pubListeners;
 
 		eprosima::fastdds::dds::Publisher  *publisher;
         eprosima::fastdds::dds::Subscriber *subscriber;

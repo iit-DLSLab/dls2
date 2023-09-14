@@ -1,18 +1,4 @@
-/*******************************************************************************
-*                                                       ,----,                 *
-*                                                     .'   .' \                *
-*                                                   ,----,'    |               *
-*               ________  ___       ________        |    :  .  ;               *
-*              |\   ___ \|\  \     |\   ____\       ;    |.'  /                *
-*              \ \  \_|\ \ \  \    \ \  \___|_      `----'/  ;                 *
-*               \ \  \ \\ \ \  \    \ \_____  \       /  ;  /                  *
-*                \ \  \_\\ \ \  \____\|____|\  \     ;  /  /-,                 *
-*                 \ \_______\ \_______\____\_\  \   /  /  /.`|                 *
-*                  \|_______|\|_______|\_________\./__;      :                 *
-*                                     \|_________||   :    .'                  *
-*                                                 ;   | .'                     *
-*                                                 `---'                        *
-*******************************************************************************/
+
 #include "dls2/core_framework/control_layer.hpp"
 #include <sstream>
 
@@ -237,15 +223,15 @@ void *ControlLayer::controlSignalGather(void *data)
         auto epoch = std::chrono::time_point_cast<std::chrono::milliseconds>(now).time_since_epoch();
 
 		// Read the control signals
-		layer->torques.desired_torques = 0.0;
+		layer->torques.desired_torques_ = 0.0;
 		for(auto pair : layer->controllers)
 		{
-			layer->torques.desired_torques += pair.second->premultiplier * pair.second->control_signal.getData().torques;
+			layer->torques.desired_torques_ += pair.second->premultiplier * pair.second->control_signal.getData().torques_;
 		}
 
     	// Send the desired torques to HAL
-		layer->control_signal->desired_torques = layer->saturateTorques(layer->torques.desired_torques);
-		layer->control_signal->time = std::chrono::duration_cast<std::chrono::microseconds>(epoch).count();
+		layer->control_signal->desired_torques_ = layer->saturateTorques(layer->torques.desired_torques_);
+		layer->control_signal->timestamp_ = std::chrono::duration_cast<std::chrono::microseconds>(epoch).count();
 		layer->control_signal.publish();
 
         delta.push_back(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - now).count());
@@ -367,8 +353,12 @@ bool ControlLayer::loadController(const std::string& lib_name)
 		this->pRobot->getName()
     }));
 
-    if (pData->proc == nullptr || pData->proc->wait_for(std::chrono::duration<double, std::milli>(1000))){
-        scout_err << "Controller " << lib_name <<" failed to launch" << std::endl;
+    if (pData->proc == nullptr){
+        scout_err << "Controller " << lib_name <<" failed to launch: nullptr" << std::endl;
+        return false;
+    }
+	else if (pData->proc->wait_for(std::chrono::duration<double, std::milli>(1000))){
+        scout_err << "Controller " << lib_name <<" failed to launch: expired timeout" << std::endl;
         return false;
     }
 
@@ -420,7 +410,7 @@ bool ControlLayer::unloadController(std::shared_ptr<ControllerData> pData)
 
 	// std::lock_guard<std::mutex> lock(this->controllers_mutex);
 
-	command_manager.callCommand("exit", {}, pData->getID());
+	command_manager.callCommand("shutdown", {}, pData->getID());
 
     //wait a little for motion exit
 	std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
@@ -482,8 +472,12 @@ bool ControlLayer::loadMotionGenerator(const std::string& lib_name)
 		this->pRobot->getName()
 	}));
 
-    if (pData->proc == nullptr || pData->proc->wait_for(std::chrono::duration<double, std::milli>(1000))){
-        scout_err << "motion generation " << lib_name <<" failed to launch" << std::endl;
+	if (pData->proc == nullptr){
+        scout_err << "Motion generation " << lib_name <<" failed to launch: nullptr" << std::endl;
+        return false;
+    }
+	else if (pData->proc->wait_for(std::chrono::duration<double, std::milli>(1000))){
+        scout_err << "Motion generation " << lib_name <<" failed to launch: expired timeout" << std::endl;
         return false;
     }
 
@@ -496,8 +490,8 @@ bool ControlLayer::unloadMotionGenerator(std::shared_ptr<AppData> pData)
 {
 	// std::lock_guard<std::mutex> lock(this->motion_mutex);
 
-	//shutdown controller over the dds comunication layer
-	command_manager.callCommand("exit", {}, pData->getID());
+	//shutdown motion generation over the dds comunication layer
+	command_manager.callCommand("shutdown", {}, pData->getID());
 
 	// wait a little for motion exit
 	std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
@@ -545,5 +539,5 @@ robotlib::JointState ControlLayer::saturateTorques(const robotlib::JointState& r
 
 robotlib::JointState ControlLayer::getPublishedDesiredTorques(){
 	// std::lock_guard<std::mutex>	lock(this->last_published_desired_torques_mutex);
-	return this->control_signal->desired_torques;
+	return this->control_signal->desired_torques_;
 }

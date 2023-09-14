@@ -1,18 +1,3 @@
-/*******************************************************************************
-*                                                       ,----,                 *
-*                                                     .'   .' \                *
-*                                                   ,----,'    |               *
-*               ________  ___       ________        |    :  .  ;               *
-*              |\   ___ \|\  \     |\   ____\       ;    |.'  /                *
-*              \ \  \_|\ \ \  \    \ \  \___|_      `----'/  ;                 *
-*               \ \  \ \\ \ \  \    \ \_____  \       /  ;  /                  *
-*                \ \  \_\\ \ \  \____\|____|\  \     ;  /  /-,                 *
-*                 \ \_______\ \_______\____\_\  \   /  /  /.`|                 *
-*                  \|_______|\|_______|\_________\./__;      :                 *
-*                                     \|_________||   :    .'                  *
-*                                                 ;   | .'                     *
-*                                                 `---'                        *
-*******************************************************************************/
 #ifndef COMMAND_TPP
 #define COMMAND_TPP
 
@@ -117,7 +102,11 @@ namespace dls
 	{
 		if (ddslink != nullptr)
 			return;
-				
+		// Define QoS for the data reader
+		eprosima::fastdds::dds::DataReaderQos qos(eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT);
+		qos.reliability().kind = eprosima::fastdds::dds::RELIABLE_RELIABILITY_QOS;
+
+		// Create the data reader
 		ddslink = std::make_shared<dls::DDSReader>(
 			this->getOwner() + "::" + this->getName(),
 			dls::domains::command,
@@ -144,7 +133,8 @@ namespace dls
 
 					this->call(result);
 				}
-			}
+			},
+			qos
 		);
 	}
 

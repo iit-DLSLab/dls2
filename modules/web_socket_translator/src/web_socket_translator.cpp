@@ -1,8 +1,4 @@
-#include <foxglove/foxserver.hpp>
-#include <fstream>
-#include <Eigen/Dense>
-
-using namespace boost;
+#include "dls2/web_socket_translator/web_socket_translator.hpp"
 
 namespace dls
 {
@@ -12,13 +8,17 @@ namespace dls
                         .count());
     }
 
-    FoxServer::FoxServer()
-        : server_thread_(nullptr)
-        , webserver_(8765, "example server")
-        , dds_link_("FoxServer::monitor", dls::domains::signals, false)
+	WebSocketTranslator::WebSocketTranslator(std::string& ID) 
+		: Service(ID)
+		, command_manager_(ID)
+        , server_thread_(nullptr)
+        , webserver_(8765, "webserver")
+        , dds_participant_(std::make_shared<dls::DDSParticipant>("Web_Socket_Translator::monitor", dls::domains::signals, false))
+        , mcap_writer_utils_(std::make_shared<dls::MCAPWriterUtils>())
+        , mcap_reader_utils_(std::make_shared<dls::MCAPReaderUtils>())
     {
-        this->server_thread_ = std::make_shared<std::thread>(&FoxServer::serverFunc, this);
-        dds_link_.setTopicListener(this);
+        this->server_thread_ = std::make_shared<std::thread>(&WebSocketTranslator::serverFunc, this);
+        dds_participant_->setTopicListener(this);
 
         this->set_timer_ = [&] {
             this->timer_ = this->webserver_.getEndpoint().set_timer(30, [&](std::error_code const& ec) {
@@ -38,56 +38,92 @@ namespace dls
         };
 
         this->set_timer_();
-    }
 
-    FoxServer::~FoxServer()
-    {
+		// Start recording an MCAP log file
+		command_manager.addCommand<>
+		(
+			"startRecording",
+			"Start recording an MCAP log file",
+			std::function<bool()>([&]() -> bool
+			{
+				record_mcap_log(true, get_current_time());
+				return true;
+			}),
+			{{}},
+			true
+		);
+
+		// Stop recording the MCAP log file
+		command_manager.addCommand<>
+		(
+			"stopRecording",
+			"Stop recording the MCAP log file",
+			std::function<bool()>([&]()->bool
+			{
+					record_mcap_log(false);
+					return true;
+			}),
+			{{}},
+			true
+		);
+
+		// Start the playback of an MCAP log file
+		command_manager.addCommand<>
+		(
+			"startPlaybackMCAP",
+			"Start reading an MCAP log file and publish its data on DDS topics",
+			std::function<bool(std::string mcap_log_file)>([&](const std::string &mcap_log_file)->bool
+			{
+					if(!mcap_log_file.empty())
+					{
+						playback_mcap_log(true, mcap_log_file);
+						return true;
+					}
+					return false;
+			}),
+			{{}},
+			true
+		);
+
+		// Start the playback of an MCAP log file
+		command_manager.addCommand<>
+		(
+			"stopPlaybackMCAP",
+			"Stop reading an MCAP log file and stop publishing its data on DDS topics",
+			std::function<bool()>([&]()->bool
+			{
+					playback_mcap_log(false);
+					return true;
+			}),
+			{{}},
+			true
+		);
+
+		scout_sys << "SERVICE " + ID + " IS RUNNING" << std::endl;
+	}
+
+	WebSocketTranslator::~WebSocketTranslator()
+	{
         server_thread_->join();
 
         webserver_.stop();
-    }
 
-    void FoxServer::record_mcap_log(bool record_mcap, const std::string& timestamp)
-    {
-        // Start recording a new MCAP log file
-        if(record_mcap)
-        {
-            mcap_writer_utils_.startRecording(timestamp);
-        }
-        // Stop recording the current MCAP log file
-        else
-        {
-            mcap_writer_utils_.stopRecording();
-        }
-    }
+		scout_sys << "SERVICE " + this->getID() + " IS OFF" << std::endl;
+	}
 
-    void FoxServer::playback_mcap_log(bool playback_mcap, const std::string &mcap_log_file)
-    {
-        // Start the playback of an MCAP log file
-        if(playback_mcap)
-        {
-            mcap_reader_utils_.startPlayback(mcap_log_file);
-        }
-        // Stop the playback of the MCAP log file
-        else
-        {
-            mcap_reader_utils_.stopPlayback();
-        }
-    }
-
-    void FoxServer::serverFunc()
+    void WebSocketTranslator::serverFunc()
     {
         webserver_.run();
 
-        std::cout << "#### Foxglove Server Stopped #####" << std::endl;
+        scout_sys << "#### Web Socket Translator Stopped #####" << std::endl;
     } 
 
-    void FoxServer::on_topic_discovery(const std::string& topic_name, const std::string& type_name)
+    void WebSocketTranslator::on_topic_discovery(const std::string& topic_name, const std::string& type_name)
     {
         if (type_name.find("eprosima::fastdds::statistics::") != std::string::npos)
             return;
 
-        std::cout << "Topic discovered: " << topic_name << " [ " << type_name << " ]" << std::endl;
+        scout_sys << "Topic discovered: " << topic_name << " [ " << type_name << " ]" << std::endl;
 
         auto type_ = dds::get_type_registered_(type_name);
 
@@ -102,7 +138,7 @@ namespace dls
 
         this->timer_flags_.insert(channel);
 
-        this->dds_link_.addReader(
+        this->dds_participant_->addReader(
                 topic_name,
                 dls::topicType({topic_name, eprosima::fastdds::dds::TypeSupport(new eprosima::fastrtps::types::DynamicPubSubType(type_))}),
                 std::function<void(void *)>{[&, topic_name, type_name, jsonPair, channel](void *tuple)
@@ -122,12 +158,12 @@ namespace dls
                     this->send_flags_.insert(channel);
 
                     // Write an MCAP message with the topic data
-                    if(mcap_writer_utils_.isRecordingOngoing())
+                    if(mcap_writer_utils_->isRecordingOngoing())
                     {
                         const auto schema_data{json_pair_first.dump()};
                         const auto message_data{json_pair_second.dump()};
 
-                        mcap_writer_utils_.writeMessage(topic_name, type_name, schema_data, message_data, nanosecondsSinceEpoch());
+                        mcap_writer_utils_->writeMessage(topic_name, type_name, schema_data, message_data, nanosecondsSinceEpoch());
                     }
                 }}
         );
@@ -135,7 +171,7 @@ namespace dls
         if(topic_name == "blind_state")
         {
             // Create frames
-            std::ifstream jsonFrameSchemaFile("/usr/lib/dls2/dls_foxglove/FrameTransform.json");
+            std::ifstream jsonFrameSchemaFile("/usr/lib/dls2/web_socket_translator/FrameTransform.json");
             nlohmann::json jsonFrameSchema = nlohmann::json::parse(jsonFrameSchemaFile);
 
             const auto chanFrame = this->webserver_.addChannel({
@@ -148,7 +184,7 @@ namespace dls
             this->timer_flags_.insert(chanFrame);
 
             // Update scene
-            std::ifstream jsonSceneSchemaFile("/usr/lib/dls2/dls_foxglove/SceneUpdate.json");
+            std::ifstream jsonSceneSchemaFile("/usr/lib/dls2/web_socket_translator/SceneUpdate.json");
             nlohmann::json jsonSceneSchema = nlohmann::json::parse(jsonSceneSchemaFile);
 
             auto chanScene = this->webserver_.addChannel({
@@ -166,7 +202,7 @@ namespace dls
                 this->send_flags_.erase(chanId);
             });
 
-            this->dds_link_.addReader(
+            this->dds_participant_->addReader(
                 "blind_state_foxglove",
                 dls::topics::low_level_estimation::blind_state,
                 std::function<void(void *)>{[&, topic_name, chanFrame, chanScene, jsonPair, jsonFrameSchema, jsonSceneSchema, type_name](void *tuple)
@@ -190,12 +226,12 @@ namespace dls
                     }
 
                     // Write an MCAP message with the "scene" data
-                    if(mcap_writer_utils_.isRecordingOngoing())
+                    if(mcap_writer_utils_->isRecordingOngoing())
                     {
                         const auto schema_data{jsonSceneSchema.dump()};
                         const auto message_data{serialized_json_scene};
 
-                        mcap_writer_utils_.writeMessage("scene", "foxglove.SceneUpdate", schema_data, message_data, nanosecondsSinceEpoch());
+                        mcap_writer_utils_->writeMessage("scene", "foxglove.SceneUpdate", schema_data, message_data, nanosecondsSinceEpoch());
                     }
 
                     if(this->send_flags_.find(chanFrame) != this->send_flags_.end())
@@ -249,15 +285,54 @@ namespace dls
                     this->send_flags_.insert(chanFrame);
 
                     // Write an MCAP message with the "frame" data
-                    if(mcap_writer_utils_.isRecordingOngoing())
+                    if(mcap_writer_utils_->isRecordingOngoing())
                     {
                         const auto schema_data{jsonFrameSchema.dump()};
                         const auto message_data{jsonFramesMsg.dump()};
 
-                        mcap_writer_utils_.writeMessage("frames", "foxglove.FrameTransforms", schema_data, message_data, nanosecondsSinceEpoch());
+                        mcap_writer_utils_->writeMessage("frames", "foxglove.FrameTransforms", schema_data, message_data, nanosecondsSinceEpoch());
                     }
                 }}
             );
         }
+    }
+
+    void WebSocketTranslator::record_mcap_log(bool record_mcap, const std::string& timestamp)
+    {
+        // Start recording a new MCAP log file
+        if(record_mcap)
+        {
+            mcap_writer_utils_->startRecording(timestamp);
+        }
+        // Stop recording the current MCAP log file
+        else
+        {
+            mcap_writer_utils_->stopRecording();
+        }
+    }
+
+    void WebSocketTranslator::playback_mcap_log(bool playback_mcap, const std::string &mcap_log_file)
+    {
+        // Start the playback of an MCAP log file
+        if(playback_mcap)
+        {
+            mcap_reader_utils_->startPlayback(mcap_log_file);
+        }
+        // Stop the playback of the MCAP log file
+        else
+        {
+            mcap_reader_utils_->stopPlayback();
+        }
+    }
+
+	// the class factories
+    extern "C" WebSocketTranslator* create(std::string ID) 
+    {
+        return new WebSocketTranslator(ID);
+    }
+
+    extern "C" void destroy(WebSocketTranslator* p) 
+    {
+        delete p;
     }
 }

@@ -1,18 +1,4 @@
-/*******************************************************************************
-*                                                       ,----,                 *
-*                                                     .'   .' \                *
-*                                                   ,----,'    |               *
-*               ________  ___       ________        |    :  .  ;               *
-*              |\   ___ \|\  \     |\   ____\       ;    |.'  /                *
-*              \ \  \_|\ \ \  \    \ \  \___|_      `----'/  ;                 *
-*               \ \  \ \\ \ \  \    \ \_____  \       /  ;  /                  *
-*                \ \  \_\\ \ \  \____\|____|\  \     ;  /  /-,                 *
-*                 \ \_______\ \_______\____\_\  \   /  /  /.`|                 *
-*                  \|_______|\|_______|\_________\./__;      :                 *
-*                                     \|_________||   :    .'                  *
-*                                                 ;   | .'                     *
-*                                                 `---'                        *
-*******************************************************************************/
+
 #include "dls2/core_framework/estimation_layer.hpp"
 #include "dls2/class_loader.hpp"
 
@@ -135,8 +121,12 @@ bool EstimationLayer::loadEstimator(const Estimator::ID_t& lib_name)
 			"aliengo"
 		}));
 
-		if (pData->proc == nullptr || pData->proc->wait_for(std::chrono::duration<double, std::milli>(1000))){
-			scout_err << "Estimator " << lib_name << " failed to launch" << std::endl;
+		if (pData->proc == nullptr){
+			scout_err << "Estimator " << lib_name <<" failed to launch: nullptr" << std::endl;
+			return false;
+		}
+		else if (pData->proc->wait_for(std::chrono::duration<double, std::milli>(1000))){
+			scout_err << "Estimator " << lib_name <<" failed to launch: expired timeout" << std::endl;
 			return false;
 		}
 
@@ -161,7 +151,7 @@ bool EstimationLayer::unloadEstimator(const Estimator::ID_t& ID)
 
 	auto pData = res->second;
 
-	command_manager.callCommand("exit", {}, pData->getID());
+	command_manager.callCommand("shutdown", {}, pData->getID());
 
     //wait a little for hardware to exit
 	std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));

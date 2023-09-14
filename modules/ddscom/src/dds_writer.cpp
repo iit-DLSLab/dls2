@@ -1,18 +1,4 @@
-/*******************************************************************************
-*                                                       ,----,                 *
-*                                                     .'   .' \                *
-*                                                   ,----,'    |               *
-*               ________  ___       ________        |    :  .  ;               *
-*              |\   ___ \|\  \     |\   ____\       ;    |.'  /                *
-*              \ \  \_|\ \ \  \    \ \  \___|_      `----'/  ;                 *
-*               \ \  \ \\ \ \  \    \ \_____  \       /  ;  /                  *
-*                \ \  \_\\ \ \  \____\|____|\  \     ;  /  /-,                 *
-*                 \ \_______\ \_______\____\_\  \   /  /  /.`|                 *
-*                  \|_______|\|_______|\_________\./__;      :                 *
-*                                     \|_________||   :    .'                  *
-*                                                 ;   | .'                     *
-*                                                 `---'                        *
-*******************************************************************************/
+
 #ifndef DDSWRITER_CPP
 #define DDSWRITER_CPP
 
@@ -23,11 +9,12 @@ namespace dls
 	DDSWriter::DDSWriter(
 		std::string     partName_,
 		dls::domainType domain_,
-		dls::topicType  topic_
+		dls::topicType  topic_,
+		eprosima::fastdds::dds::DataWriterQos qos_
 	)
 		: DDSParticipant(partName_, domain_)
 	{
-		this->writer = this->addWriter("unicWriter", topic_);
+		this->writer = this->addWriter(partName_, topic_, qos_);
 	}
 
 	DDSWriter::~DDSWriter(){}

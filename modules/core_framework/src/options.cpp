@@ -1,18 +1,4 @@
-/*******************************************************************************
-*                                                       ,----,                 *
-*                                                     .'   .' \                *
-*                                                   ,----,'    |               *
-*               ________  ___       ________        |    :  .  ;               *
-*              |\   ___ \|\  \     |\   ____\       ;    |.'  /                *
-*              \ \  \_|\ \ \  \    \ \  \___|_      `----'/  ;                 *
-*               \ \  \ \\ \ \  \    \ \_____  \       /  ;  /                  *
-*                \ \  \_\\ \ \  \____\|____|\  \     ;  /  /-,                 *
-*                 \ \_______\ \_______\____\_\  \   /  /  /.`|                 *
-*                  \|_______|\|_______|\_________\./__;      :                 *
-*                                     \|_________||   :    .'                  *
-*                                                 ;   | .'                     *
-*                                                 `---'                        *
-*******************************************************************************/
+
 #ifndef OPTIONS_CPP
 #define OPTIONS_CPP
 
@@ -41,6 +27,7 @@ bool Options::launch_control                = false;
 bool Options::launch_console                = false;
 bool Options::launch_log                    = false;
 bool Options::launch_service                = false;
+std::string Options::estimation_layer_name = "EstimationLayer";
 
 // show the documentation in a browser
 bool Options::show_docs                     = false;
@@ -126,13 +113,12 @@ bool Options::parseArgs(int argc, char **argv)
 				char *value;
 				int opt;
 				char *subopts = optarg;
-
+				
 				while(*subopts != '\0')
 				{
-					opt = getsubopt(&subopts, tokens, &value);
-					if(opt != -1)
-					{
-						auto layer = tokens[opt];
+					// if(opt != -1)
+					// {
+						auto layer = subopts;
 						if(std::strcmp(layer, "hardware") == 0)
 						{
 							Options::launch_hardware = true;
@@ -149,26 +135,30 @@ bool Options::parseArgs(int argc, char **argv)
 						{
 							Options::launch_log = true;
 						}
-						else if(std::strcmp(layer, "estimation") == 0)
+						// else if(std::strcmp(layer, "estimation") == 0)
+						else if(std::string(layer).rfind("estimation",0)==0)
 						{
 							Options::launch_estimation = true;
+							Options::estimation_layer_name = "EstimationLayer"+ std::string(layer).substr(std::string("estimation").size(), std::string(layer).size());
 						}
 						else if(std::strcmp(layer, "service") == 0)
 						{
                             Options::launch_service = true;
 						}
-					}
-					else
-					{
-						std::cerr << "unknown layer: " << value << std::endl;
-						std::cout << "valid layers are: ";
-						for(long unsigned int i = 0; i < (sizeof(tokens)/8-1) ; i++)
+					// }
+						else
 						{
-							std::cout << tokens[i] << " ";
+							std::cerr << "unknown layer: " << value << std::endl;
+							std::cout << "valid layers are: ";
+							for(long unsigned int i = 0; i < (sizeof(tokens)/8-1) ; i++)
+							{
+								std::cout << tokens[i] << " ";
+							}
+							std::cout << std::endl;
+							goto invalid_command_line;
 						}
-						std::cout << std::endl;
-						goto invalid_command_line;
-					}
+					opt = getsubopt(&subopts, tokens, &value);
+					if(opt){}//just used to remove warnings on not using opt
 				}
 				break;
 			}

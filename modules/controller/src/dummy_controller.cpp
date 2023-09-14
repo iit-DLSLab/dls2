@@ -1,18 +1,4 @@
-/*******************************************************************************
-*                                                       ,----,                 *
-*                                                     .'   .' \                *
-*                                                   ,----,'    |               *
-*               ________  ___       ________        |    :  .  ;               *
-*              |\   ___ \|\  \     |\   ____\       ;    |.'  /                *
-*              \ \  \_|\ \ \  \    \ \  \___|_      `----'/  ;                 *
-*               \ \  \ \\ \ \  \    \ \_____  \       /  ;  /                  *
-*                \ \  \_\\ \ \  \____\|____|\  \     ;  /  /-,                 *
-*                 \ \_______\ \_______\____\_\  \   /  /  /.`|                 *
-*                  \|_______|\|_______|\_________\./__;      :                 *
-*                                     \|_________||   :    .'                  *
-*                                                 ;   | .'                     *
-*                                                 `---'                        *
-*******************************************************************************/
+
 #include "dls2/controller/dummy_controller.hpp"
 #include "dls2/log/log.hpp"
 #include "robotlib/robot_factory.hpp"
@@ -35,7 +21,7 @@ DummyController::DummyController
 	// command_manager(),
 	// outstream(getID()),
 	// logstream(getID()),
-	// service
+	// service_server_
 	// (
 	// 	"dls_dummy_controller_service",
 	// 	[](StringMsg msg)
@@ -118,7 +104,7 @@ void DummyController::run(const std::chrono::system_clock::time_point &time)
 	}
 
 	ControlSignal s;
-	s.torques.resize(12);
+	s.torques_.resize(12);
 
 	publishSignal(s);
 

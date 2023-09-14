@@ -2,8 +2,8 @@
 #define MCAP_READER_UTILS_HPP
 
 #include "mcap/reader.hpp"
-#include "dls2/util/messaging/dds_participant.hpp"
-#include "dls2/msg_wrappers/signal_writer.hpp"
+#include "mcap_support/mcap_reader_support.hpp"
+#include "dls2/log/log.hpp"
 #include <nlohmann/json.hpp>
 
 namespace dls
@@ -44,12 +44,6 @@ namespace dls
 		 */
 		void readMCAPLog(bool print_mcap_log);
 
-    	/**
-		 * @brief Publish the contents of the read MCAP log file on the proper DDS topics
-		 * @return void
-		 */
-		void publishMCAPLog(mcap::LinearMessageView::Iterator& mcap_iterator, nlohmann::json& parsed_message);
-
     private:
     	/**
 		 * @brief Set the variable to change the status of the ongoing MCAP log file playback
@@ -67,6 +61,7 @@ namespace dls
 		 * @brief MCAP reader 
 		 */
 		mcap::McapReader mcap_reader_{};
+		std::shared_ptr<mcap_reader_support::MCAPReaderSupport> mcap_reader_support_;
 
 		/**
 		 * @brief Used to verify if there is an ongoing playback of an MCAP log file
@@ -74,24 +69,9 @@ namespace dls
         bool mcap_ongoing_playback_{false};
 
 		/**
-		 * @brief Used to publish messages on DDS topics through the SignalWriter
+		 * @brief Used to print information in Log layer
 		 */
-		std::shared_ptr<dls::DDSParticipant> dds_participant_;
-
-		/**
-		 * @brief Used to compute the time passed after different MCAP messages, so as to set the sleep for synchronizing the published messages 
-		 */
-		std::chrono::steady_clock::time_point time_{};
-
-		/**
-		 * @brief Used to store the information regarding the previous MCAP message timestamp, needed for synchronizing the published messages
-		 */
-		mcap::Timestamp previous_timestamp_{};
-
-		/**
-		 * @brief Used to compute the amount of time that has to be waited before printing/publishing a new MCAP message
-		 */
-		mcap::Timestamp wait_for_publishing_{};
+		dls::logging::clogstream clogstream_;
     };
 } //namespace dls
 

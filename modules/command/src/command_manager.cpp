@@ -1,18 +1,3 @@
-/*******************************************************************************
-*                                                       ,----,                 *
-*                                                     .'   .' \                *
-*                                                   ,----,'    |               *
-*               ________  ___       ________        |    :  .  ;               *
-*              |\   ___ \|\  \     |\   ____\       ;    |.'  /                *
-*              \ \  \_|\ \ \  \    \ \  \___|_      `----'/  ;                 *
-*               \ \  \ \\ \ \  \    \ \_____  \       /  ;  /                  *
-*                \ \  \_\\ \ \  \____\|____|\  \     ;  /  /-,                 *
-*                 \ \_______\ \_______\____\_\  \   /  /  /.`|                 *
-*                  \|_______|\|_______|\_________\./__;      :                 *
-*                                     \|_________||   :    .'                  *
-*                                                 ;   | .'                     *
-*                                                 `---'                        *
-*******************************************************************************/
 #ifndef COMMAND_MANAGER_CPP
 #define COMMAND_MANAGER_CPP
 
@@ -23,15 +8,20 @@ using namespace dls;
 CommandManager::CommandManager(std::string owner_)
 	: commands()
 	, owner(owner_)
-	, commands_monitor(
-		owner_+"::commands_monitor",
-		domains::command,
-		dls::topics::command_call
-	)
 	, level(0)
 	, levelThread(&CommandManager::levelWatcher, this)
 	, should_exit(false)
-{ }
+{
+	eprosima::fastdds::dds::DataWriterQos qos(eprosima::fastdds::dds::DATAWRITER_QOS_DEFAULT);
+	qos.reliability().kind = eprosima::fastdds::dds::RELIABLE_RELIABILITY_QOS;
+	qos.reliability().max_blocking_time = 1000; // waiting 1s for the arraival confirmation from the data reader
+	commands_monitor = std::make_shared<dls::DDSWriter>(
+		owner_+"::commands_monitor",
+		domains::command,
+		dls::topics::command_call,
+		qos
+	);
+ }
 
 CommandManager::~CommandManager()
 {
@@ -128,26 +118,31 @@ std::multimap<std::string, std::string> CommandManager::find
 std::multimap<std::string, std::string> CommandManager::getCommandsList()
 {
 	// get all the remote commands
-	auto remCommands = commands_monitor.getParticipants();
+	auto remCommands = commands_monitor->getParticipants();
 	// remove the monitors
 	std::erase_if(remCommands, [](std::string value) { return (value.find("monitor") != std::string::npos); });
 
 	// create a list of commands
 	std::multimap<std::string, std::string> cmds;
-
-	for(auto elem :remCommands)
+	// In order to display only the matched data readers (so only the commands ready to receive a message), the list of commands needs to be populated only by the commands matching with commands_monitor. Currently, in the FastDDS API it is not possible to check which data reader is matching with a data writer from the data writer side. It is not even possible to get the list of all data reader of domain/participant. It is possible instead to get the current number of matched data reader.
+	// So, to provide robustness about command execution, the list of commands is not empty only if all the commands match with commands_monitor, otherwise an empty list is returned.
+	// This is done by getting the commands names from the list of participants in the domain and then checking if the number of participants is equal to the number of matched data reader. In fact, it may happens that, even if the domain participant is running, one of its data reader is not ready yet, leading to console command issue like "need to retype twice a command to execute it"
+	auto command_publisher_listener = commands_monitor->getPubListener(owner+"::commands_monitor");
+	if(static_cast<long unsigned int>(command_publisher_listener->matched_count) == remCommands.size())
 	{
-		size_t idx = elem.find("::");
-		if (idx != std::string::npos)
-			cmds.insert({elem.substr(idx+2, elem.size()), elem.substr(0, idx)});
+		for(auto elem :remCommands)
+		{
+			size_t idx = elem.find("::");
+			if (idx != std::string::npos)
+				cmds.insert({elem.substr(idx+2, elem.size()), elem.substr(0, idx)});
+		}
 	}
-		
 	return cmds;
 }
 
 std::set<std::string> CommandManager::getOwnersList()
 {
-	auto remCommands = commands_monitor.getParticipants();
+	auto remCommands = commands_monitor->getParticipants();
 
 	std::set<std::string> set;
 	for(auto it = commands.begin(); it != commands.end(); ++it)
@@ -219,7 +214,7 @@ void CommandManager::sendMessage(std::pair<std::string, std::string> cmdData_, s
 	msg.command_name(cmdData_.first);
 	msg.args(outString);
 
-	this->commands_monitor.sendMessage(&msg);
+	this->commands_monitor->sendMessage(&msg);
 }
 
 std::string CommandManager::getOwner()
@@ -245,7 +240,7 @@ void CommandManager::verifyLevel()
 {
 	for(auto cmd : this->commands)
 	{
-		std::this_thread::sleep_for(std::chrono::milliseconds(200));
+		// std::this_thread::sleep_for(std::chrono::milliseconds(200));
 		if(cmd.second->testLevel(this->level))
 		{
 			cmd.second->activate();

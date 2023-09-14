@@ -47,7 +47,6 @@ target_link_libraries(dls_framework
 		dls_domains
 		dls_topics
 		dls_class_loader
-		dls_foxglove
 		dls_mcap
 		dls_time
 		dls_messages

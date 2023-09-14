@@ -1,55 +1,40 @@
-/*******************************************************************************
-*                                                       ,----,                 *
-*                                                     .'   .' \                *
-*                                                   ,----,'    |               *
-*               ________  ___       ________        |    :  .  ;               *
-*              |\   ___ \|\  \     |\   ____\       ;    |.'  /                *
-*              \ \  \_|\ \ \  \    \ \  \___|_      `----'/  ;                 *
-*               \ \  \ \\ \ \  \    \ \_____  \       /  ;  /                  *
-*                \ \  \_\\ \ \  \____\|____|\  \     ;  /  /-,                 *
-*                 \ \_______\ \_______\____\_\  \   /  /  /.`|                 *
-*                  \|_______|\|_______|\_________\./__;      :                 *
-*                                     \|_________||   :    .'                  *
-*                                                 ;   | .'                     *
-*                                                 `---'                        *
-*******************************************************************************/
+
 
 #ifndef CONTROLLER_COMMAND_HPP
 #define CONTROLLER_COMMAND_HPP
 
-#include <robotlib/robot_base.hpp>
-
 #include "dls2/msg_wrappers/wrapper.hpp"
+#include "dls_messages/dds/controller_command.h"
 #include "dls2/msg_wrappers/pose.hpp"
 #include "dls2/msg_wrappers/screw.hpp"
-#include "dls_messages/dds/controller_command.h"
-
-namespace Eigen
-{
-    typedef Eigen::Matrix<double,6,1> Vector6d;
-}
+#include <robotlib/robot_base.hpp>
 
 namespace dls
 {
     class ControllerCommand : public Wrapper<ControllerCommandMsg>
     {
-        public:
-            ControllerCommand(const std::shared_ptr<robotlib::RobotBase>&);
-            ControllerCommand(ControllerCommand&);
-            ControllerCommand() = delete;
-            ~ControllerCommand();
+    public:
+        ControllerCommand(const std::shared_ptr<robotlib::RobotBase> robot);
+        ControllerCommand(ControllerCommand& controller_command);
+        ControllerCommand() = delete;
+        virtual ~ControllerCommand();
 
-            operator ControllerCommandMsg() const override;
-		    ControllerCommand& operator= (const ControllerCommandMsg&) override;
-            
-        // private:
-            double robot_height;
-            double step_frequency;
-            double duty_factor;
-            robotlib::LegDataMap<double> step_height;
-            Pose base_pose_HF;
-            dls::Screw base_vel_HF;
-            dls::Screw base_acc_HF;
+        operator ControllerCommandMsg() const override;
+        ControllerCommand& operator= (const ControllerCommandMsg& controller_command_msg) override;
+        ControllerCommand& operator=(const ControllerCommand& controller_command);
+
+		std::string frame_id_{};
+		uint32_t sequence_id_{};
+		double timestamp_{};
+
+        double robot_height_{};
+        double step_frequency_{};
+        double duty_factor_{};
+        robotlib::LegDataMap<double> step_height_;
+
+        Pose base_pose_HF_{};
+        dls::Screw base_velocity_HF_{};
     };
-}
-#endif // CONTROLLER_COMMANDS_HPP
+} // namespace dls
+
+#endif

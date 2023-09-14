@@ -1,19 +1,3 @@
-/*******************************************************************************
-*                                                       ,----,                 *
-*                                                     .'   .' \                *
-*                                                   ,----,'    |               *
-*               ________  ___       ________        |    :  .  ;               *
-*              |\   ___ \|\  \     |\   ____\       ;    |.'  /                *
-*              \ \  \_|\ \ \  \    \ \  \___|_      `----'/  ;                 *
-*               \ \  \ \\ \ \  \    \ \_____  \       /  ;  /                  *
-*                \ \  \_\\ \ \  \____\|____|\  \     ;  /  /-,                 *
-*                 \ \_______\ \_______\____\_\  \   /  /  /.`|                 *
-*                  \|_______|\|_______|\_________\./__;      :                 *
-*                                     \|_________||   :    .'                  *
-*                                                 ;   | .'                     *
-*                                                 `---'                        *
-*******************************************************************************/
-
 #include "dls2/application/periodic_app.hpp"
 #include "dls2/util/time/time.hpp"
 #include <fstream>
@@ -173,7 +157,7 @@ AppStatus PeriodicApp::run()
 		std::filesystem::create_directory(debug_folder);
 	}
 	// Write statistics in a file
-	std::ofstream out(debug_folder+"/"+this->ID+".txt");
+	std::ofstream out(debug_folder+"/"+this->ID_+".txt");
 	std::vector<double> run_time_vector_unsorted = run_time_vector;
 	// Largest run time values
 	const int num_max_run_time(10);
