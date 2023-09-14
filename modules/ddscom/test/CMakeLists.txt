@@ -36,3 +36,9 @@ dls_register_test(high_frequency
 	SOURCE
 		high_frequency.cpp
 )
+
+add_executable(DLS2_Client domain_participant.cpp)
+target_link_libraries(DLS2_Client
+    PUBLIC
+		dls_framework
+)

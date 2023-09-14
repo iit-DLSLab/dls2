@@ -12,6 +12,12 @@ LogLayer::LogLayer(std::string ID)
 	: Layer(ID)
 	, dds_participant_(std::make_shared<dls::DDSParticipant>("log_layer", dls::domains::logging))
 {
+
+	// Define QoS for the data reader
+	eprosima::fastdds::dds::DataReaderQos qos(eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT);
+	qos.reliability().kind = eprosima::fastdds::dds::RELIABLE_RELIABILITY_QOS;
+	qos.durability().kind = eprosima::fastdds::dds::TRANSIENT_LOCAL_DURABILITY_QOS;
+
 	//debug_log
 	dds_participant_->addReader(
 		"debug_log",
@@ -23,7 +29,8 @@ LogLayer::LogLayer(std::string ID)
 				StringMsg *msg = (StringMsg*) tuple;
 				std::cout << '\r' << get_current_time() << ": DEBUG: " <<  msg->msg() << std::flush;
 			}
-		}
+		},
+		qos
 	);
 
 	//info_log
@@ -37,7 +44,8 @@ LogLayer::LogLayer(std::string ID)
 				StringMsg *msg = (StringMsg*) tuple;
 				std::cout << '\r' << get_current_time() << ": INFO: " <<  msg->msg() << std::flush;
 			}
-		}
+		},
+		qos
 	);
 
 	//warn_log
@@ -51,7 +59,8 @@ LogLayer::LogLayer(std::string ID)
 				StringMsg *msg = (StringMsg*) tuple;
 				std::cout << '\r' << get_current_time() << ": WARN: " <<  msg->msg() << std::flush;
 			}
-		}
+		},
+		qos
 	);
 
 	//error_log
@@ -65,7 +74,8 @@ LogLayer::LogLayer(std::string ID)
 				StringMsg *msg = (StringMsg*) tuple;
 				std::cout << '\r' << get_current_time() << ": ERROR: " <<  msg->msg() << std::flush;
 			}
-		}
+		},
+		qos
 	);
 
 	//fatal_log
@@ -79,7 +89,8 @@ LogLayer::LogLayer(std::string ID)
 				StringMsg *msg = (StringMsg*) tuple;
 				std::cout << '\r' << get_current_time() << ": FATAL: " <<  msg->msg() << std::flush;
 			}
-		}
+		},
+		qos
 	);
 }
 

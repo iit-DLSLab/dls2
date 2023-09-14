@@ -11,11 +11,12 @@
 namespace dls
 {
 
-	DDSParticipant::DDSParticipant(std::string partName_, dls::domainType domain_, bool tupelookup_server)
+	DDSParticipant::DDSParticipant(std::string partName_, dls::domainType domain_, eprosima::fastrtps::rtps::DiscoveryProtocol_t part_type, bool tupelookup_server)
     	: participant(nullptr)
         , publisher(nullptr)
         , subscriber(nullptr)
 		, topicListener(nullptr)
+		, config(YAML::LoadFile("/usr/include/dls2/util/messaging/servers.yaml"))
 	{
 		eprosima::fastdds::dds::DomainParticipantQos participantQos;
 		if (tupelookup_server)
@@ -26,7 +27,40 @@ namespace dls
 		{
 			participantQos.wire_protocol().builtin.typelookup_config.use_client = true;
 		}
-		participantQos.wire_protocol().builtin.discovery_config.discoveryProtocol = eprosima::fastrtps::rtps::DiscoveryProtocol_t::SIMPLE;
+
+		// Get server info from the yaml file
+		server_ip = config[domain_]["ip"].as<std::string>();
+		server_port = config[domain_]["port"].as<double>();
+		server_guid_prefix = config[domain_]["guid_prefix"].as<std::string>();
+
+		// Define server locator
+		eprosima::fastrtps::rtps::Locator_t server_locator;
+		eprosima::fastrtps::rtps::IPLocator::setIPv4(server_locator, server_ip);
+		eprosima::fastrtps::rtps::IPLocator::setPhysicalPort(server_locator, server_port);
+		server_locator.kind = LOCATOR_KIND_UDPv4;
+
+		// participantQos.wire_protocol().builtin.discovery_config.discoveryProtocol = eprosima::fastrtps::rtps::DiscoveryProtocol_t::SIMPLE;
+		// Set participant QoS depending on if it is a CLIENT, a SERVER or a SUPER CLIENT
+		participantQos.wire_protocol().builtin.discovery_config.discoveryProtocol = part_type;
+		if(	part_type == eprosima::fastrtps::rtps::DiscoveryProtocol_t::CLIENT ||
+			part_type == eprosima::fastrtps::rtps::DiscoveryProtocol_t::SUPER_CLIENT) // -- Configure the participant as CLIENT or SUPER_CLIENT
+		{
+			// -- Add the server locator in the metatraffic unicast locator list of the remote server attributes
+			eprosima::fastrtps::rtps::RemoteServerAttributes remote_server_attr;
+			remote_server_attr.metatrafficUnicastLocatorList.push_back(server_locator);
+			// -- Set the GUID prefix to identify the server
+			remote_server_attr.ReadguidPrefix(server_guid_prefix.c_str());
+			// -- Connect to the remote server
+			participantQos.wire_protocol().builtin.discovery_config.m_DiscoveryServers.push_back(remote_server_attr);
+		}
+		else if (part_type == eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER) // -- Configure the participant as SERVER
+		{
+			// -- Add the server locator to the metatraffic uncast locator list
+			participantQos.wire_protocol().builtin.metatrafficUnicastLocatorList.push_back(server_locator);
+			// -- Set the GUID prefix to identify this server
+    		std::istringstream(server_guid_prefix) >> participantQos.wire_protocol().prefix;
+		}
+
 		participantQos.wire_protocol().builtin.discovery_config.leaseDuration = eprosima::fastrtps::Duration_t(3, 1);
         participantQos.wire_protocol().builtin.discovery_config.leaseDuration_announcementperiod = eprosima::fastrtps::Duration_t(1, 2);
 		participantQos.name(partName_);
@@ -302,8 +336,8 @@ namespace dls
 
 		if(!this->participant->find_type(topicData_.second.get_type_name()))
 		{
-			topicData_.second->auto_fill_type_information(true);
-    		topicData_.second->auto_fill_type_object(false);
+			topicData_.second->auto_fill_type_information(false);
+    		topicData_.second->auto_fill_type_object(true);
 			this->participant->register_type(topicData_.second);
 		}
 
@@ -328,6 +362,11 @@ namespace dls
 		return this->participant->get_participant_names();
 	}
 
+	std::multimap<std::string, eprosima::fastrtps::rtps::GUID_t> DDSParticipant::getDiscoveredParticipantsInfo()
+	{
+		return this->discovered_participants_info;
+	}
+
 	bool DDSParticipant::sendMessage(std::string writerName, void *msg)
 	{
 		auto writer = this->writers.find(writerName);
@@ -338,6 +377,21 @@ namespace dls
 		}
 
 		return writer->second->write(msg);
+	}
+
+	void DDSParticipant::on_participant_discovery(
+            eprosima::fastdds::dds::DomainParticipant* participant,
+            eprosima::fastrtps::rtps::ParticipantDiscoveryInfo&& info)
+	{
+		static_cast<void>(participant);
+		if (info.status == eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DISCOVERY_STATUS::DISCOVERED_PARTICIPANT)
+		{
+			discovered_participants_info.insert({static_cast<std::string>(info.info.m_participantName), info.info.m_guid});
+		}
+		else if (info.status == eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DISCOVERY_STATUS::REMOVED_PARTICIPANT)
+		{
+			discovered_participants_info.erase(static_cast<std::string>(info.info.m_participantName));
+		}
 	}
 
 	void DDSParticipant::on_publisher_discovery(
@@ -385,6 +439,27 @@ namespace dls
 			type_information,
 			type_name.to_string(),
 			callback);
+	}
+
+	void DDSParticipant::on_type_discovery(
+			eprosima::fastdds::dds::DomainParticipant* participant,
+			const eprosima::fastrtps::rtps::SampleIdentity& request_sample_id,
+			const eprosima::fastrtps::string_255& topic,
+			const eprosima::fastrtps::types::TypeIdentifier* identifier,
+			const eprosima::fastrtps::types::TypeObject* object,
+			eprosima::fastrtps::types::DynamicType_ptr dyn_type)
+	{
+		static_cast<void>(participant); // remove compilation warnings
+		static_cast<void>(request_sample_id); // remove compilation warnings
+		static_cast<void>(identifier); // remove compilation warnings
+		static_cast<void>(object); // remove compilation warnings
+		// Create TypeSupport and register it
+		eprosima::fastdds::dds::TypeSupport(
+			new eprosima::fastrtps::types::DynamicPubSubType(dyn_type)).register_type(participant);
+
+		// In case this callback is sent, it means that the type is already registered, so notify
+		// TODO in future it would be better to update every topic in this type name, and not just the one calling here
+		on_topic_discovery_(topic.to_string(), dyn_type->get_name());
 	}
 
 	void DDSParticipant::on_topic_discovery_(const std::string& topic_name, const std::string& type_name)

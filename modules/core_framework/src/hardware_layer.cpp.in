@@ -99,7 +99,7 @@ bool HardwareLayer::loadHardware(const std::string &lib_name)
 		scout_err << "Hardware " << lib_name <<" failed to launch: nullptr" << std::endl;
 		return false;
 	}
-	else if (pData->proc->wait_for(std::chrono::duration<double, std::milli>(1000))){
+	else if (pData->proc->wait_for(std::chrono::duration<double, std::milli>(1500))){
 		scout_err << "Hardware " << lib_name <<" failed to launch: expired timeout" << std::endl;
 		return false;
 	}

@@ -24,10 +24,14 @@ namespace dls
 		if(info.current_count_change == 1){
 			// publisher matched
 			this->matched_count = info.current_count;
+			matched_datareaders_instances.push_back(info.last_subscription_handle);
 		}
 		else if(info.current_count_change == -1){
 			// publisher unmatched
 			this->matched_count = info.current_count;
+			auto position(std::find(matched_datareaders_instances.begin(), matched_datareaders_instances.end(), info.last_subscription_handle));
+			if(position!=matched_datareaders_instances.end())
+				matched_datareaders_instances.erase(position);
 		}
 		else{
 			// invalid
