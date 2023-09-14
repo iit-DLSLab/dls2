@@ -22,10 +22,7 @@ SignalWriter<SignalType>::SignalWriter(std::shared_ptr<dls::DDSParticipant> part
 }
 	
 template <typename SignalType>
-SignalWriter<SignalType>::~SignalWriter()
-{ 
-	this->ddsLink->deleteWriter(this->ID_);
-}	
+SignalWriter<SignalType>::~SignalWriter(){ }
 
 template <typename SignalType>
 void SignalWriter<SignalType>::publish()

@@ -34,9 +34,6 @@ SignalReader<SignalType>::SignalReader(std::shared_ptr<dls::DDSParticipant> part
 }
 	
 template <typename SignalType>
-SignalReader<SignalType>::~SignalReader()
-{ 
-	this->ddsLink->deleteReader(this->ID_);
-}	
+SignalReader<SignalType>::~SignalReader(){ }
 
 #endif /* end of include guard: SIGNAL_READER_TPP */
