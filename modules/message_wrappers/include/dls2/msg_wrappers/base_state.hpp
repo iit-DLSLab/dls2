@@ -31,6 +31,9 @@ namespace dls
 		dls::Pose pose_{};
 		dls::Screw velocity_{};
 		dls::Screw acceleration_{};
+
+		// Stance status
+		robotlib::LegDataMap<bool> stance_status_;
 	};
 } // namespace dls
 

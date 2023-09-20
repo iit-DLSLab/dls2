@@ -223,7 +223,7 @@ namespace dls
                     }                              
                 }
 
-                if((item.key()).compare("stance_legs") == 0)
+                if((item.key()).compare("feet_contact") == 0)
                 {
                     std::vector<double> values{};
                     for (const auto& value : item.value().items())
@@ -234,7 +234,7 @@ namespace dls
                     int leg_id = 0;
                     for(auto &leg : (*signal_writer_)->joints_position_)
                     {
-                        (*signal_writer_)->stance_legs_[leg.key_] = values.at(leg_id);  
+                        (*signal_writer_)->feet_contact_[leg.key_] = values.at(leg_id);  
                         leg_id++;                        
                     }                              
                 }
