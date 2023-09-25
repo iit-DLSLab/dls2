@@ -8,19 +8,45 @@ namespace dls
 		// Forward declaration of Readline functions
 		char **command_completion(const char *text, int start, int end);
 		char *command_generator(const char *text, int state);
+		char *load_layer_argument_generator(const char *text, int state);
 		void display_matches(char **matches, int num_matches, int max_length);
 
 		// dls::readline_completion::ConsoleLayer object, visible from Readline functions, pointing to the main dls::ConsoleLayer object
 		ConsoleLayer* console_layer = nullptr;
 
-		char **command_completion(const char *text, int /*start*/, int /*end*/)
+		char **command_completion(const char *text, int start, int end)
 		{
 			rl_attempted_completion_over = 1;
 
-			// It calls the command_generator function repeatedly until it (command_generator) returns a null pointer.
+			char **matches = nullptr;
+
+			// If the match is not complete yet (e.g. "start" is 0 until a match is complete) it calls the 
+			// command_generator function repeatedly until it (command_generator) returns a null pointer.
 			// The command_generator function returns a match one at a time.
 			// The rl_completion_matches function returns the array of all those matches.
-			return rl_completion_matches(text, command_generator);
+			if(start == 0) { matches = rl_completion_matches(text, command_generator); }
+			else
+			{
+				auto load_layers_paths = readline_completion::console_layer->getLoadLayersPaths();
+				std::string line(rl_line_buffer);
+				std::string load_layer_command = line.substr(0, line.find(" "));
+
+				// When a match is complete (e.g. "start" becomes the size of the line matched + 1 for the last empty space)
+				// and the input line contains a load[Layer] command, the load_layer_argument_generator function is 
+				// called repeatedly to match the command arguments, only if the line contains "load[Layer]" (with or without 
+				// empty space after) or "load[Layer] [something]" and the tab for the argument is not completed yet 
+				// (e.g. "start" and "end" parameters are different)
+				if(load_layers_paths.find(load_layer_command) != load_layers_paths.end())
+				{
+					if((line.length() <= load_layer_command.length() + 1) ||
+					   ((line.length() > (load_layer_command.length() + 1) && start != end)))
+					{
+						matches = rl_completion_matches(text, load_layer_argument_generator);
+					}
+				}
+			}
+
+			return matches;
 		}
 
 		char *command_generator(const char *text, int state)
@@ -67,6 +93,51 @@ namespace dls
 			else { return strdup(matches[match_index++].c_str()); }
 		}
 
+		char *load_layer_argument_generator(const char *text, int state)
+		{
+			static std::vector<std::string> libraries{};
+			static std::vector<std::string> matches{};
+			static size_t match_index{0};
+
+			auto load_layers_paths = readline_completion::console_layer->getLoadLayersPaths();
+
+			if(state == 0)
+			{
+				libraries.clear();
+				matches.clear();
+				match_index = 0;
+
+				std::string textstr(text);
+
+				std::string line(rl_line_buffer);
+				line = line.substr(0, line.find(" "));
+
+				std::filesystem::directory_iterator dir_it(load_layers_paths.at(line));
+
+				for(auto &file : dir_it)
+				{
+					std::string filename(file.path().filename());
+					if(filename.find_first_of("lib") == 0 &&
+						filename.find_last_of(".so") == filename.size() - 1)
+					{
+						libraries.push_back(filename.substr(3, filename.size() - 6));
+					}
+				}
+
+				for(const auto& lib_name : libraries)
+				{
+					if (lib_name.size() >= textstr.size() &&
+						lib_name.compare(0, textstr.size(), textstr) == 0)
+					{
+						matches.push_back(lib_name);
+					}
+				}
+			}
+
+			if (match_index >= matches.size()) { return nullptr; }
+			else { return strdup(matches[match_index++].c_str()); }
+		}
+		
 		void display_matches(char **matches, int num_matches, int /*max_length*/)
 		{
 			std::set<std::string> processes_matched{};
@@ -115,7 +186,7 @@ namespace dls
 																	{"loadGenerator", "${DLS_INSTALL_MOTION_GENERATOR_DIR}"},
 																	{"loadEstimator", "${DLS_INSTALL_ESTIMATOR_DIR}"},
 																	{"loadHardware", "${DLS_INSTALL_HARDWARE_DIR}"},
-																	{"loadService", "${DLS_INSTALL_SERVICE_DIR}"},
+																	{"loadService", "${DLS_INSTALL_CONTROLLER_DIR}"},	// TODO: Change path (just for debug)
 																	{"loadSimulator", "${DLS_INSTALL_SIMULATOR_DIR}"},
 																	{"loadModel", "${DLS_INSTALL_MODEL_DIR}"}}
 	{
@@ -228,6 +299,8 @@ namespace dls
 	{
 		auto processes_and_commands = getProcessesAndCommands(matches);
 
+		std::cout << std::endl;
+
 		for(const auto& process : processes_and_commands)
 		{
 			std::cout << "\n" << process.first << "::" << std::endl;
@@ -247,7 +320,7 @@ namespace dls
 		{
 			std::filesystem::directory_iterator dir_iterator(load_layers_paths_.at(load_command));
 
-			std::cout << std::endl;
+			std::cout << "\n" << std::endl;
 
 			for(auto &file : dir_iterator)
 			{
@@ -256,9 +329,11 @@ namespace dls
 				if(filename.find_first_of("lib") == 0 &&
 				   filename.find_last_of(".so") == filename.size() - 1)
 				{
-					std::cout << filename.substr(3, filename.size() - 6) << std::endl;
+					std::cout << " * " << filename.substr(3, filename.size() - 6) << std::endl;
 				}
 			}
+
+			std::cout << std::endl;
 		}
 	}
 
@@ -333,10 +408,6 @@ namespace dls
 	AppStatus ConsoleLayer::stop()
 	{
 		this->should_quit = true;
-
-		// Setting this to a non-zero value causes Readline to return the current line immediately
-		rl_done = 1;
-
 		return getStatus();
 	}
 

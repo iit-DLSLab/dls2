@@ -24,6 +24,8 @@ namespace dls
 		// The "state" is zero the first time the function is called for a partial input and non-zero otherwise.
 		friend char *command_generator(const char *text, int state);
 
+		friend char *load_layer_argument_generator(const char *text, int state);
+
 		// Display the list of possible matches when "Tab" key is pressed.
 		// "matches" is the array of matching strings, "num_matches" is the number of strings in that array and 
 		// "max_length" is the length of the longest string in that array
