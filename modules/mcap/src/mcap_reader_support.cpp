@@ -100,18 +100,18 @@ namespace dls
         const std::shared_ptr<SignalWriter<Imu>> MCAPImu::getSignalWriter() { return signal_writer_; }
 
         /**
-		 * @brief MCAPGaitSignal implementation
+		 * @brief MCAPTrajectoryGenerator implementation
 		 */
-        MCAPGaitSignal::MCAPGaitSignal() : MCAPBaseTopic()
+        MCAPTrajectoryGenerator::MCAPTrajectoryGenerator() : MCAPBaseTopic()
         {
-            topic_name_ = "gait_signal";
-            topic_type_ = dls::topicType(dls::topics::gait_signal.first, new GaitSignalMsgPubSubType());
-            signal_writer_ = std::make_shared<SignalWriter<GaitSignal>>(dds_participant_, topic_type_, std::make_shared<GaitSignal>(robot_));
+            topic_name_ = "trajectory_generator";
+            topic_type_ = dls::topics::trajectory_generator;
+            signal_writer_ = std::make_shared<SignalWriter<TrajectoryGenerator>>(dds_participant_, topic_type_, std::make_shared<TrajectoryGenerator>(robot_));
         }
-        MCAPGaitSignal::~MCAPGaitSignal(){}
+        MCAPTrajectoryGenerator::~MCAPTrajectoryGenerator(){}
 
-        const std::string& MCAPGaitSignal::getTopicName() { return topic_name_; }
-        void MCAPGaitSignal::fillMessage(const nlohmann::json& parsed_message)
+        const std::string& MCAPTrajectoryGenerator::getTopicName() { return topic_name_; }
+        void MCAPTrajectoryGenerator::fillMessage(const nlohmann::json& parsed_message)
         {
             for (auto item : parsed_message.items())
             {
@@ -158,7 +158,7 @@ namespace dls
                 }
             }
         }
-        const std::shared_ptr<SignalWriter<GaitSignal>> MCAPGaitSignal::getSignalWriter() { return signal_writer_; }
+        const std::shared_ptr<SignalWriter<TrajectoryGenerator>> MCAPTrajectoryGenerator::getSignalWriter() { return signal_writer_; }
 
         /**
 		 * @brief MCAPBlindState implementation
@@ -335,16 +335,16 @@ namespace dls
                 synchronizePublisher(mcap_iterator);
                 (mcap_imu_->getSignalWriter())->publish();
             }
-            else if((mcap_iterator->channel->topic).compare("gait_signal") == 0)
+            else if((mcap_iterator->channel->topic).compare("trajectory_generator") == 0)
             {
-                if(!mcap_topics_.mcap_topic_gait_signal)
+                if(!mcap_topics_.mcap_topic_traj_gen)
                 {
-                    mcap_gait_signal_ = std::make_shared<mcap_reader_support::MCAPGaitSignal>();
-                    mcap_topics_.mcap_topic_gait_signal = true;
+                    mcap_traj_gen_ = std::make_shared<mcap_reader_support::MCAPTrajectoryGenerator>();
+                    mcap_topics_.mcap_topic_traj_gen = true;
                 }
-                mcap_gait_signal_->fillMessage(parsed_message);
+                mcap_traj_gen_->fillMessage(parsed_message);
                 synchronizePublisher(mcap_iterator);
-                (mcap_gait_signal_->getSignalWriter())->publish();
+                (mcap_traj_gen_->getSignalWriter())->publish();
             }
             else if((mcap_iterator->channel->topic).compare("blind_state") == 0)
             {

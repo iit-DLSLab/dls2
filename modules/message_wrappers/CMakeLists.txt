@@ -6,7 +6,6 @@ add_library(dls_message_wrappers
 		src/control_signal.cpp
 		src/controller_command.cpp
 		src/desired_torques.cpp
-		src/gait_signal.cpp
 		src/imu.cpp
 		src/debug/leg_odometry_debug.cpp
 		src/legs_pose.cpp
