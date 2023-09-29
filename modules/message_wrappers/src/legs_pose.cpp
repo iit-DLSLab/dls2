@@ -7,6 +7,7 @@ LegsPose::LegsPose(const std::shared_ptr<robotlib::RobotBase> robot)
 	, linear_velocity_(robot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
 	, angular_velocity_(robot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
 	, base_velocity_(Eigen::Vector3d::Zero())
+	, stance_status_(robot->makeLegDataMap<bool>(false))
 {}
 
 LegsPose::LegsPose(LegsPose& legs_pose)
@@ -16,6 +17,7 @@ LegsPose::LegsPose(LegsPose& legs_pose)
 	, linear_velocity_(legs_pose.linear_velocity_)
 	, angular_velocity_(legs_pose.angular_velocity_)
 	, base_velocity_(legs_pose.base_velocity_)
+	, stance_status_(legs_pose.stance_status_)
 {}
 
 LegsPose::~LegsPose(){}
@@ -29,6 +31,7 @@ LegsPose::operator LegsPoseMsg() const
 	legs_pose_msg.timestamp(timestamp_);
 
 	int idx{0};
+	int leg_id{0};
 	for(auto &leg_pair : linear_velocity_)
 	{
 		for(unsigned int i{0}; i<3; i++)
@@ -37,6 +40,8 @@ LegsPose::operator LegsPoseMsg() const
 			legs_pose_msg.angular_velocity()[idx] = angular_velocity_[leg_pair.key_](i);
 			idx++;
 		}
+		legs_pose_msg.stance_status()[leg_id] = stance_status_[leg_pair.key_];
+		leg_id++;
 	}
 
 	legs_pose_msg.base_velocity()[0] = base_velocity_(0);
@@ -53,6 +58,7 @@ LegsPose& LegsPose::operator=(const LegsPoseMsg& legs_pose_msg)
 	timestamp_ = legs_pose_msg.timestamp();
 
 	int idx{0};
+	int leg_id{0};
 	for(auto &leg_pair : linear_velocity_)
 	{
 		for(int i=0; i<3; i++)
@@ -61,6 +67,8 @@ LegsPose& LegsPose::operator=(const LegsPoseMsg& legs_pose_msg)
 			angular_velocity_[leg_pair.key_](i) = legs_pose_msg.angular_velocity()[idx];
 			idx++;
 		}
+		stance_status_[leg_pair.key_] = legs_pose_msg.stance_status()[leg_id];
+		leg_id++;
 	}
 
 	base_velocity_[0] = legs_pose_msg.base_velocity()[0];
@@ -79,6 +87,8 @@ LegsPose& LegsPose::operator=(const LegsPose& legs_pose)
 	linear_velocity_ = legs_pose.linear_velocity_;
 	angular_velocity_ = legs_pose.angular_velocity_;
 	base_velocity_ = legs_pose.base_velocity_;
+
+	stance_status_ = legs_pose.stance_status_;
 
 	return *this;
 }
