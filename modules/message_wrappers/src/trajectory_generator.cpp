@@ -11,6 +11,7 @@ TrajectoryGenerator::TrajectoryGenerator(const std::shared_ptr<robotlib::RobotBa
     , desired_joints_velocity_(robot->makeJointState())
     , desired_joints_acceleration_(robot->makeJointState())
     , desired_joints_effort_(robot->makeJointState())
+    , desired_wrench_(Eigen::Matrix<double, 6, 1>::Zero())
     , stance_legs_(robot->makeLegDataMap<bool>(false))
     , nominal_touch_down_(robot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
     , touch_down_(robot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
@@ -30,6 +31,7 @@ TrajectoryGenerator::TrajectoryGenerator(TrajectoryGenerator& trajectory_generat
     , desired_joints_velocity_(trajectory_generator.desired_joints_velocity_)
     , desired_joints_acceleration_(trajectory_generator.desired_joints_acceleration_)
     , desired_joints_effort_(trajectory_generator.desired_joints_effort_)
+    , desired_wrench_(trajectory_generator.desired_wrench_)
 	, stance_legs_(trajectory_generator.stance_legs_)
     , nominal_touch_down_(trajectory_generator.nominal_touch_down_)
     , touch_down_(trajectory_generator.touch_down_)
@@ -85,6 +87,11 @@ TrajectoryGenerator::operator TrajectoryGeneratorMsg() const
 
         legs_id++;
     }
+    
+    for(int i=0; i<desired_wrench_.size(); i++)
+    {
+        trajectory_generator_msg.wrench()[i] = desired_wrench_(i);
+    }
 
     return trajectory_generator_msg;
 }
@@ -126,6 +133,11 @@ TrajectoryGenerator& TrajectoryGenerator::operator=(const TrajectoryGeneratorMsg
         legs_id++;
     }
 	
+    for(int i=0; i<desired_wrench_.size(); i++)
+    {
+        desired_wrench_(i) = trajectory_generator_msg.wrench()[i];
+    }
+
     return *this;
 }
 
@@ -143,6 +155,8 @@ TrajectoryGenerator& TrajectoryGenerator::operator=(const TrajectoryGenerator& t
     desired_joints_velocity_ = trajectory_generator.desired_joints_velocity_;
     desired_joints_acceleration_ = trajectory_generator.desired_joints_acceleration_;
     desired_joints_effort_ = trajectory_generator.desired_joints_effort_;
+    desired_wrench_ = trajectory_generator.desired_wrench_;
+
 	stance_legs_ = trajectory_generator.stance_legs_;
 
     nominal_touch_down_ = trajectory_generator.nominal_touch_down_;

@@ -37,6 +37,8 @@ namespace dls
 		robotlib::JointState desired_joints_acceleration_;
 		robotlib::JointState desired_joints_effort_;
 
+		Eigen::Matrix<double, 6, 1> desired_wrench_;
+
 		robotlib::LegDataMap<bool> stance_legs_;
 
 		robotlib::LegDataMap<Eigen::Vector3d> nominal_touch_down_;
