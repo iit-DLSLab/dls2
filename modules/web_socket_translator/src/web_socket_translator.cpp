@@ -245,19 +245,19 @@ namespace dls
                     {
                         if(frame["child_frame_id"] == "trunk")
                         {
-                            frame["translation"]["x"] = jsonMsg["base_pos_world"][0];
-                            frame["translation"]["y"] = jsonMsg["base_pos_world"][1];
-                            frame["translation"]["z"] = jsonMsg["base_pos_world"][2];
+                            frame["translation"]["x"] = jsonMsg["base_position_world"][0];
+                            frame["translation"]["y"] = jsonMsg["base_position_world"][1];
+                            frame["translation"]["z"] = jsonMsg["base_position_world"][2];
 
-                            frame["rotation"]["x"] = jsonMsg["base_ori_world"][0];
-                            frame["rotation"]["y"] = jsonMsg["base_ori_world"][1];
-                            frame["rotation"]["z"] = jsonMsg["base_ori_world"][2];
-                            frame["rotation"]["w"] = jsonMsg["base_ori_world"][3];
+                            frame["rotation"]["x"] = jsonMsg["base_orientation_world"][0];
+                            frame["rotation"]["y"] = jsonMsg["base_orientation_world"][1];
+                            frame["rotation"]["z"] = jsonMsg["base_orientation_world"][2];
+                            frame["rotation"]["w"] = jsonMsg["base_orientation_world"][3];
                         }
                         else
                         {
                             int i = 0;
-                            for(auto joint_name : jsonMsg["joint_name"])
+                            for(auto joint_name : jsonMsg["joints_name"])
                             {
                                 if(joint_name == frame["child_frame_id"])
                                 {
@@ -266,10 +266,10 @@ namespace dls
                                     double c = frame["rotation"]["y"].get<double>();
                                     double d = frame["rotation"]["z"].get<double>();
 
-                                    double e = cos(jsonMsg["joint_pos"][i].get<double>()/2);
+                                    double e = cos(jsonMsg["joints_position"][i].get<double>()/2);
                                     double f = 0;
                                     double g = 0;
-                                    double h = sin(jsonMsg["joint_pos"][i].get<double>()/2);
+                                    double h = sin(jsonMsg["joints_position"][i].get<double>()/2);
 
                                     frame["rotation"]["x"] = b*e + a*f + c*h - d*g;
                                     frame["rotation"]["y"] = a*g - b*h + c*e + d*f;
