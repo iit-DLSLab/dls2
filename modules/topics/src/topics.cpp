@@ -44,7 +44,7 @@ namespace dls
 			dls::topicType attitude_estimation  = dls::topicType("attitude_estimation", new AttitudeMsgPubSubType());
 			dls::topicType sensor_fusion   		= dls::topicType("sensor_fusion", new SensorFusionMsgPubSubType());
 			dls::topicType vicon  				= dls::topicType("vicon", new ViconMsgPubSubType());
-			dls::topicType base_state			= dls::topicType("base_state", new BaseStateMsgPubSubType());
+			dls::topicType base_state			= dls::topics::high_level_estimation::base_state;
 		}
 			
 		namespace low_level_estimation

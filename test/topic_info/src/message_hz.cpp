@@ -56,7 +56,7 @@ int main(int argc, char** argv)
 	}
 	else if(topic_name == "base_state")
 	{
-		topic = dls::topicType("base_state", new BaseStateMsgPubSubType());
+		topic = dls::topics::high_level_estimation::base_state;
 	}
 	else if(topic_name == "controller_signal")
 	{
