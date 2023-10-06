@@ -30,7 +30,7 @@ namespace dls
 		// control signals
 		dls::topicType desired_torques 			= dls::topicType("desired_torques", new DesiredTorquesMsgPubSubType());
 		dls::topicType control_signal 			= dls::topicType("control_signal", new ControlSignalMsgPubSubType());
-		dls::topicType gait_signal 				= dls::topicType("gait_signal", new  GaitSignalMsgPubSubType());
+		dls::topicType trajectory_generator 	= dls::topicType("trajectory_generator", new TrajectoryGeneratorMsgPubSubType());
 		dls::topicType joy_signal				= dls::topicType("joy_signal", new  ControllerCommandMsgPubSubType());
 		dls::topicType controller_signal		= dls::topicType("controller_command", new  ControllerCommandMsgPubSubType());
 
@@ -44,6 +44,7 @@ namespace dls
 			dls::topicType attitude_estimation  = dls::topicType("attitude_estimation", new AttitudeMsgPubSubType());
 			dls::topicType sensor_fusion   		= dls::topicType("sensor_fusion", new SensorFusionMsgPubSubType());
 			dls::topicType vicon  				= dls::topicType("vicon", new ViconMsgPubSubType());
+			dls::topicType base_state			= dls::topicType("base_state", new BaseStateMsgPubSubType());
 		}
 			
 		namespace low_level_estimation

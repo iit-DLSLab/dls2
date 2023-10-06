@@ -9,7 +9,7 @@
 #include "dls2/msg_wrappers/signal_writer.hpp"
 
 #include "dls2/msg_wrappers/imu.hpp"
-#include "dls2/msg_wrappers/gait_signal.hpp"
+#include "dls2/msg_wrappers/trajectory_generator.hpp"
 #include "dls2/msg_wrappers/blind_state.hpp"
 #include "dls2/msg_wrappers/t265_odometry.hpp"
 
@@ -56,20 +56,20 @@ namespace dls
         };
 
         /**
-		 * @brief MCAPGaitSignal header
+		 * @brief MCAPTrajectoryGenerator header
 		 */
-        class MCAPGaitSignal : public MCAPBaseTopic
+        class MCAPTrajectoryGenerator : public MCAPBaseTopic
         {
         public:
-            MCAPGaitSignal();
-            virtual ~MCAPGaitSignal();
+            MCAPTrajectoryGenerator();
+            virtual ~MCAPTrajectoryGenerator();
 
             virtual const std::string& getTopicName() override;
             virtual void fillMessage(const nlohmann::json& parsed_message) override;
-            const std::shared_ptr<SignalWriter<GaitSignal>> getSignalWriter();
+            const std::shared_ptr<SignalWriter<TrajectoryGenerator>> getSignalWriter();
 
         private:
-            std::shared_ptr<SignalWriter<GaitSignal>> signal_writer_;
+            std::shared_ptr<SignalWriter<TrajectoryGenerator>> signal_writer_;
         };
 
         /**
@@ -120,14 +120,14 @@ namespace dls
 
         private:
             std::shared_ptr<mcap_reader_support::MCAPImu> mcap_imu_;
-            std::shared_ptr<mcap_reader_support::MCAPGaitSignal> mcap_gait_signal_;
+            std::shared_ptr<mcap_reader_support::MCAPTrajectoryGenerator> mcap_traj_gen_;
             std::shared_ptr<mcap_reader_support::MCAPBlindState> mcap_blind_state_;
             std::shared_ptr<mcap_reader_support::MCAPT265Odometry> mcap_t265_odometry_;
 
             struct
             {
                 bool mcap_topic_imu{false};
-                bool mcap_topic_gait_signal{false};
+                bool mcap_topic_traj_gen{false};
                 bool mcap_topic_blind_state{false};
                 bool mcap_topic_t265_odometry{false};
             } mcap_topics_;

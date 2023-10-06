@@ -11,7 +11,8 @@
 #include <dls_messages/dds/desired_torquesPubSubTypes.h>
 #include <dls_messages/dds/control_signalPubSubTypes.h>
 #include <dls_messages/dds/blind_statePubSubTypes.h>
-#include <dls_messages/dds/gait_signalPubSubTypes.h>
+#include <dls_messages/dds/base_statePubSubTypes.h>
+#include <dls_messages/dds/trajectory_generatorPubSubTypes.h>
 #include <dls_messages/dds/imuPubSubTypes.h>
 #include <dls_messages/dds/command_sendPubSubTypes.h>
 #include <dls_messages/dds/legs_posePubSubTypes.h>
@@ -51,7 +52,7 @@ namespace dls
 		// control signals
 		extern dls::topicType desired_torques;
 		extern dls::topicType control_signal;
-		extern dls::topicType gait_signal;
+		extern dls::topicType trajectory_generator;
 		extern dls::topicType joy_signal;
 		extern dls::topicType controller_signal;
 
@@ -65,6 +66,7 @@ namespace dls
 			extern dls::topicType attitude_estimation;
 			extern dls::topicType sensor_fusion;
 			extern dls::topicType vicon;
+			extern dls::topicType base_state;
 		}
 
 		namespace low_level_estimation
