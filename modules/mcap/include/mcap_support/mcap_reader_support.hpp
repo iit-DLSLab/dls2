@@ -10,6 +10,7 @@
 
 #include "dls2/msg_wrappers/imu.hpp"
 #include "dls2/msg_wrappers/trajectory_generator.hpp"
+#include "dls2/msg_wrappers/base_state.hpp"
 #include "dls2/msg_wrappers/blind_state.hpp"
 #include "dls2/msg_wrappers/t265_odometry.hpp"
 
@@ -73,6 +74,23 @@ namespace dls
         };
 
         /**
+		 * @brief MCAPBaseState header
+		 */
+        class MCAPBaseState : public MCAPBaseTopic
+        {
+        public:
+            MCAPBaseState();
+            virtual ~MCAPBaseState();
+
+            virtual const std::string& getTopicName() override;
+            virtual void fillMessage(const nlohmann::json& parsed_message) override;
+            const std::shared_ptr<SignalWriter<BaseState>> getSignalWriter();
+
+        private:
+            std::shared_ptr<SignalWriter<BaseState>> signal_writer_;
+        };
+
+        /**
 		 * @brief MCAPBlindState header
 		 */
         class MCAPBlindState : public MCAPBaseTopic
@@ -121,6 +139,7 @@ namespace dls
         private:
             std::shared_ptr<mcap_reader_support::MCAPImu> mcap_imu_;
             std::shared_ptr<mcap_reader_support::MCAPTrajectoryGenerator> mcap_traj_gen_;
+            std::shared_ptr<mcap_reader_support::MCAPBaseState> mcap_base_state_;
             std::shared_ptr<mcap_reader_support::MCAPBlindState> mcap_blind_state_;
             std::shared_ptr<mcap_reader_support::MCAPT265Odometry> mcap_t265_odometry_;
 
@@ -128,6 +147,7 @@ namespace dls
             {
                 bool mcap_topic_imu{false};
                 bool mcap_topic_traj_gen{false};
+                bool mcap_topic_base_state{false};
                 bool mcap_topic_blind_state{false};
                 bool mcap_topic_t265_odometry{false};
             } mcap_topics_;
