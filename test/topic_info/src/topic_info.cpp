@@ -13,7 +13,6 @@
 #include "dls_messages/dds/console_commandPubSubTypes.h"
 #include "dls_messages/dds/control_signalPubSubTypes.h"
 #include "dls_messages/dds/desired_torquesPubSubTypes.h"
-#include "dls_messages/dds/gait_signalPubSubTypes.h"
 #include "dls_messages/dds/headerPubSubTypes.h"
 #include "dls_messages/dds/imuPubSubTypes.h"
 #include "dls_messages/dds/joint_statePubSubTypes.h"
@@ -208,7 +207,6 @@ void TopicInfo::hz(const std::string &topic)
 			Participant *participant = Domain::createParticipant(participant_attr);
 			// el.second.registerType(particpant);
 			// TODO temporarily resgister all the types explicitly like this
-			// GaitSignalMsgPubSubType type;
 			// Domain::registerType(participant, &type);
 
 			// TODO temporariliy do all of them explicitly
@@ -216,7 +214,6 @@ void TopicInfo::hz(const std::string &topic)
 			ConsoleCommandMsgPubSubType  type1;
 			ControlSignalMsgPubSubType   type2;
 			DesiredTorquesMsgPubSubType  type3;
-			GaitSignalMsgPubSubType      type4;
 			// HeaderMsgPubSubType          type5;
 			ImuMsgPubSubType             type7;
 			PoseMsgPubSubType            type9;
@@ -226,7 +223,6 @@ void TopicInfo::hz(const std::string &topic)
 			Domain::registerType(participant, &type1);
 			Domain::registerType(participant, &type2);
 			Domain::registerType(participant, &type3);
-			Domain::registerType(participant, &type4);
 			// Domain::registerType(participant, &type5);
 			Domain::registerType(participant, &type7);
 			Domain::registerType(participant, &type8);

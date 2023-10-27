@@ -10,7 +10,7 @@ namespace dls
 
 	Supervisor::Supervisor(std::string ID)
     : ID_(ID)
-    , layersLink(ID, dls::domains::layers)
+    , layersLink(ID, dls::domains::layers, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SUPER_CLIENT)
 	{ }
 
     Supervisor::~Supervisor()

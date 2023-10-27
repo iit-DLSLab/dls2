@@ -1,6 +1,5 @@
 #include "dls2/util/messaging/dds_reader.hpp"
 #include "dls_messages/dds/controller_commandPubSubTypes.h"
-#include "dls_messages/dds/trajectory_generatorPubSubTypes.h"
 #include "dls_messages/dds/trunk_controller_debugPubSubTypes.h"
 #include <dls_messages/dds/base_statePubSubTypes.h>
 
@@ -55,13 +54,9 @@ int main(int argc, char** argv)
 	{
 		topic = dls::topics::low_level_estimation::blind_state;
 	}
-	else if(topic_name == "gait_signal")
-	{
-		topic = dls::topics::gait_signal;
-	}
 	else if(topic_name == "base_state")
 	{
-		topic = dls::topicType("base_state", new BaseStateMsgPubSubType());
+		topic = dls::topics::high_level_estimation::base_state;
 	}
 	else if(topic_name == "controller_signal")
 	{
@@ -69,7 +64,7 @@ int main(int argc, char** argv)
 	}
 	else if(topic_name == "trajectory_generator")
 	{
-		topic = dls::topicType("trajectory_generator", new  TrajectoryGeneratorMsgPubSubType());
+		topic = dls::topics::trajectory_generator;
 	}
 	else if(topic_name == "t265_odometry")
 	{

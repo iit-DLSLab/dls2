@@ -9,6 +9,7 @@ BaseState::BaseState(const std::shared_ptr<robotlib::RobotBase> robot)
 	, pose_(Eigen::Vector3d::Zero(), Eigen::Quaterniond::Identity())
 	, velocity_(Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero())
 	, acceleration_(Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero())
+	, stance_status_(robot->makeLegDataMap<bool>(false))
 {}
 
 BaseState::BaseState(BaseState& base_state)
@@ -19,6 +20,7 @@ BaseState::BaseState(BaseState& base_state)
 	, pose_(base_state.pose_)
 	, velocity_(base_state.velocity_)
 	, acceleration_(base_state.acceleration_)
+	, stance_status_(base_state.stance_status_)
 {}
 
 BaseState::~BaseState(){}
@@ -47,6 +49,13 @@ BaseState::operator BaseStateMsg() const
 	base_state_msg.orientation()[2] = pose_.toQuaternion().z();
 	base_state_msg.orientation()[3] = pose_.toQuaternion().w();
 
+	int i{0};
+	for (auto &leg : stance_status_)
+	{
+		base_state_msg.stance_status()[i] = stance_status_[leg.key_];
+		i++;
+	}
+
     return base_state_msg;
 }
 
@@ -65,6 +74,13 @@ BaseState& BaseState::operator=(const BaseStateMsg& base_state_msg)
 	acceleration_.setLinear(Eigen::Vector3d(base_state_msg.linear_acceleration().data()));
 	acceleration_.setAngular(Eigen::Vector3d(base_state_msg.angular_acceleration().data()));
 
+	int i{0};
+	for (auto &leg : stance_status_)
+	{
+		stance_status_[leg.key_] = base_state_msg.stance_status()[i];
+		i++;
+	}
+
 	return *this;
 }
 
@@ -79,6 +95,8 @@ BaseState& BaseState::operator=(const BaseState& base_state)
 	pose_ = base_state.pose_;
 	velocity_ = base_state.velocity_;
 	acceleration_ = base_state.acceleration_;
+
+	stance_status_ = base_state.stance_status_;
 
 	return *this;
 }

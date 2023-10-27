@@ -18,6 +18,7 @@ target_link_libraries(dls_com
 		fastrtps
 		dls_domains
 		dls_topics
+		yaml-cpp
 		fastdds_statistics_backend
 )
 

@@ -6,7 +6,6 @@ add_library(dls_message_wrappers
 		src/control_signal.cpp
 		src/controller_command.cpp
 		src/desired_torques.cpp
-		src/gait_signal.cpp
 		src/imu.cpp
 		src/debug/leg_odometry_debug.cpp
 		src/legs_pose.cpp
@@ -18,6 +17,7 @@ add_library(dls_message_wrappers
 		src/debug/trunk_controller_debug.cpp
 		src/trajectory_generator.cpp
 		src/vicon.cpp
+		src/stance_status.cpp
 )
 set_property(TARGET dls_message_wrappers PROPERTY POSITION_INDEPENDENT_CODE ON)
 

@@ -60,6 +60,7 @@ test:dls2:
   script:
     - cd build
     - make -j$(nproc) dls2-tests
+    - sudo make install -j$(nproc)
     - make test
   rules:
     - if: '$CI_COMMIT_MESSAGE =~ /\[exp\]/'

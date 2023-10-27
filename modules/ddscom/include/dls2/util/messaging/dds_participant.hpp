@@ -17,6 +17,7 @@
 #include <map>
 #include <set>
 #include <string>
+#include "yaml-cpp/yaml.h"
 
 /// \cond doxygen_namespace_dls
 namespace dls
@@ -26,16 +27,18 @@ namespace dls
 
 	public:
 		DDSParticipant(
-			std::string 	partName_,
+			std::string	partName_,
 			dls::domainType domain_,
+			eprosima::fastrtps::rtps::DiscoveryProtocol_t part_type = eprosima::fastrtps::rtps::DiscoveryProtocol_t::CLIENT,
 			bool tupelookup_server = true
 		);
 
-		~DDSParticipant();
+		virtual ~DDSParticipant();
 
 		/// Retrieves a list of all participants in the domain of the participant
 		///
 		std::vector<std::string> getParticipants();
+		std::multimap<std::string, eprosima::fastrtps::rtps::GUID_t> getDiscoveredParticipantsInfo();
 
 		eprosima::fastdds::dds::DataWriter* getWriter(std::string);
 		eprosima::fastdds::dds::DataReader* getReader(std::string);
@@ -66,6 +69,10 @@ namespace dls
 		bool is_type_registered_in_participant_(const std::string& type_name);
 		
 	private:
+		std::string server_ip;
+		int server_port;
+		std::string server_guid_prefix;
+
 		eprosima::fastdds::dds::DomainParticipant  					*participant;
 		std::map<std::string, eprosima::fastdds::dds::Topic *>  	topics;	
 		std::map<std::string, eprosima::fastdds::dds::DataReader *> readers;
@@ -76,7 +83,24 @@ namespace dls
 		eprosima::fastdds::dds::Publisher  *publisher;
         eprosima::fastdds::dds::Subscriber *subscriber;
 		
+		dls::DDSPartListener *topicListener;
+
+		std::unordered_map<std::string, std::string> discovery_database;
+
+		YAML::Node config;
+
 		eprosima::fastdds::dds::Topic* addTopic(dls::topicType topicData_);
+
+		std::multimap<std::string, eprosima::fastrtps::rtps::GUID_t> discovered_participants_info;
+
+		/*!
+		* @brief Custom Callback on_participant_discovery
+		* @param[in] participant domain participant discovering a new domain participant
+		* @param[in] info information about the discovered domain participant
+		*/
+		void on_participant_discovery(
+			eprosima::fastdds::dds::DomainParticipant* participant,
+			eprosima::fastrtps::rtps::ParticipantDiscoveryInfo&& info) override;
 
 		void on_publisher_discovery(
             eprosima::fastdds::dds::DomainParticipant* participant,
@@ -90,8 +114,13 @@ namespace dls
 			const eprosima::fastrtps::string_255 type_name,
 			const eprosima::fastrtps::types::TypeInformation& type_information) override;
 
-		dls::DDSPartListener *topicListener;
-		std::unordered_map<std::string, std::string> discovery_database;
+		void on_type_discovery(
+				eprosima::fastdds::dds::DomainParticipant* participant,
+				const eprosima::fastrtps::rtps::SampleIdentity& request_sample_id,
+				const eprosima::fastrtps::string_255& topic,
+				const eprosima::fastrtps::types::TypeIdentifier* identifier,
+				const eprosima::fastrtps::types::TypeObject* object,
+				eprosima::fastrtps::types::DynamicType_ptr dyn_type) override;
 
 		bool is_type_registered_in_xml_(const std::string& type_name);
 		bool is_type_registered_in_factory_(const std::string& type_name);

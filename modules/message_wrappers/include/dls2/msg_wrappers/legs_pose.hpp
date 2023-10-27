@@ -27,6 +27,8 @@ namespace dls
 		robotlib::LegDataMap<Eigen::Vector3d> angular_velocity_;
 
 		Eigen::Vector3d base_velocity_{Eigen::Vector3d::Zero()};
+
+		robotlib::LegDataMap<bool> stance_status_;
 	};
 } // namespace dls
 

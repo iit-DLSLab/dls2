@@ -25,6 +25,7 @@ function(dls_install INSTALL_TARGET)
 			PATTERN "*.h"
 			PATTERN "*.hpp"
 			PATTERN "*.tpp"
+			PATTERN "*.yaml"
 	)
 endfunction()
 

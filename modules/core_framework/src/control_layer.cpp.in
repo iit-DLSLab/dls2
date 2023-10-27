@@ -356,8 +356,8 @@ bool ControlLayer::loadController(const std::string& lib_name)
     if (pData->proc == nullptr){
         scout_err << "Controller " << lib_name <<" failed to launch: nullptr" << std::endl;
         return false;
-    }
-	else if (pData->proc->wait_for(std::chrono::duration<double, std::milli>(1000))){
+	}
+	else if (pData->proc->wait_for(std::chrono::duration<double, std::milli>(1500))){
         scout_err << "Controller " << lib_name <<" failed to launch: expired timeout" << std::endl;
         return false;
     }
@@ -476,7 +476,7 @@ bool ControlLayer::loadMotionGenerator(const std::string& lib_name)
         scout_err << "Motion generation " << lib_name <<" failed to launch: nullptr" << std::endl;
         return false;
     }
-	else if (pData->proc->wait_for(std::chrono::duration<double, std::milli>(1000))){
+	else if (pData->proc->wait_for(std::chrono::duration<double, std::milli>(1500))){
         scout_err << "Motion generation " << lib_name <<" failed to launch: expired timeout" << std::endl;
         return false;
     }

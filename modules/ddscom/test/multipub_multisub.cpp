@@ -53,6 +53,10 @@ int main(int /*argc*/, char ** /*argv*/)
 	// ================= Build the publishers and subscribers ==================
 	std::cout << "Constructing " << COUNT_OF_SUBSCRIBERS << " subscribers and "
 	          << COUNT_OF_PUBLISHERS << " publishers" << std::endl;
+
+	dls::DDSParticipant server("test_server", 0, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER);
+	std::this_thread::sleep_for(std::chrono::seconds(1));
+
 	std::vector<std::unique_ptr<dls::DDSWriter>> 		publishers;
 	std::vector<std::unique_ptr<SubscriberTestStruct>>  subscribers;
 
@@ -70,7 +74,7 @@ int main(int /*argc*/, char ** /*argv*/)
 			std::make_unique<SubscriberTestStruct>()
 		);
 	}
-
+	std::this_thread::sleep_for(std::chrono::seconds(2));
 	// ============ Ensure that the subscribers are all zeroed out =============
 	std::cout << "ensuring that all the subscibers are zeroed correctly... " << std::flush;
 	for(const auto &subscriber: subscribers)
