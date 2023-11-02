@@ -171,7 +171,7 @@ namespace dls
         if(topic_name == "blind_state")
         {
             // Create frames
-            std::ifstream jsonFrameSchemaFile("/usr/lib/dls2/web_socket_translator/FrameTransform.json");
+            std::ifstream jsonFrameSchemaFile("/usr/lib/dls2/services/web_socket_translator/FrameTransform.json");
             nlohmann::json jsonFrameSchema = nlohmann::json::parse(jsonFrameSchemaFile);
 
             const auto chanFrame = this->webserver_.addChannel({
@@ -184,7 +184,7 @@ namespace dls
             this->timer_flags_.insert(chanFrame);
 
             // Update scene
-            std::ifstream jsonSceneSchemaFile("/usr/lib/dls2/web_socket_translator/SceneUpdate.json");
+            std::ifstream jsonSceneSchemaFile("/usr/lib/dls2/services/web_socket_translator/SceneUpdate.json");
             nlohmann::json jsonSceneSchema = nlohmann::json::parse(jsonSceneSchemaFile);
 
             auto chanScene = this->webserver_.addChannel({
@@ -284,7 +284,7 @@ namespace dls
         if(topic_name == "base_state")
         {
             // Create frames
-            std::ifstream jsonFrameSchemaFile("/usr/lib/dls2/web_socket_translator/FrameTransform.json");
+            std::ifstream jsonFrameSchemaFile("/usr/lib/dls2/services/web_socket_translator/FrameTransform.json");
             nlohmann::json jsonFrameSchema = nlohmann::json::parse(jsonFrameSchemaFile);
 
             const auto chanFrame = this->webserver_.addChannel({
@@ -297,7 +297,7 @@ namespace dls
             this->timer_flags_.insert(chanFrame);
 
             // Update scene
-            std::ifstream jsonSceneSchemaFile("/usr/lib/dls2/web_socket_translator/SceneUpdate.json");
+            std::ifstream jsonSceneSchemaFile("/usr/lib/dls2/services/web_socket_translator/SceneUpdate.json");
             nlohmann::json jsonSceneSchema = nlohmann::json::parse(jsonSceneSchemaFile);
 
             auto chanScene = this->webserver_.addChannel({

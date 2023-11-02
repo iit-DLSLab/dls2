@@ -132,14 +132,14 @@ namespace dls
 					std::string filename(file.path().filename());
 
 					// Fill "libraries" with the shared libraries that can be called from "load_layer_command"
-					if(filename.find_first_of("lib") == 0 &&
-					   filename.find_last_of(".so") == filename.size() - 1)
+					if(filename.find("lib", 0) != std::string::npos &&
+       				   filename.find(".so", filename.size()-3) != std::string::npos)
 					{
 						libraries.push_back(filename.substr(3, filename.size() - 6));
 					}
 					// Fill "libraries" with the robots urdfs that can be called from "load_layer_command"
 					// (this is specific for the "loadModel" command)
-					else if(filename.find_last_of(".urdf") == filename.size() - 1)
+					else if(filename.find(".urdf", filename.size()-5) != std::string::npos)
 					{
 						libraries.push_back(filename.substr(0, filename.size() - 5));
 					}
