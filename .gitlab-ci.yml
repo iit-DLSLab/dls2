@@ -59,6 +59,8 @@ build:dls2:
     - make -j$(nproc)
   artifacts:
     paths:
+      - dls_messages/build*
+      - robotlib/build*
       - build/*
       - bin/*
       - /root/dls_gitlab_ci/*
@@ -75,6 +77,12 @@ test:dls2:
   tags:
     - dls2
   script:
+    - cd dls_messages/build
+    - make install
+    - cd ../..
+    - cd robotlib/build
+    - make install
+    - cd ../..
     - cd build
     - make -j$(nproc) dls2-tests
     - sudo make install -j$(nproc)
