@@ -36,7 +36,7 @@ build:dls2:
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
     - mkdir -p ~/.ssh && chmod 700 ~/.ssh
     - ssh-keyscan gitlab.advr.iit.it >> ~/.ssh/known_hosts && chmod 644 ~/.ssh/known_hosts
-    - git clone git@gitlab.advr.iit.it:dls-lab/dls_gitlab_ci.git -b master /root/dls_gitlab_ci
+    - git clone git@gitlab.advr.iit.it:dls-lab/dls_gitlab_ci.git -b master
 
     - git clone git@gitlab.advr.iit.it:dls-lab/dls_messages.git -b $CI_COMMIT_BRANCH
     - cd dls_messages
@@ -59,11 +59,11 @@ build:dls2:
     - make -j$(nproc)
   artifacts:
     paths:
+      - dls_gitlab_ci/*
       - dls_messages/*
       - robotlib/*
       - build/*
       - bin/*
-      - /root/dls_gitlab_ci/*
     expire_in: 3 hrs
 
 # ------------------------------------------------------------------------------
@@ -110,7 +110,7 @@ packdeploy:dls2:
     - cd ../..
     - cd build
     - make package
-    - source /root/dls_gitlab_ci/make-json.bash token=$DLSUSER_TOKEN project=$CI_PROJECT_ID branch=$CI_COMMIT_BRANCH job=$CI_JOB_ID tag=latest release=$(lsb_release -sc) > out.json
+    - source ../dls_gitlab_ci/make-json.bash token=$DLSUSER_TOKEN project=$CI_PROJECT_ID branch=$CI_COMMIT_BRANCH job=$CI_JOB_ID tag=latest release=$(lsb_release -sc) > out.json
     - 'curl -X post -H "Content-Type: application/json" -d @out.json http://server-ubuntu18:9000/hooks/deploy-apt'
   artifacts:
     paths:
