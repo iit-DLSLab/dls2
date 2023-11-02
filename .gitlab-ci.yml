@@ -102,6 +102,12 @@ packdeploy:dls2:
   tags:
     - dls2
   script:
+    - cd dls_messages/build
+    - make install
+    - cd ../..
+    - cd robotlib/build
+    - make install
+    - cd ../..
     - cd build
     - make package
     - source /root/dls_gitlab_ci/make-json.bash token=$DLSUSER_TOKEN project=$CI_PROJECT_ID branch=$CI_COMMIT_BRANCH job=$CI_JOB_ID tag=latest release=$(lsb_release -sc) > out.json
