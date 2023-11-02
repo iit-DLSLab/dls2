@@ -59,11 +59,11 @@ build:dls2:
     - make -j$(nproc)
   artifacts:
     paths:
+      - dls_gitlab_ci/*
       - dls_messages/*
       - robotlib/*
       - build/*
       - bin/*
-      - /root/dls_gitlab_ci/*
     expire_in: 3 hrs
 
 # ------------------------------------------------------------------------------
