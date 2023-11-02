@@ -59,8 +59,8 @@ build:dls2:
     - make -j$(nproc)
   artifacts:
     paths:
-      - dls_messages/build*
-      - robotlib/build*
+      - dls_messages/*
+      - robotlib/*
       - build/*
       - bin/*
       - /root/dls_gitlab_ci/*
