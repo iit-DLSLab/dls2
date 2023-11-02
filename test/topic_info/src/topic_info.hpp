@@ -12,7 +12,6 @@
 #include <memory>
 #include "dls2/util/messaging/subscriber.hpp"
 #include "dls_messages/dds/stringmsgPubSubTypes.h"
-#include "dls_messages/dds/gait_signalPubSubTypes.h"
 #include <atomic>
 
 namespace dls

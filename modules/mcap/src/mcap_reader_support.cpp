@@ -100,18 +100,18 @@ namespace dls
         const std::shared_ptr<SignalWriter<Imu>> MCAPImu::getSignalWriter() { return signal_writer_; }
 
         /**
-		 * @brief MCAPGaitSignal implementation
+		 * @brief MCAPTrajectoryGenerator implementation
 		 */
-        MCAPGaitSignal::MCAPGaitSignal() : MCAPBaseTopic()
+        MCAPTrajectoryGenerator::MCAPTrajectoryGenerator() : MCAPBaseTopic()
         {
-            topic_name_ = "gait_signal";
-            topic_type_ = dls::topicType(dls::topics::gait_signal.first, new GaitSignalMsgPubSubType());
-            signal_writer_ = std::make_shared<SignalWriter<GaitSignal>>(dds_participant_, topic_type_, std::make_shared<GaitSignal>(robot_));
+            topic_name_ = "trajectory_generator";
+            topic_type_ = dls::topics::trajectory_generator;
+            signal_writer_ = std::make_shared<SignalWriter<TrajectoryGenerator>>(dds_participant_, topic_type_, std::make_shared<TrajectoryGenerator>(robot_));
         }
-        MCAPGaitSignal::~MCAPGaitSignal(){}
+        MCAPTrajectoryGenerator::~MCAPTrajectoryGenerator(){}
 
-        const std::string& MCAPGaitSignal::getTopicName() { return topic_name_; }
-        void MCAPGaitSignal::fillMessage(const nlohmann::json& parsed_message)
+        const std::string& MCAPTrajectoryGenerator::getTopicName() { return topic_name_; }
+        void MCAPTrajectoryGenerator::fillMessage(const nlohmann::json& parsed_message)
         {
             for (auto item : parsed_message.items())
             {
@@ -158,7 +158,89 @@ namespace dls
                 }
             }
         }
-        const std::shared_ptr<SignalWriter<GaitSignal>> MCAPGaitSignal::getSignalWriter() { return signal_writer_; }
+        const std::shared_ptr<SignalWriter<TrajectoryGenerator>> MCAPTrajectoryGenerator::getSignalWriter() { return signal_writer_; }
+
+        /**
+		 * @brief MCAPBaseState implementation
+		 */
+        MCAPBaseState::MCAPBaseState() : MCAPBaseTopic()
+        {
+            topic_name_ = "base_state";
+            topic_type_ = dls::topicType(dls::topics::high_level_estimation::base_state.first, new BaseStateMsgPubSubType());
+            signal_writer_ = std::make_shared<SignalWriter<BaseState>>(dds_participant_, topic_type_, std::make_shared<BaseState>(robot_));
+        }
+        MCAPBaseState::~MCAPBaseState(){}
+
+        const std::string& MCAPBaseState::getTopicName() { return topic_name_; }
+        void MCAPBaseState::fillMessage(const nlohmann::json& parsed_message)
+        {
+            for (auto item : parsed_message.items())
+            {
+                if((item.key()).compare("frame_id") == 0)
+                {
+                    (*signal_writer_)->frame_id_ = item.value();
+                }
+                else if((item.key()).compare("sequence_id") == 0)
+                {
+                    (*signal_writer_)->sequence_id_ = item.value();
+                }
+                else if((item.key()).compare("timestamp") == 0)
+                {
+                    (*signal_writer_)->timestamp_ = item.value();
+                }
+                else if((item.key()).compare("robot_name") == 0)
+                {
+                    (*signal_writer_)->robot_name_ = item.value();
+                }
+                else if((item.key()).compare("stance_status") == 0)
+                {
+                    std::vector<double> values{};
+                    for (const auto& value : item.value().items())
+                    {            
+                        values.push_back(value.value());                      
+                    }
+
+                    int leg_id = 0;
+                    for(auto &leg : (*signal_writer_)->stance_status_)
+                    {
+                        (*signal_writer_)->stance_status_[leg.key_] = values.at(leg_id);  
+                        leg_id++;                        
+                    }                              
+                }
+                else if((item.key()).compare("position") == 0 || 
+                        (item.key()).compare("linear_velocity") == 0 ||
+                        (item.key()).compare("angular_velocity") == 0 ||
+                        (item.key()).compare("linear_acceleration") == 0 ||
+                        (item.key()).compare("angular_acceleration") == 0)
+                {
+                    std::vector<double> values{};
+                    for (const auto& value : item.value().items())
+                    {            
+                        values.push_back(value.value());                      
+                    }
+                    if((item.key()).compare("position"))
+                        (*signal_writer_)->pose_.set(Eigen::Vector3d(values[0], values[1], values[2]));
+                    else if((item.key()).compare("linear_velocity"))
+                        (*signal_writer_)->velocity_.setLinear(Eigen::Vector3d(values[0], values[1], values[2]));
+                    else if((item.key()).compare("angular_velocity"))
+                        (*signal_writer_)->velocity_.setAngular(Eigen::Vector3d(values[0], values[1], values[2]));
+                    else if((item.key()).compare("linear_acceleration"))
+                        (*signal_writer_)->acceleration_.setLinear(Eigen::Vector3d(values[0], values[1], values[2]));
+                    else if((item.key()).compare("angular_acceleration"))
+                        (*signal_writer_)->acceleration_.setAngular(Eigen::Vector3d(values[0], values[1], values[2]));
+                }
+                else if((item.key()).compare("orientation") == 0)
+                {
+                    std::vector<double> values{};
+                    for (const auto& value : item.value().items())
+                    {            
+                        values.push_back(value.value());                      
+                    }
+                    (*signal_writer_)->pose_.set(Eigen::Quaterniond(values[3], values[0], values[1], values[2]));
+                }
+            }
+        }
+        const std::shared_ptr<SignalWriter<BaseState>> MCAPBaseState::getSignalWriter() { return signal_writer_; }
 
         /**
 		 * @brief MCAPBlindState implementation
@@ -223,7 +305,7 @@ namespace dls
                     }                              
                 }
 
-                if((item.key()).compare("stance_legs") == 0)
+                if((item.key()).compare("feet_contact") == 0)
                 {
                     std::vector<double> values{};
                     for (const auto& value : item.value().items())
@@ -234,7 +316,7 @@ namespace dls
                     int leg_id = 0;
                     for(auto &leg : (*signal_writer_)->joints_position_)
                     {
-                        (*signal_writer_)->stance_legs_[leg.key_] = values.at(leg_id);  
+                        (*signal_writer_)->feet_contact_[leg.key_] = values.at(leg_id);  
                         leg_id++;                        
                     }                              
                 }
@@ -335,16 +417,27 @@ namespace dls
                 synchronizePublisher(mcap_iterator);
                 (mcap_imu_->getSignalWriter())->publish();
             }
-            else if((mcap_iterator->channel->topic).compare("gait_signal") == 0)
+            else if((mcap_iterator->channel->topic).compare("trajectory_generator") == 0)
             {
-                if(!mcap_topics_.mcap_topic_gait_signal)
+                if(!mcap_topics_.mcap_topic_traj_gen)
                 {
-                    mcap_gait_signal_ = std::make_shared<mcap_reader_support::MCAPGaitSignal>();
-                    mcap_topics_.mcap_topic_gait_signal = true;
+                    mcap_traj_gen_ = std::make_shared<mcap_reader_support::MCAPTrajectoryGenerator>();
+                    mcap_topics_.mcap_topic_traj_gen = true;
                 }
-                mcap_gait_signal_->fillMessage(parsed_message);
+                mcap_traj_gen_->fillMessage(parsed_message);
                 synchronizePublisher(mcap_iterator);
-                (mcap_gait_signal_->getSignalWriter())->publish();
+                (mcap_traj_gen_->getSignalWriter())->publish();
+            }
+            else if((mcap_iterator->channel->topic).compare("base_state") == 0)
+            {
+                if(!mcap_topics_.mcap_topic_base_state)
+                {
+                    mcap_base_state_ = std::make_shared<mcap_reader_support::MCAPBaseState>();
+                    mcap_topics_.mcap_topic_base_state = true;
+                }
+                mcap_base_state_->fillMessage(parsed_message);
+                synchronizePublisher(mcap_iterator);
+                (mcap_base_state_->getSignalWriter())->publish();
             }
             else if((mcap_iterator->channel->topic).compare("blind_state") == 0)
             {

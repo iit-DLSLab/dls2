@@ -10,7 +10,9 @@ ControllerCommand::ControllerCommand(const std::shared_ptr<robotlib::RobotBase> 
     , step_height_(robot->makeLegDataMap<double>(0.08))
     , base_pose_HF_(Eigen::Vector3d::Zero(), Eigen::Quaterniond::Identity())
     , base_velocity_HF_(Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero())
-{}
+{
+    base_pose_HF_.set(Eigen::Vector3d(0.0,0.0,robot_height_));
+}
 
 ControllerCommand::ControllerCommand(ControllerCommand& controller_command)
     : frame_id_(controller_command.frame_id_)

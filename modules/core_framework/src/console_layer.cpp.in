@@ -1,564 +1,442 @@
-
-#define UNUSED(x) (void)(x)
-
 #include "dls2/core_framework/console_layer.hpp"
-#include <readline/readline.h>
-#include <readline/history.h>
-#include <filesystem>
 
-#include "dls2/util/messaging/dds_participant.hpp"
-
-// =============================================================================
-// Foreward Declarations
-// =============================================================================
 namespace dls
 {
-	char **console_completion(const char *text, int start, int /*end*/);
-	char *command_completion(const char *text, int state);
-	char *arg_completion(const char *text, int state);
-	void display_matches(char **matches, int num_matches, int max_length);
-	int event(void);
-	const uint ncols_completion = 3;
-}
+	// Namespace for the GNU Readline functions used to implement the autocompletion with "Tab" key
+	namespace readline_completion
+	{
+		// Forward declaration of Readline functions
+		char **command_completion(const char *text, int start, int end);
+		char *command_generator(const char *text, int state);
+		char *load_layer_argument_generator(const char *text, int state);
+		void display_matches(char **matches, int num_matches, int max_length);
 
-// =============================================================================
-// Using Declarations
-// =============================================================================
-using namespace dls;
+		// dls::readline_completion::ConsoleLayer object, visible from Readline functions, pointing to the main dls::ConsoleLayer object
+		ConsoleLayer* console_layer = nullptr;
 
-// TODO move these two to the library
-std::string trim(const std::string&);
-std::string &trim_inplace(std::string *const);
-static std::multiset<std::string> commands;
-static std::multiset<std::string>::iterator it_commands;
-static int string_length;
-// =============================================================================
-// Local Globals
-// =============================================================================
-// Indirection to access class methods as C functions
-// This will only work if there is only one console object in the process, which
-// will always be the case
-ConsoleLayer *pInstance = nullptr;
-
-// =============================================================================
-// Constructors
-// =============================================================================
-ConsoleLayer::ConsoleLayer(std::string ID) 
-	: Layer(ID)
-{
-	pInstance = this;
-
-	// TODO expose process name here for readline
-	rl_readline_name = "DLS2_READLINE";
-
-	rl_attempted_completion_function = console_completion;
-
-	rl_completion_display_matches_hook = display_matches;
-
-	rl_sort_completion_matches = 0;
-
-	rl_ignore_completion_duplicates = 0;
-
-	// Turn off the default file matching completion
-	rl_completion_entry_function = [](const char *, int)->char*{return nullptr;};
-
-	// Make readline reading rl_done variable, set when shutting down the control layer in the stop() function.
-	// When rl_done variable is set to a value !=0, readline return immediately. So the console layer will not wait for a character before exiting
-	rl_event_hook = event;
-
-	// Launch servers in the domains
-
-    command_manager.addCommand<>
-	(
-		"list",
-		"clears the console",
-		std::function<bool()>([&]()->bool
+		char **command_completion(const char *text, int start, int end)
 		{
-            auto cmds = command_manager.getCommandsList();
+			rl_attempted_completion_over = 1;
 
-			// Temporary map to store the multimap elements
-			std::map<std::string, std::set<std::string>> commands_map{};
+			char **matches = nullptr;
 
-			// Store the multimap elements in the map by key (generic process) and values (set of commands relative to the process)
-            for (auto elem : cmds)
+			// If "start" is 0 (the match is not complete yet or there are not blank spaces before a new word) 
+			// it calls the "command_generator" function repeatedly until that returns a null pointer.
+			// The "command_generator" function returns a match one at a time.
+			// The "rl_completion_matches" function returns the array of all those matches
+			if(start == 0) { matches = rl_completion_matches(text, command_generator); }
+			else
 			{
-				commands_map[elem.second].insert(elem.first);
+				auto load_layers_paths = readline_completion::console_layer->getLoadLayersPaths();
+
+				std::string line(rl_line_buffer);
+
+				// If some characters have been written in the console, it does not contain only blank spaces and has matched a command
+				// ("matches" is "nullptr" because "command_generator" is called previously and iteratively until 
+				// it gives "nullptr" after matching a command)
+				if(!line.empty() && line.find_first_not_of(" ") != std::string::npos && matches == nullptr)
+				{
+					// Remove possible blank spaces at the beginning of the input line
+					line = line.substr(line.find_first_not_of(" "));
+
+					std::string process_and_load_layer_command = line.substr(0, line.find(" "));
+					
+					// Get only the "load[Layer]" command string
+					std::string load_layer_command = process_and_load_layer_command.substr(process_and_load_layer_command.find("::") + 2);
+
+					// When a match is complete (e.g. "start" becomes the size of the line matched + 1 for the last empty space)
+					// and the input line contains a "load[Layer]" command, the "load_layer_argument_generator" function is 
+					// called repeatedly to match the command arguments, only if the line contains "load[Layer]" (with or without 
+					// empty space after) or "load[Layer] [something]" and its argument is not matched yet 
+					// (e.g. "start" and "end" parameters are different)
+					if(load_layers_paths.find(load_layer_command) != load_layers_paths.end())
+					{
+						if((line.length() <= process_and_load_layer_command.length() + 1) ||
+						  ((line.length() > (process_and_load_layer_command.length() + 1) && start != end)))
+						{
+							matches = rl_completion_matches(text, load_layer_argument_generator);
+						}
+					}
+				}
 			}
 
-			// Show commands of the different processes sorted by key and values
-			for(const auto& process : commands_map)
+			return matches;
+		}
+
+		char *command_generator(const char *text, int state)
+		{
+			// It contains all the matches generated when the function was called the first time on the partial input.
+			// In subsequent calls, the string whose index is "match_index" in "matches" vector is returned.
+			// The matches are generated by comparing the partial input with the complete set of available commands
+			static std::vector<std::string> matches{};
+			static size_t match_index{0};
+
+			auto processes_and_commands = readline_completion::console_layer->getProcessesAndCommands();
+
+			if (state == 0)
 			{
-				for(const auto& command : process.second)
+				matches.clear();
+				match_index = 0;
+
+				std::string textstr(text);
+
+				for(const auto& map_entry : processes_and_commands)
 				{
-					std::cout << process.first << "::" << command << std::endl;
+					for(const auto& command : map_entry.second)
+					{
+						auto complete_command = map_entry.first + std::string("::") + std::string(command);
+
+						// Completion for command starting with or without process name in front of it.
+						// The command matched is displayed in its complete form (i.e. "process::command")
+						if ((complete_command.size() >= textstr.size() && complete_command.compare(0, textstr.size(), textstr) == 0) ||
+						    (command.size() >= textstr.size() && command.compare(0, textstr.size(), textstr) == 0))
+						{
+							matches.push_back(complete_command);
+						}
+					}
 				}
 			}
 
-			commands_map.clear();
+			if (match_index >= matches.size()) { return nullptr; }
+			else { return strdup(matches[match_index++].c_str()); }
+		}
 
-            return true;
-        }),
-		{{0,0}},
-		true
-	);
-
-	command_manager.addCommand<>
-	(
-		"clc",
-		"clears the console",
-		std::function<bool()>([&]()->bool
+		char *load_layer_argument_generator(const char *text, int state)
 		{
-			std::cout << "\033[2J" << std::endl; // clear
-			std::cout << "\033[H" << std::endl; // home
-            return true;
-		}),
-		{{0,0}},
-		true
-	);
+			// Same logic of the "command_generator" function
+			static std::vector<std::string> libraries{};
+			static std::vector<std::string> matches{};
+			static size_t match_index{0};
 
-    command_manager.addCommand<>
-	(
-		"cleanZombies",
-		"Clean FASTDDS zombies",
-		std::function<bool()>([&]()->bool
-		{
-			if(system("sudo fastdds shm clean")){};
-            return true;
-		}),
-		{{0,0}},
-		true
-	);
+			auto load_layers_paths = readline_completion::console_layer->getLoadLayersPaths();
 
-	command_manager.addCommand<std::string>
-	(
-		"help",
-		"prints docstring of a command",
-		std::function<bool(std::string)>([&](std::string s)->bool
-		{
-			std::cout << std::endl;
-			for(auto pCommand : this->command_manager.findByName(s))
+			if(state == 0)
 			{
-				std::cout << "TBD - retrieve command doc from remote" <<  std::endl;
-				// std::cout << pCommand->second() << "::" <<
-				// 	pCommand->getName() <<  std::endl <<
-				// 	pCommand->getDoc() << std::endl << std::endl;
+				libraries.clear();
+				matches.clear();
+				match_index = 0;
+
+				std::string textstr(text);
+
+				std::string line(rl_line_buffer);
+
+				std::string process_and_load_layer_command = line.substr(0, line.find(" "));
+
+				// Get only the "load[Layer]" command string
+				std::string load_layer_command = process_and_load_layer_command.substr(process_and_load_layer_command.find("::") + 2);
+
+				std::filesystem::directory_iterator dir_it(load_layers_paths.at(load_layer_command));
+
+				for(const auto &file : dir_it)
+				{
+					std::string filename(file.path().filename());
+
+					// Fill "libraries" with the shared libraries that can be called from "load_layer_command"
+					if(filename.find_first_of("lib") == 0 &&
+					   filename.find_last_of(".so") == filename.size() - 1)
+					{
+						libraries.push_back(filename.substr(3, filename.size() - 6));
+					}
+					// Fill "libraries" with the robots urdfs that can be called from "load_layer_command"
+					// (this is specific for the "loadModel" command)
+					else if(filename.find_last_of(".urdf") == filename.size() - 1)
+					{
+						libraries.push_back(filename.substr(0, filename.size() - 5));
+					}
+				}
+
+				for(const auto& lib_name : libraries)
+				{
+					// Use the "libraries" values for filling "matches"
+					if (lib_name.size() >= textstr.size() &&
+						lib_name.compare(0, textstr.size(), textstr) == 0)
+					{
+						matches.push_back(lib_name);
+					}
+				}
 			}
-            return true;
-		}),
-		{{0,0}},
-		true
-	);
 
-	command_manager.addCommand<>
-	(
-		"whereAll",
-		"prints the status of each active component",
-		std::function<bool()>([&]()->bool
+			if (match_index >= matches.size()) { return nullptr; }
+			else { return strdup(matches[match_index++].c_str()); }
+		}
+		
+		void display_matches(char **matches, int num_matches, int /*max_length*/)
 		{
-			auto where_commands = this->command_manager.findByName("where");
-            for(const auto &where_command : where_commands)
-            {
-                if(where_command.second != "console_layer")
-                {
-                    std::cout << where_command.second << std::endl;
-                    std::cout << "============================" << std::endl;
-                    //where_command->call();
-                    std::cout << "This function needs to be implemented\n" << std::endl;
-                    // TODO this is not the most elegant solution. A better
-                    // way would be for "where" of each component to return
-                    // a string directly here. This has not been implemented
-                    // since at the time of that writing the functionality
-                    // of this function was not yet required. At some point
-                    // that will have to be refactored too.
-                    std::this_thread::sleep_for(std::chrono::seconds(1));
-                }
-            }
-            return true;
-        }),
-		{{0,0}},
-		true
-	);
-}
-
-ConsoleLayer::~ConsoleLayer(){
-}
-
-// =============================================================================
-// Interface Override
-// =============================================================================
-// Signal handler for exiting from console
-// void ConsoleLayer::handle_signals(int){
-// 	abort();
-// }
-
-AppStatus ConsoleLayer::run()
-{
-	rl_set_signals();
-	// signal(SIGINT, this->handle_signals);
-
-	while(!this->should_quit)
-	{
-		// This calls malloc behind the scenes. Needs to be freed manually
-		char *line = readline(this->build_prompt().c_str());
-
-		if(line) // might be nullptr if EOF was sent
-		{
-			// Convert to cpp line for ease of use
-			std::string input(line);
-			trim_inplace(&input);
-
-			if(*input.c_str())
+			if(num_matches > 0)
 			{
-				add_history(input.c_str());
-
-				// Parse the arguments
-				// the format is [namespace::]command_name [arg1 [arg2...]]
-				std::istringstream iss(input);
-
-				std::vector<std::string> input_split(
-					std::istream_iterator<std::string>{iss},
-					std::istream_iterator<std::string>()
-				);
-
-				std::vector<std::string> args(input_split.begin() + 1, input_split.end());
-
-				// find if commands is in form [namespace::]command_name
-				size_t namespace_delimiter_index = input_split[0].find("::");
-
-				std::string namespace_name;
-				std::string command_name;
-
-				// if the command is of the form namepsace::command_name
-				if(namespace_delimiter_index != std::string::npos)
-				{
-					namespace_name = input_split[0].substr(0, namespace_delimiter_index);
-					command_name = input_split[0].substr(namespace_delimiter_index + 2);
-				}
-				else 
-				{
-					command_name = input_split[0];
-				}
-
-				auto ret = command_manager.callCommand(command_name, args, namespace_name);
-
-				if(ret > 1){
-					std::cerr << "Ambiguous overload. Command '"
-						<< command_name << "' found in different namespaces."
-						<< std::endl;
-				}
-				else if (ret == 0)
-				{
-					std::cerr << "Command '" << command_name
-						<< "' not found. It cannot exist or it might not be ready yet." << std::endl;
-				}
-				build_prompt();
-			}
-			free(line);
-			std::this_thread::sleep_for(std::chrono::milliseconds(50));
-		}
-		else // if EOF received
-		{
-			std::cout << std::endl;
-		}
-	}
-	return getStatus();
-}
-
-AppStatus ConsoleLayer::stop()
-{
-	this->should_quit = true;
-
-	// When rl_done variable is set to a value !=0, readline return immediately. So the console layer will not wait for a character before exiting
-	rl_done = 1;
-	return getStatus();
-}
-
-// =============================================================================
-// Implementaton
-// =============================================================================
-std::string ConsoleLayer::build_prompt()
-{
-	return "> ";
-}
-
-// =============================================================================
-// Readline
-// =============================================================================
-//// This namespace contains global variables that should only be used by
-//// readline.
-////
-//// Readline does not provide for passing userdata, therefore it is not possible
-//// to get around using some global structures
-//namespace readline_globals
-//{
-//	std::map<std::string, ConsoleLayer::Command>::iterator current_command;
-//}
-
-// -----------------------------------------------------------------------------
-// Completion chooser
-// -----------------------------------------------------------------------------
-char **dls::console_completion(const char *text, int start, int /*end*/)
-{
-	char **matches = nullptr;
-	if(start == 0)
-	{
-		matches = rl_completion_matches(text, command_completion);
-	}
-	else
-	{
-		// Find the command name from the entire command line
-		std::stringstream ss(rl_line_buffer);
-		std::string command_name;
-		ss >> command_name;
-
-		// Find the command structure associated with the command name
-		auto commands = pInstance->command_manager.getCommandsList();
-		auto it = std::find_if(commands.begin(), commands.end(), [&](auto value) { return (text == value.first); });
-
-		if(it == commands.end())
-		{
-			matches = rl_completion_matches(text, arg_completion);
-		}
-	}
-
-	return matches;
-}
-
-// -----------------------------------------------------------------------------
-// Command Completion
-// -----------------------------------------------------------------------------
-char *dls::command_completion(const char *text, int state)
-{
-
-	// Safety check is not currently needed, but putting it now for future
-	// robustness
-	if(pInstance)
-	{
-		// if first time this completer is being run
-		if(state == 0)
-		{
-			commands.clear();
-			string_length = std::strlen(text);
-
-			auto list = pInstance->command_manager.getCommandsList();
-
-			for(auto elem : list){
-				commands.insert(elem.second + "::" + elem.first);
-			}
-
-			it_commands = commands.begin();
-		}
-
-		// Do command completion
-		while(it_commands != commands.cend())
-		{
-			std::string match_candidate = it_commands->c_str();
-			std::string match_candidate_cmdonly = it_commands->substr(it_commands->find("::")+2, it_commands->length());
-			++it_commands;
-
-			std::string match = "";
-			if (strncmp(match_candidate_cmdonly.c_str(), text, string_length) == 0){
-				match = match_candidate_cmdonly;
-			}
-			else if(strncmp(match_candidate.c_str(), text, string_length) == 0){
-				match = match_candidate;
-			}
-
-			if (match != ""){
-				char *ret_str = static_cast<char *>
-				(
-					// malloc is required by readline
-					// readline will free the string
-					malloc(match.size() + 1)
-				);
-				strcpy(ret_str, match.c_str());
-				return ret_str;
-			}
-		}
-	}
-
-	return nullptr;
-}
-
-// -----------------------------------------------------------------------------
-// Argument Completion
-// -----------------------------------------------------------------------------
-char *dls::arg_completion(const char * text, int state)
-{
-	static std::vector<std::string> files;
-	static size_t index;
-	
-	if(state == 0)
-	{
-		index = 0;
-		files.clear();
-
-		// fill the default completions
-		// for
-		// (
-		// 	const auto &el :
-		// 	readline_globals::current_command->second.default_completions
-		// )
-		// {
-		// 	files.push_back(el);
-		// }
-
-		std::vector<std::string> dirs({
-			std::string("${DLS_INSTALL_CONTROLLER_DIR}")
-		});
-
-		for(auto& dir : dirs)
-		{
-			std::filesystem::directory_iterator dir_it
-			(
-				// std::filesystem::current_path()
-				dir
-			);
-
-			for(auto &file : dir_it)
-			{
-				std::string filename(file.path().filename());
-				if
-				(
-					filename.find_first_of("lib") == 0 &&
-					filename.find_last_of(".so") == filename.size() - 1
-				)
-				{
-					files.push_back
-					(
-						// strip "lib" and ".so" from file
-						filename.substr(3, filename.size() - 6)
-					);
-				}
-			}
-		}
-	}
-
-	while(index != files.size())
-	{
-		auto match_candidate = const_cast<char *>(files[index].c_str());
-		++index;
-		if(strncmp(match_candidate, text, std::strlen(text)) == 0)
-		{
-			char *ret_str = static_cast<char *>
-			(
-				// malloc is required by readline
-				// readline will free the string
-				malloc
-				(
-					strlen(match_candidate) + 1
-				)
-			);
-			strcpy(ret_str, match_candidate);
-			return ret_str;
-		}
-	}
-
-	return nullptr;
-}
-
-// -----------------------------------------------------------------------------
-// Display Completion
-// -----------------------------------------------------------------------------
-void dls::display_matches (char **matches, int num_matches, int max_length){
-    UNUSED(num_matches);
-    UNUSED(max_length);
-
-	std::stringstream ss(rl_line_buffer);
-	// 	std::string command_name;
-	// std::cout << ss >> command_name;
-
-	char **strs = matches;
-	std::multiset<std::string> strings;
-	while (*(++strs))
-		strings.insert(std::string(*(strs)));
-    
-	// correct strings for the format owner::command
-	std::multiset<std::string> corrected_strings;
-	for(auto elem : strings){
-		std::multiset<std::string>::iterator idx = commands.begin();
-		while (idx != commands.end()){
-            if(idx->substr(idx->find("::")+2) == elem){
-				if(corrected_strings.find(*idx) == corrected_strings.end()){
-					corrected_strings.insert(*idx);
-					break;
-				}					
-			}
-			idx++;
-		}
-	}
-
-	std::string curOwner = "";
-	uint ncols = 0;
-	for(auto elem : corrected_strings){
-		if (curOwner != elem.substr(0, elem.find("::")+2)){
-			curOwner = elem.substr(0, elem.find("::")+2);
-			std::cout << std::endl << std::endl  << curOwner << std::endl;
-			std::cout << elem.substr(curOwner.size(), elem.length()-1);
-			std::cout << "       ";
-			ncols = 0;
-		}
-		else{
-			std::cout << elem.substr(curOwner.size(), elem.length()-2);
-			if (ncols++ < ncols_completion){
-				std::cout << "       ";
-			}
-			else{
 				std::cout << std::endl;
-				ncols = 0;
+
+				std::string line(rl_line_buffer);
+
+				// If some characters have been written in the console
+				if(!line.empty())
+				{
+					// Get the complete set of available processes and commands
+					auto processes_and_commands = readline_completion::console_layer->getProcessesAndCommands();
+
+					// Get the map with "load[Layer]" commands and associated installation folders
+					auto load_layers_paths = readline_completion::console_layer->getLoadLayersPaths();
+
+					std::string previous_process{}, process{}, command{};
+
+					std::string process_and_load_layer_command = line.substr(0, line.find(" "));
+
+					// Get only the "load[Layer]" command string
+					std::string load_layer_command = process_and_load_layer_command.substr(process_and_load_layer_command.find("::") + 2);
+
+					// Iterate over the matched strings
+					for (auto it{0}; it<=num_matches; ++it)
+					{
+						std::string match{matches[it]};
+
+						std::size_t process_name_end = match.find("::");
+
+						// If the matched string contains "::", get the process and command names
+						if(process_name_end != std::string::npos)
+						{
+							process = match.substr(0, process_name_end);
+							command = match.substr(process_name_end + 2);
+						}
+						// Otherwise, print the the "load[Layer]" arguments (without printing possible empty strings),
+						// if "load[Layer]" command has been written in the console
+						else if(!match.empty() && load_layers_paths.find(load_layer_command) != load_layers_paths.end())
+						{
+							std::cout << " * " << match << std::endl;
+						}
+
+						// Print the matched process if it has not been printed yet and if it is an available process
+						if(process != previous_process && processes_and_commands.find(process) != processes_and_commands.end())
+						{
+							std::cout << "\n" << process << "::" << std::endl;
+							previous_process = process;
+						}
+
+						// Print the matched command if it is available for the printed process
+						if(processes_and_commands[process].find(command) != processes_and_commands[process].end())
+						{
+							std::cout << " * " << command << std::endl;
+						}
+					}
+
+					std::cout << std::endl;
+				}
+				// Otherwise, print the complete set of available processes and commands
+				else { readline_completion::console_layer->printProcessesAndCommands(); }
+
+				rl_reset_line_state();
 			}
-		}		
+		}
+	} // namespace readline_completion
+
+	// dls::ConsoleLayer implementation
+	ConsoleLayer::ConsoleLayer(std::string ID) : Layer(ID),
+												 load_layers_paths_{{"loadController", "${DLS_INSTALL_CONTROLLER_DIR}"},
+																	{"loadGenerator", "${DLS_INSTALL_MOTION_GENERATOR_DIR}"},
+																	{"loadEstimator", "${DLS_INSTALL_ESTIMATOR_DIR}"},
+																	{"loadHardware", "${DLS_INSTALL_HARDWARE_DIR}"},
+																	{"loadService", "${DLS_INSTALL_SERVICE_DIR}"},
+																	{"loadSimulator", "${DLS_INSTALL_SIMULATOR_DIR}"},
+																	{"loadModel", "${DLS_INSTALL_MODEL_DIR}"}}
+	{
+		// Assign the dls::readline_completion::ConsoleLayer pointer to the dls::ConsoleLayer object
+		readline_completion::console_layer = this;
+
+		command_manager.addCommand<>
+		(
+			"list",
+			"Show the available console commands for all the running processes",
+			std::function<bool()>([&]()->bool
+			{
+				printProcessesAndCommands();
+				return true;
+			}),
+			{{0,0}},
+			true
+		);
+
+		command_manager.addCommand<>
+		(
+			"reset",
+			"Reset the console display",
+			std::function<bool()>([&]()->bool
+			{
+				return system("reset");
+			}),
+			{{0,0}},
+			true
+		);
+
+		command_manager.addCommand<>
+		(
+			"cleanSharedMemory",
+			"Clean Fast-DDS shared memory files",
+			std::function<bool()>([&]()->bool
+			{
+				return system("sudo fastdds shm clean");
+			}),
+			{{0,0}},
+			true
+		);
 	}
 
-
-	if(ss.str().find("loadController") != std::string::npos)
+	ConsoleLayer::~ConsoleLayer()
 	{
-		std::vector<std::string> dirs({
-			std::string("${DLS_INSTALL_CONTROLLER_DIR}")
-		});
+		// Free the ConsoleLayer pointer ("dls::readline_completion" namespace) allocated memory
+		delete readline_completion::console_layer;
+
+		// Make the dangling pointer point to "null"
+		readline_completion::console_layer = nullptr;
+	}
+
+	const std::map<std::string, std::set<std::string>> ConsoleLayer::getProcessesAndCommands(const std::string& command)
+	{
+		// Get the multimap with all the available commands (not sorted)
+		auto commands_multimap = command_manager.getCommandsList();
+
+		// Map used to contain the multimap elements, sorted by key (process) and values (commands available for the process)
+		std::map<std::string, std::set<std::string>> complete_commands{};
+
+		// If "command" is empty, return the complete set of available processes and commands
+		if(command.empty())
+		{
+			for (auto multimap_entry : commands_multimap)
+			{
+				complete_commands[multimap_entry.second].insert(multimap_entry.first);
+			}
+		}
+		// Otherwise, return the processes for which "command" is available
+		else
+		{
+			for (auto multimap_entry : commands_multimap)
+			{
+				if((multimap_entry.first).compare(command) == 0)
+				{
+					complete_commands[multimap_entry.second].insert(multimap_entry.first);
+				}
+			}
+		}
+
+		return complete_commands;
+	}
+
+	const std::map<std::string, std::string> ConsoleLayer::getLoadLayersPaths()
+	{
+		return load_layers_paths_;
+	}
+
+	void ConsoleLayer::printProcessesAndCommands(const std::string& command)
+	{
+		std::map<std::string, std::set<std::string>> processes_and_commands{};
+
+		// If there is no specific "command", print the complete set of available processes and commands
+		if(command.empty()) { processes_and_commands = getProcessesAndCommands(); }
+
+		// Otherwise, print all the processes for which that command is available
+		else { processes_and_commands = getProcessesAndCommands(command); }
+
+		for(const auto& map_entry : processes_and_commands)
+		{
+			std::cout << "\n" << map_entry.first << "::" << std::endl;
+
+			for(const auto& command : map_entry.second)
+			{
+				std::cout << " * " << command << std::endl;
+			}
+		}
 
 		std::cout << std::endl;
-
-		for(auto& dir : dirs)
-		{
-			std::filesystem::directory_iterator dir_it
-			(
-				dir
-			);
-
-			for(auto &file : dir_it)
-			{
-				std::string filename(file.path().filename());
-				if
-				(
-					filename.find_first_of("lib") == 0 &&
-					filename.find_last_of(".so") == filename.size() - 1
-				)
-				{
-					// strip "lib" and ".so" from file
-					std::cout << filename.substr(3, filename.size() - 6) << std::endl;
-				}
-			}
-		}
 	}
 
-	std::cout << std::endl;
-	rl_reset_line_state();
-}
+	AppStatus ConsoleLayer::run()
+	{
+		while(!this->should_quit)
+		{
+    		rl_attempted_completion_function = readline_completion::command_completion;
+			rl_completion_display_matches_hook = readline_completion::display_matches;
 
-int dls::event(void){return 0;}
+			// The line "readline" returned is allocated with "malloc". It is freed (manually) when we are done with it
+			char *line = readline(std::string("> ").c_str());
 
-std::string trim(const std::string &s)
-{
-	std::string ret(s);
-	trim_inplace(&ret);
-	return ret;
-}
+			if (line != nullptr)
+			{
+				std::string command(line);
 
-std::string &trim_inplace(std::string *const s)
-{
-	s->erase(0, s->find_first_not_of(" \t\n\r\f\v"));
-	s->erase(s->find_last_not_of(" \t\n\r\f\v") + 1);
+				// If the input line is valid and does not contain only blank spaces 
+				if(command.data() && command.find_first_not_of(" ") != std::string::npos)
+				{
+					// Add the commands to the history buffer of a console session.
+					// They will be accessible by the user using up/down arrows
+					add_history(command.c_str());
 
-	return *s;
-}
+					// Get the user input in its complete form (i.e. "process::command arg1 arg2 ... argN")
+					std::istringstream input(command);
+
+					// Split the complete input according to the empty spaces
+					std::vector<std::string> input_split(std::istream_iterator<std::string>{input}, std::istream_iterator<std::string>());
+
+					// Get only the input arguments (e.g. "arg1 arg2 ... argN")
+					std::vector<std::string> input_arguments(input_split.begin() + 1, input_split.end());
+
+					// Get the position (if present) of "::" in the input string
+					std::size_t process_name_end = input_split[0].find("::");
+
+					std::string process_name{}, command_name{};
+
+					// If "::" is found in the input and the input does not finish with "::",
+					// the input contains both the process and command names
+					if(process_name_end != std::string::npos &&
+					   process_name_end != (input_split[0].length() - 2))
+					{
+						process_name = input_split[0].substr(0, process_name_end);
+						command_name = input_split[0].substr(process_name_end + 2);
+					}
+					// Otherwise, the input is only a command name
+					else { command_name = input_split[0]; }
+
+					// Call the command associated to the "process::command arg1 arg2 ... argN" matched
+					auto ret = command_manager.callCommand(command_name, input_arguments, process_name);
+
+					// If the return of the "callCommand" is ambiguous (you are calling a command that is available for
+					// multiple processes and you are not specifying the process in question)
+					if(ret > 1)
+					{
+						std::cerr << "\nCommand found in different processes:" << std::endl;
+						std::cout << "-------------------------------------" << std::endl;
+
+						// Print the processes for which the same command is available
+						printProcessesAndCommands(command_name);
+					}
+					// If the return of the "callCommand" is not valid (you are calling a command that is not present in
+					// the list of the available commands)
+					else if(ret == 0)
+					{
+						std::cerr << "\nCommand not found, it might not exist or be ready yet. Available commands:" << std::endl;
+						std::cout << "--------------------------------------------------------------------------" << std::endl;
+
+						// Print all the available processes and their commands (equivalent to the console command "list")
+						printProcessesAndCommands();
+					}
+				}
+				else { rl_reset_line_state(); }
+
+				// Free the line returned with "readline", allocated with "malloc"
+				free(line);
+
+				std::this_thread::sleep_for(std::chrono::milliseconds(50));
+			}
+		}
+		return getStatus();
+	}
+
+	AppStatus ConsoleLayer::stop()
+	{
+		this->should_quit = true;
+		return getStatus();
+	}
+
+	std::string ConsoleLayer::where()
+	{
+		// TODO: Implement
+		return "\nnot yet implemented\n";
+	}
+} // namespace dls

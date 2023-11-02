@@ -35,19 +35,7 @@ namespace dls
 		robotlib::JointState joints_effort_;
 		robotlib::JointState joints_temperature_;
 
-		robotlib::LegDataMap<Eigen::Vector3d> feet_position_;
-		robotlib::LegDataMap<Eigen::Vector3d> feet_velocity_;
-		robotlib::LegDataMap<Eigen::Vector3d> feet_acceleration_;
-
-		Eigen::Vector3d terrain_inclination_{Eigen::Vector3d::Zero()};
-		Eigen::Vector3d surface_normal_{Eigen::Vector3d::Zero()};
-
-		dls::Pose base_pose_world_{};
-		Eigen::Vector3d base_orientation_world_rpy_{Eigen::Vector3d::Zero()};
-		dls::Screw base_velocity_world_{};
-		dls::Screw base_acceleration_world_{};
-
-		robotlib::LegDataMap<bool> stance_legs_;
+		robotlib::LegDataMap<bool> feet_contact_;
 	};
 } // namespace dls
 

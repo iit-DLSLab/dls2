@@ -3,11 +3,6 @@
 # ==============================================================================
 image: server-harbor:80/dls2/dls2-dev:22.04
 
-before_script:
-  - source /root/dls_gitlab_ci/gitlab-script.sh
-  - sudo apt-get update
-  - sudo apt-get install -y dls-messages-dev robotlib-dev
-
 # ==============================================================================
 # Stages
 # ==============================================================================
@@ -36,6 +31,27 @@ build:dls2:
   tags:
     - dls2
   script:
+
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh && chmod 700 ~/.ssh
+    - ssh-keyscan gitlab.advr.iit.it >> ~/.ssh/known_hosts && chmod 644 ~/.ssh/known_hosts
+    - git clone git@gitlab.advr.iit.it:dls-lab/dls_gitlab_ci.git -b master /root/dls_gitlab_ci
+
+    - git clone git@gitlab.advr.iit.it:dls-lab/dls_messages.git -b $CI_COMMIT_BRANCH
+    - cd dls_messages
+    - mkdir build && cd build
+    - cmake ..
+    - make -j$(nproc)
+    - make install
+    - cd ../..
+    - git clone git@gitlab.advr.iit.it:dls-lab/robotlib.git -b $CI_COMMIT_BRANCH
+    - cd robotlib
+    - mkdir build && cd build
+    - cmake ..
+    - make -j$(nproc)
+    - make install
+    - cd ../..
     - git submodule update --init --recursive
     - mkdir build
     - cd build
@@ -43,8 +59,11 @@ build:dls2:
     - make -j$(nproc)
   artifacts:
     paths:
+      - dls_messages/*
+      - robotlib/*
       - build/*
       - bin/*
+      - /root/dls_gitlab_ci/*
     expire_in: 3 hrs
 
 # ------------------------------------------------------------------------------
@@ -58,6 +77,12 @@ test:dls2:
   tags:
     - dls2
   script:
+    - cd dls_messages/build
+    - make install
+    - cd ../..
+    - cd robotlib/build
+    - make install
+    - cd ../..
     - cd build
     - make -j$(nproc) dls2-tests
     - sudo make install -j$(nproc)
@@ -72,21 +97,18 @@ test:dls2:
 # ------------------------------------------------------------------------------
 packdeploy:dls2:
   stage: packdeploy
+  dependencies:
+    - build:dls2
   tags:
     - dls2
   script:
     - cd build
     - make package
-    - echo $CI_JOB_ID > CI_JOB_ID
     - source /root/dls_gitlab_ci/make-json.bash token=$DLSUSER_TOKEN project=$CI_PROJECT_ID branch=$CI_COMMIT_BRANCH job=$CI_JOB_ID tag=latest release=$(lsb_release -sc) > out.json
     - 'curl -X post -H "Content-Type: application/json" -d @out.json http://server-ubuntu18:9000/hooks/deploy-apt'
   artifacts:
     paths:
       - build/*.deb
     expire_in: 1 week
-  dependencies:
-    - build:dls2
-  rules:
-    - if: '$CI_COMMIT_MESSAGE =~ /\[exp\]/'
-      when: never
-    - if: '$CI_COMMIT_BRANCH == "master"'
+  only:
+    - master
