@@ -28,5 +28,4 @@ void Wrapper<MsgType>::loadMsg(void* tuple)
     this->message = *((MsgType*) tuple);
     *this = this->message;
 }
-		
 #endif /* end of include guard: WRAPPER_TPP */

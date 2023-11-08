@@ -1,18 +1,23 @@
-
 #ifndef SIGNAL_READER_HPP
 #define SIGNAL_READER_HPP
 
-#include "dls2/msg_wrappers/signal.hpp"
+#include "dls2/msg_wrappers/signal_reader_base.hpp"
 
 namespace dls
 {
 	template <typename SignalType>
-	class SignalReader : public Signal<SignalType>
+	class SignalReader : public SignalReaderBase
 	{
 	public:
 		SignalReader(std::shared_ptr<dls::DDSParticipant>, const dls::topicType&, const std::shared_ptr<SignalType>);
-		~SignalReader();	
-		bool received;
+		~SignalReader();
+		SignalReader() = delete;
+
+		SignalType getData();
+
+	public:
+		const std::shared_ptr<SignalType> signal_;
+		virtual WrapperBase* getWrapperBasePtr() override;
 	};
 } // end namespace dls
 

@@ -100,3 +100,9 @@ BaseState& BaseState::operator=(const BaseState& base_state)
 
 	return *this;
 }
+
+void BaseState::setDataFromWrapperBase(WrapperBase* wrapper_base)
+{
+    // Assuming wrapper is of type Wrapper<MsgType>
+    *this = static_cast<BaseState&>(*wrapper_base);
+}

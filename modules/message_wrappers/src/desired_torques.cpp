@@ -67,3 +67,9 @@ DesiredTorques& DesiredTorques::operator=(const DesiredTorques& desired_torques)
 
 	return *this;
 }
+
+void DesiredTorques::setDataFromWrapperBase(WrapperBase* wrapper_base)
+{
+    // Assuming wrapper is of type Wrapper<MsgType>
+    *this = static_cast<DesiredTorques&>(*wrapper_base);
+}

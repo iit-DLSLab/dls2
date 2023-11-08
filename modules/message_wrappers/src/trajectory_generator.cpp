@@ -168,3 +168,9 @@ TrajectoryGenerator& TrajectoryGenerator::operator=(const TrajectoryGenerator& t
 
 	return *this;
 }
+
+void TrajectoryGenerator::setDataFromWrapperBase(WrapperBase* wrapper_base)
+{
+    // Assuming wrapper is of type Wrapper<MsgType>
+    *this = static_cast<TrajectoryGenerator&>(*wrapper_base);
+}

@@ -25,6 +25,8 @@ namespace dls
 		double timestamp_{};
 
 		robotlib::JointState desired_torques_;
+	public:
+		virtual void setDataFromWrapperBase(WrapperBase* wrapper_base) override;
 	};
 } // namespace dls
 

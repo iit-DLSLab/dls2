@@ -34,6 +34,9 @@ namespace dls
 
         Pose base_pose_HF_{};
         dls::Screw base_velocity_HF_{};
+    
+	public:
+		virtual void setDataFromWrapperBase(WrapperBase* wrapper_base) override;
     };
 } // namespace dls
 

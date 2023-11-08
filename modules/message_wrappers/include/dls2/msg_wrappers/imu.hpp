@@ -28,6 +28,10 @@ namespace dls
 		Eigen::Matrix3d angular_velocity_covariance_{Eigen::Matrix3d::Zero()};
 		Eigen::Vector3d linear_acceleration_{Eigen::Vector3d::Zero()};
 		Eigen::Matrix3d linear_acceleration_covariance_{Eigen::Matrix3d::Zero()};
+
+	public:
+		virtual void setDataFromWrapperBase(WrapperBase* wrapper_base) override;
+
 	};
 } // namespace dls
 

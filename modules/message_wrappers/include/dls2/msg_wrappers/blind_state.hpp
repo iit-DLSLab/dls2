@@ -36,6 +36,9 @@ namespace dls
 		robotlib::JointState joints_temperature_;
 
 		robotlib::LegDataMap<bool> feet_contact_;
+	
+	public:
+		virtual void setDataFromWrapperBase(WrapperBase* wrapper_base) override;
 	};
 } // namespace dls
 

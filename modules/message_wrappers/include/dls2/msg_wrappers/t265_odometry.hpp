@@ -29,6 +29,8 @@ namespace dls
 
         Eigen::Vector3d linear_velocity_{Eigen::Vector3d::Zero()};
         Eigen::Vector3d angular_velocity_{Eigen::Vector3d::Zero()};
+    public:
+		virtual void setDataFromWrapperBase(WrapperBase* wrapper_base) override;
     };
 } // namespace dls
 

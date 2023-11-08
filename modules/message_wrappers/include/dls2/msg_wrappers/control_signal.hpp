@@ -33,6 +33,8 @@ namespace dls
 
         robotlib::JointState torques_;
         SignalReconstructionMethod signal_reconstruction_method_{};
+    public:
+		virtual void setDataFromWrapperBase(WrapperBase* wrapper_base) override;
     };
 } // namespace dls
 

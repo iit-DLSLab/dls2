@@ -18,6 +18,9 @@ add_library(dls_message_wrappers
 		src/trajectory_generator.cpp
 		src/vicon.cpp
 		src/stance_status.cpp
+		src/wrapper_base.cpp
+		src/signal_reader_base.cpp
+		src/signal_writer_base.cpp
 )
 set_property(TARGET dls_message_wrappers PROPERTY POSITION_INDEPENDENT_CODE ON)
 

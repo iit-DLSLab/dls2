@@ -34,6 +34,9 @@ namespace dls
 
 		// Stance status
 		robotlib::LegDataMap<bool> stance_status_;
+
+	public:
+		virtual void setDataFromWrapperBase(WrapperBase* wrapper_base) override;
 	};
 } // namespace dls
 
