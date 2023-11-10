@@ -21,11 +21,15 @@ target_link_libraries(dls_web_socket_translator
 		dls_framework
 )
 
-dls_install(dls_web_socket_translator)
+install(
+    TARGETS             dls_web_socket_translator
+    LIBRARY DESTINATION ${DLS_INSTALL_SERVICE_DIR}
+    COMPONENT           ${PROJECT_NAME}
+)
 
 install(
 	DIRECTORY 	json/
-	DESTINATION	/usr/lib/dls2/web_socket_translator
+	DESTINATION     /usr/lib/dls2/services/web_socket_translator
 	COMPONENT	dls_runtime
 	FILES_MATCHING
 		PATTERN "*.json"
