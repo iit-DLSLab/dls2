@@ -37,15 +37,20 @@ build:dls2:
     - mkdir -p ~/.ssh && chmod 700 ~/.ssh
     - ssh-keyscan gitlab.advr.iit.it >> ~/.ssh/known_hosts && chmod 644 ~/.ssh/known_hosts
     - git clone git@gitlab.advr.iit.it:dls-lab/dls_gitlab_ci.git -b master
-
-    - git clone git@gitlab.advr.iit.it:dls-lab/dls_messages.git -b $CI_COMMIT_BRANCH
+    # verify if the commit branch exists in dls_messages
+    - git ls-remote --heads git@gitlab.advr.iit.it:dls-lab/dls_messages.git $CI_COMMIT_BRANCH | grep $CI_COMMIT_BRANCH >/dev/null 
+    - if [ "$?" == "1" ] ; then export BRANCH="master"; else export BRANCH=$CI_COMMIT_BRANCH; fi
+    - git clone git@gitlab.advr.iit.it:dls-lab/dls_messages.git -b $BRANCH
     - cd dls_messages
     - mkdir build && cd build
     - cmake ..
     - make -j$(nproc)
     - make install
     - cd ../..
-    - git clone git@gitlab.advr.iit.it:dls-lab/robotlib.git -b $CI_COMMIT_BRANCH
+    # verify if the commit branch exists in robotlib
+    - git ls-remote --heads git@gitlab.advr.iit.it:dls-lab/robotlib.git $CI_COMMIT_BRANCH | grep $CI_COMMIT_BRANCH >/dev/null 
+    - if [ "$?" == "1" ] ; then export BRANCH="master"; else export BRANCH=$CI_COMMIT_BRANCH; fi
+    - git clone git@gitlab.advr.iit.it:dls-lab/robotlib.git -b $BRANCH
     - cd robotlib
     - mkdir build && cd build
     - cmake ..
