@@ -20,33 +20,47 @@ set(DLS_INSTALL_RUNTIME_DIR /usr/bin/dls2
 set(DLS_INSTALL_LIB_DIR /usr/lib/dls2
 	CACHE STRING "Directory where framework shared object libraries are stored"
 )
-set(DLS_INSTALL_MOTION_GENERATOR_DIR /usr/lib/dls2/motion_generators
-	CACHE STRING "Directory where shared object libraries for motion generators are stored"
-)
 
-set(DLS_INSTALL_HARDWARE_DIR /usr/lib/dls2/hardwares
-	CACHE STRING "Directory where shared object libraries for hardwares are stored"
+set(DLS_SCHEDULERS_CONFIG_DIR /usr/include/dls2/schedulers
+	CACHE STRING "Directory where framework scheduler config are stored"
 )
 
 set(DLS_INSTALL_SERVICE_DIR /usr/lib/dls2/services
 	CACHE STRING "Directory where shared object libraries for services are stored"
 )
 
+set(DLS_INSTALL_HARDWARE_DIR /usr/lib/dls2/hardwares
+	CACHE STRING "Directory where shared object libraries for hardwares are stored"
+)
+
+set(DLS_INSTALL_HARDWARE_HEADER_DIR /usr/include/dls2/hardwares
+	CACHE STRING "Directory where hardware headers are stored"
+)
+
+set(DLS_INSTALL_MOTION_GENERATOR_DIR /usr/lib/dls2/motion_generators
+	CACHE STRING "Directory where shared object libraries for motion generators are stored"
+)
+
 set(DLS_INSTALL_MOTION_GENERATOR_HEADER_DIR /usr/include/dls2/motion_generators
 	CACHE STRING "Directory where motion generator headers are stored"
 )
+
 set(DLS_INSTALL_CONTROLLER_DIR /usr/lib/dls2/controllers
 	CACHE STRING "Directory where shared object libraries for controllers are stored"
 )
+
 set(DLS_INSTALL_CONTROLLER_HEADER_DIR /usr/include/dls2/controllers
 	CACHE STRING "Directory where controller headers are stored"
 )
+
 set(DLS_INSTALL_ESTIMATOR_DIR /usr/lib/dls2/estimators
 	CACHE STRING "Directory where shared object libraries for estimators are stored"
 )
+
 set(DLS_INSTALL_ESTIMATOR_HEADER_DIR /usr/include/dls2/estimators
 	CACHE STRING "Directory where estimator headers are stored"
 )
+
 set(DLS_INSTALL_MODEL_DIR /usr/include/robots
 	CACHE STRING "Directory where the robots urdfs are stored"
 )
