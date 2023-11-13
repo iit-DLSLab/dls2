@@ -61,8 +61,12 @@ set(DLS_INSTALL_ESTIMATOR_HEADER_DIR /usr/include/dls2/estimators
 	CACHE STRING "Directory where estimator headers are stored"
 )
 
-set(DLS_INSTALL_MODEL_DIR /usr/include/robots
-	CACHE STRING "Directory where the robots urdfs are stored"
+set(DLS_INSTALL_MODEL_DIR /usr/lib/dls2/robots
+	CACHE STRING "Directory where the robots libs are stored"
+)
+
+set(DLS_INSTALL_MODEL_HEADER_DIR /usr/include/dls2/robots
+	CACHE STRING "Directory where the robots headers are stored"
 )
 
 set(DLS_INSTALL_MESSAGES_DIR /usr/lib/dls2/messages
