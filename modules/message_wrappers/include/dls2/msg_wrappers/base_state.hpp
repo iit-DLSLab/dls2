@@ -13,6 +13,10 @@ namespace dls
 	class BaseState : public Wrapper<BaseStateMsg>
 	{
 	public:
+	    template <typename SignalType>
+		friend class SignalWriter;
+		friend class PeriodicPluginBase;
+
 		BaseState(const std::shared_ptr<robotlib::RobotBase> robot);
 		BaseState(BaseState& base_state);
 		BaseState() = delete;
@@ -35,7 +39,7 @@ namespace dls
 		// Stance status
 		robotlib::LegDataMap<bool> stance_status_;
 
-	public:
+	private:
 		virtual void setDataFromWrapperBase(WrapperBase* wrapper_base) override;
 	};
 } // namespace dls

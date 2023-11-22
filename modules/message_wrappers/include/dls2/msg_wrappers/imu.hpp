@@ -10,6 +10,10 @@ namespace dls
 	class Imu : public Wrapper<ImuMsg>
 	{
 	public:
+	    template <typename SignalType>
+		friend class SignalWriter;
+		friend class PeriodicPluginBase;
+
 		Imu();
 		Imu(Imu& imu);
         virtual ~Imu();
@@ -29,7 +33,7 @@ namespace dls
 		Eigen::Vector3d linear_acceleration_{Eigen::Vector3d::Zero()};
 		Eigen::Matrix3d linear_acceleration_covariance_{Eigen::Matrix3d::Zero()};
 
-	public:
+	private:
 		virtual void setDataFromWrapperBase(WrapperBase* wrapper_base) override;
 
 	};

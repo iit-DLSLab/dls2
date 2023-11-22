@@ -14,6 +14,10 @@ namespace dls
 	class TrajectoryGenerator : public Wrapper<TrajectoryGeneratorMsg>
 	{
 	public:
+	    template <typename SignalType>
+		friend class SignalWriter;
+		friend class PeriodicPluginBase;
+
 		TrajectoryGenerator(const std::shared_ptr<robotlib::RobotBase> robot);
 		TrajectoryGenerator(TrajectoryGenerator& trajectory_generator);
 		TrajectoryGenerator() = delete;
@@ -49,7 +53,7 @@ namespace dls
         robotlib::LegDataMap<double> normal_force_max_;
         robotlib::LegDataMap<double> normal_force_min_;
 	
-	public:
+	private:
 		virtual void setDataFromWrapperBase(WrapperBase* wrapper_base) override;
 	};
 } // namespace dls

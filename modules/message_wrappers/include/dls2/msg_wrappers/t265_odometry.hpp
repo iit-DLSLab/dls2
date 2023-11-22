@@ -11,6 +11,10 @@ namespace dls
     class T265Odometry : public Wrapper<T265OdometryMsg>
     {
     public:
+	    template <typename SignalType>
+		friend class SignalWriter;
+		friend class PeriodicPluginBase;
+
         T265Odometry();
         T265Odometry(T265Odometry& t265_odometry);
         virtual ~T265Odometry();
@@ -29,7 +33,7 @@ namespace dls
 
         Eigen::Vector3d linear_velocity_{Eigen::Vector3d::Zero()};
         Eigen::Vector3d angular_velocity_{Eigen::Vector3d::Zero()};
-    public:
+    private:
 		virtual void setDataFromWrapperBase(WrapperBase* wrapper_base) override;
     };
 } // namespace dls
