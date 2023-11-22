@@ -24,7 +24,7 @@ SignalWriter<SignalType>::SignalWriter(std::shared_ptr<dls::DDSParticipant> dds_
 }
 	
 template <typename SignalType>
-SignalWriter<SignalType>::~SignalWriter(){ }
+SignalWriter<SignalType>::~SignalWriter(){this->dds_participant_->deleteWriter(this->ID_); }
 
 template <typename SignalType>
 std::shared_ptr<SignalType> SignalWriter<SignalType>::operator->() 

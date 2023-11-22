@@ -36,7 +36,7 @@ namespace dls
 	}
 		
 	template <typename SignalType>
-	SignalReader<SignalType>::~SignalReader(){ }
+	SignalReader<SignalType>::~SignalReader(){ this->dds_participant_->deleteReader(this->ID_);}
 
 	template <typename SignalType>
 	SignalType SignalReader<SignalType>::getData()
