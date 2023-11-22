@@ -12,6 +12,8 @@ namespace dls
 	class SignalWriter : public SignalWriterBase
 	{
 	public:
+		friend class PeriodicPluginBase;
+
 		SignalWriter(std::shared_ptr<dls::DDSParticipant>, const dls::topicType&, const std::shared_ptr<SignalType>);
 		~SignalWriter();
 		
@@ -30,7 +32,7 @@ namespace dls
 		*/
 		virtual void setTimestamp(double timestamp) override;
 	
-	public:
+	private:
 		const std::shared_ptr<SignalType> signal_;
 
 		template <typename T, typename = int>

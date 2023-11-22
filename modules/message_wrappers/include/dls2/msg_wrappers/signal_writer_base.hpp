@@ -12,6 +12,8 @@ namespace dls
 	class SignalWriterBase
 	{
 	public:
+		friend class PeriodicPluginBase;
+
 		SignalWriterBase(std::shared_ptr<dls::DDSParticipant> dds_participant);
 		~SignalWriterBase();
 		SignalWriterBase() = delete;
@@ -28,7 +30,7 @@ namespace dls
 		*/
 		virtual void setTimestamp(double timestamp) = 0;
 
-	public:
+	protected:
 		std::shared_ptr<dls::DDSParticipant> dds_participant_;
 		std::string ID_;
 		mutable std::mutex signal_mutex_;

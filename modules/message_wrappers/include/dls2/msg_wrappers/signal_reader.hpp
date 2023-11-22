@@ -9,13 +9,15 @@ namespace dls
 	class SignalReader : public SignalReaderBase
 	{
 	public:
+		friend class PeriodicPluginBase;
+
 		SignalReader(std::shared_ptr<dls::DDSParticipant>, const dls::topicType&, const std::shared_ptr<SignalType>);
 		~SignalReader();
 		SignalReader() = delete;
 
 		SignalType getData();
 
-	public:
+	protected:
 		const std::shared_ptr<SignalType> signal_;
 		virtual WrapperBase* getWrapperBasePtr() override;
 	};

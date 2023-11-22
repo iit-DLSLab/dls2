@@ -23,13 +23,13 @@ int main(int argc, char** argv)
 	blind_state2.frame_id_ = "frame 2";
 	base_state2.frame_id_ = "frame 2";
 
-	WrapperBase *blind_state_wb = &blind_state;
-	WrapperBase *blind_state2_wb = &blind_state2;
-	WrapperBase *base_state_wb = &base_state;
-	WrapperBase *base_state2_wb = &base_state2;
+	// WrapperBase *blind_state_wb = &blind_state;
+	// WrapperBase *blind_state2_wb = &blind_state2;
+	// WrapperBase *base_state_wb = &base_state;
+	// WrapperBase *base_state2_wb = &base_state2;
 
-	blind_state_wb->setDataFromWrapperBase(blind_state2_wb);
-	base_state_wb->setDataFromWrapperBase(base_state2_wb);
+	// blind_state_wb->setDataFromWrapperBase(blind_state2_wb);
+	// base_state_wb->setDataFromWrapperBase(base_state2_wb);
 
 	std::cout << blind_state.frame_id_ << " " << base_state.frame_id_ << std::endl;
 

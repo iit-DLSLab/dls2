@@ -50,17 +50,25 @@ int main(int argc, char** argv)
 															std::make_shared<DesiredTorques>(robot));
 	BlindState blind_state(robot);
 	DesiredTorques desired_torques(robot);
-	WrapperBase* wb_blind_state = &blind_state;
-	WrapperBase* wb_desired_torques = &desired_torques;
-
+	// WrapperBase* wb_blind_state = &blind_state;
+	// WrapperBase* wb_desired_torques = &desired_torques;
+	double increment = 0.3;
 	while(run)
 	{
 		// Test if message is received
-		wb_blind_state->setDataFromWrapperBase(signal_reader_base->getWrapperBasePtr());
+		// wb_blind_state->setDataFromWrapperBase(signal_reader_base->getWrapperBasePtr());
 		blind_state.joints_position_.print();
-		// Test if message is published
-		desired_torques.desired_torques_["LF"]["LF_HAA"]+=0.01;
-		signal_writer_base->setDataFromWrapperBase(wb_desired_torques);
+		// // Test if message is published
+		desired_torques.desired_torques_["LF"]["LF_HAA"]=increment;
+		if (blind_state.joints_position_["LF"]["LF_HAA"]>=0.4)
+		{
+			increment=(-1)*abs(increment);
+		}
+		else if (blind_state.joints_position_["LF"]["LF_HAA"]<=-0.4)
+		{
+			increment=abs(increment);
+		}
+		// signal_writer_base->setDataFromWrapperBase(wb_desired_torques);
 		if(signal_writer_base->hasTimestamp())
 		{
 			signal_writer_base->setTimestamp(std::chrono::system_clock::now().time_since_epoch().count());

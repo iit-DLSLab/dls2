@@ -10,13 +10,17 @@ namespace dls
 	class WrapperBase
 	{
 	public:
+        template <typename SignalType>
+		friend class SignalWriter;
+		friend class PeriodicPluginBase;
+
 		WrapperBase();
 		virtual ~WrapperBase();
 
 		virtual void* getMsg() = 0;
 		virtual void loadMsg(void*) = 0;
 
-	public:
+	protected:
         /*!
          * @brief Set wrapper values. This function is used by a WrapperBase object masquerating a Wrapper one.
 		 When this function is called, the input is statically casted to the same Wrapper class that is masquerated by the object calling the function.
