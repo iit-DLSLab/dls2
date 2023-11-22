@@ -6,14 +6,24 @@
 
 using namespace dls;
 
-template <typename MessageType, typename... constructor_args_types>
-void PeriodicPluginBase::buildInput(dls::topicType &topic, constructor_args_types... args)
+template <typename MsgType, typename... constructor_args_types>
+void PeriodicPluginBase::buildInput(dls::topicType &topic, WrapperBase* input, constructor_args_types... args)
 {
-    subscribers.push_back()
+    readers_.push_back(std::make_shared<SignalReader<MsgType>>(
+															dds_participant_,
+															topic,
+															std::make_shared<MsgType>(args...)));
+	inputs_.push_back(input);
 }
 
+template <typename MsgType, typename... constructor_args_types>
+void PeriodicPluginBase::buildOutput(dls::topicType &topic, WrapperBase* output, constructor_args_types... args)
+{
+    writers_.push_back(std::make_shared<SignalWriter<MsgType>>(
+															dds_participant_,
+															topic,
+															std::make_shared<MsgType>(args...)));
+	outputs_.push_back(output);
+}
 
-		template <typename MessageType, typename... constructor_args_types>
-		void buildInput(dls::topicType &topic, constructor_args_types... args);
-#endif /* end of include guard: WRAPPER_TPP */
-	
+#endif /* end of include guard: PERIODIC_PLUGIN_BASE_TPP */

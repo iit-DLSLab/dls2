@@ -1,14 +1,14 @@
-add_library(dls_estimator
+add_library(periodic_plugin_base
 	SHARED
-		src/estimator.cpp
+		src/periodic_plugin_base.cpp
 )
 
-target_include_directories(dls_estimator
+target_include_directories(periodic_plugin_base
 	PUBLIC
 		include
 )
 
-target_link_libraries(dls_estimator
+target_link_libraries(periodic_plugin_base
 	PUBLIC
 		robotlib
 		dls_app
@@ -16,7 +16,8 @@ target_link_libraries(dls_estimator
 		dls_com
 		dls_topics
 		dls_domains
+		dls_message_wrappers
 		dls_logging
 )
 
-dls_install(dls_estimator)
+dls_install(periodic_plugin_base)
