@@ -13,7 +13,7 @@
 #include <mutex>
 
 bool stop = false;
-unsigned long int window_size = 10000;
+unsigned long int window_size = 1000;
 std::vector<double> times{};
 std::chrono::system_clock::time_point last = std::chrono::high_resolution_clock::now();
 void * msg;  // just to avoid warnings during compilation..... :)
