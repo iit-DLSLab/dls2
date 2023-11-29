@@ -24,6 +24,7 @@
 #include <dls_messages/dds/doublePubSubTypes.h>
 #include <dls_messages/dds/controller_commandPubSubTypes.h>
 #include <dls_messages/dds/slip_flagPubSubTypes.h>
+#include <dls_messages/dds/mpc_generator_outputPubSubTypes.h>
 
 namespace dls
 {
@@ -55,6 +56,7 @@ namespace dls
 		extern dls::topicType trajectory_generator;
 		extern dls::topicType joy_signal;
 		extern dls::topicType controller_signal;
+		extern dls::topicType mpc_generator_output;
 
 		// services
 		extern dls::topicType param_server;
