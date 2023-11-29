@@ -7,7 +7,11 @@ namespace dls
 	: PeriodicApp(ID)
 	, active(false)
 	, dds_participant_(std::make_shared<dls::DDSParticipant>(ID, domain))
-	{}
+	{
+		// Define commands
+        command_manager.addCommand("activate", "Activate "+ID, &PeriodicPluginBase::activate, this, {{0,1}}, true);
+        command_manager.addCommand("deactivate", "Deactivate "+ID, &PeriodicPluginBase::deactivate, this, {{1,0}}, true);
+	}
 
 	PeriodicPluginBase::~PeriodicPluginBase()
 	{ }
@@ -31,5 +35,17 @@ namespace dls
 			}
 			writers_[i]->publish();
 		}
+	}
+
+	bool PeriodicPluginBase::activate()
+	{
+		active = true;
+		return true;
+	}
+
+	bool PeriodicPluginBase::deactivate()
+	{
+		active = false;
+		return true;
 	}
 }

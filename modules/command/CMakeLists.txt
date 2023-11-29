@@ -1,6 +1,7 @@
 add_library(dls_command SHARED
 	src/command_base.cpp
 	src/command.cpp
+	src/command_new.cpp
 	src/command_manager.cpp
 )
 

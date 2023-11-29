@@ -1,5 +1,5 @@
-#ifndef COMMAND_HPP_RSTXNA3I
-#define COMMAND_HPP_RSTXNA3I
+#ifndef COMMAND_NEW_HPP_RSTXNA3I
+#define COMMAND_NEW_HPP_RSTXNA3I
 
 // =============================================================================
 // Includes
@@ -12,6 +12,7 @@
 #include <memory>
 
 #include "dls2/command/command_base.hpp"
+#include "dls2/command/command.hpp"
 #include "dls2/util/messaging/dds_reader.hpp"
 #include "dls2/domains/domains.hpp"
 
@@ -23,9 +24,8 @@ namespace dls
 	/// Template class representing a local command
 	///
 	/// This class is used to register a command with the framework. Users should
-	/// prefer using CommandManager instead of using Command directly
-	template <typename...arg_ts>
-	class Command : public CommandBase
+	/// prefer using CommandManager instead of using CommandNew directly
+	class CommandNew : public CommandBase
 	{
 	friend class CommandManager;
     friend class CommandHelper;
@@ -41,27 +41,27 @@ namespace dls
 		/// any number of any type of argument, and returns any type
 		/// @param level execution level of the command
 		/// @param enabled set if the command is enabled or not
-		Command
+		CommandNew
 		(
 			std::string name,
 			CommandManager *owner,
 			std::string docstring,
-			std::function<bool(arg_ts...)> f,
+			std::function<bool(void)> f,
 			LevelType level = {{0,0}},
 			bool enabled = false
 		);
 
 		/// Destructor
 		///
-		~Command();
+		~CommandNew();
 
-		/// Enable the command
-		/// 
-		void setEnabled();
+		// /// Enable the command
+		// /// 
+		// void setEnabled();
 
-		/// Disable the command
-		///
-		void setDisabled();
+		// /// Disable the command
+		// ///
+		// void setDisabled();
 
 		/// Activate the command
 		/// 
@@ -76,7 +76,7 @@ namespace dls
 		// ============================= Data Members ==============================
 		/// Callback of the command
 		///
-		const std::function<bool(arg_ts...)> f;
+		const std::function<bool(void)> f;
 
 		/// Link the command with the rest of the framework
 		///
@@ -92,34 +92,21 @@ namespace dls
 
 		/// Call method
 		///
-		bool call(std::vector<std::string>);
+		bool call();
 
 	};
 
-	// ========================== class helpers ==========================
-	template <typename... Args, std::size_t... Is>
-	auto create_tuple_impl(std::index_sequence<Is...>, const std::vector<std::string>& arguments);
+	// // ========================== class helpers ==========================
+	// template <typename... Args, std::size_t... Is>
+	// auto create_tuple_impl(std::index_sequence<Is...>, const std::vector<std::string>& arguments);
 
-	template <typename... Args>
-	auto create_tuple(const std::vector<std::string>& args);
+	// template <typename... Args>
+	// auto create_tuple(const std::vector<std::string>& args);
 
     class CommandManager;
-
-    class CommandHelper
-    {
-    public:
-
-        static void changeCommandLevel(CommandManager *manager, int level);
-        static int getCurrentLevel(CommandManager *manager);
-
-		template <typename T>
-    	static bool readValue(const std::string &comment, T &value, T default_value);
-		template <typename T>
-    	static bool readValue(const std::string &comment, T &value);
-    };
 
 } // end namespace dls
 
 #include "dls2/command/command.tpp"
 
-#endif /* end of include guard: COMMAND_HPP_RSTXNA3I */
+#endif /* end of include guard: COMMAND_NEW_HPP_RSTXNA3I */

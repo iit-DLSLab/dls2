@@ -138,6 +138,46 @@ namespace dls
 		);
 	}
 
+    template <typename T>
+    bool CommandHelper::readValue(const std::string &comment, T &value, T default_value)
+    {
+        std::string input = "";
+        while(true) {
+            std::cout << comment << "[" << std::setprecision (3) << default_value << "]:";
+            getline(std::cin, input);
+            if (input == "") { //If user doesn't give input, return false
+                return false;
+            }
+            // This code converts from string to number safely.
+            std::stringstream myStream(input);
+            if (myStream >> value)
+                break;
+            std::cout << "Invalid number, please try again" << std::endl;
+        }
+
+        return true;
+    }
+
+    template <typename T>
+    bool CommandHelper::readValue(const std::string &comment, T &value)
+    {
+        std::string input = "";
+        while(true) {
+            std::cout << comment << ":";
+            getline(std::cin, input);
+            if (input == "") { //If user doesn't give input, return false
+                return false;
+            }
+            // This code converts from string to number safely.
+            std::stringstream myStream(input);
+            if (myStream >> value)
+                break;
+            std::cout << "Invalid number, please try again" << std::endl;
+        }
+
+        return true;
+    }
+
 
 	// -----------------------------------------------------------------------------
 	// Class Helpers
