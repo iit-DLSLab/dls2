@@ -25,10 +25,11 @@
 #include <dls_messages/dds/controller_commandPubSubTypes.h>
 #include <dls_messages/dds/slip_flagPubSubTypes.h>
 
+
+#include "dls2/topics/utils.hpp"
+
 namespace dls
 {
-	typedef std::pair<std::string, eprosima::fastdds::dds::TypeSupport> topicType;
-
 	namespace topics
 	{
 		// logs
