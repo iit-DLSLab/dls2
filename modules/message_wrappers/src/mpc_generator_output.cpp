@@ -82,22 +82,13 @@ MPCGeneratorOutput::operator MPCGeneratorOutputMsg() const
 		int j{0};
 		for (const auto& leg : desired_feet_positions_[i])
 		{
-			mpc_generator_output_msg.desired_feet_positions()[j+4*i] = desired_feet_positions_[i][leg.key_][0];
-			mpc_generator_output_msg.desired_feet_positions()[j+4*i+1] = desired_feet_positions_[i][leg.key_][1];
-			mpc_generator_output_msg.desired_feet_positions()[j+4*i+2] = desired_feet_positions_[i][leg.key_][2];
-
-			mpc_generator_output_msg.desired_feet_velocities()[j+4*i] = desired_feet_velocities_[i][leg.key_][0];
-			mpc_generator_output_msg.desired_feet_velocities()[j+4*i+1] = desired_feet_velocities_[i][leg.key_][1];
-			mpc_generator_output_msg.desired_feet_velocities()[j+4*i+2] = desired_feet_velocities_[i][leg.key_][2];
-
-			mpc_generator_output_msg.desired_feet_accelerations()[j+4*i] = desired_feet_accelerations_[i][leg.key_][0];
-			mpc_generator_output_msg.desired_feet_accelerations()[j+4*i+1] = desired_feet_accelerations_[i][leg.key_][1];
-			mpc_generator_output_msg.desired_feet_accelerations()[j+4*i+2] = desired_feet_accelerations_[i][leg.key_][2];
-
-			mpc_generator_output_msg.desired_ground_reaction_forces()[j+4*i] = desired_ground_reaction_forces_[i][leg.key_][0];
-			mpc_generator_output_msg.desired_ground_reaction_forces()[j+4*i+1] = desired_ground_reaction_forces_[i][leg.key_][1];
-			mpc_generator_output_msg.desired_ground_reaction_forces()[j+4*i+2] = desired_ground_reaction_forces_[i][leg.key_][2];
-
+			for (int z{0}; z<3; z++)
+			{
+				mpc_generator_output_msg.desired_feet_positions()[(i*4 + j)*3 + z] = desired_feet_positions_[i][leg.key_][z];
+				mpc_generator_output_msg.desired_feet_velocities()[(i*4 + j)*3 + z] = desired_feet_velocities_[i][leg.key_][z];
+				mpc_generator_output_msg.desired_feet_accelerations()[(i*4 + j)*3 + z] = desired_feet_accelerations_[i][leg.key_][z];
+				mpc_generator_output_msg.desired_ground_reaction_forces()[(i*4 + j)*3 + z] = desired_ground_reaction_forces_[i][leg.key_][z];
+			}
 			j++;
 		}
 
@@ -122,8 +113,8 @@ MPCGeneratorOutput& MPCGeneratorOutput::operator=(const MPCGeneratorOutputMsg& m
 	{
 		desired_base_poses_[i].set(Eigen::Vector3d(mpc_generator_output_msg.desired_base_positions()[0 + i*3],
 												   mpc_generator_output_msg.desired_base_positions()[1 + i*3],
-												   mpc_generator_output_msg.desired_base_positions()[2 + i*3]));
-		desired_base_poses_[i].set(Eigen::Quaterniond(mpc_generator_output_msg.desired_base_orientations()[3 + i*4],
+												   mpc_generator_output_msg.desired_base_positions()[2 + i*3]),
+								   Eigen::Quaterniond(mpc_generator_output_msg.desired_base_orientations()[3 + i*4],
 												   	  mpc_generator_output_msg.desired_base_orientations()[0 + i*4],
 												   	  mpc_generator_output_msg.desired_base_orientations()[1 + i*4],
 												   	  mpc_generator_output_msg.desired_base_orientations()[2 + i*4]));
@@ -160,22 +151,13 @@ MPCGeneratorOutput& MPCGeneratorOutput::operator=(const MPCGeneratorOutputMsg& m
 		int j{0};
 		for (auto &leg : desired_feet_positions_[i])
 		{
-			desired_feet_positions_[i][leg.key_][0] = mpc_generator_output_msg.desired_feet_positions()[j + i*4];
-			desired_feet_positions_[i][leg.key_][1] = mpc_generator_output_msg.desired_feet_positions()[j + i*4 + 1];
-			desired_feet_positions_[i][leg.key_][2] = mpc_generator_output_msg.desired_feet_positions()[j + i*4 + 2];
-
-			desired_feet_velocities_[i][leg.key_][0] = mpc_generator_output_msg.desired_feet_velocities()[j + i*4];
-			desired_feet_velocities_[i][leg.key_][1] = mpc_generator_output_msg.desired_feet_velocities()[j + i*4 + 1];
-			desired_feet_velocities_[i][leg.key_][2] = mpc_generator_output_msg.desired_feet_velocities()[j + i*4 + 2];
-
-			desired_feet_accelerations_[i][leg.key_][0] = mpc_generator_output_msg.desired_feet_accelerations()[j + i*4];
-			desired_feet_accelerations_[i][leg.key_][1] = mpc_generator_output_msg.desired_feet_accelerations()[j + i*4 + 1];
-			desired_feet_accelerations_[i][leg.key_][2] = mpc_generator_output_msg.desired_feet_accelerations()[j + i*4 + 2];
-
-			desired_ground_reaction_forces_[i][leg.key_][0] = mpc_generator_output_msg.desired_ground_reaction_forces()[j + i*4];
-			desired_ground_reaction_forces_[i][leg.key_][1] = mpc_generator_output_msg.desired_ground_reaction_forces()[j + i*4 + 1];
-			desired_ground_reaction_forces_[i][leg.key_][2] = mpc_generator_output_msg.desired_ground_reaction_forces()[j + i*4 + 2];
-
+			for (int z{0}; z<3; z++)
+			{
+				desired_feet_positions_[i][leg.key_][z] = mpc_generator_output_msg.desired_feet_positions()[(i*4 + j)*3 + z];
+				desired_feet_velocities_[i][leg.key_][z] = mpc_generator_output_msg.desired_feet_velocities()[(i*4 + j)*3 + z];
+				desired_feet_accelerations_[i][leg.key_][z] = mpc_generator_output_msg.desired_feet_accelerations()[(i*4 + j)*3 + z];
+				desired_ground_reaction_forces_[i][leg.key_][z] = mpc_generator_output_msg.desired_ground_reaction_forces()[(i*4 + j)*3 + z];
+			}
 			j++;
 		}
 
