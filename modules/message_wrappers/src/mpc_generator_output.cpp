@@ -62,21 +62,17 @@ MPCGeneratorOutput::operator MPCGeneratorOutputMsg() const
 		mpc_generator_output_msg.desired_base_orientations()[i*4+2] = desired_base_poses_[i].toQuaternion().z();
 		mpc_generator_output_msg.desired_base_orientations()[i*4+3] = desired_base_poses_[i].toQuaternion().w();
 
-		int leg_id{0};
 		int leg_joint_id{0};
 		for(const auto& leg : desired_joints_positions_[i])
 		{
-			leg_joint_id = 0;
-
 			for(auto &joint : *leg.data_)
 			{
-				mpc_generator_output_msg.desired_joints_positions()[3*leg_id + leg_joint_id + 12*i] = desired_joints_positions_[i][joint.key_];
-				mpc_generator_output_msg.desired_joints_velocities()[3*leg_id + leg_joint_id + 12*i] = desired_joints_velocities_[i][joint.key_];
-				mpc_generator_output_msg.desired_joints_accelerations()[3*leg_id + leg_joint_id + 12*i] = desired_joints_accelerations_[i][joint.key_];
-				mpc_generator_output_msg.desired_torques()[3*leg_id + leg_joint_id + 12*i] = desired_torques_[i][joint.key_];
+				mpc_generator_output_msg.desired_joints_positions()[leg_joint_id + 12*i] = desired_joints_positions_[i][joint.key_];
+				mpc_generator_output_msg.desired_joints_velocities()[leg_joint_id + 12*i] = desired_joints_velocities_[i][joint.key_];
+				mpc_generator_output_msg.desired_joints_accelerations()[leg_joint_id + 12*i] = desired_joints_accelerations_[i][joint.key_];
+				mpc_generator_output_msg.desired_torques()[leg_joint_id + 12*i] = desired_torques_[i][joint.key_];
 				leg_joint_id++;
 			}
-			leg_id++;
 		}
 
 		int j{0};
@@ -131,21 +127,17 @@ MPCGeneratorOutput& MPCGeneratorOutput::operator=(const MPCGeneratorOutputMsg& m
 												   				  mpc_generator_output_msg.desired_base_angular_accelerations()[1 + i*3],
 												   				  mpc_generator_output_msg.desired_base_angular_accelerations()[2 + i*3]));
 
-		int leg_id{0};
-		for(const auto &leg : desired_joints_positions_[i])
+		int leg_joint_id{0};
+		for(const auto& leg : desired_joints_positions_[i])
 		{
-			int j = leg_id*leg.key_->getNJoints();
-
 			for(auto &joint : *leg.data_)
 			{
-				desired_joints_positions_[i][joint.key_] = mpc_generator_output_msg.desired_joints_positions()[j + 12*i];
-				desired_joints_velocities_[i][joint.key_] = mpc_generator_output_msg.desired_joints_velocities()[j + 12*i];
-				desired_joints_accelerations_[i][joint.key_] = mpc_generator_output_msg.desired_joints_accelerations()[j + 12*i];
-				desired_torques_[i][joint.key_] = mpc_generator_output_msg.desired_torques()[j + 12*i];
-				j++;
+				desired_joints_positions_[i][joint.key_] = mpc_generator_output_msg.desired_joints_positions()[leg_joint_id + 12*i];
+				desired_joints_velocities_[i][joint.key_] = mpc_generator_output_msg.desired_joints_velocities()[leg_joint_id + 12*i];
+				desired_joints_accelerations_[i][joint.key_] = mpc_generator_output_msg.desired_joints_accelerations()[leg_joint_id + 12*i];
+				desired_torques_[i][joint.key_] = mpc_generator_output_msg.desired_torques()[leg_joint_id + 12*i];
+				leg_joint_id++;
 			}
-
-			leg_id++;
 		}
 
 		int j{0};
