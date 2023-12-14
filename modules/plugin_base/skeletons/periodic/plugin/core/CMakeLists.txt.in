@@ -1,0 +1,44 @@
+# Create plugin library
+add_library(${PROJECT_NAME} SHARED
+	src/plugin.cpp
+)
+target_include_directories(${PROJECT_NAME}
+	PUBLIC
+		include
+)
+target_link_libraries(${PROJECT_NAME}
+	PUBLIC
+		periodic_plugin_base
+		${MODULE_LIBRARY_NAME}
+		${CONSOLE_COMMANDS_LIBRARY_NAME}
+		#${MSGS_WRAPPERS_LIBRARY_NAME}
+		#${TOPICS_LIBRARY_NAME}
+		# add, if necessary, other libraries
+)
+target_link_directories(${PROJECT_NAME}
+	PRIVATE
+        /usr/local/lib/dls2
+        /usr/lib/dls2
+        /usr/local/lib/dls2/services
+        /usr/lib/dls2/services
+)
+
+# ================================== Install =================================
+
+install(
+	DIRECTORY   include/
+	COMPONENT   stance_detection_dev
+	DESTINATION /usr/include/dls2/@PLUGIN_TYPE@/${PROJECT_NAME}
+)
+
+install(
+	FILES config/scheduler.yml
+	COMPONENT   ${PROJECT_NAME}
+	DESTINATION /usr/include/dls2/schedulers/${PROJECT_NAME}
+)
+
+install(
+	TARGETS             ${PROJECT_NAME}
+	LIBRARY DESTINATION /usr/lib/dls2/@PLUGIN_TYPE@
+	COMPONENT           ${PROJECT_NAME}
+)

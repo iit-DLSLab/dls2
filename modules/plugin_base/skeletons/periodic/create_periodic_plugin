@@ -1,0 +1,89 @@
+#!/bin/bash
+info () {
+  echo "Possible plugin types: hardwares, estimators, motion_generators, controllers"
+  echo "Plugin name convention: all lower case letter, use _ character to separate words"
+  echo -e "-----------------------------------------------------\n"
+}
+
+check_plugin_type_inputs () {
+  if [ "$1" != "hardwares" ] &&
+     [ "$1" != "estimators" ] &&
+     [ "$1" != "motion_generators" ] &&
+     [ "$1" != "controllers" ]; then
+        echo "Wrong plugin type. The possible plugin types are:"
+        echo "hardwares, estimators, motion_generators, controllers"
+        return 2 # most common number used to exit
+  fi
+}
+check_plugin_name () {
+  if ! $(echo $1 | grep -Pq '^[a-z]+(_[a-z]+)+$') && # follow this pattern: name1_name2
+     ! $(echo $1 | grep -Pq '^[a-z]+$'); then # follow this pattern: name
+        echo "Wrong plugin name. Use only lower case letters, and use _ character to separate words inside the name."
+        return 2  # most common number used to exit
+  fi
+}
+
+echo -e "\nWOW, you are going to create a periodic plugin for DLS2!\n"
+
+# Display info
+info
+
+# Read plugin type
+echo -n "Plugin type: "
+read PLUGIN_TYPE
+check_plugin_type_inputs $PLUGIN_TYPE
+if [[ $? == 2 ]]; then
+	return
+fi
+# Read the plugin name
+echo -n "Plugin name: "
+read PLUGIN_NAME
+check_plugin_name $PLUGIN_NAME
+if [[ $? == 2 ]]; then
+	return
+fi
+
+# Set the project name of the plugin
+PLUGIN_LIBRARY_NAME=${PLUGIN_NAME}_plugin
+
+# Get the module class name, by converting the plugin name: using capital letters as separator instead of _ character
+IFS_DEFAULT=$IFS
+IFS='_'
+read -a PLUGIN_NAME_array <<< "$PLUGIN_NAME"
+MODULE_CLASS_NAME=""
+for word in "${PLUGIN_NAME_array[@]}"; do
+    MODULE_CLASS_NAME="${MODULE_CLASS_NAME}${word^}"
+done
+IFS=$IFS_DEFAULT
+
+# Set the name of the plugin class
+PLUGIN_CLASS_NAME=${MODULE_CLASS_NAME}Plugin
+
+# set console command class name
+CONSOLE_COMMANDS_CLASS_NAME=${MODULE_CLASS_NAME}ConsoleCommands
+
+# set header guards name
+PLUGIN_HEADER_GUARD=${PLUGIN_NAME^^}_PLUGIN_HPP
+MODULE_HEADER_GUARD=${PLUGIN_NAME^^}_HPP
+CONSOLE_COMMANDS_HEADER_GUARDS=${PLUGIN_NAME^^}_CONSOLE_COMMANDS_HPP
+TOPICS_HEADER_GUARD=${PLUGIN_NAME^^}_TOPICS_HPP
+
+# echo $PLUGIN_TYPE
+# echo $PLUGIN_NAME
+# echo $PLUGIN_LIBRARY_NAME
+# echo $PLUGIN_CLASS_NAME
+# echo $PLUGIN_HEADER_GUARD
+# echo $MODULE_CLASS_NAME
+# echo $MODULE_HEADER_GUARD
+# echo $CONSOLE_COMMANDS_CLASS_NAME
+# echo $CONSOLE_COMMANDS_HEADER_GUARDS
+# echo $TOPICS_HEADER_GUARD
+
+# build the bare skeleton periodic plugin
+bare_skeleton_folder="/usr/include/dls2/plugin_skeletons/periodic"
+periodic_plugin_folder="."
+
+cmake $bare_skeleton_folder -DPLUGIN_LIBRARY_NAME=$PLUGIN_LIBRARY_NAME -DPLUGIN_NAME=$PLUGIN_NAME -DPLUGIN_TYPE=$PLUGIN_TYPE -DPLUGIN_CLASS_NAME=$PLUGIN_CLASS_NAME -DMODULE_CLASS_NAME=$MODULE_CLASS_NAME -DCONSOLE_COMMANDS_CLASS_NAME=$CONSOLE_COMMANDS_CLASS_NAME -DPLUGIN_HEADER_GUARD=$PLUGIN_HEADER_GUARD -DMODULE_HEADER_GUARD=$MODULE_HEADER_GUARD -DCONSOLE_COMMANDS_HEADER_GUARDS=$CONSOLE_COMMANDS_HEADER_GUARDS -DTOPICS_HEADER_GUARD=$TOPICS_HEADER_GUARD
+
+# remove unuseful files
+gio trash CMakeFiles cmake_install.cmake CMakeCache.txt Makefile

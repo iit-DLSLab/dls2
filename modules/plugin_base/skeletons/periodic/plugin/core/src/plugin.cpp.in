@@ -1,0 +1,63 @@
+#include "@PLUGIN_TYPE@/@PLUGIN_NAME@/plugin.hpp"
+
+// topics
+/*include_paths_to_topics_headers*/
+
+namespace @PLUGIN_TYPE@ 
+{
+    @PLUGIN_CLASS_NAME@::@PLUGIN_CLASS_NAME@ (std::string& ID/*, aguments_of_module_constructor*/) 
+    : dls::PeriodicPluginBase(ID)
+    , @PLUGIN_NAME@(/*aguments_of_module_constructor*/) // instantiate module
+    , console_commands(&@PLUGIN_NAME@, &command_manager)
+    /*, construct_input_variables*/ // instantiate input
+    /*, construct_output_variables*/ //instantiate output
+    {
+        // Define inputs
+        /*this->buildInput<message_wrapper_class, type_of_arguments_of_message_constructor>(
+            topic_name,
+            &input_variable_name,
+            arguments_of_message_constructor
+        );*/
+
+        // Define outputs
+        /*this->buildOutput<message_wrapper_class, type_of_arguments_of_message_constructor>(
+            topic_name,
+            &output_variable_name,
+            arguments_of_message_constructor
+        );*/
+    }
+
+    @PLUGIN_CLASS_NAME@::~@PLUGIN_CLASS_NAME@()
+    { }
+    
+    std::string @PLUGIN_CLASS_NAME@::where()
+    {
+        std::stringstream ss;
+        ss << "TODO \n";
+
+        return ss.str();
+    }
+    
+    void @PLUGIN_CLASS_NAME@::run(const std::chrono::system_clock::time_point& time)
+    {
+        // Read inputs
+        read();
+        
+        // Run module
+        @PLUGIN_NAME@.run(/*input_variables, output_variables*/);
+
+        // Publish outputs
+        write();
+    }
+
+    extern "C" PeriodicPluginBase *create(std::string ID)
+    {
+        /*call_plugin_constructor*/
+        return new @PLUGIN_CLASS_NAME@(ID/*, aguments_of_module_constructor*/);
+    }
+
+    extern "C" void destroy(PeriodicPluginBase *p)
+    {
+            delete p;
+    }
+} //namespace @PLUGIN_TYPE@

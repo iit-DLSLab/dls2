@@ -1,0 +1,24 @@
+# Add topics
+add_library(${TOPICS_LIBRARY_NAME}
+	SHARED
+	src/topics.cpp
+)
+target_include_directories(${TOPICS_LIBRARY_NAME}
+PUBLIC
+    include
+	${CMAKE_CURRENT_BINARY_DIR}/../messages/include
+)
+target_link_libraries(${TOPICS_LIBRARY_NAME}
+	PUBLIC
+	#dls_messages
+	@MSGS_WRAPPERS_LIBRARY_NAME@ 
+	dls_topics
+)
+
+# ================================== Install =================================
+
+install(
+	TARGETS             ${TOPICS_LIBRARY_NAME}
+	LIBRARY DESTINATION /usr/lib/dls2/estimators
+	COMPONENT           ${TOPICS_LIBRARY_NAME}
+)

@@ -1,0 +1,31 @@
+#ifndef @CONSOLE_COMMANDS_HEADER_GUARDS@
+#define @CONSOLE_COMMANDS_HEADER_GUARDS@
+
+// module header
+#include "@PLUGIN_TYPE@/@PLUGIN_NAME@/@PLUGIN_NAME@.hpp"
+
+// command manager
+#include "dls2/command/command_manager.hpp"
+
+namespace @PLUGIN_TYPE@
+{
+	class @CONSOLE_COMMANDS_CLASS_NAME@
+	{
+	public:
+		@CONSOLE_COMMANDS_CLASS_NAME@
+		(
+			@MODULE_CLASS_NAME@*  const ptr, // module object pointer
+			dls::CommandManager*  const command_manager_ptr //command manager ptr, when console functions are registered
+		);
+
+		~@CONSOLE_COMMANDS_CLASS_NAME@();
+
+	private:
+		//! Module object pointer
+		@MODULE_CLASS_NAME@ * const ptr;
+
+		// Console functions
+		/* bool function_name();*/
+	};
+}
+#endif /* end of include guard: @CONSOLE_COMMANDS_HEADER_GUARDS@ */

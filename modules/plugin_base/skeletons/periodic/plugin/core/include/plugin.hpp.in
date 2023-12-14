@@ -1,0 +1,37 @@
+#ifndef @PLUGIN_HEADER_GUARD@
+#define @PLUGIN_HEADER_GUARD@
+
+// periodic plugin header
+#include "dls2/plugin_base/periodic_plugin_base.hpp"
+#include "@PLUGIN_TYPE@/@PLUGIN_NAME@/@PLUGIN_NAME@.hpp"
+#include "@PLUGIN_TYPE@/@PLUGIN_NAME@/console_commands.hpp"
+// wrappers
+//#include "/*paths_to_wrapper_header*/
+
+namespace @PLUGIN_TYPE@
+{
+    class @PLUGIN_CLASS_NAME@ : public dls::PeriodicPluginBase
+    {
+    public:
+        @PLUGIN_CLASS_NAME@ (
+            std::string &ID
+            /*, aguments_of_module_constructor*/);
+
+        ~@PLUGIN_CLASS_NAME@();
+
+        void run(const std::chrono::system_clock::time_point &time) override;
+
+        std::string where() override;
+
+        AppStatus eStop() override { return getStatus(); }
+
+    private:
+        @MODULE_CLASS_NAME@ @PLUGIN_NAME@;
+        @CONSOLE_COMMANDS_CLASS_NAME@ console_commands;
+
+        /*define_inputs*/
+        /*define_output*/
+    };
+} // namespace @PLUGIN_TYPE@
+
+#endif // end of include guard: @PLUGIN_HEADER_GUARD@

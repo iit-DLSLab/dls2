@@ -1,0 +1,66 @@
+cmake_minimum_required(VERSION 3.15)   
+
+project(@PLUGIN_LIBRARY_NAME@)
+
+# set configuration variables
+set(MODULE_LIBRARY_NAME @PLUGIN_NAME@)
+set(CONSOLE_COMMANDS_LIBRARY_NAME ${MODULE_LIBRARY_NAME}_console_commands)
+set(MSGS_LIBRARY_NAME ${MODULE_LIBRARY_NAME}_msgs)
+set(MSGS_WRAPPERS_LIBRARY_NAME ${MODULE_LIBRARY_NAME}_msgs_wrappers)
+set(TOPICS_LIBRARY_NAME ${MODULE_LIBRARY_NAME}_topics)
+
+add_compile_options("-std=c++2a")
+
+# ==============================================================================
+# Calculate correct project version number
+# ==============================================================================
+# Read in the current version
+file(READ version.txt PROJECT_VERSION)
+
+# create array of version strings
+string(REPLACE "." ";" VERSION_ARRAY ${PROJECT_VERSION})
+# ------------------------------------------------------------------------------
+# Major, Minor, Patch numbers
+# ------------------------------------------------------------------------------
+# set corresponding cmake version variables
+list(POP_FRONT VERSION_ARRAY
+	PROJECT_VERSION_MAJOR
+	PROJECT_VERSION_MINOR
+	PROJECT_VERSION_PATCH
+)
+# Remove the trailing newline from the patch number
+string(REPLACE "\n" "" PROJECT_VERSION_PATCH ${PROJECT_VERSION_PATCH})
+
+# ------------------------------------------------------------------------------
+# Full version number
+# ------------------------------------------------------------------------------
+# Rebuild the project version including the current commit hash
+string(JOIN "." PROJECT_VERSION
+	${PROJECT_VERSION_MAJOR}
+	${PROJECT_VERSION_MINOR}
+	${PROJECT_VERSION_PATCH}
+)
+unset(VERSION_ARRAY) # delete aray of version strings
+message(STATUS "SLIP DETECTION PROJECT VERSION ${PROJECT_VERSION}")
+
+# ==============================================================================
+# Setup the repository
+# ==============================================================================
+# This will perfom task such as setting up the git hooks for anyone who uses
+# this project
+execute_process(
+	COMMAND           ./setup.sh
+	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+# Set RELEASE as the default build type
+if(NOT CMAKE_BUILD_TYPE)
+	set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
+endif()
+
+# ================================== Library config ==========================
+add_subdirectory(plugin)
+add_subdirectory(module)
+
+# ================================= Packaging =================================
+# TODO
