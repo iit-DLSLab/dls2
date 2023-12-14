@@ -13,7 +13,6 @@ target_link_libraries(${PROJECT_NAME}
 		${CONSOLE_COMMANDS_LIBRARY_NAME}
 		#${MSGS_WRAPPERS_LIBRARY_NAME}
 		#${TOPICS_LIBRARY_NAME}
-		# add, if necessary, other libraries
 )
 target_link_directories(${PROJECT_NAME}
 	PRIVATE

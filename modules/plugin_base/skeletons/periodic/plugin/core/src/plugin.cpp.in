@@ -1,7 +1,8 @@
 #include "@PLUGIN_TYPE@/@PLUGIN_NAME@/plugin.hpp"
 
 // topics
-/*include_paths_to_topics_headers*/
+//#include "dls2/topics/topics.hpp" // off-the-shelf topics
+//#include "@PLUGIN_TYPE@/@PLUGIN_NAME@/topics.hpp" // custom topics
 
 namespace @PLUGIN_TYPE@ 
 {
@@ -44,7 +45,7 @@ namespace @PLUGIN_TYPE@
         read();
         
         // Run module
-        @PLUGIN_NAME@.run(/*input_variables, output_variables*/);
+        @PLUGIN_NAME@.run(/*input_arguments, output_arguments*/);
 
         // Publish outputs
         write();

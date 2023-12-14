@@ -9,6 +9,6 @@ namespace @PLUGIN_TYPE@
     @MODULE_CLASS_NAME@::~@MODULE_CLASS_NAME@()
     { }
 
-    void @MODULE_CLASS_NAME@::run(/*input_variables, output_variables*/)
+    void @MODULE_CLASS_NAME@::run(/*input_arguments, output_arguments*/)
     { }
 } //namespace @PLUGIN_TYPE@

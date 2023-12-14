@@ -10,7 +10,7 @@ target_include_directories(${MODULE_LIBRARY_NAME}
 )
 target_link_libraries(${MODULE_LIBRARY_NAME}
 	yaml
-	# add linked libraries here
+	# add other linked libraries here
 )
 
 # ================================== Install =================================

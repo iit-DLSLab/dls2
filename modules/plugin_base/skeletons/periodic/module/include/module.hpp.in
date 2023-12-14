@@ -24,7 +24,7 @@ namespace @PLUGIN_TYPE@
         /*!
         * @brief Run function
         */
-        void run(/*input_variables, output_variables*/);
+        void run(/*input_arguments, output_arguments*/);
     
     private:
         YAML::Node config;
