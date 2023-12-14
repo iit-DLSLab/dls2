@@ -22,8 +22,6 @@ For example in this case
 
 the entity _periodic_ has created a command called _startMotion_.
 
-IMAGE OF COMMANDS IN DOMAIN
-
 ## How a command is activated
 Each entity might have several commands. However, a command might have preconditions to be match before it can be made available. For example, there is no need to stop the robot motion if it is not moving. So there is no need of a _stopMotion_ command if _startMotion_ has not been executed. Therefore, a state machine is used to identify which command is available in which state, avoiding to provide unuseful commands.
 
@@ -45,3 +43,4 @@ There is a state machine per owner. So if for example it is running the _pid_ an
 The user should take care about building the state machine for each entity she/he is defining. Such state machine prevents to run commands that depends on the outputs of others, thus improving the robustness of the simulation/experiment.
 
 ## How to define a command
+TODO

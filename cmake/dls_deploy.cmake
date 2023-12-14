@@ -61,3 +61,12 @@ install(
 		PATTERN "*.hpp"
 		PATTERN "*.tpp"
 )
+
+install(
+    DIRECTORY
+		${PROJECT_SOURCE_DIR}/cmake/
+    DESTINATION
+		/usr/include/dls2/cmake
+	COMPONENT
+		dls_dev
+)

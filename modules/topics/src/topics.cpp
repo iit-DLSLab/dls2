@@ -33,6 +33,7 @@ namespace dls
 		dls::topicType trajectory_generator 	= dls::topicType("trajectory_generator", new TrajectoryGeneratorMsgPubSubType());
 		dls::topicType joy_signal				= dls::topicType("joy_signal", new  ControllerCommandMsgPubSubType());
 		dls::topicType controller_signal		= dls::topicType("controller_command", new  ControllerCommandMsgPubSubType());
+		dls::topicType mpc_generator_output		= dls::topicType("mpc_generator_output", new  MPCGeneratorOutputMsgPubSubType());
 
 		// services
 		dls::topicType param_server 			= dls::topicType("add_double", new ParamServerMsgPubSubType());
