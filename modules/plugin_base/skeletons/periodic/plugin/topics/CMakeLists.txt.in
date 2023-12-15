@@ -11,7 +11,7 @@ PUBLIC
 target_link_libraries(${TOPICS_LIBRARY_NAME}
 	PUBLIC
 	#dls_messages
-	@MSGS_WRAPPERS_LIBRARY_NAME@ 
+	#${MSGS_LIBRARY_NAME} 
 	dls_topics
 )
 

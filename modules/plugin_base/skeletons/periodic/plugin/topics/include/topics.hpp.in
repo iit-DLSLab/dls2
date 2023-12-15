@@ -2,7 +2,7 @@
 #define @TOPICS_HEADER_GUARD@
 
 #include "dls2/topics/utils.hpp"
-// Include the TopicDataType of each message associated to each topic
+// Include the TypeSupport of each message associated to each topic
 //#include <dls_messages/dds/<idl_file_name>PubSubTypes.h> # off-the-shelf message
 //#include "dls_messages/dds/<idl_file_name>PubSubTypes.h" # custom message
 
