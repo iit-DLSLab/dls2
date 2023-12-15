@@ -253,14 +253,65 @@ Congratulations! You have created your fist periodic plugin for dls2!
 In the plugin/config folder you have the possibility to set the properties of the scheduler.
 
 ### Create custom console commands
-Creating console commmands is quite easy. The console commands are functions, called from the console, that change the status of your running module. Since the console is implemented as a DLS2 layer, to keep the module independent from how to interact with the console, a separated console function class is defined that links the plugin with the module. This is done by
+Creating console commmands in plugin/console_commands is quite easy. The console commands are functions, called from the console, that change the status of your running module. Since the console is implemented as a DLS2 layer, to keep the module independent from how to interact with the console, a separated console function class is defined that links the plugin with the module. This is done by
 * defining functions, to be used in the console, that changes the status of the running module
 * adding such functions to the command manager of the plugin, as console commands
 
 To do that:
-* declare console functions in .hpp
-* implement console functions in .cpp
-* add the console functions to the command manager
+* declare the console functions in console_functions.hpp. For example
+
+      /* bool function_name();*/
+  becames
+
+      bool setStanceDetectionMethod();
+
+* implement the console functions in console_functions.cpp. For example
+
+      /*
+	      bool StanceDetectionConsoleCommands::function_name()
+      {
+        // Define function here, using ptr to access to module object's state
+        
+        return true;
+      }
+      */
+
+  becames
+
+      bool StanceDetectionConsoleCommands::setStanceDetectionMethod()
+      {
+        std::cout   << "Stance detection methods:\n"
+                    <<  "Use sensor data: " << StanceDetectionMethod::use_sensor_data << "\n"
+                    <<  "Use estimated grf: " << StanceDetectionMethod::use_estimated_grf << "\n";
+        int stance_method{-1};
+        if(CommandHelper::readValue<int>("Stance method", stance_method, ptr->stance_detection_method_))
+        {
+            ptr_->stance_detection_method_ = stance_method;
+        }
+      }
+
+      return true;
+
+  As you can see from this example, the state of the module instance is changed through the ptr pointer. Moreover, to get the data from the command line, you can use the *CommandHelper::readValue<value_type>* function. This function takes as inputs:
+  
+  * a comment to be displayed
+  * the variable to be filled with the command line value; this variable is of *value_type* type which has to be equal to the command line value type
+  * an optional value corresponding to the current value that you want to change. If it is provided, it is displayed; otherwise it is not
+
+* add the console functions to the command manager. For example
+
+        /*command_manager_ptr->addCommand(  "command_name",
+                                            "comment_of_the_command",
+                                            &StanceDetectionConsoleCommands::function_name, this, {}, true);
+        */
+  becames
+      
+      // Add console commands
+      command_manager_ptr->addCommand("setStanceDetectionMethod",
+                                        "Set stance detector method",
+                                        &StanceDetectionConsoleCommands::setStanceDetectionMethod, this, {}, true);
+  The *command_manager_ptr* is a pointer to the command manager object of the plugin creating an instance of the console commands class. See [here](https://gitlab.advr.iit.it/dls-lab/dls2/-/tree/clear_inputs_outputs/modules%2Fcommand#how-to-define-a-command) for how to create a command.
+  
 
 ### Create custom messages
 // TODO
