@@ -48,7 +48,7 @@ namespace dls
 			std::string docstring,
 			std::function<bool(void)> f,
 			LevelType level = {{0,0}},
-			bool enabled = false
+			bool enabled = true
 		);
 
 		/// Destructor
