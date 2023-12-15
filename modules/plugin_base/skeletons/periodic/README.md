@@ -20,7 +20,7 @@ The Plugin, module and console commands classes are automatically created, toget
 
 Notice that the include directories has a subdirectory following this convention
 
-        include/dls/<plugin_type>/<plugin_name>
+        include/<plugin_type>/<plugin_name>
 
 where *\<plugin_name>* is the name of the plugin, and *\<plugin_type>* is the plugin type that can be: *hardwares, estimators, controllers, motion_generators*. This include structure helps with the inclusion of the headers in other libraries.
 
