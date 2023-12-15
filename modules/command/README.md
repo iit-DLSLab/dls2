@@ -107,4 +107,4 @@ As an example, let's define the commands of the previous example
 
 As you can see, there are 1 or more transition states. You could also define a command with no transition, with the empty set *{}* (not *{{}}*). In this case the command is always available.
 
-Notice also that we have used *this* as pointer to the instance class of Periodic. This is because in this example the console commands were added in the same class (Periodic) where the functions associated to the commands are defined. As you can see [here-TODO](), this is always the case.
+Notice also that we have used *this* as pointer to the instance class of Periodic. This is because in this example the console commands were added in the same class (Periodic) where the functions associated to the commands are defined. As you can see [here](https://gitlab.advr.iit.it/dls-lab/dls2/-/tree/clear_inputs_outputs/modules%2Fplugin_base%2Fskeletons%2Fperiodic#create-custom-console-commands), this is always the case.
