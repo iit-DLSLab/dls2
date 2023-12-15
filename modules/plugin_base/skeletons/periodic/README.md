@@ -27,7 +27,7 @@ where *\<plugin_name>* is the name of the plugin, and *\<plugin_type>* is the pl
 Don't worry, you are lucky: we will guide you step-by-step with the customization of your plugin.
 
 ## Hands-on
-In this section we will see how to customize the project. In the project files, there are comments that suggest you what to do. Some of them are straightforward. For others instead, it is provided an example to clarify what to do. The example considers that an user has created a plugin for a stance detection module.
+In this section we will see how to customize the project. In the project files, there are comments that suggest you what to do. Some of them are straightforward. For others instead, it is provided an example to clarify what to do. Most of the examples consider that an user has created a plugin for a stance detection module.
 
 ### Outermost CMakeLists.txt
 Let's start with the outermost CMakeLists.txt.
@@ -298,6 +298,8 @@ To do that:
   * the variable to be filled with the command line value; this variable is of *value_type* type which has to be equal to the command line value type
   * an optional value corresponding to the current value that you want to change. If it is provided, it is displayed; otherwise it is not
 
+  It returns true if the console input is not empty: in this case you can then update the ptr state.
+
 * add the console functions to the command manager. For example
 
         /*command_manager_ptr->addCommand(  "command_name",
@@ -314,8 +316,94 @@ To do that:
   
 
 ### Create custom messages
-// TODO
+In plugin/messages you can define custom messages. To create a message:
+* add its idl file in plugin/messages/idls. For example, the *message.idl* file can be renamed to *stance_status.idl* and
+
+      struct <MessageName>Msg{}
+  becames
+
+      struct StanceStatusMsg
+      {
+            // Header
+            string frame_id;
+            unsigned long sequence_id;
+            double timestamp;
+
+            // Stance status
+            double stance_status[4];
+      };
+  By convetion, please ends the struct name with *Msg*.
+* create a message wrapper
+      
+      TODO
+* in plugin/CMakeLists.txt, uncomment the following line
+
+      #add_subdirectory(messages)
+
+So far, you have create a library for custom messages. To link the messages library to the custom topics, in plugin/topics/CMakeLists.txt uncomment the following line
+
+      #${MSGS_LIBRARY_NAME}
+To link instead the library of the custom messages' wrappers to your plugin, in plugin/core/CMakeLists.txt uncomment the following line
+
+      #${MSGS_WRAPPERS_LIBRARY_NAME}
 
 ### Create custom topics
+In plugin/topics you have the possiblity to create custom topics. For each topic you have to define a topic name and a topic message. If at least one of the custom topic is defined using off-the-shelf message, decomment *dls_messages* in plugin/topics/CMakeLists.txt. If instead custom messages are used, decomment in the same file *${MSGS_LIBRARY_NAME}*, which is the library of the custom message. Both of them can be uncommented if you have a mixed configuration.
 
+To create a plugin
+* in topics.hpp, include the [TypeSupport](https://fast-dds.docs.eprosima.com/en/latest/fastdds/dds_layer/topic/typeSupport/typeSupport.html?highlight=TopicDataType#definition-of-data-types) of each topic. Thanks to [Fast DDS-Gen](https://fast-dds.docs.eprosima.com/en/latest/fastdds/dds_layer/topic/fastddsgen/fastddsgen.html#fast-dds-gen-for-data-types-source-code-generation), the TypeSupport of each message is automatically created from the corresponding idl file, when building the project. For example, if you have a custom idl file in plugin/messages/idls called stance_status.idl, you have that
 
+      // Include the TypeSupport of each message associated to each topic
+      //#include <dls_messages/dds/<idl_file_name>PubSubTypes.h> # off-the-shelf message
+      //#include "dls_messages/dds/<idl_file_name>PubSubTypes.h" # custom message
+
+  becames
+
+      #include "dls_messages/dds/stance_statusPubSubTypes.h"
+
+  If your module instead needs to create another topic from a off-the-shelf message, you can include it, for example, in this way
+
+      #include "dls_messages/dds/control_signalPubSubTypes.h"
+  where *control_signal* is the name of the idl file of the control signal message.
+* in topics.hpp, declare the topic. For example
+
+      //extern dls::topicType topic_variable_name;
+  becames
+
+      extern dls::topicType stance_status;
+* in topics.cpp, define the topic. For example
+
+      //dls::topicType topic_variable_name = dls::topicType("topic_name", new <message_name>PubSubType());
+  becames
+
+      dls::topicType stance_status = dls::topicType("stance_status", new stance_statusPubSubType());
+* in plugin/CMakeLists.txt, uncomment the following line
+
+      #add_subdirectory(topics)
+  Remember that if at least one of your topics is using custom messages,
+
+      #add_subdirectory(messages)
+  should be uncommented too.
+
+So far you have created the topic. In order to link the topic library to the plugin, in plugin/core/CMakeLists.txt decomment the following line
+
+      #${TOPICS_LIBRARY_NAME}
+Remember that if at least one of your topics is using custom messages,
+
+      #${MSGS_WRAPPERS_LIBRARY_NAME}
+
+should be uncommented too.
+
+#### How to include a custom topic in an external project
+To include the set of custom topics of your plugin in another external project
+* include the topics.hpp file in this way
+      #include "<plugin_type>/<plugin_name>/topics.hpp"
+  where <plugin_type> is the type of plugin  and <plugin_name> is its name. For example
+
+      #include "estimators/stance_detection/topics.hpp"
+* link the topics library name to the external project, adding the library
+
+      <module_library_name>_topics
+  to target_link_library (under PUBLIC keyword), where <module_library_name> is the name of the software module. For example,
+
+      stance_detection_topics
