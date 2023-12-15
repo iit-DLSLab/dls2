@@ -77,14 +77,14 @@ As we said, the module class has been already created. However, you can change t
   becames
 
       StanceDetection(std::shared_ptr<robotlib::RobotBase> pRobot);
-  In this particular example, remember to add *#include "robotlib/robot_factory.hpp"*.
+  In this particular example, remember to add *#include "robotlib/robot_factory.hpp"* and to link the *robotlib* library to the module library.
 * add the inputs and outputs to the run function. For example
 
       void run(/*input_arguments, output_arguments*/);
   becames
   
       void run(robotlib::LegDataMap<bool> &stance_sensors_status, const Eigen::Matrix3d& w_R_b, const robotlib::JointState& q, const robotlib::JointState& qd, const robotlib::JointState& qdd, const robotlib::JointState& tau);
-  Rember that the order of the arguments is: *inputs* THEN *outputs*. This inputs allows your module to be independent from the DLS2 messages and messages' wrappers.
+  Rember that the order of the arguments is: *inputs* THEN *outputs*. Writing the run arguments in this way allows your module to be independent from the DLS2 messages and messages' wrappers.
 
   In the class it is also defined a YAML::Node, that it is used to read the module/config/config.yml file. In this file you can add configurations for your modules, for example
 

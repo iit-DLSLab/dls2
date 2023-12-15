@@ -5,6 +5,7 @@ add_library(${PROJECT_NAME} SHARED
 target_include_directories(${PROJECT_NAME}
 	PUBLIC
 		include
+		# add other include directories here
 )
 target_link_libraries(${PROJECT_NAME}
 	PUBLIC
@@ -13,6 +14,7 @@ target_link_libraries(${PROJECT_NAME}
 		${CONSOLE_COMMANDS_LIBRARY_NAME}
 		#${MSGS_WRAPPERS_LIBRARY_NAME}
 		#${TOPICS_LIBRARY_NAME}
+		# add other linked libraries here
 )
 target_link_directories(${PROJECT_NAME}
 	PRIVATE
