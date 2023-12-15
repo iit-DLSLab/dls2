@@ -37,7 +37,7 @@ Once the [Hands-on](#hands-on) section is done, you can build and install the pr
 Notice that in order to load at run-time your plugin you have to install the project.
 
 ## Hands-on
-In this section we will see how to customize the project. In the project files, there are comments that suggest you what to do. Some of them are straightforward. For others instead, it is provided an example to clarify what to do. Most of the examples consider that an user has created a plugin for a stance detection module.
+In this section we will see how to customize the project. In the project files, there are comments that suggest you what to do. Some of them are straightforward. For others instead, it is provided an example to clarify what to do. Most of the examples consider that an user has created a plugin for a stance detection module. You will see that the procedure is longer in the explanation, but it is easy and fast in the implementation.
 
 ### Outermost CMakeLists.txt
 Let's start with the outermost CMakeLists.txt.
