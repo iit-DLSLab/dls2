@@ -26,6 +26,16 @@ where *\<plugin_name>* is the name of the plugin, and *\<plugin_type>* is the pl
 
 Don't worry, you are lucky: we will guide you step-by-step with the customization of your plugin.
 
+## Build the project
+Once the [Hands-on](#hands-on) section is done, you can build and install the project in this way
+* mkdir build
+* cd build
+* cmake ..
+* make
+* make install
+
+Notice that in order to load at run-time your plugin you have to install the project.
+
 ## Hands-on
 In this section we will see how to customize the project. In the project files, there are comments that suggest you what to do. Some of them are straightforward. For others instead, it is provided an example to clarify what to do. Most of the examples consider that an user has created a plugin for a stance detection module.
 
