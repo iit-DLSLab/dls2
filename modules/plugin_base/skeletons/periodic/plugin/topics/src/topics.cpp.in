@@ -1,9 +1,12 @@
 #include "@PLUGIN_TYPE@/@PLUGIN_NAME@/topics.hpp"
 
-namespace topics
+namespace dls
 {
-    namespace @PLUGIN_NAME@
+    namespace topics
     {
-        //dls::topicType topic_variable_name = dls::topicType("topic_name", new <message_name>PubSubType());
+        namespace @PLUGIN_NAME@
+        {
+            //dls::topicType topic_variable_name = dls::topicType("topic_name", new <message_name>PubSubType());
+        }
     }
 }

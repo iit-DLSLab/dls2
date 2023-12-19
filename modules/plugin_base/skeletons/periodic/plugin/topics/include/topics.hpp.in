@@ -6,11 +6,14 @@
 //#include <dls_messages/dds/<idl_file_name>PubSubTypes.h> // # off-the-shelf message
 //#include "dls_messages/dds/<idl_file_name>PubSubTypes.h" // # custom message
 
-namespace topics
+namespace dls
 {
-    namespace @PLUGIN_NAME@
+    namespace topics
     {
-        //extern dls::topicType topic_variable_name;
+        namespace @PLUGIN_NAME@
+        {
+            //extern dls::topicType topic_variable_name;
+        }
     }
 }
 #endif /* end of include guard: @TOPICS_HEADER_GUARD@ */

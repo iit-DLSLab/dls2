@@ -6,7 +6,7 @@ add_library(${TOPICS_LIBRARY_NAME}
 target_include_directories(${TOPICS_LIBRARY_NAME}
 PUBLIC
     include
-	${CMAKE_CURRENT_BINARY_DIR}/../messages/include
+	#${CMAKE_CURRENT_BINARY_DIR}/../messages/include
 )
 target_link_libraries(${TOPICS_LIBRARY_NAME}
 	PUBLIC

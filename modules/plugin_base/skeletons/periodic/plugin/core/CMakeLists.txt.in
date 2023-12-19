@@ -18,10 +18,8 @@ target_link_libraries(${PROJECT_NAME}
 )
 target_link_directories(${PROJECT_NAME}
 	PRIVATE
-        /usr/local/lib/dls2
         /usr/lib/dls2
-        /usr/local/lib/dls2/services
-        /usr/lib/dls2/services
+		/usr/lib/dls2/@PLUGIN_TYPE@/${PLUGIN_NAME}
 )
 
 # ================================== Install =================================
@@ -33,9 +31,9 @@ install(
 )
 
 install(
-	DIRECTORY config
+	FILES		config/scheduler.yaml
 	COMPONENT   ${PROJECT_NAME}
-	DESTINATION /usr/include/dls2/@PLUGIN_TYPE@/${PLUGIN_NAME}
+	DESTINATION /usr/include/dls2/schedulers/${PLUGIN_NAME}
 )
 
 install(

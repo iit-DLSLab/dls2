@@ -114,7 +114,7 @@ Here you define the plugin. The plugin stores internally an instance of both the
 becames
 
 
-      StanceDetectionPlugin(std::string& ID, const std::shared_ptr<robotlib::RobotBase> &robot);
+      StanceDetectionPlugin(std::string& ID, const std::shared_ptr<robotlib::RobotBase> robot);
                 
 This change has to be done as well in the plugin.cpp, by passing such arguments to the module constructor. For example
 
@@ -123,7 +123,7 @@ This change has to be done as well in the plugin.cpp, by passing such arguments 
     , stance_detection(/*aguments_of_module_constructor*/) // instantiate module
 becames
     
-    StanceDetectionPlugin::StanceDetectionPlugin (std::string& ID, const std::shared_ptr<robotlib::RobotBase> &robot) 
+    StanceDetectionPlugin::StanceDetectionPlugin (std::string& ID, const std::shared_ptr<robotlib::RobotBase> robot) 
     : dls::PeriodicPluginBase(ID)
     , stance_detection(robot) // instantiate module
 
@@ -138,12 +138,12 @@ Then, you have to define the inputs and the outputs. This is done in three steps
 To define input/output variables:
 * includes the headers of your inputs and outputs in plugin.hpp. For example
 
-      //#include "dls2/msg_wrappers/msg_wrapper_name.hpp" // off-the-shelf wrapper
+      //#include <dls2/msg_wrappers/msg_wrapper_name.hpp> // off-the-shelf wrapper
       //#include "estimators/stance_detection/msg_wrapper_name.hpp" // custom wrapper
   becames
 
-      #include "dls2/msg_wrappers/blind_state.hpp" // input, off-the-shelf
-      #include "dls2/msg_wrappers/base_state.hpp" //input, off-the-shelf
+      #include <dls2/msg_wrappers/blind_state.hpp> // input, off-the-shelf
+      #include <dls2/msg_wrappers/base_state.hpp> //input, off-the-shelf
       #include "estimators/stance_detection/stance_status.hpp" //output, custom
   As you can see, the types of such variables correspond to a message wrapper. You can see also how to include either already provided messages, or custom ones.
 * declare the variables in plugin.hpp. For example
@@ -233,13 +233,12 @@ There are two last steps to be done:
                               blind_state.joints_acceleration_,
                               blind_state.joints_effort_
                               stance_status.stance_status_);
-* modify the *PeriodicPluginBase \*create(std::string ID)* function. This function is called when the plugin is loaded at run-time, and it is responsible for the creation of a plugin instance, by calling the plugin constructor. For example, if the plugin takes as input a robotlib::RobotBase argument
+* modify the *PeriodicPluginBase \*create(const std::string& ID, const std::string& robot_name)* function. This function is called when the plugin is loaded at run-time, and it is responsible for the creation of a plugin instance, by calling the plugin constructor. For example, if the plugin takes as input a robotlib::RobotBase argument
 
       /*call_plugin_constructor*/
         return new StanceDetectionPlugin(ID/*, aguments_of_module_constructor*/);
   becames
 
-      ParameterClient paramCli;
       std::string robot_name="aliengo";
 
       if (robot_name == "")

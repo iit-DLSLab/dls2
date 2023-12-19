@@ -3,7 +3,7 @@
 namespace @PLUGIN_TYPE@
 {
     @MODULE_CLASS_NAME@::@MODULE_CLASS_NAME@(/*aguments_of_module_constructor*/) 
-    : config(YAML::LoadFile("/usr/include/dls2/@PLUGIN_TYPE@/@PLUGIN_LIBRARY_NAME@/config/config.yaml"))
+    : config(YAML::LoadFile("/usr/include/dls2/@PLUGIN_TYPE@/@PLUGIN_NAME@/config/config.yaml"))
     { }
 
     @MODULE_CLASS_NAME@::~@MODULE_CLASS_NAME@()
