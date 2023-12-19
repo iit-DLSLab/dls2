@@ -5,6 +5,14 @@ project(${PLUGIN_NAME})
 file(	COPY README.md # this is just a copy
 		DESTINATION .
 )
+# Copy githooks
+file(	COPY githooks # this is just a copy
+		DESTINATION .
+)
+# Copy setup.sh
+file(	COPY setup.sh # this is just a copy
+		DESTINATION .
+)
 # Copy version.txt
 file(	COPY version.txt # this is just a copy
 		DESTINATION .
