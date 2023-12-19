@@ -15,7 +15,7 @@ namespace @PLUGIN_TYPE@
     {
     public:
         @PLUGIN_CLASS_NAME@ (
-            std::string &ID
+            const std::string &ID
             /*, aguments_of_module_constructor*/);
 
         ~@PLUGIN_CLASS_NAME@();

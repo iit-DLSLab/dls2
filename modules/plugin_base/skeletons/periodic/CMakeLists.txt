@@ -1,13 +1,13 @@
 cmake_minimum_required(VERSION 3.15)   
-project(${PLUGIN_LIBRARY_NAME})
+project(${PLUGIN_NAME})
 
 # Copy README.md
 file(	COPY README.md # this is just a copy
-	DESTINATION .
+		DESTINATION .
 )
 # Copy version.txt
 file(	COPY version.txt # this is just a copy
-	DESTINATION .
+		DESTINATION .
 )
 # Configure outermost CMakeLists.txt
 configure_file(CMakeLists.txt.in
@@ -24,7 +24,7 @@ configure_file(module/include/module.hpp.in
 configure_file(module/src/module.cpp.in
 	module/src/${PLUGIN_NAME}.cpp @ONLY
 )
-file(	COPY module/config/config.yml # this is just a copy
+file(	COPY module/config/config.yaml # this is just a copy
 		DESTINATION module/config
 )
 
@@ -42,7 +42,7 @@ configure_file(plugin/core/include/plugin.hpp.in
 configure_file(plugin/core/src/plugin.cpp.in
 	plugin/core/src/plugin.cpp @ONLY
 )
-file(	COPY plugin/core/config/scheduler.yml # this is just a copy
+file(	COPY plugin/core/config/scheduler.yaml # this is just a copy
 		DESTINATION plugin/core/config
 )
 # -- console_commands

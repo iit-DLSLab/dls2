@@ -1,6 +1,6 @@
 # Create the library for the module
 add_library(${MODULE_LIBRARY_NAME} SHARED
-	src/${MODULE_LIBRARY_NAME}.cpp
+	src/${PLUGIN_NAME}.cpp
 	# add other source files here
 )
 target_include_directories(${MODULE_LIBRARY_NAME}
@@ -15,13 +15,19 @@ target_link_libraries(${MODULE_LIBRARY_NAME}
 
 # ================================== Install =================================
 install(
+	DIRECTORY   include/
+	COMPONENT   ${MODULE_LIBRARY_NAME}_dev
+	DESTINATION /usr/include/dls2
+)
+
+install(
 	DIRECTORY   config
 	COMPONENT   ${MODULE_LIBRARY_NAME}
-	DESTINATION /usr/include/dls2/@PLUGIN_TYPE@/${MODULE_LIBRARY_NAME}
+	DESTINATION /usr/include/dls2/@PLUGIN_TYPE@/${PLUGIN_NAME}
 )
 
 install(
 	TARGETS             ${MODULE_LIBRARY_NAME}
-	LIBRARY DESTINATION /usr/lib/dls2/@PLUGIN_TYPE@
+	LIBRARY DESTINATION /usr/lib/dls2/@PLUGIN_TYPE@/${PLUGIN_NAME}
 	COMPONENT           ${MODULE_LIBRARY_NAME}
 )

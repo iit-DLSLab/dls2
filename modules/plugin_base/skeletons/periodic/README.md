@@ -27,14 +27,24 @@ where *\<plugin_name>* is the name of the plugin, and *\<plugin_type>* is the pl
 Don't worry, you are lucky: we will guide you step-by-step with the customization of your plugin.
 
 ## Build the project
-Once the [Hands-on](#hands-on) section is done, you can build and install the project in this way
+Once the [Hands-on](#hands-on) section is done you first need to install dls2_deploy
+* cd dls2_deploy
+* mkdir build
+* cd build
+* ccmake ..
+* make
+* sudo make install
+
+With the `ccmake ..` command you can choose what to install. Once dls2_deploy is installed you can build and install the project
+
+* cd <path_to_your_project>
 * mkdir build
 * cd build
 * cmake ..
 * make
-* make install
+* sudo make install
 
-Notice that in order to load at run-time your plugin you have to install the project.
+Notice that the installation is a necessary step in order to load at run-time your plugin.
 
 ## Hands-on
 In this section we will see how to customize the project. In the project files, there are comments that suggest you what to do. Some of them are straightforward. For others instead, it is provided an example to clarify what to do. Most of the examples consider that an user has created a plugin for a stance detection module. You will see that the procedure is longer in the explanation, but it is easy and fast in the implementation.
@@ -44,28 +54,23 @@ Let's start with the outermost CMakeLists.txt.
 
 You can change the name of the plugin here
 
-      # Project name
-      project(stance_detection_plugin)
-  This will be the name of the plugin library too. Be sure to end the name of the project with *_plugin*.
+      # set configuration variables
+      set(PLUGIN_NAME stance_detection)
 
-To change instead the module library name, modifying this variable
-
-      # Module library name
-      set(MODULE_LIBRARY_NAME stance_detection)
-  Notice that the names of the other libraries are extracted from the module library name.
+  This will be the name of the plugin library too.  Notice that the names of the other libraries are extracted from the plugin name.
 
 ### Create the software module
 In the module folder you can customize your software module.
 ####  module/CMakeLists.txt
 In the module/CMakeLists.txt the module library is created. Here you can add other source files, include directories and libraries to be linked.
 
-Notice that to include in the project external libraries to be compiled with yours, we can follow the convetion that they are put in the *module/thirty-parts* folder. For example, if ndcurves is an external library and you want to compile it each time, you will have 
+Notice that to include in the project external libraries to be compiled with yours, we can follow the convetion that they are put in the *module/third-party* folder. For example, if ndcurves is an external library and you want to compile it each time, you will have 
 
       target_include_directories(${MODULE_LIBRARY_NAME}
             PUBLIC
                   include
             # add other include directories here
-                  thirty-parties/ndcurves/include
+                  third-party/ndcurves/include
       )
 
 #### <module_name>.hpp and <module_name>.cpp
@@ -86,7 +91,7 @@ As we said, the module class has been already created. However, you can change t
       void run(robotlib::LegDataMap<bool> &stance_sensors_status, const Eigen::Matrix3d& w_R_b, const robotlib::JointState& q, const robotlib::JointState& qd, const robotlib::JointState& qdd, const robotlib::JointState& tau);
   Rember that the order of the arguments is: *inputs* THEN *outputs*. Writing the run arguments in this way allows your module to be independent from the DLS2 messages and messages' wrappers.
 
-  In the class it is also defined a YAML::Node, that it is used to read the module/config/config.yml file. In this file you can add configurations for your modules, for example
+  In the class it is also defined a YAML::Node, that it is used to read the module/config/config.yaml file. In this file you can add configurations for your modules, for example
 
       aliengo_th:
             foot_LF_contact_force_th : 5
@@ -164,10 +169,10 @@ To define input/output variables:
 
 To define the topics you can include them in the plugin.cpp. If you use already existing topics, decomment the follwing line
 
-      //#include "dls2/topics/topics.hpp" // off-the-shelf topics
+      //#include <dls2/topics/topics.hpp> // off-the-shelf topics
 and in the plugin/core/CMakeLists.txt, add in the target_link_libraries command, under PUBLIC, the library *dls_topics*.
 
-If you use instead custom topics, decomment
+If you use instead custom topics, you have to include your topics.hpp file and change the plugin/core/CMakeLists.txt. For example, you need to decomment
 
       //#include "estimators/stance_detection/topics.hpp" // custom topics
 and in the plugin/core/CMakeLists.txt also decomment 
@@ -234,6 +239,7 @@ There are two last steps to be done:
         return new StanceDetectionPlugin(ID/*, aguments_of_module_constructor*/);
   becames
 
+      ParameterClient paramCli;
       std::string robot_name="aliengo";
 
       if (robot_name == "")
@@ -358,14 +364,24 @@ To link instead the library of the custom messages' wrappers to your plugin, in 
       #${MSGS_WRAPPERS_LIBRARY_NAME}
 
 ### Create custom topics
-In plugin/topics you have the possiblity to create custom topics. For each topic you have to define a topic name and a topic message. If at least one of the custom topic is defined using off-the-shelf message, decomment *dls_messages* in plugin/topics/CMakeLists.txt. If instead custom messages are used, decomment in the same file *${MSGS_LIBRARY_NAME}*, which is the library of the custom message. Both of them can be uncommented if you have a mixed configuration.
+In plugin/topics you have the possiblity to create custom topics. For each topic you have to define a topic name and a topic message. If at least one of the custom topic is defined using off-the-shelf message, decomment 
 
-To create a plugin
+      #dls_messages
+
+ in plugin/topics/CMakeLists.txt. If instead custom messages are used, decomment in the same file 
+      
+      #${CMAKE_CURRENT_BINARY_DIR}/../messages/include
+and 
+
+      ${MSGS_LIBRARY_NAME}
+which is the library of the custom message. Both of them can be uncommented if you have a mixed configuration.
+
+To create a topic
 * in topics.hpp, include the [TypeSupport](https://fast-dds.docs.eprosima.com/en/latest/fastdds/dds_layer/topic/typeSupport/typeSupport.html?highlight=TopicDataType#definition-of-data-types) of each topic. Thanks to [Fast DDS-Gen](https://fast-dds.docs.eprosima.com/en/latest/fastdds/dds_layer/topic/fastddsgen/fastddsgen.html#fast-dds-gen-for-data-types-source-code-generation), the TypeSupport of each message is automatically created from the corresponding idl file, when building the project. For example, if you have a custom idl file in plugin/messages/idls called stance_status.idl, you have that
 
       // Include the TypeSupport of each message associated to each topic
-      //#include <dls_messages/dds/<idl_file_name>PubSubTypes.h> # off-the-shelf message
-      //#include "dls_messages/dds/<idl_file_name>PubSubTypes.h" # custom message
+      //#include <dls_messages/dds/<idl_file_name>PubSubTypes.h> // # off-the-shelf message
+      //#include "dls_messages/dds/<idl_file_name>PubSubTypes.h" // # custom message
 
   becames
 
@@ -386,7 +402,7 @@ To create a plugin
       //dls::topicType topic_variable_name = dls::topicType("topic_name", new <message_name>PubSubType());
   becames
 
-      dls::topicType stance_status = dls::topicType("stance_status", new stance_statusPubSubType());
+      dls::topicType stance_status = dls::topicType("stance_status", new StanceStatusMsgPubSubType());
 * in plugin/CMakeLists.txt, uncomment the following line
 
       #add_subdirectory(topics)
@@ -404,6 +420,7 @@ Remember that if at least one of your topics is using custom messages,
 
 should be uncommented too.
 
+Notice that if you are creating a plugin of *controllers* type, to make the control layer using the output of the controller, the output topic should have the same name of the plugin library. For example, 
 #### How to include a custom topic in an external project
 To include the set of custom topics of your plugin in another external project
 * include the topics.hpp file in this way

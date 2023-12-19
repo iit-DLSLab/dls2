@@ -28,14 +28,14 @@ target_link_directories(${PROJECT_NAME}
 
 install(
 	DIRECTORY   include/
-	COMPONENT   stance_detection_dev
-	DESTINATION /usr/include/dls2/@PLUGIN_TYPE@/${PROJECT_NAME}
+	COMPONENT   ${PROJECT_NAME}_dev
+	DESTINATION /usr/include/dls2
 )
 
 install(
-	FILES config/scheduler.yml
+	DIRECTORY config
 	COMPONENT   ${PROJECT_NAME}
-	DESTINATION /usr/include/dls2/schedulers/${PROJECT_NAME}
+	DESTINATION /usr/include/dls2/@PLUGIN_TYPE@/${PLUGIN_NAME}
 )
 
 install(

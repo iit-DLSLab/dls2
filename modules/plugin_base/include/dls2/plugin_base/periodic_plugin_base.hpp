@@ -34,8 +34,9 @@ namespace dls
 		 * @details
 		 * This function is called when loading at run-time this plugin, through dlopen.
 		 * @param[in] ID name of plugin
+		 * @param[in] robot_name name of the robot
 		 */
-		typedef PeriodicPluginBase *create_t(std::string ID);
+		typedef PeriodicPluginBase *create_t(const std::string& ID, const std::string& robot_name);
 
 		/*!
 		 * @brief Type definintion identifying the function that calls the destructor of the plugin.

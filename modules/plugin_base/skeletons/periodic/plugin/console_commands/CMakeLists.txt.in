@@ -8,7 +8,7 @@ PUBLIC
 	include
 )
 target_link_directories(${CONSOLE_COMMANDS_LIBRARY_NAME}
-    PUBLIC
+    PRIVATE
         /usr/lib/dls2
 )
 target_link_libraries(${CONSOLE_COMMANDS_LIBRARY_NAME}
@@ -18,9 +18,13 @@ target_link_libraries(${CONSOLE_COMMANDS_LIBRARY_NAME}
 )
 
 # ================================== Install =================================
-
+install(
+	DIRECTORY   include/
+	COMPONENT   ${CONSOLE_COMMANDS_LIBRARY_NAME}_dev
+	DESTINATION /usr/include/dls2
+)
 install(
 	TARGETS             ${CONSOLE_COMMANDS_LIBRARY_NAME}
-	LIBRARY DESTINATION /usr/lib/dls2/@PLUGIN_TYPE@
+	LIBRARY DESTINATION /usr/lib/dls2/@PLUGIN_TYPE@/${PLUGIN_NAME}
 	COMPONENT           ${CONSOLE_COMMANDS_LIBRARY_NAME}
 )
