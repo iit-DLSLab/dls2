@@ -16,14 +16,14 @@ target_link_libraries(${MODULE_LIBRARY_NAME}
 # ================================== Install =================================
 install(
 	DIRECTORY   include/
-	COMPONENT   ${MODULE_LIBRARY_NAME}_dev
 	DESTINATION /usr/include/dls2
+	COMPONENT   ${MODULE_LIBRARY_NAME}_dev
 )
 
 install(
 	DIRECTORY   config
-	COMPONENT   ${MODULE_LIBRARY_NAME}
 	DESTINATION /usr/include/dls2/@PLUGIN_TYPE@/${PLUGIN_NAME}
+	COMPONENT   ${MODULE_LIBRARY_NAME}
 )
 
 install(

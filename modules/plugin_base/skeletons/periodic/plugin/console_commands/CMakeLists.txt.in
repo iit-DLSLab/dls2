@@ -20,8 +20,8 @@ target_link_libraries(${CONSOLE_COMMANDS_LIBRARY_NAME}
 # ================================== Install =================================
 install(
 	DIRECTORY   include/
-	COMPONENT   ${CONSOLE_COMMANDS_LIBRARY_NAME}_dev
 	DESTINATION /usr/include/dls2
+	COMPONENT   ${CONSOLE_COMMANDS_LIBRARY_NAME}_dev
 )
 install(
 	TARGETS             ${CONSOLE_COMMANDS_LIBRARY_NAME}

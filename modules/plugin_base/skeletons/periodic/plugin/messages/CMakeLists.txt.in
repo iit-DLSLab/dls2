@@ -31,8 +31,8 @@ install(
 
 install(
 	DIRECTORY   include/
-	COMPONENT   ${MSGS_WRAPPERS_LIBRARY_NAME}_dev
 	DESTINATION /usr/include/dls2
+	COMPONENT   ${MSGS_WRAPPERS_LIBRARY_NAME}_dev
 )
 
 install(

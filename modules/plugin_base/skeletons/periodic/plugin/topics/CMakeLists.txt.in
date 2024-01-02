@@ -21,8 +21,8 @@ target_link_directories(${TOPICS_LIBRARY_NAME}
 # ================================== Install =================================
 install(
 	DIRECTORY   include/
-	COMPONENT   ${TOPICS_LIBRARY_NAME}_dev
 	DESTINATION /usr/include/dls2
+	COMPONENT   ${TOPICS_LIBRARY_NAME}_dev
 )
 
 install(
