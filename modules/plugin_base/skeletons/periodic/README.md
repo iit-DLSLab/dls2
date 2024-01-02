@@ -26,8 +26,8 @@ where *\<plugin_name>* is the name of the plugin, and *\<plugin_type>* is the pl
 
 Don't worry, you are lucky: we will guide you step-by-step with the customization of your plugin.
 
-## Build the project
-Once the [Hands-on](#hands-on) section is done you first need to install dls2_deploy
+## Build and install the project
+THe first step is to install dls2_deploy
 * cd dls2_deploy
 * mkdir build
 * cd build
@@ -35,14 +35,41 @@ Once the [Hands-on](#hands-on) section is done you first need to install dls2_de
 * make
 * sudo make install
 
-With the `ccmake ..` command you can choose what to install. Once dls2_deploy is installed you can build and install the project
+With the `ccmake ..` command you can choose what to install.
+
+Once dls2_deploy is installed you can build and install the project
 
 * cd <path_to_your_project>
 * mkdir build
 * cd build
-* cmake ..
+* ccmake ..
 * make
 * sudo make install
+
+As for dls2_deploy, with the `ccmake ..` command you can choose what to build and install:
+* the software module (*DLS_DEPLOY_module*)
+* the plugin (*DLS_DEPLOY_plugin/core*)
+* the console commands library (*DLS_DEPLOY_plugin/console_comm*)
+* the messages library (*DLS_DEPLOY_plugin/messages*)
+* the topics library (*DLS_DEPLOY_plugin/topics*)
+
+In this way, you can build and install separately each software part.
+
+With the build and install steps, you are created the following libraries:
+* *<plugin_name>*: plugin library
+* *<plugin_name>_module*: module library
+* *<plugin_name>_console_commands*: console commands library
+* *<plugin_name>_msgs*: messages library
+* *<plugin_name>_msgs_wrappers*: messages wrappers library
+* *<plugin_name>_topics*: topics library
+
+For example, when creating a *stance_detection* plugin, you will have:
+* *stance_detection*
+* *stance_detection_module*
+* *stance_detection_console_commands*
+* *stance_detection_msgs*
+* *stance_detection_msgs_wrappers*
+* *stance_detection_topics*
 
 Notice that the installation is a necessary step in order to load at run-time your plugin.
 
@@ -55,7 +82,7 @@ Let's start with the outermost CMakeLists.txt.
 You can change the name of the plugin here
 
       # set configuration variables
-      set(PLUGIN_NAME stance_detection)
+      set(PLUGIN_NAME <plugin_name>)
 
   This will be the name of the plugin library too.  Notice that the names of the other libraries are extracted from the plugin name.
 
@@ -98,12 +125,11 @@ As we said, the module class has been already created. However, you can change t
             foot_RF_contact_force_th : 5
             foot_LH_contact_force_th : 5
             foot_RH_contact_force_th : 5
+* when choosing what to build and install with the *ccmake ..* command, set to *ON* the *DLS_DEPLOY_module* option
 
-The changes of the class constructor and run function signatures has to be imported in the module/src/<module_name>.cpp as well. In this file, you then have to provide the implementation of the run function. Remember that this is the function storing the "module logic", and it the one called periodically. 
+The changes of the class constructor and run function signatures has to be imported in the module/src/<module_name>.cpp as well. In this file, you then have to provide the implementation of the run function. Remember that this is the function storing the "module logic", and it the one called periodically.
 ### Create the plugin
 In the plugin folder you can define the inputs and outputs of your module.
-#### plugin/CMakeLists.txt
-This file simply add the subdirectories: core, console_commands, messages and topics. By default the last two are commented, because a plugin could not need to create custom messages or plugins.
 
 #### plugin/core
 Here you define the plugin. The plugin stores internally an instance of both the module and console commands classes. To instantiate the module instance, you need to change the plugin constructor, adding the arguments of the module constructor. For example
@@ -262,6 +288,8 @@ There are two last steps to be done:
 
   In this example the robot name is hardcoded, but in a future release this will not be needed anymore.
 
+* when choosing what to build and install with the *ccmake ..* command, set to *ON* the *DLS_DEPLOY_plugin/core* option
+
 Congratulations! You have created your fist periodic plugin for dls2!
 
 #### How to set the scheduler properties
@@ -329,6 +357,7 @@ To do that:
                                         &StanceDetectionConsoleCommands::setStanceDetectionMethod, this, {}, true);
   The *command_manager_ptr* is a pointer to the command manager object of the plugin creating an instance of the console commands class. See [here](https://gitlab.advr.iit.it/dls-lab/dls2/-/tree/clear_inputs_outputs/modules%2Fcommand#how-to-define-a-command) for how to create a command.
   
+* when choosing what to build and install with the *ccmake ..* command, set to *ON* the *DLS_DEPLOY_plugin/console_comm* option
 
 ### Create custom messages
 In plugin/messages you can define custom messages. To create a message:
@@ -351,9 +380,7 @@ In plugin/messages you can define custom messages. To create a message:
 * create a message wrapper
       
       TODO
-* in plugin/CMakeLists.txt, uncomment the following line
-
-      #add_subdirectory(messages)
+* when choosing what to build and install with the *ccmake ..* command, set to *ON* the *DLS_DEPLOY_plugin/messages* option
 
 So far, you have create a library for custom messages. To link the messages library to the custom topics, in plugin/topics/CMakeLists.txt uncomment the following line
 
@@ -402,13 +429,7 @@ To create a topic
   becames
 
       dls::topicType stance_status = dls::topicType("stance_status", new StanceStatusMsgPubSubType());
-* in plugin/CMakeLists.txt, uncomment the following line
-
-      #add_subdirectory(topics)
-  Remember that if at least one of your topics is using custom messages,
-
-      #add_subdirectory(messages)
-  should be uncommented too.
+* when choosing what to build and install with the *ccmake ..* command, set to *ON* the *DLS_DEPLOY_plugin/topics* option. Remember that if at least one of your topics is using custom messages, set to *ON* the *DLS_DEPLOY_plugin/messages* option too.
 
 So far you have created the topic. In order to link the topic library to the plugin, in plugin/core/CMakeLists.txt decomment the following line
 
@@ -423,13 +444,27 @@ Notice that if you are creating a plugin of *controllers* type, to make the cont
 #### How to include a custom topic in an external project
 To include the set of custom topics of your plugin in another external project
 * include the topics.hpp file in this way
-      #include "<plugin_type>/<plugin_name>/topics.hpp"
+      #include "dls2/<plugin_type>/<plugin_name>/topics.hpp"
   where <plugin_type> is the type of plugin  and <plugin_name> is its name. For example
 
-      #include "estimators/stance_detection/topics.hpp"
+      #include "dls2/estimators/stance_detection/topics.hpp"
 * link the topics library name to the external project, adding the library
 
-      <module_library_name>_topics
-  to target_link_library (under PUBLIC keyword), where <module_library_name> is the name of the software module. For example,
+      <topics_library_name>
+  to target_link_library (under PUBLIC keyword), where <topics_library_name> is the name of the topics library. For example
 
       stance_detection_topics
+### Customize debian packaging
+At the end of the outermost CMakeLists.txt, add the debian dependencies here
+
+      set(CPACK_DEBIAN_PERIODIC_PACKAGE_DEPENDS       "dls2-runtime" CACHE INTERNAL "") # add here package dependencies
+
+and here
+
+      set(CPACK_DEBIAN_PERIODIC_DEV_PACKAGE_DEPENDS   "dls2-dev, dls-${PLUGIN_NAME}" CACHE INTERNAL "") # add here package dependencies
+For example you can have
+
+      set(CPACK_DEBIAN_PERIODIC_PACKAGE_DEPENDS       "dls2-runtime, dls-state-estimator" CACHE INTERNAL "")
+and
+
+      set(CPACK_DEBIAN_PERIODIC_DEV_PACKAGE_DEPENDS   "dls2-dev, dls-${PLUGIN_NAME}, dls-stance-detection, dls-state-estimator-dev" CACHE INTERNAL "")

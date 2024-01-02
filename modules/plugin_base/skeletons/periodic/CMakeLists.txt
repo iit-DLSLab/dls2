@@ -37,9 +37,6 @@ file(	COPY module/config/config.yaml # this is just a copy
 )
 
 # Configure plugin
-file(	COPY plugin/CMakeLists.txt # this is just a copy
-		DESTINATION plugin
-)
 # -- core
 configure_file(plugin/core/CMakeLists.txt.in
 	plugin/core/CMakeLists.txt @ONLY

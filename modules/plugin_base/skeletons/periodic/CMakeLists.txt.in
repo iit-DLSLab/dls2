@@ -68,8 +68,44 @@ set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # ================================== Library config ==========================
-add_subdirectory(plugin)
-add_subdirectory(module)
+macro(conditional_deploy TARGET_NAME)
+	set(DLS_DEPLOY_${TARGET_NAME} OFF
+		CACHE BOOL "Whether to package ${TARGET_NAME}"
+	)
+
+	if(DLS_DEPLOY_${TARGET_NAME})
+		add_subdirectory(${TARGET_NAME})
+	endif()
+endmacro()
+
+conditional_deploy(plugin/core)
+conditional_deploy(plugin/console_commands)
+conditional_deploy(plugin/messages)
+conditional_deploy(plugin/topics)
+conditional_deploy(module)
 
 # ================================= Packaging =================================
-# TODO
+set(CPACK_PACKAGE_VERSION_MAJOR             ${PROJECT_VERSION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR             ${PROJECT_VERSION_MINOR})
+set(CPACK_PACKAGE_VERSION_PATCH             ${PROJECT_VERSION_PATCH})
+set(CPACK_DEBIAN_PACKAGE_VERSION            ${PROJECT_VERSION})
+set(CPACK_PACKAGE_VENDOR                    "dlslab")
+set(CPACK_PACKAGE_CONTACT                   "dlslab")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER         "dlslab")
+set(CPACK_VERBATIM_VARIABLES                ON)
+set(CPACK_GENERATOR                         "DEB")
+set(CPACK_DEB_COMPONENT_INSTALL             ON)
+set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS          ON)
+
+set(CPACK_DEBIAN_PERIODIC_PACKAGE_NAME          "dls-${PLUGIN_NAME}" CACHE INTERNAL "")
+set(CPACK_DEBIAN_PERIODIC_FILE_NAME             "dls-${PLUGIN_NAME}-${PROJECT_VERSION}.deb" CACHE INTERNAL "")  
+set(CPACK_DEBIAN_PERIODIC_PACKAGE_DEPENDS       "dls2-runtime" CACHE INTERNAL "") # add here package dependencies
+
+set(CPACK_DEBIAN_PERIODIC_DEV_PACKAGE_NAME      "dls-${PLUGIN_NAME}-dev" CACHE INTERNAL "")
+set(CPACK_DEBIAN_PERIODIC_DEV_FILE_NAME         "dls-${PLUGIN_NAME}-dev-${PROJECT_VERSION}.deb" CACHE INTERNAL "")  
+set(CPACK_DEBIAN_PERIODIC_DEV_PACKAGE_DEPENDS   "dls2-dev, dls-${PLUGIN_NAME}" CACHE INTERNAL "") # add here package dependencies
+
+get_cmake_property(CPACK_COMPONENTS_ALL COMPONENTS)
+list(REMOVE_ITEM CPACK_COMPONENTS_ALL "Unspecified")
+
+include(CPack)
