@@ -30,15 +30,15 @@ function(dls_add_message msg)
 		COMMAND
 			[ -d ${CMAKE_CURRENT_BINARY_DIR}/include/dls_messages/dds ] || mkdir --parents ${CMAKE_CURRENT_BINARY_DIR}/include/dls_messages/dds
 		COMMAND
-			fastddsgen -typeobject -replace ${CMAKE_SOURCE_DIR}/idls/${msg}.idl -d ${CMAKE_CURRENT_BINARY_DIR}/include/dls_messages/dds
+			fastddsgen -typeobject -replace ${CMAKE_SOURCE_DIR}/plugin/messages/idls/${msg}.idl -d ${CMAKE_CURRENT_BINARY_DIR}/include/dls_messages/dds
 		COMMENT
 			"Generating message files for ${msg}.idl"
 		DEPENDS
-			${CMAKE_SOURCE_DIR}/idls/${msg}.idl
+			${CMAKE_SOURCE_DIR}/plugin/messages/idls/${msg}.idl
 	)
 
 	# add the generated source files to the library
-	target_sources(${PROJECT_NAME}
+	target_sources(${MSGS_LIBRARY_NAME}
 		PRIVATE
 		${generated_source}
 	)
@@ -49,6 +49,6 @@ function(dls_add_message msg)
 		DESTINATION 
 			/usr/include/dls_messages/dds
 		COMPONENT 
-			${PROJECT_NAME}_dev
+			${MSGS_LIBRARY_NAME}_dev
 	)
 endfunction()

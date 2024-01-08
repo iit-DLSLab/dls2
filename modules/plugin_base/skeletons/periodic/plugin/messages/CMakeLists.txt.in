@@ -15,6 +15,10 @@ target_include_directories(${MSGS_WRAPPERS_LIBRARY_NAME}
 		include
         ${CMAKE_CURRENT_BINARY_DIR}/include
 )
+target_link_directories(${MSGS_WRAPPERS_LIBRARY_NAME}
+	PUBLIC
+		/usr/lib/dls2
+)
 target_link_libraries(${MSGS_WRAPPERS_LIBRARY_NAME}
 	PUBLIC
 		# add wrappers dependencies here
