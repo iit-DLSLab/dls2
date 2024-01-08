@@ -5,7 +5,7 @@
 #include <fastdds/dds/domain/DomainParticipant.hpp>
 #include <utility>
 #include <typeinfo>
-#include <functional> 
+#include <functional>
 #include <dls_messages/dds/command_callPubSubTypes.h>
 #include <dls_messages/dds/stringmsgPubSubTypes.h>
 #include <dls_messages/dds/desired_torquesPubSubTypes.h>
@@ -20,12 +20,12 @@
 #include <dls_messages/dds/attitudePubSubTypes.h>
 #include <dls_messages/dds/sensor_fusionPubSubTypes.h>
 #include <dls_messages/dds/viconPubSubTypes.h>
+#include <dls_messages/dds/stance_statusPubSubTypes.h>
 #include <dls_messages/dds/param_serverPubSubTypes.h>
 #include <dls_messages/dds/doublePubSubTypes.h>
 #include <dls_messages/dds/controller_commandPubSubTypes.h>
 #include <dls_messages/dds/slip_flagPubSubTypes.h>
 #include <dls_messages/dds/mpc_generator_outputPubSubTypes.h>
-
 
 #include "dls2/topics/utils.hpp"
 
@@ -61,7 +61,7 @@ namespace dls
 
 		// services
 		extern dls::topicType param_server;
-				
+
 		namespace high_level_estimation
 		{
 			extern dls::topicType legs_pose;
@@ -70,6 +70,7 @@ namespace dls
 			extern dls::topicType sensor_fusion;
 			extern dls::topicType vicon;
 			extern dls::topicType base_state;
+			extern dls::topicType stance_status;
 		}
 
 		namespace low_level_estimation
