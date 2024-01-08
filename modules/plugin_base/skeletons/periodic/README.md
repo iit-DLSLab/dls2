@@ -155,7 +155,32 @@ becames
 
 The console commands instance is automatically instantiated.
 
-Then, you have to define the inputs and the outputs. This is done in three steps:
+Notice that you need to change the *PeriodicPluginBase \*create(const std::string& ID, const std::string& robot_name)* function too, according to the constructor arguments. This function is called when the plugin is loaded at run-time, and it is responsible for the creation of a plugin instance, by calling the plugin constructor. For example, if the plugin takes as input a robotlib::RobotBase argument
+
+      /*call_plugin_constructor*/
+        return new StanceDetectionPlugin(ID/*, aguments_of_module_constructor*/);
+  becames
+
+      if (robot_name == "")
+      {
+            std::string e = "Parameter robot_name is not defined, verify if the parameter server is running";
+            throw std::runtime_error(e);
+      }
+
+      std::shared_ptr<robotlib::RobotBase> pRobot;
+      try
+      {
+            pRobot = robotlib::RobotFactory::openRobot(robot_name);
+      }
+      catch (const std::exception &e)
+      {
+            std::cerr << "child_process: Could not open the robot " << robot_name << std::endl;
+            std::cerr << e.what() << std::endl;
+      }
+      
+      return new StanceDetectionPlugin(ID, pRobot);
+
+Now, you have to define the inputs and the outputs. This is done in three steps:
 
 * define member variables storing inputs and outputs
 * define inputs and outputs topics
@@ -171,7 +196,7 @@ To define input/output variables:
       #include <dls2/msg_wrappers/blind_state.hpp> // input, off-the-shelf
       #include <dls2/msg_wrappers/base_state.hpp> //input, off-the-shelf
       #include "estimators/stance_detection/stance_status.hpp" //output, custom
-  As you can see, the types of such variables correspond to a message wrapper. You can see also how to include either already provided messages, or custom ones.
+  As you can see, the types of such variables correspond to a message wrapper. You can see also how to include either already provided messages, or custom ones. [Here](#create-custom-messages) you can see how to create a custom message.
 * declare the variables in plugin.hpp. For example
 
       /*define_inputs*/
@@ -224,18 +249,18 @@ You can now build the inputs and outputs. For example
 becames
         
         // Define inputs
-        this->buildInput<BlindState, robot>(
+        this->buildInput<BlindState, std::shared_ptr<robotlib::RobotBase>>(
             dls::topics::low_level_estimation::blind_state,
             &blind_state,
             robot
         );
-        this->buildInput<BaseState, robot>(
+        this->buildInput<BaseState, std::shared_ptr<robotlib::RobotBase>>(
             dls::topics::high_level_estimation::base_state,
             &base_state,
             robot
         );
         // Define outputs
-        this->buildInput<StanceStatus, robot>(
+        this->buildInput<StanceStatus, std::shared_ptr<robotlib::RobotBase>>(
             topics::stance_detection::stance_status,
             &stance_status,
             robot
@@ -259,36 +284,8 @@ There are two last steps to be done:
                               blind_state.joints_acceleration_,
                               blind_state.joints_effort_
                               stance_status.stance_status_);
-* modify the *PeriodicPluginBase \*create(const std::string& ID, const std::string& robot_name)* function. This function is called when the plugin is loaded at run-time, and it is responsible for the creation of a plugin instance, by calling the plugin constructor. For example, if the plugin takes as input a robotlib::RobotBase argument
 
-      /*call_plugin_constructor*/
-        return new StanceDetectionPlugin(ID/*, aguments_of_module_constructor*/);
-  becames
-
-      std::string robot_name="aliengo";
-
-      if (robot_name == "")
-      {
-            std::string e = "Parameter robot_name is not defined, verify if the parameter server is running";
-            throw std::runtime_error(e);
-      }
-
-      std::shared_ptr<robotlib::RobotBase> pRobot;
-      try
-      {
-            pRobot = robotlib::RobotFactory::openRobot(robot_name);
-      }
-      catch (const std::exception &e)
-      {
-            std::cerr << "child_process: Could not open the robot " << robot_name << std::endl;
-            std::cerr << e.what() << std::endl;
-      }
-      
-      return new StanceDetectionPlugin(ID, pRobot);
-
-  In this example the robot name is hardcoded, but in a future release this will not be needed anymore.
-
-* when choosing what to build and install with the *ccmake ..* command, set to *ON* the *DLS_DEPLOY_plugin/core* option
+* when choosing what to build and install with the *ccmake ..* command, set to *ON* the *DLS_DEPLOY_plugin/core* and *DLS_DEPLOY_plugin/console_comm* options. If you are using custom messages and/or custom topics set to *ON*, respectively, *DLS_DEPLOY_plugin/messages* and *DLS_DEPLOY_plugin/topics* options.
 
 Congratulations! You have created your fist periodic plugin for dls2!
 
@@ -403,6 +400,12 @@ and
 which is the library of the custom message. Both of them can be uncommented if you have a mixed configuration.
 
 To create a topic
+* in topics.hpp, declare the topic. For example
+
+      //extern dls::topicType topic_variable_name;
+  becames
+
+      extern dls::topicType stance_status;
 * in topics.hpp, include the [TypeSupport](https://fast-dds.docs.eprosima.com/en/latest/fastdds/dds_layer/topic/typeSupport/typeSupport.html?highlight=TopicDataType#definition-of-data-types) of each topic. Thanks to [Fast DDS-Gen](https://fast-dds.docs.eprosima.com/en/latest/fastdds/dds_layer/topic/fastddsgen/fastddsgen.html#fast-dds-gen-for-data-types-source-code-generation), the TypeSupport of each message is automatically created from the corresponding idl file, when building the project. For example, if you have a custom idl file in plugin/messages/idls called stance_status.idl, you have that
 
       // Include the TypeSupport of each message associated to each topic
@@ -417,12 +420,6 @@ To create a topic
 
       #include "dls_messages/dds/control_signalPubSubTypes.h"
   where *control_signal* is the name of the idl file of the control signal message.
-* in topics.hpp, declare the topic. For example
-
-      //extern dls::topicType topic_variable_name;
-  becames
-
-      extern dls::topicType stance_status;
 * in topics.cpp, define the topic. For example
 
       //dls::topicType topic_variable_name = dls::topicType("topic_name", new <message_name>PubSubType());
@@ -440,7 +437,7 @@ Remember that if at least one of your topics is using custom messages,
 
 should be uncommented too.
 
-Notice that if you are creating a plugin of *controllers* type, to make the control layer using the output of the controller, the output topic should have the same name of the plugin library. For example, 
+Notice that if you are creating a plugin of *controllers* type, to make the control layer using the output of the controller, the output topic should have the same name of the plugin library name. 
 #### How to include a custom topic in an external project
 To include the set of custom topics of your plugin in another external project
 * include the topics.hpp file in this way
