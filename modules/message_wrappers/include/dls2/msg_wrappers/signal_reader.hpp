@@ -11,8 +11,11 @@ namespace dls
 	{
 	public:
 		SignalReader(std::shared_ptr<dls::DDSParticipant>, const dls::topicType&, const std::shared_ptr<SignalType>);
+		SignalReader(std::shared_ptr<dls::DDSParticipant>, const dls::topicType&, const std::shared_ptr<SignalType>, const std::function<void()>& auxiliary_callback);
 		~SignalReader();	
 		bool received;
+	private:
+		const std::function<void()> auxiliary_callback;
 	};
 } // end namespace dls
 
