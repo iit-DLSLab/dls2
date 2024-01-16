@@ -61,3 +61,9 @@ SensorFusion& SensorFusion::operator=(const SensorFusion& sensor_fusion)
 
     return *this;
 }
+
+void SensorFusion::setDataFromWrapperBase(WrapperBase *wrapper_base)
+{
+	// Assuming wrapper is of type Wrapper<MsgType>
+	*this = static_cast<SensorFusion &>(*wrapper_base);
+}

@@ -76,3 +76,9 @@ TrunkControllerDebug& TrunkControllerDebug::operator=(const TrunkControllerDebug
 
 	return *this;
 }
+
+void TrunkControllerDebug::setDataFromWrapperBase(WrapperBase *wrapper_base)
+{
+	// Assuming wrapper is of type Wrapper<MsgType>
+	*this = static_cast<TrunkControllerDebug &>(*wrapper_base);
+}

@@ -185,3 +185,9 @@ MPCGeneratorOutput& MPCGeneratorOutput::operator=(const MPCGeneratorOutput& mpc_
 
 	return *this;
 }
+
+void MPCGeneratorOutput::setDataFromWrapperBase(WrapperBase *wrapper_base)
+{
+	// Assuming wrapper is of type Wrapper<MsgType>
+	*this = static_cast<MPCGeneratorOutput &>(*wrapper_base);
+}

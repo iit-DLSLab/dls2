@@ -68,3 +68,9 @@ SlipFlag& SlipFlag::operator=(const SlipFlag& slip_flag)
 
 	return *this;
 }
+
+void SlipFlag::setDataFromWrapperBase(WrapperBase *wrapper_base)
+{
+	// Assuming wrapper is of type Wrapper<MsgType>
+	*this = static_cast<SlipFlag &>(*wrapper_base);
+}

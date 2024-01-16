@@ -13,6 +13,10 @@ namespace dls
 	class MPCGeneratorOutput : public Wrapper<MPCGeneratorOutputMsg>
 	{
 	public:
+	    template <typename SignalType>
+		friend class SignalWriter;
+		friend class PeriodicPluginBase;
+
 		MPCGeneratorOutput(const std::shared_ptr<robotlib::RobotBase> robot);
 		MPCGeneratorOutput(MPCGeneratorOutput& mpc_generator_output);
 		MPCGeneratorOutput() = delete;
@@ -41,6 +45,8 @@ namespace dls
         std::vector<robotlib::LegDataMap<Eigen::Vector3d>> desired_ground_reaction_forces_;
 
         std::vector<robotlib::LegDataMap<bool>> desired_contacts_sequence_;
+    private:
+        virtual void setDataFromWrapperBase(WrapperBase *wrapper_base) override;
 	};
 } // namespace dls
 
