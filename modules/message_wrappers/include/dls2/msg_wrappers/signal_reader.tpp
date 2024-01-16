@@ -9,34 +9,61 @@
 namespace dls
 {
 	template <typename SignalType>
-	SignalReader<SignalType>::SignalReader(	std::shared_ptr<dls::DDSParticipant> participant,
-											const dls::topicType& topic,
-											const std::shared_ptr<SignalType> signal)
-		: SignalReaderBase(participant)
-		, signal_(signal)
+	SignalReader<SignalType>::SignalReader(std::shared_ptr<dls::DDSParticipant> participant,
+										   const dls::topicType &topic,
+										   const std::shared_ptr<SignalType> signal)
+		: SignalReaderBase(participant),
+		  signal_(signal),
+		  auxiliary_callback(std::function<void()>([&]() {}))
 	{
 		int id = std::experimental::randint(100000, 999999);
-		while(dds_participant_->getReader(std::to_string(id)) != nullptr)
+		while (dds_participant_->getReader(std::to_string(id)) != nullptr)
 			id = std::experimental::randint(100000, 999999);
 
 		ID_ = std::to_string(id);
 
 		dds_participant_->addReader(ID_,
-			topic,
-			std::function<void(void*)>
-			{
-				[&](void* tuple)
-				{
-					std::lock_guard<std::mutex> lock(signal_mutex_);
-					signal_->loadMsg(tuple);
-					received = true;
-				}
-			}
-		);
+									topic,
+									std::function<void(void *)>{
+										[&](void *tuple)
+										{
+											std::lock_guard<std::mutex> lock(signal_mutex_);
+											signal_->loadMsg(tuple);
+											received = true;
+										}});
 	}
-		
+
 	template <typename SignalType>
-	SignalReader<SignalType>::~SignalReader(){ this->dds_participant_->deleteReader(this->ID_);}
+	SignalReader<SignalType>::SignalReader(std::shared_ptr<dls::DDSParticipant> participant,
+										   const dls::topicType &topic,
+										   const std::shared_ptr<SignalType> signal, const std::function<void()> &auxiliary_callback)
+		: SignalReaderBase(participant),
+		  signal_(signal),
+		  auxiliary_callback(auxiliary_callback)
+	{
+		int id = std::experimental::randint(100000, 999999);
+		while (dds_participant_->getReader(std::to_string(id)) != nullptr)
+			id = std::experimental::randint(100000, 999999);
+
+		ID_ = std::to_string(id);
+
+		dds_participant_->addReader(ID_,
+									topic,
+									std::function<void(void *)>{
+										[&](void *tuple)
+										{
+											std::lock_guard<std::mutex> lock(signal_mutex_);
+											signal_->loadMsg(tuple);
+											received = true;
+											auxiliary_callback();
+										}});
+	}
+
+	template <typename SignalType>
+	SignalReader<SignalType>::~SignalReader()
+	{
+		this->dds_participant_->deleteReader(this->ID_);
+	}
 
 	template <typename SignalType>
 	SignalType SignalReader<SignalType>::getData()
@@ -45,10 +72,9 @@ namespace dls
 	}
 
 	template <typename SignalType>
-	WrapperBase* SignalReader<SignalType>::getWrapperBasePtr()
+	WrapperBase *SignalReader<SignalType>::getWrapperBasePtr()
 	{
 		return signal_.get();
 	}
 }
-
 #endif /* end of include guard: SIGNAL_READER_TPP */

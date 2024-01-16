@@ -12,6 +12,7 @@ namespace dls
 		friend class PeriodicPluginBase;
 
 		SignalReader(std::shared_ptr<dls::DDSParticipant>, const dls::topicType&, const std::shared_ptr<SignalType>);
+		SignalReader(std::shared_ptr<dls::DDSParticipant>, const dls::topicType&, const std::shared_ptr<SignalType>, const std::function<void()>& auxiliary_callback);
 		~SignalReader();
 		SignalReader() = delete;
 
@@ -20,6 +21,7 @@ namespace dls
 	protected:
 		const std::shared_ptr<SignalType> signal_;
 		virtual WrapperBase* getWrapperBasePtr() override;
+		const std::function<void()> auxiliary_callback;
 	};
 } // end namespace dls
 
