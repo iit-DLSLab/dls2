@@ -54,10 +54,9 @@ namespace dls
 		 * @tparam constructor_args_types types of the constructor arguments of the MsgWrapperType class
 		 * @param[in] topic topic to subscribe to
 		 * @param[in] input pointer to the variable storing the last read input
-		 * @param[in] args arguments for the constructor of the MsgWrapperType class
 		 */
-		template <typename MsgWrapperType, typename... constructor_args_types>
-		void buildInput(dls::topicType &topic, WrapperBase *input, constructor_args_types... args);
+		template <typename MsgWrapperType>
+		void buildInput(dls::topicType &topic, WrapperBase *input);
 
 		/*!
 		 * @brief Add an output to the plugin.
@@ -67,10 +66,9 @@ namespace dls
 		 * @tparam constructor_args_types types of the constructor arguments of the MsgWrapperType class
 		 * @param[in] topic topic to subscribe to
 		 * @param[in] output pointer to the variable storing the last wrote output
-		 * @param[in] args arguments for the constructor of the MsgWrapperType class
 		 */
-		template <typename MsgWrapperType, typename... constructor_args_types>
-		void buildOutput(dls::topicType &topic, WrapperBase *output, constructor_args_types... args);
+		template <typename MsgWrapperType>
+		void buildOutput(dls::topicType &topic, WrapperBase *output);
 
 		/*!
 		 * @brief Read all the inputs.
