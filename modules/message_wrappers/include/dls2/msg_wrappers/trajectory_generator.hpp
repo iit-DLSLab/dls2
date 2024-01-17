@@ -19,7 +19,7 @@ namespace dls
 		friend class PeriodicPluginBase;
 
 		TrajectoryGenerator(const std::shared_ptr<robotlib::RobotBase> robot);
-		TrajectoryGenerator(TrajectoryGenerator& trajectory_generator);
+		TrajectoryGenerator(const TrajectoryGenerator& trajectory_generator);
 		TrajectoryGenerator() = delete;
 		virtual ~TrajectoryGenerator();
 		
