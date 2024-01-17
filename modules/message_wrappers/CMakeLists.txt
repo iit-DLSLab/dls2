@@ -22,6 +22,8 @@ add_library(dls_message_wrappers
 		src/signal_reader_base.cpp
 		src/signal_writer_base.cpp
 		src/mpc_generator_output.cpp
+		src/vector3d.cpp
+		src/bool.cpp
 )
 set_property(TARGET dls_message_wrappers PROPERTY POSITION_INDEPENDENT_CODE ON)
 
