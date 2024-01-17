@@ -8,7 +8,7 @@ namespace dls
 {
     namespace topics
     {
-        namespace @PLUGIN_NAME @{
+        namespace @PLUGIN_NAME@{
             // dls::topicType topic_variable_name = dls::topicType("topic_name", new <message_name>PubSubType());
         }
     }
