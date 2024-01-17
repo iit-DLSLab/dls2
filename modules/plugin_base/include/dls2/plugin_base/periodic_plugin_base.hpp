@@ -56,7 +56,20 @@ namespace dls
 		 * @param[in] input pointer to the variable storing the last read input
 		 */
 		template <typename MsgWrapperType>
-		void buildInput(dls::topicType &topic, WrapperBase *input);
+		void buildInput(const dls::topicType &topic, WrapperBase *input);
+
+		/*!
+		 * @brief Add an input to the plugin.
+		 * @details
+		 * When calling this function, it is created a new data reader subscribed to the input topic and it is stored the pointer to the input WrapperBase variable.
+		 * @tparam MsgWrapperType class name of the wrapper handling the message associated to the input topic
+		 * @tparam constructor_args_types types of the constructor arguments of the MsgWrapperType class
+		 * @param[in] topic topic to subscribe to
+		 * @param[in] input pointer to the variable storing the last read input
+		 * @param[in] auxiliary_callback auxiliary function to be called when a new message is received
+		 */
+		template <typename MsgWrapperType>
+		void buildInput(const dls::topicType &topic, WrapperBase *input, const std::function<void()> &auxiliary_callback);
 
 		/*!
 		 * @brief Add an output to the plugin.
@@ -68,7 +81,7 @@ namespace dls
 		 * @param[in] output pointer to the variable storing the last wrote output
 		 */
 		template <typename MsgWrapperType>
-		void buildOutput(dls::topicType &topic, WrapperBase *output);
+		void buildOutput(const dls::topicType &topic, WrapperBase *output);
 
 		/*!
 		 * @brief Read all the inputs.
