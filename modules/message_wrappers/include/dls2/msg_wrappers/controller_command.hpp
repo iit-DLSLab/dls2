@@ -14,6 +14,10 @@ namespace dls
     class ControllerCommand : public Wrapper<ControllerCommandMsg>
     {
     public:
+	    template <typename SignalType>
+		friend class SignalWriter;
+		friend class PeriodicPluginBase;
+
         ControllerCommand(const std::shared_ptr<robotlib::RobotBase> robot);
         ControllerCommand(ControllerCommand& controller_command);
         ControllerCommand() = delete;
@@ -34,6 +38,9 @@ namespace dls
 
         Pose base_pose_HF_{};
         dls::Screw base_velocity_HF_{};
+    
+	private:
+		virtual void setDataFromWrapperBase(WrapperBase* wrapper_base) override;
     };
 } // namespace dls
 

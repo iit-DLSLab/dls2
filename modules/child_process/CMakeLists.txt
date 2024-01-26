@@ -15,7 +15,8 @@ target_link_libraries(child_process_launcher
 		urdf
 		dls_framework
 		fastcdr
-		fastrtps		
+		fastrtps
+		periodic_plugin_base		
 )
 
 dls_install(child_process_launcher)

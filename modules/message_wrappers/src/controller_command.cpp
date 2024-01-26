@@ -107,3 +107,9 @@ ControllerCommand& ControllerCommand::operator=(const ControllerCommand& control
 
 	return *this;
 }
+
+void ControllerCommand::setDataFromWrapperBase(WrapperBase* wrapper_base)
+{
+    // Assuming wrapper is of type Wrapper<MsgType>
+    *this = static_cast<ControllerCommand&>(*wrapper_base);
+}

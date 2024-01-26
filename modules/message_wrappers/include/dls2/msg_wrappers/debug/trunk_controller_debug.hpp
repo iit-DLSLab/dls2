@@ -11,6 +11,10 @@ namespace dls
 	class TrunkControllerDebug : public Wrapper<TrunkControllerDebugMsg>
 	{
 	public:
+        template <typename SignalType>
+        friend class SignalWriter;
+        friend class PeriodicPluginBase;
+
 		TrunkControllerDebug(const std::shared_ptr<robotlib::RobotBase> robot);
 		TrunkControllerDebug(TrunkControllerDebug& trunk_controller_debug);
 		TrunkControllerDebug() = delete;
@@ -27,6 +31,8 @@ namespace dls
 		robotlib::LegDataMap<Eigen::Vector3d> feet_forces_;
 		robotlib::LegDataMap<Eigen::Vector3d> desired_forces_;
 		Eigen::Matrix<double,6,1> desired_wrench_{};
+    private:
+        virtual void setDataFromWrapperBase(WrapperBase *wrapper_base) override;
 	};
 } // namespace dls
 

@@ -12,13 +12,16 @@ namespace dls
     class Attitude : public Wrapper<AttitudeMsg>
     {
     public:
+        template <typename SignalType>
+        friend class SignalWriter;
+        friend class PeriodicPluginBase;
         Attitude();
-        Attitude(Attitude& attitude);
+        Attitude(Attitude &attitude);
         virtual ~Attitude();
 
         operator AttitudeMsg() const override;
-        Attitude& operator=(const AttitudeMsg& attitude_msg) override;
-        Attitude& operator=(const Attitude& attitude);
+        Attitude &operator=(const AttitudeMsg &attitude_msg) override;
+        Attitude &operator=(const Attitude &attitude);
 
         std::string frame_id_{};
         uint32_t sequence_id_{};
@@ -29,7 +32,10 @@ namespace dls
 
         Eigen::Vector3d angular_velocity_{Eigen::Vector3d::Zero()};
         Eigen::Vector3d euler_angles_t265_{Eigen::Vector3d::Zero()};
-        Eigen::Vector3d euler_angles_estimation_{Eigen::Vector3d::Zero()};        
+        Eigen::Vector3d euler_angles_estimation_{Eigen::Vector3d::Zero()};
+
+    private:
+        virtual void setDataFromWrapperBase(WrapperBase *wrapper_base) override;
     };
 } // namespace dls
 

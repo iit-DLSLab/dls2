@@ -10,6 +10,10 @@ namespace dls
 	class LegsPose : public Wrapper<LegsPoseMsg>
 	{
 	public:
+	    template <typename SignalType>
+		friend class SignalWriter;
+		friend class PeriodicPluginBase;
+
 		LegsPose(const std::shared_ptr<robotlib::RobotBase> robot);
 		LegsPose(LegsPose& legs_pose);
 		LegsPose() = delete;
@@ -29,6 +33,8 @@ namespace dls
 		Eigen::Vector3d base_velocity_{Eigen::Vector3d::Zero()};
 
 		robotlib::LegDataMap<bool> stance_status_;
+    private:
+        virtual void setDataFromWrapperBase(WrapperBase *wrapper_base) override;
 	};
 } // namespace dls
 

@@ -10,6 +10,10 @@ namespace dls
     class SensorFusion : public Wrapper<SensorFusionMsg>
     {
     public:
+        template <typename SignalType>
+        friend class SignalWriter;
+        friend class PeriodicPluginBase;
+
         SensorFusion();
         SensorFusion(SensorFusion& sensor_fusion);
         virtual ~SensorFusion();
@@ -24,6 +28,8 @@ namespace dls
 
         Eigen::Vector3d position_{Eigen::Vector3d::Zero()};
         Eigen::Vector3d linear_velocity_{Eigen::Vector3d::Zero()};
+    private:
+        virtual void setDataFromWrapperBase(WrapperBase *wrapper_base) override;
     };
 } // namespace dls
 #endif

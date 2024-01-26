@@ -193,3 +193,9 @@ LegOdometryDebug& LegOdometryDebug::operator=(const LegOdometryDebug& leg_odomet
 
 	return *this;
 }
+
+void LegOdometryDebug::setDataFromWrapperBase(WrapperBase *wrapper_base)
+{
+	// Assuming wrapper is of type Wrapper<MsgType>
+	*this = static_cast<LegOdometryDebug &>(*wrapper_base);
+}

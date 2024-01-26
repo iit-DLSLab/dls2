@@ -11,6 +11,10 @@ namespace dls
 	class SlipFlag : public Wrapper<SlipFlagMsg>
 	{
 	public:
+		template <typename SignalType>
+		friend class SignalWriter;
+		friend class PeriodicPluginBase;
+
 		SlipFlag(const std::shared_ptr<robotlib::RobotBase> robot);
 		SlipFlag(SlipFlag& slip_flag);
 		SlipFlag() = delete;
@@ -26,6 +30,8 @@ namespace dls
 
 		std::string robot_name_{};
 		robotlib::LegDataMap<bool> slip_flag_;
+    private:
+        virtual void setDataFromWrapperBase(WrapperBase *wrapper_base) override;
 	};
 } // namespace dls
 

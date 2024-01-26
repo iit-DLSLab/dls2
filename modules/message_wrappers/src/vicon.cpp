@@ -117,3 +117,9 @@ Vicon& Vicon::operator=(const Vicon& vicon)
 
     return *this;
 }
+
+void Vicon::setDataFromWrapperBase(WrapperBase *wrapper_base)
+{
+	// Assuming wrapper is of type Wrapper<MsgType>
+	*this = static_cast<Vicon &>(*wrapper_base);
+}

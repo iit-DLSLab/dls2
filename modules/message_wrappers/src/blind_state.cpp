@@ -115,3 +115,9 @@ BlindState& BlindState::operator=(const BlindState& blind_state)
 
 	return *this;
 }
+
+void BlindState::setDataFromWrapperBase(WrapperBase* wrapper_base)
+{
+    // Assuming wrapper is of type Wrapper<MsgType>
+    *this = static_cast<BlindState&>(*wrapper_base);
+}

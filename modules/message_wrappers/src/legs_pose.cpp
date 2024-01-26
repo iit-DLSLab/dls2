@@ -92,3 +92,9 @@ LegsPose& LegsPose::operator=(const LegsPose& legs_pose)
 
 	return *this;
 }
+
+void LegsPose::setDataFromWrapperBase(WrapperBase *wrapper_base)
+{
+	// Assuming wrapper is of type Wrapper<MsgType>
+	*this = static_cast<LegsPose &>(*wrapper_base);
+}

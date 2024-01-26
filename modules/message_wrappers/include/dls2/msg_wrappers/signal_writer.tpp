@@ -9,26 +9,53 @@
 using namespace dls;
 
 template <typename SignalType>
-SignalWriter<SignalType>::SignalWriter(std::shared_ptr<dls::DDSParticipant> participant_, const dls::topicType& topic_, const std::shared_ptr<SignalType> signal_)
-	: Signal<SignalType>(participant_, signal_)
+SignalWriter<SignalType>::SignalWriter(std::shared_ptr<dls::DDSParticipant> dds_participant, const dls::topicType& topic_, const std::shared_ptr<SignalType> signal)
+	: SignalWriterBase(dds_participant)
+	, signal_(signal)
+	, has_timestamp_(HasTimeStamp<SignalType>::value)
 {
 	int id = std::experimental::randint(100000, 999999);
-	while(participant_->getWriter(std::to_string(id)) != nullptr)
+	while(dds_participant_->getWriter(std::to_string(id)) != nullptr)
 		id = std::experimental::randint(100000, 999999);
 
-	this->ID_ = std::to_string(id);
+	ID_ = std::to_string(id);
 
-	participant_->addWriter(this->ID_, topic_);
+	dds_participant_->addWriter(ID_, topic_);
 }
 	
 template <typename SignalType>
-SignalWriter<SignalType>::~SignalWriter(){ }
+SignalWriter<SignalType>::~SignalWriter(){this->dds_participant_->deleteWriter(this->ID_); }
+
+template <typename SignalType>
+std::shared_ptr<SignalType> SignalWriter<SignalType>::operator->() 
+{
+	std::lock_guard<std::mutex> lock(signal_mutex_);
+    return signal_;
+}
 
 template <typename SignalType>
 void SignalWriter<SignalType>::publish()
 {
-	std::lock_guard<std::mutex> lock(this->signal_mutex);
-	this->ddsLink->sendMessage(this->ID_, this->signal->getMsg());
+	std::lock_guard<std::mutex> lock(signal_mutex_);
+	dds_participant_->sendMessage(ID_, signal_->getMsg());
+}
+
+template <typename SignalType>
+bool SignalWriter<SignalType>::hasTimestamp()
+{
+	return has_timestamp_;
+}
+
+template <typename SignalType>
+void SignalWriter<SignalType>::setTimestamp(double timestamp)
+{
+	signal_->timestamp_ = timestamp;
+}
+
+template <typename SignalType>
+void SignalWriter<SignalType>::setDataFromWrapperBase(WrapperBase* wrapper_base)
+{
+	signal_->setDataFromWrapperBase(wrapper_base);
 }
 
 #endif /* end of include guard: SIGNAL_WRITER_TPP */
