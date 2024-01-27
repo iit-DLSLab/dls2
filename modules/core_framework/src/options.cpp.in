@@ -77,9 +77,17 @@ bool Options::parseArgs(int argc, char **argv)
 			}
 			case 'r':
 			{
+				// Verify if the diretory exists
+				if(!std::filesystem::exists("${DLS_INSTALL_MODEL_DIR}"))
+				{
+					std::cerr << "There is no robot library installed" << std::endl;
+					goto invalid_command_line;
+				}
+
 				std::set<std::string> libraries{};
 				std::string textstr(optarg);
 				std::filesystem::directory_iterator dir_it("${DLS_INSTALL_MODEL_DIR}");
+				
 
 				for(const auto &file : dir_it)
 				{
@@ -93,7 +101,7 @@ bool Options::parseArgs(int argc, char **argv)
 					}
 				}
 
-				if (libraries.find(optarg) == libraries.end())
+				if (libraries.size() == 0 || libraries.find(optarg) == libraries.end())
 				{
 					std::cerr << "Unknown robot: " << optarg <<"\nvalid options are: ";
 					for(const auto& lib_name : libraries)
