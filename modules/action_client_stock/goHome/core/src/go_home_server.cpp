@@ -21,7 +21,6 @@ namespace dls
                                     std::function<void()>([&](){
                                         if(!initialized)
                                         {
-                                            std::cout << "GoHome is initializing" << std::endl;
                                             feedback.desired_joints_position_ = blind_state_reader.getData().joints_position_;
                                             initialized = true;
                                         }
