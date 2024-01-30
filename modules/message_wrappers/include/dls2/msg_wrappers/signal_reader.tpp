@@ -11,7 +11,7 @@ namespace dls
 	template <typename SignalType>
 	SignalReader<SignalType>::SignalReader(std::shared_ptr<dls::DDSParticipant> participant,
 										   const dls::topicType &topic,
-										   const std::shared_ptr<SignalType> signal)
+										   const std::shared_ptr<SignalType> signal, eprosima::fastdds::dds::DataReaderQos qos)
 		: SignalReaderBase(participant),
 		  signal_(signal),
 		  auxiliary_callback(std::function<void()>([&]() {}))
@@ -30,13 +30,14 @@ namespace dls
 											std::lock_guard<std::mutex> lock(signal_mutex_);
 											signal_->loadMsg(tuple);
 											received = true;
-										}});
+										}},
+									qos);
 	}
 
 	template <typename SignalType>
 	SignalReader<SignalType>::SignalReader(std::shared_ptr<dls::DDSParticipant> participant,
 										   const dls::topicType &topic,
-										   const std::shared_ptr<SignalType> signal, const std::function<void()> &auxiliary_callback)
+										   const std::shared_ptr<SignalType> signal, const std::function<void()> &auxiliary_callback, eprosima::fastdds::dds::DataReaderQos qos)
 		: SignalReaderBase(participant),
 		  signal_(signal),
 		  auxiliary_callback(auxiliary_callback)
@@ -55,8 +56,9 @@ namespace dls
 											std::lock_guard<std::mutex> lock(signal_mutex_);
 											signal_->loadMsg(tuple);
 											received = true;
-											auxiliary_callback();
-										}});
+											this->auxiliary_callback();
+										}},
+									qos);
 	}
 
 	template <typename SignalType>
