@@ -4,6 +4,7 @@ dls_configure(src/version_info.cpp.in  VERSION_INFO_CPP)
 dls_configure(src/control_layer.cpp.in  CONTROL_LAYER_CPP)
 dls_configure(src/console_layer.cpp.in  CONSOLE_LAYER_CPP)
 dls_configure(src/hardware_layer.cpp.in  HARDWARE_LAYER_CPP)
+dls_configure(src/options.cpp.in  OPTIONS_CPP)
 
 add_library(dls_framework
 	SHARED
@@ -12,7 +13,7 @@ add_library(dls_framework
 		src/estimation_layer.cpp
 		${HARDWARE_LAYER_CPP}
 		src/log_layer.cpp
-		src/options.cpp
+		${OPTIONS_CPP}
 		src/service_layer.cpp
 		${VERSION_INFO_CPP}
 		src/core_interface.cpp

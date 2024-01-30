@@ -3,7 +3,8 @@
 #define OPTIONS_CPP
 
 #include <iostream>
-
+#include <filesystem>
+#include <set>
 #include <getopt.h>
 
 #include "dls2/core_framework/options.hpp"
@@ -76,26 +77,44 @@ bool Options::parseArgs(int argc, char **argv)
 			}
 			case 'r':
 			{
-				robot_is_specified = true;
-				launch_service = true;
-				if(std::strcmp(optarg, "hyq") == 0)
+				// Verify if the diretory exists
+				if(!std::filesystem::exists("${DLS_INSTALL_MODEL_DIR}"))
 				{
-					Options::robot_name = "hyq";
-				}
-				else if(std::strcmp(optarg, "hyqreal") == 0)
-				{
-					Options::robot_name = "hyqreal";
-				}
-                else if(std::strcmp(optarg, "aliengo") == 0)
-				{
-					Options::robot_name = "aliengo";
-				}
-				else
-				{
-					std::cerr << "Unknown robot: " << optarg
-						<<"\nvalid options are 'hyq' or 'hyqreal' or 'aliengo'" << std::endl;
+					std::cerr << "There is no robot library installed" << std::endl;
 					goto invalid_command_line;
 				}
+
+				std::set<std::string> libraries{};
+				std::string textstr(optarg);
+				std::filesystem::directory_iterator dir_it("${DLS_INSTALL_MODEL_DIR}");
+				
+
+				for(const auto &file : dir_it)
+				{
+					std::string filename(file.path().filename());
+
+					// Fill "libraries" with the shared libraries that can be called from "load_layer_command"
+					if(filename.find("lib", 0) != std::string::npos &&
+       				   filename.find(".so", filename.size()-3) != std::string::npos)
+					{
+						libraries.insert(filename.substr(3, filename.size() - 6));
+					}
+				}
+
+				if (libraries.size() == 0 || libraries.find(optarg) == libraries.end())
+				{
+					std::cerr << "Unknown robot: " << optarg <<"\nvalid options are: ";
+					for(const auto& lib_name : libraries)
+						std::cerr << lib_name << " ";
+
+					std::cerr << std::endl;
+					goto invalid_command_line;
+				}
+
+				Options::robot_name = std::string{optarg};
+				robot_is_specified = true;
+				launch_service = true;
+
 				break;
 			}
 			case 'l':
@@ -202,7 +221,7 @@ void Options::printUsage()
 {
 	std::cout << "USAGE: dls "
 
-	"< --robot=<hyq|hyqreal|aliengo> | -r <hyq|hyqreal|aliengo> > "
+	"< --robot=<hyq|hyqreal|aliengo|go1> | -r <hyq|hyqreal|aliengo|go1> > "
 	"< --layers= | -l ...> "
 	"[ --version | -v ] "
 	"[ --help | -h ] "
