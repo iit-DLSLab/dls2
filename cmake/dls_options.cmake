@@ -21,12 +21,24 @@ set(DLS_INSTALL_LIB_DIR /usr/lib/dls2
 	CACHE STRING "Directory where framework shared object libraries are stored"
 )
 
+set(DLS_DEFAULT_HEADER_DIR /usr/include/dls2
+	CACHE STRING "Directory where framework headers are stored"
+)
+
+set(DLS_ACTIONS_HEADER_DIR /usr/include/dls2/actions
+	CACHE STRING "Directory where framework headers are stored"
+)
+
 set(DLS_SCHEDULERS_CONFIG_DIR /usr/include/dls2/schedulers
 	CACHE STRING "Directory where framework scheduler config are stored"
 )
 
 set(DLS_INSTALL_SERVICE_DIR /usr/lib/dls2/services
 	CACHE STRING "Directory where shared object libraries for services are stored"
+)
+
+set(DLS_INSTALL_ACTION_DIR /usr/lib/dls2/actions
+	CACHE STRING "Directory where shared object libraries for actions are stored"
 )
 
 set(DLS_INSTALL_HARDWARE_DIR /usr/lib/dls2/hardwares
