@@ -46,7 +46,7 @@ namespace dls
 			std::string name,
 			CommandManager *owner,
 			std::string docstring,
-			std::function<bool(void)> f,
+			const std::function<bool()>& f,
 			LevelType level = {{0,0}},
 			bool enabled = true
 		);
@@ -76,7 +76,7 @@ namespace dls
 		// ============================= Data Members ==============================
 		/// Callback of the command
 		///
-		const std::function<bool(void)> f;
+		const std::function<bool()> f;
 
 		/// Link the command with the rest of the framework
 		///

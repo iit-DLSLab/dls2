@@ -39,7 +39,7 @@ namespace dls
 	(
 		std::string name_,
 		std::string doc_,
-		bool(T::*function_ptr)(void),
+		bool(T::*function_ptr)(),
 		T* obj,
 		dls::CommandBase::LevelType level_,
 		bool enabled_

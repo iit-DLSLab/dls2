@@ -11,7 +11,7 @@ namespace dls
 		std::string name_,
 		CommandManager *owner_,
 		std::string docstring_,
-		std::function<bool(void)> f_,
+		const std::function<bool()> &f_,
 		dls::CommandBase::LevelType level_,
 		bool enabled_
 	) :
