@@ -45,11 +45,24 @@ namespace dls
 		 */
 		virtual ~ActionServerBase() = default;
 
+		/*! @brief Print state of the action server*/
+		virtual std::string where() override;
+
 	protected:
 		virtual void run(const std::chrono::system_clock::time_point &time) override;
 
 		//! @brief The function implementing the action
 		virtual void runAction() = 0;
+		
+		//! @brief Function starting the action
+		void startAction();
+		//! @brief Function stopping the action
+		void stopAction();
+		//! @brief Function checking if the action is stopped
+		bool isActionStopped();
+
+		//! Check if additional conditions has been satisfied to start the action
+		bool initialized;
 
 		//! Action waiting for a goal message
 		GOAL_t goal;

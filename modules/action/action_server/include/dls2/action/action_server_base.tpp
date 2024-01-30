@@ -16,10 +16,11 @@ namespace dls
 																	 const GOAL_t &goal,
 																	 const FEEDBACK_t &feedback,
 																	 const RESULT_t &result)
-		: PeriodicPluginBase(ID),
-		  goal(goal),
-		  feedback(feedback),
-		  result(result)
+		: 	PeriodicPluginBase(ID),
+			initialized(true),
+			goal(goal),
+			feedback(feedback),
+			result(result)
 	{
 		this->buildInput<GOAL_t>(topic_goal, &this->goal, std::bind(&ActionServerBase::activate, this));
 		this->buildOutput<FEEDBACK_t>(topic_feedback, &this->feedback);
@@ -36,6 +37,29 @@ namespace dls
 			runAction();
 			write();
 		}
+	}
+
+	template <typename GOAL_t, typename FEEDBACK_t, typename RESULT_t>
+	std::string ActionServerBase<GOAL_t, FEEDBACK_t, RESULT_t>::where(){
+		return "I don't know what to say: override me in the derived classes of ActionServerBase";
+	}
+
+	template <typename GOAL_t, typename FEEDBACK_t, typename RESULT_t>
+	void ActionServerBase<GOAL_t, FEEDBACK_t, RESULT_t>::startAction()
+	{
+		this->active = true;
+	}
+
+	template <typename GOAL_t, typename FEEDBACK_t, typename RESULT_t>
+	void ActionServerBase<GOAL_t, FEEDBACK_t, RESULT_t>::stopAction()
+	{
+		this->active = false;
+	}
+
+	template <typename GOAL_t, typename FEEDBACK_t, typename RESULT_t>
+	bool ActionServerBase<GOAL_t, FEEDBACK_t, RESULT_t>::isActionStopped()
+	{
+		return !this->active;
 	}
 } // end namespace dls
 
