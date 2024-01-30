@@ -22,20 +22,26 @@ namespace dls
 			feedback(feedback),
 			result(result)
 	{
-		this->buildInput<GOAL_t>(topic_goal, &this->goal, std::bind(&ActionServerBase::activate, this));
-		this->buildOutput<FEEDBACK_t>(topic_feedback, &this->feedback);
-		this->buildOutput<RESULT_t>(topic_result, &this->result);
-	}
+		this->buildInput<GOAL_t>(topic_goal, &this->goal, std::bind(&ActionServerBase::startAction, this));
+		this->buildOutput<FEEDBACK_t>("feedback", topic_feedback, &this->feedback);
+		this->buildOutput<RESULT_t>("result", topic_result, &this->result);
+	}	
 
 	template <typename GOAL_t, typename FEEDBACK_t, typename RESULT_t>
 	void ActionServerBase<GOAL_t, FEEDBACK_t, RESULT_t>::run(const std::chrono::system_clock::time_point &time)
 	{
 		static_cast<void>(time); // remove warning during compilation
-		if (active)
+		if (active && initialized)
 		{
 			read();
 			runAction();
-			write();
+			if(isActionStopped())
+			{
+				write("feedback");
+				write("result");
+			}
+			else
+				write("feedback");
 		}
 	}
 
