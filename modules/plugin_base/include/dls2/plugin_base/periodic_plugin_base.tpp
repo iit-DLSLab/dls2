@@ -42,6 +42,21 @@ namespace dls
 		// Add pointer to output
 		outputs_.push_back(output);
 	}
+
+	template <typename MsgWrapperType>
+	void PeriodicPluginBase::buildOutput(const std::string& output_name, const dls::topicType &topic, WrapperBase *output)
+	{
+		// Add data writer
+		writers_.push_back(std::make_shared<SignalWriter<MsgWrapperType>>(
+			dds_participant_,
+			topic,
+			std::make_shared<MsgWrapperType>(static_cast<MsgWrapperType &>(*output))));
+		// Add pointer to output
+		outputs_.push_back(output);
+
+		// Add output to the map
+		writers_map_[output_name] = std::make_pair(writers_.back(), output);
+	}
 }
 
 #endif /* end of include guard: PERIODIC_PLUGIN_BASE_TPP */

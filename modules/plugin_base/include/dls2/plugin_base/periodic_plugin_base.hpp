@@ -82,6 +82,19 @@ namespace dls
 		 */
 		template <typename MsgWrapperType>
 		void buildOutput(const dls::topicType &topic, WrapperBase *output);
+		
+		/*!
+		 * @brief Add an output to the plugin.
+		 * @details
+		 * When calling this function, it is created a new writer publishing on the input topic and it is stored the pointer to the output WrapperBase variable.
+		 * @tparam MsgWrapperType class name of the wrapper handling the message associated to the input topic
+		 * @tparam constructor_args_types types of the constructor arguments of the MsgWrapperType class
+		 * @param[in] output_name name of the output
+		 * @param[in] topic topic to subscribe to
+		 * @param[in] output pointer to the variable storing the last wrote output
+		 */
+		template <typename MsgWrapperType>
+		void buildOutput(const std::string &output_name, const dls::topicType &topic, WrapperBase *output);
 
 		/*!
 		 * @brief Read all the inputs.
@@ -96,6 +109,14 @@ namespace dls
 		 * When calling this function, each writer writes the corresponding output to the associated output topic. This function updates also the timestamp of the output, if it has one.
 		 */
 		void write();
+
+		/*!
+		 * @brief Write a specific output.
+		 * @details
+		 * When calling this function, the writer associated to the output_name writes the corresponding output to the associated output topic. This function updates also the timestamp of the output, if it has one.
+		 * @param[in] output_name name of the output to write
+		 */
+		void write(const std::string &output_name);
 
 		/*!
 		 * @brief Console command: activate the plugin.
@@ -123,6 +144,9 @@ namespace dls
 		std::vector<std::shared_ptr<SignalReaderBase>> readers_;
 		//! Vector of outputs (data writers)
 		std::vector<std::shared_ptr<SignalWriterBase>> writers_;
+		//! Map of data writers with their corresponding outputs variable. It is populated when calling buildOutput function with the output name as additional argument
+		std::map<std::string, std::pair<std::shared_ptr<SignalWriterBase>, WrapperBase*>> writers_map_;
+
 		//! Vector of pointers pointing to input variables: created when adding an input with buildInput function
 		std::vector<WrapperBase *> inputs_;
 		//! Vector of pointers pointing to output variables: created when adding an output with buildOutput function
