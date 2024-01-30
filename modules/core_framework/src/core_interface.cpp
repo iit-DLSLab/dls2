@@ -30,7 +30,7 @@ extern "C" Layer *create(const std::string& layer_name, const std::string& type,
 	}
 	else if (type == "service")	
 	{
-		p = new ServiceLayer(layer_name);
+		p = new ServiceLayer(layer_name, robot_name);
 	}
 
 	return p;
