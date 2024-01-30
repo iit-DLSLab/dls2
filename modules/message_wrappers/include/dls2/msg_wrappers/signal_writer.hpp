@@ -31,6 +31,9 @@ namespace dls
 		@param[in] timestamp		
 		*/
 		virtual void setTimestamp(double timestamp) override;
+
+		/*! @brief*/
+		void setSignal(const SignalType&);
 	
 	private:
 		const std::shared_ptr<SignalType> signal_;

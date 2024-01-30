@@ -53,6 +53,12 @@ void SignalWriter<SignalType>::setTimestamp(double timestamp)
 }
 
 template <typename SignalType>
+void SignalWriter<SignalType>::setSignal(const SignalType& signal)
+{
+	*signal_ = signal;
+}
+
+template <typename SignalType>
 void SignalWriter<SignalType>::setDataFromWrapperBase(WrapperBase* wrapper_base)
 {
 	signal_->setDataFromWrapperBase(wrapper_base);
