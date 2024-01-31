@@ -18,12 +18,6 @@ namespace dls
         command_manager->addCommand(  action_name,
                                             action_name + " action",
                                             &ActionClientBase::consoleCommand, this, {}, true);
-        command_manager->addCommand(  "loadActionGoHome",
-                                            action_name + " action",
-                                            &ActionClientBase::loadAction, this, {}, true);
-        command_manager->addCommand(  "unloadActionGoHome",
-                                            action_name + " action",
-                                            &ActionClientBase::unloadAction, this, {}, true);
     }
 
     bool ActionClientBase::isActionComplete()
