@@ -59,9 +59,9 @@ class MotionGenerator : public PeriodicApp
 		robotlib::JointState home_configuration;
         robotlib::JointState fold_configuration;
 
-		void setHomeConfiguration(YAML::Node& config, const std::string& data_name);
+		void setHomeConfiguration();
 
-		void setFoldConfiguration(YAML::Node& config, const std::string& data_name);
+		void setFoldConfiguration();
 
 		void setConsoleFunctions();
 
