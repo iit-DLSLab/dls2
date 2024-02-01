@@ -2,26 +2,20 @@
 #include "LookupListener.hpp"
 
 
-namespace dls
-{
-	LookupListener::LookupListener(
-		std::string     partName_,
-		dls::domainType domain_,
-		dls::topicType  topic_,
-		std::function<void(void *)> callback_,
-		eprosima::fastdds::dds::DataReaderQos qos_
-	)
-		:  DDSParticipant(partName_, domain_)
-	{
-		if (callback_ != nullptr)
-			this->reader = this->addReader("unicReader", topic_, callback_, qos_);
-	}
+namespace eprosima{
+namespace fastdds{
 
-	LookupListener::~LookupListener(){
-		this->reader = nullptr;
-	}
+    LookupListener::LookupListener():
+        fastdds_handler_(this){
+        std::cout << "Setting up the listener" << std::endl;
+        fastdds_handler_.get_topic_data_base();
 
+    };
+    LookupListener::~LookupListener(){
 
+        std::cout << "Listener destroyed" << std::endl;
+        // shutdown();
+    };
 
     void LookupListener::on_participant_discovery(
             eprosima::fastdds::dds::DomainParticipant* participant,
@@ -38,6 +32,93 @@ namespace dls
             std::cout << " Deleted participant " << static_cast<std::string>(info.info.m_participantName) << std::endl;
             // discovered_participants_info.erase(static_cast<std::string>(info.info.m_participantName));
         }
+    }
+
+    bool LookupListener::start(unsigned int domain_id, std::vector<std::string>topic_list)
+    {
+
+
+        // Creating a default DomainParticipant in domain by default (configuration_)
+        this->connect_to_domain_(domain_id);
+
+
+        // if (topics.empty())
+        // {
+        //     DEBUG("No topics selected, exiting");
+        //     throw InitializationException("No topics selected.");
+        // }
+
+        
+        eprosima::DataTypeConfiguration defaultDataTypeConfig;
+
+        for (const auto& topic : topic_list)
+        {
+            // Create a subscription
+            fastdds_handler_.create_subscription(topic, defaultDataTypeConfig);
+        }
+
+        // Locking DataStream
+        std::lock_guard<std::mutex> lock(std::mutex());
+
+        return true;
+    }
+
+
+  
+    // void LookupListener::on_string_data_read(
+    //         const std::vector<std::pair<std::string, std::string>>& data_per_topic_value,
+    //         double timestamp    )
+    // {
+    //     DEBUG("FastDdsDataStreamer on_string_data_read");
+
+    //     // Locking DataStream
+    //     std::lock_guard<std::mutex> lock(mutex());
+
+    //     for (const auto& data : data_per_topic_value)
+    //     {
+    //         DEBUG("Adding to string series " << data.first << " value " << data.second << " with timestamp " << timestamp);
+
+    //         // Get data map
+    //         auto series = dataMap().strings.find(data.first);
+
+    //         if(series != dataMap().strings.end())
+    //             // Add data to series
+    //             series->second.pushBack( { timestamp, data.second});
+    //     }
+
+    //     // emit dataReceived();
+    // }
+
+    void LookupListener::on_topic_discovery(
+            const std::string& topic_name,
+            const std::string& type_name,
+            bool type_registered)
+    {
+        DEBUG("FastDdsDataStreamer topic_discovery_signal " << topic_name);
+        std::cout << "Topic: " << topic_name << " discovered of type: " << type_name << std::endl;
+
+        // // Emit signal to UI so it is handled from Qt thread
+        // emit select_topics_dialog_.topic_discovery_signal(
+        //     utils::string_to_QString(topic_name),
+        //     utils::string_to_QString(type_name),
+        //     type_registered);
+    }
+
+
+
+
+    void LookupListener::connect_to_domain_(
+            unsigned int domain_id)
+    {
+        DEBUG("FastDdsDataStreamer connect_to_domain_ " << domain_id);
+
+        // Reset view and handler
+        // select_topics_dialog_.reset();
+        fastdds_handler_.reset();
+
+        // Connect to domain
+        fastdds_handler_.connect_to_domain(domain_id);
+        // select_topics_dialog_.connect_to_domain(domain_id);
     }
 
     void LookupListener::on_publisher_discovery(
@@ -100,7 +181,8 @@ namespace dls
     //     }
     // }
 
-} // end namespace dls
+} // end namespace fastdds
+} // end namespace eprosima
 
 
 

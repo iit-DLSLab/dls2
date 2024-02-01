@@ -85,7 +85,7 @@
 // }
 
 
-#include "LookupSubscriber.hpp"
+#include "LookupListener.hpp"
 // #include "dls_messages/dds/controller_commandPubSubTypes.h"
 // #include "dls_messages/dds/trunk_controller_debugPubSubTypes.h"
 // #include <dls_messages/dds/base_statePubSubTypes.h>
@@ -188,29 +188,35 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 
-	dls::LookupListener sub
-	(
-		"dds_hz",
-		domain,
-		topic,
-		std::function<void(void *)>
-		{
-			[&](void *tuple)
-			{
-				// std::cout << "received data" << std::endl;
-				std::lock_guard<std::mutex> lock(status_mutex);
-				std::chrono::system_clock::time_point now = std::chrono::high_resolution_clock::now();
-				double diff = std::chrono::duration<double>(now-last).count();
-				last = now;
-				if(times.size()==window_size)
-				{
-					times.erase(times.begin());
-				}
-				times.push_back(diff);
-				msg = tuple;
-			}
-		}
-	);
+	eprosima::fastdds::LookupListener listener;
+
+	std::vector<std::string> topicList = {topic_name};
+
+	bool ret = listener.start(domain,topicList);
+
+	// dls::LookupListener sub
+	// (
+	// 	"dds_hz",
+	// 	domain,
+	// 	topic,
+	// 	std::function<void(void *)>
+	// 	{
+	// 		[&](void *tuple)
+	// 		{
+	// 			// std::cout << "received data" << std::endl;
+	// 			std::lock_guard<std::mutex> lock(status_mutex);
+	// 			std::chrono::system_clock::time_point now = std::chrono::high_resolution_clock::now();
+	// 			double diff = std::chrono::duration<double>(now-last).count();
+	// 			last = now;
+	// 			if(times.size()==window_size)
+	// 			{
+	// 				times.erase(times.begin());
+	// 			}
+	// 			times.push_back(diff);
+	// 			msg = tuple;
+	// 		}
+	// 	}
+	// );
 
 	while(!stop)
 	{

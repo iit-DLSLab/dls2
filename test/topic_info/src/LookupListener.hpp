@@ -34,6 +34,9 @@
 
 // #include <map>
 
+#include <vector>
+#include <string>
+
 #include "dls2/util/messaging/dds_participant.hpp"
 
 
@@ -42,37 +45,33 @@
 #include "dls_messages/dds/trunk_controller_debugPubSubTypes.h"
 #include <dls_messages/dds/base_statePubSubTypes.h>
 #include <dls_messages/dds/mpc_generator_outputPubSubTypes.h>
+#include "Handler.hpp"
+#include "utils/DataTypeConfiguration.hpp"
+
+#include "utils/utils.hpp"
+#include "utils/Exception.hpp"
 
 
-namespace dls{
+namespace eprosima{
+namespace fastdds{
     class LookupListener : public eprosima::fastdds::FastDdsListener
     {
         public:
-            LookupListener(
-                std::string     			partName_,
-                dls::domainType 			domain_,
-                dls::topicType  			topic_,
-                std::function<void(void *)> callback_,
-                eprosima::fastdds::dds::DataReaderQos qos_ = eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT
-            );
-            virtual ~LookupListener();
-
+            LookupListener();
+            ~LookupListener();
 
             ////////////////////////////////////////////////////
             // FASTDDS LISTENER METHODS
             ////////////////////////////////////////////////////
 
-            virtual void on_data_available() override;
 
-            virtual void on_double_data_read(
-                    const std::vector<types::NumericDatum>& data_per_topic_value,
-                    double timestamp) override;
+            // virtual void on_string_data_read(
+            //         const std::vector<types::TextDatum>& data_per_topic_value,
+            //         double timestamp) override;
 
-            virtual void on_string_data_read(
-                    const std::vector<types::TextDatum>& data_per_topic_value,
-                    double timestamp) override;
+            bool start(unsigned int domain_id, std::vector<std::string>topic_list);
 
-            virtual void on_topic_discovery(
+            void on_topic_discovery(
                     const std::string& topic_name,
                     const std::string& type_name,
                     bool type_registered) override;
@@ -88,21 +87,19 @@ namespace dls{
             void connect_to_domain_(
                     unsigned int domain_id);
 
-            void create_series_();
-
 
             eprosima::fastdds::Handler fastdds_handler_;
 
-        private:
+        // private:
         
 
             void on_participant_discovery(
                 eprosima::fastdds::dds::DomainParticipant* participant,
-                eprosima::fastrtps::rtps::ParticipantDiscoveryInfo&& info) override;
+                eprosima::fastrtps::rtps::ParticipantDiscoveryInfo&& info);// override;
 
             void on_publisher_discovery(
                 eprosima::fastdds::dds::DomainParticipant* participant,
-                eprosima::fastrtps::rtps::WriterDiscoveryInfo&& info) override;
+                eprosima::fastrtps::rtps::WriterDiscoveryInfo&& info); // override;
 
 
             // // void on_subscription_matched(
@@ -115,7 +112,7 @@ namespace dls{
 				const eprosima::fastrtps::string_255& topic,
 				const eprosima::fastrtps::types::TypeIdentifier* identifier,
 				const eprosima::fastrtps::types::TypeObject* object,
-				eprosima::fastrtps::types::DynamicType_ptr dyn_type) override;
+				eprosima::fastrtps::types::DynamicType_ptr dyn_type); //override;
 
 
             // void on_type_information_received(
@@ -131,6 +128,7 @@ namespace dls{
     
 
     };
+}
 }
     // LookupSubscriber();
 

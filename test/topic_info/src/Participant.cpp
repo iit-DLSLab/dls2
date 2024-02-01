@@ -318,6 +318,8 @@ void Participant::on_type_discovery(
     //     return;
     // }
 
+    std::cout << "TypeObject discovered: " << dyn_type->get_name() << " for topic: " << topic.to_string() << std::endl;
+
     DEBUG("TypeObject discovered: " << dyn_type->get_name() << " for topic: " << topic.to_string());
 
     // Create TypeSupport and register it
