@@ -81,6 +81,9 @@ Participant::Participant(
         std::cerr << "YOU HAVE TO INSTALL DLS2 BEFORE LISTENING TO TOPICS IN PLOTJUGGLER" << std::endl;
         throw std::runtime_error(e.what());
     }
+    std::cout << "YAML File Loaded" << std::endl;
+
+
     std::string server_ip = config[domain_id]["ip"].as<std::string>();
     int server_port = config[domain_id]["port"].as<double>();
     std::string server_guid_prefix = config[domain_id]["guid_prefix"].as<std::string>();
@@ -107,6 +110,8 @@ Participant::Participant(
         this,
         default_listener_mask_());
 
+
+    std::cout << "Participant has been created with the defauly listener mask" << std::endl;
     if (!participant_)
     {
         throw InitializationException("Error creating Domain Participant");
@@ -117,12 +122,14 @@ Participant::Participant(
     // Create Subscriber without listener
     subscriber_ = participant_->create_subscriber(
         default_subscriber_qos_());
+    std::cout << "subscriber created" << std::endl;
 
     if (!subscriber_)
     {
         // Delete participant
         eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->delete_participant(participant_);
         participant_ = nullptr;
+        std::cout << "Error creating the sub" << std::endl;
 
         throw InitializationException("Error creating Subscriber");
     }
@@ -186,6 +193,7 @@ void Participant::create_subscription(
 {
     // TODO: check if mutex required
     DEBUG("Creating subscription for topic: " << topic_name);
+    std::cout << "Creating subscription for topic: " << topic_name << std::endl;
 
     // Check datareader does not exist yet
     if (readers_.find(topic_name) != readers_.end())
@@ -195,10 +203,12 @@ void Participant::create_subscription(
     }
 
     // Check the Topic exist, so the type name is known
+    std::cout << "Size of the discovery database is: " << discovery_database_->size() << std::endl;
     auto topic_type = discovery_database_->find(topic_name);
     if (topic_type == discovery_database_->end())
     {
         WARNING("Topic " << topic_name << " has not been discovered not exist, so type unknowon");
+        std::cout << "Topic " << topic_name << " has not been discovered not exist, so type unknown" << std::endl;
         throw InconsistencyException("Trying to create Data Reader in a non existing topic: " + topic_name);
     }
 
@@ -255,6 +265,8 @@ void Participant::on_publisher_discovery(
         std::string topic_name = info.info.topicName().to_string();
         std::string type_name = info.info.typeName().to_string();
 
+        std::cout << "DataWriter with guid " << info.info.guid() << " discovered in topic : " <<
+                topic_name << " [ " << type_name << " ]" << std::endl;
         DEBUG(
             "DataWriter with guid " << info.info.guid() << " discovered in topic : " <<
                 topic_name << " [ " << type_name << " ]");
@@ -263,6 +275,26 @@ void Participant::on_publisher_discovery(
         on_topic_discovery_(topic_name, type_name);
     }
 }
+
+   void Participant::on_participant_discovery(
+            eprosima::fastdds::dds::DomainParticipant* participant,
+            eprosima::fastrtps::rtps::ParticipantDiscoveryInfo&& info)
+    {
+        std::cout << "Just found a new participant" << std::endl;
+        static_cast<void>(participant);
+        if (info.status == eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DISCOVERY_STATUS::DISCOVERED_PARTICIPANT)
+        {
+            // discovered_participants_info.insert({static_cast<std::string>(info.info.m_participantName), info.info.m_guid});
+            std::cout << "Discovered participant " <<  static_cast<std::string>(info.info.m_participantName) << std::endl;
+        }
+        else if (info.status == eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DISCOVERY_STATUS::REMOVED_PARTICIPANT)
+        {
+            std::cout << " Deleted participant " << static_cast<std::string>(info.info.m_participantName) << std::endl;
+            // discovered_participants_info.erase(static_cast<std::string>(info.info.m_participantName));
+        }
+    }
+
+
 
 void Participant::on_type_information_received(
         eprosima::fastdds::dds::DomainParticipant*,
@@ -339,6 +371,7 @@ void Participant::on_topic_discovery_(
         const std::string& topic_name,
         const std::string& type_name)
 {
+    std::cout << "Trying to discover a topic within the Participant" << std::endl;
     // TODO: check if mutex required
 
     // Check if type is registered in Participant

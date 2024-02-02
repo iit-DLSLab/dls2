@@ -41,6 +41,7 @@ namespace fastdds{
         // Creating a default DomainParticipant in domain by default (configuration_)
         this->connect_to_domain_(domain_id);
 
+        std::cout << "connected to the domain" << std::endl;
 
         // if (topics.empty())
         // {
@@ -50,6 +51,16 @@ namespace fastdds{
 
         
         eprosima::DataTypeConfiguration defaultDataTypeConfig;
+
+        // auto discovery_database = fastdds_handler_.get_topic_data_base();
+        // discovery_database
+        // std::cout << "Content of the discovery database:" << std::endl;
+        // for(auto& t: discovery_database){
+        //     std::cout << t.first << std::endl;
+        // }
+        // std::cout << "End of the unordered map content" << std::endl;
+
+        
 
         for (const auto& topic : topic_list)
         {
@@ -110,6 +121,7 @@ namespace fastdds{
     void LookupListener::connect_to_domain_(
             unsigned int domain_id)
     {
+        std::cout << "LookupListener connected to the domain"
         DEBUG("FastDdsDataStreamer connect_to_domain_ " << domain_id);
 
         // Reset view and handler
@@ -117,7 +129,7 @@ namespace fastdds{
         fastdds_handler_.reset();
 
         // Connect to domain
-        fastdds_handler_.connect_to_domain(domain_id);
+        fastdds_handler_.connect_to_domain(static_cast<uint32_t> (domain_id));
         // select_topics_dialog_.connect_to_domain(domain_id);
     }
 
@@ -125,6 +137,7 @@ namespace fastdds{
         eprosima::fastdds::dds::DomainParticipant* participant,
         eprosima::fastrtps::rtps::WriterDiscoveryInfo&& info)
     {
+        std::cout << "discovered a publisher" << std::endl;
         // warning suppress
         (void)participant;
 
@@ -155,6 +168,7 @@ namespace fastdds{
         static_cast<void>(request_sample_id); // remove compilation warnings
         static_cast<void>(identifier); // remove compilation warnings
         static_cast<void>(object); // remove compilation warnings
+        std::cout << "discovered a type" << std::endl;
         // Create TypeSupport and register it
         eprosima::fastdds::dds::TypeSupport(
             new eprosima::fastrtps::types::DynamicPubSubType(dyn_type)).register_type(participant);

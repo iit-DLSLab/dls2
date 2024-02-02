@@ -120,6 +120,10 @@ public:
             const fastrtps::types::TypeObject* object,
             fastrtps::types::DynamicType_ptr dyn_type) override;
 
+    void on_participant_discovery(
+            eprosima::fastdds::dds::DomainParticipant* participant,
+            eprosima::fastrtps::rtps::ParticipantDiscoveryInfo&& info) override;
+
 
     ////////////////////////////////////////////////////
     // RETRIEVE INFORMATION METHODS

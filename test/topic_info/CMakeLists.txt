@@ -14,12 +14,14 @@ add_executable(dls_hz
 	src/message_hz.cpp
 	src/LookupListener.cpp
 
-	src/utils/DataTypeConfiguration.hpp
+	# src/utils/DataTypeConfiguration.hpp
 	src/utils/dynamic_types_utils.cpp
+
 	src/utils/utils.cpp
 
 	src/Participant.cpp
 	src/ReaderHandler.cpp
+	src/Handler.cpp
 	# src/topic_info.cpp
 )
 

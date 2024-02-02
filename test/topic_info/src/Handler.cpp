@@ -59,6 +59,7 @@ void Handler::connect_to_domain(
 
     // Create participant
     participant_ = std::make_unique<Participant>(domain, discovery_database_, listener_);
+    std::cout << "Participant created" << std::endl;
 }
 
 void Handler::register_type_from_xml(
