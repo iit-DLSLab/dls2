@@ -68,6 +68,7 @@ public:
             const std::string& type_name,
             bool type_registered)
     {
+        std::cout << " discovered a new topic: " << topic_name << std::endl;
         DEBUG("Calling on_topic_discovery");
         static_cast<void>(topic_name);
         static_cast<void>(type_name);

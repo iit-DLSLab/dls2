@@ -67,6 +67,9 @@ namespace dls
 		void setTopicListener(dls::DDSPartListener *listener_);
 
 		bool is_type_registered_in_participant_(const std::string& type_name);
+		std::unordered_map<std::string, std::string> discovery_database;
+
+		
 		
 	private:
 		std::string server_ip;
@@ -85,7 +88,7 @@ namespace dls
 		
 		dls::DDSPartListener *topicListener;
 
-		std::unordered_map<std::string, std::string> discovery_database;
+		
 
 		YAML::Node config;
 

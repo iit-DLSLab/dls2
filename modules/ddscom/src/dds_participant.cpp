@@ -287,16 +287,21 @@ namespace dls
 		if (topic == nullptr)
 			return nullptr;
 
+		std::cout << "About to create the listener" << std::endl;
 		std::shared_ptr<dls::DDSSubListener> listener = std::make_shared<DDSSubListener>(callback_);
+		std::cout << "Created the listener" << std::endl;
 
 		auto reader = this->subscriber->create_datareader(
 			topic,
 			qos,
 			listener.get());
+		std::cout << "Subscriber datareader has been created" << std::endl;
 
 		if (reader != nullptr)
 		{
+			
 			this->readers.insert({readerName_, reader});
+			std::cout << " added the reader to the list " << std::endl;
 			this->subListeners.insert({readerName_, listener});
 		}
 
@@ -387,6 +392,8 @@ namespace dls
 		if (info.status == eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DISCOVERY_STATUS::DISCOVERED_PARTICIPANT)
 		{
 			discovered_participants_info.insert({static_cast<std::string>(info.info.m_participantName), info.info.m_guid});
+			std::cout << " Discovered a new participant:" << static_cast<std::string>(info.info.m_participantName) << std::endl;
+
 		}
 		else if (info.status == eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DISCOVERY_STATUS::REMOVED_PARTICIPANT)
 		{
@@ -400,6 +407,7 @@ namespace dls
 	{
 		// warning suppress
 		(void)participant;
+		std::cout << "discovered a new publisher with a topic called: " << info.info.topicName().to_string() << std::endl;
 
 		// Only set as new topic discovered if it is ALIVE
 		if (info.status == eprosima::fastrtps::rtps::WriterDiscoveryInfo::DISCOVERY_STATUS::DISCOVERED_WRITER)
@@ -408,6 +416,7 @@ namespace dls
 			std::string topic_name = info.info.topicName().to_string();
 			std::string type_name = info.info.typeName().to_string();
 
+			std::cout << " Discovered a new topic: " << topic_name << " of type: " << type_name << std::endl;
 			// Set Topic as discovered. If it is not new nothing happen
 			if(DDSParticipant::is_type_registered_in_participant_(type_name))
 				on_topic_discovery_(topic_name, type_name);
@@ -468,6 +477,7 @@ namespace dls
 		if (discovery_database.find(topic_name) != discovery_database.end())
 			return;
 
+		std::cout << " discovered topic in participant callback: " << topic_name << std::endl;
 		discovery_database[topic_name] = type_name;
 
 		// Call listener callback to notify new topic
