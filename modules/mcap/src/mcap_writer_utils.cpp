@@ -58,7 +58,7 @@ namespace dls
         }
 
         // Initialize an MCAP writer with the "json" profile and write the MCAP file
-        const auto mcap_writer_status = mcap_writer_.open("mcap_log_" + timestamp + ".mcap", mcap::McapWriterOptions(""));
+        const auto mcap_writer_status = mcap_writer_.open(std::string(std::getenv("HOME"))+"/mcap_log_" + timestamp + ".mcap", mcap::McapWriterOptions(""));
 
         if (!mcap_writer_status.ok())
         {
