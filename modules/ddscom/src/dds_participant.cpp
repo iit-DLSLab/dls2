@@ -287,26 +287,83 @@ namespace dls
 		if (topic == nullptr)
 			return nullptr;
 
-		std::cout << "About to create the listener" << std::endl;
 		std::shared_ptr<dls::DDSSubListener> listener = std::make_shared<DDSSubListener>(callback_);
-		std::cout << "Created the listener" << std::endl;
 
 		auto reader = this->subscriber->create_datareader(
 			topic,
 			qos,
 			listener.get());
-		std::cout << "Subscriber datareader has been created" << std::endl;
 
 		if (reader != nullptr)
 		{
 			
 			this->readers.insert({readerName_, reader});
-			std::cout << " added the reader to the list " << std::endl;
 			this->subListeners.insert({readerName_, listener});
 		}
 
 		return reader;
 	}
+
+	eprosima::fastdds::dds::DataReader* DDSParticipant::addReader(
+		std::string readerName_,
+		std::string topicName,
+		std::function<void(void *)> callback_,
+		eprosima::fastdds::dds::DataReaderQos qos)
+	{
+		if(this->readers.find(readerName_) != this->readers.end())
+		{
+			std::cout << "THE READER " << readerName_ << " ALREADY EXISTS, YOU ARE TRYING TO CREATE TWICE" << std::endl;
+			return this->readers.find(readerName_)->second;
+		}	
+		
+		auto topic = this->addTopic(topicName); //this->getTopicFromString(topicName); //
+
+
+		std::cout << "Reader to be created" << std::endl;
+		// error could not add topic
+		if (topic == nullptr){
+			std::cout << "nullptr for topic" << std::endl;
+			return nullptr;
+
+		}
+			
+
+		std::shared_ptr<dls::DDSSubListener> listener = std::make_shared<DDSSubListener>(callback_);
+		std::cout << "listener made" << std::endl;
+
+		auto reader = this->subscriber->create_datareader(
+			topic,
+			qos,
+			listener.get());
+
+		if (reader != nullptr)
+		{
+			
+			this->readers.insert({readerName_, reader});
+			this->subListeners.insert({readerName_, listener});
+		}
+
+		return reader;
+	}
+
+	eprosima::fastdds::dds::Topic * DDSParticipant::getTopicFromString(const std::string& topic_name){
+
+		eprosima::fastdds::dds::Topic * found_topic = this->topics.find(topic_name)->second;
+
+		return found_topic;
+
+	}
+	bool DDSParticipant::topicFound(const std::string& topic_name){
+
+		if (discovery_database.find(topic_name) != discovery_database.end()){
+			return true;
+		}
+
+		return false;	
+
+	}
+
+
 
 	bool DDSParticipant::deleteReader(const std::string& reader_name)
 	{
@@ -334,6 +391,8 @@ namespace dls
 		if(!this->participant)
 			return nullptr;
 
+		std::cout << "Adding in the topic: " << topicData_.first << std::endl;
+		std::cout << "\t type name is: " << topicData_.second.get_type_name() << std::endl;
 		auto search = this->topics.find(topicData_.first);
 
 		if(search != topics.end())
@@ -358,6 +417,46 @@ namespace dls
 
 		return topic;
 	}
+
+	eprosima::fastdds::dds::Topic *DDSParticipant::addTopic(std::string topicName)
+	{
+		if(!this->participant)
+			return nullptr;
+
+		auto search = this->topics.find(topicName);
+		std::string type_name = discovery_database[topicName];
+
+		std::cout << "Type " << topicName << " being added is: " << type_name << std::endl;
+
+		if(search != topics.end()){
+			std::cout << "topic found" << std::endl;
+			return search->second;
+		}
+
+			
+
+		if(!this->participant->find_type(topicName))
+		{
+			std::cout << "Couldnt find the topic type, so adding it ourselves" << std::endl;
+			// topicData_.second->auto_fill_type_information(false);
+    		// topicData_.second->auto_fill_type_object(true);
+			// this->participant->register_type(topicData_.second);
+		}
+
+		auto topic = this->participant->create_topic(
+			topicName,
+			type_name,
+			eprosima::fastdds::dds::TOPIC_QOS_DEFAULT);
+
+		std::cout << "Topic has been created" << std::endl;
+		if(topic == nullptr)
+			throw std::runtime_error("Error: could not create publisher topic");
+
+		this->topics.insert({topicName, topic});
+
+		return topic;
+	}
+
 
 	std::vector<std::string> DDSParticipant::getParticipants()
 	{
@@ -392,7 +491,7 @@ namespace dls
 		if (info.status == eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DISCOVERY_STATUS::DISCOVERED_PARTICIPANT)
 		{
 			discovered_participants_info.insert({static_cast<std::string>(info.info.m_participantName), info.info.m_guid});
-			std::cout << " Discovered a new participant:" << static_cast<std::string>(info.info.m_participantName) << std::endl;
+			// std::cout << " Discovered a new participant:" << static_cast<std::string>(info.info.m_participantName) << std::endl;
 
 		}
 		else if (info.status == eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DISCOVERY_STATUS::REMOVED_PARTICIPANT)
@@ -407,7 +506,6 @@ namespace dls
 	{
 		// warning suppress
 		(void)participant;
-		std::cout << "discovered a new publisher with a topic called: " << info.info.topicName().to_string() << std::endl;
 
 		// Only set as new topic discovered if it is ALIVE
 		if (info.status == eprosima::fastrtps::rtps::WriterDiscoveryInfo::DISCOVERY_STATUS::DISCOVERED_WRITER)
@@ -416,7 +514,7 @@ namespace dls
 			std::string topic_name = info.info.topicName().to_string();
 			std::string type_name = info.info.typeName().to_string();
 
-			std::cout << " Discovered a new topic: " << topic_name << " of type: " << type_name << std::endl;
+			// std::cout << " Discovered a new topic: " << topic_name << " of type: " << type_name << std::endl;
 			// Set Topic as discovered. If it is not new nothing happen
 			if(DDSParticipant::is_type_registered_in_participant_(type_name))
 				on_topic_discovery_(topic_name, type_name);
@@ -429,6 +527,7 @@ namespace dls
         const eprosima::fastrtps::string_255 type_name,
         const eprosima::fastrtps::types::TypeInformation& type_information)
 	{
+		std::cout << "received the type information for: " << topic_name.to_string() << std::endl;
 		if(!this->participant)
 			return;
 
@@ -477,7 +576,6 @@ namespace dls
 		if (discovery_database.find(topic_name) != discovery_database.end())
 			return;
 
-		std::cout << " discovered topic in participant callback: " << topic_name << std::endl;
 		discovery_database[topic_name] = type_name;
 
 		// Call listener callback to notify new topic

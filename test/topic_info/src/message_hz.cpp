@@ -85,11 +85,15 @@
 // }
 
 
-#include "LookupListener.hpp"
-// #include "dls_messages/dds/controller_commandPubSubTypes.h"
-// #include "dls_messages/dds/trunk_controller_debugPubSubTypes.h"
-// #include <dls_messages/dds/base_statePubSubTypes.h>
-// #include <dls_messages/dds/mpc_generator_outputPubSubTypes.h>
+#include "dls_messages/dds/controller_commandPubSubTypes.h"
+#include "dls_messages/dds/trunk_controller_debugPubSubTypes.h"
+#include <dls_messages/dds/base_statePubSubTypes.h>
+#include <dls_messages/dds/mpc_generator_outputPubSubTypes.h>
+
+// #include "dls2/util/messaging/dds_participant.hpp"
+
+
+#include "dds_reader.hpp"
 
 #include <iostream>
 #include <signal.h>
@@ -99,9 +103,11 @@
 #include <chrono>
 #include <numeric>
 #include <mutex>
+#include <vector>
 
 bool stop = false;
 unsigned long int window_size = 10000;
+
 std::vector<double> times{};
 std::chrono::system_clock::time_point last = std::chrono::high_resolution_clock::now();
 void * msg;  // just to avoid warnings during compilation..... :)
@@ -128,7 +134,7 @@ int main(int argc, char** argv)
    sigaction(SIGINT, &sigIntHandler, NULL);
 
 	// Choose domain
-	int domain = 3;
+	int domain = 3;//dls::domains::signals
 	if(argc==3)
 	{
 		domain = strtol(argv[2], NULL, 10);
@@ -138,55 +144,55 @@ int main(int argc, char** argv)
 	dls::topicType topic;
 	
 	const std::string topic_name = argv[1];
-	if(topic_name == "blind_state")
-	{
-		topic = dls::topics::low_level_estimation::blind_state;
-	}
-	else if(topic_name == "base_state")
-	{
-		topic = dls::topics::high_level_estimation::base_state;
-	}
-	else if(topic_name == "controller_signal")
-	{
-		topic = dls::topics::controller_signal;
-	}
-	else if(topic_name == "trajectory_generator")
-	{
-		topic = dls::topics::trajectory_generator;
-	}
-	else if(topic_name == "t265_odometry")
-	{
-		topic = dls::topics::high_level_estimation::t265_odometry;
-	}
-	else if(topic_name == "trunk_controller_signal")
-	{
-		topic = dls::topicType("trunk_controller", new  ControlSignalMsgPubSubType());
-	}
-	else if(topic_name == "pid_signal")
-	{
-		topic = dls::topicType("pid", new  ControlSignalMsgPubSubType());
-	}
-	else if(topic_name == "trunk_controller_debug")
-	{
-		topic = dls::topicType("trunk_controller_debug", new  TrunkControllerDebugMsgPubSubType());
-	}
-	else if(topic_name == "desired_torques")
-	{
-		topic = dls::topics::desired_torques;
-	}
-	else if(topic_name == "mpc_controller")
-	{
-		topic = dls::topicType("mpc_controller", new  ControlSignalMsgPubSubType());
-	}
-	else if(topic_name == "mpc_generator_output")
-	{
-		topic = dls::topics::mpc_generator_output;
-	}
-	else
-	{
-		std::cout << "Wrong topic name" << std::endl;
-		return EXIT_FAILURE;
-	}
+	// if(topic_name == "blind_state")
+	// {
+	// 	topic = dls::topics::low_level_estimation::blind_state;
+	// }
+	// else if(topic_name == "base_state")
+	// {
+	// 	topic = dls::topics::high_level_estimation::base_state;
+	// }
+	// else if(topic_name == "controller_signal")
+	// {
+	// 	topic = dls::topics::controller_signal;
+	// }
+	// else if(topic_name == "trajectory_generator")
+	// {
+	// 	topic = dls::topics::trajectory_generator;
+	// }
+	// else if(topic_name == "t265_odometry")
+	// {
+	// 	topic = dls::topics::high_level_estimation::t265_odometry;
+	// }
+	// else if(topic_name == "trunk_controller_signal")
+	// {
+	// 	topic = dls::topicType("trunk_controller", new  ControlSignalMsgPubSubType());
+	// }
+	// else if(topic_name == "pid_signal")
+	// {
+	// 	topic = dls::topicType("pid", new  ControlSignalMsgPubSubType());
+	// }
+	// else if(topic_name == "trunk_controller_debug")
+	// {
+	// 	topic = dls::topicType("trunk_controller_debug", new  TrunkControllerDebugMsgPubSubType());
+	// }
+	// else if(topic_name == "desired_torques")
+	// {
+	// 	topic = dls::topics::desired_torques;
+	// }
+	// else if(topic_name == "mpc_controller")
+	// {
+	// 	topic = dls::topicType("mpc_controller", new  ControlSignalMsgPubSubType());
+	// }
+	// else if(topic_name == "mpc_generator_output")
+	// {
+	// 	topic = dls::topics::mpc_generator_output;
+	// }
+	// else
+	// {
+	// 	std::cout << "Wrong topic name" << std::endl;
+	// 	return EXIT_FAILURE;
+	// }
 
 	// eprosima::fastdds::LookupListener listener;
 
@@ -198,7 +204,7 @@ int main(int argc, char** argv)
 	(
 		"dds_hz",
 		domain,
-		topic,
+		topic_name,
 		std::function<void(void *)>
 		{
 			[&](void *tuple)

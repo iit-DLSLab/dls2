@@ -59,6 +59,13 @@ namespace dls
 			eprosima::fastdds::dds::DataReaderQos qos = eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT
 		);
 
+		eprosima::fastdds::dds::DataReader *addReader(
+			std::string readerName,
+			std::string topicName,
+			std::function<void(void *)> callback,
+			eprosima::fastdds::dds::DataReaderQos qos = eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT
+		);
+
 		bool deleteReader(const std::string& reader_name);
 		bool deleteWriter(const std::string& writer_name);
 
@@ -67,7 +74,13 @@ namespace dls
 		void setTopicListener(dls::DDSPartListener *listener_);
 
 		bool is_type_registered_in_participant_(const std::string& type_name);
-		std::unordered_map<std::string, std::string> discovery_database;
+
+		eprosima::fastdds::dds::Topic * getTopicFromString(const std::string& topic_name);
+
+
+		bool topicFound(const std::string& topic_name);
+		
+		
 
 		
 		
@@ -88,11 +101,14 @@ namespace dls
 		
 		dls::DDSPartListener *topicListener;
 
+		std::unordered_map<std::string, std::string> discovery_database;
+
 		
 
 		YAML::Node config;
 
 		eprosima::fastdds::dds::Topic* addTopic(dls::topicType topicData_);
+		eprosima::fastdds::dds::Topic* addTopic(std::string topicName);
 
 		std::multimap<std::string, eprosima::fastrtps::rtps::GUID_t> discovered_participants_info;
 
