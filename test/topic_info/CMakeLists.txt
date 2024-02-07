@@ -12,7 +12,7 @@ target_link_libraries(topic_info
 
 add_executable(dls_hz
 	src/message_hz.cpp
-	src/dds_reader.cpp
+	# src/dds_reader.cpp
 )
 
 target_link_libraries(dls_hz

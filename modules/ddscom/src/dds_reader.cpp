@@ -21,9 +21,55 @@ namespace dls
 			this->reader = this->addReader("unicReader", topic_, callback_, qos_);
 	}
 
+	DDSReader::DDSReader(
+		std::string     partName_,
+		dls::domainType domain_,
+		eprosima::fastrtps::rtps::DiscoveryProtocol_t partType_
+	)
+		: DDSParticipant(partName_, domain_, partType_){}
+
+
+
 	DDSReader::~DDSReader(){
 		this->reader = nullptr;
 	}
+
+	void DDSReader::run( 
+		std::string topicName,
+		std::function<void(void *)> callback_,
+		eprosima::fastdds::dds::DataReaderQos qos_
+	){
+
+		if (callback_ != nullptr)
+			// std::cout << " Adding the reader" << std::endl;
+			sleep(1);
+			auto participant_vect  = this->getParticipants();
+
+			std::cout << "Getting participants: " << std::endl;
+
+			for(auto &t: participant_vect){
+
+				std::cout << "\t" << t << std::endl;
+			}
+			
+			// if (topicFound("blind_state"))
+			// 	std::cout << "found blind_state topic" << std::endl;
+			// 	// auto topic = getTopicFromString("blind_state");
+			// 	// this->reader = this->addReader("unicReader", topic, callback_, qos_);
+
+			// if (topicFound("desired_torques"))
+			// 	std::cout << "found desired_torques topic" << std::endl;
+			
+			if (topicFound(topicName))
+				std::cout << "found " <<  topicName << std::endl;	
+
+			// auto topic = getTopicFromString("blind_state");
+			this->reader = this->addReader("unicReader", topicName, callback_, qos_);
+
+
+			std::cout << "End of discovered parts" << std::endl; 
+	}
+
 
 } // end namespace dls
 

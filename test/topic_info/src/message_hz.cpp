@@ -1,99 +1,9 @@
-// // Copyright 2019 Proyectos y Sistemas de Mantenimiento SL (eProsima).
-// //
-// // Licensed under the Apache License, Version 2.0 (the "License");
-// // you may not use this file except in compliance with the License.
-// // You may obtain a copy of the License at
-// //
-// //     http://www.apache.org/licenses/LICENSE-2.0
-// //
-// // Unless required by applicable law or agreed to in writing, software
-// // distributed under the License is distributed on an "AS IS" BASIS,
-// // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// // See the License for the specific language governing permissions and
-// // limitations under the License.
-
-// /**
-//  * @file TypeLookup_main.cpp
-//  *
-//  */
-
-// // #include "LookupPublisher.h"
-// #include "LookupSubscriber.hpp"
-
-// #include <fastrtps/log/Log.h>
-// #include <iostream>
-
-// using namespace eprosima::fastrtps;
-
-// int main(
-//         int argc,
-//         char** argv)
-// {
-//     std::cout << "Starting " << std::endl;
-//     int type = 1;
-//     int count = 5;
-//     long sleep = 100;
-//     if (argc > 1)
-//     {
-//         if (strcmp(argv[1], "publisher") == 0)
-//         {
-//             type = 1;
-//             if (argc >= 3)
-//             {
-//                 count = atoi(argv[2]);
-//                 if (argc == 4)
-//                 {
-//                     sleep = atoi(argv[3]);
-//                 }
-//             }
-//         }
-//         else if (strcmp(argv[1], "subscriber") == 0)
-//         {
-//             type = 2;
-//         }
-//     }
-//     else
-//     {
-//         std::cout << "publisher OR subscriber argument needed" << std::endl;
-//         Log::Reset();
-//         return 0;
-//     }
-
-//     switch (type)
-//     {
-//         // case 1:
-//         // {
-//         //     TypeLookupPublisher mypub;
-//         //     if (mypub.init())
-//         //     {
-//         //         mypub.run(count, sleep);
-//         //     }
-//         //     break;
-//         // }
-//         case 2:
-//         {
-//             LookupSubscriber mysub;
-//             if (mysub.init())
-//             {
-//                 mysub.run();
-//             }
-//             break;
-//         }
-//     }
-//     Log::Reset();
-//     return 0;
-// }
-
-
 #include "dls_messages/dds/controller_commandPubSubTypes.h"
 #include "dls_messages/dds/trunk_controller_debugPubSubTypes.h"
 #include <dls_messages/dds/base_statePubSubTypes.h>
 #include <dls_messages/dds/mpc_generator_outputPubSubTypes.h>
 
-// #include "dls2/util/messaging/dds_participant.hpp"
-
-
-#include "dds_reader.hpp"
+#include "dls2/util/messaging/dds_reader.hpp"
 
 #include <iostream>
 #include <signal.h>
@@ -106,7 +16,7 @@
 #include <vector>
 
 bool stop = false;
-unsigned long int window_size = 10000;
+unsigned long int window_size = 1000;
 
 std::vector<double> times{};
 std::chrono::system_clock::time_point last = std::chrono::high_resolution_clock::now();
@@ -204,12 +114,15 @@ int main(int argc, char** argv)
 	(
 		"dds_hz",
 		domain,
+		eprosima::fastrtps::rtps::DiscoveryProtocol_t::SUPER_CLIENT
+	);
+
+	sub.run(
 		topic_name,
 		std::function<void(void *)>
 		{
 			[&](void *tuple)
 			{
-				// std::cout << "received data" << std::endl;
 				std::lock_guard<std::mutex> lock(status_mutex);
 				std::chrono::system_clock::time_point now = std::chrono::high_resolution_clock::now();
 				double diff = std::chrono::duration<double>(now-last).count();
