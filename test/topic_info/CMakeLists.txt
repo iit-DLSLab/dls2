@@ -12,7 +12,6 @@ target_link_libraries(topic_info
 
 add_executable(dls_hz
 	src/message_hz.cpp
-	# src/dds_reader.cpp
 )
 
 target_link_libraries(dls_hz
@@ -21,6 +20,22 @@ target_link_libraries(dls_hz
 	fastrtps
 	fastcdr
 )
-
 dls_install(dls_hz)
+
+
+add_executable(topic_list
+	src/topicList.cpp
+)
+
+target_link_libraries(topic_list
+	dls_framework
+	dls_messages
+	fastrtps
+	fastcdr
+)
+dls_install(topic_list)
+
+
+
+
 

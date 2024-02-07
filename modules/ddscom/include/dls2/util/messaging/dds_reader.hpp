@@ -25,9 +25,11 @@ namespace dls
 		
 		virtual ~DDSReader();
 
-		void run(	std::string 				topicName,
+		bool run(	std::string 				topicName,
 					std::function<void(void *)> callback_,
 					eprosima::fastdds::dds::DataReaderQos qos_ = eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT);
+
+		void printDiscoveredTopics();
 
 	private:
 

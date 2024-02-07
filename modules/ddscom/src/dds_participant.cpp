@@ -316,21 +316,16 @@ namespace dls
 			return this->readers.find(readerName_)->second;
 		}	
 		
-		auto topic = this->addTopic(topicName); //this->getTopicFromString(topicName); //
+		auto topic = this->addTopic(topicName);
 
-
-		std::cout << "Reader to be created" << std::endl;
 		// error could not add topic
 		if (topic == nullptr){
-			std::cout << "nullptr for topic" << std::endl;
 			return nullptr;
 
 		}
 			
 
 		std::shared_ptr<dls::DDSSubListener> listener = std::make_shared<DDSSubListener>(callback_);
-		std::cout << "listener made" << std::endl;
-
 		auto reader = this->subscriber->create_datareader(
 			topic,
 			qos,
@@ -391,8 +386,6 @@ namespace dls
 		if(!this->participant)
 			return nullptr;
 
-		std::cout << "Adding in the topic: " << topicData_.first << std::endl;
-		std::cout << "\t type name is: " << topicData_.second.get_type_name() << std::endl;
 		auto search = this->topics.find(topicData_.first);
 
 		if(search != topics.end())
@@ -418,6 +411,14 @@ namespace dls
 		return topic;
 	}
 
+	std::vector<std::string> DDSParticipant::getDiscoveredTopics(){
+		std::vector <std::string> topicList;
+		for(auto & it: discovery_database){
+			topicList.emplace_back(it.first);
+		}
+		return topicList;
+	}
+
 	eprosima::fastdds::dds::Topic *DDSParticipant::addTopic(std::string topicName)
 	{
 		if(!this->participant)
@@ -426,29 +427,16 @@ namespace dls
 		auto search = this->topics.find(topicName);
 		std::string type_name = discovery_database[topicName];
 
-		std::cout << "Type " << topicName << " being added is: " << type_name << std::endl;
-
 		if(search != topics.end()){
-			std::cout << "topic found" << std::endl;
 			return search->second;
 		}
 
-			
-
-		if(!this->participant->find_type(topicName))
-		{
-			std::cout << "Couldnt find the topic type, so adding it ourselves" << std::endl;
-			// topicData_.second->auto_fill_type_information(false);
-    		// topicData_.second->auto_fill_type_object(true);
-			// this->participant->register_type(topicData_.second);
-		}
 
 		auto topic = this->participant->create_topic(
 			topicName,
 			type_name,
 			eprosima::fastdds::dds::TOPIC_QOS_DEFAULT);
 
-		std::cout << "Topic has been created" << std::endl;
 		if(topic == nullptr)
 			throw std::runtime_error("Error: could not create publisher topic");
 
@@ -527,7 +515,6 @@ namespace dls
         const eprosima::fastrtps::string_255 type_name,
         const eprosima::fastrtps::types::TypeInformation& type_information)
 	{
-		std::cout << "received the type information for: " << topic_name.to_string() << std::endl;
 		if(!this->participant)
 			return;
 

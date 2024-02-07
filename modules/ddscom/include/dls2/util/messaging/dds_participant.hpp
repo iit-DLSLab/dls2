@@ -38,7 +38,11 @@ namespace dls
 		/// Retrieves a list of all participants in the domain of the participant
 		///
 		std::vector<std::string> getParticipants();
+		std::vector<std::string> getDiscoveredTopics();
+
 		std::multimap<std::string, eprosima::fastrtps::rtps::GUID_t> getDiscoveredParticipantsInfo();
+
+		
 
 		eprosima::fastdds::dds::DataWriter* getWriter(std::string);
 		eprosima::fastdds::dds::DataReader* getReader(std::string);

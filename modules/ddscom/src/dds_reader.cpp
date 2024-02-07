@@ -34,7 +34,7 @@ namespace dls
 		this->reader = nullptr;
 	}
 
-	void DDSReader::run( 
+	bool DDSReader::run( 
 		std::string topicName,
 		std::function<void(void *)> callback_,
 		eprosima::fastdds::dds::DataReaderQos qos_
@@ -51,23 +51,30 @@ namespace dls
 
 				std::cout << "\t" << t << std::endl;
 			}
-			
-			// if (topicFound("blind_state"))
-			// 	std::cout << "found blind_state topic" << std::endl;
-			// 	// auto topic = getTopicFromString("blind_state");
-			// 	// this->reader = this->addReader("unicReader", topic, callback_, qos_);
-
-			// if (topicFound("desired_torques"))
-			// 	std::cout << "found desired_torques topic" << std::endl;
-			
-			if (topicFound(topicName))
-				std::cout << "found " <<  topicName << std::endl;	
-
-			// auto topic = getTopicFromString("blind_state");
-			this->reader = this->addReader("unicReader", topicName, callback_, qos_);
-
-
 			std::cout << "End of discovered parts" << std::endl; 
+			
+			
+			if (topicFound(topicName)){
+				std::cout << "Found the topic: " <<  topicName <<  std::endl;	
+				this->reader = this->addReader("unicReader", topicName, callback_, qos_);
+				return true;
+			}else{
+				std::cout << "Topic " << topicName << " could not be found" << std::endl;
+				return false;
+			}
+
+			
+	}
+
+	void DDSReader::printDiscoveredTopics(){
+		sleep(1);
+		std::vector<std::string> topicList = this->getDiscoveredTopics();
+
+		std::cout << "Listing out all discovered topics:" << std::endl;
+		for(auto& topic: topicList){
+			std::cout << "\t" << topic << std::endl;
+		}
+
 	}
 
 
