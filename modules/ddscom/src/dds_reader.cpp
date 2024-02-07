@@ -41,19 +41,8 @@ namespace dls
 	){
 
 		if (callback_ != nullptr)
-			// std::cout << " Adding the reader" << std::endl;
 			sleep(1);
-			auto participant_vect  = this->getParticipants();
 
-			std::cout << "Getting participants: " << std::endl;
-
-			for(auto &t: participant_vect){
-
-				std::cout << "\t" << t << std::endl;
-			}
-			std::cout << "End of discovered parts" << std::endl; 
-			
-			
 			if (topicFound(topicName)){
 				std::cout << "Found the topic: " <<  topicName <<  std::endl;	
 				this->reader = this->addReader("unicReader", topicName, callback_, qos_);
@@ -75,6 +64,18 @@ namespace dls
 			std::cout << "\t" << topic << std::endl;
 		}
 
+	}
+	void DDSReader::printParticipants(){
+
+		sleep(1);
+	
+		std::cout << "Listing all the participants:" << std::endl;
+	
+		auto participant_vect  = this->getParticipants();
+		for(auto &t: participant_vect){
+			std::cout << "\t" << t << std::endl;
+		}
+		
 	}
 
 

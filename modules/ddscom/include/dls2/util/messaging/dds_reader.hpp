@@ -30,6 +30,7 @@ namespace dls
 					eprosima::fastdds::dds::DataReaderQos qos_ = eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT);
 
 		void printDiscoveredTopics();
+		void printParticipants();
 
 	private:
 

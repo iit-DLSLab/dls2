@@ -23,17 +23,17 @@ target_link_libraries(dls_hz
 dls_install(dls_hz)
 
 
-add_executable(topic_list
-	src/topicList.cpp
+add_executable(ddstopic
+	src/ddstopic.cpp
 )
 
-target_link_libraries(topic_list
+target_link_libraries(ddstopic
 	dls_framework
 	dls_messages
 	fastrtps
 	fastcdr
 )
-dls_install(topic_list)
+dls_install(ddstopic)
 
 
 
