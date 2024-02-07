@@ -43,7 +43,7 @@ int main(int argc, char** argv){
 
 	if(command == "list" || command == "participants"){
 		if(argc==3){
-			domain = strtol(argv[1], NULL, 10);
+			domain = strtol(argv[2], NULL, 10);
 		}
 	}else if(command == "hz"){
 		if(argc==4){
