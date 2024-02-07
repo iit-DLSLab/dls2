@@ -26,7 +26,9 @@ namespace dls
 		dls::domainType domain_,
 		eprosima::fastrtps::rtps::DiscoveryProtocol_t partType_
 	)
-		: DDSParticipant(partName_, domain_, partType_){}
+		: DDSParticipant(partName_, domain_, partType_){
+			sleep(1);
+		}
 
 
 
@@ -41,7 +43,6 @@ namespace dls
 	){
 
 		if (callback_ != nullptr)
-			sleep(1);
 
 			if (topicFound(topicName)){
 				std::cout << "Found the topic: " <<  topicName <<  std::endl;	
@@ -56,7 +57,6 @@ namespace dls
 	}
 
 	void DDSReader::printDiscoveredTopics(){
-		sleep(1);
 		std::vector<std::string> topicList = this->getDiscoveredTopics();
 
 		std::cout << "Listing out all discovered topics:" << std::endl;
@@ -66,8 +66,6 @@ namespace dls
 
 	}
 	void DDSReader::printParticipants(){
-
-		sleep(1);
 	
 		std::cout << "Listing all the participants:" << std::endl;
 	

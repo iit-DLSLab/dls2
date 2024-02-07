@@ -21,6 +21,7 @@ std::mutex status_mutex;
 
 void my_handler(int s){
 	std::cout << s << std::endl; // just to avoid warnings during compilation..... :')
+	std::cout << "control c has been hit" << std::endl;
 	stop = true;
 }
 
