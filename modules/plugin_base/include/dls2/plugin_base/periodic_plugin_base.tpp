@@ -7,18 +7,6 @@
 namespace dls
 {
 	template <typename MsgWrapperType>
-	void PeriodicPluginBase::buildInput(const dls::topicType &topic, WrapperBase *input)
-	{
-		// Add data reader
-		readers_.push_back(std::make_shared<SignalReader<MsgWrapperType>>(
-			dds_participant_,
-			topic,
-			std::make_shared<MsgWrapperType>(static_cast<MsgWrapperType &>(*input))));
-		// Add pointer to input
-		inputs_.push_back(input);
-	}
-
-	template <typename MsgWrapperType>
 	void PeriodicPluginBase::buildInput(const dls::topicType &topic, WrapperBase *input, const std::function<void()> &auxiliary_callback)
 	{
 		// Add data reader
@@ -29,6 +17,22 @@ namespace dls
 			auxiliary_callback));
 		// Add pointer to input
 		inputs_.push_back(input);
+	}
+
+	template <typename MsgWrapperType>
+	void PeriodicPluginBase::buildInput(const std::string& name, const dls::topicType &topic, WrapperBase *input, const std::function<void()> &auxiliary_callback)
+	{
+		// Add data reader
+		readers_.push_back(std::make_shared<SignalReader<MsgWrapperType>>(
+			dds_participant_,
+			topic,
+			std::make_shared<MsgWrapperType>(static_cast<MsgWrapperType &>(*input)),
+			auxiliary_callback));
+		// Add pointer to input
+		inputs_.push_back(input);
+
+		// Add output to the map
+		readers_map_[name] = std::make_pair(readers_.back(), input);
 	}
 
 	template <typename MsgWrapperType>

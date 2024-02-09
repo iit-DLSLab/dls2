@@ -54,9 +54,10 @@ namespace dls
 		 * @tparam constructor_args_types types of the constructor arguments of the MsgWrapperType class
 		 * @param[in] topic topic to subscribe to
 		 * @param[in] input pointer to the variable storing the last read input
+		 * @param[in] auxiliary_callback auxiliary function to be called when a new message is received
 		 */
 		template <typename MsgWrapperType>
-		void buildInput(const dls::topicType &topic, WrapperBase *input);
+		void buildInput(const dls::topicType &topic, WrapperBase *input, const std::function<void()> &auxiliary_callback = std::function<void()>());
 
 		/*!
 		 * @brief Add an input to the plugin.
@@ -64,12 +65,13 @@ namespace dls
 		 * When calling this function, it is created a new data reader subscribed to the input topic and it is stored the pointer to the input WrapperBase variable.
 		 * @tparam MsgWrapperType class name of the wrapper handling the message associated to the input topic
 		 * @tparam constructor_args_types types of the constructor arguments of the MsgWrapperType class
+		 * @param[in] name input name
 		 * @param[in] topic topic to subscribe to
 		 * @param[in] input pointer to the variable storing the last read input
 		 * @param[in] auxiliary_callback auxiliary function to be called when a new message is received
 		 */
 		template <typename MsgWrapperType>
-		void buildInput(const dls::topicType &topic, WrapperBase *input, const std::function<void()> &auxiliary_callback);
+		void buildInput(const std::string &name, const dls::topicType &topic, WrapperBase *input, const std::function<void()> &auxiliary_callback = std::function<void()>());
 
 		/*!
 		 * @brief Add an output to the plugin.
@@ -142,6 +144,8 @@ namespace dls
 	private:
 		//! Vector of inputs (data readers)
 		std::vector<std::shared_ptr<SignalReaderBase>> readers_;
+		//! Map of data readers with their corresponding outputs variable. It is populated when calling buildInput function with the input name as additional argument
+		std::map<std::string, std::pair<std::shared_ptr<SignalReaderBase>, WrapperBase*>> readers_map_;
 		//! Vector of outputs (data writers)
 		std::vector<std::shared_ptr<SignalWriterBase>> writers_;
 		//! Map of data writers with their corresponding outputs variable. It is populated when calling buildOutput function with the output name as additional argument
