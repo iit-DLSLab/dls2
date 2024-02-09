@@ -6,6 +6,7 @@
 #include "dls2/msg_wrappers/signal_writer.hpp"
 #include "dls2/msg_wrappers/signal_reader.hpp"
 
+#include <mutex>
 namespace dls
 {
 	/*!
@@ -148,6 +149,14 @@ namespace dls
 
 		//! Domain participant of the plugin
 		std::shared_ptr<dls::DDSParticipant> dds_participant_;
+
+		std::mutex unique_outputs_mutex;
+		std::condition_variable unique_outputs_cv;
+
+		/*! @brief Check if the inputs are receiving data*/ 
+		bool areInputsReceivingData();
+		/*! @brief Check if there is no other data writers publishing on the same topics of the outputs*/ 
+		bool areOutputsUnique();
 
 	private:
 		//! Vector of inputs (data readers)

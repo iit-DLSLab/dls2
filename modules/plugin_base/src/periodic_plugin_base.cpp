@@ -50,12 +50,64 @@ namespace dls
 		}
 		writers_map_[name].first->publish();
 	}
+
+	bool PeriodicPluginBase::areOutputsUnique()
+	{
+		// iterate over the writers, getting their topic type
+		for(auto writer : writers_)
+		{
+			// for each writer, check if there is another writer publishing on its same topic
+			// -- create reader
+			const std::string reader_name = "reader_of_"+writer->getID();
+			bool is_writer_active = false;
+			auto ddslink = std::make_shared<dls::DDSReader>(
+			reader_name,
+			dls::domains::signals,
+			writer->getTopic(),
+			std::function<void(void *)>
+			{
+				[&](void *)
+				{
+					std::unique_lock<std::mutex> lock(this->unique_outputs_mutex);
+					is_writer_active=true;
+					this->unique_outputs_cv.notify_all();
+				}
+			});
+
+			// -- wait for the notification of the reader: if the time expires, it is assumed that no other writer is publishing on that topic
+			std::unique_lock<std::mutex> lock(this->unique_outputs_mutex);
+			this->unique_outputs_cv.wait_for(lock, ddslink->getSubListener(reader_name)->is_receiving_data_th);
+			if(is_writer_active)
+			{
+				scout_err << "There is another writer publishing on the topic "<< writer->getTopic().first << std::endl;
+				return false;
+			}
+		}
+		return true;
+	}
+
+	bool PeriodicPluginBase::areInputsReceivingData()
+	{
+		bool are_inputs_receiving_data = true;
+		for(auto reader : readers_)
+		{
+			// check if reader is receiving data
+			if(!reader->is_receiving_data())
+			{
+				are_inputs_receiving_data = false;
+				break;
+			}
+		}
+		if(!are_inputs_receiving_data){
+			scout_sys << "Inputs are not receiving data" << std::endl;
+		}
+		return are_inputs_receiving_data;
 	}
 
 	bool PeriodicPluginBase::activate()
 	{
 		active = true;
-		return true;
+		return active;
 	}
 
 	bool PeriodicPluginBase::deactivate()
