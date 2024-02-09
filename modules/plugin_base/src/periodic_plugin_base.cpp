@@ -36,14 +36,15 @@ namespace dls
 		}
 	}
 
-	void PeriodicPluginBase::write(const std::string &output_name)
+	void PeriodicPluginBase::write(const std::string &name)
 	{
-		writers_map_[output_name].first->setDataFromWrapperBase(writers_map_[output_name].second);
-		if (writers_map_[output_name].first->hasTimestamp())
+		writers_map_[name].first->setDataFromWrapperBase(writers_map_[name].second);
+		if (writers_map_[name].first->hasTimestamp())
 		{
-			writers_map_[output_name].first->setTimestamp(std::chrono::system_clock::now().time_since_epoch().count());
+			writers_map_[name].first->setTimestamp(std::chrono::system_clock::now().time_since_epoch().count());
 		}
-		writers_map_[output_name].first->publish();
+		writers_map_[name].first->publish();
+	}
 	}
 
 	bool PeriodicPluginBase::activate()

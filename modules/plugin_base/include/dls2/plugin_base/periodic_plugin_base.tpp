@@ -44,7 +44,7 @@ namespace dls
 	}
 
 	template <typename MsgWrapperType>
-	void PeriodicPluginBase::buildOutput(const std::string& output_name, const dls::topicType &topic, WrapperBase *output)
+	void PeriodicPluginBase::buildOutput(const std::string& name, const dls::topicType &topic, WrapperBase *output)
 	{
 		// Add data writer
 		writers_.push_back(std::make_shared<SignalWriter<MsgWrapperType>>(
@@ -55,7 +55,7 @@ namespace dls
 		outputs_.push_back(output);
 
 		// Add output to the map
-		writers_map_[output_name] = std::make_pair(writers_.back(), output);
+		writers_map_[name] = std::make_pair(writers_.back(), output);
 	}
 }
 

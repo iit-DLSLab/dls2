@@ -89,12 +89,12 @@ namespace dls
 		 * When calling this function, it is created a new writer publishing on the input topic and it is stored the pointer to the output WrapperBase variable.
 		 * @tparam MsgWrapperType class name of the wrapper handling the message associated to the input topic
 		 * @tparam constructor_args_types types of the constructor arguments of the MsgWrapperType class
-		 * @param[in] output_name name of the output
+		 * @param[in] name name of the output
 		 * @param[in] topic topic to subscribe to
 		 * @param[in] output pointer to the variable storing the last wrote output
 		 */
 		template <typename MsgWrapperType>
-		void buildOutput(const std::string &output_name, const dls::topicType &topic, WrapperBase *output);
+		void buildOutput(const std::string &name, const dls::topicType &topic, WrapperBase *output);
 
 		/*!
 		 * @brief Read all the inputs.
@@ -114,9 +114,9 @@ namespace dls
 		 * @brief Write a specific output.
 		 * @details
 		 * When calling this function, the writer associated to the output_name writes the corresponding output to the associated output topic. This function updates also the timestamp of the output, if it has one.
-		 * @param[in] output_name name of the output to write
+		 * @param[in] name name of the output to write
 		 */
-		void write(const std::string &output_name);
+		void write(const std::string &name);
 
 		/*!
 		 * @brief Console command: activate the plugin.
