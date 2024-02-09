@@ -8,4 +8,14 @@ namespace dls
 	{ }
 
 	SignalWriterBase::~SignalWriterBase(){}
+
+	dls::topicType SignalWriterBase::getTopic() const
+	{
+		return topic_;
+	}
+
+	std::string SignalWriterBase::getID() const
+	{
+		return ID_;
+	}
 }
