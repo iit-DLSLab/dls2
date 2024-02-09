@@ -43,7 +43,7 @@ namespace dls
 
 		/*! @brief Destructor
 		 */
-		virtual ~ActionServerBase() = default;
+		virtual ~ActionServerBase();
 
 		/*! @brief Print state of the action server*/
 		virtual std::string where() override;
@@ -60,6 +60,16 @@ namespace dls
 		void stopAction();
 		//! @brief Function checking if the action is stopped
 		bool isActionStopped();
+
+		/*! @brief Function executed by a thread to handle the activation request*/
+		void handleActivationRequest();
+		/*! @brief Send a request for activating the plugin*/
+		void requestActivation();
+
+		std::mutex request_activation_mutex;
+		std::condition_variable request_activation_cv;
+		std::thread handle_activation_request_thread;
+		bool request_activation;
 
 		//! Check if additional conditions has been satisfied to start the action
 		bool initialized;
