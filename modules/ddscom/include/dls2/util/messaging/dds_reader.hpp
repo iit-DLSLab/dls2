@@ -22,7 +22,6 @@ namespace dls
 			dls::domainType 			domain_,
 			eprosima::fastrtps::rtps::DiscoveryProtocol_t part_type = eprosima::fastrtps::rtps::DiscoveryProtocol_t::CLIENT	
 		);
-		
 		virtual ~DDSReader();
 
 		bool run(	std::string 				topicName,

@@ -315,21 +315,27 @@ namespace dls
 			std::cout << "THE READER " << readerName_ << " ALREADY EXISTS, YOU ARE TRYING TO CREATE TWICE" << std::endl;
 			return this->readers.find(readerName_)->second;
 		}	
+
+		std::cout << "still safe?" << std::endl;
 		
 		auto topic = this->addTopic(topicName);
-
+		std::cout << "how about now?" << std::endl;
 		// error could not add topic
 		if (topic == nullptr){
 			return nullptr;
 
 		}
-			
+		
 
 		std::shared_ptr<dls::DDSSubListener> listener = std::make_shared<DDSSubListener>(callback_);
+		std::cout << "Or now?" << std::endl;
+
 		auto reader = this->subscriber->create_datareader(
 			topic,
 			qos,
 			listener.get());
+
+		std::cout << "And now>?!?" << std::endl;
 
 		if (reader != nullptr)
 		{
@@ -337,6 +343,7 @@ namespace dls
 			this->readers.insert({readerName_, reader});
 			this->subListeners.insert({readerName_, listener});
 		}
+		std::cout << "Are we truly free??" << std::endl;
 
 		return reader;
 	}
@@ -411,21 +418,15 @@ namespace dls
 		return topic;
 	}
 
-	std::vector<std::string> DDSParticipant::getDiscoveredTopics(){
-		std::vector <std::string> topicList;
-		for(auto & it: discovery_database){
-			topicList.emplace_back(it.first);
-		}
-		return topicList;
-	}
-
 	eprosima::fastdds::dds::Topic *DDSParticipant::addTopic(std::string topicName)
 	{
-		if(!this->participant)
+		if(!this->participant){
 			return nullptr;
 
+		}
+			
 		auto search = this->topics.find(topicName);
-		std::string type_name = discovery_database[topicName];
+		std::string type_name = discovery_database[topicName];//has to be there as this is called after testing if the topic has been found
 
 		if(search != topics.end()){
 			return search->second;
@@ -445,6 +446,13 @@ namespace dls
 		return topic;
 	}
 
+	std::vector<std::string> DDSParticipant::getDiscoveredTopics(){
+		std::vector <std::string> topicList;
+		for(auto & it: discovery_database){
+			topicList.emplace_back(it.first);
+		}
+		return topicList;
+	}
 
 	std::vector<std::string> DDSParticipant::getParticipants()
 	{

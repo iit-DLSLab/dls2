@@ -31,7 +31,6 @@ namespace dls
 		}
 
 
-
 	DDSReader::~DDSReader(){
 		this->reader = nullptr;
 	}
@@ -42,8 +41,8 @@ namespace dls
 		eprosima::fastdds::dds::DataReaderQos qos_
 	){
 
-		if (callback_ != nullptr)
-
+		if (callback_ != nullptr){
+			std::cout << "starting the run func" << std::endl;
 			if (topicFound(topicName)){
 				std::cout << "Found the topic: " <<  topicName <<  std::endl;	
 				this->reader = this->addReader("unicReader", topicName, callback_, qos_);
@@ -52,6 +51,10 @@ namespace dls
 				std::cout << "Topic " << topicName << " could not be found" << std::endl;
 				return false;
 			}
+		}else{
+			return false;
+		}
+
 
 			
 	}
