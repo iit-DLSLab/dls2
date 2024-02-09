@@ -53,7 +53,16 @@ namespace dls
 		) override;
 
 		void on_data_available ( eprosima::fastdds::dds::DataReader* ) override;
+		
+		/*! @brief Check if the datareader is receiving data.
+		 * 
+		 * The data reader is receiving data if it has receveid at least one sample and the last timestamp of the last received message is less than the threshold is_receiving_data_th.
+		 * @return True if the subscriber is receiving data, false otherwise
+		*/
+		bool is_receiving_data() const;
 
+		const std::chrono::microseconds is_receiving_data_th;
+		std::chrono::system_clock::time_point last_timestamp;
 	};
 
 

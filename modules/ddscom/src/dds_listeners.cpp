@@ -47,6 +47,7 @@ namespace dls
 		: sample_count(0)
 		, callback(callback_)
 		, msg(nullptr)
+		, is_receiving_data_th(1000000) // 1second
 	{ 
 	}
 
@@ -85,10 +86,17 @@ namespace dls
 		{
 			if(info.valid_data)
 			{
+				this->last_timestamp = std::chrono::high_resolution_clock::now();
 				this->sample_count++;
 				this->callback(this->msg);
 			}
 		}
+	}
+
+	bool DDSSubListener::is_receiving_data() const
+	{
+		return 	this->sample_count > 0 && 	
+				std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - this->last_timestamp).count()< this->is_receiving_data_th.count();
 	}
 } /// \endcond namespace dls
 #endif /* end of include guard: DDSLISTENERS_CPP */

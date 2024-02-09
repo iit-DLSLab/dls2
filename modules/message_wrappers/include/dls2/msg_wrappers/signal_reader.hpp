@@ -19,8 +19,12 @@ namespace dls
 
 		SignalType getData();
 
+		bool is_receiving_data() const override;
+
 	protected:
 		const std::shared_ptr<SignalType> signal_;
+		std::shared_ptr<dls::DDSSubListener> listener_;
+
 		virtual WrapperBase* getWrapperBasePtr() override;
 		const std::function<void()> auxiliary_callback;
 	};

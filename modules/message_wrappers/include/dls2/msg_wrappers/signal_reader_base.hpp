@@ -12,11 +12,15 @@ namespace dls
 	class SignalReaderBase
 	{
 	public:
+		friend class PeriodicPluginBase;
 		SignalReaderBase(std::shared_ptr<dls::DDSParticipant> dds_participant);
 		~SignalReaderBase();
 		SignalReaderBase() = delete;	
 		bool received;
-	public:
+
+		virtual bool is_receiving_data() const = 0;
+
+	protected:
 		std::shared_ptr<dls::DDSParticipant> dds_participant_;
 		std::string ID_;
 		mutable std::mutex signal_mutex_;

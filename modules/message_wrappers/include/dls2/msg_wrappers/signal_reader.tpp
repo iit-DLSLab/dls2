@@ -59,6 +59,8 @@ namespace dls
 											this->auxiliary_callback();
 										}},
 									qos);
+		
+		listener_ = dds_participant_->getSubListener(ID_);
 	}
 
 	template <typename SignalType>
@@ -77,6 +79,12 @@ namespace dls
 	WrapperBase *SignalReader<SignalType>::getWrapperBasePtr()
 	{
 		return signal_.get();
+	}
+
+	template <typename SignalType>
+	bool SignalReader<SignalType>::is_receiving_data() const
+	{
+		return listener_->is_receiving_data();
 	}
 }
 #endif /* end of include guard: SIGNAL_READER_TPP */
