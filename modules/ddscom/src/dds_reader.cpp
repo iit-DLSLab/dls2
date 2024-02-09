@@ -16,7 +16,7 @@ namespace dls
 		: DDSParticipant(partName_, domain_)
 	{
 		if (callback_ != nullptr)
-			this->reader = this->addReader("unicReader", topic_, callback_, qos_);
+			this->reader = this->addReader(partName_, topic_, callback_, qos_);
 	}
 
 	DDSReader::~DDSReader(){
