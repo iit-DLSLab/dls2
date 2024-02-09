@@ -14,20 +14,20 @@ namespace dls
                                 actions_msg_wrappers::goHome::FEEDBACK_t(pRobot),
                                 actions_msg_wrappers::goHome::RESULT_t()),
                                 pRobot(pRobot),
-                                blind_state_reader(
-                                    this->dds_participant_, 
-                                    dls::topics::low_level_estimation::blind_state,
-                                    std::make_shared<BlindState>(pRobot),
-                                    std::function<void()>([&](){
-                                        if(!initialized)
-                                        {
-                                            feedback.desired_joints_position_ = blind_state_reader.getData().joints_position_;
-                                            initialized = true;
-                                        }
-                                        }))
+                                blind_state(pRobot)
     {
+		this->buildInput<BlindState>(   "blind_state_reader",
+                                        dls::topics::low_level_estimation::blind_state,
+                                        &this->blind_state, 
+                                        [&](){
+                                            if(!initialized)
+                                            {
+                                                read("blind_state_reader");
+                                                feedback.desired_joints_position_ = this->blind_state.joints_position_;
+                                                initialized = true;
+                                            }
+                                        });
         this->initialized = false;
-        scout_sys<<"GoHome is ready: needs a blind state publisher to work" <<std::endl;
     }
 
     void GoHomeServer::runAction()

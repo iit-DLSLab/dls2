@@ -34,7 +34,7 @@ namespace dls
         double fCoeff{0.003};
 
 		//! Additional input for the action
-		SignalReader<BlindState> blind_state_reader;
+		BlindState blind_state;
 
 	}; // end namespace dls
 }
