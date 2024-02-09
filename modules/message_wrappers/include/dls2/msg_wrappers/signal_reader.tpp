@@ -11,32 +11,6 @@ namespace dls
 	template <typename SignalType>
 	SignalReader<SignalType>::SignalReader(std::shared_ptr<dls::DDSParticipant> participant,
 										   const dls::topicType &topic,
-										   const std::shared_ptr<SignalType> signal, eprosima::fastdds::dds::DataReaderQos qos)
-		: SignalReaderBase(participant),
-		  signal_(signal),
-		  auxiliary_callback(std::function<void()>([&]() {}))
-	{
-		int id = std::experimental::randint(100000, 999999);
-		while (dds_participant_->getReader(std::to_string(id)) != nullptr)
-			id = std::experimental::randint(100000, 999999);
-
-		ID_ = std::to_string(id);
-
-		dds_participant_->addReader(ID_,
-									topic,
-									std::function<void(void *)>{
-										[&](void *tuple)
-										{
-											std::lock_guard<std::mutex> lock(signal_mutex_);
-											signal_->loadMsg(tuple);
-											received = true;
-										}},
-									qos);
-	}
-
-	template <typename SignalType>
-	SignalReader<SignalType>::SignalReader(std::shared_ptr<dls::DDSParticipant> participant,
-										   const dls::topicType &topic,
 										   const std::shared_ptr<SignalType> signal, const std::function<void()> &auxiliary_callback, eprosima::fastdds::dds::DataReaderQos qos)
 		: SignalReaderBase(participant),
 		  signal_(signal),
