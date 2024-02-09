@@ -23,6 +23,11 @@ namespace dls
 		}
 	}
 
+	void PeriodicPluginBase::read(const std::string& name)
+	{
+		readers_map_[name].second->setDataFromWrapperBase(readers_map_[name].first->getWrapperBasePtr());
+	}
+
 	void PeriodicPluginBase::write()
 	{
 		for (long unsigned int i = 0; i < writers_.size(); i++)

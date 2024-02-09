@@ -106,6 +106,14 @@ namespace dls
 		void read();
 
 		/*!
+		 * @brief Read a specific the inputs.
+		 * @details
+		 * When calling this function, the reader associated to the input name updates the corresponding input variable with the last read message
+		 * @param[in] name name of the input to read
+		 */
+		void read(const std::string &name);
+
+		/*!
 		 * @brief Write all the outputs.
 		 * @details
 		 * When calling this function, each writer writes the corresponding output to the associated output topic. This function updates also the timestamp of the output, if it has one.
