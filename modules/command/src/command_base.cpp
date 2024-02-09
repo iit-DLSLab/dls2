@@ -69,6 +69,11 @@ bool CommandBase::call(std::vector<std::string>)
 	return false;
 }
 
+bool CommandBase::call()
+{
+	return false;
+}
+
 int CommandBase::getNextLevel(uint curLevel)
 {
 	if(this->transitionSet.empty())

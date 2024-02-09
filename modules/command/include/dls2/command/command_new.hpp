@@ -92,7 +92,7 @@ namespace dls
 
 		/// Call method
 		///
-		bool call();
+		virtual bool call() override;
 
 	};
 

@@ -92,7 +92,7 @@ namespace dls
 
 		/// Call method
 		///
-		bool call(std::vector<std::string>);
+		virtual bool call(std::vector<std::string>) override;
 
 	};
 
