@@ -42,7 +42,6 @@ namespace dls
 	){
 
 		if (callback_ != nullptr){
-			std::cout << "starting the run func" << std::endl;
 			if (topicFound(topicName)){
 				std::cout << "Found the topic: " <<  topicName <<  std::endl;	
 				this->reader = this->addReader("unicReader", topicName, callback_, qos_);

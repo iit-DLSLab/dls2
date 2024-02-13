@@ -316,10 +316,9 @@ namespace dls
 			return this->readers.find(readerName_)->second;
 		}	
 
-		std::cout << "still safe?" << std::endl;
 		
 		auto topic = this->addTopic(topicName);
-		std::cout << "how about now?" << std::endl;
+
 		// error could not add topic
 		if (topic == nullptr){
 			return nullptr;
@@ -328,14 +327,11 @@ namespace dls
 		
 
 		std::shared_ptr<dls::DDSSubListener> listener = std::make_shared<DDSSubListener>(callback_);
-		std::cout << "Or now?" << std::endl;
 
 		auto reader = this->subscriber->create_datareader(
 			topic,
 			qos,
 			listener.get());
-
-		std::cout << "And now>?!?" << std::endl;
 
 		if (reader != nullptr)
 		{
@@ -343,7 +339,6 @@ namespace dls
 			this->readers.insert({readerName_, reader});
 			this->subListeners.insert({readerName_, listener});
 		}
-		std::cout << "Are we truly free??" << std::endl;
 
 		return reader;
 	}
@@ -396,8 +391,9 @@ namespace dls
 		auto search = this->topics.find(topicData_.first);
 
 		if(search != topics.end())
+		{
 			return search->second;
-
+		}
 		if(!this->participant->find_type(topicData_.second.get_type_name()))
 		{
 			topicData_.second->auto_fill_type_information(false);
@@ -426,11 +422,19 @@ namespace dls
 		}
 			
 		auto search = this->topics.find(topicName);
-		std::string type_name = discovery_database[topicName];//has to be there as this is called after testing if the topic has been found
-
+		
 		if(search != topics.end()){
 			return search->second;
 		}
+		
+		std::string type_name = discovery_database[topicName];//has to be there as this is called after testing if the topic has been found
+
+		// Registering the type in the factory
+		auto type_obj = this->participant->find_type(type_name);
+		type_obj->auto_fill_type_information(false);
+		type_obj->auto_fill_type_object(true);
+		this->participant->register_type(type_obj);
+
 
 
 		auto topic = this->participant->create_topic(
@@ -510,7 +514,6 @@ namespace dls
 			std::string topic_name = info.info.topicName().to_string();
 			std::string type_name = info.info.typeName().to_string();
 
-			// std::cout << " Discovered a new topic: " << topic_name << " of type: " << type_name << std::endl;
 			// Set Topic as discovered. If it is not new nothing happen
 			if(DDSParticipant::is_type_registered_in_participant_(type_name))
 				on_topic_discovery_(topic_name, type_name);

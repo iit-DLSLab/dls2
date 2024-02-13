@@ -10,8 +10,10 @@
 #include <mutex>
 #include <vector>
 
+volatile sig_atomic_t stop;
 
-bool stop = false;
+
+// bool stop = false;
 unsigned long int window_size = 1000;
 
 std::vector<double> times{};
@@ -21,8 +23,6 @@ std::mutex status_mutex;
 
 void my_handler(int s){
 	std::cout << s << std::endl; // just to avoid warnings during compilation..... :')
-	std::cout << "control c has been hit" << std::endl;
-	status_mutex.unlock();
 	stop = true;
 }
 
@@ -38,6 +38,9 @@ int main(int argc, char** argv){
 		std::cout << "\tddstopic hz <topic_name> <(optional) domain>" << std::endl;
 		return EXIT_FAILURE;
 	}
+
+	// CTRL-C handler
+	signal(SIGINT, my_handler);
 
 	const std::string command = argv[1];
 
@@ -70,12 +73,6 @@ int main(int argc, char** argv){
 	}else if(command == "hz"){
 
 
-		// CTRL-C handler
-		struct sigaction sigIntHandler;
-		sigIntHandler.sa_handler = my_handler;
-		sigemptyset(&sigIntHandler.sa_mask);
-		sigIntHandler.sa_flags = 0;
-		sigaction(SIGINT, &sigIntHandler, NULL);
 
 		const std::string topic_name = argv[2];
 
@@ -85,7 +82,6 @@ int main(int argc, char** argv){
 					{
 						[&](void *tuple)
 						{
-							std::cout << "starting this" << std::endl;
 							std::lock_guard<std::mutex> lock(status_mutex);
 							std::chrono::system_clock::time_point now = std::chrono::high_resolution_clock::now();
 							double diff = std::chrono::duration<double>(now-last).count();
@@ -95,7 +91,6 @@ int main(int argc, char** argv){
 								times.erase(times.begin());
 							}
 							times.push_back(diff);
-							status_mutex.unlock();
 							msg = tuple;
 						}
 					}
@@ -109,17 +104,14 @@ int main(int argc, char** argv){
 		//Loop that calculates the frequency, use CTRL + C to cancel
 		while(!stop)
 		{
-			std::cout << "starting again" << std::endl;
 			std::vector<double> current_times;
 			{
 				std::lock_guard<std::mutex> lock(status_mutex);
-				std::cout << "locked in" << std::endl;
 				current_times = times;
 			}
 			double size = current_times.size();
 			if(size>0)
 			{
-				std::cout << "we have size" << std::endl;
 				// Compute mean, standard deviation, max and min values
 				double mean = 0.0;
 				double max = 0.0;

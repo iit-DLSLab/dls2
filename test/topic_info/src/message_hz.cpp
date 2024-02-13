@@ -1,4 +1,9 @@
 #include "dls2/util/messaging/dds_reader.hpp"
+#include "dls_messages/dds/controller_commandPubSubTypes.h"
+#include "dls_messages/dds/trunk_controller_debugPubSubTypes.h"
+#include <dls_messages/dds/base_statePubSubTypes.h>
+#include <dls_messages/dds/mpc_generator_outputPubSubTypes.h>
+
 
 #include <iostream>
 #include <signal.h>
@@ -47,40 +52,34 @@ int main(int argc, char** argv)
 
 	
 	const std::string topic_name = argv[1];
+	auto topic = dls::topics::low_level_estimation::blind_state;
+
 
 	dls::DDSReader sub
 	(
 		"dds_hz",
 		domain,
-		eprosima::fastrtps::rtps::DiscoveryProtocol_t::SUPER_CLIENT
-	);
-
-	sub.printDiscoveredTopics();
-
-	bool ret = sub.run(
-				topic_name,
-				std::function<void(void *)>
+		topic,
+		std::function<void(void *)>
+		{
+			[&](void *tuple)
+			{
+				std::lock_guard<std::mutex> lock(status_mutex);
+				std::chrono::system_clock::time_point now = std::chrono::high_resolution_clock::now();
+				double diff = std::chrono::duration<double>(now-last).count();
+				last = now;
+				if(times.size()==window_size)
 				{
-					[&](void *tuple)
-					{
-						std::lock_guard<std::mutex> lock(status_mutex);
-						std::chrono::system_clock::time_point now = std::chrono::high_resolution_clock::now();
-						double diff = std::chrono::duration<double>(now-last).count();
-						last = now;
-						if(times.size()==window_size)
-						{
-							times.erase(times.begin());
-						}
-						times.push_back(diff);
-						msg = tuple;
-					}
+					times.erase(times.begin());
 				}
-			);
+				times.push_back(diff);
+				msg = tuple;
+			}
+		}
+	);
+	
 
-	if(ret == false){
-		std::cout << "Exiting ..." << std::endl;
-		return EXIT_FAILURE;
-	}
+	
 	while(!stop)
 	{
 		std::vector<double> current_times;
