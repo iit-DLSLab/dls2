@@ -11,6 +11,8 @@
 // #include <tuple>
 // #include <type_traits>
 
+#include <termios.h>
+#include <unistd.h>
 namespace dls
 {
 	template <typename...arg_ts>
@@ -142,6 +144,8 @@ namespace dls
     bool CommandHelper::readValue(const std::string &comment, T &value, T default_value)
     {
         std::string input = "";
+        // flash (discard) previous inputs from the buffer
+        tcflush(STDIN_FILENO, TCIFLUSH);
         while(true) {
             std::cout << comment << "[" << std::setprecision (3) << default_value << "]:";
             getline(std::cin, input);
@@ -162,6 +166,8 @@ namespace dls
     bool CommandHelper::readValue(const std::string &comment, T &value)
     {
         std::string input = "";
+        // flash (discard) previous inputs from the buffer
+        tcflush(STDIN_FILENO, TCIFLUSH);
         while(true) {
             std::cout << comment << ":";
             getline(std::cin, input);
