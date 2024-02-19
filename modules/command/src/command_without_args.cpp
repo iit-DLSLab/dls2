@@ -1,12 +1,12 @@
 #ifndef COMMAND_CPP
 #define COMMAND_CPP
 
-#include "dls2/command/command_new.hpp"
+#include "dls2/command/command_without_args.hpp"
 #include "dls2/command/command_manager.hpp"
 
 namespace dls
 {
-	CommandNew::CommandNew
+	CommandWithoutArgs::CommandWithoutArgs
 	(
 		std::string name_,
 		CommandManager *owner_,
@@ -28,10 +28,10 @@ namespace dls
 	{ }
 
 	
-	CommandNew::~CommandNew(){}
+	CommandWithoutArgs::~CommandWithoutArgs(){}
 
 
-	// void CommandNew::setEnabled()
+	// void CommandWithoutArgs::setEnabled()
 	// {
 	// 	if(this->isEnabled())
 	// 		return;
@@ -41,7 +41,7 @@ namespace dls
 	// }
 
 	
-	// void CommandNew::setDisabled()
+	// void CommandWithoutArgs::setDisabled()
 	// {
 	// 	if(this->isEnabled())
 	// 		return;
@@ -51,7 +51,7 @@ namespace dls
 	// }
 
 	
-	void CommandNew::activate()
+	void CommandWithoutArgs::activate()
 	{
 		if(!this->isEnabled() || this->isActive())
 			return;
@@ -61,7 +61,7 @@ namespace dls
 	}
 
 	
-	void CommandNew::deactivate()
+	void CommandWithoutArgs::deactivate()
 	{
 		if(!this->isEnabled() || !this->isActive() || (this->ddslink == nullptr)) 
 			return;
@@ -71,7 +71,7 @@ namespace dls
 	}
 
 	
-	bool CommandNew::call()
+	bool CommandWithoutArgs::call()
 	{
 		// // ensure args are correct size
 
@@ -90,7 +90,7 @@ namespace dls
 	}
 
 	
-	void CommandNew::registerCommand()
+	void CommandWithoutArgs::registerCommand()
 	{
 		if (ddslink != nullptr)
 			return;

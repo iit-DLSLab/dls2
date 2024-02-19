@@ -24,8 +24,8 @@ namespace dls
 	/// Template class representing a local command
 	///
 	/// This class is used to register a command with the framework. Users should
-	/// prefer using CommandManager instead of using CommandNew directly
-	class CommandNew : public CommandBase
+	/// prefer using CommandManager instead of using CommandWithoutArgs directly
+	class CommandWithoutArgs : public CommandBase
 	{
 	friend class CommandManager;
     friend class CommandHelper;
@@ -41,7 +41,7 @@ namespace dls
 		/// any number of any type of argument, and returns any type
 		/// @param level execution level of the command
 		/// @param enabled set if the command is enabled or not
-		CommandNew
+		CommandWithoutArgs
 		(
 			std::string name,
 			CommandManager *owner,
@@ -53,7 +53,7 @@ namespace dls
 
 		/// Destructor
 		///
-		~CommandNew();
+		~CommandWithoutArgs();
 
 		// /// Enable the command
 		// /// 
