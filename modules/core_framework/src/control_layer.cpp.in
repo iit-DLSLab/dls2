@@ -81,10 +81,10 @@ ControlLayer::ControlLayer(std::string ID, std::string robot_name)
 		"Unload a motion generator",
 		std::function<bool(std::string)>([&](std::string s)->bool
 		{
-			this->unloadMotionGenerator(s);
-			if(this->motion_generators.size() > 0)
+			if(this->unloadMotionGenerator(s) && this->motion_generators.size() == 0)
+				return true;
+			else // either the unload was not successful or there are still motion generators running
 				return false;
-            return true;
 		}),
 		{{1,0},{3,2}},
 		true
@@ -108,8 +108,9 @@ ControlLayer::ControlLayer(std::string ID, std::string robot_name)
 		"Unload a controller",
 		std::function<bool(std::string)>([&](std::string s)->bool
 		{
-			return this->unloadController(s);
-			if(this->controllers.size() > 0)
+			if(this->unloadController(s) && this->controllers.size() == 0)
+				return true;
+			else // either the unload was not successful or there are still controllers running
 				return false;
 		}),
 		{{2,0},{3,1}},
