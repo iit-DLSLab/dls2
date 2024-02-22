@@ -12,7 +12,7 @@ namespace dls
 	SignalReader<SignalType>::SignalReader(std::shared_ptr<dls::DDSParticipant> participant,
 										   const dls::topicType &topic,
 										   const std::shared_ptr<SignalType> signal, const std::function<void()> &auxiliary_callback, eprosima::fastdds::dds::DataReaderQos qos)
-		: SignalReaderBase(participant),
+		: SignalReaderBase(participant, topic),
 		  signal_(signal),
 		  auxiliary_callback(auxiliary_callback)
 	{

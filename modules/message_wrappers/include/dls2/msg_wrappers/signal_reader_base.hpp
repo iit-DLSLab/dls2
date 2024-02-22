@@ -13,18 +13,20 @@ namespace dls
 	{
 	public:
 		friend class PeriodicPluginBase;
-		SignalReaderBase(std::shared_ptr<dls::DDSParticipant> dds_participant);
+		SignalReaderBase(std::shared_ptr<dls::DDSParticipant> dds_participant, const dls::topicType& topic);
 		~SignalReaderBase();
 		SignalReaderBase() = delete;	
 		bool received;
 
 		virtual bool is_receiving_data() const = 0;
+		dls::topicType getTopic() const;
 
 	protected:
 		std::shared_ptr<dls::DDSParticipant> dds_participant_;
 		std::string ID_;
 		mutable std::mutex signal_mutex_;
-		
+		dls::topicType topic_;
+
 		/*!
 		@brief Return a WrapperBase pointer, pointing to the signal (of Wrapper class) stored in the children classes of this class
 		*/
