@@ -123,6 +123,6 @@ namespace dls
 	bool PeriodicPluginBase::deactivate()
 	{
 		active = false;
-		return true;
+		return active;
 	}
 }
