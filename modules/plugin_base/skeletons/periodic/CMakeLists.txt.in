@@ -68,21 +68,20 @@ set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # ================================== Library config ==========================
-macro(conditional_deploy TARGET_NAME)
-	set(DLS_DEPLOY_${TARGET_NAME} OFF
+macro(conditional_deploy_plugin TARGET_NAME VALUE)
+	set(${PLUGIN_NAME}_${TARGET_NAME} ${VALUE}
 		CACHE BOOL "Whether to package ${TARGET_NAME}"
 	)
 
-	if(DLS_DEPLOY_${TARGET_NAME})
+	if(${PLUGIN_NAME}_${TARGET_NAME})
 		add_subdirectory(${TARGET_NAME})
 	endif()
 endmacro()
-
-conditional_deploy(plugin/core)
-conditional_deploy(plugin/console_commands)
-conditional_deploy(plugin/messages)
-conditional_deploy(plugin/topics)
-conditional_deploy(module)
+conditional_deploy_plugin(plugin/core OFF)
+conditional_deploy_plugin(plugin/console_commands OFF)
+conditional_deploy_plugin(plugin/messages OFF)
+conditional_deploy_plugin(plugin/topics OFF)
+conditional_deploy_plugin(module OFF)
 
 # ================================= Packaging =================================
 set(CPACK_PACKAGE_VERSION_MAJOR             ${PROJECT_VERSION_MAJOR})
