@@ -147,7 +147,7 @@ namespace dls
         // flash (discard) previous inputs from the buffer
         tcflush(STDIN_FILENO, TCIFLUSH);
         while(true) {
-            std::cout << comment << "[" << std::setprecision (3) << default_value << "]:";
+            std::cout << comment << "[" << std::setprecision (3) << default_value << "]: ";
             getline(std::cin, input);
             if (input == "") { //If user doesn't give input, return false
                 return false;
@@ -169,7 +169,7 @@ namespace dls
         // flash (discard) previous inputs from the buffer
         tcflush(STDIN_FILENO, TCIFLUSH);
         while(true) {
-            std::cout << comment << ":";
+            std::cout << comment << ": ";
             getline(std::cin, input);
             if (input == "") { //If user doesn't give input, return false
                 return false;
