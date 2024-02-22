@@ -134,14 +134,14 @@ namespace dls
 		 * @details
 		 * Set the activate variable to true
 		 */
-		bool activate();
+		virtual bool activate();
 
 		/*!
 		 * @brief Console command: deactivate the plugin.
 		 * @details
 		 * Set the activate variable to false.
 		 */
-		bool deactivate();
+		virtual bool deactivate();
 
 	protected:
 		//! Identify if the periodic plugin is active or not
