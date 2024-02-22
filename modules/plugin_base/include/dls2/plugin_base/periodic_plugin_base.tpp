@@ -7,7 +7,7 @@
 namespace dls
 {
 	template <typename MsgWrapperType>
-	void PeriodicPluginBase::buildInput(const dls::topicType &topic, WrapperBase *input, const std::function<void()> &auxiliary_callback)
+	void PeriodicPluginBase::buildInput(const dls::topicType &topic, WrapperBase *input, const std::function<void()> &auxiliary_callback, bool required_on_activation)
 	{
 		// Add data reader
 		readers_.push_back(std::make_shared<SignalReader<MsgWrapperType>>(
@@ -17,10 +17,13 @@ namespace dls
 			auxiliary_callback));
 		// Add pointer to input
 		inputs_.push_back(input);
+
+		// Add activation requirement info
+		are_inputs_required_on_activation.push_back(required_on_activation);
 	}
 
 	template <typename MsgWrapperType>
-	void PeriodicPluginBase::buildInput(const std::string& name, const dls::topicType &topic, WrapperBase *input, const std::function<void()> &auxiliary_callback)
+	void PeriodicPluginBase::buildInput(const std::string& name, const dls::topicType &topic, WrapperBase *input, const std::function<void()> &auxiliary_callback, bool required_on_activation)
 	{
 		// Add data reader
 		readers_.push_back(std::make_shared<SignalReader<MsgWrapperType>>(
@@ -33,6 +36,9 @@ namespace dls
 
 		// Add output to the map
 		readers_map_[name] = std::make_pair(readers_.back(), input);
+
+		// Add activation requirement info
+		are_inputs_required_on_activation.push_back(required_on_activation);
 	}
 
 	template <typename MsgWrapperType>

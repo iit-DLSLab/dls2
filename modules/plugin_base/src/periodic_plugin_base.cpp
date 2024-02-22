@@ -86,20 +86,30 @@ namespace dls
 		return true;
 	}
 
-	bool PeriodicPluginBase::areInputsReceivingData()
+	bool PeriodicPluginBase::areInputsReceivingData(bool check_required_on_activation)
 	{
 		bool are_inputs_receiving_data = true;
-		for(auto reader : readers_)
+		std::stringstream inputs_not_receiving_data;
+		for (long unsigned int i = 0; i < readers_.size(); i++)
 		{
-			// check if reader is receiving data
-			if(!reader->is_receiving_data())
+			// check data availability if: all the readers needs to be checked or only the ones required on activation
+			if ((!check_required_on_activation || (check_required_on_activation && are_inputs_required_on_activation[i])))
 			{
-				are_inputs_receiving_data = false;
-				break;
+				if(!readers_[i]->is_receiving_data())
+				{
+					inputs_not_receiving_data << readers_[i]->getTopic().first << "\n";
+					if(are_inputs_receiving_data)
+						are_inputs_receiving_data = false;
+				}
 			}
 		}
 		if(!are_inputs_receiving_data){
-			scout_sys << "Inputs are not receiving data" << std::endl;
+			std::string str("");
+			if (check_required_on_activation)
+				str = "\nRequired inputs for activation not available:\n";
+			else
+				str = "\nInputs not available:\n";
+			scout_err 	<< str<< inputs_not_receiving_data.str() << std::endl;		
 		}
 		return are_inputs_receiving_data;
 	}

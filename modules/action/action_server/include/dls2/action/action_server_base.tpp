@@ -87,7 +87,7 @@ namespace dls
 			if(should_quit){
 				break;
 			}
-			if(areInputsReceivingData() && areOutputsUnique()){
+			if(areInputsReceivingData(true) && areOutputsUnique()){
 				activate();
 			}
 			else

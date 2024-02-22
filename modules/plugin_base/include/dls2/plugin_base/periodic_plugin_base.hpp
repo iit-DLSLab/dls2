@@ -58,7 +58,7 @@ namespace dls
 		 * @param[in] auxiliary_callback auxiliary function to be called when a new message is received
 		 */
 		template <typename MsgWrapperType>
-		void buildInput(const dls::topicType &topic, WrapperBase *input, const std::function<void()> &auxiliary_callback = std::function<void()>());
+		void buildInput(const dls::topicType &topic, WrapperBase *input, const std::function<void()> &auxiliary_callback = std::function<void()>([](){}), bool required_on_activation = true);
 
 		/*!
 		 * @brief Add an input to the plugin.
@@ -72,7 +72,7 @@ namespace dls
 		 * @param[in] auxiliary_callback auxiliary function to be called when a new message is received
 		 */
 		template <typename MsgWrapperType>
-		void buildInput(const std::string &name, const dls::topicType &topic, WrapperBase *input, const std::function<void()> &auxiliary_callback = std::function<void()>());
+		void buildInput(const std::string &name, const dls::topicType &topic, WrapperBase *input, const std::function<void()> &auxiliary_callback = std::function<void()>([](){}), bool required_on_activation = true);
 
 		/*!
 		 * @brief Add an output to the plugin.
@@ -154,7 +154,7 @@ namespace dls
 		std::condition_variable unique_outputs_cv;
 
 		/*! @brief Check if the inputs are receiving data*/ 
-		bool areInputsReceivingData();
+		bool areInputsReceivingData(bool check_required_on_activation = false);
 		/*! @brief Check if there is no other data writers publishing on the same topics of the outputs*/ 
 		bool areOutputsUnique();
 
@@ -163,6 +163,8 @@ namespace dls
 		std::vector<std::shared_ptr<SignalReaderBase>> readers_;
 		//! Map of data readers with their corresponding outputs variable. It is populated when calling buildInput function with the input name as additional argument
 		std::map<std::string, std::pair<std::shared_ptr<SignalReaderBase>, WrapperBase*>> readers_map_;
+		// ! Check if inputs are required on activation
+		std::vector<bool> are_inputs_required_on_activation;
 		//! Vector of outputs (data writers)
 		std::vector<std::shared_ptr<SignalWriterBase>> writers_;
 		//! Map of data writers with their corresponding outputs variable. It is populated when calling buildOutput function with the output name as additional argument
