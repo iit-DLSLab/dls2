@@ -35,7 +35,7 @@ using namespace dls;
 // Globals
 // =============================================================================
 // required to be global for visibility from signal handler
-std::shared_ptr<App> pComponent;
+// std::shared_ptr<App> pComponent;
 
 // =============================================================================
 // Classes
@@ -85,6 +85,8 @@ int main(int argc, char **argv)
     // std::this_thread::sleep_for(std::chrono::milliseconds(500));
     // scout_sys << "PROCESS LAUNCHER CALLED" << std::endl;
     Args args = parse_args(argc, argv);
+    
+    std::shared_ptr<App> pComponent;
 
     // Load the component
     try
