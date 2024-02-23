@@ -520,6 +520,27 @@ namespace dls
 		}
 	}
 
+	void DDSParticipant::on_subscriber_discovery(
+                eprosima::fastdds::dds::DomainParticipant* participant,
+                eprosima::fastrtps::rtps::ReaderDiscoveryInfo&& info){
+		
+		// warning suppress
+		(void)participant;
+				// Only set as new topic discovered if it is ALIVE
+		if (info.status == eprosima::fastrtps::rtps::ReaderDiscoveryInfo::DISCOVERY_STATUS::DISCOVERED_READER)
+		{
+			// Get Topic of DataWriter discovered and set it as discovered
+			std::string topic_name = info.info.topicName().to_string();
+			std::string type_name = info.info.typeName().to_string();
+
+			// Set Topic as discovered. If it is not new nothing happen
+			if(DDSParticipant::is_type_registered_in_participant_(type_name))
+				on_topic_discovery_(topic_name, type_name);
+		}
+
+	}
+
+
 	void DDSParticipant::on_type_information_received(
         eprosima::fastdds::dds::DomainParticipant*,
         const eprosima::fastrtps::string_255 topic_name,

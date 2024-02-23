@@ -129,6 +129,11 @@ namespace dls
             eprosima::fastdds::dds::DomainParticipant* participant,
             eprosima::fastrtps::rtps::WriterDiscoveryInfo&& info) override;
 
+		void on_subscriber_discovery(
+                eprosima::fastdds::dds::DomainParticipant* participant,
+                eprosima::fastrtps::rtps::ReaderDiscoveryInfo&& info) override;
+        
+
 		void on_topic_discovery_(const std::string& topic_name, const std::string& type_name);
 
 		void on_type_information_received(
