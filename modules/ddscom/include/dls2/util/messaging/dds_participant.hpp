@@ -93,6 +93,8 @@ namespace dls
 		int server_port;
 		std::string server_guid_prefix;
 
+		std::string participantName;
+
 		eprosima::fastdds::dds::DomainParticipant  					*participant;
 		std::map<std::string, eprosima::fastdds::dds::Topic *>  	topics;	
 		std::map<std::string, eprosima::fastdds::dds::DataReader *> readers;

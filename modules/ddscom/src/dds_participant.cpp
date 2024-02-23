@@ -65,6 +65,8 @@ namespace dls
         participantQos.wire_protocol().builtin.discovery_config.leaseDuration_announcementperiod = eprosima::fastrtps::Duration_t(1, 2);
 		participantQos.name(partName_);
 
+		participantName = partName_;
+
 		// Create a UDP descriptor for the new transport.
 		auto udp_transport = std::make_shared<eprosima::fastdds::rtps::UDPv4TransportDescriptor>();
 		// udp_transport->sendBufferSize = 9216;
@@ -132,11 +134,19 @@ namespace dls
 
 	DDSParticipant::~DDSParticipant()
 	{
-		if (!this->participant)
+		std::cout << "Starting the Participant destructor process for " << participantName << std::endl;
+	
+		if (!this->participant){
+			std::cout << "Null :( for " << participantName << std::endl;
 			return;
 
+		}
+			// return;
+
 		const char* str=this->participant->get_qos().name();
-		const std::string participant_name = str;
+		
+		const std::string participant_name = participantName;
+		std::cout << "\t\t\t Name is: " << participant_name << std::endl; 
 		// delete all data writers and data readers
 		if (this->publisher->delete_contained_entities() != ReturnCode_t::RETCODE_OK)
 		{
@@ -177,6 +187,7 @@ namespace dls
 		}
 		// delete participant
 		eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->delete_participant(this->participant);
+		std::cout << "Destroyed successfully: " << participant_name << std::endl;
 	}
 
 	eprosima::fastdds::dds::DataWriter* DDSParticipant::getWriter(std::string name)
@@ -394,12 +405,12 @@ namespace dls
 		{
 			return search->second;
 		}
-		if(!this->participant->find_type(topicData_.second.get_type_name()))
-		{
+		// if(!this->participant->find_type(topicData_.second.get_type_name()))
+		// {
 			topicData_.second->auto_fill_type_information(false);
     		topicData_.second->auto_fill_type_object(true);
 			this->participant->register_type(topicData_.second);
-		}
+		// }
 
 		auto topic = this->participant->create_topic(
 			topicData_.first,
