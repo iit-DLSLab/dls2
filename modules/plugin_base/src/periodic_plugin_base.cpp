@@ -86,10 +86,9 @@ namespace dls
 		return true;
 	}
 
-	bool PeriodicPluginBase::areInputsReceivingData(bool check_required_on_activation)
+	bool PeriodicPluginBase::areInputsReceivingData(std::stringstream &missing_inputs, bool check_required_on_activation)
 	{
 		bool are_inputs_receiving_data = true;
-		std::stringstream inputs_not_receiving_data;
 		for (long unsigned int i = 0; i < readers_.size(); i++)
 		{
 			// check data availability if: all the readers needs to be checked or only the ones required on activation
@@ -97,32 +96,51 @@ namespace dls
 			{
 				if(!readers_[i]->is_receiving_data())
 				{
-					inputs_not_receiving_data << readers_[i]->getTopic().first << "\n";
+					missing_inputs << readers_[i]->getTopic().first << " ";
 					if(are_inputs_receiving_data)
 						are_inputs_receiving_data = false;
 				}
 			}
 		}
-		if(!are_inputs_receiving_data){
-			std::string str("");
-			if (check_required_on_activation)
-				str = "\nRequired inputs for activation not available:\n";
-			else
-				str = "\nInputs not available:\n";
-			scout_err 	<< str<< inputs_not_receiving_data.str() << std::endl;		
-		}
 		return are_inputs_receiving_data;
 	}
 
-	bool PeriodicPluginBase::activate()
+	bool PeriodicPluginBase::waitForInputs()
 	{
-		active = true;
+		// Wait for timeout seconds the input readyness
+		double timeout = 15;//seconds
+        auto start = std::chrono::high_resolution_clock::now();
+		std::stringstream missing_inputs("");
+        while(!areInputsReceivingData(missing_inputs, true))
+        {
+            scout_warn << "Waiting for inputs: " << missing_inputs.str() << std::endl;
+			missing_inputs.str("");
+			missing_inputs.clear();
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+            auto end = std::chrono::high_resolution_clock::now();
+            if(std::chrono::duration_cast<std::chrono::seconds>(end - start).count() > timeout)
+            {
+                scout_err << "Timeout waiting for inputs" << std::endl;
+                return false;
+            }
+        }
+		return true;
+	}
+
+	bool PeriodicPluginBase::checkActivation()
+	{
+		return waitForInputs();
+	}
+
+	bool PeriodicPluginBase::activate()
+	{   
+		active = checkActivation();
 		return active;
 	}
 
 	bool PeriodicPluginBase::deactivate()
 	{
 		active = false;
-		return active;
+		return !active;
 	}
 }

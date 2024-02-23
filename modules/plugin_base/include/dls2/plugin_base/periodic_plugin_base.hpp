@@ -143,6 +143,8 @@ namespace dls
 		 */
 		virtual bool deactivate();
 
+		virtual bool checkActivation();
+
 	protected:
 		//! Identify if the periodic plugin is active or not
 		bool active;
@@ -154,9 +156,13 @@ namespace dls
 		std::condition_variable unique_outputs_cv;
 
 		/*! @brief Check if the inputs are receiving data*/ 
-		bool areInputsReceivingData(bool check_required_on_activation = false);
+		bool areInputsReceivingData(std::stringstream &ss, bool check_required_on_activation = false);
+
 		/*! @brief Check if there is no other data writers publishing on the same topics of the outputs*/ 
 		bool areOutputsUnique();
+
+		/*! @brief Wait for the inputs to be ready*/
+		bool waitForInputs();
 
 	private:
 		//! Vector of inputs (data readers)
