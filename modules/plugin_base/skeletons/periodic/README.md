@@ -47,15 +47,15 @@ Once dls2_deploy is installed you can build and install the project
 * sudo make install
 
 As for dls2_deploy, with the `ccmake ..` command you can choose what to build and install:
-* the software module (*DLS_DEPLOY_module*)
-* the plugin (*DLS_DEPLOY_plugin/core*)
-* the console commands library (*DLS_DEPLOY_plugin/console_comm*)
-* the messages library (*DLS_DEPLOY_plugin/messages*)
-* the topics library (*DLS_DEPLOY_plugin/topics*)
+* the software module (*<plugin_name>_module*)
+* the plugin (*<plugin_name>_plugin/core*)
+* the console commands library (*<plugin_name>_plugin/console_comm*)
+* the messages library (*<plugin_name>_plugin/messages*)
+* the topics library (*<plugin_name>_plugin/topics*)
 
 In this way, you can build and install separately each software part.
 
-With the build and install steps, you are created the following libraries:
+With the build and install steps, you have created the following libraries:
 * *<plugin_name>*: plugin library
 * *<plugin_name>_module*: module library
 * *<plugin_name>_console_commands*: console commands library
@@ -118,18 +118,18 @@ As we said, the module class has been already created. However, you can change t
       void run(robotlib::LegDataMap<bool> &stance_sensors_status, const Eigen::Matrix3d& w_R_b, const robotlib::JointState& q, const robotlib::JointState& qd, const robotlib::JointState& qdd, const robotlib::JointState& tau);
   Rember that the order of the arguments is: *inputs* THEN *outputs*. Writing the run arguments in this way allows your module to be independent from the DLS2 messages and messages' wrappers.
 
-  In the class it is also defined a YAML::Node, that it is used to read the module/config/config.yaml file. In this file you can add configurations for your modules, for example
+* In the class it is also defined a YAML::Node, that it is used to read the module/config/config.yaml file. In this file you can add configurations for your modules, for example
 
       aliengo_th:
             foot_LF_contact_force_th : 5
             foot_RF_contact_force_th : 5
             foot_LH_contact_force_th : 5
             foot_RH_contact_force_th : 5
-* when choosing what to build and install with the *ccmake ..* command, set to *ON* the *DLS_DEPLOY_module* option
+* when choosing what to build and install with the *ccmake ..* command, set to *ON* the *<plugin_name>_module* option
 
 The changes of the class constructor and run function signatures has to be imported in the module/src/<module_name>.cpp as well. In this file, you then have to provide the implementation of the run function. Remember that this is the function storing the "module logic", and it the one called periodically.
 ### Create the plugin
-In the plugin folder you can define the inputs and outputs of your module.
+In the plugin folder you can define the inputs and outputs of your plugin.
 
 #### plugin/core
 Here you define the plugin. The plugin stores internally an instance of both the module and console commands classes. To instantiate the module instance, you need to change the plugin constructor, adding the arguments of the module constructor. For example
@@ -234,36 +234,31 @@ You can of course have both custom and off-the-shelf topics.
 You can now build the inputs and outputs. For example
 
       // Define inputs
-        /*this->buildInput<message_wrapper_class, type_of_arguments_of_message_constructor>(
+        /*this->buildInput<message_wrapper_class>(
             topic_name,
-            &input_variable_name,
-            arguments_of_message_constructor
+            &input_variable_name
         );*/
 
         // Define outputs
-        /*this->buildOutput<message_wrapper_class, type_of_arguments_of_message_constructor>(
+        /*this->buildOutput<message_wrapper_class>(
             topic_name,
-            &output_variable_name,
-            arguments_of_message_constructor
+            &output_variable_name
         );*/
 becames
         
         // Define inputs
-        this->buildInput<BlindState, std::shared_ptr<robotlib::RobotBase>>(
+        this->buildInput<BlindState>(
             dls::topics::low_level_estimation::blind_state,
-            &blind_state,
-            robot
+            &blind_state
         );
-        this->buildInput<BaseState, std::shared_ptr<robotlib::RobotBase>>(
+        this->buildInput<BaseState>(
             dls::topics::high_level_estimation::base_state,
-            &base_state,
-            robot
+            &base_state
         );
         // Define outputs
-        this->buildInput<StanceStatus, std::shared_ptr<robotlib::RobotBase>>(
+        this->buildInput<StanceStatus>(
             topics::stance_detection::stance_status,
-            &stance_status,
-            robot
+            &stance_status
         );
 
 With this functions, we created the data readers and data writers of the plugin, associated to off-the-shelf and custom topics. Moreover, since we are passing the reference to our input/output variables when building the inputs/outputs:
@@ -285,7 +280,7 @@ There are two last steps to be done:
                               blind_state.joints_effort_
                               stance_status.stance_status_);
 
-* when choosing what to build and install with the *ccmake ..* command, set to *ON* the *DLS_DEPLOY_plugin/core* and *DLS_DEPLOY_plugin/console_comm* options. If you are using custom messages and/or custom topics set to *ON*, respectively, *DLS_DEPLOY_plugin/messages* and *DLS_DEPLOY_plugin/topics* options.
+* when choosing what to build and install with the *ccmake ..* command, set to *ON* the *<plugin_name>_plugin/core* and *<plugin_name>_plugin/console_comm* options. If you are using custom messages and/or custom topics set to *ON*, respectively, *<plugin_name>_plugin/messages* and *<plugin_name>_plugin/topics* options.
 
 Congratulations! You have created your fist periodic plugin for dls2!
 
@@ -295,7 +290,7 @@ In the plugin/config folder you have the possibility to set the properties of th
 ### Create custom console commands
 Creating console commmands in plugin/console_commands is quite easy. The console commands are functions, called from the console, that change the status of your running module. Since the console is implemented as a DLS2 layer, to keep the module independent from how to interact with the console, a separated console function class is defined that links the plugin with the module. This is done by
 * defining functions, to be used in the console, that changes the status of the running module
-* adding such functions to the command manager of the plugin, as console commands
+* adding such functions to the command manager of the plugin as console commands
 
 To do that:
 * declare the console functions in console_functions.hpp. For example
@@ -354,7 +349,7 @@ To do that:
                                         &StanceDetectionConsoleCommands::setStanceDetectionMethod, this, {}, true);
   The *command_manager_ptr* is a pointer to the command manager object of the plugin creating an instance of the console commands class. See [here](https://gitlab.advr.iit.it/dls-lab/dls2/-/tree/clear_inputs_outputs/modules%2Fcommand#how-to-define-a-command) for how to create a command.
   
-* when choosing what to build and install with the *ccmake ..* command, set to *ON* the *DLS_DEPLOY_plugin/console_comm* option
+* when choosing what to build and install with the *ccmake ..* command, set to *ON* the *<plugin_name>_plugin/console_comm* option
 
 ### Create custom messages
 In plugin/messages you can define custom messages. To create a message:
@@ -377,11 +372,22 @@ In plugin/messages you can define custom messages. To create a message:
 * create a message wrapper
       
       TODO
-* when choosing what to build and install with the *ccmake ..* command, set to *ON* the *DLS_DEPLOY_plugin/messages* option
+* In plugin/messages/CMakeLists.txt, call the function *dls_add_message* with the message idl file name as argument. For example,
 
-So far, you have create a library for custom messages. To link the messages library to the custom topics, in plugin/topics/CMakeLists.txt uncomment the following line
+      dls_add_message(message) 	# generate message
+  becames
+ 
+      dls_add_message(stance_status) 	# generate message
+
+* when choosing what to build and install with the *ccmake ..* command, set to *ON* the *<plugin_name>_plugin/messages* option
+
+So far, you have create a library for custom messages. To use the messages library in the custom topics, in plugin/topics/CMakeLists.txt uncomment the following lines
 
       #${MSGS_LIBRARY_NAME}
+and 
+      
+      #${CMAKE_CURRENT_BINARY_DIR}/../messages/include
+
 To link instead the library of the custom messages' wrappers to your plugin, in plugin/core/CMakeLists.txt uncomment the following line
 
       #${MSGS_WRAPPERS_LIBRARY_NAME}
@@ -406,7 +412,7 @@ To create a topic
   becames
 
       extern dls::topicType stance_status;
-* in topics.hpp, include the [TypeSupport](https://fast-dds.docs.eprosima.com/en/latest/fastdds/dds_layer/topic/typeSupport/typeSupport.html?highlight=TopicDataType#definition-of-data-types) of each topic. Thanks to [Fast DDS-Gen](https://fast-dds.docs.eprosima.com/en/latest/fastdds/dds_layer/topic/fastddsgen/fastddsgen.html#fast-dds-gen-for-data-types-source-code-generation), the TypeSupport of each message is automatically created from the corresponding idl file, when building the project. For example, if you have a custom idl file in plugin/messages/idls called stance_status.idl, you have that
+* in topics.cpp, include the [TypeSupport](https://fast-dds.docs.eprosima.com/en/latest/fastdds/dds_layer/topic/typeSupport/typeSupport.html?highlight=TopicDataType#definition-of-data-types) of each topic. Thanks to [Fast DDS-Gen](https://fast-dds.docs.eprosima.com/en/latest/fastdds/dds_layer/topic/fastddsgen/fastddsgen.html#fast-dds-gen-for-data-types-source-code-generation), the TypeSupport of each message is automatically created from the corresponding idl file, when building the project. For example, if you have a custom idl file in plugin/messages/idls called stance_status.idl, you have that
 
       // Include the TypeSupport of each message associated to each topic
       //#include <dls_messages/dds/<idl_file_name>PubSubTypes.h> // # off-the-shelf message
@@ -426,7 +432,7 @@ To create a topic
   becames
 
       dls::topicType stance_status = dls::topicType("stance_status", new StanceStatusMsgPubSubType());
-* when choosing what to build and install with the *ccmake ..* command, set to *ON* the *DLS_DEPLOY_plugin/topics* option. Remember that if at least one of your topics is using custom messages, set to *ON* the *DLS_DEPLOY_plugin/messages* option too.
+* when choosing what to build and install with the *ccmake ..* command, set to *ON* the *<plugin_name>_plugin/topics* option. Remember that if at least one of your topics is using custom messages, set to *ON* the *<plugin_name>_plugin/messages* option too.
 
 So far you have created the topic. In order to link the topic library to the plugin, in plugin/core/CMakeLists.txt decomment the following line
 
