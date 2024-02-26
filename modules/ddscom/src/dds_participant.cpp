@@ -134,19 +134,16 @@ namespace dls
 
 	DDSParticipant::~DDSParticipant()
 	{
-		std::cout << "Starting the Participant destructor process for " << participantName << std::endl;
+
 	
 		if (!this->participant){
-			std::cout << "Null :( for " << participantName << std::endl;
 			return;
-
 		}
 			// return;
 
 		const char* str=this->participant->get_qos().name();
 		
 		const std::string participant_name = participantName;
-		std::cout << "\t\t\t Name is: " << participant_name << std::endl; 
 		// delete all data writers and data readers
 		if (this->publisher->delete_contained_entities() != ReturnCode_t::RETCODE_OK)
 		{
@@ -187,7 +184,6 @@ namespace dls
 		}
 		// delete participant
 		eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->delete_participant(this->participant);
-		std::cout << "Destroyed successfully: " << participant_name << std::endl;
 	}
 
 	eprosima::fastdds::dds::DataWriter* DDSParticipant::getWriter(std::string name)
@@ -405,12 +401,10 @@ namespace dls
 		{
 			return search->second;
 		}
-		// if(!this->participant->find_type(topicData_.second.get_type_name()))
-		// {
-			topicData_.second->auto_fill_type_information(false);
-    		topicData_.second->auto_fill_type_object(true);
-			this->participant->register_type(topicData_.second);
-		// }
+
+		topicData_.second->auto_fill_type_information(false);
+		topicData_.second->auto_fill_type_object(true);
+		this->participant->register_type(topicData_.second);
 
 		auto topic = this->participant->create_topic(
 			topicData_.first,

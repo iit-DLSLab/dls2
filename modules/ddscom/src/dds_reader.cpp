@@ -43,11 +43,9 @@ namespace dls
 
 		if (callback_ != nullptr){
 			if (topicFound(topicName)){
-				std::cout << "Found the topic: " <<  topicName <<  std::endl;	
 				this->reader = this->addReader("unicReader", topicName, callback_, qos_);
 				return true;
 			}else{
-				std::cout << "Topic " << topicName << " could not be found" << std::endl;
 				return false;
 			}
 		}else{
@@ -61,15 +59,12 @@ namespace dls
 	void DDSReader::printDiscoveredTopics(){
 		std::vector<std::string> topicList = this->getDiscoveredTopics();
 
-		std::cout << "Listing out all discovered topics:" << std::endl;
 		for(auto& topic: topicList){
 			std::cout << "\t" << topic << std::endl;
 		}
 
 	}
 	void DDSReader::printParticipants(){
-	
-		std::cout << "Listing all the participants:" << std::endl;
 	
 		auto participant_vect  = this->getParticipants();
 		for(auto &t: participant_vect){

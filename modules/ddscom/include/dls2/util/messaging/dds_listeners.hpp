@@ -83,7 +83,6 @@ namespace dls
 				const std::string& topic_name,
 				const std::string& type_name)
 		{
-			std::cout << "Discovered topic in listener topic discovery: " << topic_name << std::endl;
 			static_cast<void>(topic_name);
 			static_cast<void>(type_name);
 		}
