@@ -139,19 +139,16 @@ namespace dls
 		if (!this->participant){
 			return;
 		}
-			// return;
 
-		const char* str=this->participant->get_qos().name();
 		
-		const std::string participant_name = participantName;
 		// delete all data writers and data readers
 		if (this->publisher->delete_contained_entities() != ReturnCode_t::RETCODE_OK)
 		{
-			std::cout << "CANNOT DELETE PUBLISHER CONTAINED ENTITIES FOR THE PARTICIPANT " << participant_name << std::endl;
+			std::cout << "CANNOT DELETE PUBLISHER CONTAINED ENTITIES FOR THE PARTICIPANT " << participantName << std::endl;
 		}
 		if (this->subscriber->delete_contained_entities() != ReturnCode_t::RETCODE_OK)
 		{
-			std::cout << "CANNOT DELETE SUBSCRIBER CONTAINED ENTITIES FOR THE PARTICIPANT " << participant_name << std::endl;
+			std::cout << "CANNOT DELETE SUBSCRIBER CONTAINED ENTITIES FOR THE PARTICIPANT " << participantName << std::endl;
 		}
 		
 		// delete publisher
@@ -159,7 +156,7 @@ namespace dls
 		{
 			if (this->participant->delete_publisher(this->publisher) != ReturnCode_t::RETCODE_OK)
 			{
-				std::cout << "CANNOT DELETE PUBLISHER OF THE PARTICIPANT " << participant_name << std::endl;
+				std::cout << "CANNOT DELETE PUBLISHER OF THE PARTICIPANT " << participantName << std::endl;
 			}
 		}
 
@@ -168,7 +165,7 @@ namespace dls
 		{
 			if (this->participant->delete_subscriber(this->subscriber) != ReturnCode_t::RETCODE_OK)
 			{
-				std::cout << "CANNOT DELETE SUBSCRIBER OF THE PARTICIPANT " << participant_name << std::endl;
+				std::cout << "CANNOT DELETE SUBSCRIBER OF THE PARTICIPANT " << participantName << std::endl;
 			}
 		}
 
@@ -178,7 +175,7 @@ namespace dls
 			{
 				if(this->participant->delete_topic(elem.second) != ReturnCode_t::RETCODE_OK)
 				{
-					std::cout << "CANNOT REMOVE TOPIC " << elem.first << " OF THE PARTICIPANT " << participant_name << std::endl;
+					std::cout << "CANNOT REMOVE TOPIC " << elem.first << " OF THE PARTICIPANT " << participantName << std::endl;
 				}
 			}
 		}
