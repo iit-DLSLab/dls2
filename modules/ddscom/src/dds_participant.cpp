@@ -399,10 +399,12 @@ namespace dls
 			return search->second;
 		}
 
-		topicData_.second->auto_fill_type_information(false);
-		topicData_.second->auto_fill_type_object(true);
-		this->participant->register_type(topicData_.second);
-
+		if(!this->participant->find_type(topicData_.second.get_type_name()))
+		{
+			topicData_.second->auto_fill_type_information(false);
+			topicData_.second->auto_fill_type_object(true);
+			this->participant->register_type(topicData_.second);
+		}
 		auto topic = this->participant->create_topic(
 			topicData_.first,
 			topicData_.second.get_type_name(),
@@ -431,12 +433,14 @@ namespace dls
 		
 		std::string type_name = discovery_database[topicName];//has to be there as this is called after testing if the topic has been found
 
-		// Registering the type in the factory
-		auto type_obj = this->participant->find_type(type_name);
-		type_obj->auto_fill_type_information(false);
-		type_obj->auto_fill_type_object(true);
-		this->participant->register_type(type_obj);
-
+		if(!this->participant->find_type(topicName))
+		{
+			// Registering the type in the factory
+			auto type_obj = this->participant->find_type(type_name);
+			type_obj->auto_fill_type_information(false);
+			type_obj->auto_fill_type_object(true);
+			this->participant->register_type(type_obj);
+		}
 
 
 		auto topic = this->participant->create_topic(
