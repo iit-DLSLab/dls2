@@ -1,7 +1,7 @@
 
 // TODO this is a tool that needs to be made into a separate project and made
 // more sophisticated
-#include "dls2/util/topic_info/topic_info.hpp"
+#include "topic_info.hpp"
 #include <fastrtps/attributes/ParticipantAttributes.h>
 #include <fastrtps/Domain.h>
 #include <fastrtps/attributes/ParticipantAttributes.h>
@@ -13,13 +13,13 @@
 #include "dls_messages/dds/console_commandPubSubTypes.h"
 #include "dls_messages/dds/control_signalPubSubTypes.h"
 #include "dls_messages/dds/desired_torquesPubSubTypes.h"
-#include "dls_messages/dds/headerPubSubTypes.h"
+// #include "dls_messages/dds/headerPubSubTypes.h"
 #include "dls_messages/dds/imuPubSubTypes.h"
-#include "dls_messages/dds/joint_statePubSubTypes.h"
+// #include "dls_messages/dds/joint_statePubSubTypes.h"
 #include "dls_messages/dds/posePubSubTypes.h"
 #include "dls_messages/dds/screwPubSubTypes.h"
 #include "dls_messages/dds/stringmsgPubSubTypes.h"
-#include "dls_messages/dds/timePubSubTypes.h"
+// #include "dls_messages/dds/timePubSubTypes.h"
 
 
 
