@@ -535,7 +535,7 @@ namespace dls
 				// Only set as new topic discovered if it is ALIVE
 		if (info.status == eprosima::fastrtps::rtps::ReaderDiscoveryInfo::DISCOVERY_STATUS::DISCOVERED_READER)
 		{
-			// Get Topic of DataWriter discovered and set it as discovered
+			// Get Topic of DataReader discovered and set it as discovered
 			std::string topic_name = info.info.topicName().to_string();
 			std::string type_name = info.info.typeName().to_string();
 
