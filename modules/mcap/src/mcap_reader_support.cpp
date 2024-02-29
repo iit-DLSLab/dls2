@@ -1,4 +1,5 @@
 #include "mcap_support/mcap_reader_support.hpp"
+#include <thread>
 
 namespace dls
 {
