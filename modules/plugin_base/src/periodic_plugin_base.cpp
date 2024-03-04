@@ -79,16 +79,17 @@ namespace dls
 			this->unique_outputs_cv.wait_for(lock, ddslink->getSubListener(reader_name)->is_receiving_data_th);
 			if(is_writer_active)
 			{
-				scout_err << "There is another writer publishing on the topic "<< writer->getTopic().first << std::endl;
+				scout_warn << "There is at list another writer publishing on the topic "<< writer->getTopic().first << std::endl;
 				return false;
 			}
 		}
 		return true;
 	}
 
-	bool PeriodicPluginBase::areInputsReceivingData(std::stringstream &missing_inputs, bool check_required_on_activation)
+	bool PeriodicPluginBase::areInputsReceivingData(bool check_required_on_activation)
 	{
 		bool are_inputs_receiving_data = true;
+		std::stringstream missing_inputs("");
 		for (long unsigned int i = 0; i < readers_.size(); i++)
 		{
 			// check data availability if: all the readers needs to be checked or only the ones required on activation
@@ -102,6 +103,10 @@ namespace dls
 				}
 			}
 		}
+		if(!are_inputs_receiving_data)
+		{
+			scout_warn << "Missing inputs: " << missing_inputs.str() << std::endl;
+		}
 		return are_inputs_receiving_data;
 	}
 
@@ -111,11 +116,9 @@ namespace dls
 		double timeout = 15;//seconds
         auto start = std::chrono::high_resolution_clock::now();
 		std::stringstream missing_inputs("");
-        while(!areInputsReceivingData(missing_inputs, true))
+		scout_sys << "Waiting for inputs... " << std::endl;
+        while(!areInputsReceivingData(true))
         {
-            scout_warn << "Waiting for inputs: " << missing_inputs.str() << std::endl;
-			missing_inputs.str("");
-			missing_inputs.clear();
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
             auto end = std::chrono::high_resolution_clock::now();
             if(std::chrono::duration_cast<std::chrono::seconds>(end - start).count() > timeout)

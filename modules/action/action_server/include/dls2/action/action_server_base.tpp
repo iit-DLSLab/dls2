@@ -87,13 +87,12 @@ namespace dls
 			if(should_quit){
 				break;
 			}
-			std::stringstream missing_inputs("");
-			if(areInputsReceivingData(missing_inputs, true) && areOutputsUnique()){
+			if(areInputsReceivingData(true) && areOutputsUnique()){
 				active = true;
 			}
 			else
 			{
-				scout_err << "Action " << this->getID() << " cannot be activated. Missing inputs: " << missing_inputs.str() << ". Unloading..." << std::endl;
+				scout_err << "Action " << this->getID() << " cannot be activated. Unloading..."<< std::endl;
 				command_manager.callCommand("unloadAction", {this->getID()}, "ServiceLayer");
 			}
 			request_activation = false;

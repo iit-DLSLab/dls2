@@ -156,7 +156,7 @@ namespace dls
 		std::condition_variable unique_outputs_cv;
 
 		/*! @brief Check if the inputs are receiving data*/ 
-		bool areInputsReceivingData(std::stringstream &ss, bool check_required_on_activation = false);
+		bool areInputsReceivingData(bool check_required_on_activation = false);
 
 		/*! @brief Check if there is no other data writers publishing on the same topics of the outputs*/ 
 		bool areOutputsUnique();
