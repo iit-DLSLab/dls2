@@ -1,0 +1,17 @@
+add_compile_options("-std=c++2a")
+
+add_library(state_machine
+	SHARED
+		src/state_machine.cpp
+)
+
+set_property(TARGET dls_app PROPERTY POSITION_INDEPENDENT_CODE ON)
+
+target_include_directories(state_machine
+	PUBLIC
+		include
+)
+
+add_subdirectory(example)
+
+dls_install(state_machine)
