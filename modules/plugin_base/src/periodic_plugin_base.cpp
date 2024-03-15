@@ -7,8 +7,8 @@ namespace dls
 		: PeriodicApp(ID), active(false), dds_participant_(std::make_shared<dls::DDSParticipant>(ID, domain))
 	{
 		// Define console commands
-		command_manager.addCommand("activate", "Activate " + ID, &PeriodicPluginBase::activate, this, {{0, 1}}, true);
-		command_manager.addCommand("deactivate", "Deactivate " + ID, &PeriodicPluginBase::deactivate, this, {{1, 0}}, true);
+		command_manager.addCommand("activate", "Activate " + ID, &PeriodicPluginBase::activateCommand, this, {{0, 1}}, true);
+		command_manager.addCommand("deactivate", "Deactivate " + ID, &PeriodicPluginBase::deactivateCommand, this, {{1, 0}}, true);
 	}
 
 	PeriodicPluginBase::~PeriodicPluginBase()
@@ -135,10 +135,20 @@ namespace dls
 		return waitForInputs();
 	}
 
-	bool PeriodicPluginBase::activate()
+	bool PeriodicPluginBase::activateCommand()
 	{   
+		return activate();
+	}
+
+	bool PeriodicPluginBase::activate()
+	{
 		active = checkActivation();
 		return active;
+	}
+
+	bool PeriodicPluginBase::deactivateCommand()
+	{
+		return deactivate();
 	}
 
 	bool PeriodicPluginBase::deactivate()

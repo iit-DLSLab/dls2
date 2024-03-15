@@ -134,10 +134,24 @@ namespace dls
 		 * @details
 		 * Set the activate variable to true
 		 */
-		virtual bool activate();
+		virtual bool activateCommand();
 
 		/*!
 		 * @brief Console command: deactivate the plugin.
+		 * @details
+		 * Set the activate variable to false.
+		 */
+		virtual bool deactivateCommand();
+
+		/*!
+		 * @brief Activate the plugin.
+		 * @details
+		 * Set the activate variable to true
+		 */
+		virtual bool activate();
+
+		/*!
+		 * @brief Deactivate the plugin.
 		 * @details
 		 * Set the activate variable to false.
 		 */
