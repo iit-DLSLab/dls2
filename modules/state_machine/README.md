@@ -27,6 +27,7 @@ In the folder [example](example) there is an example implementing a specializati
 
 * the state machine inherits from _StateMachine_ class
 * each state is a separate class implementing the _activity()_ function, which performs the tasks of the state. Such activity can be implemented in such a way that when the tasks are completed, the state machine goes in the next state directly. This is the implementation in the example. But, you can also have a explicitly event-driven state machine. In this case, at the end of the activity, the state machine does not need to automatically go in the next state. You can then call the _transit(event)_ function to transit to the next state and its tasks are then executed
+* each state stores the pointer to the state machine, to acces to member functions and events
 * each event and asynchronous event is also implemented as a separate class
 * the state machine creates a member variable for each state and event
 * the transition table and the asynchronous event to boolean mapping are defined in the state machine constructor
