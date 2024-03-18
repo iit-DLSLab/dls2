@@ -8,8 +8,6 @@
 
 namespace state_machine
 {
-    // Add virtual destructor
-
     class Entity
     {
     public:
@@ -45,7 +43,7 @@ namespace state_machine
         // Destructor
         virtual ~StateMachine();
         // start the state machine, by executing the current state activity in a while loop
-        void startSM();
+        void start();
         // raise an asynchronous event in the state machine. Set variable of the asynch event to true
         bool raiseEvent(const AsyncEvent &event);
         // check if the state machine is ended
@@ -55,7 +53,7 @@ namespace state_machine
         // run the current state activity
         void runState();
         // stop the state machine
-        void stopSM();
+        void stop();
         // check whether the asynchronous event has happened
         bool isRaised(const AsyncEvent &event);
         // go to the next state based on the input event
@@ -79,7 +77,7 @@ namespace state_machine
         // notify that the state machine has changed its state
         void notifyState();
 
-        // Store asynchronous event occurrence.
+        // Store asynchronous event occurrence
         // -- When the asynch event happens, the correspondig boolean value is set to true
         // -- When the fsm change state based on an asynch event, the correspondig boolean value is set to false
         std::map<AsyncEvent, std::atomic_bool> is_async_event;

@@ -19,45 +19,45 @@ int main()
 
 void self_standing()
 {
-    state_machine::washing_machine::WashingMachine wash_machine;
-    wash_machine.startSM();
+    state_machine::washing_machine::WashingMachine washing_machine;
+    washing_machine.start();
 }
 
 void self_standing_thread()
 {
-    state_machine::washing_machine::WashingMachine wash_machine;
-    std::thread thread(&state_machine::washing_machine::WashingMachine::startSM, &wash_machine);
+    state_machine::washing_machine::WashingMachine washing_machine;
+    std::thread thread(&state_machine::washing_machine::WashingMachine::start, &washing_machine);
     int timeout = 1000;
     std::cout << "WAIT " << timeout << "ms..." << std::endl;
     std::this_thread::sleep_for(std::chrono::milliseconds(timeout));
     std::cout << "Send quit request"<< std::endl;
-    wash_machine.raiseEvent(wash_machine.quit);
+    washing_machine.raiseEvent(washing_machine.quit);
     thread.join();
 }
 
 void manual_triggering()
 {
-    state_machine::washing_machine::WashingMachine wash_machine;
-    wash_machine.runState();
-    if(*wash_machine.state == wash_machine.FILLING_WATER)
+    state_machine::washing_machine::WashingMachine washing_machine;
+    washing_machine.runState();
+    if(*washing_machine.state == washing_machine.FILLING_WATER)
     {
-        wash_machine.runState();
+        washing_machine.runState();
     }
-    if(*wash_machine.state == wash_machine.WASHING)
+    if(*washing_machine.state == washing_machine.WASHING)
     {
-        wash_machine.runState();
+        washing_machine.runState();
     }
-    // wash_machine.raiseEvent(wash_machine.quit);
-    if(*wash_machine.state == wash_machine.RINSING)
+    // washing_machine.raiseEvent(washing_machine.quit);
+    if(*washing_machine.state == washing_machine.RINSING)
     {
-        wash_machine.runState();
+        washing_machine.runState();
     }
-    if(*wash_machine.state == wash_machine.SPINNING)
+    if(*washing_machine.state == washing_machine.SPINNING)
     {
-        wash_machine.runState();
+        washing_machine.runState();
     }
-    if(*wash_machine.state == wash_machine.STOP)
+    if(*washing_machine.state == washing_machine.STOP)
     {
-        wash_machine.runState();
+        washing_machine.runState();
     }
 }

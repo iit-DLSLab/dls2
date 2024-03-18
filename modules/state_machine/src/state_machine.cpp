@@ -26,13 +26,13 @@ namespace state_machine
         }
     }
 
-    void StateMachine::startSM()
+    void StateMachine::start()
     {
         while (!quit)
             runState();
     }
 
-    void StateMachine::stopSM()
+    void StateMachine::stop()
     {
         quit = true;
     }

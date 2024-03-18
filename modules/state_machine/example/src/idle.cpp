@@ -13,7 +13,7 @@ namespace state_machine
             {
                 std::cout << "IDLE state\n";
                 std::this_thread::sleep_for(std::chrono::seconds(1));
-                sm->nextState(sm->start);
+                sm->nextState(sm->start_filling);
                 break;
             }
             if(sm->isRaised(sm->quit))

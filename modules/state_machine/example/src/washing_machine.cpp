@@ -10,7 +10,7 @@ namespace state_machine
             : StateMachine(), IDLE(this), FILLING_WATER(this), WASHING(this), RINSING(this), SPINNING(this), STOP(this)
         {
             std::map<std::pair<State *, Event>, State *> transitions = {
-                {{&IDLE, start}, &FILLING_WATER},
+                {{&IDLE, start_filling}, &FILLING_WATER},
                 {{&FILLING_WATER, filled_to_5l}, &WASHING},
                 {{&WASHING, enlapsed_45_min}, &RINSING},
                 {{&RINSING, enlapsed_20_min}, &SPINNING},

@@ -12,7 +12,7 @@ namespace state_machine
         void Stop::activity(){
             std::cout << "STOP state\n";
             std::this_thread::sleep_for(std::chrono::seconds(1));
-            sm->stopSM();
+            sm->stop();
         }
     }
 }
