@@ -14,6 +14,7 @@ namespace state_machine
     {
     public:
         Entity();
+        virtual ~Entity();
         // id, num_entity and operator< are needed only to use an entity in std::map
         bool operator<(const Entity &rhs) const;
         bool operator==(const Entity& other) const;
