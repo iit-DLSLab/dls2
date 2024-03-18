@@ -26,7 +26,7 @@ namespace state_machine
     class State : public Entity
     {
     public:
-        virtual void activity();
+        virtual void activity() = 0;
     };
     class Event : public Entity
     {
