@@ -47,8 +47,6 @@ namespace state_machine
         void startSM();
         // raise an asynchronous event in the state machine. Set variable of the asynch event to true
         bool raiseEvent(const AsyncEvent &event);
-        // current state
-        State *state;
         // check if the state machine is ended
         bool quit;
         // initialize the state machine
@@ -63,6 +61,14 @@ namespace state_machine
         void nextState(const Event &event);
         // go to the next state based on the input asynch event and consume it (i.e. set to false the corresponding variable)
         void nextState(const AsyncEvent &async_event);
+        // go to the next state based on the input event, and execute the next state
+        void transit(const Event &event);
+        // go to the next state based on the input asynch event, consume it (i.e. set to false the corresponding variable) and execute the next state
+        void transit(const AsyncEvent &async_event);
+        
+        // current state
+        State *state;
+
         // Transition table
         std::map<std::pair<State *, Event>, State *> transitions;
 

@@ -86,6 +86,18 @@ namespace state_machine
         }
     }
 
+    void StateMachine::transit(const Event &event)
+    {
+        nextState(event);
+        runState();
+    }
+
+    void StateMachine::transit(const AsyncEvent &event)
+    {
+        nextState(event);
+        runState();
+    }
+    
     void notifyState()
     {
         // TODO
