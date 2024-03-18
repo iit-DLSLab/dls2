@@ -5,7 +5,7 @@ add_library(state_machine
 		src/state_machine.cpp
 )
 
-set_property(TARGET dls_app PROPERTY POSITION_INDEPENDENT_CODE ON)
+set_property(TARGET state_machine PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 target_include_directories(state_machine
 	PUBLIC
