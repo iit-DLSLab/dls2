@@ -29,6 +29,8 @@ namespace state_machine
     };
     class Event : public Entity
     {
+        public:
+            virtual ~Event();
     };
     class AsyncEvent : public Event
     {
@@ -39,6 +41,8 @@ namespace state_machine
     public:
         // Constructor
         StateMachine();
+        // Destructor
+        virtual ~StateMachine();
         // start the state machine, by executing the current state activity in a while loop
         void startSM();
         // raise an asynchronous event in the state machine. Set variable of the asynch event to true

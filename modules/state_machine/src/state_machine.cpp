@@ -4,17 +4,19 @@ namespace state_machine
 {
     int Entity::num_entity = 0;
     Entity::Entity() { id = ++num_entity; }
+    Entity::~Entity(){}
     bool Entity::operator<(const Entity &rhs) const { return id < rhs.id; }
     bool Entity::operator==(const Entity& other) const
     {
         return this->id==other.id;
     }
 
-    void State::activity() {} // do nothing
+    Event::~Event(){}
 
     StateMachine::StateMachine() : state(nullptr), quit(false) {}
 
     void StateMachine::init(State *state, const std::map<std::pair<State *, Event>, State *> &transitions, const std::vector<AsyncEvent> &async_events)
+    StateMachine::~StateMachine(){}
     {
         this->state = state;
         this->transitions = transitions;
