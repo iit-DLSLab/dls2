@@ -2,7 +2,7 @@
 #define PERIODIC_APP_HPP_RY9LWBZG
 
 #include "dls2/application/app.hpp"
-
+#include "dls2/application/state_machine/periodic_app_sm.hpp"
 #include <dls2/application/sched_attr.hpp>
 #include <dls2/util/time/time.hpp>
 
@@ -35,21 +35,71 @@ namespace dls
 		/// Stops this component
 		///
 		AppStatus stop() override;
+		
+		//! Get period
+		period_t getPeriod();
+		
+		//! Run the state machine
+		void execute() override;
 
+		//! Run the activation function
+		virtual bool activation();
+
+		//! Run the deactivation function. It is used by the state machine with RT scheduling
+		virtual bool deactivation(const std::chrono::system_clock::time_point&);
+		
 		/// Virtual run function
 		///
 		/// Overwrite this function with the function that needs to be called at the
 		/// correct rate
 		virtual void run(const std::chrono::system_clock::time_point&) = 0;
 
+		//! Set SCHED_DEADLINE policy
+		void setRTSchedulerPolicy();
+
+		//! Set SCHED_OTHER policy
+		void setDefaultSchedulerPolicy();
+
+		//! Pause the current execution
+		void pauseExecution();
+
+		//! Check whether the time factor has changed
+		bool newTimeFactor();
+		
+		//! Check failure
+		bool checkFailure();
+
+		//! Check if a pause request was sent
+		bool isPaused();
+		
+		//! Set the app in failure state
+		void setFailure();
+
+		//! Notify a change in the real time behavior of the periodic app
+		void notifyRT();
+
+		//! Check if the real time has been violated
+		void checkRT(std::chrono::time_point<	std::chrono::_V2::system_clock, 
+												std::chrono::duration<double, std::ratio<1, 1000000000>>>& period);
+		
 	protected:
         //! Config variable to load scheduler settings
 		YAML::Node config_scheduler;
 
-		/// The period of this component
-		///
+		//! The period of this component
 		const period_t period;
-
+		//! Runtime factor scaling the period to get the runtime
+		double sched_runtime_factor;
+		//! Deadline factor scaling the period to get the deadline
+		double sched_deadline_factor;
+		//! Runtime attribute
+		const period_t runtime;
+		//! Deadline attribute
+		const period_t deadline;
+		//! Variable identifying if the periodic app is running in real time
+		bool is_real_time;
+		//! Variable identifying if the periodic app is in failure state
+		bool failure;
 	private:
 
 		// BEGIN critical section
@@ -77,8 +127,7 @@ namespace dls
 
 		pid_t pid;
 
-		double sched_runtime_factor;
-		double sched_deadline_factor;
+		state_machine::app::PeriodicAppSM state_machine;
 	};
 } // end namespace dls
 

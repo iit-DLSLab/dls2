@@ -5,6 +5,8 @@
 #include <atomic>
 #include <memory>
 #include <vector>
+#include <mutex>
+#include <condition_variable>
 
 namespace state_machine
 {
@@ -33,6 +35,8 @@ namespace state_machine
     };
     class AsyncEvent : public Event
     {
+        public:
+            virtual ~AsyncEvent();
     };
 
     class StateMachine
@@ -46,8 +50,6 @@ namespace state_machine
         void start();
         // raise an asynchronous event in the state machine. Set variable of the asynch event to true
         bool raiseEvent(const AsyncEvent &event);
-        // check if the state machine is ended
-        bool quit;
         // initialize the state machine
         void init(State *state, const std::map<std::pair<State *, Event>, State *> &transitions, const std::vector<AsyncEvent> &async_events);
         // run the current state activity
@@ -64,9 +66,16 @@ namespace state_machine
         void transit(const Event &event);
         // go to the next state based on the input asynch event, consume it (i.e. set to false the corresponding variable) and execute the next state
         void transit(const AsyncEvent &async_event);
-        
+        // waits for the asynchronous event to happen
+        void waitAsynchEvent(const std::initializer_list<AsyncEvent>& async_events);
+        std::mutex async_mutex;
+        std::condition_variable async_cv;
+
         // current state
         State *state;
+
+        // check if the state machine is ended
+        bool quit;
 
         // Transition table
         std::map<std::pair<State *, Event>, State *> transitions;

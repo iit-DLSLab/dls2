@@ -79,3 +79,5 @@ std::string App::get_current_time()
 
 	return buf;
 }
+
+void App::execute(){}

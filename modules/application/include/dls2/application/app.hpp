@@ -59,6 +59,8 @@ namespace dls
 		/// stop function
 		virtual AppStatus eStop();
 
+		virtual void execute();
+
 		/// Flag of the running loop
 		/// Exits when set to true
 		bool should_quit;

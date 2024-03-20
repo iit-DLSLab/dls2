@@ -1,5 +1,6 @@
 #include "dls2/state_machine/state_machine.hpp"
 #include <iostream>
+#include <thread>
 namespace state_machine
 {
     int Entity::num_entity = 0;
@@ -13,10 +14,14 @@ namespace state_machine
 
     Event::~Event(){}
 
-    StateMachine::StateMachine() : state(nullptr), quit(false) {}
+    AsyncEvent::~AsyncEvent(){}
 
-    void StateMachine::init(State *state, const std::map<std::pair<State *, Event>, State *> &transitions, const std::vector<AsyncEvent> &async_events)
+    StateMachine::StateMachine() : state(nullptr), quit(false) {}
     StateMachine::~StateMachine(){}
+    void StateMachine::init(
+                            State *state,
+                            const std::map<std::pair<State *, Event>, State *> &transitions, 
+                            const std::vector<AsyncEvent> &async_events)
     {
         this->state = state;
         this->transitions = transitions;
@@ -29,7 +34,9 @@ namespace state_machine
     void StateMachine::start()
     {
         while (!quit)
+        {
             runState();
+        }
     }
 
     void StateMachine::stop()
@@ -53,6 +60,7 @@ namespace state_machine
         else
         {
             is_async_event[event].store(true);
+            async_cv.notify_all();
         }
         return true;
     }
@@ -72,7 +80,7 @@ namespace state_machine
         state = transitions[{state, event}];
         if(state==nullptr)
         {
-            throw std::runtime_error("dls2 state machine - transition does not exist");
+            std::cerr << "dls2 state machine - transition does not exist" << std::endl;
         }
     }
 
@@ -82,7 +90,7 @@ namespace state_machine
         state = transitions[{state, event}];
         if(state==nullptr)
         {
-            throw std::runtime_error("dls2 state machine - transition does not exist");
+            std::cerr << "dls2 state machine - transition does not exist" << std::endl;
         }
     }
 
@@ -98,6 +106,19 @@ namespace state_machine
         runState();
     }
     
+    void StateMachine::waitAsynchEvent(const std::initializer_list<AsyncEvent>& async_events)
+    {
+        std::unique_lock lock(async_mutex);
+        async_cv.wait(lock, [&] {
+            bool condition = false;
+            for(AsyncEvent event : async_events)
+            {
+                condition = condition || isRaised(event);
+            }
+            return condition;
+            });
+    }
+
     void notifyState()
     {
         // TODO

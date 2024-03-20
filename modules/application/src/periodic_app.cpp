@@ -10,10 +10,17 @@ PeriodicApp::PeriodicApp(const std::string &ID)
 	: App(ID)
 	, config_scheduler(YAML::LoadFile("/usr/include/dls2/schedulers/" + ID + "/scheduler.yaml"))
 	, period(std::chrono::milliseconds(config_scheduler["period"].as<int>()))
+	, sched_runtime_factor(config_scheduler["runtime_factor"].as<double>())
+	, sched_deadline_factor(config_scheduler["deadline_factor"].as<double>())
+	, runtime(period*sched_runtime_factor)
+	, deadline(period*sched_deadline_factor)
+	, is_real_time(false)
+	, failure(false)
 	, pause_mutex()
 	, is_paused(false)
 	, pause_request()
 	, time_factor()
+	, state_machine(this)
 {
     this->pid = syscall(SYS_gettid);
 	this->cur_time_factor = this->time_factor.getRealTimeFactor();
@@ -22,13 +29,9 @@ PeriodicApp::PeriodicApp(const std::string &ID)
 	scheduler_attributes.size = sizeof(struct sched_attr);
 	scheduler_attributes.sched_policy = SCHED_DEADLINE;
 
-	// Period defined in nanoseconds
-	sched_runtime_factor = config_scheduler["runtime_factor"].as<double>();
-	sched_deadline_factor = config_scheduler["deadline_factor"].as<double>();
-
 	scheduler_attributes.sched_period  = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(period*cur_time_factor).count();
-	scheduler_attributes.sched_runtime = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(period*sched_runtime_factor*cur_time_factor).count();
-	scheduler_attributes.sched_deadline = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(period*sched_deadline_factor*cur_time_factor).count();
+	scheduler_attributes.sched_runtime = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(runtime*cur_time_factor).count();
+	scheduler_attributes.sched_deadline = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(deadline*cur_time_factor).count();
 
 	this->command_manager.addCommand<>
 	(
@@ -56,6 +59,32 @@ PeriodicApp::PeriodicApp(const std::string &ID)
 			this->is_paused = false;
 			this->pause_request.notify_all();
 			scout_sys << this->getID() << " execution continued" << std::endl;
+            return true;
+		}),
+		{{1,0}},
+		true
+	);
+
+	this->command_manager.addCommand<>
+	(
+		"activate",
+		"Activate " + this->getID(),
+		std::function<bool()>([&]()->bool
+        {
+			state_machine.raiseEvent(state_machine.activation_request);
+            return true;
+		}),
+		{{0,1}},
+		true
+	);
+
+	this->command_manager.addCommand<>
+	(
+		"deactivate",
+		"Deactivate " + this->getID(),
+		std::function<bool()>([&]()->bool
+        {
+			state_machine.raiseEvent(state_machine.deactivation_request);
             return true;
 		}),
 		{{1,0}},
@@ -193,18 +222,121 @@ AppStatus PeriodicApp::run()
 	return this->getStatus();
 }
 
+void PeriodicApp::setRTSchedulerPolicy()
+{
+	memset(&scheduler_attributes, 0, sizeof(struct sched_attr));
+	scheduler_attributes.size = sizeof(struct sched_attr);
+	scheduler_attributes.sched_policy = SCHED_DEADLINE;
+	
+	scheduler_attributes.sched_period  = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(period*cur_time_factor).count();
+	scheduler_attributes.sched_runtime = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(runtime*cur_time_factor).count();
+	scheduler_attributes.sched_deadline = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(deadline*cur_time_factor).count();
+
+	unsigned int flags = 0;
+    int ret = sched_setattr(0, &scheduler_attributes, flags);
+    if (ret < 0) {
+        perror("sched_setattr");
+        exit(-1);
+    }
+}
+
+void PeriodicApp::setDefaultSchedulerPolicy()
+{
+	struct sched_attr scheduler_attributes_default;
+	memset(&scheduler_attributes_default, 0, sizeof(struct sched_attr));
+	scheduler_attributes_default.size = sizeof(struct sched_attr);
+	scheduler_attributes_default.sched_policy = SCHED_OTHER;
+
+	unsigned int flags = 0;
+    int ret = sched_setattr(0, &scheduler_attributes_default, flags);
+    if (ret < 0) {
+        perror("sched_setattr");
+        exit(-1);
+    }
+}
+
+void PeriodicApp::pauseExecution()
+{
+	std::unique_lock<std::mutex> lock(this->pause_mutex);
+	this->pause_request.wait
+	(
+		lock,
+		[&]{ return !this->is_paused; }
+	);
+}
+
+bool PeriodicApp::newTimeFactor()
+{
+	if(abs(this->time_factor.getRealTimeFactor() - this->cur_time_factor) > 0.02)
+	{
+		this->cur_time_factor = this->time_factor.getRealTimeFactor();
+		return true;
+	}
+	return false;
+}
+
+bool PeriodicApp::isPaused()
+{
+	return is_paused;
+}
+
+bool PeriodicApp::checkFailure()
+{
+	return failure;
+}
+
+void PeriodicApp::setFailure()
+{
+	failure = true;
+}
+
+void PeriodicApp::notifyRT()
+{}
+
+void PeriodicApp::checkRT(std::chrono::time_point<	std::chrono::_V2::system_clock, 
+													std::chrono::duration<double, std::ratio<1, 1000000000>>>& period)
+{
+	if(std::chrono::system_clock::now() > period && is_real_time )
+	{
+		is_real_time = false;
+		notifyRT();
+	}
+	else if (std::chrono::system_clock::now() <= period && !is_real_time)
+	{
+		is_real_time = true;
+		notifyRT();
+	}
+}
+
+bool PeriodicApp::deactivation(const std::chrono::system_clock::time_point&)
+{
+	return true;
+}
+
 AppStatus PeriodicApp::stop()
 {
-	// inform the component that it should exit at the end of the epoch
-	this->should_quit = true;
-
 	// unpause the component if it has been paused
 	{
 		std::lock_guard<std::mutex> lock(this->pause_mutex);
 		this->is_paused = false;
 		this->pause_request.notify_all();
 	}
-	
+	state_machine.raiseEvent(state_machine.quit_request);
+
 	this->setStatus(AppStatus::STOPPED);
 	return this->getStatus();
+}
+
+PeriodicApp::period_t PeriodicApp::getPeriod(){
+	return period;
+}
+
+void PeriodicApp::execute(){
+	setDefaultSchedulerPolicy();
+	state_machine.nextState(state_machine.initialized);
+	state_machine.start();
+}
+
+bool PeriodicApp::activation(){
+	return true;
 }
