@@ -11,7 +11,20 @@ namespace dls
 	Supervisor::Supervisor(std::string ID)
     : ID_(ID)
     , layersLink(ID, dls::domains::layers, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SUPER_CLIENT)
-	{ }
+	{
+        eprosima::fastdds::dds::DataReaderQos qos(eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT);
+        qos.history().kind = eprosima::fastdds::dds::KEEP_ALL_HISTORY_QOS;
+        qos.durability().kind = eprosima::fastdds::dds::TRANSIENT_LOCAL_DURABILITY_QOS;
+        qos.reliability().kind = eprosima::fastdds::dds::RELIABLE_RELIABILITY_QOS;
+
+        layersLink.addReader(  "watcher", 
+                                dls::topics::state_machine, 
+                                std::function<void(void*)>{[&](void* msg){
+                                    auto component = static_cast<StateMachineMsg*>(msg);
+                                    std::cout << "SUPERVISOR: "<<component->app_name() << " " << component->state() << std::endl;
+                                }},
+                                qos);
+    }
 
     Supervisor::~Supervisor()
 	{ }
