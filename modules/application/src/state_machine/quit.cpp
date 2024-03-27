@@ -8,10 +8,10 @@
 namespace state_machine
 {
     namespace app{
-        Quit::Quit(dls::PeriodicApp* periodic_app, PeriodicAppSM *sm) : PeriodicAppState(periodic_app, sm) {}
+        Quit::Quit(dls::PeriodicApp* periodic_app, PeriodicAppSM *sm) 
+        : PeriodicAppState(periodic_app, sm, "quit") {}
         void Quit::activity()
         {
-            std::cout << "Quit state\n";
             sm->stop();
         }
     }

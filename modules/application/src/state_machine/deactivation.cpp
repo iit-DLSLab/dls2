@@ -8,10 +8,10 @@
 namespace state_machine
 {
     namespace app{
-        Deactivation::Deactivation(dls::PeriodicApp* periodic_app, PeriodicAppSM *sm) : PeriodicAppState(periodic_app, sm) {}
+        Deactivation::Deactivation(dls::PeriodicApp* periodic_app, PeriodicAppSM *sm) 
+        : PeriodicAppState(periodic_app, sm, "deactivation") {}
         void Deactivation::activity()
         {
-            std::cout << "Deactivation state\n";
             bool deactivated = false;
             while(!deactivated && !sm->isRaised(sm->quit_request))
             {

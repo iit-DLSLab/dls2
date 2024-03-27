@@ -12,6 +12,10 @@ target_include_directories(state_machine
 		include
 )
 
+target_link_libraries(state_machine
+	dls_com
+)
+
 add_subdirectory(example)
 
 dls_install(state_machine)

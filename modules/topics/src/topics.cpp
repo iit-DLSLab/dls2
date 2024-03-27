@@ -38,6 +38,10 @@ namespace dls
 		// services
 		dls::topicType param_server = dls::topicType("add_double", new ParamServerMsgPubSubType());
 
+		// state machine
+
+		dls::topicType state_machine = dls::topicType("state_machine", new StateMachineMsgPubSubType());
+
 		namespace high_level_estimation
 		{
 			dls::topicType legs_pose = dls::topicType("legs_pose", new LegsPoseMsgPubSubType());

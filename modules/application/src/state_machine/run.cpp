@@ -8,11 +8,10 @@
 namespace state_machine
 {
     namespace app{
-        Run::Run(dls::PeriodicApp* periodic_app, PeriodicAppSM *sm) : PeriodicAppState(periodic_app, sm) {}
+        Run::Run(dls::PeriodicApp* periodic_app, PeriodicAppSM *sm) 
+        : PeriodicAppState(periodic_app, sm, "run") {}
         void Run::activity()
         {
-            std::cout << "Run state\n";
-
             //set RT scheduling policy
             periodic_app->setRTSchedulerPolicy();
             bool failure = false;

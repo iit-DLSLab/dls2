@@ -23,6 +23,9 @@ namespace dls
 		this->writer->write(msg);
 	}
 
+	ReturnCode_t DDSWriter::setQos(const eprosima::fastdds::dds::DataWriterQos &qos){
+		return writer->set_qos(qos);
+	}
 } // end namespace dls
 
 #endif /* end of include guard: DDSWRITER_CPP */

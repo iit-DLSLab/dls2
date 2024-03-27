@@ -8,8 +8,12 @@
 namespace state_machine
 {
     namespace app{
-        PeriodicAppState::PeriodicAppState(dls::PeriodicApp* periodic_app, PeriodicAppSM *sm) 
-        : periodic_app(periodic_app)
+        PeriodicAppState::PeriodicAppState(
+            dls::PeriodicApp* periodic_app,
+            PeriodicAppSM *sm,
+            const std::string name) 
+        : State(name)
+        , periodic_app(periodic_app)
         , sm(sm) {}
     }
 }

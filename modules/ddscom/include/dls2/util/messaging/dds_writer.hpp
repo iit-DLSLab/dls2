@@ -22,6 +22,7 @@ namespace dls
 
 		void sendMessage(void *msg);
 
+		ReturnCode_t setQos(const eprosima::fastdds::dds::DataWriterQos &qos);
 	private:
 
 		eprosima::fastdds::dds::DataWriter *writer;

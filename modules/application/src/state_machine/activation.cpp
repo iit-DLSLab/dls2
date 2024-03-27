@@ -8,10 +8,10 @@
 namespace state_machine
 {
     namespace app{
-        Activation::Activation(dls::PeriodicApp* periodic_app, PeriodicAppSM *sm) : PeriodicAppState(periodic_app, sm) {}
+        Activation::Activation(dls::PeriodicApp* periodic_app, PeriodicAppSM *sm) 
+        : PeriodicAppState(periodic_app, sm, "activation"){}
         void Activation::activity()
         {
-            std::cout << "Activation state\n";
             // Wait for timeout seconds the input readyness
     		double timeout = 10.0; //seconds
             double enlapsed_time = 0.0;

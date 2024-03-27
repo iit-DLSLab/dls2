@@ -12,7 +12,7 @@ namespace state_machine
         class PeriodicAppState : public State
         {
         public:
-            PeriodicAppState(dls::PeriodicApp* periodic_app, PeriodicAppSM *sm);
+            PeriodicAppState(dls::PeriodicApp* periodic_app, PeriodicAppSM *sm, const std::string name="");
             dls::PeriodicApp* periodic_app;
             PeriodicAppSM* sm; // state machine
         };

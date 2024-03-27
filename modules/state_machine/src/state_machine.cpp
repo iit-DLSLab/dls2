@@ -16,7 +16,24 @@ namespace state_machine
 
     AsyncEvent::~AsyncEvent(){}
 
-    StateMachine::StateMachine() : state(nullptr), quit(false) {}
+    State::State(const std::string& name) : name(name){}
+    State::State(){}
+
+    StateMachine::StateMachine(const std::string& name)
+    : name(name)
+    , state(nullptr)
+    , quit(false)
+    , notifier(name, dls::domains::layers, dls::topics::state_machine)
+    {
+        eprosima::fastdds::dds::DataWriterQos qos(eprosima::fastdds::dds::DATAWRITER_QOS_DEFAULT);
+        qos.history().kind = eprosima::fastdds::dds::KEEP_ALL_HISTORY_QOS;
+        qos.durability().kind = eprosima::fastdds::dds::TRANSIENT_LOCAL_DURABILITY_QOS;
+        qos.reliability().kind = eprosima::fastdds::dds::RELIABLE_RELIABILITY_QOS;
+        
+        notifier.setQos(qos);
+
+        state_machine_msg.app_name() = name;
+    }
     StateMachine::~StateMachine(){}
     void StateMachine::init(
                             State *state,
@@ -29,6 +46,10 @@ namespace state_machine
         {
             this->is_async_event[event].store(false);
         }
+        
+        notifyState();
+
+        runState();
     }
 
     void StateMachine::start()
@@ -82,6 +103,8 @@ namespace state_machine
         {
             std::cerr << "dls2 state machine - transition does not exist" << std::endl;
         }
+        else
+            notifyState();
     }
 
     void StateMachine::nextState(const AsyncEvent &event)
@@ -92,6 +115,8 @@ namespace state_machine
         {
             std::cerr << "dls2 state machine - transition does not exist" << std::endl;
         }
+        else
+            notifyState();
     }
 
     void StateMachine::transit(const Event &event)
@@ -119,9 +144,9 @@ namespace state_machine
             });
     }
 
-    void notifyState()
+    void StateMachine::notifyState()
     {
-        // TODO
+        state_machine_msg.state() = state->name;
+        notifier.sendMessage(&state_machine_msg);
     }
-
 }

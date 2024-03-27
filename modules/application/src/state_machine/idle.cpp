@@ -8,10 +8,10 @@
 namespace state_machine
 {
     namespace app{
-        Idle::Idle(dls::PeriodicApp* periodic_app, PeriodicAppSM *sm) : PeriodicAppState(periodic_app, sm) {}
+        Idle::Idle(dls::PeriodicApp* periodic_app, PeriodicAppSM *sm) 
+        : PeriodicAppState(periodic_app, sm, "idle") {}
         void Idle::activity()
         {
-            std::cout << "Idle state\n";
             periodic_app->setDefaultSchedulerPolicy();
             sm->waitAsynchEvent({sm->activation_request, sm->quit_request});
             if(sm->isRaised(sm->activation_request))

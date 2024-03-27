@@ -8,10 +8,9 @@ namespace state_machine
 {
     namespace app{
         PeriodicAppSM::PeriodicAppSM(dls::PeriodicApp* periodic_app)
-            : StateMachine()
+            : StateMachine(periodic_app->getID())
             , INITIALIZATION(periodic_app, this)
             , IDLE(periodic_app, this)
-            // , BREAKING_RT(periodic_app, this)
             , ACTIVATION(periodic_app, this)
             , DEACTIVATION(periodic_app, this)
             , RUN(periodic_app, this)
@@ -23,19 +22,14 @@ namespace state_machine
                     {{&IDLE, activation_request}, &ACTIVATION},
                     {{&ACTIVATION, activated}, &RUN},
                     {{&ACTIVATION, failed_activation}, &IDLE},
-                    // {{&RUN, not_rt}, &BREAKING_RT},
                     {{&RUN, deactivation_request}, &DEACTIVATION},
                     {{&RUN, failure}, &FAIL},
-                    // {{&BREAKING_RT, rt}, &RUN},
-                    // {{&BREAKING_RT, deactivation_request}, &DEACTIVATION},
-                    // {{&BREAKING_RT, failure}, &FAIL},
                     {{&DEACTIVATION, deactivated}, &IDLE},
                     {{&FAIL, deactivation_request}, &DEACTIVATION},
 
                     {{&IDLE, quit_request}, &QUIT},
                     {{&ACTIVATION, quit_request}, &QUIT},
                     {{&RUN,  quit_request}, &QUIT},
-                    // {{&BREAKING_RT, quit_request}, &QUIT}, 
                     {{&FAIL, quit_request}, &QUIT},
                     {{&DEACTIVATION, quit_request}, &QUIT},
                     };

@@ -1,6 +1,8 @@
 #ifndef STATE_MACHINE_HPP
 #define STATE_MACHINE_HPP
 
+#include "dls2/util/messaging/dds_writer.hpp"
+
 #include <map>
 #include <atomic>
 #include <memory>
@@ -26,7 +28,10 @@ namespace state_machine
     class State : public Entity
     {
     public:
+        State(const std::string& name);
+        State();
         virtual void activity() = 0;
+        const std::string name;
     };
     class Event : public Entity
     {
@@ -43,7 +48,7 @@ namespace state_machine
     {
     public:
         // Constructor
-        StateMachine();
+        StateMachine(const std::string& name="");
         // Destructor
         virtual ~StateMachine();
         // start the state machine, by executing the current state activity in a while loop
@@ -71,6 +76,9 @@ namespace state_machine
         std::mutex async_mutex;
         std::condition_variable async_cv;
 
+        // State machine name
+        const std::string name;
+
         // current state
         State *state;
 
@@ -80,16 +88,23 @@ namespace state_machine
         // Transition table
         std::map<std::pair<State *, Event>, State *> transitions;
 
+        // notify that the state machine has changed its state
+        void notifyState();
     private:
         // set variable of the asynch event to false
         void consumeEvent(const AsyncEvent &async_event);
         // notify that the state machine has changed its state
-        void notifyState();
+        // void notifyState();
 
         // Store asynchronous event occurrence
         // -- When the asynch event happens, the correspondig boolean value is set to true
         // -- When the fsm change state based on an asynch event, the correspondig boolean value is set to false
         std::map<AsyncEvent, std::atomic_bool> is_async_event;
+
+        //! Variable publishing state changes
+        dls::DDSWriter notifier;
+
+        StateMachineMsg state_machine_msg;
     };
 }
 
