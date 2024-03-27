@@ -16,8 +16,13 @@ namespace state_machine
 
     AsyncEvent::~AsyncEvent(){}
 
-    State::State(const std::string& name) : name(name){}
-    State::State(){}
+    State::State(const std::string& name, bool realtime) 
+    : name(name)
+    , realtime(realtime){}
+    State::State()
+    : name("")
+    , realtime(false){};
+    State::~State(){}
 
     StateMachine::StateMachine(const std::string& name)
     : name(name)
@@ -33,6 +38,8 @@ namespace state_machine
         notifier.setQos(qos);
 
         state_machine_msg.app_name() = name;
+        state_machine_msg.state() = "";
+        state_machine_msg.realtime() = false;
     }
     StateMachine::~StateMachine(){}
     void StateMachine::init(
@@ -47,7 +54,9 @@ namespace state_machine
             this->is_async_event[event].store(false);
         }
         
-        notifyState();
+        state_machine_msg.state() = state->name;
+        state_machine_msg.realtime() = false;
+        notify();
 
         runState();
     }
@@ -147,6 +156,19 @@ namespace state_machine
     void StateMachine::notifyState()
     {
         state_machine_msg.state() = state->name;
+        state_machine_msg.realtime() = state->realtime;
+
+        notify();
+    }
+
+    void StateMachine::notifyRT(bool realtime)
+    {
+        state_machine_msg.realtime() = realtime;
+        notify();
+    }
+
+    void StateMachine::notify(){
+
         notifier.sendMessage(&state_machine_msg);
     }
 }

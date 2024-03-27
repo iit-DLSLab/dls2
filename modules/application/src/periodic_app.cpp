@@ -14,7 +14,6 @@ PeriodicApp::PeriodicApp(const std::string &ID)
 	, sched_deadline_factor(config_scheduler["deadline_factor"].as<double>())
 	, runtime(period*sched_runtime_factor)
 	, deadline(period*sched_deadline_factor)
-	, is_real_time(false)
 	, failure(false)
 	, pause_mutex()
 	, is_paused(false)
@@ -284,28 +283,14 @@ bool PeriodicApp::checkFailure()
 {
 	return failure;
 }
-
+bool PeriodicApp::checkRT(const std::chrono::time_point<	std::chrono::_V2::system_clock, 
+													std::chrono::duration<double, std::ratio<1, 1000000000>>>& next_loop_time)
+{
+	return std::chrono::system_clock::now() <= next_loop_time;
+}
 void PeriodicApp::setFailure()
 {
 	failure = true;
-}
-
-void PeriodicApp::notifyRT()
-{}
-
-void PeriodicApp::checkRT(std::chrono::time_point<	std::chrono::_V2::system_clock, 
-													std::chrono::duration<double, std::ratio<1, 1000000000>>>& period)
-{
-	if(std::chrono::system_clock::now() > period && is_real_time )
-	{
-		is_real_time = false;
-		notifyRT();
-	}
-	else if (std::chrono::system_clock::now() <= period && !is_real_time)
-	{
-		is_real_time = true;
-		notifyRT();
-	}
 }
 
 bool PeriodicApp::deactivation(const std::chrono::system_clock::time_point&)

@@ -69,19 +69,15 @@ namespace dls
 		//! Check failure
 		bool checkFailure();
 
+		//! Check if the app is running in real time
+		bool checkRT(const std::chrono::time_point<	std::chrono::_V2::system_clock, 
+													std::chrono::duration<double, std::ratio<1, 1000000000>>>& next_loop_time);
+
 		//! Check if a pause request was sent
 		bool isPaused();
 		
 		//! Set the app in failure state
 		void setFailure();
-
-		//! Notify a change in the real time behavior of the periodic app
-		void notifyRT();
-
-		//! Check if the real time has been violated
-		void checkRT(std::chrono::time_point<	std::chrono::_V2::system_clock, 
-												std::chrono::duration<double, std::ratio<1, 1000000000>>>& period);
-		
 	protected:
         //! Config variable to load scheduler settings
 		YAML::Node config_scheduler;
@@ -96,8 +92,6 @@ namespace dls
 		const period_t runtime;
 		//! Deadline attribute
 		const period_t deadline;
-		//! Variable identifying if the periodic app is running in real time
-		bool is_real_time;
 		//! Variable identifying if the periodic app is in failure state
 		bool failure;
 	private:

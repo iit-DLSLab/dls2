@@ -11,9 +11,12 @@ namespace state_machine
         PeriodicAppState::PeriodicAppState(
             dls::PeriodicApp* periodic_app,
             PeriodicAppSM *sm,
-            const std::string name) 
-        : State(name)
+            const std::string name,
+            bool realtime) 
+        : State(name, realtime)
         , periodic_app(periodic_app)
-        , sm(sm) {}
+        , sm(sm){}
+
+        PeriodicAppState::~PeriodicAppState(){}
     }
 }

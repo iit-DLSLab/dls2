@@ -21,7 +21,7 @@ namespace dls
                                 dls::topics::state_machine, 
                                 std::function<void(void*)>{[&](void* msg){
                                     auto component = static_cast<StateMachineMsg*>(msg);
-                                    std::cout << "SUPERVISOR: "<<component->app_name() << " " << component->state() << std::endl;
+                                    std::cout << "SUPERVISOR: "<<component->app_name() << " " << component->state() << " " << component->realtime() << std::endl;
                                 }},
                                 qos);
     }

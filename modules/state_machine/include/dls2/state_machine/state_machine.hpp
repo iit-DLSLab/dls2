@@ -28,10 +28,13 @@ namespace state_machine
     class State : public Entity
     {
     public:
-        State(const std::string& name);
+        State(const std::string& name, bool realtime = false);
         State();
+        virtual ~State();
         virtual void activity() = 0;
         const std::string name;
+        // Indicates if the state activity needs to run in real time
+        const bool realtime;
     };
     class Event : public Entity
     {
@@ -88,8 +91,12 @@ namespace state_machine
         // Transition table
         std::map<std::pair<State *, Event>, State *> transitions;
 
-        // notify that the state machine has changed its state
+        //! notify that the state machine has changed its state
         void notifyState();
+
+        //! notify the execution type of the running state activity: realtime or not 
+        void notifyRT(bool realtime);
+
     private:
         // set variable of the asynch event to false
         void consumeEvent(const AsyncEvent &async_event);
@@ -100,6 +107,9 @@ namespace state_machine
         // -- When the asynch event happens, the correspondig boolean value is set to true
         // -- When the fsm change state based on an asynch event, the correspondig boolean value is set to false
         std::map<AsyncEvent, std::atomic_bool> is_async_event;
+
+        //! notify a change in the state machine
+        void notify();
 
         //! Variable publishing state changes
         dls::DDSWriter notifier;

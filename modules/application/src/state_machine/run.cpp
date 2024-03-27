@@ -9,13 +9,14 @@ namespace state_machine
 {
     namespace app{
         Run::Run(dls::PeriodicApp* periodic_app, PeriodicAppSM *sm) 
-        : PeriodicAppState(periodic_app, sm, "run") {}
+        : PeriodicAppState(periodic_app, sm, "run", true) {}
         void Run::activity()
         {
             //set RT scheduling policy
             periodic_app->setRTSchedulerPolicy();
             bool failure = false;
-
+            bool realtime_prec = true;
+            bool realtime_curr = realtime_prec;
             while(      !sm->isRaised(sm->deactivation_request)
                     &&  !sm->isRaised(sm->quit_request)
                     &&  !failure)
@@ -30,7 +31,13 @@ namespace state_machine
                 failure = periodic_app->checkFailure();
 
                 // Check realtime
-                periodic_app->checkRT(next_loop_time);
+                realtime_curr =  periodic_app->checkRT(next_loop_time);
+                if  (realtime_curr!=this->realtime || 
+                    (realtime_curr==this->realtime && !realtime_prec))
+                {
+                    sm->notifyRT(realtime_curr);
+                }
+                realtime_prec = realtime_curr;
 
                 // Pause execution if a pause request was made
                 if(periodic_app->isPaused())
