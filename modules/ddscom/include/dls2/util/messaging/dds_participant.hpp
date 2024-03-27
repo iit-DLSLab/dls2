@@ -84,6 +84,7 @@ namespace dls
 
 		bool topicFound(const std::string& topic_name);
 		
+		std::string getName();		
 		
 
 		
@@ -93,7 +94,7 @@ namespace dls
 		int server_port;
 		std::string server_guid_prefix;
 
-		std::string participantName;
+		std::string participant_name;
 
 		eprosima::fastdds::dds::DomainParticipant  					*participant;
 		std::map<std::string, eprosima::fastdds::dds::Topic *>  	topics;	

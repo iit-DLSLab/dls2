@@ -65,7 +65,7 @@ namespace dls
         participantQos.wire_protocol().builtin.discovery_config.leaseDuration_announcementperiod = eprosima::fastrtps::Duration_t(1, 2);
 		participantQos.name(partName_);
 
-		participantName = partName_;
+		participant_name = partName_;
 
 		// Create a UDP descriptor for the new transport.
 		auto udp_transport = std::make_shared<eprosima::fastdds::rtps::UDPv4TransportDescriptor>();
@@ -144,11 +144,11 @@ namespace dls
 		// delete all data writers and data readers
 		if (this->publisher->delete_contained_entities() != ReturnCode_t::RETCODE_OK)
 		{
-			std::cout << "CANNOT DELETE PUBLISHER CONTAINED ENTITIES FOR THE PARTICIPANT " << participantName << std::endl;
+			std::cout << "CANNOT DELETE PUBLISHER CONTAINED ENTITIES FOR THE PARTICIPANT " << participant_name << std::endl;
 		}
 		if (this->subscriber->delete_contained_entities() != ReturnCode_t::RETCODE_OK)
 		{
-			std::cout << "CANNOT DELETE SUBSCRIBER CONTAINED ENTITIES FOR THE PARTICIPANT " << participantName << std::endl;
+			std::cout << "CANNOT DELETE SUBSCRIBER CONTAINED ENTITIES FOR THE PARTICIPANT " << participant_name << std::endl;
 		}
 		
 		// delete publisher
@@ -156,7 +156,7 @@ namespace dls
 		{
 			if (this->participant->delete_publisher(this->publisher) != ReturnCode_t::RETCODE_OK)
 			{
-				std::cout << "CANNOT DELETE PUBLISHER OF THE PARTICIPANT " << participantName << std::endl;
+				std::cout << "CANNOT DELETE PUBLISHER OF THE PARTICIPANT " << participant_name << std::endl;
 			}
 		}
 
@@ -165,7 +165,7 @@ namespace dls
 		{
 			if (this->participant->delete_subscriber(this->subscriber) != ReturnCode_t::RETCODE_OK)
 			{
-				std::cout << "CANNOT DELETE SUBSCRIBER OF THE PARTICIPANT " << participantName << std::endl;
+				std::cout << "CANNOT DELETE SUBSCRIBER OF THE PARTICIPANT " << participant_name << std::endl;
 			}
 		}
 
@@ -175,7 +175,7 @@ namespace dls
 			{
 				if(this->participant->delete_topic(elem.second) != ReturnCode_t::RETCODE_OK)
 				{
-					std::cout << "CANNOT REMOVE TOPIC " << elem.first << " OF THE PARTICIPANT " << participantName << std::endl;
+					std::cout << "CANNOT REMOVE TOPIC " << elem.first << " OF THE PARTICIPANT " << participant_name << std::endl;
 				}
 			}
 		}
@@ -701,6 +701,9 @@ namespace dls
 		}
 	}
 
+	std::string DDSParticipant::getName(){
+		return participant_name;
+	}
 } // namespace dls
 
 #endif /* end of include guard: DDSPARTICIPANT_CPP */
