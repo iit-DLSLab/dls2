@@ -17,15 +17,14 @@ namespace dls{class PeriodicApp;}// forward declaration
 namespace state_machine
 {
     namespace app{
-        class PeriodicAppSM : public StateMachine
+        class AppStateMachine : public StateMachine
         {
         public:
-            PeriodicAppSM(dls::PeriodicApp* periodic_app);
+            AppStateMachine(dls::PeriodicApp* periodic_app);
 
             // STATES
             Initialization INITIALIZATION;
             Idle IDLE;
-            // BreakingRT BREAKING_RT;
             Activation ACTIVATION;
             Deactivation DEACTIVATION;
             Run RUN;
@@ -38,8 +37,6 @@ namespace state_machine
             FailedActivation failed_activation;
             Activated activated;
             Failure failure;
-            // NotRT not_rt;
-            // RT rt;
 
             // ASYNCHRONOUS EVENTS
             ActivationRequest activation_request;

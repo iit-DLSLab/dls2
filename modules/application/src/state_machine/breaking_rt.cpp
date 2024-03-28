@@ -1,5 +1,5 @@
 #include "dls2/application/state_machine/breaking_rt.hpp"
-#include "dls2/application/state_machine/periodic_app_sm.hpp"
+#include "dls2/application/state_machine/app_state_machine.hpp"
 #include <iostream>
 #include <thread>
 #include <chrono>
@@ -7,7 +7,7 @@
 namespace state_machine
 {
     namespace app{
-        BreakingRT::BreakingRT(dls::PeriodicApp* periodic_app, PeriodicAppSM *sm) : PeriodicAppState(periodic_app, sm) {}
+        BreakingRT::BreakingRT(dls::PeriodicApp* periodic_app, AppStateMachine *sm) : AppState(periodic_app, sm) {}
         void BreakingRT::activity()
         {
             std::cout << "BreakingRT state\n";

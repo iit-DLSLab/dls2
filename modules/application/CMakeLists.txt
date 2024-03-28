@@ -21,8 +21,8 @@ add_library(dls_app
 		src/state_machine/fail.cpp
 		src/state_machine/activation.cpp
 		src/state_machine/deactivation.cpp
-		src/state_machine/periodic_app_sm.cpp
-		src/state_machine/periodic_app_state.cpp
+		src/state_machine/app_state_machine.cpp
+		src/state_machine/app_state.cpp
 )
 
 set_property(TARGET dls_app PROPERTY POSITION_INDEPENDENT_CODE ON)

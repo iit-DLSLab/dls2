@@ -8,16 +8,16 @@ namespace dls{class PeriodicApp;}// forward declaration
 namespace state_machine
 {
     namespace app{
-        class PeriodicAppSM; // forward declaration
-        class PeriodicAppState : public State
+        class AppStateMachine; // forward declaration
+        class AppState : public State
         {
         public:
-            PeriodicAppState(dls::PeriodicApp* periodic_app, PeriodicAppSM *sm, const std::string name="", bool realtime = false);
+            AppState(dls::PeriodicApp* periodic_app, AppStateMachine *sm, const std::string name="", bool realtime = false);
 
-            virtual ~PeriodicAppState();
+            virtual ~AppState();
 
             dls::PeriodicApp* periodic_app;
-            PeriodicAppSM* sm; // state machine
+            AppStateMachine* sm; // state machine
         };
     }
 }

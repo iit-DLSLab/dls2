@@ -1,5 +1,5 @@
 #include "dls2/application/state_machine/idle.hpp"
-#include "dls2/application/state_machine/periodic_app_sm.hpp"
+#include "dls2/application/state_machine/app_state_machine.hpp"
 #include "dls2/application/periodic_app.hpp"
 #include <iostream>
 #include <thread>
@@ -8,8 +8,8 @@
 namespace state_machine
 {
     namespace app{
-        Idle::Idle(dls::PeriodicApp* periodic_app, PeriodicAppSM *sm) 
-        : PeriodicAppState(periodic_app, sm, "idle") {}
+        Idle::Idle(dls::PeriodicApp* periodic_app, AppStateMachine *sm) 
+        : AppState(periodic_app, sm, "idle") {}
         void Idle::activity()
         {
             periodic_app->setDefaultSchedulerPolicy();

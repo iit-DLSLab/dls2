@@ -2,7 +2,7 @@
 #define PERIODIC_APP_HPP_RY9LWBZG
 
 #include "dls2/application/app.hpp"
-#include "dls2/application/state_machine/periodic_app_sm.hpp"
+#include "dls2/application/state_machine/app_state_machine.hpp"
 #include <dls2/application/sched_attr.hpp>
 #include <dls2/util/time/time.hpp>
 
@@ -121,7 +121,7 @@ namespace dls
 
 		pid_t pid;
 
-		state_machine::app::PeriodicAppSM state_machine;
+		state_machine::app::AppStateMachine state_machine;
 	};
 } // end namespace dls
 

@@ -2,16 +2,16 @@
 #define APP_FAIL_HPP
 
 #include "dls2/state_machine/state_machine.hpp"
-#include "dls2/application/state_machine/periodic_app_state.hpp"
+#include "dls2/application/state_machine/app_state.hpp"
 namespace state_machine
 {
     namespace app{
-        class PeriodicAppSM; // forward declaration
+        class AppStateMachine; // forward declaration
 
-        class Fail : public PeriodicAppState
+        class Fail : public AppState
         {
         public:
-            Fail(dls::PeriodicApp* periodic_app, PeriodicAppSM *sm);
+            Fail(dls::PeriodicApp* periodic_app, AppStateMachine *sm);
             virtual void activity() override;
         };
     }

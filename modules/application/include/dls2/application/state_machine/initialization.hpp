@@ -2,16 +2,16 @@
 #define APP_INITIALIZATION_HPP
 
 #include "dls2/state_machine/state_machine.hpp"
-#include "dls2/application/state_machine/periodic_app_state.hpp"
+#include "dls2/application/state_machine/app_state.hpp"
 namespace state_machine
 {
     namespace app{
-        class PeriodicAppSM; // forward declaration
+        class AppStateMachine; // forward declaration
 
-        class Initialization : public PeriodicAppState
+        class Initialization : public AppState
         {
         public:
-            Initialization(dls::PeriodicApp* periodic_app, PeriodicAppSM *sm);
+            Initialization(dls::PeriodicApp* periodic_app, AppStateMachine *sm);
             virtual void activity() override;
         };
     }

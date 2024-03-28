@@ -2,14 +2,14 @@
 #define APP_ACTIVATION_HPP
 
 #include "dls2/state_machine/state_machine.hpp"
-#include "dls2/application/state_machine/periodic_app_state.hpp"
+#include "dls2/application/state_machine/app_state.hpp"
 namespace state_machine
 {
     namespace app{
-        class Activation : public PeriodicAppState
+        class Activation : public AppState
         {
         public:
-            Activation(dls::PeriodicApp* periodic_app, PeriodicAppSM *sm);
+            Activation(dls::PeriodicApp* periodic_app, AppStateMachine *sm);
             virtual void activity() override;
         };
     }

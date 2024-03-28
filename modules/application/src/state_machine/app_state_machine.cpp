@@ -1,4 +1,4 @@
-#include "dls2/application/state_machine/periodic_app_sm.hpp"
+#include "dls2/application/state_machine/app_state_machine.hpp"
 #include "dls2/application/periodic_app.hpp"
 #include <iostream>
 #include <thread>
@@ -7,7 +7,7 @@
 namespace state_machine
 {
     namespace app{
-        PeriodicAppSM::PeriodicAppSM(dls::PeriodicApp* periodic_app)
+        AppStateMachine::AppStateMachine(dls::PeriodicApp* periodic_app)
             : StateMachine(periodic_app->getID())
             , INITIALIZATION(periodic_app, this)
             , IDLE(periodic_app, this)
