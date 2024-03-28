@@ -80,4 +80,24 @@ std::string App::get_current_time()
 	return buf;
 }
 
+void App::idle()
+{
+}
+
+void App::activation()
+{
+}
+
+void App::deactivation()
+{
+}
+
+void App::failure()
+{
+}
+
+void App::quit()
+{
+}
+
 void App::execute(){}

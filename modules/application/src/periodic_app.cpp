@@ -293,6 +293,10 @@ void PeriodicApp::setFailure()
 	failure = true;
 }
 
+void PeriodicApp::deactivation()
+{
+}
+
 bool PeriodicApp::deactivation(const std::chrono::system_clock::time_point&)
 {
 	return true;
@@ -320,8 +324,4 @@ void PeriodicApp::execute(){
 	setDefaultSchedulerPolicy();
 	state_machine.nextState(state_machine.initialized);
 	state_machine.start();
-}
-
-bool PeriodicApp::activation(){
-	return true;
 }

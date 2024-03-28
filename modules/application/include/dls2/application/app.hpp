@@ -59,6 +59,21 @@ namespace dls
 		/// stop function
 		virtual AppStatus eStop();
 
+		//! Idle activity - used in state machine
+		virtual void idle();
+
+		//! Procedure to activate the app - used in state machine
+		virtual void activation();
+
+		//! Procedure to deactivate the app  - used in state machine
+		virtual void deactivation();
+	
+		//! Procedure to handle the failure - used in state machine
+		virtual void failure();
+	
+		//! Procedure to quit - used in state machine
+		virtual void quit();
+		
 		virtual void execute();
 
 		/// Flag of the running loop

@@ -29,7 +29,7 @@ namespace dls
 
 		/// Runs the component
 		///
-		/// Automatically calls the abstract run function at the correct frequency
+		/// Automatically calls the abstract run function at the correct frequency - used in state machine
 		AppStatus run() override;
 
 		/// Stops this component
@@ -42,8 +42,8 @@ namespace dls
 		//! Run the state machine
 		void execute() override;
 
-		//! Run the activation function
-		virtual bool activation();
+		//! Run the activation function - used in state machine
+		virtual void deactivation() override;
 
 		//! Run the deactivation function. It is used by the state machine with RT scheduling
 		virtual bool deactivation(const std::chrono::system_clock::time_point&);
