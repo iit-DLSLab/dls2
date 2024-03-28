@@ -1,5 +1,5 @@
 #include "dls2/application/state_machine/app_state_machine.hpp"
-#include "dls2/application/periodic_app.hpp"
+#include "dls2/application/app.hpp"
 #include <iostream>
 #include <thread>
 #include <chrono>
@@ -7,15 +7,15 @@
 namespace state_machine
 {
     namespace app{
-        AppStateMachine::AppStateMachine(dls::PeriodicApp* periodic_app)
-            : StateMachine(periodic_app->getID())
-            , INITIALIZATION(periodic_app, this)
-            , IDLE(periodic_app, this)
-            , ACTIVATION(periodic_app, this)
-            , DEACTIVATION(periodic_app, this)
-            , RUN(periodic_app, this)
-            , FAIL(periodic_app, this)
-            , QUIT(periodic_app, this)
+        AppStateMachine::AppStateMachine(dls::App* app)
+            : StateMachine(app->getID())
+            , INITIALIZATION(app, this)
+            , IDLE(app, this)
+            , ACTIVATION(app, this)
+            , DEACTIVATION(app, this)
+            , RUN(app, this)
+            , FAIL(app, this)
+            , QUIT(app, this)
             {
                 std::map<std::pair<State *, Event>, State *> transitions = {
                     {{&INITIALIZATION, initialized}, &IDLE},

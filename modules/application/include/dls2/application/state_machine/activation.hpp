@@ -9,7 +9,7 @@ namespace state_machine
         class Activation : public AppState
         {
         public:
-            Activation(dls::PeriodicApp* periodic_app, AppStateMachine *sm);
+            Activation(dls::App* app, AppStateMachine *sm);
             virtual void activity() override;
         };
     }

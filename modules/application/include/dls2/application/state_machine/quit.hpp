@@ -11,7 +11,7 @@ namespace state_machine
         class Quit : public AppState
         {
         public:
-            Quit(dls::PeriodicApp* periodic_app, AppStateMachine *sm);
+            Quit(dls::App* app, AppStateMachine *sm);
             virtual void activity() override;
         };
     }

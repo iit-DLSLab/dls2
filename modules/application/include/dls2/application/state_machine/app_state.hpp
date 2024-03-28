@@ -3,7 +3,7 @@
 
 #include "dls2/state_machine/state_machine.hpp"
 
-namespace dls{class PeriodicApp;}// forward declaration
+namespace dls{class App;}// forward declaration
 
 namespace state_machine
 {
@@ -12,11 +12,11 @@ namespace state_machine
         class AppState : public State
         {
         public:
-            AppState(dls::PeriodicApp* periodic_app, AppStateMachine *sm, const std::string name="", bool realtime = false);
+            AppState(dls::App* app, AppStateMachine *sm, const std::string name="", bool realtime = false);
 
             virtual ~AppState();
 
-            dls::PeriodicApp* periodic_app;
+            dls::App* app;
             AppStateMachine* sm; // state machine
         };
     }

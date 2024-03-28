@@ -19,7 +19,6 @@ PeriodicApp::PeriodicApp(const std::string &ID)
 	, is_paused(false)
 	, pause_request()
 	, time_factor()
-	, state_machine(this)
 {
     this->pid = syscall(SYS_gettid);
 	this->cur_time_factor = this->time_factor.getRealTimeFactor();
@@ -239,21 +238,6 @@ void PeriodicApp::setRTSchedulerPolicy()
     }
 }
 
-void PeriodicApp::setDefaultSchedulerPolicy()
-{
-	struct sched_attr scheduler_attributes_default;
-	memset(&scheduler_attributes_default, 0, sizeof(struct sched_attr));
-	scheduler_attributes_default.size = sizeof(struct sched_attr);
-	scheduler_attributes_default.sched_policy = SCHED_OTHER;
-
-	unsigned int flags = 0;
-    int ret = sched_setattr(0, &scheduler_attributes_default, flags);
-    if (ret < 0) {
-        perror("sched_setattr");
-        exit(-1);
-    }
-}
-
 void PeriodicApp::pauseExecution()
 {
 	std::unique_lock<std::mutex> lock(this->pause_mutex);
@@ -318,10 +302,4 @@ AppStatus PeriodicApp::stop()
 
 PeriodicApp::period_t PeriodicApp::getPeriod(){
 	return period;
-}
-
-void PeriodicApp::execute(){
-	setDefaultSchedulerPolicy();
-	state_machine.nextState(state_machine.initialized);
-	state_machine.start();
 }

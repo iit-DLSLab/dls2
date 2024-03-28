@@ -11,7 +11,7 @@ namespace state_machine
         class Deactivation : public AppState
         {
         public:
-            Deactivation(dls::PeriodicApp* periodic_app, AppStateMachine *sm);
+            Deactivation(dls::App* app, AppStateMachine *sm);
             virtual void activity() override;
         };
     }

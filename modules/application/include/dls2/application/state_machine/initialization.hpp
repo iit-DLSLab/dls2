@@ -11,7 +11,7 @@ namespace state_machine
         class Initialization : public AppState
         {
         public:
-            Initialization(dls::PeriodicApp* periodic_app, AppStateMachine *sm);
+            Initialization(dls::App* app, AppStateMachine *sm);
             virtual void activity() override;
         };
     }

@@ -11,7 +11,7 @@ App::App(const std::string &ID)
     , ID_(ID)
 	, status_mutex()
 	, status(AppStatus::INITIALISING)
-	
+	, state_machine(this)	
 {
 	command_manager.addCommand<>
 	(
@@ -80,6 +80,12 @@ std::string App::get_current_time()
 	return buf;
 }
 
+void App::execute(){
+	setDefaultSchedulerPolicy();
+	state_machine.nextState(state_machine.initialized);
+	state_machine.start();
+}
+
 void App::idle()
 {
 }
@@ -92,7 +98,7 @@ void App::deactivation()
 {
 }
 
-void App::failure()
+void App::fail()
 {
 }
 
@@ -100,4 +106,17 @@ void App::quit()
 {
 }
 
-void App::execute(){}
+void App::setDefaultSchedulerPolicy()
+{
+	struct sched_attr scheduler_attributes;
+	memset(&scheduler_attributes, 0, sizeof(struct sched_attr));
+	scheduler_attributes.size = sizeof(struct sched_attr);
+	scheduler_attributes.sched_policy = SCHED_OTHER;
+
+	unsigned int flags = 0;
+    int ret = sched_setattr(0, &scheduler_attributes, flags);
+    if (ret < 0) {
+        perror("sched_setattr");
+        exit(-1);
+    }
+}

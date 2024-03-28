@@ -11,7 +11,7 @@ namespace state_machine
         class Idle : public AppState
         {
         public:
-            Idle(dls::PeriodicApp* periodic_app, AppStateMachine *sm);
+            Idle(dls::App* app, AppStateMachine *sm);
             virtual void activity() override;
         };
     }

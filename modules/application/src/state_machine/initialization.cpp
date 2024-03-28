@@ -7,8 +7,8 @@
 namespace state_machine
 {
     namespace app{
-        Initialization::Initialization(dls::PeriodicApp* periodic_app, AppStateMachine *sm) 
-        : AppState(periodic_app, sm, "initialization") {}
+        Initialization::Initialization(dls::App* app, AppStateMachine *sm) 
+        : AppState(app, sm, "initialization") {}
         void Initialization::activity(){}
     }
 }

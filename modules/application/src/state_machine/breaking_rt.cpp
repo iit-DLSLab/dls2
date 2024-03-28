@@ -7,7 +7,7 @@
 namespace state_machine
 {
     namespace app{
-        BreakingRT::BreakingRT(dls::PeriodicApp* periodic_app, AppStateMachine *sm) : AppState(periodic_app, sm) {}
+        BreakingRT::BreakingRT(dls::App* app, AppStateMachine *sm) : AppState(app, sm) {}
         void BreakingRT::activity()
         {
             std::cout << "BreakingRT state\n";

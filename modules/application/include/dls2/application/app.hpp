@@ -4,6 +4,8 @@
 #include "dls2/application/app_status.hpp"
 #include "dls2/command/command_manager.hpp"
 #include "dls2/log/log.hpp"
+#include "dls2/application/state_machine/app_state_machine.hpp"
+#include <dls2/application/sched_attr.hpp>
 
 
 namespace dls
@@ -69,7 +71,7 @@ namespace dls
 		virtual void deactivation();
 	
 		//! Procedure to handle the failure - used in state machine
-		virtual void failure();
+		virtual void fail();
 	
 		//! Procedure to quit - used in state machine
 		virtual void quit();
@@ -102,7 +104,15 @@ namespace dls
 		AppStatus status;
 		// END critical section
 	protected:
+		//! Set SCHED_OTHER policy
+		void setDefaultSchedulerPolicy();
+
+		//! Attrributes of the scheduler
+		struct sched_attr scheduler_attributes;
+
 		std::string get_current_time();
+
+		state_machine::app::AppStateMachine state_machine;
 	};
 } // end namespace dls
 

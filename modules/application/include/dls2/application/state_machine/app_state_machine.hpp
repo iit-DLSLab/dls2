@@ -12,7 +12,7 @@
 #include "dls2/application/state_machine/quit.hpp"
 #include "dls2/application/state_machine/events.hpp"
 
-namespace dls{class PeriodicApp;}// forward declaration
+namespace dls{class App;}// forward declaration
 
 namespace state_machine
 {
@@ -20,7 +20,7 @@ namespace state_machine
         class AppStateMachine : public StateMachine
         {
         public:
-            AppStateMachine(dls::PeriodicApp* periodic_app);
+            AppStateMachine(dls::App* app);
 
             // STATES
             Initialization INITIALIZATION;

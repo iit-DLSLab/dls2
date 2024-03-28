@@ -11,7 +11,7 @@ namespace state_machine
         class BreakingRT : public AppState
         {
         public:
-            BreakingRT(dls::PeriodicApp* periodic_app, AppStateMachine *sm);
+            BreakingRT(dls::App* app, AppStateMachine *sm);
             virtual void activity() override;
         };
     }

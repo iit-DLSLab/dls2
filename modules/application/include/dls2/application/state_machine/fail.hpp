@@ -11,7 +11,7 @@ namespace state_machine
         class Fail : public AppState
         {
         public:
-            Fail(dls::PeriodicApp* periodic_app, AppStateMachine *sm);
+            Fail(dls::App* app, AppStateMachine *sm);
             virtual void activity() override;
         };
     }

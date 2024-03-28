@@ -11,7 +11,7 @@ namespace state_machine
         class Run : public AppState
         {
         public:
-            Run(dls::PeriodicApp* periodic_app, AppStateMachine *sm);
+            Run(dls::App* app, AppStateMachine *sm);
             virtual void activity() override;
         };
     }

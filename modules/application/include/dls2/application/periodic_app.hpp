@@ -2,8 +2,6 @@
 #define PERIODIC_APP_HPP_RY9LWBZG
 
 #include "dls2/application/app.hpp"
-#include "dls2/application/state_machine/app_state_machine.hpp"
-#include <dls2/application/sched_attr.hpp>
 #include <dls2/util/time/time.hpp>
 
 #include <boost/process.hpp>
@@ -38,9 +36,6 @@ namespace dls
 		
 		//! Get period
 		period_t getPeriod();
-		
-		//! Run the state machine
-		void execute() override;
 
 		//! Run the activation function - used in state machine
 		virtual void deactivation() override;
@@ -56,9 +51,6 @@ namespace dls
 
 		//! Set SCHED_DEADLINE policy
 		void setRTSchedulerPolicy();
-
-		//! Set SCHED_OTHER policy
-		void setDefaultSchedulerPolicy();
 
 		//! Pause the current execution
 		void pauseExecution();
@@ -110,9 +102,6 @@ namespace dls
 			std::condition_variable pause_request;
 		// END critical section
 
-		//! Attrributes of the scheduler
-		struct sched_attr scheduler_attributes;
-
 		/// The component's time rate
 		///
 		Time time_factor;
@@ -120,8 +109,6 @@ namespace dls
 		double cur_time_factor;
 
 		pid_t pid;
-
-		state_machine::app::AppStateMachine state_machine;
 	};
 } // end namespace dls
 
