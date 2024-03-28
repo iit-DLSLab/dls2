@@ -16,6 +16,10 @@ Layer::Layer(const std::string &ID)
 Layer::~Layer()
 { }
 
+void Layer::idle()
+{
+}
+
 std::shared_ptr<dls::DDSParticipant> Layer::getParticipant()
 {
 	return ddsLink;

@@ -11,7 +11,7 @@ App::App(const std::string &ID)
     , ID_(ID)
 	, status_mutex()
 	, status(AppStatus::INITIALISING)
-	, state_machine(this)	
+	, sm(this)	
 {
 	command_manager.addCommand<>
 	(
@@ -82,16 +82,50 @@ std::string App::get_current_time()
 
 void App::execute(){
 	setDefaultSchedulerPolicy();
-	state_machine.nextState(state_machine.initialized);
-	state_machine.start();
+	sm.nextState(sm.initialized);
+	sm.start();
 }
 
 void App::idle()
 {
+	sm.waitAsynchEvent({sm.activation_request, sm.quit_request});
+	if(sm.isRaised(sm.activation_request))
+	{
+	    sm.nextState(sm.activation_request);
+	}
+	else if(sm.isRaised(sm.quit_request))
+	{
+	    sm.nextState(sm.quit_request);
+	}
 }
 
 void App::activation()
 {
+	// Wait for timeout seconds the input readyness
+	double timeout = 10.0; //seconds
+	double enlapsed_time = 0.0;
+	bool activate = false;
+
+	auto start = std::chrono::high_resolution_clock::now();
+
+	// Check if the app can be activated until
+	// -- either it can be activated
+	// -- or the timeout is expired
+	// -- or a quit request is received
+	while(!activate && enlapsed_time <= timeout && !sm.isRaised(sm.quit_request)){
+	    activate = checkActivation();
+
+	    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+	    enlapsed_time = std::chrono::duration_cast<std::chrono::seconds>(
+	                    std::chrono::high_resolution_clock::now() - start).count();
+	}
+
+	if(activate)
+	    sm.nextState(sm.activated);
+	else if (enlapsed_time>timeout)
+	    sm.nextState(sm.failed_activation);
+	else // quit request
+	    sm.nextState(sm.quit_request);
 }
 
 void App::deactivation()
@@ -100,10 +134,20 @@ void App::deactivation()
 
 void App::fail()
 {
+	sm.waitAsynchEvent({sm.deactivation_request, sm.quit_request});
+	if(sm.isRaised(sm.deactivation_request))
+	{
+	    sm.nextState(sm.deactivation_request);
+	}
+	else if(sm.isRaised(sm.quit_request))
+	{
+	    sm.nextState(sm.quit_request);
+	}
 }
 
 void App::quit()
 {
+	sm.stop();
 }
 
 void App::setDefaultSchedulerPolicy()
@@ -119,4 +163,8 @@ void App::setDefaultSchedulerPolicy()
         perror("sched_setattr");
         exit(-1);
     }
+}
+
+bool App::checkActivation(){
+	return true;
 }

@@ -69,7 +69,7 @@ PeriodicApp::PeriodicApp(const std::string &ID)
 		"Activate " + this->getID(),
 		std::function<bool()>([&]()->bool
         {
-			state_machine.raiseEvent(state_machine.activation_request);
+			sm.raiseEvent(sm.activation_request);
             return true;
 		}),
 		{{0,1}},
@@ -82,7 +82,7 @@ PeriodicApp::PeriodicApp(const std::string &ID)
 		"Deactivate " + this->getID(),
 		std::function<bool()>([&]()->bool
         {
-			state_machine.raiseEvent(state_machine.deactivation_request);
+			sm.raiseEvent(sm.deactivation_request);
             return true;
 		}),
 		{{1,0}},
@@ -92,130 +92,58 @@ PeriodicApp::PeriodicApp(const std::string &ID)
 
 AppStatus PeriodicApp::run()
 {
-	setStatus(AppStatus::RUNNING);
+	//set RT scheduling policy
+	setRTSchedulerPolicy();
 
-    int ret;
-    unsigned int flags = 0;
-
-    ret = sched_setattr(0, &scheduler_attributes, flags);
-    if (ret < 0) {
-        perror("sched_setattr");
-        exit(-1);
-    }
-
-	#if DEBUG_SCHEDULER
-	// Defini static variables to be used to debug the run time
-	std::vector<double> run_time_vector;
-	#endif
-
-	do
+	bool failure = false;
+	bool realtime_prec = true;
+	bool realtime_curr = realtime_prec;
+	while(      !sm.isRaised(sm.deactivation_request)
+	        &&  !sm.isRaised(sm.quit_request)
+	        &&  !failure)
 	{
-		// Calculate when the next period needs to start
-		auto next_loop_time = this->period + std::chrono::system_clock::now();
+	    // Compute when the next period should start
+	    auto next_loop_time = getPeriod() + std::chrono::system_clock::now();
 
-		// Run one epoch
-		#if DEBUG_SCHEDULER
-		// Get current start time
-		const std::chrono::system_clock::time_point start = std::chrono::high_resolution_clock::now();
-		#endif
-		run(std::chrono::time_point_cast<std::chrono::system_clock::duration, std::chrono::system_clock, std::chrono::duration<double>>(std::chrono::system_clock::now()));
-		#if DEBUG_SCHEDULER
-		// Get current stop time
-		const std::chrono::system_clock::time_point stop = std::chrono::high_resolution_clock::now();
-		// Get enlapsed run time
-		double run_time = (std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start).count())/1000000000.0;
-		// Collect run time
-		run_time_vector.push_back(run_time);
-		#endif
+	    // Run
+	    run(std::chrono::time_point_cast<std::chrono::system_clock::duration, std::chrono::system_clock, std::chrono::duration<double>>(std::chrono::system_clock::now()));
 
-		// Check realtime
-		if(std::chrono::system_clock::now() > next_loop_time)
-		{
-		 	setStatus(AppStatus::BREAKING_REALTIME);
-		}
+	    // Check failure
+	    failure = checkFailure();
 
-		// Pause execution if a pause request was made
-		{
-			std::unique_lock<std::mutex> lock(this->pause_mutex);
-			if(this->is_paused)
-			{
-				this->pause_request.wait
-				(
-					lock,
-					[&]{ return !this->is_paused; }
-				);
-			}
-		}
+	    // Check realtime
+	    realtime_curr =  checkRT(next_loop_time);
+	    if  (realtime_curr!=sm.state->realtime || 
+	        (realtime_curr==sm.state->realtime && !realtime_prec))
+	    {
+	        sm.notifyRT(realtime_curr);
+	    }
+	    realtime_prec = realtime_curr;
 
-		if(abs(this->time_factor.getRealTimeFactor() - this->cur_time_factor) > 0.02)
-		{
-			this->cur_time_factor = this->time_factor.getRealTimeFactor();
+	    // Pause execution if a pause request was made
+	    if(isPaused())
+	       pauseExecution();
+		
+	    // Update scheduler attributes if the current time factor has changed
+	    if(newTimeFactor())
+	    {
+	        setRTSchedulerPolicy();
+	    }
 
-			memset(&scheduler_attributes, 0, sizeof(struct sched_attr));
-			scheduler_attributes.size = sizeof(struct sched_attr);
-			scheduler_attributes.sched_policy = SCHED_DEADLINE;
-
-			double sched_runtime_factor = config_scheduler["runtime_factor"].as<double>();
-			double sched_deadline_factor = config_scheduler["deadline_factor"].as<double>();
-
-			scheduler_attributes.sched_period  = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(period*cur_time_factor).count();
-			scheduler_attributes.sched_runtime = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(period*sched_runtime_factor*cur_time_factor).count();
-			scheduler_attributes.sched_deadline = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(period*sched_deadline_factor*cur_time_factor).count();
-
-			unsigned int flags = 0;
-			auto ret = sched_setattr(pid, &scheduler_attributes, flags);
-			if (ret < 0) {
-				perror("sched_setattr");
-				// exit(-1);
-			}
-		}
-
-
-		sched_yield();
-
-	}while(!this->should_quit);
-
-	#if DEBUG_SCHEDULER
-	// Define debug folder
-	const std::string debug_folder (std::string(std::getenv("HOME"))+"/dls2_debug_scheduler");
-	// Create debug folder if it does not exist
-	if(!std::filesystem::exists(debug_folder))
-	{
-		std::filesystem::create_directory(debug_folder);
+	    sched_yield();
 	}
-	// Write statistics in a file
-	std::ofstream out(debug_folder+"/"+this->ID_+".txt");
-	std::vector<double> run_time_vector_unsorted = run_time_vector;
-	// Largest run time values
-	const int num_max_run_time(10);
-	std::sort(run_time_vector.begin(), run_time_vector.end(), std::greater<double>());
-	run_time_vector.erase( unique(run_time_vector.begin(), run_time_vector.end() ), run_time_vector.end());
-	out << "LARGEST " << num_max_run_time << " RUN TIME:\n";
-	for(int i=0; i<num_max_run_time; i++)
+
+	if (failure)
 	{
-		out << std::to_string(run_time_vector[i]) + "\n";
+	    sm.nextState(sm.failure);
 	}
-	// Print info about if the run time has taken more or less than the period
-	double period_seconds(period.count()/1000000.0);
-	out << "\nperiod = "+std::to_string(period_seconds) +"\n"
-			+ "runtime_factor = "+std::to_string(sched_runtime_factor) +"\n"
-			+ "deadline_factor = "+std::to_string(sched_deadline_factor) +"\n";
-	if(run_time_vector[0]>(period_seconds))
+	else if(sm.isRaised(sm.deactivation_request))
+	    sm.nextState(sm.deactivation_request);
+	else if (sm.isRaised(sm.quit_request))
 	{
-		out << "\nThe run function has taken more than the desired period, that's bad! :(";
+	    setDefaultSchedulerPolicy();
+	    sm.nextState(sm.quit_request);
 	}
-	else
-	{
-		out << "\nThe run function has always taken less that the desired period, that's good! :)";
-	}
-	out << "\n----------------------------------------------------------------------------------------------------\nALL RUN TIME:\n";
-	// All run time values
-	for(double v : run_time_vector_unsorted)
-	{
-		out << std::to_string(v) + "\n";
-	}
-	
-	#endif
 
 	return this->getStatus();
 }
@@ -279,6 +207,49 @@ void PeriodicApp::setFailure()
 
 void PeriodicApp::deactivation()
 {
+	bool deactivated = false;
+	bool realtime_prec = true;
+	bool realtime_curr = realtime_prec;
+	while(!deactivated && !sm.isRaised(sm.quit_request))
+	{
+	    // Compute when the next period should start
+	    auto next_loop_time = getPeriod() + std::chrono::system_clock::now();
+
+	    // Run
+	    deactivated = deactivation(std::chrono::time_point_cast<std::chrono::system_clock::duration, std::chrono::system_clock, std::chrono::duration<double>>(std::chrono::system_clock::now()));
+
+	    // Check realtime
+	    realtime_curr = checkRT(next_loop_time);
+	    if  (realtime_curr!=sm.state->realtime || 
+	        (realtime_curr==sm.state->realtime && !realtime_prec))
+	    {
+	        sm.notifyRT(realtime_curr);
+	    }
+	    realtime_prec = realtime_curr;
+
+	    // Pause execution if a pause request was made
+	    if(isPaused())
+	        pauseExecution();
+		
+	    // Update scheduler attributes if the current time factor has changed
+	    if(newTimeFactor())
+	    {
+	        setRTSchedulerPolicy();
+	    }
+
+	    sched_yield();
+	}
+
+	setDefaultSchedulerPolicy();
+
+	if (deactivated)
+	{
+	    sm.nextState(sm.deactivated);
+	}
+	else if (sm.isRaised(sm.quit_request))
+	{
+	    sm.nextState(sm.quit_request);
+	}
 }
 
 bool PeriodicApp::deactivation(const std::chrono::system_clock::time_point&)
@@ -294,7 +265,7 @@ AppStatus PeriodicApp::stop()
 		this->is_paused = false;
 		this->pause_request.notify_all();
 	}
-	state_machine.raiseEvent(state_machine.quit_request);
+	sm.raiseEvent(sm.quit_request);
 
 	this->setStatus(AppStatus::STOPPED);
 	return this->getStatus();

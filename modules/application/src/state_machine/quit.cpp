@@ -13,7 +13,6 @@ namespace state_machine
         void Quit::activity()
         {
             app->quit();
-            // sm->stop();
         }
     }
 }

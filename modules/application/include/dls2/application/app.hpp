@@ -78,6 +78,8 @@ namespace dls
 		
 		virtual void execute();
 
+		virtual bool checkActivation();
+
 		/// Flag of the running loop
 		/// Exits when set to true
 		bool should_quit;
@@ -112,7 +114,7 @@ namespace dls
 
 		std::string get_current_time();
 
-		state_machine::app::AppStateMachine state_machine;
+		state_machine::app::AppStateMachine sm;
 	};
 } // end namespace dls
 

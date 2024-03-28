@@ -13,15 +13,6 @@ namespace state_machine
         void Fail::activity()
         {
             app->fail();
-            // sm->waitAsynchEvent({sm->deactivation_request, sm->quit_request});
-            // if(sm->isRaised(sm->deactivation_request))
-            // {
-            //     sm->nextState(sm->deactivation_request);
-            // }
-            // else if(sm->isRaised(sm->quit_request))
-            // {
-            //     sm->nextState(sm->quit_request);
-            // }
         }
     }
 }

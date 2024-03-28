@@ -13,16 +13,6 @@ namespace state_machine
         void Idle::activity()
         {
             app->idle();
-            // app->setDefaultSchedulerPolicy();
-            // sm->waitAsynchEvent({sm->activation_request, sm->quit_request});
-            // if(sm->isRaised(sm->activation_request))
-            // {
-            //     sm->nextState(sm->activation_request);
-            // }
-            // else if(sm->isRaised(sm->quit_request))
-            // {
-            //     sm->nextState(sm->quit_request);
-            // }
         }
     }
 }

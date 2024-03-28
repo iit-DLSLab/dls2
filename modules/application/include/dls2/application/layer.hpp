@@ -23,6 +23,8 @@ namespace dls
 		/// Destructor
 		virtual ~Layer();
 
+		virtual void idle() override;
+
 	protected:
 		/// Adds a component to this layer
 		///
