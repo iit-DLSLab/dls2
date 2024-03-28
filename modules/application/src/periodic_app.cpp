@@ -141,7 +141,6 @@ AppStatus PeriodicApp::run()
 	    sm.nextState(sm.deactivation_request);
 	else if (sm.isRaised(sm.quit_request))
 	{
-	    setDefaultSchedulerPolicy();
 	    sm.nextState(sm.quit_request);
 	}
 
@@ -239,8 +238,6 @@ void PeriodicApp::deactivation()
 
 	    sched_yield();
 	}
-
-	setDefaultSchedulerPolicy();
 
 	if (deactivated)
 	{

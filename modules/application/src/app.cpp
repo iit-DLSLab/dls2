@@ -81,13 +81,13 @@ std::string App::get_current_time()
 }
 
 void App::execute(){
-	setDefaultSchedulerPolicy();
 	sm.nextState(sm.initialized);
 	sm.start();
 }
 
 void App::idle()
 {
+	setDefaultSchedulerPolicy();
 	sm.waitAsynchEvent({sm.activation_request, sm.quit_request});
 	if(sm.isRaised(sm.activation_request))
 	{
@@ -147,6 +147,7 @@ void App::fail()
 
 void App::quit()
 {
+	setDefaultSchedulerPolicy();
 	sm.stop();
 }
 
