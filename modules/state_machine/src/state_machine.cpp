@@ -47,7 +47,7 @@ namespace state_machine
                             const std::map<std::pair<State *, Event>, State *> &transitions, 
                             const std::vector<AsyncEvent> &async_events)
     {
-        this->state = state;
+        initState(state);
         this->transitions = transitions;
         for (auto &event : async_events)
         {
@@ -59,6 +59,12 @@ namespace state_machine
         notify();
 
         runState();
+    }
+
+    void StateMachine::initState(State *state)
+    {
+        this->state = state;
+        notifyState();
     }
 
     void StateMachine::start()
@@ -168,7 +174,6 @@ namespace state_machine
     }
 
     void StateMachine::notify(){
-
         notifier.sendMessage(&state_machine_msg);
     }
 }

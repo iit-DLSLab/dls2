@@ -60,6 +60,8 @@ namespace state_machine
         bool raiseEvent(const AsyncEvent &event);
         // initialize the state machine
         void init(State *state, const std::map<std::pair<State *, Event>, State *> &transitions, const std::vector<AsyncEvent> &async_events);
+        // init the state machine state
+        void initState(State *state);
         // run the current state activity
         void runState();
         // stop the state machine
