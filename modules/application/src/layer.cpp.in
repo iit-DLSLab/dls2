@@ -3,11 +3,12 @@
 
 using namespace dls;
 
-Layer::Layer(const std::string &ID) 
+Layer::Layer(const std::string &ID, int sleep_time_ms) 
 	: App(ID)
 	, components_mutex()
     , components({})
-	, ddsLink(std::make_shared<dls::DDSParticipant>(ID, dls::domains::layers))	
+	, sleep_time (std::chrono::milliseconds(sleep_time_ms))
+	, ddsLink(std::make_shared<dls::DDSParticipant>(ID, dls::domains::layers))
 {
 	// With Discovery Server, a Client A can discover a Client B if and only if B has at least 1 Writer/Reader. Therefore, a fake writer is added to a layer to allow the Supervisor to discover the layers
 	const std::string writer_name(ID + " fake writer");
@@ -15,10 +16,6 @@ Layer::Layer(const std::string &ID)
 }
 Layer::~Layer()
 { }
-
-void Layer::idle()
-{
-}
 
 std::shared_ptr<dls::DDSParticipant> Layer::getParticipant()
 {
@@ -98,4 +95,21 @@ bool Layer::loadComponentFromDisk(const std::string &name)
 	
     return true;
 
+}
+
+AppStatus Layer::run()
+{
+	while(!sm.isRaised(sm.deactivation_request) &&  !sm.isRaised(sm.quit_request))
+	{
+		monitor();
+		std::this_thread::sleep_for(sleep_time);
+	}
+
+	if(sm.isRaised(sm.deactivation_request))
+	    sm.nextState(sm.deactivation_request);
+	else if (sm.isRaised(sm.quit_request))
+	{
+	    sm.nextState(sm.quit_request);
+	}
+	return getStatus();
 }
