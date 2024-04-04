@@ -9,9 +9,9 @@ App::App(const std::string &ID)
 	, scout_warn(ID)
 	, scout_err(ID)
     , ID_(ID)
+	, sm(this)
 	, status_mutex()
-	, status(AppStatus::INITIALISING)
-	, sm(this)	
+	, status(AppStatus::INITIALISING)	
 {
 	command_manager.addCommand<>
 	(
@@ -36,6 +36,32 @@ App::App(const std::string &ID)
             return true;
 		}),
 		{},
+		true
+	);
+
+	this->command_manager.addCommand<>
+	(
+		"activate",
+		"Activate " + this->getID(),
+		std::function<bool()>([&]()->bool
+        {
+			sm.raiseEvent(sm.activation_request);
+            return true;
+		}),
+		{{0,1}},
+		true
+	);
+
+	this->command_manager.addCommand<>
+	(
+		"deactivate",
+		"Deactivate " + this->getID(),
+		std::function<bool()>([&]()->bool
+        {
+			sm.raiseEvent(sm.deactivation_request);
+            return true;
+		}),
+		{{1,0}},
 		true
 	);
 }
@@ -85,6 +111,11 @@ void App::execute(){
 	sm.start();
 }
 
+void App::execute(state_machine::State& state){
+	sm.initState(&state);
+	sm.start();
+}
+
 void App::idle()
 {
 	setDefaultSchedulerPolicy();
@@ -130,6 +161,12 @@ void App::activation()
 
 void App::deactivation()
 {
+	if (sm.isRaised(sm.quit_request))
+	{
+	    sm.nextState(sm.quit_request);
+	}
+	else
+		sm.nextState(sm.deactivated);
 }
 
 void App::fail()

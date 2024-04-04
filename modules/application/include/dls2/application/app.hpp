@@ -76,7 +76,11 @@ namespace dls
 		//! Procedure to quit - used in state machine
 		virtual void quit();
 		
+		//! Execute the state machine starting from the initial state
 		virtual void execute();
+
+		//! Execute the state machine starting from the input state
+		virtual void execute(state_machine::State& state);
 
 		virtual bool checkActivation();
 
@@ -100,6 +104,9 @@ namespace dls
 		/// The ID of this app
 		///
 		const std::string ID_;
+
+		// Appliacation state machine
+		state_machine::app::AppStateMachine sm;
 	private:
 		// BEGIN critical section
 		mutable std::mutex status_mutex;
@@ -113,8 +120,6 @@ namespace dls
 		struct sched_attr scheduler_attributes;
 
 		std::string get_current_time();
-
-		state_machine::app::AppStateMachine sm;
 	};
 } // end namespace dls
 
