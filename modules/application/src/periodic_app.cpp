@@ -62,32 +62,6 @@ PeriodicApp::PeriodicApp(const std::string &ID)
 		{{1,0}},
 		true
 	);
-
-	this->command_manager.addCommand<>
-	(
-		"activate",
-		"Activate " + this->getID(),
-		std::function<bool()>([&]()->bool
-        {
-			sm.raiseEvent(sm.activation_request);
-            return true;
-		}),
-		{{0,1}},
-		true
-	);
-
-	this->command_manager.addCommand<>
-	(
-		"deactivate",
-		"Deactivate " + this->getID(),
-		std::function<bool()>([&]()->bool
-        {
-			sm.raiseEvent(sm.deactivation_request);
-            return true;
-		}),
-		{{1,0}},
-		true
-	);
 }
 
 AppStatus PeriodicApp::run()
