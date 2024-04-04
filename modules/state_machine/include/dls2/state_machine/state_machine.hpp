@@ -31,10 +31,13 @@ namespace state_machine
         State(const std::string& name, bool realtime = false);
         State();
         virtual ~State();
+        //! Tasks executed in this state
         virtual void activity() = 0;
+        //! Set the state as a real time one
+        void makeRealTime();
         const std::string name;
-        // Indicates if the state activity needs to run in real time
-        const bool realtime;
+        // Indicates if the state activity has to run in real time
+        bool realtime;
     };
     class Event : public Entity
     {

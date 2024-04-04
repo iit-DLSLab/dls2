@@ -23,6 +23,9 @@ namespace state_machine
     : name("")
     , realtime(false){};
     State::~State(){}
+    void State::makeRealTime(){
+        realtime = true;
+    }
 
     StateMachine::StateMachine(const std::string& name)
     : name(name)

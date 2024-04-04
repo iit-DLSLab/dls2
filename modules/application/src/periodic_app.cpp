@@ -31,6 +31,10 @@ PeriodicApp::PeriodicApp(const std::string &ID)
 	scheduler_attributes.sched_runtime = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(runtime*cur_time_factor).count();
 	scheduler_attributes.sched_deadline = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(deadline*cur_time_factor).count();
 
+	// set RUN and DEACTIVATION state as real time state
+	sm.RUN.makeRealTime();
+	sm.DEACTIVATION.makeRealTime();
+
 	this->command_manager.addCommand<>
 	(
 		"pause",

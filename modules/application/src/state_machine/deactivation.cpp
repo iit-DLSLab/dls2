@@ -9,7 +9,7 @@ namespace state_machine
 {
     namespace app{
         Deactivation::Deactivation(dls::App* app, AppStateMachine *sm) 
-        : AppState(app, sm, "deactivation", true) {}
+        : AppState(app, sm, "deactivation") {}
         void Deactivation::activity()
         {
             app->deactivation();
