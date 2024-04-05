@@ -11,7 +11,9 @@ App::App(const std::string &ID)
     , ID_(ID)
 	, sm(this)
 	, status_mutex()
-	, status(AppStatus::INITIALISING)	
+	, status(AppStatus::INITIALISING)
+	, activate_cmd_locked(false)
+	, deactivate_cmd_locked(false)
 {
 	command_manager.addCommand<>
 	(
@@ -45,7 +47,23 @@ App::App(const std::string &ID)
 		"Activate " + this->getID(),
 		std::function<bool()>([&]()->bool
         {
+			activate_cmd_locked = true;
 			sm.raiseEvent(sm.activation_request);
+			// wait for reply - TODO: handle commands with state machine
+			// wait to go in ACTIVATION state
+			while(activate_cmd_locked)
+			{
+				std::this_thread::sleep_for(std::chrono::milliseconds(4));
+			}
+			// in ACTIVATION state: wait for RUN or IDLE or QUIT state
+			while(!sm.isRaised(sm.quit_request))
+			{
+				if(*sm.state == sm.RUN)
+					return true;
+				else if (*sm.state == sm.IDLE)
+					return false;
+				std::this_thread::sleep_for(std::chrono::milliseconds(4));
+			}
             return true;
 		}),
 		{{0,1}},
@@ -58,7 +76,19 @@ App::App(const std::string &ID)
 		"Deactivate " + this->getID(),
 		std::function<bool()>([&]()->bool
         {
+			deactivate_cmd_locked = true;
 			sm.raiseEvent(sm.deactivation_request);
+			// wait for reply - TODO: handle commands with state machine
+			// wait to go in DEACTIVATION state
+			while(deactivate_cmd_locked)
+			{
+				std::this_thread::sleep_for(std::chrono::milliseconds(4));
+			}
+			// in DEACTIVATION state: wait for IDLE or QUIT state
+			while(!sm.isRaised(sm.quit_request) && *sm.state != sm.IDLE)
+			{
+				std::this_thread::sleep_for(std::chrono::milliseconds(4));
+			}
             return true;
 		}),
 		{{1,0}},
@@ -158,6 +188,8 @@ void App::activation()
 	    sm.nextState(sm.failed_activation);
 	else // quit request
 	    sm.nextState(sm.quit_request);
+	
+	activate_cmd_locked = false;
 }
 
 void App::deactivation()
@@ -168,6 +200,8 @@ void App::deactivation()
 	}
 	else
 		sm.nextState(sm.deactivated);
+	
+	deactivate_cmd_locked = false;
 }
 
 void App::fail()

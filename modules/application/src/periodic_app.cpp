@@ -225,6 +225,8 @@ void PeriodicApp::deactivation()
 	{
 	    sm.nextState(sm.quit_request);
 	}
+
+	deactivate_cmd_locked = false;
 }
 
 bool PeriodicApp::deactivation(const std::chrono::system_clock::time_point&)
