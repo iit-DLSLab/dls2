@@ -26,8 +26,7 @@ namespace dls
 		EstimationLayer(std::string ID);
 		~EstimationLayer();
 
-		AppStatus run() override;
-		AppStatus stop() override;
+		void close() override;
 
 		bool loadEstimator(const Estimator::ID_t&);
 		bool unloadEstimator(const Estimator::ID_t&);
@@ -35,6 +34,8 @@ namespace dls
 		int numOfEstimators();
 
 		std::string where() override {return "not yet implemented"; }
+
+		void monitor() override;
 
 	private:
 		// BEGIN critical section

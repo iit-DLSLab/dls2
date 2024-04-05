@@ -92,7 +92,8 @@ bool App::shouldQuit()
 
 AppStatus App::eStop()
 {
-	return this->stop();
+	this->stop();
+	return getStatus();
 }
 
 std::string App::get_current_time()
@@ -185,7 +186,13 @@ void App::fail()
 void App::quit()
 {
 	setDefaultSchedulerPolicy();
+	close();
 	sm.stop();
+}
+
+void App::stop()
+{
+	sm.raiseEvent(sm.quit_request);
 }
 
 void App::setDefaultSchedulerPolicy()
@@ -206,3 +213,5 @@ void App::setDefaultSchedulerPolicy()
 bool App::checkActivation(){
 	return true;
 }
+
+void App::close(){}

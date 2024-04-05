@@ -43,13 +43,16 @@ namespace dls
 		///
 		virtual AppStatus run() = 0;
 
-		/// Shutdown the app
-		///
-		virtual AppStatus stop() = 0;
+		//! Procedure to quit the app
+		virtual void close() = 0;
 
 		/// Prints the state of the app
 		///
 		virtual std::string where() = 0;
+
+		/// Shutdown the app
+		///
+		virtual void stop();
 
 		/// Verify if the app should terminate
 		///

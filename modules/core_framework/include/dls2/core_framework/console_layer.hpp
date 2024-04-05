@@ -46,9 +46,10 @@ namespace dls
 		// Print the processes and their commands according to the values of "matches" (the matched processes and commands) and "command"
 		void printProcessesAndCommands(const std::string& command = std::string());
 
-		AppStatus run() override;
-		AppStatus stop() override;
+		void close() override;
 		std::string where() override;
+
+		void monitor() override;
 
 	private:
 		// Map with "load[Layer]" commands and associated installation folders

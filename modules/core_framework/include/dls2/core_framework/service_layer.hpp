@@ -15,8 +15,7 @@ namespace dls
 		ServiceLayer(std::string ID);
 		~ServiceLayer();
 
-		AppStatus run() override;
-		AppStatus stop() override;
+		void close() override;
 
 		std::string where() override {return "not yet implemented"; }
 
@@ -24,6 +23,8 @@ namespace dls
 		bool unloadService(const std::string);
 
 		int numOfServices();
+
+		void monitor() override;
 
 	private:
 		// BEGIN critical section

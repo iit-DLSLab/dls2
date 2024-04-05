@@ -34,7 +34,7 @@ namespace dls
 		
 		AppStatus run() override;
 
-        AppStatus stop() override;
+        void close() override;
 
 		/// Print the state of this layer
 		///

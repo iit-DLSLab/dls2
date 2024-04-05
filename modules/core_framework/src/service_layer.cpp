@@ -8,7 +8,7 @@ using namespace dls;
 
 
 ServiceLayer::ServiceLayer(std::string ID) 
-	: Layer(ID)
+	: Layer(ID, 500)
 	, ddsMonitor(std::make_shared<dls::DDSWriter>(
 		"ServiceLayer::monitor",
 		dls::domains::services,
@@ -50,20 +50,6 @@ ServiceLayer::~ServiceLayer()
 {
 	scout_sys << "#### SERVICE LAYER OFF ####" << std::endl;
 }
-
-AppStatus ServiceLayer::run()
-{
-	// TODO("Check status of all components in the service layer, take corrective actions if requred")
-	setStatus(AppStatus::RUNNING);
-
-	while(!this->shouldQuit())
-	{
-		// TODO this loop should be used to verify the state of the layer and all its controllers		
-		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(500));
-	}
-	return getStatus();
-}
-
 
 bool ServiceLayer::loadService(const std::string& lib_name)
 {
@@ -154,7 +140,7 @@ bool ServiceLayer::unloadService(const std::string ID)
     return true;
 }
 
-AppStatus ServiceLayer::stop()
+void ServiceLayer::close()
 {
 	std::vector<std::string> keys;
 	for(auto pair : this->services)
@@ -162,14 +148,10 @@ AppStatus ServiceLayer::stop()
 	
 	for(auto key : keys)
 		this->unloadService(key);
-
-	this->should_quit = true;
-
-	setStatus(AppStatus::STOPPED);
-	return getStatus();
 }
 
 int ServiceLayer::numOfServices()
 {
 	return this->services.size();
 }
+void ServiceLayer::monitor(){}

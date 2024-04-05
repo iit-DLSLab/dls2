@@ -24,12 +24,7 @@ namespace dls
 		return this->getStatus();
 	}
 
-	AppStatus ServiceBase::stop()
-	{
-		this->should_quit = true;
-
-		return this->getStatus();
-	}
+	void ServiceBase::close(){}
 }
 
 #endif /* end of include guard: SERVICE_BASE_CPP */

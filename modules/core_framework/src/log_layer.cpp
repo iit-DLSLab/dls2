@@ -9,7 +9,7 @@
 using namespace dls;
 
 LogLayer::LogLayer(std::string ID)
-	: Layer(ID)
+	: Layer(ID, 50)
 	, dds_participant_(std::make_shared<dls::DDSParticipant>("log_layer", dls::domains::logging))
 {
 
@@ -94,17 +94,7 @@ LogLayer::LogLayer(std::string ID)
 	);
 }
 
-AppStatus LogLayer::run()
-{
-	while(!this->should_quit)
-	{
-		std::this_thread::sleep_for(std::chrono::milliseconds(50));
-	}
-
-	return getStatus();
-}
-
-AppStatus LogLayer::stop()
+void LogLayer::close()
 {
 	int i = 0;
 	while(this->getParticipant()->getParticipants().size() > 1 && i < 10)
@@ -112,9 +102,7 @@ AppStatus LogLayer::stop()
 		i++;
 		std::this_thread::sleep_for(std::chrono::milliseconds(500));
 	}
-
-	this->should_quit = true;
-	return getStatus();
 }
 
+void LogLayer::monitor(){}
 #endif /* end of include guard: LOG_LAYER_CPP_DLJLOFSG */

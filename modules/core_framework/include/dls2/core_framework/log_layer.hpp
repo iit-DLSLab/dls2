@@ -17,8 +17,9 @@ namespace dls
 	public:
 		LogLayer(std::string ID);
 
-		AppStatus run() override;
-		AppStatus stop() override;
+		void close() override;
+
+		void monitor() override;
 
 		std::string where() override {return "not yet implemented"; }
 

@@ -45,13 +45,16 @@ public:
 	/// Destructor
 	~ControlLayer();
 
-	/// @brief  run method overide
-	/// @return status of the control layer.
-	AppStatus run() override;
-
 	/// @brief stop method override
-	/// @return current status of the control layer.
-	AppStatus stop() override;
+	void close() override;
+	/// @brief check activation
+	bool checkActivation() override;
+	/// @brief Check status of all components in the control layer, take corrective actions if requred
+	void monitor() override;
+
+	/// Outputs info about the control layer
+	/// @return returns a string with all the info.
+	std::string where() override;
 
 	/// Loads a controller
 	/// @return true if the controller loads correctly.
@@ -71,10 +74,6 @@ public:
 
 	/// Returns the last published desired torques
 	robotlib::JointState getPublishedDesiredTorques();
-
-	/// Outputs info about the control layer
-	/// @return returns a string with all the info.
-	std::string where() override;
 
 private:
 	// TODO("This should be put in the robot class")

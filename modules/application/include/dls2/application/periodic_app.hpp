@@ -32,7 +32,7 @@ namespace dls
 
 		/// Stops this component
 		///
-		AppStatus stop() override;
+		void close() override;
 		
 		//! Get period
 		period_t getPeriod();

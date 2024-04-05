@@ -232,7 +232,7 @@ bool PeriodicApp::deactivation(const std::chrono::system_clock::time_point&)
 	return true;
 }
 
-AppStatus PeriodicApp::stop()
+void PeriodicApp::close()
 {
 	// unpause the component if it has been paused
 	{
@@ -240,10 +240,6 @@ AppStatus PeriodicApp::stop()
 		this->is_paused = false;
 		this->pause_request.notify_all();
 	}
-	sm.raiseEvent(sm.quit_request);
-
-	this->setStatus(AppStatus::STOPPED);
-	return this->getStatus();
 }
 
 PeriodicApp::period_t PeriodicApp::getPeriod(){

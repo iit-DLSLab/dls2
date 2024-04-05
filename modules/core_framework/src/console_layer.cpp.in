@@ -227,7 +227,7 @@ namespace dls
 	} // namespace readline_completion
 
 	// dls::ConsoleLayer implementation
-	ConsoleLayer::ConsoleLayer(std::string ID) : Layer(ID),
+	ConsoleLayer::ConsoleLayer(std::string ID) : Layer(ID, 50),
 												 load_layers_paths_{{"loadController", "${DLS_INSTALL_CONTROLLER_DIR}"},
 																	{"loadGenerator", "${DLS_INSTALL_MOTION_GENERATOR_DIR}"},
 																	{"loadEstimator", "${DLS_INSTALL_ESTIMATOR_DIR}"},
@@ -345,96 +345,85 @@ namespace dls
 		std::cout << std::endl;
 	}
 
-	AppStatus ConsoleLayer::run()
-	{
-		while(!this->should_quit)
-		{
-    		rl_attempted_completion_function = readline_completion::command_completion;
-			rl_completion_display_matches_hook = readline_completion::display_matches;
-
-			// The line "readline" returned is allocated with "malloc". It is freed (manually) when we are done with it
-			char *line = readline(std::string("> ").c_str());
-
-			if (line != nullptr)
-			{
-				std::string command(line);
-
-				// If the input line is valid and does not contain only blank spaces 
-				if(command.data() && command.find_first_not_of(" ") != std::string::npos)
-				{
-					// Add the commands to the history buffer of a console session.
-					// They will be accessible by the user using up/down arrows
-					add_history(command.c_str());
-
-					// Get the user input in its complete form (i.e. "process::command arg1 arg2 ... argN")
-					std::istringstream input(command);
-
-					// Split the complete input according to the empty spaces
-					std::vector<std::string> input_split(std::istream_iterator<std::string>{input}, std::istream_iterator<std::string>());
-
-					// Get only the input arguments (e.g. "arg1 arg2 ... argN")
-					std::vector<std::string> input_arguments(input_split.begin() + 1, input_split.end());
-
-					// Get the position (if present) of "::" in the input string
-					std::size_t process_name_end = input_split[0].find("::");
-
-					std::string process_name{}, command_name{};
-
-					// If "::" is found in the input and the input does not finish with "::",
-					// the input contains both the process and command names
-					if(process_name_end != std::string::npos &&
-					   process_name_end != (input_split[0].length() - 2))
-					{
-						process_name = input_split[0].substr(0, process_name_end);
-						command_name = input_split[0].substr(process_name_end + 2);
-					}
-					// Otherwise, the input is only a command name
-					else { command_name = input_split[0]; }
-
-					// Call the command associated to the "process::command arg1 arg2 ... argN" matched
-					auto ret = command_manager.callCommand(command_name, input_arguments, process_name);
-
-					// If the return of the "callCommand" is ambiguous (you are calling a command that is available for
-					// multiple processes and you are not specifying the process in question)
-					if(ret > 1)
-					{
-						std::cerr << "\nCommand found in different processes:" << std::endl;
-						std::cout << "-------------------------------------" << std::endl;
-
-						// Print the processes for which the same command is available
-						printProcessesAndCommands(command_name);
-					}
-					// If the return of the "callCommand" is not valid (you are calling a command that is not present in
-					// the list of the available commands)
-					else if(ret == 0)
-					{
-						std::cerr << "\nCommand not found, it might not exist or be ready yet. Available commands:" << std::endl;
-						std::cout << "--------------------------------------------------------------------------" << std::endl;
-
-						// Print all the available processes and their commands (equivalent to the console command "list")
-						printProcessesAndCommands();
-					}
-				}
-				else { rl_reset_line_state(); }
-
-				// Free the line returned with "readline", allocated with "malloc"
-				free(line);
-
-				std::this_thread::sleep_for(std::chrono::milliseconds(50));
-			}
-		}
-		return getStatus();
-	}
-
-	AppStatus ConsoleLayer::stop()
-	{
-		this->should_quit = true;
-		return getStatus();
-	}
-
+	void ConsoleLayer::close(){}
+	
 	std::string ConsoleLayer::where()
 	{
 		// TODO: Implement
 		return "\nnot yet implemented\n";
+	}
+
+	void ConsoleLayer::monitor(){
+		rl_attempted_completion_function = readline_completion::command_completion;
+		rl_completion_display_matches_hook = readline_completion::display_matches;
+
+		// The line "readline" returned is allocated with "malloc". It is freed (manually) when we are done with it
+		char *line = readline(std::string("> ").c_str());
+
+		if (line != nullptr)
+		{
+			std::string command(line);
+
+			// If the input line is valid and does not contain only blank spaces 
+			if(command.data() && command.find_first_not_of(" ") != std::string::npos)
+			{
+				// Add the commands to the history buffer of a console session.
+				// They will be accessible by the user using up/down arrows
+				add_history(command.c_str());
+
+				// Get the user input in its complete form (i.e. "process::command arg1 arg2 ... argN")
+				std::istringstream input(command);
+
+				// Split the complete input according to the empty spaces
+				std::vector<std::string> input_split(std::istream_iterator<std::string>{input}, std::istream_iterator<std::string>());
+
+				// Get only the input arguments (e.g. "arg1 arg2 ... argN")
+				std::vector<std::string> input_arguments(input_split.begin() + 1, input_split.end());
+
+				// Get the position (if present) of "::" in the input string
+				std::size_t process_name_end = input_split[0].find("::");
+
+				std::string process_name{}, command_name{};
+
+				// If "::" is found in the input and the input does not finish with "::",
+				// the input contains both the process and command names
+				if(process_name_end != std::string::npos &&
+					process_name_end != (input_split[0].length() - 2))
+				{
+					process_name = input_split[0].substr(0, process_name_end);
+					command_name = input_split[0].substr(process_name_end + 2);
+				}
+				// Otherwise, the input is only a command name
+				else { command_name = input_split[0]; }
+
+				// Call the command associated to the "process::command arg1 arg2 ... argN" matched
+				auto ret = command_manager.callCommand(command_name, input_arguments, process_name);
+
+				// If the return of the "callCommand" is ambiguous (you are calling a command that is available for
+				// multiple processes and you are not specifying the process in question)
+				if(ret > 1)
+				{
+					std::cerr << "\nCommand found in different processes:" << std::endl;
+					std::cout << "-------------------------------------" << std::endl;
+
+					// Print the processes for which the same command is available
+					printProcessesAndCommands(command_name);
+				}
+				// If the return of the "callCommand" is not valid (you are calling a command that is not present in
+				// the list of the available commands)
+				else if(ret == 0)
+				{
+					std::cerr << "\nCommand not found, it might not exist or be ready yet. Available commands:" << std::endl;
+					std::cout << "--------------------------------------------------------------------------" << std::endl;
+
+					// Print all the available processes and their commands (equivalent to the console command "list")
+					printProcessesAndCommands();
+				}
+			}
+			else { rl_reset_line_state(); }
+
+			// Free the line returned with "readline", allocated with "malloc"
+			free(line);
+		}
 	}
 } // namespace dls

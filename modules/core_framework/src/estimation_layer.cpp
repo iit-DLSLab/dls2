@@ -9,7 +9,7 @@
 using namespace dls;
 
 EstimationLayer::EstimationLayer(std::string ID) :
-	Layer(ID),
+	Layer(ID, 300),
 	estimators(),
 	estimators_mutex(),
 	ddsMonitor(std::make_shared<dls::DDSWriter>(
@@ -57,17 +57,8 @@ EstimationLayer::~EstimationLayer()
 // =============================================================================
 // Interface Override Functions
 // =============================================================================
-AppStatus EstimationLayer::run()
-{
-	while(!this->should_quit)
-	{
-		// TODO("Watchdog over estimators here")
-		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(300));
-	}
-	return getStatus();
-}
 
-AppStatus EstimationLayer::stop()
+void EstimationLayer::close()
 {
 	std::vector<std::string> keys;
 	for(auto pair : this->estimators)
@@ -75,11 +66,6 @@ AppStatus EstimationLayer::stop()
 	
 	for(auto key : keys)
 		this->unloadEstimator(key);
-
-	this->should_quit = true;
-
-	setStatus(AppStatus::STOPPED);
-	return getStatus();
 }
 
 // =============================================================================
@@ -179,3 +165,5 @@ int EstimationLayer::numOfEstimators()
 {
 	return this->estimators.size();
 }
+
+void EstimationLayer::monitor(){}
