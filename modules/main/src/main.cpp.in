@@ -104,7 +104,7 @@ int main(int argc, char **argv)
 	
 	// dds participant to check whether:
 	// -- all the layers spawned by this executable are closed
-	// -- star servers
+	// -- start servers
 	// -- spawn supervisor
 	// -- spawn service layer
     dls::DDSParticipant layers_link("layers_link", dls::domains::layers,eprosima::fastrtps::rtps::DiscoveryProtocol_t::SUPER_CLIENT);
