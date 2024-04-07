@@ -8,6 +8,7 @@
 
 #include "dls2/command/command_manager.hpp"
 #include "dls2/util/messaging/dds_participant.hpp"
+#include "dls2/log/log.hpp"
 
 namespace dls
 {
@@ -27,8 +28,10 @@ namespace dls
 
         std::string ID_;
 		
-        dls::DDSParticipant layersLink;
+		//! Log info events
+		logging::clogstream scout_info;
 
+        dls::DDSParticipant layersLink;
 	};
 
 	

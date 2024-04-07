@@ -10,6 +10,7 @@ namespace dls
 
 	Supervisor::Supervisor(std::string ID)
     : ID_(ID)
+    , scout_info(ID)
     , layersLink(ID, dls::domains::layers, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SUPER_CLIENT)
 	{
         eprosima::fastdds::dds::DataReaderQos qos(eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT);
@@ -21,7 +22,7 @@ namespace dls
                                 dls::topics::state_machine, 
                                 std::function<void(void*)>{[&](void* msg){
                                     auto component = static_cast<StateMachineMsg*>(msg);
-                                    std::cout << "SUPERVISOR: "<<component->app_name() << " " << component->state() << " " << component->realtime() << std::endl;
+                                    scout_info <<component->app_name() << " " << component->state() << " " << component->realtime() << std::endl;
                                 }},
                                 qos);
     }
