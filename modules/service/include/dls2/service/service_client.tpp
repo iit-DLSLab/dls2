@@ -90,6 +90,30 @@ namespace dls
 		t.detach();
 	}
 
+	template <typename req_pubsub_t, typename res_pubsub_t>
+	bool ServiceClient<req_pubsub_t, res_pubsub_t>::hasMatched()
+	{
+		return request_publisher.hasMatched() && response_subscriber.hasMatched();
+	}
+	template <typename req_pubsub_t, typename res_pubsub_t>
+
+	bool ServiceClient<req_pubsub_t, res_pubsub_t>::waitMatching()
+	{		
+		// Wait for timeout seconds
+		double timeout = 10;//seconds
+        auto start = std::chrono::high_resolution_clock::now();
+        while(!hasMatched())
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            auto end = std::chrono::high_resolution_clock::now();
+            if(std::chrono::duration_cast<std::chrono::seconds>(end - start).count() > timeout)
+            {
+				std::cerr << "ServiceClient did not match with ServiceServer" << std::endl;
+                return false;
+            }
+        }
+		return false;
+	}
 } // end namespace dls
 
 #endif /* end of include guard: SERVICE_CLIENT_TPP */

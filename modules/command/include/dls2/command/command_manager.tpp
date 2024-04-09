@@ -3,7 +3,7 @@
 
 #include "dls2/command/command_manager.hpp"
 #include "dls2/command/command.hpp"
-#include "dls2/command/command_new.hpp"
+#include "dls2/command/command_without_args.hpp"
 
 namespace dls
 {
@@ -39,13 +39,13 @@ namespace dls
 	(
 		std::string name_,
 		std::string doc_,
-		bool(T::*function_ptr)(void),
+		bool(T::*function_ptr)(),
 		T* obj,
 		dls::CommandBase::LevelType level_,
 		bool enabled_
 	)
 	{
-		std::shared_ptr<CommandBase> cmd = std::make_shared<CommandNew>
+		std::shared_ptr<CommandBase> cmd = std::make_shared<CommandWithoutArgs>
 		(
 			name_,
 			this,

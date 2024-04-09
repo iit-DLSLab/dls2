@@ -54,10 +54,8 @@ namespace dls
 		//! Run the layer - used in state machine
 		virtual AppStatus run() override;
 
-		virtual void close() override;
-
 		//! Monitor the layer
-		virtual void monitor(){};
+		virtual void monitor();
 
 		// BEGIN critical section
 			mutable std::mutex components_mutex;

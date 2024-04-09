@@ -114,4 +114,4 @@ AppStatus Layer::run()
 	return getStatus();
 }
 
-void Layer::close(){}
+void Layer::monitor(){}

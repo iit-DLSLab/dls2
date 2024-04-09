@@ -1,3 +1,12 @@
+# use RPATH for the build tree
+set(CMAKE_SKIP_BUILD_RPATH FALSE)
+
+# the install RPATH is not used when building
+set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+
+# add to RPATH automatically determined paths for the install tree
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
 add_subdirectory(message_wrappers)
 add_subdirectory(motion_generator)
 add_subdirectory(ddscom)
@@ -23,5 +32,5 @@ add_subdirectory(mcap)
 add_subdirectory(profile)
 add_subdirectory(plugin_base)
 add_subdirectory(action)
-add_subdirectory(common_actions)
 add_subdirectory(state_machine)
+add_subdirectory(action_client_stock)

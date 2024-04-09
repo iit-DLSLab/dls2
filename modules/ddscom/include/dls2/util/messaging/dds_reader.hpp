@@ -31,6 +31,8 @@ namespace dls
 		void printDiscoveredTopics();
 		void printParticipants();
 
+		// Check wheter the data reader has matched with at least one data writer
+		bool hasMatched();
 	private:
 
 		eprosima::fastdds::dds::DataReader *reader;

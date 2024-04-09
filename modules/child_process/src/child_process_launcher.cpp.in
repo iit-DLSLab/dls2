@@ -156,6 +156,27 @@ int main(int argc, char **argv)
                         args.component_name);
             }
         }
+        else if (args.component_type == "action")
+        {
+            // scout_sys << "LOADING ACTION FROM '" << std::string("${DLS_INSTALL_ACTION_DIR}/lib") + args.lib_name + ".so'" << std::endl;
+            try
+            {
+                pComponent =
+                    ClassLoader::loadClass<PeriodicPluginBase, std::string>(
+                        std::string("${DLS_INSTALL_ACTION_DIR}/"+args.lib_name+"/lib") + args.lib_name + ".so",
+                        args.component_name,
+                        args.robot_name);
+            }
+            catch (const std::exception &e)
+	        {
+                scout_sys << "catch\n";
+                pComponent =
+                    ClassLoader::loadClass<PeriodicPluginBase, std::string>(
+                        std::string("/usr/lib/dls2/lib") + args.lib_name + ".so",
+                        args.component_name,
+                        args.robot_name);
+            }
+        }
         else
         {
             scout_err << "component loading not yet implemented" << std::endl;
@@ -211,7 +232,8 @@ Args parse_args(int argc, char **argv)
         args.component_type != "motion_generator" &&
         args.component_type != "hardware" &&
         args.component_type != "estimator" &&
-        args.component_type != "service"
+        args.component_type != "service"&&
+        args.component_type != "action"
         )
     {
         std::cerr << "Error: unknown component type '" << args.component_type << "'" << std::endl;

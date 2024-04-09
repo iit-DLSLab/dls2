@@ -496,12 +496,19 @@ namespace dls
 		static_cast<void>(participant);
 		if (info.status == eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DISCOVERY_STATUS::DISCOVERED_PARTICIPANT)
 		{
+			// std::cout << this->participant->get_qos().name() <<": New participant discovered: " << info.info.m_participantName << ", current num. disc. DPs: " << discovered_participants_info.size()<< std::endl;
 			discovered_participants_info.insert({static_cast<std::string>(info.info.m_participantName), info.info.m_guid});
 			// std::cout << " Discovered a new participant:" << static_cast<std::string>(info.info.m_participantName) << std::endl;
 
 		}
+		else if (info.status == eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DISCOVERY_STATUS::DROPPED_PARTICIPANT)
+		{
+			// std::cout << this->participant->get_qos().name() <<": Participant is dropped: " << info.info.m_participantName << std::endl;
+			discovered_participants_info.erase(static_cast<std::string>(info.info.m_participantName));
+		}
 		else if (info.status == eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DISCOVERY_STATUS::REMOVED_PARTICIPANT)
 		{
+			// std::cout << this->participant->get_qos().name() <<": Participant is removed: " << info.info.m_participantName << std::endl;
 			discovered_participants_info.erase(static_cast<std::string>(info.info.m_participantName));
 		}
 	}

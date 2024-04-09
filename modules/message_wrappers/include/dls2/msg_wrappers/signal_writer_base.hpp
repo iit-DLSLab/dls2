@@ -14,7 +14,7 @@ namespace dls
 	public:
 		friend class PeriodicPluginBase;
 
-		SignalWriterBase(std::shared_ptr<dls::DDSParticipant> dds_participant);
+		SignalWriterBase(std::shared_ptr<dls::DDSParticipant> dds_participant, const dls::topicType& topic);
 		~SignalWriterBase();
 		SignalWriterBase() = delete;
 
@@ -30,11 +30,16 @@ namespace dls
 		*/
 		virtual void setTimestamp(double timestamp) = 0;
 
+		dls::topicType getTopic() const;
+
+		std::string getID() const;
+
 	protected:
 		std::shared_ptr<dls::DDSParticipant> dds_participant_;
 		std::string ID_;
 		mutable std::mutex signal_mutex_;
 		
+		const dls::topicType topic_;
 		/*!
 		@brief Set data of the signal stored in the children classes from a wrapper_base pointer.
 		It assumes that the pointer points to the same type of the signal

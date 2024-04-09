@@ -43,13 +43,23 @@ namespace dls
 
 		/*! @brief Destructor
 		 */
-		virtual ~ActionServerBase() = default;
+		virtual ~ActionServerBase();
+
+		/*! @brief Print state of the action server*/
+		virtual std::string where() override;
 
 	protected:
 		virtual void run(const std::chrono::system_clock::time_point &time) override;
 
 		//! @brief The function implementing the action
 		virtual void runAction() = 0;
+		
+		//! @brief Function starting the action
+		void startAction();
+		//! @brief Function stopping the action
+		void stopAction();
+		//! @brief Function writing the result
+		void writeResult();
 
 		//! Action waiting for a goal message
 		GOAL_t goal;

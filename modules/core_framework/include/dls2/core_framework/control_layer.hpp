@@ -45,7 +45,7 @@ public:
 	/// Destructor
 	~ControlLayer();
 
-	/// @brief stop method override
+	/// @brief stop method
 	void close() override;
 	/// @brief check activation
 	bool checkActivation() override;

@@ -14,7 +14,7 @@ namespace dls
 	public:
 		friend class PeriodicPluginBase;
 
-		SignalWriter(std::shared_ptr<dls::DDSParticipant>, const dls::topicType&, const std::shared_ptr<SignalType>);
+		SignalWriter(std::shared_ptr<dls::DDSParticipant>, const dls::topicType&, const std::shared_ptr<SignalType>,eprosima::fastdds::dds::DataWriterQos qos = eprosima::fastdds::dds::DATAWRITER_QOS_DEFAULT);
 		~SignalWriter();
 		
 		std::shared_ptr<SignalType> operator->();
@@ -31,6 +31,9 @@ namespace dls
 		@param[in] timestamp		
 		*/
 		virtual void setTimestamp(double timestamp) override;
+
+		/*! @brief*/
+		void setSignal(const SignalType&);
 	
 	private:
 		const std::shared_ptr<SignalType> signal_;

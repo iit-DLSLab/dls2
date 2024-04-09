@@ -129,6 +129,12 @@ namespace dls
 		///
 		CommandManager *owner;
 		
+		/// Associated function call of the command
+		///
+		virtual bool call(std::vector<std::string>);
+		/// Associated function call of the command
+		///
+		virtual bool call();
 	private:
 
 		/// The name of the command
@@ -142,11 +148,6 @@ namespace dls
 		/// Number of arguments of command
 		///
 		uint numArg;
-
-		/// Associated function call of the command
-		///
-		virtual bool call(std::vector<std::string>);
-
 	};
 
 } // end namespace dls

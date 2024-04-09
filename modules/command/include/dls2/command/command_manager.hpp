@@ -78,7 +78,7 @@ namespace dls
 		(
 			std::string name,
 			std::string doc,
-			bool(T::*function_ptr)(void),
+			bool(T::*function_ptr)(),
 			T* obj,
 			dls::CommandBase::LevelType level = {},
 			bool enabled = false

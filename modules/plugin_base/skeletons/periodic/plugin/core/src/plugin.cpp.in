@@ -14,17 +14,15 @@ namespace @PLUGIN_TYPE@
     /*, construct_output_variables*/ //instantiate output
     {
         // Define inputs
-        /*this->buildInput<message_wrapper_class, type_of_arguments_of_message_constructor>(
+        /*this->buildInput<message_wrapper_class>(
             topic_name,
-            &input_variable_name,
-            arguments_of_message_constructor
+            &input_variable_name
         );*/
 
         // Define outputs
-        /*this->buildOutput<message_wrapper_class, type_of_arguments_of_message_constructor>(
+        /*this->buildOutput<message_wrapper_class>(
             topic_name,
-            &output_variable_name,
-            arguments_of_message_constructor
+            &output_variable_name
         );*/
     }
 

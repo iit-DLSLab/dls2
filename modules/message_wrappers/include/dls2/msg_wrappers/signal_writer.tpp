@@ -9,8 +9,8 @@
 using namespace dls;
 
 template <typename SignalType>
-SignalWriter<SignalType>::SignalWriter(std::shared_ptr<dls::DDSParticipant> dds_participant, const dls::topicType& topic_, const std::shared_ptr<SignalType> signal)
-	: SignalWriterBase(dds_participant)
+SignalWriter<SignalType>::SignalWriter(std::shared_ptr<dls::DDSParticipant> dds_participant, const dls::topicType& topic_, const std::shared_ptr<SignalType> signal, eprosima::fastdds::dds::DataWriterQos qos)
+	: SignalWriterBase(dds_participant, topic_)
 	, signal_(signal)
 	, has_timestamp_(HasTimeStamp<SignalType>::value)
 {
@@ -20,7 +20,7 @@ SignalWriter<SignalType>::SignalWriter(std::shared_ptr<dls::DDSParticipant> dds_
 
 	ID_ = std::to_string(id);
 
-	dds_participant_->addWriter(ID_, topic_);
+	dds_participant_->addWriter(ID_, topic_, qos);
 }
 	
 template <typename SignalType>
@@ -50,6 +50,12 @@ template <typename SignalType>
 void SignalWriter<SignalType>::setTimestamp(double timestamp)
 {
 	signal_->timestamp_ = timestamp;
+}
+
+template <typename SignalType>
+void SignalWriter<SignalType>::setSignal(const SignalType& signal)
+{
+	*signal_ = signal;
 }
 
 template <typename SignalType>
