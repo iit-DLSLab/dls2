@@ -128,41 +128,17 @@ namespace dls
 		 * @param[in] name name of the output to write
 		 */
 		void write(const std::string &name);
-
+		
 		/*!
-		 * @brief Console command: activate the plugin.
-		 * @details
-		 * Set the activate variable to true
+		 * @brief Basic checks when activating a plugin
+		 * @return true if the basic checks succeded
+		 * 
 		 */
-		virtual bool activateCommand();
+		bool basicActivationChecks();
 
-		/*!
-		 * @brief Console command: deactivate the plugin.
-		 * @details
-		 * Set the activate variable to false.
-		 */
-		virtual bool deactivateCommand();
-
-		/*!
-		 * @brief Activate the plugin.
-		 * @details
-		 * Set the activate variable to true
-		 */
-		virtual bool activate();
-
-		/*!
-		 * @brief Deactivate the plugin.
-		 * @details
-		 * Set the activate variable to false.
-		 */
-		virtual bool deactivate();
-
-		virtual bool checkActivation();
+		virtual bool checkActivation() override;
 
 	protected:
-		//! Identify if the periodic plugin is active or not
-		bool active;
-
 		//! Domain participant of the plugin
 		std::shared_ptr<dls::DDSParticipant> dds_participant_;
 
@@ -170,7 +146,7 @@ namespace dls
 		std::condition_variable unique_outputs_cv;
 
 		/*! @brief Check if the inputs are receiving data*/ 
-		bool areInputsReceivingData(bool check_required_on_activation = false);
+		bool areInputsReceivingData();
 
 		/*! @brief Check if there is no other data writers publishing on the same topics of the outputs*/ 
 		bool areOutputsUnique();

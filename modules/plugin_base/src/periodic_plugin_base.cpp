@@ -4,12 +4,8 @@
 namespace dls
 {
 	PeriodicPluginBase::PeriodicPluginBase(const std::string &ID, const domainType &domain)
-		: PeriodicApp(ID), active(false), dds_participant_(std::make_shared<dls::DDSParticipant>(ID, domain))
-	{
-		// Define console commands
-		// command_manager.addCommand("activate", "Activate " + ID, &PeriodicPluginBase::activateCommand, this, {{0, 1}}, true);
-		// command_manager.addCommand("deactivate", "Deactivate " + ID, &PeriodicPluginBase::deactivateCommand, this, {{1, 0}}, true);
-	}
+		: PeriodicApp(ID), dds_participant_(std::make_shared<dls::DDSParticipant>(ID, domain))
+	{}
 
 	PeriodicPluginBase::~PeriodicPluginBase()
 	{
@@ -86,14 +82,14 @@ namespace dls
 		return true;
 	}
 
-	bool PeriodicPluginBase::areInputsReceivingData(bool check_required_on_activation)
+	bool PeriodicPluginBase::areInputsReceivingData()
 	{
 		bool are_inputs_receiving_data = true;
 		std::stringstream missing_inputs("");
 		for (long unsigned int i = 0; i < readers_.size(); i++)
 		{
 			// check data availability if: all the readers needs to be checked or only the ones required on activation
-			if ((!check_required_on_activation || (check_required_on_activation && are_inputs_required_on_activation[i])))
+			if (are_inputs_required_on_activation[i])
 			{
 				if(!readers_[i]->is_receiving_data())
 				{
@@ -117,7 +113,7 @@ namespace dls
         auto start = std::chrono::high_resolution_clock::now();
 		std::stringstream missing_inputs("");
 		scout_sys << "Waiting for inputs... " << std::endl;
-        while(!areInputsReceivingData(true))
+        while(!areInputsReceivingData())
         {
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
             auto end = std::chrono::high_resolution_clock::now();
@@ -130,30 +126,11 @@ namespace dls
 		return true;
 	}
 
-	bool PeriodicPluginBase::checkActivation()
-	{
+	bool PeriodicPluginBase::basicActivationChecks(){
 		return areInputsReceivingData() && areOutputsUnique();
 	}
-
-	bool PeriodicPluginBase::activateCommand()
-	{   
-		return activate();
-	}
-
-	bool PeriodicPluginBase::activate()
+	bool PeriodicPluginBase::checkActivation()
 	{
-		active = checkActivation();
-		return active;
-	}
-
-	bool PeriodicPluginBase::deactivateCommand()
-	{
-		return deactivate();
-	}
-
-	bool PeriodicPluginBase::deactivate()
-	{
-		active = false;
-		return !active;
+		return basicActivationChecks();
 	}
 }

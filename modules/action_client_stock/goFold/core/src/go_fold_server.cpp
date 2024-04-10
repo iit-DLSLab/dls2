@@ -56,7 +56,7 @@ namespace dls
 
     bool GoFoldServer::checkActivation()
 	{          
-        if(areInputsReceivingData(true) && areOutputsUnique())
+        if(areInputsReceivingData() && areOutputsUnique())
         {
             read();
             feedback.desired_joints_position_ = this->blind_state.joints_position_;
