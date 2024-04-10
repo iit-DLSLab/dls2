@@ -163,6 +163,7 @@ void App::idle()
 
 void App::activation()
 {
+	activate_cmd_locked = false;
 	// Wait for timeout seconds the input readyness
 	double timeout = 10.0; //seconds
 	double enlapsed_time = 0.0;
@@ -188,20 +189,17 @@ void App::activation()
 	    sm.nextState(sm.failed_activation);
 	else // quit request
 	    sm.nextState(sm.quit_request);
-	
-	activate_cmd_locked = false;
 }
 
 void App::deactivation()
 {
+	deactivate_cmd_locked = false;
 	if (sm.isRaised(sm.quit_request))
 	{
 	    sm.nextState(sm.quit_request);
 	}
 	else
 		sm.nextState(sm.deactivated);
-	
-	deactivate_cmd_locked = false;
 }
 
 void App::fail()

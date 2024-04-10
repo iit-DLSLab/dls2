@@ -184,6 +184,7 @@ void PeriodicApp::setFailure()
 
 void PeriodicApp::deactivation()
 {
+	deactivate_cmd_locked = false;
 	bool deactivated = false;
 	bool realtime_prec = true;
 	bool realtime_curr = realtime_prec;
@@ -225,8 +226,6 @@ void PeriodicApp::deactivation()
 	{
 	    sm.nextState(sm.quit_request);
 	}
-
-	deactivate_cmd_locked = false;
 }
 
 bool PeriodicApp::deactivation(const std::chrono::system_clock::time_point&)

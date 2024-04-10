@@ -130,6 +130,8 @@ int main(int argc, char **argv)
 		// param server
 		command_manager.callCommand("loadService", {"dls_param_server"}, "ServiceLayer");
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		command_manager.callCommand("activate", {}, "dls_param_server");
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		command_manager.callCommand("setParam", {"robot_name", Options::robot_name}, "dls_param_server");
 		// action servers
 		const std::string actions_path = "@DLS_INSTALL_ACTION_DIR@";

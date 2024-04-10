@@ -32,6 +32,10 @@ namespace dls
 		logging::clogstream scout_info;
 
         dls::DDSParticipant layersLink;
+
+		std::map<std::string, std::pair<std::string,bool>> app_states;
+
+		CommandManager command_manager;
 	};
 
 	
