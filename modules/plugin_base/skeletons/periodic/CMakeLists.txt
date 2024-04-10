@@ -17,6 +17,10 @@ file(	COPY setup.sh # this is just a copy
 file(	COPY version.txt # this is just a copy
 		DESTINATION .
 )
+# Copy .gitignore
+file(	COPY .gitignore # this is just a copy
+		DESTINATION .
+)
 # Configure outermost CMakeLists.txt
 configure_file(CMakeLists.txt.in
 	CMakeLists.txt @ONLY
