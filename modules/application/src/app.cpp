@@ -91,7 +91,7 @@ App::App(const std::string &ID)
 			}
             return true;
 		}),
-		{{1,0}},
+		{{CommandBase::ALL_STATES_EXCEPT_ZERO, 0}},
 		true
 	);
 }
