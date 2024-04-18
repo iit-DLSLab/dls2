@@ -138,6 +138,8 @@ namespace dls
 
 		virtual bool checkActivation() override;
 
+		std::shared_ptr<SignalReaderBase> getReader(const std::string &name);
+
 	protected:
 		//! Domain participant of the plugin
 		std::shared_ptr<dls::DDSParticipant> dds_participant_;

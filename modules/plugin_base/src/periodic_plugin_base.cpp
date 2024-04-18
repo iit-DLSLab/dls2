@@ -133,4 +133,9 @@ namespace dls
 	{
 		return basicActivationChecks();
 	}
+
+	std::shared_ptr<SignalReaderBase> PeriodicPluginBase::getReader(const std::string &name)
+	{
+		return readers_map_[name].first;
+	}
 }
