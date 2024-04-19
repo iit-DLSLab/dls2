@@ -39,16 +39,12 @@ namespace dls
 		/// @param status the status
 		void setStatus(AppStatus status);
 
-		/// Runs the app
-		///
-		virtual AppStatus run() = 0;
-
 		//! Procedure to quit the app
-		virtual void close() = 0;
+		virtual void close();
 
 		/// Prints the state of the app
 		///
-		virtual std::string where() = 0;
+		virtual std::string where();
 
 		/// Shutdown the app
 		///
@@ -70,6 +66,9 @@ namespace dls
 		//! Procedure to activate the app - used in state machine
 		virtual void activation();
 
+		/// Run activity - used in state machine
+		virtual AppStatus run() = 0;
+
 		//! Procedure to deactivate the app  - used in state machine
 		virtual void deactivation();
 	
@@ -85,6 +84,7 @@ namespace dls
 		//! Execute the state machine starting from the input state
 		virtual void execute(state_machine::State& state);
 
+		//! Check if the activation can be performed
 		virtual bool checkActivation();
 
 		/// Flag of the running loop

@@ -222,9 +222,17 @@ void App::quit()
 	sm.stop();
 }
 
+void App::close(){}
+
 void App::stop()
 {
 	sm.raiseEvent(sm.quit_request);
+}
+
+std::string App::where(){
+	std::stringstream ss;
+	ss  << "App " << ID_ << " is in state " << sm.state->name << std::endl;
+	return ss.str();
 }
 
 void App::setDefaultSchedulerPolicy()
@@ -245,5 +253,3 @@ void App::setDefaultSchedulerPolicy()
 bool App::checkActivation(){
 	return true;
 }
-
-void App::close(){}
