@@ -63,7 +63,6 @@ ControlLayer::ControlLayer(std::string ID, std::string robot_name)
 	, clog(ID)
 	, cfatal(ID)
 {
-	sm.RUN.makeRealTime();
 	command_manager.addCommand<std::string>
 	(
 		"loadGenerator",

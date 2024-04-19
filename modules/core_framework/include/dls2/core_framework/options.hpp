@@ -47,6 +47,7 @@ public:
 	static bool launch_console;
 	static bool launch_log;
 	static bool launch_service;
+	static bool launch_supervisor;
 	static std::string estimation_layer_name;
 
 	static std::string robot_name;

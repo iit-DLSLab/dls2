@@ -9,33 +9,27 @@
 #include "dls2/command/command_manager.hpp"
 #include "dls2/util/messaging/dds_participant.hpp"
 #include "dls2/log/log.hpp"
+#include "dls2/application/layer.hpp"
 
 namespace dls
 {
-	class Supervisor
+	class Supervisor: public Layer
 	{
 	public:
 		Supervisor(std::string ID);
 		~Supervisor();
 
-        std::string getID();
-
 		int getNumLayers();
 		std::vector<std::string> getLayersNames();
 		bool containsLayer(std::string name);
 
-	private:
+		virtual void monitor() override;
 
-        std::string ID_;
-		
-		//! Log info events
-		logging::clogstream scout_info;
+	private:
 
         dls::DDSParticipant layersLink;
 
 		std::map<std::string, std::pair<std::string,bool>> app_states;
-
-		CommandManager command_manager;
 	};
 
 	

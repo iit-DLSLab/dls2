@@ -52,6 +52,7 @@ target_link_libraries(dls_framework
 		dls_time
 		dls_messages
 		dls_action_client_stock
+		dls_supervisor
 )
 
 dls_install(dls_framework)

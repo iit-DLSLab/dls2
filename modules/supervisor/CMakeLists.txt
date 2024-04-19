@@ -12,11 +12,7 @@ target_include_directories(dls_supervisor
 
 target_link_libraries(dls_supervisor
 	PUBLIC
-		dls_com
-		dls_command
-		dls_topics
-		dls_domains
-		dls_logging
+		dls_app	
 )
 
 dls_install(dls_supervisor)

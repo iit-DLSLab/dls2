@@ -27,12 +27,16 @@ void change_process_name(char **argv, const std::string &name);
 
 int initVars();
 
+void launch_layers();
+
 bool loadLayer(const std::string&, const std::string&);
 
 void launch_servers(std::vector<std::shared_ptr<dls::DDSParticipant>>& servers);
 
-std::mutex quit_mutex;
-bool should_quit = false;
+void launchParamServer();
+void launchActionServers();
+
+std::atomic_bool should_quit(false);
 
 /// Stores commands registered in the app
 ///
@@ -59,35 +63,10 @@ int main(int argc, char **argv)
 		std::cout << "Debug build" << std::endl;
 	#endif
 
-	// Initiate log streams
-	logging::clogstream outstream("fwkMonitorStream");
-	logging::cfatalstream sfatal("fwkMonitorFatal");
-
-	command_manager.addCommand<>
-	(
-		"shutdown",
-		"Shutdown the core. It will only exits after all the layers exits.",
-		std::function<bool()>([&]()->bool
-		{
-			std::lock_guard<std::mutex> lock(quit_mutex);
-			should_quit = true;
-			return true;
-		}),
-		{},
-		true
-	);
-
 	// Parse arguments and verify if they are valid and if there is anything to 
 	// do or just print the usage
 	if (!Options::parseArgs(argc, argv))
 		return 0;
-
-    // When the user presses CTRL-C, make sure that all layers are shutdown.
-	signal
-	(
-		SIGINT,
-		shutdown_all
-	);
 
 	if(Options::show_docs)
 	{
@@ -97,73 +76,52 @@ int main(int argc, char **argv)
 		);
 	}
 
-	// Supervisor
-	std::shared_ptr<Supervisor> super;
-	//! List of discovery servers
-	std::vector<std::shared_ptr<dls::DDSParticipant>> servers;
-	
-	// dds participant to check whether:
-	// -- all the layers spawned by this executable are closed
-	// -- start servers
-	// -- spawn supervisor
-	// -- spawn service layer
-    dls::DDSParticipant layers_link("layers_link", dls::domains::layers,eprosima::fastrtps::rtps::DiscoveryProtocol_t::SUPER_CLIENT);
+	// When the user presses CTRL+C, make sure that all layers are shutdown
+	signal
+	(
+		SIGINT,
+		shutdown_all
+	);
+
+	command_manager.addCommand<>
+	(
+		"shutdown",
+		"Shutdown the core. It will only exits after all the layers exits.",
+		std::function<bool()>([&]()->bool
+		{
+			should_quit.store(true);
+			return true;
+		}),
+		{},
+		true
+	);
+
+	// dds participant, associated to this executable, that:
+	// -- checks whether all the layers spawned by this executable are closed
+	// -- checks app states for running startup procedure
+    dls::DDSParticipant ddspart_executable("ddspart_executable", dls::domains::layers,eprosima::fastrtps::rtps::DiscoveryProtocol_t::SUPER_CLIENT);
 	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-	// Spawn supervisor and servers if not already done
-	auto discovered_participant = layers_link.getParticipants();
-	if(std::find(discovered_participant.begin(), discovered_participant.end(), "core") == discovered_participant.end())
-	{
+	//! List of discovery servers
+	std::vector<std::shared_ptr<dls::DDSParticipant>> servers;
+
+	// Spawn supervisor and servers
+	if(Options::launch_supervisor){
 		launch_servers(servers);
-		
-		super = std::make_shared<Supervisor>("core");
-		static_cast<void>(super); // avoid warning in compilation
-	}
-	// Spawn service layer, param server and action servers if not already done
-	if(std::find(discovered_participant.begin(), discovered_participant.end(), "ServiceLayer") == discovered_participant.end())
-	{
-		// service layer
-		if(!loadLayer("service", "ServiceLayer"))
-		{
-			std::cout << "[ERROR] Service Layers could not run" << std::endl;
-		}
-		// param server
-		command_manager.callCommand("loadService", {"dls_param_server"}, "ServiceLayer");
-		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-		command_manager.callCommand("activate", {}, "dls_param_server");
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
-		command_manager.callCommand("setParam", {"robot_name", Options::robot_name}, "dls_param_server");
-		// action servers
-		const std::string actions_path = "@DLS_INSTALL_ACTION_DIR@";
-    	for (const auto & entry : std::filesystem::directory_iterator(actions_path))
-		{
-			const std::string path = entry.path();
-			const std::string action_name = path.substr(path.rfind("/") + 1);
-			command_manager.callCommand("loadAction", {action_name}, "ServiceLayer");
-		}
+		loadLayer("supervisor", "Supervisor");
 	}
 
-	if(Options::launch_log) 
-		if(loadLayer("log", "LogLayer"))
-			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
-	// Launch layers
-	if(Options::launch_hardware) 	loadLayer("hardware", "HardwareLayer");
-	if(Options::launch_control)  	loadLayer("control", "ControlLayer");
-	if(Options::launch_estimation)	loadLayer("estimation", Options::estimation_layer_name);
-	if(Options::launch_console)	 	loadLayer("console", "ConsoleLayer");
-
-	// Monitor the layers
-	// loop is exited when there are no more children
+	// Spawn layers
+	launch_layers();
+	
+	// Hanging on this executable to intercept CTRL+C. If no layers are running, the executable will exit
 	int num_layers = 1;
-	while(!should_quit || (num_layers > 0))
+	while(!should_quit.load() || (num_layers > 0))
 	{	
-		//TODO: implement here the supervisory actions	
-
-
 		std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-        auto layers = layers_link.getParticipants();
+		// Check if at least one layer is running
+        auto layers = ddspart_executable.getParticipants();
         num_layers = std::count_if(layers.begin(), layers.end(), [](std::string s) { return s.find("Layer") != std::string::npos; });
 	}
 
@@ -226,6 +184,20 @@ bool loadLayer(const std::string& lib, const std::string& ID)
 	return true;
 }
 
+void launch_layers(){
+	if(Options::launch_log)			loadLayer("log", "LogLayer");
+	if(Options::launch_hardware) 	loadLayer("hardware", "HardwareLayer");
+	if(Options::launch_control)  	loadLayer("control", "ControlLayer");
+	if(Options::launch_console)	 	loadLayer("console", "ConsoleLayer");
+	if(Options::launch_estimation)	loadLayer("estimation", Options::estimation_layer_name);
+	if(Options::launch_service){
+		loadLayer("service", "ServiceLayer");
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		launchParamServer();
+		launchActionServers();
+	}
+}
+
 void launch_servers(std::vector<std::shared_ptr<dls::DDSParticipant>>& servers)
 {
 	servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer-users", dls::domains::users, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER));
@@ -238,4 +210,23 @@ void launch_servers(std::vector<std::shared_ptr<dls::DDSParticipant>>& servers)
 	servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer-logging", dls::domains::logging, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER));
 	servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer-services", dls::domains::services, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER));
 	servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer-estimators", dls::domains::estimators, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER));
+}
+
+void launchParamServer(){
+	// param server
+	command_manager.callCommand("loadService", {"dls_param_server"}, "ServiceLayer");
+	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+	command_manager.callCommand("activate", {}, "dls_param_server");
+	std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	command_manager.callCommand("setParam", {"robot_name", Options::robot_name}, "dls_param_server");
+}
+
+void launchActionServers(){
+	const std::string actions_path = "@DLS_INSTALL_ACTION_DIR@";
+	for (const auto & entry : std::filesystem::directory_iterator(actions_path))
+	{
+		const std::string path = entry.path();
+		const std::string action_name = path.substr(path.rfind("/") + 1);
+		command_manager.callCommand("loadAction", {action_name}, "ServiceLayer");
+	}
 }

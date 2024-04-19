@@ -7,12 +7,9 @@
 
 namespace dls
 {
-
 	Supervisor::Supervisor(std::string ID)
-    : ID_(ID)
-    , scout_info(ID)
+    : Layer(ID, 500)
     , layersLink(ID, dls::domains::layers, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SUPER_CLIENT)
-    , command_manager(ID)
 	{
         eprosima::fastdds::dds::DataReaderQos qos(eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT);
         qos.history().kind = eprosima::fastdds::dds::KEEP_ALL_HISTORY_QOS;
@@ -54,7 +51,7 @@ namespace dls
                     }
                     info+="\n";
                 }
-                scout_info << info << std::endl;
+                scout_sys << info << std::endl;
                 return true;
             }),
             {},
@@ -65,10 +62,8 @@ namespace dls
     Supervisor::~Supervisor()
 	{ }
 
-    std::string Supervisor::getID()
-    {
-        return this->ID_;
-    }
+    void Supervisor::monitor()
+    { }
 
     int Supervisor::getNumLayers()
     {
@@ -89,8 +84,6 @@ namespace dls
 
         return (std::find(layers.begin(), layers.end(), name) != layers.end()); 
     }
-
-
 }
 
 #endif /* end of include guard: SUPERVISOR_CPP */

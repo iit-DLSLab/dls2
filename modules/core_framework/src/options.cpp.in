@@ -28,6 +28,7 @@ bool Options::launch_control                = false;
 bool Options::launch_console                = false;
 bool Options::launch_log                    = false;
 bool Options::launch_service                = false;
+bool Options::launch_supervisor             = false;
 std::string Options::estimation_layer_name = "EstimationLayer";
 
 // show the documentation in a browser
@@ -51,6 +52,7 @@ bool Options::parseArgs(int argc, char **argv)
 		//long_name    required?           return_short?  short_version
 		{"robot",      required_argument,  nullptr,       'r'},
 		{"layers",     optional_argument,  nullptr,       'l'},
+		{"super",      no_argument,  	   nullptr,       's'},
 		{"version",    no_argument,        nullptr,       'v'},
 		{"help",       no_argument,        nullptr,       'h'},
 		{"docs",       no_argument,        nullptr,       'd'},
@@ -64,6 +66,7 @@ bool Options::parseArgs(int argc, char **argv)
 	Options::launch_console     =  false;
 	Options::launch_log         =  false;
 	Options::launch_service		=  false;
+	Options::launch_supervisor  = false;
 
 	int opt;
 	while((opt = getopt_long(argc, argv, "r:sHl:vh::cd", long_options, nullptr)) != -1)
@@ -73,6 +76,11 @@ bool Options::parseArgs(int argc, char **argv)
 			case 'd':
 			{
 				Options::show_docs = true;
+				break;
+			}
+			case 's':
+			{
+				Options::launch_supervisor = true;
 				break;
 			}
 			case 'r':
@@ -113,7 +121,7 @@ bool Options::parseArgs(int argc, char **argv)
 
 				Options::robot_name = std::string{optarg};
 				robot_is_specified = true;
-				launch_service = true;
+				// launch_service = true;
 
 				break;
 			}
@@ -223,6 +231,7 @@ void Options::printUsage()
 
 	"< --robot=<hyq|hyqreal|aliengo|go1> | -r <hyq|hyqreal|aliengo|go1> > "
 	"< --layers= | -l ...> "
+	"< --super= | -s ...> "
 	"[ --version | -v ] "
 	"[ --help | -h ] "
 	"[ --doc | -d ]"
@@ -234,6 +243,7 @@ void Options::printUsage()
 	"|-------------|--------------|-----------------------------------------------------|\n"
 	"| robot       | r            | specify the robot on which the framework is running |\n"
 	"| layers      | l            | a comma-separated list of layers to launch          |\n"
+	"| super       | s            | launch the supervisor					            |\n"
 	"| version     | v            | print the version and exit                          |\n"
 	"| help        | h            | print this help and exit                            |\n"
 	"| docs        | d            | show development documentation                      |\n"
@@ -261,7 +271,8 @@ bool Options::validate()
 		!launch_control &&
 		!launch_console &&
 		!launch_log &&
-		!launch_service
+		!launch_service &&
+		!launch_supervisor
 	)
 		return false;
 
