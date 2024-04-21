@@ -1,0 +1,276 @@
+#include "dls2/main/run_dls2.hpp"
+#include "dls2/core_framework/options.hpp"
+
+#include <filesystem>
+#include <sys/prctl.h>
+
+namespace dls
+{
+	CommandManager RunDLS2::command_manager("dls_framework");
+
+	void RunDLS2::shutdown_all(int)
+	{
+		command_manager.callCommand("shutdown", {"all"});
+	}
+
+	RunDLS2::RunDLS2(int argc, char **argv)
+		: should_quit(false),
+		  sm_watcher("runDLS2_sm_watcher"),
+		  ddspart("ddspart_runDLS2", dls::domains::layers, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SUPER_CLIENT)
+	{
+		change_process_name(argv, "dls_framework");
+
+#ifndef NDEBUG
+		std::cout << "Debug build" << std::endl;
+#endif
+
+		// Parse arguments and verify if they are valid and if there is anything to
+		// do or just print the usage
+		if (!Options::parseArgs(argc, argv))
+			throw std::invalid_argument("wrong arguments");
+
+		// When the user presses CTRL+C, make sure that all layers are shutdown
+		signal(
+			SIGINT,
+			shutdown_all);
+
+		// Add shutdown command
+		command_manager.addCommand<>(
+			"shutdown",
+			"Shutdown the core. It will only exits after all the layers exits.",
+			std::function<bool()>([&]() -> bool
+								  {
+			should_quit.store(true);
+			return true; }),
+			{},
+			true);
+	}
+
+	RunDLS2::~RunDLS2() {}
+
+	void RunDLS2::run()
+	{
+		if (Options::show_docs)
+		{
+			int ret = system(
+				"@DLS_INSTALL_SCRIPTS_DIR@/xdg-open @DLS_INSTALL_DEVELOPMENT_DOCS_DIR@/html/index.html >nul 2>nul &");
+			if (ret == -1)
+			{
+				throw std::runtime_error("Error executing system command to show the documentation.");
+			}
+		}
+
+		// Run startup procedure if requested by the user
+		if (Options::run_startup)
+		{
+			if (Options::startup_file.empty())
+			{
+				Options::startup_file = "@DLS_INSTALL_STARTUP_DIR@/default_startup.yaml";
+			}
+			runStartup(Options::startup_file);
+		}
+		else
+		{ // the user is selecting what to run
+			// Spawn supervisor and servers (if passed as argument)
+			if (Options::launch_supervisor)
+			{
+				launchServers();
+				runLayer("supervisor", "Supervisor");
+			}
+			// Spawn layers (if passed as argument)
+			launchLayers();
+		}
+
+		// Hanging on this executable to intercept CTRL+C. If no layers are running, the executable will exit
+		int num_layers = 1;
+		while (!should_quit.load() || (num_layers > 0))
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(500));
+			std::cout << "..." << std::endl;
+			// Check if at least one layer is running
+			auto layers = ddspart.getParticipants();
+			num_layers = std::count_if(layers.begin(), layers.end(), [](std::string s)
+									   { return s.find("Layer") != std::string::npos; });
+		}
+
+		// Before exiting, wait the closing of layers. It is not necessary, but it is used to print the information at the end only when all the layers are closed
+		for (auto layer : layers)
+		{
+			layer.second->proc->wait(); // wait for the process to exit
+		}
+
+		std::cout << "=== FRAMEWORK NODE STOPPED ===" << std::endl;
+	}
+
+	void RunDLS2::change_process_name(char **argv, const std::string &name)
+	{
+		// change info in /proc/$pid/cmdline
+		int alloted_space = std::strlen(argv[0]);
+		std::strncpy(argv[0], name.c_str(), alloted_space);
+
+		// change info in /proc/$pid/status
+		prctl(PR_SET_NAME, name.c_str());
+	}
+
+	bool RunDLS2::runLayer(const std::string &lib, const std::string &ID)
+	{
+		std::shared_ptr<AppData> pData = std::make_shared<AppData>(ID);
+
+		pData->proc = std::make_shared<boost::process::child>(std::vector<std::string>(
+			{"${DLS_INSTALL_RUNTIME_DIR}/child_process_launcher",
+			 pData->getID(),
+			 lib,
+			 "layer",
+			 Options::robot_name}));
+
+		if (pData->proc == nullptr)
+		{
+			std::cout << "Layer " << lib << " failed to launch: nullptr" << std::endl;
+			return false;
+		}
+		else if (pData->proc->wait_for(std::chrono::duration<double, std::milli>(1500)))
+		{
+			std::cout << "Layer " << lib << " failed to launch: expired timeout" << std::endl;
+			return false;
+		}
+
+		pData->proc->detach();
+		layers.emplace(pData->getID(), pData);
+
+		// activate layer
+		sm_watcher.waitState(pData->getID(), "idle");
+		command_manager.callCommand("activate", {}, pData->getID());
+		sm_watcher.waitState(pData->getID(), "run");
+		return true;
+	}
+
+	void RunDLS2::launchLayers()
+	{
+		if (Options::launch_log)
+			runLayer("log", "LogLayer");
+		if (Options::launch_hardware)
+			runLayer("hardware", "HardwareLayer");
+		if (Options::launch_control)
+			runLayer("control", "ControlLayer");
+		if (Options::launch_console)
+		{
+			runLayer("console", "ConsoleLayer");
+		}
+		if (Options::launch_estimation)
+			runLayer("estimation", Options::estimation_layer_name);
+		if (Options::launch_service)
+		{
+			runLayer("service", "ServiceLayer");
+			launchParamServer();
+			launchActionServers();
+		}
+	}
+
+	void RunDLS2::launchServers()
+	{
+		servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer-users", dls::domains::users, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER));
+		servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer-layers", dls::domains::layers, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER));
+		servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer-command", dls::domains::command, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER));
+		servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer-signals", dls::domains::signals, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER));
+		servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer-controllers", dls::domains::controllers, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER));
+		servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer-hardwares", dls::domains::hardwares, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER));
+		servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer-consoles", dls::domains::consoles, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER));
+		servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer-logging", dls::domains::logging, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER));
+		servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer-services", dls::domains::services, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER));
+		servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer-estimators", dls::domains::estimators, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER));
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+	}
+
+	void RunDLS2::launchParamServer()
+	{
+		// param server
+		command_manager.callCommand("loadService", {"dls_param_server"}, "ServiceLayer");
+		sm_watcher.waitState("dls_param_server", "idle");
+		command_manager.callCommand("activate", {}, "dls_param_server");
+		sm_watcher.waitState("dls_param_server", "run");
+		command_manager.callCommand("setParam", {"robot_name", Options::robot_name}, "dls_param_server");
+	}
+
+	void RunDLS2::launchActionServers()
+	{
+		const std::string actions_path = "@DLS_INSTALL_ACTION_DIR@";
+		for (const auto &entry : std::filesystem::directory_iterator(actions_path))
+		{
+			const std::string path = entry.path();
+			const std::string action_name = path.substr(path.rfind("/") + 1);
+			command_manager.callCommand("loadAction", {action_name}, "ServiceLayer");
+		}
+	}
+
+	void RunDLS2::runStartup(const std::string &startup_file)
+	{
+		YAML::Node config = YAML::LoadFile(startup_file);
+
+		// app_to_layer
+		std::map<std::string, std::string> app_to_layer = {
+			{"hardwares", "HardwareLayer"},
+			{"controllers", "ControlLayer"},
+			{"motion_generators", "ControlLayer"},
+			{"estimators", "EstimationLayer"},
+			{"services", "ServiceLayer"},
+			{"actions", "ServiceLayer"}};
+		// app_to_loading_command
+		std::map<std::string, std::string> app_to_loading_command = {
+			{"hardwares", "loadHardware"},
+			{"controllers", "loadController"},
+			{"motion_generators", "loadGenerator"},
+			{"estimators", "loadEstimator"},
+			{"services", "loadService"},
+			{"actions", "loadAction"}};
+		// collect layers to be run
+		std::vector<std::string> layers;
+		for (std::string layer : config["layers"].as<std::vector<std::string>>())
+		{
+			layers.push_back(layer);
+		}
+		// collect each type of applications to run
+		std::map<std::string, std::vector<std::string>> applications;
+		for (auto pair : app_to_layer)
+		{
+			applications[pair.first] = config[pair.first].as<std::vector<std::string>>();
+		}
+		// get robot name
+		Options::robot_name = config["robot_name"].as<std::string>();
+
+		// launch dds servers
+		launchServers();
+		// launch supervisor
+		runLayer("supervisor", "Supervisor");
+		// launch layers
+		for (auto l : layers)
+		{
+			if (l == "log")
+				Options::launch_log = true;
+			if (l == "hardware")
+				Options::launch_hardware = true;
+			if (l == "control")
+				Options::launch_control = true;
+			if (l == "console")
+				Options::launch_console = true;
+			if (l == "estimation")
+				Options::launch_estimation = true;
+			if (l == "service")
+				Options::launch_service = true;
+		}
+		launchLayers();
+		// launch apps
+		for (auto const &[app_type, app_names] : applications)
+		{
+			for (auto name : app_names)
+			{
+				command_manager.callCommand(app_to_loading_command[app_type], {name}, app_to_layer[app_type]);
+				sm_watcher.waitState(name, "idle");
+			}
+		}
+		// load model (it does not have effect on real robot because currently it is directly loaded the HAL of the robot)
+		for (auto hardware : applications["hardwares"])
+		{
+			command_manager.callCommand("loadModel", {Options::robot_name}, hardware);
+		}
+	}
+}

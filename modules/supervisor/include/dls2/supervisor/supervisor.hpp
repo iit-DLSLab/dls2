@@ -10,6 +10,7 @@
 #include "dls2/util/messaging/dds_participant.hpp"
 #include "dls2/log/log.hpp"
 #include "dls2/application/layer.hpp"
+#include "dls2/state_machine/state_machine_watcher.hpp"
 
 namespace dls
 {
@@ -26,10 +27,8 @@ namespace dls
 		virtual void monitor() override;
 
 	private:
-
-        dls::DDSParticipant layersLink;
-
-		std::map<std::string, std::pair<std::string,bool>> app_states;
+        dls::DDSParticipant ddspart_layers;
+        state_machine::StateMachineWatcher state_machine_watcher;
 	};
 
 	

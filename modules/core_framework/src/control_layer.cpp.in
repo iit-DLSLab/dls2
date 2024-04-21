@@ -350,7 +350,7 @@ bool ControlLayer::loadController(const std::string& lib_name)
         return false;
     }
 
-    scout_sys << "CONTROL LAYER IS LISTENING CONTROLLER " << pData->getID() << " ON TOPIC ControlLayer::Listener::" << pData->getID() <<  std::endl;
+    scout_sys << "CONTROL LAYER IS LISTENING CONTROLLER " << pData->getID() << " ON TOPIC " << pData->getID() <<  std::endl;
 
 	// spline in the controller
 	//

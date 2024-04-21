@@ -93,6 +93,10 @@ set(DLS_INSTALL_DEVELOPMENT_DOCS_DIR /usr/share/doc/dls2
 	CACHE STRING "Directory where software development documentation is stored"
 )
 
+set(DLS_INSTALL_STARTUP_DIR /usr/include/dls2/startup
+	CACHE STRING "Directory where startup files are stored"
+)
+
 set(EIGEN_DIR /usr/include/eigen3
 	CACHE STRING "Directory where Eigen is installed"
 )

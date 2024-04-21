@@ -48,6 +48,8 @@ public:
 	static bool launch_log;
 	static bool launch_service;
 	static bool launch_supervisor;
+	static bool run_startup;
+	static std::string startup_file;
 	static std::string estimation_layer_name;
 
 	static std::string robot_name;

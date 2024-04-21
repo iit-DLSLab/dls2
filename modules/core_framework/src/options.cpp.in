@@ -29,6 +29,8 @@ bool Options::launch_console                = false;
 bool Options::launch_log                    = false;
 bool Options::launch_service                = false;
 bool Options::launch_supervisor             = false;
+bool Options::run_startup		            = false;
+std::string Options::startup_file           = "";
 std::string Options::estimation_layer_name = "EstimationLayer";
 
 // show the documentation in a browser
@@ -52,7 +54,9 @@ bool Options::parseArgs(int argc, char **argv)
 		//long_name    required?           return_short?  short_version
 		{"robot",      required_argument,  nullptr,       'r'},
 		{"layers",     optional_argument,  nullptr,       'l'},
-		{"super",      no_argument,  	   nullptr,       's'},
+		{"super",      no_argument,  	   nullptr,       'c'}, // core
+		{"startup",    no_argument,  	   nullptr,       's'},
+		{"path",       required_argument,  nullptr,       'p'},
 		{"version",    no_argument,        nullptr,       'v'},
 		{"help",       no_argument,        nullptr,       'h'},
 		{"docs",       no_argument,        nullptr,       'd'},
@@ -67,6 +71,9 @@ bool Options::parseArgs(int argc, char **argv)
 	Options::launch_log         =  false;
 	Options::launch_service		=  false;
 	Options::launch_supervisor  = false;
+	Options::run_startup		= false;
+	Options::startup_file = "";
+	Options::estimation_layer_name = "EstimationLayer";
 
 	int opt;
 	while((opt = getopt_long(argc, argv, "r:sHl:vh::cd", long_options, nullptr)) != -1)
@@ -79,6 +86,16 @@ bool Options::parseArgs(int argc, char **argv)
 				break;
 			}
 			case 's':
+			{
+				Options::run_startup = true;
+				break;
+			}
+			case 'p':
+			{
+				Options::startup_file = std::string(optarg);
+				break;
+			}
+			case 'c':
 			{
 				Options::launch_supervisor = true;
 				break;
@@ -231,7 +248,9 @@ void Options::printUsage()
 
 	"< --robot=<hyq|hyqreal|aliengo|go1> | -r <hyq|hyqreal|aliengo|go1> > "
 	"< --layers= | -l ...> "
-	"< --super= | -s ...> "
+	"< --super= | -su ...> "
+	"< --startup= | -s ...> "
+	"< --path= | -p ...> "
 	"[ --version | -v ] "
 	"[ --help | -h ] "
 	"[ --doc | -d ]"
@@ -243,7 +262,9 @@ void Options::printUsage()
 	"|-------------|--------------|-----------------------------------------------------|\n"
 	"| robot       | r            | specify the robot on which the framework is running |\n"
 	"| layers      | l            | a comma-separated list of layers to launch          |\n"
-	"| super       | s            | launch the supervisor					            |\n"
+	"| super       | c            | launch the supervisor (c is for core)               |\n"
+	"| startup     | s            | launch the startup procedure			            |\n"
+	"| path        | p            | set the path for the startup procedure			    |\n"
 	"| version     | v            | print the version and exit                          |\n"
 	"| help        | h            | print this help and exit                            |\n"
 	"| docs        | d            | show development documentation                      |\n"
@@ -272,7 +293,8 @@ bool Options::validate()
 		!launch_console &&
 		!launch_log &&
 		!launch_service &&
-		!launch_supervisor
+		!launch_supervisor &&
+		!run_startup
 	)
 		return false;
 

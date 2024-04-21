@@ -9,31 +9,9 @@ namespace dls
 {
 	Supervisor::Supervisor(std::string ID)
     : Layer(ID, 500)
-    , layersLink(ID, dls::domains::layers, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SUPER_CLIENT)
-	{
-        eprosima::fastdds::dds::DataReaderQos qos(eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT);
-        qos.history().kind = eprosima::fastdds::dds::KEEP_ALL_HISTORY_QOS;
-        qos.durability().kind = eprosima::fastdds::dds::TRANSIENT_LOCAL_DURABILITY_QOS;
-        qos.reliability().kind = eprosima::fastdds::dds::RELIABLE_RELIABILITY_QOS;
-
-        layersLink.addReader(  "watcher", 
-                                dls::topics::state_machine, 
-                                std::function<void(void*)>{[&](void* msg){
-                                    auto component = static_cast<StateMachineMsg*>(msg);
-                                    std::string name = component->app_name();
-                                    std::string state = component->state();
-                                    bool realtime = component->realtime();
-
-                                    if(app_states.find(name) == app_states.end()){
-                                        app_states[name] = std::make_pair(state, realtime);
-                                    }
-                                    else{
-                                        app_states[name].first = state;
-                                        app_states[name].second = realtime;
-                                    }
-                                }},
-                                qos);
-        
+    , ddspart_layers(ID, dls::domains::layers, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SUPER_CLIENT)
+    , state_machine_watcher(ID+"_state_machine_watcher")
+	{        
        	command_manager.addCommand<>
         (
             "info",
@@ -41,7 +19,7 @@ namespace dls
             std::function<bool()>([&]()->bool
             {
                 std::string info = "\n";
-                for (const auto & [key, value] : app_states){
+                for (const auto & [key, value] : state_machine_watcher.app_states){
                     info += key + " " + value.first + " ";
                     if(value.second){
                         info += "RT";
@@ -67,20 +45,20 @@ namespace dls
 
     int Supervisor::getNumLayers()
     {
-        // return layersLink.getParticipants().size()-1;
-        auto layers = layersLink.getParticipants();
+        // return ddspart_layers.getParticipants().size()-1;
+        auto layers = ddspart_layers.getParticipants();
 
         return std::count_if(layers.begin(), layers.end(), [](std::string s) { return s.find("Layer") != std::string::npos; });
     }
 
     std::vector<std::string> Supervisor::getLayersNames()
     {
-        return layersLink.getParticipants();
+        return ddspart_layers.getParticipants();
     }
 
     bool Supervisor::containsLayer(std::string name)
     {
-        auto layers = layersLink.getParticipants();
+        auto layers = ddspart_layers.getParticipants();
 
         return (std::find(layers.begin(), layers.end(), name) != layers.end()); 
     }

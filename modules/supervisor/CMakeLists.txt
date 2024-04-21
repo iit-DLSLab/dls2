@@ -12,7 +12,8 @@ target_include_directories(dls_supervisor
 
 target_link_libraries(dls_supervisor
 	PUBLIC
-		dls_app	
+		dls_app
+		state_machine_watcher
 )
 
 dls_install(dls_supervisor)
