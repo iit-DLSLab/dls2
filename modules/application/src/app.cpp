@@ -24,7 +24,7 @@ App::App(const std::string &ID)
 			this->stop();
             return true;
 		}),
-		{},
+		{{}},
 		true
 	);
 
@@ -37,7 +37,7 @@ App::App(const std::string &ID)
 			std::cout << where() << std::endl;
             return true;
 		}),
-		{},
+		{{}},
 		true
 	);
 
