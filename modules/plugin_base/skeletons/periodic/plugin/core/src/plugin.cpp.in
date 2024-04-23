@@ -49,6 +49,19 @@ namespace @PLUGIN_TYPE@
         write();
     }
 
+    bool @PLUGIN_CLASS_NAME@::checkActivation()
+    {
+        if(basicActivationChecks())
+        {
+            return @PLUGIN_NAME@.init(/*init_inputs*/);
+        }
+        return false;
+    }
+
+    bool @PLUGIN_CLASS_NAME@::deactivation(const std::chrono::system_clock::time_point& time){
+        return true;
+    }
+
     extern "C" PeriodicPluginBase *create(const std::string& ID, const std::string& robot_name)
     {
         /*call_plugin_constructor*/

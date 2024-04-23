@@ -142,11 +142,6 @@ void App::execute(){
 	sm.start();
 }
 
-void App::execute(state_machine::State& state){
-	sm.initState(&state);
-	sm.start();
-}
-
 void App::idle()
 {
 	setDefaultSchedulerPolicy();

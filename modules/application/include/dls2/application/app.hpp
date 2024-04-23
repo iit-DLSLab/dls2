@@ -81,9 +81,6 @@ namespace dls
 		//! Execute the state machine starting from the initial state
 		virtual void execute();
 
-		//! Execute the state machine starting from the input state
-		virtual void execute(state_machine::State& state);
-
 		//! Check if the activation can be performed
 		virtual bool checkActivation();
 

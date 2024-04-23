@@ -22,9 +22,14 @@ namespace @PLUGIN_TYPE@
         ~@MODULE_CLASS_NAME@();
 
         /*!
-        * @brief Run function
+        * @brief Run function. It is called periodically by the plugin
         */
         void run(/*input_arguments, output_arguments*/);
+
+        /*!
+        * @brief Init function. It is called when activating the plugin
+        */
+        bool init(/*init_inputs*/);
     
     private:
         YAML::Node config;

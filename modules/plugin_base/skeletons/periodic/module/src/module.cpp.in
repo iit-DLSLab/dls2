@@ -11,4 +11,9 @@ namespace @PLUGIN_TYPE@
 
     void @MODULE_CLASS_NAME@::run(/*input_arguments, output_arguments*/)
     { }
+
+    bool @MODULE_CLASS_NAME@::init(/*init_inputs*/)
+    {
+        return true;
+    }
 } //namespace @PLUGIN_TYPE@

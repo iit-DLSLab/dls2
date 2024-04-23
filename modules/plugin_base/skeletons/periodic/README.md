@@ -117,7 +117,25 @@ As we said, the module class has been already created. However, you can change t
   
       void run(robotlib::LegDataMap<bool> &stance_sensors_status, const Eigen::Matrix3d& w_R_b, const robotlib::JointState& q, const robotlib::JointState& qd, const robotlib::JointState& qdd, const robotlib::JointState& tau);
   Rember that the order of the arguments is: *inputs* THEN *outputs*. Writing the run arguments in this way allows your module to be independent from the DLS2 messages and messages' wrappers.
+* define the inputs of the init function (and its implementation) that it is called when activating the plugin. For example
 
+      bool init(/*init_inputs*/);
+  becames
+
+      bool init( double period,
+                    const robotlib::JointState& input_joints_position,
+                    const dls::Pose& input_pose,        
+                    robotlib::JointState& output_desired_joints_position,
+                    robotlib::JointState& output_desired_joints_velocity,
+                    robotlib::JointState& output_desired_joints_acceleration,
+                    robotlib::JointState& output_desired_joints_effort,
+                    dls::Pose& output_desired_com_pose_world,
+                    robotlib::LegDataMap<Eigen::Vector3d>& output_nominal_touch_down,
+                    robotlib::LegDataMap<Eigen::Vector3d>& output_touch_down,
+                    robotlib::LegDataMap<bool>& output_stance_legs,
+                    robotlib::LegDataMap<double>& output_swing_period,
+                    robotlib::LegDataMap<double>& output_normal_force_min,
+                    robotlib::LegDataMap<double>& output_normal_force_max);
 * In the class it is also defined a YAML::Node, that it is used to read the module/config/config.yaml file. In this file you can add configurations for your modules, for example
 
       aliengo_th:
@@ -265,7 +283,7 @@ With this functions, we created the data readers and data writers of the plugin,
  * the read() function automatically updates all the inputs
  * the write() function automatically take the output variables and publish them. It also automatically fills the timestamp, if the variable has one; so you do not need to bother about setting it
 
-There are two last steps to be done:
+There are few last steps to be done:
 * in the run function of the plugin, add the correct inputs and outputs to the run function of the module. For example 
 
       stance_detection.run(/*input_arguments, output_arguments*/);
@@ -279,6 +297,64 @@ There are two last steps to be done:
                               blind_state.joints_acceleration_,
                               blind_state.joints_effort_
                               stance_status.stance_status_);
+* _checkActivation_ is the function called when activating the plugin. If you want to initialize your module when activating the plugin, you can call the _init_ function of the module inside _checkActivation_. For example
+
+      bool PeriodicGeneratorPlugin::checkActivation()
+      {
+            if(basicActivationChecks())
+            {
+                  return periodic_generator.init(/*init_inputs*/);
+            }
+            return false;
+      }
+  becames
+
+      bool PeriodicGeneratorPlugin::checkActivation()
+      {
+            if(basicActivationChecks())
+            {
+                  read();
+                  return periodic_generator.init(
+                              getPeriod().count()/(1000000.0),
+                              input_blind_state.joints_position_,
+                              input_base_state.pose_, 
+
+                              output_traj_gen.desired_joints_position_,
+                              output_traj_gen.desired_joints_velocity_,
+                              output_traj_gen.desired_joints_acceleration_,
+                              output_traj_gen.desired_joints_effort_,
+                              output_traj_gen.desired_com_pose_world_,
+                              output_traj_gen.nominal_touch_down_,
+                              output_traj_gen.touch_down_,
+                              output_traj_gen.stance_legs_,
+                              output_traj_gen.swing_period_,
+                              output_traj_gen.normal_force_min_,
+                              output_traj_gen.normal_force_max_);
+            }
+            return false;
+        }
+* when deactivating the plugin, the _deactivation_ function is called periodically instead of the run function. In this case, you can customize what to do when deactivating. For example
+
+      bool PeriodicGeneratorPlugin::deactivation(const std::chrono::system_clock::time_point& time){
+            return true;
+      }
+
+  becames
+
+      if(!periodic_generator.isGeneratingTrajectory()){
+            return true;
+      }
+      else{
+      if(!periodic_generator.isStopRequested())
+            periodic_generator.stopMotion();
+
+      run(time);
+
+      if(periodic_generator.isStopped())
+            return true;
+      else
+            return false;
+      }
 
 * when choosing what to build and install with the *ccmake ..* command, set to *ON* the *<plugin_name>_plugin/core* and *<plugin_name>_plugin/console_comm* options. If you are using custom messages and/or custom topics set to *ON*, respectively, *<plugin_name>_plugin/messages* and *<plugin_name>_plugin/topics* options.
 

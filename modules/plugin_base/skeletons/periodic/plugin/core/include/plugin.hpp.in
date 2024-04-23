@@ -26,6 +26,10 @@ namespace @PLUGIN_TYPE@
 
         AppStatus eStop() override { return getStatus(); }
 
+        bool checkActivation() override;
+
+        bool deactivation(const std::chrono::system_clock::time_point& time) override;
+
     private:
         @MODULE_CLASS_NAME@ @PLUGIN_NAME@;
         @CONSOLE_COMMANDS_CLASS_NAME@ console_commands;
