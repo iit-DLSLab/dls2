@@ -1,5 +1,6 @@
 
 #include "dls2/core_framework/service_layer.hpp"
+#include "dls2/util/utils.hpp"
 
 #include "dls2/class_loader.hpp"
 #include "dls2/core_framework/options.hpp"
@@ -85,12 +86,10 @@ ServiceLayer::~ServiceLayer()
 void ServiceLayer::monitor(){}
 
 void ServiceLayer::close(){
-	std::vector<std::string> keys;
 	for(auto pair : this->services)
-		keys.push_back(pair.first);
-	
-	for(auto key : keys)
-		this->unloadService(key);
+		this->unloadService(pair.first);
+	for(auto pair : this->actions)
+		this->unloadAction(pair.first);
 }
 
 bool ServiceLayer::loadService(const std::string& lib_name)
@@ -130,12 +129,6 @@ bool ServiceLayer::loadService(const std::string& lib_name)
 			scout_err << "Service " << lib_name <<" failed to launch: nullptr" << std::endl;
 			return false;
 		}
-		else if (pData->proc->wait_for(std::chrono::duration<double, std::milli>(1500))){
-			scout_err << "Service " << lib_name <<" failed to launch: expired timeout" << std::endl;
-			return false;
-		}
-
-		scout_sys << "SERVICE " << pData->getID() << " IS ON" <<  std::endl;
 
 		this->services.emplace(pData->getID(), pData);
 	}
@@ -161,22 +154,18 @@ bool ServiceLayer::unloadService(const std::string ID)
     //shutdown service over the dds comunication layer
 	command_manager.callCommand("shutdown", {}, ID);
 
-    // wait a little for service to exit
-	std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
-
-	if(pData->proc->running()){
-		scout_warn << "### SERVICE " << ID <<" IS STILL RUNNING WAITING A LITTLE TO GET PROPPER EXIT ###" << std::endl;
-		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
-		if(pData->proc->running()){
-			scout_warn << "### FORCING SERVICE " << ID <<" TO EXIT ###" << std::endl;
-			kill(pData->proc->id(), SIGKILL);
-		}
-	}
-	else
-	{
-		scout_sys << "Service " + ID + " is unloaded" << std::endl;
+	bool unloaded = false;
+	if(!utils::waitFunction(std::function<bool()>([&](){
+			if(pData->proc->running()){
+				return false;
+			}
+			return true;
+		}), 2000, 10, unloaded)){
+		scout_warn << "### FORCING SERVICE " << ID << " EXIT ###" << std::endl;
+		kill(pData->proc->id(), SIGKILL);		
 	}
 
+	scout_sys << "Service " + ID + " is unloaded" << std::endl;
 	pData->proc = nullptr;
 	this->services.erase(ID);
     return true;
@@ -215,15 +204,9 @@ bool ServiceLayer::loadAction(const std::string& action_name)
 		}));
 
 		if (pData->proc == nullptr){
-			scout_err << "Action " << action_name <<" failed to launch: nullptr" << std::endl;
+			std::cout << "Action " << action_name <<" failed to launch: nullptr" << std::endl;
 			return false;
 		}
-		else if (pData->proc->wait_for(std::chrono::duration<double, std::milli>(1500))){
-			scout_err << "Action " << action_name <<" failed to launch: expired timeout" << std::endl;
-			return false;
-		}
-
-		scout_sys << "ACTION " << pData->getID() << " IS ON" <<  std::endl;
 
 		this->actions.emplace(pData->getID(), pData);
 	}
@@ -244,24 +227,22 @@ bool ServiceLayer::unloadAction(const std::string &action_name)
 
 	auto pData = res->second;
 
-    //shutdown action over the dds comunication layer
+    //shutdown service over the dds comunication layer
 	command_manager.callCommand("shutdown", {}, action_name);
-    // wait a little for action to exit
-	std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
 
-	if(pData->proc->running()){
-		scout_warn << "### ACTION " << action_name <<" IS STILL RUNNING WAITING A LITTLE TO GET PROPER EXIT ###" << std::endl;
-		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
-		if(pData->proc->running()){
-			scout_warn << "### FORCING ACTION " << action_name <<" TO EXIT ###" << std::endl;
-			kill(pData->proc->id(), SIGKILL);
-		}
+	bool unloaded = false;
+	if(!utils::waitFunction(std::function<bool()>([&](){
+			if(pData->proc->running()){
+				return false;
+			}
+			return true;
+		}), 2000, 10, unloaded)){
+		std::cout << "### FORCING ACTION " << action_name << " EXIT ###" << std::endl;
+		kill(pData->proc->id(), SIGKILL);		
 	}
-	else
-	{
-		scout_sys << "Action " + action_name + " is unloaded" << std::endl;
-	}
-
+	
+	std::cout << "Action " + action_name + " is unloaded" << std::endl;
+	
 	pData->proc = nullptr;
 	this->actions.erase(action_name);
     return true;

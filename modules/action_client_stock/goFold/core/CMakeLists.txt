@@ -18,7 +18,7 @@ target_link_libraries(${ACTION_NAME}
 		dls_message_wrappers
 		#${MSGS_WRAPPERS_LIBRARY_NAME}
 		${TOPICS_LIBRARY_NAME}
-		yaml
+		yaml-cpp
 		# add other linked libraries here
 )
 target_link_directories(${ACTION_NAME}

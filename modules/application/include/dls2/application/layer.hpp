@@ -47,10 +47,6 @@ namespace dls
 		/// exist
 		AppStatus getComponentStatus(const std::string &name);
 
-		/// Get the dds communication participant of the layer
-		/// @return pointer to the participant
-		std::shared_ptr<dls::DDSParticipant> getParticipant();
-
 		//! Run the layer - used in state machine
 		virtual AppStatus run() override;
 
@@ -64,10 +60,10 @@ namespace dls
 
 		std::chrono::milliseconds sleep_time;
 
-	private:
+	protected:
 		/// DDS communication link
         ///
-		std::shared_ptr<dls::DDSParticipant> ddsLink;
+		std::shared_ptr<dls::DDSParticipant> ddspart_layer;
 
 	};
 } // end namespace dls

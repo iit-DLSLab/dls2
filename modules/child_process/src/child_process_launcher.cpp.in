@@ -30,6 +30,20 @@
 // Using Declarations
 // =============================================================================
 using namespace dls;
+std::string process_name("");
+CommandManager stopper("process_launcher");
+void shutdown(int)
+{
+    bool stop_wait = false;
+    if (process_name.compare("")==0)
+        exit(EXIT_FAILURE);
+    else if(stopper.waitCommand(process_name, "shutdown", stop_wait))
+        stopper.callCommand("shutdown", {}, process_name);
+    else{
+        std::cerr << process_name <<"::shutdown not found. Process is brutally killed.";
+        exit(EXIT_FAILURE);
+    }
+}
 
 // =============================================================================
 // Globals
@@ -81,9 +95,11 @@ void change_process_name(char **argv, const std::string &name)
 // =============================================================================
 int main(int argc, char **argv)
 {
+    // When the user presses CTRL+C, make sure that all layers are shutdown
+    signal(
+        SIGINT,
+        shutdown);
     // give time to the logstrem connect to the logger layer
-    // std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    // scout_sys << "PROCESS LAUNCHER CALLED" << std::endl;
     Args args = parse_args(argc, argv);
     
     std::shared_ptr<App> pComponent;
@@ -213,8 +229,7 @@ int main(int argc, char **argv)
         exit(EXIT_FAILURE);
     }
 
-    // Register signal handler
-    // std::signal(SIGINT, signal_handler);
+    process_name = pComponent->getID();
 
     change_process_name(argv, args.component_name.c_str());
 
@@ -259,18 +274,3 @@ Args parse_args(int argc, char **argv)
 
     return args;
 }
-
-// void signal_handler(int signal)
-// {
-//     if (signal == SIGINT)
-//     {
-//         pComponent->stop();
-
-//         // std::cout << pComponent->getID() << " received kill request" << std::endl;
-//         AppStatus exit_status = pComponent->getStatus();
-
-//         // give fastrtps a moment to send its message
-//         // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-//         exit(static_cast<int>(exit_status));
-//     }
-// }

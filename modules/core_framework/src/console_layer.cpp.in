@@ -10,6 +10,7 @@ namespace dls
 		char *command_generator(const char *text, int state);
 		char *load_layer_argument_generator(const char *text, int state);
 		void display_matches(char **matches, int num_matches, int max_length);
+		int event(void);
 
 		// dls::readline_completion::ConsoleLayer object, visible from Readline functions, pointing to the main dls::ConsoleLayer object
 		ConsoleLayer* console_layer = nullptr;
@@ -224,6 +225,7 @@ namespace dls
 				rl_reset_line_state();
 			}
 		}
+		int event(void){return 0;}
 	} // namespace readline_completion
 
 	// dls::ConsoleLayer implementation
@@ -238,6 +240,9 @@ namespace dls
 	{
 		// Assign the dls::readline_completion::ConsoleLayer pointer to the dls::ConsoleLayer object
 		readline_completion::console_layer = this;
+		// Make readline reading rl_done variable, set when shutting down the control layer in the stop() function.
+		// When rl_done variable is set to a value !=0, readline return immediately. So the console layer will not wait for a character before exiting
+		rl_event_hook = readline_completion::event;
 
 		command_manager.addCommand<>
 		(
@@ -347,6 +352,13 @@ namespace dls
 
 	void ConsoleLayer::close(){}
 	
+	void ConsoleLayer::stop()
+	{
+		// When rl_done variable is set to a value !=0, readline return immediately. So the console layer will not wait for a character before exiting
+		rl_done = 1;
+		sm.raiseEvent(sm.quit_request);
+	}
+
 	std::string ConsoleLayer::where()
 	{
 		// TODO: Implement

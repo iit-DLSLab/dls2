@@ -2,6 +2,7 @@
 #define COMMAND_MANAGER_CPP
 
 #include "dls2/command/command_manager.hpp"
+#include "dls2/util/utils.hpp"
 
 using namespace dls;
 
@@ -283,4 +284,18 @@ void CommandManager::changeTransitionSet(const std::string& command_name, const 
 	else
 		std::cout << "Could not find command " << command_name << std::endl;
 }
+
+bool CommandManager::waitCommand(const std::string& owner, const std::string& name, bool& stop_wait){
+		if(!utils::waitFunction(std::function<bool()>([&](){
+					if(this->find(owner,name).size()==0){
+						return false;
+					}
+					return true;
+				}), 3000, 2, stop_wait)){
+			if(!stop_wait)
+				std::cerr << "Command " << owner << "::" << name<<" not found" << std::endl;
+			return false;
+		}
+		return true;
+	}	
 #endif /* end of include guard: COMMAND_MANAGER_CPP */

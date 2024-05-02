@@ -28,7 +28,7 @@ namespace dls
         static void shutdown_all(int);
 
         static CommandManager command_manager;
-        std::atomic_bool should_quit;
+        static bool should_quit;
         std::map<std::string, std::shared_ptr<AppData>> layers;
         //! List of discovery servers
         std::vector<std::shared_ptr<DDSParticipant>> servers;

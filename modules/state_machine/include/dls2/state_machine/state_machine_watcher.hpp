@@ -17,7 +17,9 @@ namespace state_machine
         StateMachineWatcher(const std::string &name);
         ~StateMachineWatcher();
 
-        bool waitState(const std::string &app_name, const std::string &state) const;
+        /*! @brief Wait the state of an application until the stop_wait variable becomes true or the state is found
+        */
+        bool waitState(const std::string &app_name, const std::string &state, bool& stop_wait) const;
 
         std::map<std::string, std::pair<std::string, bool>> app_states;
 

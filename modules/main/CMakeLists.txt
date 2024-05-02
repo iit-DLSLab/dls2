@@ -28,7 +28,7 @@ target_link_libraries(dynamic_legged_systems_framework
 		state_machine_watcher
 		fastcdr
 		fastrtps
-		yaml
+		yaml-cpp
 )
 
 dls_install(dynamic_legged_systems_framework)

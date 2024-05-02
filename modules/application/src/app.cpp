@@ -24,7 +24,7 @@ App::App(const std::string &ID)
 			this->stop();
             return true;
 		}),
-		{{}},
+		{},
 		true
 	);
 
@@ -37,7 +37,7 @@ App::App(const std::string &ID)
 			std::cout << where() << std::endl;
             return true;
 		}),
-		{{}},
+		{},
 		true
 	);
 
@@ -170,10 +170,13 @@ void App::activation()
 	// -- either it can be activated
 	// -- or the timeout is expired
 	// -- or a quit request is received
-	while(!activate && enlapsed_time <= timeout && !sm.isRaised(sm.quit_request)){
+	while(enlapsed_time <= timeout && !sm.isRaised(sm.quit_request)){
 	    activate = checkActivation();
+		if(activate){
+			break;
+		}
 
-	    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+		std::this_thread::sleep_for(std::chrono::milliseconds(500));
 	    enlapsed_time = std::chrono::duration_cast<std::chrono::seconds>(
 	                    std::chrono::high_resolution_clock::now() - start).count();
 	}

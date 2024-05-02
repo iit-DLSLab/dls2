@@ -15,6 +15,7 @@ target_link_libraries(dls_command
 		dls_com
 		dls_topics
 		dls_domains
+		dls_utils
 )
 
 dls_install(dls_command)

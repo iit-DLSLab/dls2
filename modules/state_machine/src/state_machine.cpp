@@ -56,10 +56,6 @@ namespace state_machine
         {
             this->is_async_event[event].store(false);
         }
-        
-        state_machine_msg.state() = state->name;
-        state_machine_msg.realtime() = false;
-        notify();
 
         runState();
     }

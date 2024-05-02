@@ -35,15 +35,16 @@ namespace state_machine
     }
     StateMachineWatcher::~StateMachineWatcher() {}
 
-    bool StateMachineWatcher::waitState(const std::string &app_name, const std::string &state) const
-    {
-        // wait application
-        while (app_states.find(app_name) == app_states.end())
+    bool StateMachineWatcher::waitState(const std::string &app_name, const std::string &state, bool& stop_wait) const
+    {       
+        // wait app
+        while (!stop_wait && app_states.find(app_name) == app_states.end())
         {
             std::this_thread::sleep_for(std::chrono::milliseconds(5));
         }
+
         // wait state
-        while (app_states.at(app_name).first != state)
+        while (!stop_wait && app_states.at(app_name).first != state)
         {
             std::this_thread::sleep_for(std::chrono::milliseconds(5));
         }

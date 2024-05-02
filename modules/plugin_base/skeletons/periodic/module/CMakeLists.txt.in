@@ -9,7 +9,7 @@ target_include_directories(${MODULE_LIBRARY_NAME}
 	# add other include directories here
 )
 target_link_libraries(${MODULE_LIBRARY_NAME}
-	yaml
+	yaml-cpp
 	# add other linked libraries here
 )
 

@@ -7,17 +7,22 @@
 namespace dls
 {
 	CommandManager RunDLS2::command_manager("dls_framework");
+	bool RunDLS2::should_quit(false);
 
 	void RunDLS2::shutdown_all(int)
 	{
-		command_manager.callCommand("shutdown", {"all"});
+		should_quit = true;
 	}
 
 	RunDLS2::RunDLS2(int argc, char **argv)
-		: should_quit(false),
-		  sm_watcher("sm_watcher_runDLS2"),
+		: sm_watcher("sm_watcher_runDLS2"),
 		  ddspart("ddspart_runDLS2", dls::domains::layers, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SUPER_CLIENT)
 	{
+		// When the user presses CTRL+C, make sure that all layers are shutdown
+		signal(
+			SIGINT,
+			shutdown_all);
+
 		change_process_name(argv, "dls_framework");
 
 #ifndef NDEBUG
@@ -29,19 +34,13 @@ namespace dls
 		if (!Options::parseArgs(argc, argv))
 			throw std::invalid_argument("wrong arguments");
 
-		// When the user presses CTRL+C, make sure that all layers are shutdown
-		signal(
-			SIGINT,
-			shutdown_all);
-
 		// Add shutdown command
 		command_manager.addCommand<>(
 			"shutdown",
 			"Shutdown the core. It will only exits after all the layers exits.",
-			std::function<bool()>([&]() -> bool
-								  {
-			should_quit.store(true);
-			return true; }),
+			std::function<bool()>([&]() -> bool{	
+				should_quit = true;
+				return true;}),
 			{},
 			true);
 	}
@@ -60,6 +59,28 @@ namespace dls
 			}
 		}
 
+		if (Options::kill_dls2)
+		{
+			int ret = system(
+				"pkill -9 dls_framework;\
+					pkill -9 ControlLayer;\
+					pkill -9 ConsoleLayer;\
+					pkill -9 ServiceLayer;\
+					pkill -9 ControlLayer;\
+					pkill -9 LogLayer;\
+					pkill -9 HardwareLayer;\
+					pkill -9 EstimationLayer;\
+					pkill -9 dls_param_serve;\
+					pkill -9 Supervisor;\
+					pkill -9 gazebo_sim");
+			if (ret == -1)
+			{
+				throw std::runtime_error("Error executing system command to show the documentation.");
+			}
+
+			command_manager.callCommand("shutdown", {"all"});
+			exit(EXIT_SUCCESS);
+		}
 		// Run startup procedure if requested by the user
 		if (Options::run_startup)
 		{
@@ -83,9 +104,11 @@ namespace dls
 
 		// Hanging on this executable to intercept CTRL+C. If no layers are running, the executable will exit
 		int num_layers = 1;
-		while (!should_quit.load() || (num_layers > 0))
+		while (!should_quit || (num_layers > 0))
 		{
 			std::this_thread::sleep_for(std::chrono::milliseconds(500));
+			if(should_quit)
+				command_manager.callCommand("shutdown", {"all"});
 
 			// Check if at least one layer is running
 			auto layers = ddspart.getParticipants();
@@ -94,8 +117,10 @@ namespace dls
 		}
 
 		// Before exiting, wait the closing of layers. It is not necessary, but it is used to print the information at the end only when all the layers are closed
+		std::cout << "\n"<< std::endl;
 		for (auto layer : layers)
 		{
+			std::cout << "Waiting for " << layer.first << " to exit..." << std::endl;
 			layer.second->proc->wait(); // wait for the process to exit
 		}
 
@@ -128,37 +153,31 @@ namespace dls
 			std::cout << "Layer " << lib << " failed to launch: nullptr" << std::endl;
 			return false;
 		}
-		else if (pData->proc->wait_for(std::chrono::duration<double, std::milli>(1500)))
-		{
-			std::cout << "Layer " << lib << " failed to launch: expired timeout" << std::endl;
-			return false;
-		}
 
 		pData->proc->detach();
 		layers.emplace(pData->getID(), pData);
 
 		// activate layer
-		sm_watcher.waitState(pData->getID(), "idle");
-		command_manager.callCommand("activate", {}, pData->getID());
-				sm_watcher.waitState(pData->getID(), "run");
-				return true;
+		sm_watcher.waitState(pData->getID(), "idle", should_quit);
+		if(command_manager.waitCommand(pData->getID(), "activate", should_quit))
+			command_manager.callCommand("activate", {}, pData->getID());
+		sm_watcher.waitState(pData->getID(), "run", should_quit);
+		return true;
 	}
 
 	void RunDLS2::launchLayers()
 	{
-		if (Options::launch_log)
+		if (Options::launch_log && !should_quit)
 			runLayer("log", "LogLayer");
-		if (Options::launch_hardware)
+		if (Options::launch_hardware && !should_quit)
 			runLayer("hardware", "HardwareLayer");
-		if (Options::launch_control)
+		if (Options::launch_control && !should_quit)
 			runLayer("control", "ControlLayer");
-		if (Options::launch_console)
-		{
-						runLayer("console", "ConsoleLayer");
-		}
-		if (Options::launch_estimation)
+		if (Options::launch_console && !should_quit)
+			runLayer("console", "ConsoleLayer");
+		if (Options::launch_estimation && !should_quit)
 			runLayer("estimation", Options::estimation_layer_name);
-		if (Options::launch_service)
+		if (Options::launch_service && !should_quit)
 		{
 			runLayer("service", "ServiceLayer");
 			launchParamServer();
@@ -184,12 +203,14 @@ namespace dls
 	void RunDLS2::launchParamServer()
 	{
 		// param server
-		command_manager.callCommand("loadService", {"dls_param_server"}, "ServiceLayer");
-		sm_watcher.waitState("dls_param_server", "idle");
-		std::this_thread::sleep_for(std::chrono::milliseconds(50));
-		command_manager.callCommand("activate", {}, "dls_param_server");
-		sm_watcher.waitState("dls_param_server", "run");
-		command_manager.callCommand("setParam", {"robot_name", Options::robot_name}, "dls_param_server");
+		if(command_manager.waitCommand("ServiceLayer", "loadService", should_quit))
+			command_manager.callCommand("loadService", {"dls_param_server"}, "ServiceLayer");
+		sm_watcher.waitState("dls_param_server", "idle", should_quit);
+		if(command_manager.waitCommand("dls_param_server", "activate", should_quit))
+			command_manager.callCommand("activate", {}, "dls_param_server");
+		sm_watcher.waitState("dls_param_server", "run", should_quit);
+		if(command_manager.waitCommand("dls_param_server", "setParam", should_quit))
+			command_manager.callCommand("setParam", {"robot_name", Options::robot_name}, "dls_param_server");
 	}
 
 	void RunDLS2::launchActionServers()
@@ -199,7 +220,8 @@ namespace dls
 		{
 			const std::string path = entry.path();
 			const std::string action_name = path.substr(path.rfind("/") + 1);
-			command_manager.callCommand("loadAction", {action_name}, "ServiceLayer");
+			if(command_manager.waitCommand("ServiceLayer", "loadAction", should_quit))
+				command_manager.callCommand("loadAction", {action_name}, "ServiceLayer");
 		}
 	}
 
@@ -259,19 +281,26 @@ namespace dls
 				Options::launch_service = true;
 		}
 		launchLayers();
+
+		if(!should_quit && !Options::launch_console){
+			// ask user to launch console layer (due to dds issue that a writer cannot discover too many readers at the same time)
+			std::cout << "\n\nLAUNCH THE CONSOLE LAYER, THEN I WILL CONTINUE TO LOAD APPLICATIONS\n\n";
+			sm_watcher.waitState("ConsoleLayer", "run", should_quit);
+		}
 		// launch apps
 		for (auto const &[app_type, app_names] : applications)
 		{
 			for (auto name : app_names)
 			{
 				command_manager.callCommand(app_to_loading_command[app_type], {name}, app_to_layer[app_type]);
-				sm_watcher.waitState(name, "idle");
+				sm_watcher.waitState(name, "idle", should_quit);
 			}
 		}
 		// load model (it does not have effect on real robot because currently it is directly loaded the HAL of the robot)
 		for (auto hardware : applications["hardwares"])
 		{
-			command_manager.callCommand("loadModel", {Options::robot_name}, hardware);
+			if(command_manager.waitCommand(hardware, "loadModel", should_quit))
+				command_manager.callCommand("loadModel", {Options::robot_name}, hardware);
 		}
 	}
 }

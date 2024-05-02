@@ -53,7 +53,7 @@ namespace dls
 				param_store.emplace(key, data);
 				return true;
 			}),
-			{{}},
+			{},
 			true
 		);
 
@@ -70,7 +70,7 @@ namespace dls
 				}
 				return true;
 			}),
-			{{}},
+			{},
 			true
 		);
 

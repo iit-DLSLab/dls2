@@ -8,19 +8,14 @@ Layer::Layer(const std::string &ID, int sleep_time_ms)
 	, components_mutex()
     , components({})
 	, sleep_time (std::chrono::milliseconds(sleep_time_ms))
-	, ddsLink(std::make_shared<dls::DDSParticipant>(ID, dls::domains::layers))
+	, ddspart_layer(std::make_shared<dls::DDSParticipant>(ID, dls::domains::layers))
 {
 	// With Discovery Server, a Client A can discover a Client B if and only if B has at least 1 Writer/Reader. Therefore, a fake writer is added to a layer to allow the Supervisor to discover the layers
 	const std::string writer_name(ID + " fake writer");
-	ddsLink->addWriter(writer_name, dls::topics::command_call);
+	ddspart_layer->addWriter(writer_name, dls::topics::command_call);
 }
 Layer::~Layer()
 { }
-
-std::shared_ptr<dls::DDSParticipant> Layer::getParticipant()
-{
-	return ddsLink;
-}
 
 void Layer::addComponent(const std::string &name, pComponent_t component)
 {

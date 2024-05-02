@@ -96,11 +96,13 @@ LogLayer::LogLayer(std::string ID)
 
 void LogLayer::close()
 {
-	int i = 0;
-	while(this->getParticipant()->getParticipants().size() > 1 && i < 10)
+	bool close = false;
+	while(!close)
 	{
-		i++;
-		std::this_thread::sleep_for(std::chrono::milliseconds(500));
+		auto participants = ddspart_layer->getParticipants();
+		if(participants.size()<=2) // if it is two, only the server for layers and the LogLayer itself are left
+			close = true;
+		std::this_thread::sleep_for(std::chrono::milliseconds(5));
 	}
 }
 

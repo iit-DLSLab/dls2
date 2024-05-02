@@ -51,6 +51,9 @@ namespace dls
 
 		void monitor() override;
 
+		// needed to unblock the console from the readline
+		void stop() override;
+
 	private:
 		// Map with "load[Layer]" commands and associated installation folders
 		const std::map<std::string, std::string> load_layers_paths_;
