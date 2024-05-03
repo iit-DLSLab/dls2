@@ -1,17 +1,17 @@
-#include "dls2/plugin_base/plugin_base.hpp"
+#include "dls2/plugin/plugin.hpp"
 
 namespace dls
 {
-	PluginBase::PluginBase(const std::string &ID, const domainType &domain)
+	Plugin::Plugin(const std::string &ID, const domainType &domain)
 		: dds_participant_(std::make_shared<dls::DDSParticipant>(ID, domain))
 		, warner(ID)
 	{}
 
-	PluginBase::~PluginBase()
+	Plugin::~Plugin()
 	{
 	}
 
-	void PluginBase::read()
+	void Plugin::read()
 	{
 		for (long unsigned int i = 0; i < readers_.size(); i++)
 		{
@@ -19,12 +19,12 @@ namespace dls
 		}
 	}
 
-	void PluginBase::read(const std::string& name)
+	void Plugin::read(const std::string& name)
 	{
 		readers_map_[name].second->setDataFromWrapperBase(readers_map_[name].first->getWrapperBasePtr());
 	}
 
-	void PluginBase::write()
+	void Plugin::write()
 	{
 		for (long unsigned int i = 0; i < writers_.size(); i++)
 		{
@@ -37,7 +37,7 @@ namespace dls
 		}
 	}
 
-	void PluginBase::write(const std::string &name)
+	void Plugin::write(const std::string &name)
 	{
 		writers_map_[name].first->setDataFromWrapperBase(writers_map_[name].second);
 		if (writers_map_[name].first->hasTimestamp())
@@ -47,7 +47,7 @@ namespace dls
 		writers_map_[name].first->publish();
 	}
 
-	bool PluginBase::areOutputsUnique()
+	bool Plugin::areOutputsUnique()
 	{
 		// iterate over the writers, getting their topic type
 		for(auto writer : writers_)
@@ -82,7 +82,7 @@ namespace dls
 		return true;
 	}
 
-	bool PluginBase::areInputsReceivingData()
+	bool Plugin::areInputsReceivingData()
 	{
 		bool are_inputs_receiving_data = true;
 		std::stringstream missing_inputs("");
@@ -106,11 +106,11 @@ namespace dls
 		return are_inputs_receiving_data;
 	}
 
-	bool PluginBase::basicActivationChecks(){
+	bool Plugin::basicActivationChecks(){
 		return areInputsReceivingData() && areOutputsUnique();
 	}
 
-	std::shared_ptr<SignalReaderBase> PluginBase::getReader(const std::string &name)
+	std::shared_ptr<SignalReaderBase> Plugin::getReader(const std::string &name)
 	{
 		return readers_map_[name].first;
 	}

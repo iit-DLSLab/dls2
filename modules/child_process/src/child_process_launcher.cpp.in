@@ -17,7 +17,7 @@
 #include "dls2/class_loader.hpp"
 #include "dls2/motion_generator/motion_generator.hpp"
 #include "dls2/controller/controller.hpp"
-#include "dls2/plugin_base/periodic_plugin_base.hpp"
+#include "dls2/plugin/periodic_app_plugin.hpp"
 #include "dls2/hardware/hardware.hpp"
 #include "dls2/estimator/estimator.hpp"
 #include "dls2/service/service_base.hpp"
@@ -128,7 +128,7 @@ int main(int argc, char **argv)
             }
             else{// periodic plugin
                 pComponent =
-                        ClassLoader::loadClass<PeriodicPluginBase, std::string>(
+                        ClassLoader::loadClass<PeriodicAppPlugin, std::string>(
                             std::string("${DLS_INSTALL_CONTROLLER_DIR}/lib") + args.lib_name + ".so",
                             args.component_name,
                             args.robot_name);
@@ -144,7 +144,7 @@ int main(int argc, char **argv)
             }
             else{// periodic plugin
                 pComponent =
-                        ClassLoader::loadClass<PeriodicPluginBase, std::string>(
+                        ClassLoader::loadClass<PeriodicAppPlugin, std::string>(
                             std::string("${DLS_INSTALL_MOTION_GENERATOR_DIR}/lib") + args.lib_name + ".so",
                             args.component_name,
                             args.robot_name);
@@ -160,7 +160,7 @@ int main(int argc, char **argv)
             }
             else{
                 pComponent =
-                        ClassLoader::loadClass<PeriodicPluginBase, std::string>(
+                        ClassLoader::loadClass<PeriodicAppPlugin, std::string>(
                             std::string("${DLS_INSTALL_HARDWARE_DIR}/lib") + args.lib_name + ".so",
                             args.component_name,
                             args.robot_name);
@@ -195,7 +195,7 @@ int main(int argc, char **argv)
             try
             {
                 pComponent =
-                    ClassLoader::loadClass<PeriodicPluginBase, std::string>(
+                    ClassLoader::loadClass<PeriodicAppPlugin, std::string>(
                         std::string("${DLS_INSTALL_ACTION_DIR}/"+args.lib_name+"/lib") + args.lib_name + ".so",
                         args.component_name,
                         args.robot_name);
@@ -204,7 +204,7 @@ int main(int argc, char **argv)
 	        {
                 scout_sys << "catch\n";
                 pComponent =
-                    ClassLoader::loadClass<PeriodicPluginBase, std::string>(
+                    ClassLoader::loadClass<PeriodicAppPlugin, std::string>(
                         std::string("/usr/lib/dls2/lib") + args.lib_name + ".so",
                         args.component_name,
                         args.robot_name);

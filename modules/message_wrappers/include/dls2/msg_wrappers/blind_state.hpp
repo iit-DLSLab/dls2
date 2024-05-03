@@ -15,7 +15,7 @@ namespace dls
 	public:
 	    template <typename SignalType>
 		friend class SignalWriter;
-		friend class PluginBase;
+		friend class Plugin;
 
 		BlindState(const std::shared_ptr<robotlib::RobotBase> robot);
 		BlindState(BlindState& blind_state);

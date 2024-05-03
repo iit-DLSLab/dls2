@@ -12,7 +12,7 @@ namespace dls
 	class SignalWriterBase
 	{
 	public:
-		friend class PluginBase;
+		friend class Plugin;
 
 		SignalWriterBase(std::shared_ptr<dls::DDSParticipant> dds_participant, const dls::topicType& topic);
 		~SignalWriterBase();

@@ -64,7 +64,7 @@ namespace dls
 		return false;
     }
 
-    extern "C" PeriodicPluginBase *create(const std::string &ID, const std::string &robot_name)
+    extern "C" PeriodicAppPlugin *create(const std::string &ID, const std::string &robot_name)
     {
         if (robot_name == "")
         {
@@ -85,7 +85,7 @@ namespace dls
         return new GoHomeServer(ID, pRobot);
     }
 
-    extern "C" void destroy(PeriodicPluginBase *p)
+    extern "C" void destroy(PeriodicAppPlugin *p)
     {
         delete p;
     }

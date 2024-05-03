@@ -1,12 +1,12 @@
-#ifndef PLUGIN_BASE_TPP
-#define PLUGIN_BASE_TPP
+#ifndef PLUGIN_TPP
+#define PLUGIN_TPP
 
-#include "dls2/plugin_base/plugin_base.hpp"
+#include "dls2/plugin/plugin.hpp"
 
 namespace dls
 {
 	template <typename MsgWrapperType>
-	void PluginBase::buildInput(const dls::topicType &topic, WrapperBase *input, const std::function<void()> &auxiliary_callback, bool required_on_activation)
+	void Plugin::buildInput(const dls::topicType &topic, WrapperBase *input, const std::function<void()> &auxiliary_callback, bool required_on_activation)
 	{
 		// Add data reader
 		readers_.push_back(std::make_shared<SignalReader<MsgWrapperType>>(
@@ -22,7 +22,7 @@ namespace dls
 	}
 
 	template <typename MsgWrapperType>
-	void PluginBase::buildInput(const std::string& name, const dls::topicType &topic, WrapperBase *input, const std::function<void()> &auxiliary_callback, bool required_on_activation)
+	void Plugin::buildInput(const std::string& name, const dls::topicType &topic, WrapperBase *input, const std::function<void()> &auxiliary_callback, bool required_on_activation)
 	{
 		// Add data reader
 		readers_.push_back(std::make_shared<SignalReader<MsgWrapperType>>(
@@ -41,7 +41,7 @@ namespace dls
 	}
 
 	template <typename MsgWrapperType>
-	void PluginBase::buildOutput(const dls::topicType &topic, WrapperBase *output)
+	void Plugin::buildOutput(const dls::topicType &topic, WrapperBase *output)
 	{
 		// Add data writer
 		writers_.push_back(std::make_shared<SignalWriter<MsgWrapperType>>(
@@ -53,7 +53,7 @@ namespace dls
 	}
 
 	template <typename MsgWrapperType>
-	void PluginBase::buildOutput(const std::string& name, const dls::topicType &topic, WrapperBase *output)
+	void Plugin::buildOutput(const std::string& name, const dls::topicType &topic, WrapperBase *output)
 	{
 		// Add data writer
 		writers_.push_back(std::make_shared<SignalWriter<MsgWrapperType>>(
@@ -68,4 +68,4 @@ namespace dls
 	}
 }
 
-#endif /* end of include guard: PLUGIN_BASE_TPP */
+#endif /* end of include guard: PLUGIN_TPP */

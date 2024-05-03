@@ -16,7 +16,7 @@ namespace dls
 																	 const GOAL_t &goal,
 																	 const FEEDBACK_t &feedback,
 																	 const RESULT_t &result)
-		: 	PeriodicPluginBase(ID),
+		: 	PeriodicAppPlugin(ID),
 			goal(goal),
 			feedback(feedback),
 			result(result)

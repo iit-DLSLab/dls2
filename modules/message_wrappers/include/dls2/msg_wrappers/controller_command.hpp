@@ -16,7 +16,7 @@ namespace dls
     public:
 	    template <typename SignalType>
 		friend class SignalWriter;
-		friend class PluginBase;
+		friend class Plugin;
 
         ControllerCommand(const std::shared_ptr<robotlib::RobotBase> robot);
         ControllerCommand(ControllerCommand& controller_command);

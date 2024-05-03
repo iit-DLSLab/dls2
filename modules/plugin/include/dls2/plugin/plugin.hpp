@@ -1,5 +1,5 @@
-#ifndef PLUGIN_BASE_HPP
-#define PLUGIN_BASE_HPP
+#ifndef PLUGIN_HPP
+#define PLUGIN_HPP
 
 #include "dls2/application/periodic_app.hpp"
 #include "dls2/msg_wrappers/wrapper_base.hpp"
@@ -10,10 +10,10 @@
 namespace dls
 {
 	/*!
-	 * @class PluginBase
+	 * @class Plugin
 	 * @brief This is a base class for creating plugins for either apps or periodic apps.
 	 */
-	class PluginBase
+	class Plugin
 	{
 	public:
 		/*!
@@ -21,12 +21,12 @@ namespace dls
 		 * @param[in] ID name of plugin
 		 * @param[in] domain domain the plugin belongs to
 		 */
-		PluginBase(const std::string &ID, const domainType &domain);
+		Plugin(const std::string &ID, const domainType &domain);
 
 		/*!
 		 * @brief Destructor.
 		 */
-		virtual ~PluginBase();
+		virtual ~Plugin();
 
 		/*!
 		 * @brief Add an input to the plugin.
@@ -153,6 +153,6 @@ namespace dls
 	};
 } // end namespace dls
 
-#include "dls2/plugin_base/plugin_base.tpp"
+#include "dls2/plugin/plugin.tpp"
 
-#endif /* PLUGIN_BASE_HPP */
+#endif /* PLUGIN_HPP */

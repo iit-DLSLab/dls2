@@ -12,7 +12,7 @@ target_link_libraries(dls_action_server_base
 		dls_topics
 		dls_domains
 		dls_logging
-		periodic_plugin_base
+		periodic_app_plugin
 )
 
 dls_install(dls_action_server_base)

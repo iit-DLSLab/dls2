@@ -14,7 +14,7 @@ namespace dls
     public:
 	    template <typename SignalType>
 		friend class SignalWriter;
-		friend class PluginBase;
+		friend class Plugin;
 
         enum class SignalReconstructionMethod : uint64_t
         {

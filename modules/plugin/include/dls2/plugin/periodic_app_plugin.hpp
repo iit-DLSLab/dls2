@@ -1,21 +1,21 @@
-#ifndef PERIODIC_PLUGIN_BASE_HPP
-#define PERIODIC_PLUGIN_BASE_HPP
+#ifndef PERIODIC_APP_PLUGIN_HPP
+#define PERIODIC_APP_PLUGIN_HPP
 
 #include "dls2/application/periodic_app.hpp"
 #include "dls2/msg_wrappers/wrapper_base.hpp"
 #include "dls2/msg_wrappers/signal_writer.hpp"
 #include "dls2/msg_wrappers/signal_reader.hpp"
-#include "dls2/plugin_base/plugin_base.hpp"
+#include "dls2/plugin/plugin.hpp"
 #include <mutex>
 namespace dls
 {
 	/*!
-	 * @class PeriodicPluginBase
+	 * @class PeriodicAppPlugin
 	 * @brief This is a base class for creating periodic components.
 	 * @details
 	 * Any software module that wants to run periodically while interacting with the DLS2 network has to create a plugin inheriting from this class
 	 */
-	class PeriodicPluginBase : public PeriodicApp, public PluginBase
+	class PeriodicAppPlugin : public PeriodicApp, public Plugin
 	{
 	public:
 		/*!
@@ -23,12 +23,12 @@ namespace dls
 		 * @param[in] ID name of plugin
 		 * @param[in] domain domain the plugin belongs to
 		 */
-		PeriodicPluginBase(const std::string &ID, const domainType &domain = domains::signals);
+		PeriodicAppPlugin(const std::string &ID, const domainType &domain = domains::signals);
 
 		/*!
 		 * @brief Destructor.
 		 */
-		virtual ~PeriodicPluginBase();
+		virtual ~PeriodicAppPlugin();
 
 		/*!
 		 * @brief Type definintion identifying the function that calls the constructor of the plugin.
@@ -37,7 +37,7 @@ namespace dls
 		 * @param[in] ID name of plugin
 		 * @param[in] robot_name name of the robot
 		 */
-		typedef PeriodicPluginBase *create_t(const std::string& ID, const std::string& robot_name);
+		typedef PeriodicAppPlugin *create_t(const std::string& ID, const std::string& robot_name);
 
 		/*!
 		 * @brief Type definintion identifying the function that calls the destructor of the plugin.
@@ -45,10 +45,10 @@ namespace dls
 		 * This function is called to destroy the plugin.
 		 * @param[in] p pointer to the plugin to destroy
 		 */
-		typedef void destroy_t(PeriodicPluginBase *p);
+		typedef void destroy_t(PeriodicAppPlugin *p);
 
 		virtual bool checkActivation() override;
 	};
 } // end namespace dls
 
-#endif /* PERIODIC_PLUGIN_BASE_HPP */
+#endif /* PERIODIC_APP_PLUGIN_HPP */

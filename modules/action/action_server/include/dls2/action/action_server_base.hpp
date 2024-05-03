@@ -1,7 +1,7 @@
 #ifndef ACTION_SERVER_BASE_HPP
 #define ACTION_SERVER_BASE_HPP
 
-#include "dls2/plugin_base/periodic_plugin_base.hpp"
+#include "dls2/plugin/periodic_app_plugin.hpp"
 
 #include <memory>
 
@@ -20,7 +20,7 @@ namespace dls
 	 *
 	 */
 	template <typename GOAL_t, typename FEEDBACK_t, typename RESULT_t>
-	class ActionServerBase : public PeriodicPluginBase
+	class ActionServerBase : public PeriodicAppPlugin
 	{
 	public:
 		/*! @brief Constructor

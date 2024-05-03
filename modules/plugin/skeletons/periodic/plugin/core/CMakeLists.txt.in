@@ -9,7 +9,7 @@ target_include_directories(${PROJECT_NAME}
 )
 target_link_libraries(${PROJECT_NAME}
 	PUBLIC
-		periodic_plugin_base
+		periodic_app_plugin
 		${MODULE_LIBRARY_NAME}
 		${CONSOLE_COMMANDS_LIBRARY_NAME}
 		#${MSGS_WRAPPERS_LIBRARY_NAME}

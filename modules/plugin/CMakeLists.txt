@@ -1,41 +1,41 @@
-add_library(plugin_base
+add_library(plugin
 	SHARED
-		src/plugin_base.cpp
+		src/plugin.cpp
 )
 
-target_include_directories(plugin_base
+target_include_directories(plugin
 	PUBLIC
 		include
 )
 
-target_link_libraries(plugin_base
+target_link_libraries(plugin
 	PUBLIC
 		dls_app
 		dls_message_wrappers
 )
 
-add_library(periodic_plugin_base
+add_library(periodic_app_plugin
 	SHARED
-		src/periodic_plugin_base.cpp
+		src/periodic_app_plugin.cpp
 )
 
-target_include_directories(periodic_plugin_base
+target_include_directories(periodic_app_plugin
 	PUBLIC
 		include
 )
 
-target_link_libraries(periodic_plugin_base
+target_link_libraries(periodic_app_plugin
 	PUBLIC
 		dls_app
 		dls_message_wrappers
-		plugin_base
+		plugin
 )
 
 # INSTALL
-# -- plugin_base
-dls_install(plugin_base)
-# -- periodic_plugin_base
-dls_install(periodic_plugin_base)
+# -- plugin
+dls_install(plugin)
+# -- periodic_app_plugin
+dls_install(periodic_app_plugin)
 
 # -- skeletons
 install(

@@ -13,7 +13,7 @@ namespace dls
 	public:
         template <typename SignalType>
         friend class SignalWriter;
-        friend class PluginBase;
+        friend class Plugin;
 
 		TrunkControllerDebug(const std::shared_ptr<robotlib::RobotBase> robot);
 		TrunkControllerDebug(TrunkControllerDebug& trunk_controller_debug);

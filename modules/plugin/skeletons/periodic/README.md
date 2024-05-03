@@ -163,17 +163,17 @@ becames
 This change has to be done as well in the plugin.cpp, by passing such arguments to the module constructor. For example
 
       StanceDetectionPlugin::StanceDetectionPlugin (std::string& ID/*, aguments_of_module_constructor*/) 
-    : dls::PeriodicPluginBase(ID)
+    : dls::PeriodicAppPlugin(ID)
     , stance_detection(/*aguments_of_module_constructor*/) // instantiate module
 becames
     
     StanceDetectionPlugin::StanceDetectionPlugin (std::string& ID, const std::shared_ptr<robotlib::RobotBase> robot) 
-    : dls::PeriodicPluginBase(ID)
+    : dls::PeriodicAppPlugin(ID)
     , stance_detection(robot) // instantiate module
 
 The console commands instance is automatically instantiated.
 
-Notice that you need to change the *PeriodicPluginBase \*create(const std::string& ID, const std::string& robot_name)* function too, according to the constructor arguments. This function is called when the plugin is loaded at run-time, and it is responsible for the creation of a plugin instance, by calling the plugin constructor. For example, if the plugin takes as input a robotlib::RobotBase argument
+Notice that you need to change the *PeriodicAppPlugin \*create(const std::string& ID, const std::string& robot_name)* function too, according to the constructor arguments. This function is called when the plugin is loaded at run-time, and it is responsible for the creation of a plugin instance, by calling the plugin constructor. For example, if the plugin takes as input a robotlib::RobotBase argument
 
       /*call_plugin_constructor*/
         return new StanceDetectionPlugin(ID/*, aguments_of_module_constructor*/);

@@ -20,15 +20,15 @@ In this way, the implementation of the software module can be independent from t
 We can have periodic plugin, running at a specified frequency, or aperiodic plugin, such as services.
 
 ### Periodic plugin
-#### PeriodicPluginBase class overview
-The PeriodicPluginBase class is the interface that allows a software module to run periodically, while communicating with the DLS2 network. It can run in either REAL-TIME or BEST-EFFORT manner. The plugin of each module is implemented as a class inheriting from PeriodicPluginBase. This class allows the specific plugin to:
+#### PeriodicAppPlugin class overview
+The PeriodicAppPlugin class is the interface that allows a software module to run periodically, while communicating with the DLS2 network. It can run in either REAL-TIME or BEST-EFFORT manner. The plugin of each module is implemented as a class inheriting from PeriodicAppPlugin. This class allows the specific plugin to:
 * be loaded at runtime, through the *create_t* function
 * add inputs to the plugin, with the *buildInput* function 
 * add outputs to the plugin, with the *buildOutput* function
 * run periodically the *run* function
 * read/write all the inputs/outputs from/to the DLS2 network
 
-The *create_t*, *destroy_t* and *run* functions has to be implemented implemented in any class inheriting from PeriodicPluginBase. See [How to write a periodic plugin](#how-to-write-a-periodic-plugin) section.
+The *create_t*, *destroy_t* and *run* functions has to be implemented implemented in any class inheriting from PeriodicAppPlugin. See [How to write a periodic plugin](#how-to-write-a-periodic-plugin) section.
 
 When creating an input, the plugin performs two steps:
 * create a data reader, subscribed to the desired topic
@@ -50,7 +50,7 @@ The basic idea is that the Plugin calls in its run function the run function of 
 * set inputs to the module, read from the DLS2 network
 * get outputs of the module, writing them in the DLS2 network
 
-The specific Plugin of the module has to be a C++ class inheriting from PeriodicPluginBase. In this way, to run the software module at an arbitrary rate, you need to load from the command line its associated Plugin. To do that, the Plugin has to implement the *create_t* fuction, inherited from PeriodicPluginBase class. This function is called when loading the Plugin at run-time, and it is responsible to call the Plugin constructor. Another function, *destroy_t*, has to be implemented too, to call the Plugin destructor once its instance is destroyed.
+The specific Plugin of the module has to be a C++ class inheriting from PeriodicAppPlugin. In this way, to run the software module at an arbitrary rate, you need to load from the command line its associated Plugin. To do that, the Plugin has to implement the *create_t* fuction, inherited from PeriodicAppPlugin class. This function is called when loading the Plugin at run-time, and it is responsible to call the Plugin constructor. Another function, *destroy_t*, has to be implemented too, to call the Plugin destructor once its instance is destroyed.
 
 The Plugin has to store internally the following main objects:
 * module object: this is an instance of your module class
@@ -77,7 +77,7 @@ In the Plugin an input is identified by:
 * a SignalReader object, creating a data reader listening on the topic, and built by the *buildInput* function
 * an input variable, of message wrapper type, that is updated each time the *read()* function is called
 
-the SignalReader object is stored in a variable of the PeriodicPluginBase class. The input variable instead has to be defined in the Plugin.
+the SignalReader object is stored in a variable of the PeriodicAppPlugin class. The input variable instead has to be defined in the Plugin.
 
 #### What is an output?
 In the Plugin an output is identified by:
@@ -85,7 +85,7 @@ In the Plugin an output is identified by:
 * a SignalWriter object, creating a data writer publishing on the topic, and built by the *buildOutput* function
 * an output variable, of message wrapper type, whose content is sent to the topic each time the *write()* function is called
 
-the SignalWriter object is stored in a variable of the PeriodicPluginBase class. The output variable instead has to be defined in the Plugin.
+the SignalWriter object is stored in a variable of the PeriodicAppPlugin class. The output variable instead has to be defined in the Plugin.
 
 ##### Custom console commands
 To interact with your module through the DLS2 console, you can create a C++ class that stores and implements all the console commads. This class should:
@@ -126,5 +126,5 @@ To create a periodic plugin:
     Moreover, in the project structure there is also the possibility to define custom messages and topics, that you can use in your plugin and made available to the DLS2 network.
 * follow the instruction in the README of the project you have just created. You can find the README also [here](https://gitlab.advr.iit.it/dls-lab/dls2/-/tree/clear_inputs_outputs/modules%2Fplugin_base%2Fskeletons%2Fperiodic#periodic-plugin).
 
-### PluginBase class overview
+### Plugin class overview
 TODO
