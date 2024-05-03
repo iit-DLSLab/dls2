@@ -117,9 +117,6 @@ namespace dls
 		/*! @brief Wait command to be ready until timeout or the stop_wait variable becomes true 
 		*/
 		bool waitCommand(const std::string& owner, const std::string& name, bool& stop_wait);
-		// /*! @brief Generic wait function 
-		// */
-		// bool waitFunction(std::function<bool()> func, int timeout_ms, int period_ms, bool& stop_wait);
 
 	private:
 

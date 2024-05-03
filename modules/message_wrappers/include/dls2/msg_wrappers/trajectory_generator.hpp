@@ -16,7 +16,7 @@ namespace dls
 	public:
 	    template <typename SignalType>
 		friend class SignalWriter;
-		friend class PeriodicPluginBase;
+		friend class PluginBase;
 
 		TrajectoryGenerator(const std::shared_ptr<robotlib::RobotBase> robot);
 		TrajectoryGenerator(const TrajectoryGenerator& trajectory_generator);

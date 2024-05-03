@@ -155,7 +155,7 @@ bool ServiceLayer::unloadService(const std::string ID)
 	command_manager.callCommand("shutdown", {}, ID);
 
 	bool unloaded = false;
-	if(!utils::waitFunction(std::function<bool()>([&](){
+	if(!utils::wait(std::function<bool()>([&](){
 			if(pData->proc->running()){
 				return false;
 			}
@@ -231,7 +231,7 @@ bool ServiceLayer::unloadAction(const std::string &action_name)
 	command_manager.callCommand("shutdown", {}, action_name);
 
 	bool unloaded = false;
-	if(!utils::waitFunction(std::function<bool()>([&](){
+	if(!utils::wait(std::function<bool()>([&](){
 			if(pData->proc->running()){
 				return false;
 			}

@@ -15,7 +15,7 @@ namespace dls
 	public:
 	    template <typename SignalType>
 		friend class SignalWriter;
-		friend class PeriodicPluginBase;
+		friend class PluginBase;
 
 		MPCGeneratorOutput(const std::shared_ptr<robotlib::RobotBase> robot);
 		MPCGeneratorOutput(MPCGeneratorOutput& mpc_generator_output);

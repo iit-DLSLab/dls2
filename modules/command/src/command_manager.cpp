@@ -286,7 +286,7 @@ void CommandManager::changeTransitionSet(const std::string& command_name, const 
 }
 
 bool CommandManager::waitCommand(const std::string& owner, const std::string& name, bool& stop_wait){
-		if(!utils::waitFunction(std::function<bool()>([&](){
+		if(!utils::wait(std::function<bool()>([&](){
 					if(this->find(owner,name).size()==0){
 						return false;
 					}

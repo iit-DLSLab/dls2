@@ -12,7 +12,7 @@ namespace dls
     public:
         template <typename SignalType>
         friend class SignalWriter;
-        friend class PeriodicPluginBase;
+        friend class PluginBase;
         Bool();
         Bool(const Bool &Bool);
         virtual ~Bool();

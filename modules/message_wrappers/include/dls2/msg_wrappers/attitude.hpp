@@ -14,7 +14,7 @@ namespace dls
     public:
         template <typename SignalType>
         friend class SignalWriter;
-        friend class PeriodicPluginBase;
+        friend class PluginBase;
         Attitude();
         Attitude(Attitude &attitude);
         virtual ~Attitude();

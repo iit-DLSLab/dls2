@@ -13,7 +13,7 @@ namespace dls
     public:
 	    template <typename SignalType>
 		friend class SignalWriter;
-		friend class PeriodicPluginBase;
+		friend class PluginBase;
 
         T265Odometry();
         T265Odometry(T265Odometry& t265_odometry);

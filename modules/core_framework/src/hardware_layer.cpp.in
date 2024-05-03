@@ -100,7 +100,7 @@ bool HardwareLayer::unloadHardware(std::shared_ptr<AppData> pData)
 	command_manager.callCommand("shutdown", {}, pData->getID());
 
 	bool unloaded = false;
-	if(!utils::waitFunction(std::function<bool()>([&](){
+	if(!utils::wait(std::function<bool()>([&](){
 			if(pData->proc->running()){
 				return false;
 			}

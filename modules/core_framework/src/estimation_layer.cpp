@@ -137,7 +137,7 @@ bool EstimationLayer::unloadEstimator(const Estimator::ID_t& ID)
 	command_manager.callCommand("shutdown", {}, pData->getID());
 	
 	bool unloaded = false;
-	if(!utils::waitFunction(std::function<bool()>([&](){
+	if(!utils::wait(std::function<bool()>([&](){
 			if(pData->proc->running()){
 				return false;
 			}

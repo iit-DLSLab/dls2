@@ -4,7 +4,7 @@
 namespace dls{
 	namespace utils{
 		
-		bool waitFunction(std::function<bool()> func, int timeout_ms, int period_ms, bool& stop_wait){
+		bool wait(std::function<bool()> func, int timeout_ms, int period_ms, bool& stop_wait){
 			// Wait for timeout seconds the input readyness
 			auto start = std::chrono::high_resolution_clock::now();
 			auto end = start;

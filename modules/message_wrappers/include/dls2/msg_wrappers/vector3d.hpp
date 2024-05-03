@@ -13,7 +13,7 @@ namespace dls
     public:
         template <typename SignalType>
         friend class SignalWriter;
-        friend class PeriodicPluginBase;
+        friend class PluginBase;
         Vector3d();
         Vector3d(const Vector3d &Vector3d);
         virtual ~Vector3d();

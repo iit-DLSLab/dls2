@@ -12,7 +12,7 @@ namespace dls
 	class SignalReaderBase
 	{
 	public:
-		friend class PeriodicPluginBase;
+		friend class PluginBase;
 		SignalReaderBase(std::shared_ptr<dls::DDSParticipant> dds_participant, const dls::topicType& topic);
 		~SignalReaderBase();
 		SignalReaderBase() = delete;	

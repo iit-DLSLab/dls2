@@ -12,7 +12,7 @@ namespace dls
 	public:
 	    template <typename SignalType>
 		friend class SignalWriter;
-		friend class PeriodicPluginBase;
+		friend class PluginBase;
 
 		LegsPose(const std::shared_ptr<robotlib::RobotBase> robot);
 		LegsPose(LegsPose& legs_pose);

@@ -12,7 +12,7 @@ namespace dls
 	class SignalWriter : public SignalWriterBase
 	{
 	public:
-		friend class PeriodicPluginBase;
+		friend class PluginBase;
 
 		SignalWriter(std::shared_ptr<dls::DDSParticipant>, const dls::topicType&, const std::shared_ptr<SignalType>,eprosima::fastdds::dds::DataWriterQos qos = eprosima::fastdds::dds::DATAWRITER_QOS_DEFAULT);
 		~SignalWriter();

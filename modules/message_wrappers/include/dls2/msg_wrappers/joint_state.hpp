@@ -14,7 +14,7 @@ namespace dls
     public:
         template <typename SignalType>
         friend class SignalWriter;
-        friend class PeriodicPluginBase;
+        friend class PluginBase;
         JointState(const std::shared_ptr<robotlib::RobotBase> robot);
         JointState(const JointState &JointState);
         virtual ~JointState();

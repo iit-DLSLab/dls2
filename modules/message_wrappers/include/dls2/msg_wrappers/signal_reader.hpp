@@ -9,7 +9,7 @@ namespace dls
 	class SignalReader : public SignalReaderBase
 	{
 	public:
-		friend class PeriodicPluginBase;
+		friend class PluginBase;
 
 		SignalReader(std::shared_ptr<dls::DDSParticipant>, const dls::topicType&, const std::shared_ptr<SignalType>, const std::function<void()>& auxiliary_callback = [](){}, eprosima::fastdds::dds::DataReaderQos qos = eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT);
 		

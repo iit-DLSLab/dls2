@@ -9,7 +9,7 @@ namespace dls
 {
 	namespace utils{
         
-        bool waitFunction(std::function<bool()> func, int timeout_ms, int period_ms, bool& stop_wait);
+        bool wait(std::function<bool()> func, int timeout_ms, int period_ms, bool& stop_wait);
 
     }// namespace utils
 
