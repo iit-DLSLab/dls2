@@ -56,9 +56,8 @@ bool Options::parseArgs(int argc, char **argv)
 		{"robot",      required_argument,  nullptr,       'r'},
 		{"layers",     optional_argument,  nullptr,       'l'},
 		{"super",      no_argument,  	   nullptr,       'c'}, // core
-		{"startup",    no_argument,  	   nullptr,       's'},
+		{"startup",    optional_argument,  nullptr,       's'},
 		{"kill",       no_argument,  	   nullptr,       'k'},
-		{"path",       required_argument,  nullptr,       'p'},
 		{"version",    no_argument,        nullptr,       'v'},
 		{"help",       no_argument,        nullptr,       'h'},
 		{"docs",       no_argument,        nullptr,       'd'},
@@ -79,7 +78,7 @@ bool Options::parseArgs(int argc, char **argv)
 	Options::estimation_layer_name = "EstimationLayer";
 
 	int opt;
-	while((opt = getopt_long(argc, argv, "r:sHl:vh::cd", long_options, nullptr)) != -1)
+	while((opt = getopt_long(argc, argv, "r:Hl:vh::cdp:s::k", long_options, nullptr)) != -1)
 	{
 		switch(opt)
 		{
@@ -91,11 +90,10 @@ bool Options::parseArgs(int argc, char **argv)
 			case 's':
 			{
 				Options::run_startup = true;
-				break;
-			}
-			case 'p':
-			{
-				Options::startup_file = std::string(optarg);
+				if(optarg != nullptr)
+					Options::startup_file = std::string(optarg);
+				else
+					Options::startup_file = "@DLS_INSTALL_STARTUP_DIR@/default_startup.yaml";
 				break;
 			}
 			case 'k':
@@ -259,7 +257,6 @@ void Options::printUsage()
 	"< --super= 	| -su ...> "
 	"< --startup=	| -s ...> "
 	"< --kill= 		| -k ...> "
-	"< --path= 		| -p ...> "
 	"[ --version 	| -v ] "
 	"[ --help 		| -h ] "
 	"[ --doc 		| -d ]"
@@ -274,7 +271,6 @@ void Options::printUsage()
 	"| super       | c            | launch the supervisor (c is for core)               |\n"
 	"| startup     | s            | launch the startup procedure			            |\n"
 	"| kill		   | k            | force kill dls2 						            |\n"
-	"| path        | p            | set the path for the startup procedure			    |\n"
 	"| version     | v            | print the version and exit                          |\n"
 	"| help        | h            | print this help and exit                            |\n"
 	"| docs        | d            | show development documentation                      |\n"

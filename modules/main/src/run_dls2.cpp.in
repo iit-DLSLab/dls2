@@ -84,10 +84,6 @@ namespace dls
 		// Run startup procedure if requested by the user
 		if (Options::run_startup)
 		{
-			if (Options::startup_file.empty())
-			{
-				Options::startup_file = "@DLS_INSTALL_STARTUP_DIR@/default_startup.yaml";
-			}
 			runStartup(Options::startup_file);
 		}
 		else
@@ -197,7 +193,7 @@ namespace dls
 		servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer-logging", dls::domains::logging, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER));
 		servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer-services", dls::domains::services, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER));
 		servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer-estimators", dls::domains::estimators, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER));
-		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		// std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 	}
 
 	void RunDLS2::launchParamServer()
