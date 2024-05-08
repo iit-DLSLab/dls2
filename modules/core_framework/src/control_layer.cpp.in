@@ -349,22 +349,22 @@ bool ControlLayer::loadController(const std::string& lib_name)
 	//
 	// TODO this is copied from the spline out code. Refactor so that it is not
 	// repeated
-	if(pData->pSpline_in)
-	{
-		auto start_time = std::chrono::system_clock::now();
-		auto end_time = start_time + pData->spline_in_duration;
-		auto now = start_time;
+	// if(pData->pSpline_in)
+	// {
+	// 	auto start_time = std::chrono::system_clock::now();
+	// 	auto end_time = start_time + pData->spline_in_duration;
+	// 	auto now = start_time;
 
-		while(now < end_time)
-		{
-			double running_time =
-				(pData->spline_in_duration - std::chrono::duration<double>(end_time - now)).count();
+	// 	while(now < end_time)
+	// 	{
+	// 		double running_time =
+	// 			(pData->spline_in_duration - std::chrono::duration<double>(end_time - now)).count();
 
-			pData->premultiplier = pData->pSpline_in->eval(running_time);
-			now = std::chrono::system_clock::now();
+	// 		pData->premultiplier = pData->pSpline_in->eval(running_time);
+	// 		now = std::chrono::system_clock::now();
 
-		}
-	}
+	// 	}
+	// }
 	pData->proc->detach();
 	this->controllers.emplace(pData->getID(), pData);
 	return true;

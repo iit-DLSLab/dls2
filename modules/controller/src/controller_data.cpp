@@ -17,7 +17,7 @@ ControllerData::ControllerData
 	const std::chrono::duration<double> &duration_out
 ) 
 	: AppData(ID)
-	, premultiplier(0)
+	, premultiplier(1)
 	, spline_in_duration(duration_in)
 	, spline_out_duration(duration_out)
 	, pSpline_in(spline_in_)
