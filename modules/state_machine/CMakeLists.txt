@@ -24,6 +24,7 @@ target_include_directories(state_machine_watcher
 )
 target_link_libraries(state_machine_watcher
 	dls_com
+	dls_utils
 )
 
 add_subdirectory(example)

@@ -21,6 +21,24 @@ namespace state_machine
         */
         bool waitState(const std::string &app_name, const std::string &state, bool& stop_wait) const;
 
+        /*! @brief Wait the state of an application until the stop_wait variable becomes true or the state is found
+        * @details Using atomic_bool instead of bool
+        */
+        bool waitState(const std::string &app_name, const std::string &state, std::atomic_bool& stop_wait) const;
+
+        /*! @brief Wait the state of an application until the stop_wait variable becomes true or the state is found
+        */
+        bool waitApp(const std::string &app_name, bool& stop_wait) const;
+
+        /*! @brief Wait the state of an application until the stop_wait variable becomes true or the state is found
+        * @details Using atomic_bool instead of bool
+        */
+        bool waitApp(const std::string &app_name, std::atomic_bool& stop_wait) const;
+
+        bool findApp(const std::string &app_name) const;
+
+        bool findState(const std::string &app_name, const std::string &state) const;
+
         std::map<std::string, std::pair<std::string, bool>> app_states;
 
     private:

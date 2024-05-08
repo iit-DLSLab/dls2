@@ -178,6 +178,7 @@ namespace dls
 			runLayer("service", "ServiceLayer");
 			launchParamServer();
 			launchActionServers();
+			launchProcedures();
 		}
 	}
 
@@ -218,6 +219,20 @@ namespace dls
 			const std::string action_name = path.substr(path.rfind("/") + 1);
 			if(command_manager.waitCommand("ServiceLayer", "loadAction", should_quit))
 				command_manager.callCommand("loadAction", {action_name}, "ServiceLayer");
+		}
+	}
+
+	void RunDLS2::launchProcedures()
+	{
+		const std::string procedures_path = "@DLS_INSTALL_PROCEDURE_DIR@";
+		for (const auto &entry : std::filesystem::directory_iterator(procedures_path))
+		{
+			const std::string path = entry.path();
+			std::string name = path.substr(path.rfind("lib") + 3);
+			name.erase(name.length()-3);
+			std::cout << name << std::endl;
+			if(command_manager.waitCommand("ServiceLayer", "loadProcedure", should_quit))
+				command_manager.callCommand("loadProcedure", {name}, "ServiceLayer");
 		}
 	}
 
@@ -292,9 +307,11 @@ namespace dls
 				sm_watcher.waitState(name, "idle", should_quit);
 			}
 		}
-		// load model (it does not have effect on real robot because currently it is directly loaded the HAL of the robot)
+		// activate hardware and load model (loadModel does not have effect on real robot because currently it is directly loaded the HAL of the robot)
 		for (auto hardware : applications["hardwares"])
 		{
+			if(command_manager.waitCommand(hardware, "activate", should_quit))
+				command_manager.callCommand("activate", {}, hardware);
 			if(command_manager.waitCommand(hardware, "loadModel", should_quit))
 				command_manager.callCommand("loadModel", {Options::robot_name}, hardware);
 		}

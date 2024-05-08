@@ -708,7 +708,7 @@ namespace dls
 		}
 	}
 
-	std::string DDSParticipant::getName(){
+	std::string DDSParticipant::getName() const{
 		return participant_name;
 	}
 } // namespace dls

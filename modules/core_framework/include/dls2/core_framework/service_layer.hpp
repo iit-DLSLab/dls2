@@ -26,6 +26,9 @@ namespace dls
 		bool loadAction(const std::string& ID);
 		bool unloadAction(const std::string& ID);
 
+		bool loadProcedure(const std::string& ID);
+		bool unloadProcedure(const std::string& ID);
+
 		int numOfServices();
 
 		void monitor() override;
@@ -34,6 +37,7 @@ namespace dls
 		// BEGIN critical section
 		    std::map<std::string, std::shared_ptr<AppData>> services;
 			std::map<std::string, std::shared_ptr<AppData>> actions;
+			std::map<std::string, std::shared_ptr<AppData>> procedures;
 		    std::mutex services_mutex;
 	    // END critical section
 

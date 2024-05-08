@@ -54,7 +54,7 @@ namespace state_machine
         this->transitions = transitions;
         for (auto &event : async_events)
         {
-            this->is_async_event[event].store(false);
+            this->async_events[event].store(false);
         }
 
         runState();
@@ -94,7 +94,7 @@ namespace state_machine
         }
         else
         {
-            is_async_event[event].store(true);
+            async_events[event].store(true);
             async_cv.notify_all();
         }
         return true;
@@ -102,12 +102,12 @@ namespace state_machine
 
     void StateMachine::consumeEvent(const AsyncEvent &event)
     {
-        is_async_event[event].store(false);
+        async_events[event].store(false);
     }
 
     bool StateMachine::isRaised(const AsyncEvent &event)
     {
-        return is_async_event[event].load();
+        return async_events[event].load();
     }
 
     void StateMachine::nextState(const Event &event)

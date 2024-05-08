@@ -18,6 +18,7 @@
 #include "dls2/motion_generator/motion_generator.hpp"
 #include "dls2/controller/controller.hpp"
 #include "dls2/plugin/periodic_app_plugin.hpp"
+#include "dls2/plugin/app_plugin.hpp"
 #include "dls2/hardware/hardware.hpp"
 #include "dls2/estimator/estimator.hpp"
 #include "dls2/service/service_base.hpp"
@@ -210,6 +211,26 @@ int main(int argc, char **argv)
                         args.robot_name);
             }
         }
+        else if (args.component_type == "procedure")
+        {
+            try
+            {
+                pComponent =
+                    ClassLoader::loadClass<AppPlugin, std::string>(
+                        std::string("${DLS_INSTALL_PROCEDURE_DIR}/lib") + args.lib_name + ".so",
+                        args.component_name,
+                        args.robot_name);
+            }
+            catch (const std::exception &e)
+	        {
+                scout_sys << "catch\n";
+                pComponent =
+                    ClassLoader::loadClass<AppPlugin, std::string>(
+                        std::string("/usr/lib/dls2/lib") + args.lib_name + ".so",
+                        args.component_name,
+                        args.robot_name);
+            }
+        }
         else
         {
             scout_err << "component loading not yet implemented" << std::endl;
@@ -265,7 +286,8 @@ Args parse_args(int argc, char **argv)
         args.component_type != "hardware" &&
         args.component_type != "estimator" &&
         args.component_type != "service"&&
-        args.component_type != "action"
+        args.component_type != "action"&&
+        args.component_type != "procedure"
         )
     {
         std::cerr << "Error: unknown component type '" << args.component_type << "'" << std::endl;

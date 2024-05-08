@@ -31,9 +31,28 @@ target_link_libraries(periodic_app_plugin
 		plugin
 )
 
+add_library(app_plugin
+	SHARED
+		src/app_plugin.cpp
+)
+
+target_include_directories(app_plugin
+	PUBLIC
+		include
+)
+
+target_link_libraries(app_plugin
+	PUBLIC
+		dls_app
+		dls_message_wrappers
+		plugin
+)
+
 # INSTALL
 # -- plugin
 dls_install(plugin)
+# -- app_plugin
+dls_install(app_plugin)
 # -- periodic_app_plugin
 dls_install(periodic_app_plugin)
 

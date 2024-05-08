@@ -26,7 +26,11 @@ set(DLS_DEFAULT_HEADER_DIR /usr/include/dls2
 )
 
 set(DLS_ACTIONS_HEADER_DIR /usr/include/dls2/actions
-	CACHE STRING "Directory where framework headers are stored"
+	CACHE STRING "Directory where action headers are stored"
+)
+
+set(DLS_PROCEDURES_HEADER_DIR /usr/include/dls2/procedures
+	CACHE STRING "Directory where procedure headers are stored"
 )
 
 set(DLS_SCHEDULERS_CONFIG_DIR /usr/include/dls2/schedulers
@@ -39,6 +43,10 @@ set(DLS_INSTALL_SERVICE_DIR /usr/lib/dls2/services
 
 set(DLS_INSTALL_ACTION_DIR /usr/lib/dls2/actions
 	CACHE STRING "Directory where shared object libraries for actions are stored"
+)
+
+set(DLS_INSTALL_PROCEDURE_DIR /usr/lib/dls2/procedures
+	CACHE STRING "Directory where shared object libraries for procedures are stored"
 )
 
 set(DLS_INSTALL_HARDWARE_DIR /usr/lib/dls2/hardwares

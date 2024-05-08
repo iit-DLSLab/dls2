@@ -84,7 +84,7 @@ namespace dls
 
 		bool topicFound(const std::string& topic_name);
 		
-		std::string getName();		
+		std::string getName() const;		
 		
 
 		

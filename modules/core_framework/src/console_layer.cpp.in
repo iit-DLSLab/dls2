@@ -236,7 +236,8 @@ namespace dls
 																	{"loadHardware", "${DLS_INSTALL_HARDWARE_DIR}"},
 																	{"loadService", "${DLS_INSTALL_SERVICE_DIR}"},
 																	{"loadSimulator", "${DLS_INSTALL_SIMULATOR_DIR}"},
-																	{"loadModel", "${DLS_INSTALL_MODEL_DIR}"}}
+																	{"loadModel", "${DLS_INSTALL_MODEL_DIR}"},
+																	{"runProcedure", "${DLS_INSTALL_PROCEDURE_DIR}"}}
 	{
 		// Assign the dls::readline_completion::ConsoleLayer pointer to the dls::ConsoleLayer object
 		readline_completion::console_layer = this;

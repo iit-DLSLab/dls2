@@ -25,6 +25,7 @@ namespace dls
         void launchServers();
         void launchParamServer();
         void launchActionServers();
+        void launchProcedures();
         static void shutdown_all(int);
 
         static CommandManager command_manager;

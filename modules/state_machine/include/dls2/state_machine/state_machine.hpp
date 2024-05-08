@@ -102,16 +102,16 @@ namespace state_machine
         //! notify the execution type of the running state activity: realtime or not 
         void notifyRT(bool realtime);
 
+        // Store asynchronous event occurrence
+        // -- When the asynch event happens, the correspondig boolean value is set to true
+        // -- When the fsm change state based on an asynch event, the correspondig boolean value is set to false
+        std::map<AsyncEvent, std::atomic_bool> async_events;
     private:
         // set variable of the asynch event to false
         void consumeEvent(const AsyncEvent &async_event);
         // notify that the state machine has changed its state
         // void notifyState();
 
-        // Store asynchronous event occurrence
-        // -- When the asynch event happens, the correspondig boolean value is set to true
-        // -- When the fsm change state based on an asynch event, the correspondig boolean value is set to false
-        std::map<AsyncEvent, std::atomic_bool> is_async_event;
 
         //! notify a change in the state machine
         void notify();

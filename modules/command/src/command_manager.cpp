@@ -297,5 +297,20 @@ bool CommandManager::waitCommand(const std::string& owner, const std::string& na
 			return false;
 		}
 		return true;
-	}	
+}
+
+bool CommandManager::waitCommand(const std::string& owner, const std::string& name, std::atomic_bool& stop_wait){
+		if(!utils::wait(std::function<bool()>([&](){
+					if(this->find(owner,name).size()==0){
+						return false;
+					}
+					return true;
+				}), 3000, 2, stop_wait)){
+			if(!stop_wait.load())
+				std::cerr << "Command " << owner << "::" << name<<" not found" << std::endl;
+			return false;
+		}
+		return true;
+}
+
 #endif /* end of include guard: COMMAND_MANAGER_CPP */

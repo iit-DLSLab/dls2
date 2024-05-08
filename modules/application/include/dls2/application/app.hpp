@@ -84,6 +84,9 @@ namespace dls
 		//! Check if the activation can be performed
 		virtual bool checkActivation();
 
+		//! Procedure to deactivate the app, customizable
+		virtual bool deactivating();
+
 		/// Flag of the running loop
 		/// Exits when set to true
 		bool should_quit;
@@ -107,6 +110,8 @@ namespace dls
 
 		// Appliacation state machine
 		state_machine::app::AppStateMachine sm;
+
+		std::string activation_message;
 
 	private:
 		// BEGIN critical section

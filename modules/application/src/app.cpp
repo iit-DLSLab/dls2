@@ -10,6 +10,7 @@ App::App(const std::string &ID)
 	, scout_err(ID)
     , ID_(ID)
 	, sm(this)
+	, activation_message("")
 	, status_mutex()
 	, status(AppStatus::INITIALISING)
 	, activate_cmd_locked(false)
@@ -166,6 +167,7 @@ void App::activation()
 
 	auto start = std::chrono::high_resolution_clock::now();
 
+	bool print_message = false;
 	// Check if the app can be activated until
 	// -- either it can be activated
 	// -- or the timeout is expired
@@ -176,9 +178,16 @@ void App::activation()
 			break;
 		}
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(500));
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	    enlapsed_time = std::chrono::duration_cast<std::chrono::seconds>(
 	                    std::chrono::high_resolution_clock::now() - start).count();
+		if(!print_message && static_cast<int>(enlapsed_time)%2 == 0){ // print every 2 seconds
+			print_message = true;
+			scout_sys << activation_message << std::endl;
+		}
+		else if (print_message && static_cast<int>(enlapsed_time)%2 != 0){
+			print_message = false;
+		}
 	}
 
 	if(activate)
@@ -192,12 +201,21 @@ void App::activation()
 void App::deactivation()
 {
 	deactivate_cmd_locked = false;
+	scout_sys << "Deactivation of " << ID_ << std::endl;
+	bool deactivation = deactivating();
+	scout_sys << "2222Deactivation of " << ID_ << std::endl;
+	// a quit request might be raised during the deactivation
 	if (sm.isRaised(sm.quit_request))
 	{
 	    sm.nextState(sm.quit_request);
 	}
-	else
-		sm.nextState(sm.deactivated);
+	else if (deactivation){
+	    sm.nextState(sm.deactivated);
+	}
+	else{
+		scout_err << "Deactivation failed. Quitting the application..." << std::endl;
+		sm.nextState(sm.quit_request);
+	}
 }
 
 void App::fail()
@@ -249,5 +267,9 @@ void App::setDefaultSchedulerPolicy()
 }
 
 bool App::checkActivation(){
+	return true;
+}
+
+bool App::deactivating(){
 	return true;
 }

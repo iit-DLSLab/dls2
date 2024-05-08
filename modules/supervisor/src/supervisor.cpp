@@ -35,6 +35,30 @@ namespace dls
             {},
             true
         );
+
+        command_manager.addCommand<std::string>
+        (
+            "runProcedure",
+            "Load and execute procedure",
+            std::function<bool(std::string)>([&](std::string type)->bool
+            {
+                // if(command_manager.waitCommand("ServiceLayer","loadProcedure", sm.async_events[sm.quit_request]))
+                //     command_manager.callCommand("loadProcedure", {type}, "ServiceLayer");
+
+                if(!state_machine_watcher.waitState(type, "idle", sm.async_events[sm.quit_request])){
+                    scout_warn << "Procedure " << type << " not in idle state" << std::endl;
+                }
+
+                if(command_manager.waitCommand(type, "activate", sm.async_events[sm.quit_request]))
+                    command_manager.callCommand("activate", {}, type);
+
+                return true;
+
+            }),
+            {},
+            true
+        );
+
     }
 
     Supervisor::~Supervisor()
