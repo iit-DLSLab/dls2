@@ -235,6 +235,7 @@ namespace dls
 																	{"loadEstimator", "${DLS_INSTALL_ESTIMATOR_DIR}"},
 																	{"loadHardware", "${DLS_INSTALL_HARDWARE_DIR}"},
 																	{"loadService", "${DLS_INSTALL_SERVICE_DIR}"},
+																	{"loadDataVisualizer", "${DLS_INSTALL_DATA_VISUALIZER_DIR}"},
 																	{"loadSimulator", "${DLS_INSTALL_SIMULATOR_DIR}"},
 																	{"loadModel", "${DLS_INSTALL_MODEL_DIR}"},
 																	{"runProcedure", "${DLS_INSTALL_PROCEDURE_DIR}"}}

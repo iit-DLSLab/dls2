@@ -122,6 +122,8 @@ std::multimap<std::string, std::string> CommandManager::getCommandsList()
 	auto discovered_participants_info = commands_monitor->getDiscoveredParticipantsInfo();
 	// Get writer listener
 	auto command_publisher_listener = commands_monitor->getPubListener(owner+"::commands_monitor");
+	if(command_publisher_listener == nullptr)
+		return {};
 	// Get matched datareaders instances
 	auto matched_datareaders_instances = command_publisher_listener->matched_datareaders_instances;
 	// Find the domain participant name associated to each matched data reader, and save the name (corresponding to the command name)

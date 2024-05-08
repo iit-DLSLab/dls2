@@ -219,7 +219,7 @@ namespace dls
 		if(ret != this->pubListeners.end())
 			return ret->second;
 
-		throw std::runtime_error("No listener of for the writer " + name + "is found. Returning null pointer.");
+		throw std::runtime_error("No listener for the writer " + name + "is found. Returning null pointer.");
 
 		return nullptr;
 	}
@@ -355,6 +355,14 @@ namespace dls
 		return found_topic;
 
 	}
+
+	std::string DDSParticipant::getTypeNameFromTopic(const std::string& topic_name)
+	{
+		std::string type_name = discovery_database[topic_name];
+
+		return type_name;
+	}
+
 	bool DDSParticipant::topicFound(const std::string& topic_name){
 
 		if (discovery_database.find(topic_name) != discovery_database.end()){

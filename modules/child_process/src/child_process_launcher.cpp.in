@@ -287,7 +287,8 @@ Args parse_args(int argc, char **argv)
         args.component_type != "estimator" &&
         args.component_type != "service"&&
         args.component_type != "action"&&
-        args.component_type != "procedure"
+        args.component_type != "procedure" &&
+        args.component_type != "data_visualizer"
         )
     {
         std::cerr << "Error: unknown component type '" << args.component_type << "'" << std::endl;

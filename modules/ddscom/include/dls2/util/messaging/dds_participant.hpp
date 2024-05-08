@@ -81,6 +81,7 @@ namespace dls
 
 		eprosima::fastdds::dds::Topic * getTopicFromString(const std::string& topic_name);
 
+		std::string getTypeNameFromTopic(const std::string& topic_name);
 
 		bool topicFound(const std::string& topic_name);
 		
