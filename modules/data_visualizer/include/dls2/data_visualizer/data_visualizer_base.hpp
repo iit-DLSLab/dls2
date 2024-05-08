@@ -3,6 +3,7 @@
 
 #include "dls2/application/periodic_app.hpp"
 #include "dls2/util/messaging/dds_participant.hpp"
+#include "dls2/msg_wrappers/signal_reader.hpp"
 
 #include "robotlib/robot_factory.hpp"
 
@@ -42,15 +43,21 @@ namespace dls
 	protected:
 		virtual void run(const std::chrono::system_clock::time_point& time) = 0;
 
+        // DDS Participant used to discover dynamic topics
 		std::shared_ptr<dls::DDSParticipant> dds_participant_;
 		const std::shared_ptr<robotlib::RobotBase> robot_;
 
+        // SceneUpdate JSON schema used for visualizing entities
   		nlohmann::json scene_schema_parsed_{};
+
+        // Common channel parameters for the entities that use the SceneUpdate JSON schema
         foxglove::ChannelWithoutId scene_channel_parameters_{};
-        // Structure topics_data_ = {topic_name, {channel_id, {channel_without_id, json_schema}}}
-        std::map<std::string, std::pair<foxglove::ChannelId, std::pair<foxglove::ChannelWithoutId, nlohmann::json>>> topics_data_{};
-        std::vector<foxglove::ChannelWithoutId> channels_without_id_{};
+
+        // Vector of ChannelId (these need to be univoque) that are published on Foxglove
         std::vector<foxglove::ChannelId> channels_id_{};
+
+        // Structure topics_data_ = {topic_name, channel_id}
+        std::map<std::string, foxglove::ChannelId> topics_data_{};
     };
 } //namespace dls
 

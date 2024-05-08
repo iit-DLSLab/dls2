@@ -8,11 +8,9 @@ namespace dls
         , dds_participant_(std::make_shared<dls::DDSParticipant>("DataVisualizerBase::" + ID, dls::domains::signals, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SUPER_CLIENT, false))
         , robot_(robot)
     {
-        // SceneUpdate JSON schema used for visualizing entities
         std::ifstream scene_schema("/usr/lib/dls2/data_visualizer/json/SceneUpdate.json");
         scene_schema_parsed_ = nlohmann::json::parse(scene_schema);
 
-         // Common channel parameters for the entities that use the SceneUpdate JSON schema
         scene_channel_parameters_ = {.topic = "",
                                      .encoding = "json",
                                      .schemaName = "foxglove.SceneUpdate",
