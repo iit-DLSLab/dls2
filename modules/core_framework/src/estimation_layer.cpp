@@ -48,8 +48,6 @@ EstimationLayer::EstimationLayer(std::string ID) :
 		{{1,0}},
 		true
 	);
-
-	scout_sys << "ESTIMATION LAYER LOADED" << std::endl;
 }
 
 EstimationLayer::~EstimationLayer()

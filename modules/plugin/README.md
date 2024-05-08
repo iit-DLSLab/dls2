@@ -19,7 +19,7 @@ In this way, the implementation of the software module can be independent from t
 
 We can have periodic plugin, running at a specified frequency, or aperiodic plugin, such as services.
 
-### Periodic plugin
+### Periodic app plugin
 #### PeriodicAppPlugin class overview
 The PeriodicAppPlugin class is the interface that allows a software module to run periodically, while communicating with the DLS2 network. It can run in either REAL-TIME or BEST-EFFORT manner. The plugin of each module is implemented as a class inheriting from PeriodicAppPlugin. This class allows the specific plugin to:
 * be loaded at runtime, through the *create_t* function
@@ -126,5 +126,5 @@ To create a periodic plugin:
     Moreover, in the project structure there is also the possibility to define custom messages and topics, that you can use in your plugin and made available to the DLS2 network.
 * follow the instruction in the README of the project you have just created. You can find the README also [here](https://gitlab.advr.iit.it/dls-lab/dls2/-/tree/clear_inputs_outputs/modules%2Fplugin_base%2Fskeletons%2Fperiodic#periodic-plugin).
 
-### Plugin class overview
+### App plugin class overview
 TODO

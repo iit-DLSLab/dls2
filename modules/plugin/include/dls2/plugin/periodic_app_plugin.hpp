@@ -2,9 +2,6 @@
 #define PERIODIC_APP_PLUGIN_HPP
 
 #include "dls2/application/periodic_app.hpp"
-#include "dls2/msg_wrappers/wrapper_base.hpp"
-#include "dls2/msg_wrappers/signal_writer.hpp"
-#include "dls2/msg_wrappers/signal_reader.hpp"
 #include "dls2/plugin/plugin.hpp"
 #include <mutex>
 namespace dls

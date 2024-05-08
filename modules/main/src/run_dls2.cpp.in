@@ -72,7 +72,8 @@ namespace dls
 					pkill -9 EstimationLayer;\
 					pkill -9 dls_param_serve;\
 					pkill -9 Supervisor;\
-					pkill -9 gazebo_sim");
+					pkill -9 gazebo_sim;\
+					pkill -9 gz");
 			if (ret == -1)
 			{
 				throw std::runtime_error("Error executing system command to show the documentation.");
