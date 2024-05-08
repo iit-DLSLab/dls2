@@ -37,6 +37,18 @@ set(DLS_INSTALL_SERVICE_DIR /usr/lib/dls2/services
 	CACHE STRING "Directory where shared object libraries for services are stored"
 )
 
+set(DLS_INSTALL_SERVICE_HEADER_DIR /usr/include/dls2/services
+	CACHE STRING "Directory where services headers are stored"
+)
+
+set(DLS_INSTALL_DATA_VISUALIZER_DIR /usr/lib/dls2/data_visualizer
+	CACHE STRING "Directory where shared object libraries for data visualizer are stored"
+)
+
+set(DLS_INSTALL_DATA_VISUALIZER_HEADER_DIR /usr/include/dls2/data_visualizer
+	CACHE STRING "Directory where data visualizer headers are stored"
+)
+
 set(DLS_INSTALL_ACTION_DIR /usr/lib/dls2/actions
 	CACHE STRING "Directory where shared object libraries for actions are stored"
 )

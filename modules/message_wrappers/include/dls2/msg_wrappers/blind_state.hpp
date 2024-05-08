@@ -40,6 +40,7 @@ namespace dls
 		robotlib::JointState joints_temperature_;
 
 		robotlib::LegDataMap<bool> feet_contact_;
+		robotlib::LegDataMap<Eigen::Vector3d> current_feet_positions_;
 	
 	private:
 		virtual void setDataFromWrapperBase(WrapperBase* wrapper_base) override;

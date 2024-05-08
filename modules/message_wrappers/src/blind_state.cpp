@@ -12,6 +12,7 @@ BlindState::BlindState(const std::shared_ptr<robotlib::RobotBase> robot)
 	, joints_effort_(robot->makeJointState())
 	, joints_temperature_(robot->makeJointState())
 	, feet_contact_(robot->makeLegDataMap<bool>(false))
+	, current_feet_positions_(robot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
 {}
 
 BlindState::BlindState(BlindState& blind_state)
@@ -26,6 +27,7 @@ BlindState::BlindState(BlindState& blind_state)
 	, joints_effort_(blind_state.joints_effort_)
 	, joints_temperature_(blind_state.joints_temperature_)
 	, feet_contact_(blind_state.feet_contact_)
+	, current_feet_positions_(blind_state.current_feet_positions_)
 {}
 
 BlindState::~BlindState(){}
@@ -62,6 +64,16 @@ BlindState::operator BlindStateMsg() const
 		leg_id++;
 	}
 
+    int i{0};
+    for(const auto &leg : current_feet_positions_)
+    {
+        for(unsigned int j{0}; j<3; j++)
+        {
+            blind_state_msg.current_feet_positions()[i] = current_feet_positions_[leg.key_][j];
+            i++;
+        }
+    }
+
     return blind_state_msg;
 }
 
@@ -93,6 +105,16 @@ BlindState& BlindState::operator=(const BlindStateMsg& blind_state_msg)
 		leg_id++;
 	}
 
+    int i{0};
+    for(const auto &leg : current_feet_positions_)
+    {
+        for(unsigned int j{0}; j<3; j++)
+        {
+            current_feet_positions_[leg.key_][j] = blind_state_msg.current_feet_positions()[i];
+            i++;
+        }
+    }
+
 	return *this;
 }
 
@@ -112,6 +134,7 @@ BlindState& BlindState::operator=(const BlindState& blind_state)
 	joints_temperature_ = blind_state.joints_temperature_;
 
 	feet_contact_ = blind_state.feet_contact_;
+	current_feet_positions_ = blind_state.current_feet_positions_;
 
 	return *this;
 }

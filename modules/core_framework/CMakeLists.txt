@@ -54,6 +54,7 @@ target_link_libraries(dls_framework
 		dls_action_client_stock
 		dls_supervisor
 		dls_utils
+		dls_data_visualizer
 )
 
 dls_install(dls_framework)
