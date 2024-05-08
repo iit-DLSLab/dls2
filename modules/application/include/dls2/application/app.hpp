@@ -111,7 +111,7 @@ namespace dls
 		// Appliacation state machine
 		state_machine::app::AppStateMachine sm;
 
-		std::string activation_message;
+		std::stringstream activation_message;
 
 	private:
 		// BEGIN critical section

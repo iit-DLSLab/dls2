@@ -14,4 +14,14 @@ namespace dls
 		return basicActivationChecks();
 	}
 
+	bool AppPlugin::basicActivationChecks(){
+		bool res = areInputsReceivingData() && areOutputsUnique();
+		if(missing_inputs.str()!=""){
+			activation_message << "Missing inputs: " << missing_inputs.str() << "\n";;
+		}
+		if(common_outputs.str()!=""){
+			activation_message << "There is at list another writer publishing on the topics: " << common_outputs.str() << "\n";
+		}
+		return res;
+	}
 }

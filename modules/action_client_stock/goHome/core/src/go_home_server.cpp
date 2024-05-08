@@ -55,7 +55,7 @@ namespace dls
 
     bool GoHomeServer::checkActivation()
 	{
-        if(areInputsReceivingData() && areOutputsUnique())
+        if(basicActivationChecks())
         {
             read();
             feedback.desired_joints_position_ = this->blind_state.joints_position_;

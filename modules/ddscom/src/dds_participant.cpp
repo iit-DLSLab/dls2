@@ -19,6 +19,7 @@ namespace dls
 		, config(YAML::LoadFile("/usr/include/dls2/util/messaging/servers.yaml"))
 	{
 		eprosima::fastdds::dds::DomainParticipantQos participantQos;
+		participantQos.wire_protocol().builtin.mutation_tries = 250u; //limit discoverable data readers/writers (default is 100u)
 		if (tupelookup_server)
 		{
 			participantQos.wire_protocol().builtin.typelookup_config.use_server = true;	

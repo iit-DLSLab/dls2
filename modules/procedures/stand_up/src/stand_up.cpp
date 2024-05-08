@@ -9,10 +9,10 @@ namespace procedures{
     , sm_watcher(ID+"_sm_watcher")
     {
         // Define inputs
-        this->buildInput<dls::BlindState>(
-            dls::topics::low_level_estimation::blind_state,
-            &blind_state
-        );
+        // this->buildInput<dls::BlindState>(
+        //     dls::topics::low_level_estimation::blind_state,
+        //     &blind_state
+        // );
     }
 
     StandUp::~StandUp()
@@ -21,8 +21,10 @@ namespace procedures{
     AppStatus StandUp::run()
     {
         // Stand up procedure
+        std::cout << "!!! STAND UP PROCEDURE HAS STARTED !!!\n";
 
         // go in home configuration
+        std::cout  << "Sending home configuration...\n";
         if(command_manager.waitCommand("actions","goHome", sm.async_events[sm.quit_request]))
             command_manager.callCommand("goHome", {}, "actions");
         if(sm_watcher.findState("pid", "idle") && command_manager.waitCommand("pid","activate", sm.async_events[sm.quit_request]))
@@ -31,10 +33,12 @@ namespace procedures{
         std::this_thread::sleep_for(std::chrono::milliseconds(10000));
 
         // activate periodic generator
+        std::cout  << "Activating periodic generator...\n";
         if(sm_watcher.findState("periodic_generator", "idle") && command_manager.waitCommand("periodic_generator","activate", sm.async_events[sm.quit_request]))
             command_manager.callCommand("activate", {}, "periodic_generator");
 
         // freezebase
+        std::cout  << "freezeBase...\n";
         if(!sm_watcher.waitState("periodic_generator", "run", sm.async_events[sm.quit_request])){
             scout_err << "periodic_generator not running\n";
             return getStatus();
@@ -45,11 +49,13 @@ namespace procedures{
         std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
         // activate trunk controller
+        std::cout  << "Activating trunk controller...\n";
         if(sm_watcher.findState("trunk_controller", "idle") && command_manager.waitCommand("trunk_controller","activate", sm.async_events[sm.quit_request]))
             command_manager.callCommand("activate", {}, "trunk_controller");
 
         sm.nextState(sm.deactivation_request);
 
+        std::cout  << "!!! STAND UP PROCEDURE IS DONE !!!\n";
 	    return getStatus();
     }
 
@@ -57,24 +63,23 @@ namespace procedures{
         if( basicActivationChecks()){
             // wait applications to be ready
             bool ready = true;
-            activation_message = "";
-            if(!sm_watcher.findApp("pid")){
-                activation_message = "pid, ";
+            if(!sm_watcher.findApp("pid") || sm_watcher.findState("pid", "quit")){
+                activation_message << "pid, ";
                 ready = false;
             }
-            if(!sm_watcher.findApp("periodic_generator")){
-                activation_message += "periodic_generator, ";
+            if(!sm_watcher.findApp("periodic_generator") || sm_watcher.findState("periodic_generator", "quit")){
+                activation_message << "periodic_generator, ";
                 ready = false;
             }
-            if(!sm_watcher.findApp("trunk_controller")){
-                activation_message += "trunk_controller";
+            if(!sm_watcher.findApp("trunk_controller") || sm_watcher.findState("trunk_controller", "quit")){
+                activation_message << "trunk_controller";
                 ready = false;
             }
             if(ready){
                 return true;
             }
         }
-        activation_message += " not found\n";
+        activation_message << " not found\n";
         return false;
     }
 

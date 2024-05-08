@@ -3,8 +3,9 @@
 namespace dls
 {
 	Plugin::Plugin(const std::string &ID, const domainType &domain)
-		: dds_participant_(std::make_shared<dls::DDSParticipant>(ID, domain))
-		, warner(ID)
+		: missing_inputs("")
+		, common_outputs("") 
+		, dds_participant_(std::make_shared<dls::DDSParticipant>(ID, domain))
 	{}
 
 	Plugin::~Plugin()
@@ -49,6 +50,7 @@ namespace dls
 
 	bool Plugin::areOutputsUnique()
 	{
+		common_outputs.str("");
 		// iterate over the writers, getting their topic type
 		for(auto writer : writers_)
 		{
@@ -75,7 +77,7 @@ namespace dls
 			this->unique_outputs_cv.wait_for(lock, ddslink->getSubListener(reader_name)->is_receiving_data_th);
 			if(is_writer_active)
 			{
-				warner << "There is at list another writer publishing on the topic "<< writer->getTopic().first << std::endl;
+				common_outputs << writer->getTopic().first << " ";
 				return false;
 			}
 		}
@@ -85,7 +87,7 @@ namespace dls
 	bool Plugin::areInputsReceivingData()
 	{
 		bool are_inputs_receiving_data = true;
-		std::stringstream missing_inputs("");
+		missing_inputs.str("");
 		for (long unsigned int i = 0; i < readers_.size(); i++)
 		{
 			// check data availability if: all the readers needs to be checked or only the ones required on activation
@@ -99,15 +101,7 @@ namespace dls
 				}
 			}
 		}
-		if(!are_inputs_receiving_data)
-		{
-			warner << "Missing inputs: " << missing_inputs.str() << std::endl;
-		}
 		return are_inputs_receiving_data;
-	}
-
-	bool Plugin::basicActivationChecks(){
-		return areInputsReceivingData() && areOutputsUnique();
 	}
 
 	std::shared_ptr<SignalReaderBase> Plugin::getReader(const std::string &name)

@@ -46,6 +46,13 @@ namespace dls
 		typedef void destroy_t(AppPlugin *p);
 
 		virtual bool checkActivation() override;
+
+		/*!
+		 * @brief Basic checks when activating a plugin
+		 * @return true if the basic checks succeded
+		 * 
+		 */
+		bool basicActivationChecks();
 	};
 } // end namespace dls
 

@@ -109,15 +109,11 @@ namespace dls
 		 * @param[in] name name of the output to write
 		 */
 		void write(const std::string &name);
-		
-		/*!
-		 * @brief Basic checks when activating a plugin
-		 * @return true if the basic checks succeded
-		 * 
-		 */
-		bool basicActivationChecks();
 
 		std::shared_ptr<SignalReaderBase> getReader(const std::string &name);
+
+		std::stringstream missing_inputs;
+		std::stringstream common_outputs;
 
 	protected:
 		//! Domain participant of the plugin
@@ -148,8 +144,6 @@ namespace dls
 		std::vector<WrapperBase *> inputs_;
 		//! Vector of pointers pointing to output variables: created when adding an output with buildOutput function
 		std::vector<WrapperBase *> outputs_;
-
-		logging::warnstream warner;
 	};
 } // end namespace dls
 

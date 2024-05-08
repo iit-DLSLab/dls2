@@ -178,16 +178,18 @@ void App::activation()
 			break;
 		}
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
-	    enlapsed_time = std::chrono::duration_cast<std::chrono::seconds>(
-	                    std::chrono::high_resolution_clock::now() - start).count();
 		if(!print_message && static_cast<int>(enlapsed_time)%2 == 0){ // print every 2 seconds
 			print_message = true;
-			scout_sys << activation_message << std::endl;
+			scout_warn << activation_message.str() << std::endl;
 		}
 		else if (print_message && static_cast<int>(enlapsed_time)%2 != 0){
 			print_message = false;
 		}
+		activation_message.str("");
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	    enlapsed_time = std::chrono::duration_cast<std::chrono::seconds>(
+	                    std::chrono::high_resolution_clock::now() - start).count();
 	}
 
 	if(activate)
@@ -201,9 +203,7 @@ void App::activation()
 void App::deactivation()
 {
 	deactivate_cmd_locked = false;
-	scout_sys << "Deactivation of " << ID_ << std::endl;
 	bool deactivation = deactivating();
-	scout_sys << "2222Deactivation of " << ID_ << std::endl;
 	// a quit request might be raised during the deactivation
 	if (sm.isRaised(sm.quit_request))
 	{
