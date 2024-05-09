@@ -89,10 +89,13 @@ namespace dls
 		}
 		else
 		{ // the user is selecting what to run
-			// Spawn supervisor and servers (if passed as argument)
+			// Spawn servers (if passed as argument)
+			if(Options::run_servers){
+				launchServers();
+			}
+			// Spawn supervisor (if passed as argument)
 			if (Options::launch_supervisor)
 			{
-				launchServers();
 				runLayer("supervisor", "Supervisor");
 			}
 			// Spawn layers (if passed as argument)
@@ -247,16 +250,14 @@ namespace dls
 			{"controllers", "ControlLayer"},
 			{"motion_generators", "ControlLayer"},
 			{"estimators", "EstimationLayer"},
-			{"services", "ServiceLayer"},
-			{"actions", "ServiceLayer"}};
+			{"services", "ServiceLayer"}};
 		// app_to_loading_command
 		std::map<std::string, std::string> app_to_loading_command = {
 			{"hardwares", "loadHardware"},
 			{"controllers", "loadController"},
 			{"motion_generators", "loadGenerator"},
 			{"estimators", "loadEstimator"},
-			{"services", "loadService"},
-			{"actions", "loadAction"}};
+			{"services", "loadService"}};
 		// collect layers to be run
 		std::vector<std::string> layers;
 		for (std::string layer : config["layers"].as<std::vector<std::string>>())
@@ -273,7 +274,9 @@ namespace dls
 		Options::robot_name = config["robot_name"].as<std::string>();
 
 		// launch dds servers
+		Options::run_servers = true;
 		launchServers();
+
 		// launch supervisor
 		runLayer("supervisor", "Supervisor");
 		// launch layers
@@ -294,11 +297,6 @@ namespace dls
 		}
 		launchLayers();
 
-		if(!should_quit && !Options::launch_console){
-			// ask user to launch console layer (due to dds issue that a writer cannot discover too many readers at the same time)
-			std::cout << "\n\nLAUNCH THE CONSOLE LAYER, THEN I WILL CONTINUE TO LOAD APPLICATIONS\n\n";
-			sm_watcher.waitState("ConsoleLayer", "run", should_quit);
-		}
 		// launch apps
 		for (auto const &[app_type, app_names] : applications)
 		{

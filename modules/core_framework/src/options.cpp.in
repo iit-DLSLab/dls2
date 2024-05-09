@@ -30,6 +30,7 @@ bool Options::launch_log                    = false;
 bool Options::launch_service                = false;
 bool Options::launch_supervisor             = false;
 bool Options::run_startup		            = false;
+bool Options::run_servers		            = false;
 bool Options::kill_dls2		            	= false;
 std::string Options::startup_file           = "";
 std::string Options::estimation_layer_name = "EstimationLayer";
@@ -57,6 +58,7 @@ bool Options::parseArgs(int argc, char **argv)
 		{"layers",     optional_argument,  nullptr,       'l'},
 		{"super",      no_argument,  	   nullptr,       'c'}, // core
 		{"startup",    optional_argument,  nullptr,       's'},
+		{"servers",    optional_argument,  nullptr,       'n'}, //n for network
 		{"kill",       no_argument,  	   nullptr,       'k'},
 		{"version",    no_argument,        nullptr,       'v'},
 		{"help",       no_argument,        nullptr,       'h'},
@@ -73,18 +75,24 @@ bool Options::parseArgs(int argc, char **argv)
 	Options::launch_service		=  false;
 	Options::launch_supervisor  = false;
 	Options::run_startup		= false;
+	Options::run_servers		= false;
 	Options::kill_dls2		    = false;
 	Options::startup_file = "";
 	Options::estimation_layer_name = "EstimationLayer";
 
 	int opt;
-	while((opt = getopt_long(argc, argv, "r:Hl:vh::cdp:s::k", long_options, nullptr)) != -1)
+	while((opt = getopt_long(argc, argv, "r:Hl:vh::cdp:s::kn", long_options, nullptr)) != -1)
 	{
 		switch(opt)
 		{
 			case 'd':
 			{
 				Options::show_docs = true;
+				break;
+			}
+			case 'n':
+			{
+				Options::run_servers = true;
 				break;
 			}
 			case 's':
@@ -301,7 +309,8 @@ bool Options::validate()
 		!launch_service &&
 		!launch_supervisor &&
 		!run_startup &&
-		!kill_dls2
+		!kill_dls2 &&
+		!run_servers
 	)
 		return false;
 
