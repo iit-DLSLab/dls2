@@ -1,10 +1,12 @@
+# layers
 layers: [service, hardware, control, estimation, log]
 
+# applications
 hardwares: [gazebo_sim]
 controllers: [pid, trunk_controller]
 motion_generators: [periodic_generator, keyboard]
 estimators: []
 services: []
-actions: []
 
+# robot name
 robot_name : "aliengo"
