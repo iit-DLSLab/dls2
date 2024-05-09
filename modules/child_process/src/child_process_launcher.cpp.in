@@ -22,6 +22,7 @@
 #include "dls2/hardware/hardware.hpp"
 #include "dls2/estimator/estimator.hpp"
 #include "dls2/service/service_base.hpp"
+#include "dls2/data_visualizer/data_visualizer_base.hpp"
 #include "dls2/log/log.hpp"
 #include "dls2/application/layer.hpp"
 
@@ -190,6 +191,13 @@ int main(int argc, char **argv)
                         std::string("/usr/lib/dls2/lib") + args.lib_name + ".so",
                         args.component_name);
             }
+        }
+        else if (args.component_type == "data_visualizer")
+        {
+            pComponent =
+                ClassLoader::loadClass<DataVisualizerBase, std::string>(
+                    std::string("${DLS_INSTALL_DATA_VISUALIZER_DIR}/lib") + args.lib_name + ".so",
+                    args.robot_name);
         }
         else if (args.component_type == "action")
         {
