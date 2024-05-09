@@ -1,4 +1,4 @@
-# Plugin_base
+# Plugin
 
 ## Introduction
 This C++ library provides an interface to connect an external software module to DLS2.
@@ -17,18 +17,20 @@ Different software module can have different inputs and outputs, so each module 
 
 In this way, the implementation of the software module can be independent from the DLS2 middleware. The user can therefore mainly focus on the development of its own software module, being agnostic with respect to the communication channel used to receive inputs and to send outputs.
 
-We can have periodic plugin, running at a specified frequency, or aperiodic plugin, such as services.
+We can have periodic plugin, running in real-time at a specified frequency, or aperiodic plugin, such as services.
 
 ### Periodic app plugin
 #### PeriodicAppPlugin class overview
-The PeriodicAppPlugin class is the interface that allows a software module to run periodically, while communicating with the DLS2 network. It can run in either REAL-TIME or BEST-EFFORT manner. The plugin of each module is implemented as a class inheriting from PeriodicAppPlugin. This class allows the specific plugin to:
+The PeriodicAppPlugin class is the interface that allows a software module to run periodically, while communicating with the DLS2 network and it runs with a real-time scheduling policy. The plugin of each module is implemented as a class inheriting from the PeriodicAppPlugin. This class allows the specific plugin to:
 * be loaded at runtime, through the *create_t* function
 * add inputs to the plugin, with the *buildInput* function 
 * add outputs to the plugin, with the *buildOutput* function
+* define tasks (like initialization) to perform when the activation request is received, through the _checkActivation_ function
 * run periodically the *run* function
+* define what to do when closing (_unloading_) the plugin by means of _close()_ function
 * read/write all the inputs/outputs from/to the DLS2 network
 
-The *create_t*, *destroy_t* and *run* functions has to be implemented implemented in any class inheriting from PeriodicAppPlugin. See [How to write a periodic plugin](#how-to-write-a-periodic-plugin) section.
+The *create_t*, *destroy_t* and *run* functions has to be implemented in any class inheriting from PeriodicAppPlugin. See [How to write a periodic plugin](#how-to-write-a-periodic-plugin) section.
 
 When creating an input, the plugin performs two steps:
 * create a data reader, subscribed to the desired topic
@@ -50,7 +52,7 @@ The basic idea is that the Plugin calls in its run function the run function of 
 * set inputs to the module, read from the DLS2 network
 * get outputs of the module, writing them in the DLS2 network
 
-The specific Plugin of the module has to be a C++ class inheriting from PeriodicAppPlugin. In this way, to run the software module at an arbitrary rate, you need to load from the command line its associated Plugin. To do that, the Plugin has to implement the *create_t* fuction, inherited from PeriodicAppPlugin class. This function is called when loading the Plugin at run-time, and it is responsible to call the Plugin constructor. Another function, *destroy_t*, has to be implemented too, to call the Plugin destructor once its instance is destroyed.
+The specific Plugin of the module has to be a C++ class inheriting from PeriodicAppPlugin and it is at the end a shared library. In this way, to run the software module at an arbitrary rate, you need to load from the command line its associated Plugin. With **loading** you are actually **spawning a new process** that will run your module. This process is following [this](https://gitlab.advr.iit.it/dls-lab/dls2/-/tree/develop/modules%2Fapplication#state-machine) state machine. To be loaded at run-time, the Plugin has to implement the *create_t* fuction, inherited from PeriodicAppPlugin class. This function is called when loading the Plugin at run-time, and it is responsible to call the Plugin constructor. Another function, *destroy_t*, has to be implemented too, to call the Plugin destructor once its instance is destroyed.
 
 The Plugin has to store internally the following main objects:
 * module object: this is an instance of your module class
@@ -64,22 +66,22 @@ Once it is loaded, the Plugin constructor has to:
 * create a sets of signal readers, for getting the module inputs from the DLS2 network
 * create a sets of signal writers, for sending the module outputs to the DLS2 network
 
-Upon construction, the Plugin starts executing its run function periodically, which has to call three main functions: 
+After the construction, the Plugin goes in the _idle_ state and the process holding it falls asleep waiting for an activation request. Once it is received, the _checkActivation()_ function is run periodically until a timeout: this is the function where you can initialize your module and do some basic checks. If the activation fails, the process goes back to the _idle_ state, otherwise the process starts executing its run function periodically, which has to call three main functions: 
 * *read()*: it gets all the inputs of the module from the DLS2 network
 * *module.run(inputs, outputs)*: it calls the run function of the module, which is responsible for implementing the module logic. Here *module* is the instace of your module class
 * *write()*: it sends all the outputs of the module to the DLS2 network
 
 From this structure, it easy to understand that the only compatibility requirement a module has to have to communicate with the DLS2 network is to define a *run(input,outputs)* function, whose arguments are the inputs and the outputs of the module.
 
-#### What is an input?
+##### What is an input?
 In the Plugin an input is identified by:
 * a topic to read from
 * a SignalReader object, creating a data reader listening on the topic, and built by the *buildInput* function
 * an input variable, of message wrapper type, that is updated each time the *read()* function is called
 
-the SignalReader object is stored in a variable of the PeriodicAppPlugin class. The input variable instead has to be defined in the Plugin.
+The SignalReader object is stored in a variable of the PeriodicAppPlugin class. The input variable instead has to be defined in the Plugin.
 
-#### What is an output?
+##### What is an output?
 In the Plugin an output is identified by:
 * a topic to write to
 * a SignalWriter object, creating a data writer publishing on the topic, and built by the *buildOutput* function
@@ -124,7 +126,7 @@ To create a periodic plugin:
     The Plugin, module and console commands classes are automatically created, together with some suggestions on how to customize your plugin.
     
     Moreover, in the project structure there is also the possibility to define custom messages and topics, that you can use in your plugin and made available to the DLS2 network.
-* follow the instruction in the README of the project you have just created. You can find the README also [here](https://gitlab.advr.iit.it/dls-lab/dls2/-/tree/clear_inputs_outputs/modules%2Fplugin_base%2Fskeletons%2Fperiodic#periodic-plugin).
+* follow the instruction in the README of the project you have just created. You can find the README also [here](https://gitlab.advr.iit.it/dls-lab/dls2/-/tree/develop/modules%2Fplugin#plugin_base).
 
 ### App plugin class overview
 TODO

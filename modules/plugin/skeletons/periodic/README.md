@@ -24,20 +24,10 @@ Notice that the include directories has a subdirectory following this convention
 
 where *\<plugin_name>* is the name of the plugin, and *\<plugin_type>* is the plugin type that can be: *hardwares, estimators, controllers, motion_generators*. This include structure helps with the inclusion of the headers in other libraries.
 
-Don't worry, you are lucky: we will guide you step-by-step with the customization of your plugin.
+Don't worry, you are lucky: we will guide you step-by-step with the customization of your plugin!
 
 ## Build and install the project
-THe first step is to install dls2_deploy
-* cd dls2_deploy
-* mkdir build
-* cd build
-* ccmake ..
-* make
-* sudo make install
-
-With the `ccmake ..` command you can choose what to install.
-
-Once dls2_deploy is installed you can build and install the project
+Inside the dls2-framework docker image, to build and install the project you can
 
 * cd <path_to_your_project>
 * mkdir build
@@ -46,7 +36,7 @@ Once dls2_deploy is installed you can build and install the project
 * make
 * sudo make install
 
-As for dls2_deploy, with the `ccmake ..` command you can choose what to build and install:
+With the `ccmake ..` command you can choose what to build and install:
 * the software module (*<plugin_name>_module*)
 * the plugin (*<plugin_name>_plugin/core*)
 * the console commands library (*<plugin_name>_plugin/console_comm*)

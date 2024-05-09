@@ -5,6 +5,7 @@ In this section it is described what is a command in DLS2 and what happens when 
 
 #### Prerequisites
 Read at least at the [Introduction](https://fast-dds.docs.eprosima.com/en/latest/02-formalia/titlepage.html) and [Getting Started](https://fast-dds.docs.eprosima.com/en/latest/fastdds/getting_started/getting_started.html) sections of the FastDDS documentation.
+
 ## What is a command in DLS2?
 As you might already know, DLS2 is a distributed system, where each entity/module can easliy join the pletora of entities communicating in a specific domain (or connected to a server). Such entities can define a set of console commands that an user can execute to interactively change their behaviour while running all together. To comply with the distributed structure, a publisher-subscriber paradigm is implemented to execute a console command belonging to a specific entity.
 
@@ -107,4 +108,4 @@ As an example, let's define the commands of the previous example
 
 As you can see, there are 1 or more transition states. You could also define a command with no transition, with the empty set *{}* (not *{{}}*). In this case the command is always available.
 
-Notice also that we have used *this* as pointer to the instance class of Periodic. This is because in this example the console commands were added in the same class (Periodic) where the functions associated to the commands are defined. As you can see [here](https://gitlab.advr.iit.it/dls-lab/dls2/-/tree/clear_inputs_outputs/modules%2Fplugin_base%2Fskeletons%2Fperiodic#create-custom-console-commands), this is always the case.
+Notice also that we have used *this* as pointer to the instance class of Periodic. This is because in this example the console commands were added in the same class (Periodic) where the functions associated to the commands are defined. As you can see [here](https://gitlab.advr.iit.it/dls-lab/dls2/-/tree/develop/modules%2Fplugin%2Fskeletons%2Fperiodic#create-custom-console-commands), this is always the case.
