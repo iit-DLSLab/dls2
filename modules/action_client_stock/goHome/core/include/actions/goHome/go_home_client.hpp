@@ -11,7 +11,7 @@ namespace dls
 	// =========================================================================
 	/*! @brief A class implementing the Go Home action server.
 	 */
-	class GoHomeClient : public ActionClient<actions_msg_wrappers::goHome::GOAL_t, actions_msg_wrappers::goHome::FEEDBACK_t, actions_msg_wrappers::goHome::RESULT_t>
+	class GoHomeClient : public ActionClient<actions_msgs::goHome::GOAL_t, actions_msgs::goHome::FEEDBACK_t, actions_msgs::goHome::RESULT_t>
 	{
 	public:
 	
@@ -32,7 +32,7 @@ namespace dls
 		virtual bool consoleCommand() override;
 	private:
 		robotlib::JointState home_configuration;
-		dls::actions_msg_wrappers::goHome::GOAL_t goal;
+		dls::actions_msgs::goHome::GOAL_t goal;
 	}; // end namespace dls
 }
 #endif /* end of include guard: GO_HOME_CLIENT_HPP */

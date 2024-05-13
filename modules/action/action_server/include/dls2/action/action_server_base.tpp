@@ -13,9 +13,9 @@ namespace dls
 																	 const dls::topicType &topic_goal,
 																	 const dls::topicType &topic_feedback,
 																	 const dls::topicType &topic_result,
-																	 const GOAL_t &goal,
-																	 const FEEDBACK_t &feedback,
-																	 const RESULT_t &result)
+																	 const GOAL_t goal,
+																	 const FEEDBACK_t feedback,
+																	 const RESULT_t result)
 		: 	PeriodicAppPlugin(ID),
 			goal(goal),
 			feedback(feedback),

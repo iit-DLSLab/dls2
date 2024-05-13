@@ -11,9 +11,9 @@ namespace dls
     {
         namespace goHome
         {
-            dls::topicType goal_topic = dls::topicType("goHome_goal", new JointStateMsgPubSubType());
-            dls::topicType feedback_topic = dls::topics::trajectory_generator;
-            dls::topicType result_topic = dls::topicType("goHome_result", new BoolMsgPubSubType());
+            dls::topicType goal = dls::topicType("goHome_goal", new JointStateMsgPubSubType());
+            dls::topicType feedback = dls::topics::trajectory_generator;
+            dls::topicType result = dls::topicType("goHome_result", new BoolMsgPubSubType());
         }
     }
 }

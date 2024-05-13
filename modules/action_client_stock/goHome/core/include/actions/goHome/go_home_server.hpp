@@ -12,7 +12,7 @@ namespace dls
 	// =========================================================================
 	/*! @brief A class implementing the Go Home action server.
 	 */
-	class GoHomeServer : public ActionServerBase<actions_msg_wrappers::goHome::GOAL_t, actions_msg_wrappers::goHome::FEEDBACK_t, actions_msg_wrappers::goHome::RESULT_t>
+	class GoHomeServer : public ActionServerBase<actions_msgs::goHome::GOAL_t, actions_msgs::goHome::FEEDBACK_t, actions_msgs::goHome::RESULT_t>
 	{
 	public:
 		/*! @brief Constructor

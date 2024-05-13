@@ -11,7 +11,7 @@ namespace dls
 	// =========================================================================
 	/*! @brief A class implementing the Go Fold action server.
 	 */
-	class GoFoldClient : public ActionClient<actions_msg_wrappers::goFold::GOAL_t, actions_msg_wrappers::goFold::FEEDBACK_t, actions_msg_wrappers::goFold::RESULT_t>
+	class GoFoldClient : public ActionClient<actions_msgs::goFold::GOAL_t, actions_msgs::goFold::FEEDBACK_t, actions_msgs::goFold::RESULT_t>
 	{
 	public:
 	
@@ -32,7 +32,7 @@ namespace dls
 		virtual bool consoleCommand() override;
 	private:
 		robotlib::JointState fold_configuration;
-		dls::actions_msg_wrappers::goFold::GOAL_t goal;
+		dls::actions_msgs::goFold::GOAL_t goal;
 	}; // end namespace dls
 }
 #endif /* end of include guard: GO_FOLD_CLIENT_HPP */

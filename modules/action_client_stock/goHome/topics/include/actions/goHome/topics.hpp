@@ -9,9 +9,9 @@ namespace dls
     {
         namespace goHome
         {
-            extern dls::topicType goal_topic;
-            extern dls::topicType feedback_topic;
-            extern dls::topicType result_topic;
+            extern dls::topicType goal;
+            extern dls::topicType feedback;
+            extern dls::topicType result;
         }
     }
 }

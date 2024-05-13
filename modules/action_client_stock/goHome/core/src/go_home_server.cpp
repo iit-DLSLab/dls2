@@ -7,12 +7,12 @@ namespace dls
     GoHomeServer::GoHomeServer(const std::string &ID, const std::shared_ptr<robotlib::RobotBase> pRobot) : 
                                 ActionServerBase(
                                 ID,
-                                topics::goHome::goal_topic,
-                                topics::goHome::feedback_topic,
-                                topics::goHome::result_topic,
-                                actions_msg_wrappers::goHome::GOAL_t(pRobot),
-                                actions_msg_wrappers::goHome::FEEDBACK_t(pRobot),
-                                actions_msg_wrappers::goHome::RESULT_t()),
+                                topics::goHome::goal,
+                                topics::goHome::feedback,
+                                topics::goHome::result,
+                                actions_msgs::goHome::GOAL_t(pRobot),
+                                actions_msgs::goHome::FEEDBACK_t(pRobot),
+                                actions_msgs::goHome::RESULT_t()),
                                 pRobot(pRobot),
                                 blind_state(pRobot)
     {

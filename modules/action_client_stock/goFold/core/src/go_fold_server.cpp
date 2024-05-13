@@ -7,12 +7,12 @@ namespace dls
     GoFoldServer::GoFoldServer(const std::string &ID, const std::shared_ptr<robotlib::RobotBase> pRobot) : 
                                 ActionServerBase(
                                 ID,
-                                topics::goFold::goal_topic,
-                                topics::goFold::feedback_topic,
-                                topics::goFold::result_topic,
-                                actions_msg_wrappers::goFold::GOAL_t(pRobot),
-                                actions_msg_wrappers::goFold::FEEDBACK_t(pRobot),
-                                actions_msg_wrappers::goFold::RESULT_t()),
+                                topics::goFold::goal,
+                                topics::goFold::feedback,
+                                topics::goFold::result,
+                                actions_msgs::goFold::GOAL_t(pRobot),
+                                actions_msgs::goFold::FEEDBACK_t(pRobot),
+                                actions_msgs::goFold::RESULT_t()),
                                 pRobot(pRobot),
                                 blind_state(pRobot)
     {

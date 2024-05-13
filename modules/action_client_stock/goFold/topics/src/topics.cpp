@@ -11,9 +11,9 @@ namespace dls
     {
         namespace goFold
         {
-            dls::topicType goal_topic = dls::topicType("goFold_goal", new JointStateMsgPubSubType());
-            dls::topicType feedback_topic = dls::topics::trajectory_generator;
-            dls::topicType result_topic = dls::topicType("goFold_result", new BoolMsgPubSubType());
+            dls::topicType goal = dls::topicType("goFold_goal", new JointStateMsgPubSubType());
+            dls::topicType feedback = dls::topics::trajectory_generator;
+            dls::topicType result = dls::topicType("goFold_result", new BoolMsgPubSubType());
         }
     }
 }

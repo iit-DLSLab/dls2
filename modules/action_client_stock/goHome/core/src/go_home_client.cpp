@@ -12,12 +12,12 @@ namespace dls
                                     action_name,
                                     dds_participant,
                                     command_manager,
-                                    topics::goHome::goal_topic,
-                                    topics::goHome::feedback_topic,
-                                    topics::goHome::result_topic,
-                                    actions_msg_wrappers::goHome::GOAL_t(pRobot),
-                                    actions_msg_wrappers::goHome::FEEDBACK_t(pRobot),
-                                    actions_msg_wrappers::goHome::RESULT_t()),
+                                    topics::goHome::goal,
+                                    topics::goHome::feedback,
+                                    topics::goHome::result,
+                                    actions_msgs::goHome::GOAL_t(pRobot),
+                                    actions_msgs::goHome::FEEDBACK_t(pRobot),
+                                    actions_msgs::goHome::RESULT_t()),
                                     home_configuration(pRobot->makeJointState(0.0)),
                                     goal(pRobot)
     {

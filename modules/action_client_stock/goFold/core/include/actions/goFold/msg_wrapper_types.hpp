@@ -6,7 +6,7 @@
 #include "dls2/msg_wrappers/bool.hpp"
 
 namespace dls{
-    namespace actions_msg_wrappers{
+    namespace actions_msgs{
         namespace goFold{
             typedef JointState GOAL_t;
             typedef TrajectoryGenerator FEEDBACK_t;
