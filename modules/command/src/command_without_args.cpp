@@ -31,24 +31,20 @@ namespace dls
 	CommandWithoutArgs::~CommandWithoutArgs(){}
 
 
-	// void CommandWithoutArgs::setEnabled()
-	// {
-	// 	if(this->isEnabled())
-	// 		return;
-
-	// 	this->registerCommand();
-	// 	this->enabled = true;
-	// }
+	void CommandWithoutArgs::setEnabled()
+	{
+		if(this->isEnabled())
+			return;
+		this->enabled = true;
+	}
 
 	
-	// void CommandWithoutArgs::setDisabled()
-	// {
-	// 	if(this->isEnabled())
-	// 		return;
-
-	// 	this->unregisterCommand();
-	// 	this->enabled = false;
-	// }
+	void CommandWithoutArgs::setDisabled()
+	{
+		if(this->isEnabled())
+			return;
+		this->enabled = false;
+	}
 
 	
 	void CommandWithoutArgs::activate()

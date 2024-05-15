@@ -115,6 +115,10 @@ namespace dls
 
 		void changeTransitionSet(const LevelType& transition_set);
 
+		virtual void setEnabled() = 0;
+
+		virtual void setDisabled() = 0;
+
 	protected:
 
 		/// Command execution level

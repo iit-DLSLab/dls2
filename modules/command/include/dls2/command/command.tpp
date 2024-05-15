@@ -45,18 +45,14 @@ namespace dls
 	{
 		if(this->isEnabled())
 			return;
-
-		this->registerCommand();
 		this->enabled = true;
 	}
 
 	template <typename... arg_ts>
 	void Command<arg_ts...>::setDisabled()
 	{
-		if(this->isEnabled())
+		if(!this->isEnabled())
 			return;
-
-		this->unregisterCommand();
 		this->enabled = false;
 	}
 

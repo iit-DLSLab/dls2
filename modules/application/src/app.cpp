@@ -50,25 +50,10 @@ App::App(const std::string &ID)
         {
 			activate_cmd_locked = true;
 			sm.raiseEvent(sm.activation_request);
-			// wait for reply - TODO: handle commands with state machine
-			// wait to go in ACTIVATION state
-			while(activate_cmd_locked)
-			{
-				std::this_thread::sleep_for(std::chrono::milliseconds(4));
-			}
-			// in ACTIVATION state: wait for RUN or IDLE or QUIT state
-			while(!sm.isRaised(sm.quit_request))
-			{
-				if(*sm.state == sm.RUN)
-					return true;
-				else if (*sm.state == sm.IDLE)
-					return false;
-				std::this_thread::sleep_for(std::chrono::milliseconds(4));
-			}
             return true;
 		}),
 		{{0,1}},
-		true
+		false
 	);
 
 	this->command_manager.addCommand<>
@@ -79,21 +64,10 @@ App::App(const std::string &ID)
         {
 			deactivate_cmd_locked = true;
 			sm.raiseEvent(sm.deactivation_request);
-			// wait for reply - TODO: handle commands with state machine
-			// wait to go in DEACTIVATION state
-			while(deactivate_cmd_locked)
-			{
-				std::this_thread::sleep_for(std::chrono::milliseconds(4));
-			}
-			// in DEACTIVATION state: wait for IDLE or QUIT state
-			while(!sm.isRaised(sm.quit_request) && *sm.state != sm.IDLE)
-			{
-				std::this_thread::sleep_for(std::chrono::milliseconds(4));
-			}
             return true;
 		}),
 		{{CommandBase::ALL_STATES_EXCEPT_ZERO, 0}},
-		true
+		false
 	);
 }
 
@@ -145,6 +119,9 @@ void App::execute(){
 
 void App::idle()
 {
+	command_manager.getCommand("activate")->setEnabled();
+	command_manager.triggerLevelWatcher();
+
 	setDefaultSchedulerPolicy();
 	sm.waitAsynchEvent({sm.activation_request, sm.quit_request});
 	if(sm.isRaised(sm.activation_request))
@@ -180,7 +157,8 @@ void App::activation()
 
 		if(!print_message && static_cast<int>(enlapsed_time)%2 == 0){ // print every 2 seconds
 			print_message = true;
-			scout_warn << activation_message.str() << std::endl;
+			if(activation_message.str()!="")
+				scout_warn << activation_message.str() << std::endl;
 		}
 		else if (print_message && static_cast<int>(enlapsed_time)%2 != 0){
 			print_message = false;
@@ -192,10 +170,15 @@ void App::activation()
 	                    std::chrono::high_resolution_clock::now() - start).count();
 	}
 
-	if(activate)
+	if(activate){
+		command_manager.getCommand("activate")->setDisabled();
+		command_manager.getCommand("deactivate")->setEnabled();
+		command_manager.triggerLevelWatcher();
 	    sm.nextState(sm.activated);
-	else if (enlapsed_time>timeout)
+	}
+	else if (enlapsed_time>timeout){
 	    sm.nextState(sm.failed_activation);
+	}
 	else // quit request
 	    sm.nextState(sm.quit_request);
 }
@@ -210,6 +193,8 @@ void App::deactivation()
 	    sm.nextState(sm.quit_request);
 	}
 	else if (deactivation){
+		command_manager.getCommand("deactivate")->setDisabled();
+		command_manager.triggerLevelWatcher();
 	    sm.nextState(sm.deactivated);
 	}
 	else{

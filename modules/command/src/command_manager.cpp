@@ -12,6 +12,7 @@ CommandManager::CommandManager(std::string owner_)
 	, level(0)
 	, levelThread(&CommandManager::levelWatcher, this)
 	, should_exit(false)
+	, trigger_level_watcher(false)
 {
 	eprosima::fastdds::dds::DataWriterQos qos(eprosima::fastdds::dds::DATAWRITER_QOS_DEFAULT);
 	qos.reliability().kind = eprosima::fastdds::dds::RELIABLE_RELIABILITY_QOS;
@@ -35,7 +36,7 @@ CommandManager::~CommandManager()
 		elem.second->deactivate();
 	}
 
-	this->levelCondVar.notify_one();
+	triggerLevelWatcher();
 	this->levelThread.join();
 }
 
@@ -236,11 +237,21 @@ void CommandManager::changeLevel(uint level_)
 		std::unique_lock<std::mutex> lock(this->levelMutex);
 		this->level = level_; 
 	}
+	triggerLevelWatcher();
+}
+
+void CommandManager::triggerLevelWatcher()
+{
+	trigger_level_watcher.wait(true);
+	trigger_level_watcher.store(true);
 	this->levelCondVar.notify_one();
 }
 
 void CommandManager::verifyLevel()
 {
+	// static int count=0;
+	// count++;
+	// std::cout << "Verifying level, " << count<<std::endl;
 	for(auto cmd : this->commands)
 	{
 		// std::this_thread::sleep_for(std::chrono::milliseconds(200));
@@ -260,7 +271,8 @@ void CommandManager::levelWatcher()
 	while(true)
 	{
 		std::unique_lock<std::mutex> lock(this->levelMutex);
-		this->levelCondVar.wait(lock);
+		this->levelCondVar.wait(lock, [&]{return trigger_level_watcher.load();});
+		trigger_level_watcher.store(false);
 		if(this->should_exit.load())
 			break;
 		this->verifyLevel();

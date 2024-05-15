@@ -55,13 +55,13 @@ namespace dls
 		///
 		~CommandWithoutArgs();
 
-		// /// Enable the command
-		// /// 
-		// void setEnabled();
+		/// Enable the command
+		/// 
+		void setEnabled() override;
 
-		// /// Disable the command
-		// ///
-		// void setDisabled();
+		/// Disable the command
+		///
+		void setDisabled() override;
 
 		/// Activate the command
 		/// 
@@ -85,10 +85,6 @@ namespace dls
 		/// Register command on command domain
 		///
 		void registerCommand();
-
-		/// Unregister command on command domain
-		///
-		void unregisterCommand();
 
 		/// Call method
 		///

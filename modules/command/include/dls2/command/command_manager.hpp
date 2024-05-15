@@ -123,6 +123,10 @@ namespace dls
 		*/
 		bool waitCommand(const std::string& owner, const std::string& name, std::atomic_bool& stop_wait);
 
+
+		/*! @brief Trigger the level watcher
+		*/
+		void triggerLevelWatcher();
 	private:
 
 		/// Storage space for the commands
@@ -155,6 +159,8 @@ namespace dls
 		void sendMessage(std::pair<std::string, std::string> cmdData, std::vector<std::string> args);
 
 		std::atomic<bool> should_exit;
+
+		std::atomic_bool trigger_level_watcher;
 
 	};
 
