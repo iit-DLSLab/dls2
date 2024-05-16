@@ -249,12 +249,8 @@ void CommandManager::triggerLevelWatcher()
 
 void CommandManager::verifyLevel()
 {
-	// static int count=0;
-	// count++;
-	// std::cout << "Verifying level, " << count<<std::endl;
 	for(auto cmd : this->commands)
 	{
-		// std::this_thread::sleep_for(std::chrono::milliseconds(200));
 		if(cmd.second->testLevel(this->level))
 		{
 			cmd.second->activate();
@@ -273,6 +269,7 @@ void CommandManager::levelWatcher()
 		std::unique_lock<std::mutex> lock(this->levelMutex);
 		this->levelCondVar.wait(lock, [&]{return trigger_level_watcher.load();});
 		trigger_level_watcher.store(false);
+		trigger_level_watcher.notify_one();
 		if(this->should_exit.load())
 			break;
 		this->verifyLevel();

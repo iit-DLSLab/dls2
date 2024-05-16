@@ -18,6 +18,7 @@ namespace state_machine
         class ActivationRequest : public AsyncEvent{};
         class DeactivationRequest : public AsyncEvent{};
         class QuitRequest : public AsyncEvent{};
+        class StopActivation : public AsyncEvent{};
     }
 }
 #endif /* end of include guard: APP_EVENTS_HPP */

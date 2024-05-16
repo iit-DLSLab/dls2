@@ -22,6 +22,7 @@ namespace state_machine
                     {{&IDLE, activation_request}, &ACTIVATION},
                     {{&ACTIVATION, activated}, &RUN},
                     {{&ACTIVATION, failed_activation}, &IDLE},
+                    {{&ACTIVATION, stop_activation}, &IDLE},
                     {{&RUN, deactivation_request}, &DEACTIVATION},
                     {{&RUN, failure}, &FAIL},
                     {{&DEACTIVATION, deactivated}, &IDLE},

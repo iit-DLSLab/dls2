@@ -126,11 +126,6 @@ namespace dls
 		struct sched_attr scheduler_attributes;
 
 		std::string get_current_time();
-
-		//! Variable to wait for the activation to be completed before returning from the activate command
-		bool activate_cmd_locked;
-		//! Variable to wait for the deactivation to be completed before returning from the deactivate command
-		bool deactivate_cmd_locked;
 	};
 } // end namespace dls
 

@@ -184,7 +184,6 @@ void PeriodicApp::setFailure()
 
 void PeriodicApp::deactivation()
 {
-	deactivate_cmd_locked = false;
 	bool deactivated = false;
 	bool realtime_prec = true;
 	bool realtime_curr = realtime_prec;

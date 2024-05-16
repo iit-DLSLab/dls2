@@ -42,6 +42,7 @@ namespace state_machine
             ActivationRequest activation_request;
             DeactivationRequest deactivation_request;
             QuitRequest quit_request;
+            StopActivation stop_activation;
         };
     }
 }

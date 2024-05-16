@@ -13,8 +13,6 @@ App::App(const std::string &ID)
 	, activation_message("")
 	, status_mutex()
 	, status(AppStatus::INITIALISING)
-	, activate_cmd_locked(false)
-	, deactivate_cmd_locked(false)
 {
 	command_manager.addCommand<>
 	(
@@ -48,7 +46,6 @@ App::App(const std::string &ID)
 		"Activate " + this->getID(),
 		std::function<bool()>([&]()->bool
         {
-			activate_cmd_locked = true;
 			sm.raiseEvent(sm.activation_request);
             return true;
 		}),
@@ -58,11 +55,23 @@ App::App(const std::string &ID)
 
 	this->command_manager.addCommand<>
 	(
+		"stopActivation",
+		"Stop activation of " + this->getID(),
+		std::function<bool()>([&]()->bool
+        {
+			sm.raiseEvent(sm.stop_activation);
+            return true;
+		}),
+		{{1,0}},
+		false
+	);
+
+	this->command_manager.addCommand<>
+	(
 		"deactivate",
 		"Deactivate " + this->getID(),
 		std::function<bool()>([&]()->bool
         {
-			deactivate_cmd_locked = true;
 			sm.raiseEvent(sm.deactivation_request);
             return true;
 		}),
@@ -119,10 +128,10 @@ void App::execute(){
 
 void App::idle()
 {
+	setDefaultSchedulerPolicy();
 	command_manager.getCommand("activate")->setEnabled();
 	command_manager.triggerLevelWatcher();
 
-	setDefaultSchedulerPolicy();
 	sm.waitAsynchEvent({sm.activation_request, sm.quit_request});
 	if(sm.isRaised(sm.activation_request))
 	{
@@ -136,56 +145,45 @@ void App::idle()
 
 void App::activation()
 {
-	activate_cmd_locked = false;
-	// Wait for timeout seconds the input readyness
-	double timeout = 10.0; //seconds
-	double enlapsed_time = 0.0;
-	bool activate = false;
+	command_manager.getCommand("stopActivation")->setEnabled();
+	command_manager.triggerLevelWatcher();
 
-	auto start = std::chrono::high_resolution_clock::now();
-
-	bool print_message = false;
 	// Check if the app can be activated until
 	// -- either it can be activated
-	// -- or the timeout is expired
 	// -- or a quit request is received
-	while(enlapsed_time <= timeout && !sm.isRaised(sm.quit_request)){
+	// while(enlapsed_time <= timeout && !sm.isRaised(sm.quit_request)){
+	bool activate = false;
+	std::string old_message = "";
+	while(!activate && !sm.isRaised(sm.stop_activation) && !sm.isRaised(sm.quit_request)){
 	    activate = checkActivation();
-		if(activate){
-			break;
-		}
 
-		if(!print_message && static_cast<int>(enlapsed_time)%2 == 0){ // print every 2 seconds
-			print_message = true;
-			if(activation_message.str()!="")
-				scout_warn << activation_message.str() << std::endl;
-		}
-		else if (print_message && static_cast<int>(enlapsed_time)%2 != 0){
-			print_message = false;
-		}
+		if(activation_message.str()!="" && old_message!=activation_message.str())
+			scout_warn << activation_message.str() << std::endl;
+		old_message = activation_message.str();
 		activation_message.str("");
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
-	    enlapsed_time = std::chrono::duration_cast<std::chrono::seconds>(
-	                    std::chrono::high_resolution_clock::now() - start).count();
 	}
 
 	if(activate){
 		command_manager.getCommand("activate")->setDisabled();
+		command_manager.getCommand("stopActivation")->setDisabled();
 		command_manager.getCommand("deactivate")->setEnabled();
 		command_manager.triggerLevelWatcher();
 	    sm.nextState(sm.activated);
 	}
-	else if (enlapsed_time>timeout){
-	    sm.nextState(sm.failed_activation);
+	else if (sm.isRaised(sm.stop_activation)){
+		command_manager.getCommand("stopActivation")->setDisabled();
+		command_manager.triggerLevelWatcher();
+	    sm.nextState(sm.stop_activation);
 	}
-	else // quit request
+	else{ // quit request
 	    sm.nextState(sm.quit_request);
+	}
 }
 
 void App::deactivation()
 {
-	deactivate_cmd_locked = false;
 	bool deactivation = deactivating();
 	// a quit request might be raised during the deactivation
 	if (sm.isRaised(sm.quit_request))
