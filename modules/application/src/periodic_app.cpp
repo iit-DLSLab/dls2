@@ -182,7 +182,7 @@ void PeriodicApp::setFailure()
 	failure = true;
 }
 
-void PeriodicApp::deactivation()
+bool PeriodicApp::deactivating()
 {
 	bool deactivated = false;
 	bool realtime_prec = true;
@@ -217,14 +217,7 @@ void PeriodicApp::deactivation()
 	    sched_yield();
 	}
 
-	if (deactivated)
-	{
-	    sm.nextState(sm.deactivated);
-	}
-	else if (sm.isRaised(sm.quit_request))
-	{
-	    sm.nextState(sm.quit_request);
-	}
+	return deactivated;
 }
 
 bool PeriodicApp::deactivation(const std::chrono::system_clock::time_point&)

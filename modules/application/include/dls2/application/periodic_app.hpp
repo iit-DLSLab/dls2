@@ -38,7 +38,7 @@ namespace dls
 		period_t getPeriod();
 
 		//! Run the activation function - used in state machine
-		virtual void deactivation() override;
+		virtual bool deactivating() override;
 
 		//! Run the deactivation function. It is used by the state machine with RT scheduling
 		virtual bool deactivation(const std::chrono::system_clock::time_point&);
