@@ -11,7 +11,6 @@ namespace dls
 	template <typename GOAL_t, typename FEEDBACK_t, typename RESULT_t>
 	ActionClient<GOAL_t, FEEDBACK_t, RESULT_t>::ActionClient(
 		const std::string &action_name,
-		const std::shared_ptr<DDSParticipant> dds_participant,
 		const std::shared_ptr<CommandManager> command_manager,
 		const topicType &topic_goal,
 		const topicType &topic_feedback,
@@ -20,15 +19,15 @@ namespace dls
 		const FEEDBACK_t &feedback,
 		const RESULT_t &result)
 		:
-			ActionClientBase(action_name, dds_participant, command_manager),
+			ActionClientBase(action_name, command_manager),
 			config(YAML::LoadFile("/usr/include/dls2/actions/" + action_name + "/config/config.yml")),
-			goal_writer(dds_participant,
+			goal_writer(this->dds_participant,
 					  topic_goal,
 					  std::make_shared<GOAL_t>(goal)),
-		  	feedback_reader(dds_participant,
+		  	feedback_reader(this->dds_participant,
 						  topic_feedback,
 						  std::make_shared<FEEDBACK_t>(feedback)),
-		  	result_reader(dds_participant,
+		  	result_reader(this->dds_participant,
 						topic_result,
 						std::make_shared<RESULT_t>(result),
 						std::function<void()>([&]() -> void

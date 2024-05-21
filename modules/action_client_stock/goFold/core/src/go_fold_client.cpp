@@ -5,12 +5,10 @@
 namespace dls
 {
     GoFoldClient::GoFoldClient( const std::string &action_name,
-                                const std::shared_ptr<DDSParticipant> dds_participant,
                                 const std::shared_ptr<CommandManager>  command_manager,
 						        const std::shared_ptr<robotlib::RobotBase> pRobot) 
                                 : ActionClient(
                                     action_name,
-                                    dds_participant,
                                     command_manager,
                                     topics::goFold::goal,
                                     topics::goFold::feedback,

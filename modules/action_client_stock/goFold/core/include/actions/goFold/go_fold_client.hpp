@@ -16,12 +16,10 @@ namespace dls
 	public:
 	
 		/*! @brief Constructor
-		 * @param dds_participant pointer to the dds participant
 		 * @param command_manager pointer to the command manager
 		 * @param pRobot a pointer to the robot object 
 		 */
 		GoFoldClient(	const std::string &action_name,
-						const std::shared_ptr<DDSParticipant> dds_participant,
 						const std::shared_ptr<CommandManager> command_manager,
 						const std::shared_ptr<robotlib::RobotBase> pRobot);
 

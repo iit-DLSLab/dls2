@@ -14,7 +14,6 @@ namespace dls
 
         private:
             const std::shared_ptr<robotlib::RobotBase> pRobot;
-            const std::shared_ptr<DDSParticipant> dds_participant;
             const std::shared_ptr<CommandManager> command_manager;
 
             std::shared_ptr<robotlib::RobotBase> loadRobot(const std::string& robot_name);

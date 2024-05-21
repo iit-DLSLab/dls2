@@ -7,11 +7,10 @@ namespace dls
     // =========================================================================
     ActionClientBase::ActionClientBase(
         const std::string &action_name,
-        const std::shared_ptr<DDSParticipant> dds_participant,
         const std::shared_ptr<CommandManager> command_manager)
         :
             action_name(action_name),
-            dds_participant(dds_participant),
+            dds_participant(std::make_shared<DDSParticipant>("actions::"+action_name, dls::domains::signals)),
             command_manager(command_manager),
             is_action_completed(false)
     {

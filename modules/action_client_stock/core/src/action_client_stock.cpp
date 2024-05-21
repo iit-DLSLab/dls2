@@ -8,11 +8,10 @@ namespace dls
 {
     ActionClientStock::ActionClientStock(const std::string& robot_name)
                         :   pRobot(loadRobot(robot_name)),
-                            dds_participant(std::make_shared<DDSParticipant>("actions", dls::domains::signals)),
                             command_manager(std::make_shared<CommandManager>("actions"))
     {
-        action_clients["goHome"] = std::make_shared<GoHomeClient>("goHome", dds_participant, command_manager, pRobot);
-        action_clients["goFold"] = std::make_shared<GoFoldClient>("goFold", dds_participant, command_manager, pRobot);
+        action_clients["goHome"] = std::make_shared<GoHomeClient>("goHome", command_manager, pRobot);
+        action_clients["goFold"] = std::make_shared<GoFoldClient>("goFold", command_manager, pRobot);
     }
 
     std::shared_ptr<robotlib::RobotBase> ActionClientStock::loadRobot(const std::string& robot_name)

@@ -31,7 +31,7 @@ namespace dls
 	public:
 		/*! @brief Constructor
 		 *
-		 * @param dds_participant the domain participant
+		 * @param action_name the name of the action
 		 * @param topic_goal the topic on which this action publishes goals
 		 * @param topic_feedback the topic on which this action listens feedback
 		 * @param topic_result the topic on which this action listens the result
@@ -41,7 +41,6 @@ namespace dls
 		 */
 		ActionClient(
 			const std::string &action_name,
-			const std::shared_ptr<DDSParticipant> dds_participant,
 			const std::shared_ptr<CommandManager> command_manager,
 			const dls::topicType &topic_goal,
 			const dls::topicType &topic_feedback,

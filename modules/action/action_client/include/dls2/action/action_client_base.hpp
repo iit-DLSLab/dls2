@@ -23,7 +23,6 @@ namespace dls
 		 */
 		ActionClientBase(
 			const std::string &action_name,
-			const std::shared_ptr<DDSParticipant> dds_participant,
 			const std::shared_ptr<CommandManager> command_manager);
 
 		/*! @brief Destructor
