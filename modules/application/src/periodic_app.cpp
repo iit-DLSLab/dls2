@@ -35,6 +35,8 @@ PeriodicApp::PeriodicApp(const std::string &ID)
 	sm.RUN.makeRealTime();
 	sm.DEACTIVATION.makeRealTime();
 
+	dt = period.count()/(1000000.0);
+
 	this->command_manager.addCommand<>
 	(
 		"pause",

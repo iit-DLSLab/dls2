@@ -70,6 +70,8 @@ namespace dls
 		
 		//! Set the app in failure state
 		void setFailure();
+
+		double dt;
 	protected:
         //! Config variable to load scheduler settings
 		YAML::Node config_scheduler;

@@ -3,9 +3,9 @@
 namespace dls
 {
 	Plugin::Plugin(const std::string &ID, const domainType &domain)
-		: missing_inputs("")
+		: dds_participant_(std::make_shared<dls::DDSParticipant>(ID, domain))
+		, missing_inputs("")
 		, common_outputs("") 
-		, dds_participant_(std::make_shared<dls::DDSParticipant>(ID, domain))
 	{}
 
 	Plugin::~Plugin()
@@ -56,7 +56,7 @@ namespace dls
 		{
 			// for each writer, check if there is another writer publishing on its same topic
 			// -- create reader
-			const std::string reader_name = "reader_of_"+writer->getID();
+			const std::string reader_name = writer->getID() + "::" + "check_output_reader";
 			bool is_writer_active = false;
 			auto ddslink = std::make_shared<dls::DDSReader>(
 			reader_name,

@@ -15,10 +15,10 @@ SignalWriter<SignalType>::SignalWriter(std::shared_ptr<dls::DDSParticipant> dds_
 	, has_timestamp_(HasTimeStamp<SignalType>::value)
 {
 	int id = std::experimental::randint(100000, 999999);
-	while(dds_participant_->getWriter(std::to_string(id)) != nullptr)
+	while(dds_participant_->getWriter(dds_participant_->getName() + "::" + std::to_string(id)) != nullptr)
 		id = std::experimental::randint(100000, 999999);
 
-	ID_ = std::to_string(id);
+	ID_ = dds_participant_->getName() + "::" + std::to_string(id);
 
 	dds_participant_->addWriter(ID_, topic_, qos);
 }

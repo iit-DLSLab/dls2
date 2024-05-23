@@ -17,10 +17,10 @@ namespace dls
 		  auxiliary_callback(auxiliary_callback)
 	{
 		int id = std::experimental::randint(100000, 999999);
-		while (dds_participant_->getReader(std::to_string(id)) != nullptr)
+		while(dds_participant_->getWriter(dds_participant_->getName() + "::" + std::to_string(id)) != nullptr)
 			id = std::experimental::randint(100000, 999999);
 
-		ID_ = std::to_string(id);
+		ID_ = dds_participant_->getName() + "::" + std::to_string(id);
 
 		dds_participant_->addReader(ID_,
 									topic,

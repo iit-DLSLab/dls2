@@ -33,6 +33,10 @@ set(DLS_PROCEDURES_HEADER_DIR /usr/include/dls2/procedures
 	CACHE STRING "Directory where procedure headers are stored"
 )
 
+set(DLS_TASKS_HEADER_DIR /usr/include/dls2/tasks
+	CACHE STRING "Directory where task headers are stored"
+)
+
 set(DLS_SCHEDULERS_CONFIG_DIR /usr/include/dls2/schedulers
 	CACHE STRING "Directory where framework scheduler config are stored"
 )
@@ -59,6 +63,10 @@ set(DLS_INSTALL_ACTION_DIR /usr/lib/dls2/actions
 
 set(DLS_INSTALL_PROCEDURE_DIR /usr/lib/dls2/procedures
 	CACHE STRING "Directory where shared object libraries for procedures are stored"
+)
+
+set(DLS_INSTALL_TASK_DIR /usr/lib/dls2/tasks
+	CACHE STRING "Directory where shared object libraries for tasks are stored"
 )
 
 set(DLS_INSTALL_HARDWARE_DIR /usr/lib/dls2/hardwares

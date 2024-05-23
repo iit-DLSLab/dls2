@@ -135,6 +135,35 @@ ServiceLayer::ServiceLayer(std::string ID, const std::string& robot_name)
 		{},
 		true
 	);
+
+	command_manager.addCommand<std::string>
+	(
+		"loadTask",
+		"Load a task",
+		std::function<bool(std::string)>([&](std::string type)->bool
+        {
+			return this->loadTask(type);
+        }),
+		{},
+		true
+	);
+
+	command_manager.addCommand<std::string>
+	(
+		"unloadTask",
+		"Remove task",
+		std::function<bool(std::string)>([&](std::string type)->bool
+        {
+			if(this->unloadTask(type))
+			{
+				return true;
+			}
+
+			return false;
+		}),
+		{},
+		true
+	);
 }
 
 ServiceLayer::~ServiceLayer()
@@ -153,6 +182,8 @@ void ServiceLayer::close(){
 		this->unloadAction(pair.first);
 	for(auto pair : this->procedures)
 		this->unloadProcedure(pair.first);
+	for(auto pair : this->tasks)
+		this->unloadTask(pair.first);
 }
 
 bool ServiceLayer::loadService(const std::string& lib_name)
@@ -461,6 +492,82 @@ bool ServiceLayer::unloadProcedure(const std::string &name)
 	this->procedures.erase(name);
     return true;
 }
+
+bool ServiceLayer::loadTask(const std::string& name)
+{
+	if(this->tasks.find(name) != this->tasks.end())
+	{
+		scout_err << "task " + name + " already loaded" << std::endl;
+		return false;
+	}
+
+    std::shared_ptr<AppData> pData = std::make_shared<AppData>(name);
+    
+	// launch the procedure
+	char *child_process_launcher = std::getenv("DLS_CHILD_PROCESS_LAUNCHER");
+	if(!child_process_launcher)
+	{
+		scout_err <<
+			"env variable DLS_CHILD_PROCESS_LAUNCHER not "
+			"defined.  This is probably an error with the launch script"
+		<< std::endl;
+		return false;
+	}
+
+	pData->proc = std::make_shared<boost::process::child>(std::vector<std::string>({
+		child_process_launcher,
+		pData->getID(),
+		name,
+		"task",
+		this->robot_name
+	}));
+
+	if (pData->proc == nullptr){
+		std::cout << "Task " << name <<" failed to launch: nullptr" << std::endl;
+		return false;
+	}
+	
+	pData->proc->detach();
+	
+	this->tasks.emplace(pData->getID(), pData);
+
+	return true;	
+}
+
+bool ServiceLayer::unloadTask(const std::string &name)
+{
+	// Find task inside the task list
+	auto res = this->tasks.find(name);
+
+	if (res == this->tasks.end())
+	{
+		scout_err << "Task " + name + " is not loaded" << std::endl;
+		return false;
+	}
+
+	auto pData = res->second;
+
+    //shutdown task over the dds comunication layer
+	command_manager.callCommand("shutdown", {}, name);
+
+	bool unloaded = false;
+	if(!utils::wait(std::function<bool()>([&](){
+			if(pData->proc->running()){
+				return false;
+			}
+			return true;
+		}), 2000, 10, unloaded)){
+		std::cout << "### FORCING TASK " << name << " EXIT ###" << std::endl;
+		kill(pData->proc->id(), SIGKILL);		
+	}
+	
+	std::cout << "Task " + name + " is unloaded" << std::endl;
+	
+	pData->proc = nullptr;
+	this->tasks.erase(name);
+    return true;
+}
+
 
 int ServiceLayer::numOfServices()
 {

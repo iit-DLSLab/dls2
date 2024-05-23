@@ -123,6 +123,9 @@ namespace dls
 		*/
 		bool waitCommand(const std::string& owner, const std::string& name, std::atomic_bool& stop_wait);
 
+		/*! @brief Get command by name
+		*/
+		std::shared_ptr<CommandBase> getCommand(const std::string& name);
 
 		/*! @brief Trigger the level watcher
 		*/

@@ -183,6 +183,7 @@ namespace dls
 			launchParamServer();
 			launchActionServers();
 			launchProcedures();
+			launchTasks();
 		}
 	}
 
@@ -234,9 +235,21 @@ namespace dls
 			const std::string path = entry.path();
 			std::string name = path.substr(path.rfind("lib") + 3);
 			name.erase(name.length()-3);
-			std::cout << name << std::endl;
 			if(command_manager.waitCommand("ServiceLayer", "loadProcedure", should_quit))
 				command_manager.callCommand("loadProcedure", {name}, "ServiceLayer");
+		}
+	}
+
+	void RunDLS2::launchTasks()
+	{
+		const std::string tasks_path = "@DLS_INSTALL_TASK_DIR@";
+		for (const auto &entry : std::filesystem::directory_iterator(tasks_path))
+		{
+			const std::string path = entry.path();
+			std::string name = path.substr(path.rfind("lib") + 3);
+			name.erase(name.length()-3);
+			if(command_manager.waitCommand("ServiceLayer", "loadTask", should_quit))
+				command_manager.callCommand("loadTask", {name}, "ServiceLayer");
 		}
 	}
 

@@ -112,9 +112,6 @@ namespace dls
 
 		std::shared_ptr<SignalReaderBase> getReader(const std::string &name);
 
-		std::stringstream missing_inputs;
-		std::stringstream common_outputs;
-
 	protected:
 		//! Domain participant of the plugin
 		std::shared_ptr<dls::DDSParticipant> dds_participant_;
@@ -128,22 +125,25 @@ namespace dls
 		/*! @brief Check if there is no other data writers publishing on the same topics of the outputs*/ 
 		bool areOutputsUnique();
 
-	private:
+		std::stringstream missing_inputs;
+		std::stringstream common_outputs;
+
 		//! Vector of inputs (data readers)
 		std::vector<std::shared_ptr<SignalReaderBase>> readers_;
-		//! Map of data readers with their corresponding outputs variable. It is populated when calling buildInput function with the input name as additional argument
-		std::map<std::string, std::pair<std::shared_ptr<SignalReaderBase>, WrapperBase*>> readers_map_;
-		// ! Check if inputs are required on activation
-		std::vector<bool> are_inputs_required_on_activation;
 		//! Vector of outputs (data writers)
 		std::vector<std::shared_ptr<SignalWriterBase>> writers_;
+		
+		//! Map of data readers with their corresponding outputs variable. It is populated when calling buildInput function with the input name as additional argument
+		std::map<std::string, std::pair<std::shared_ptr<SignalReaderBase>, WrapperBase*>> readers_map_;
 		//! Map of data writers with their corresponding outputs variable. It is populated when calling buildOutput function with the output name as additional argument
 		std::map<std::string, std::pair<std::shared_ptr<SignalWriterBase>, WrapperBase*>> writers_map_;
-
+		private:
 		//! Vector of pointers pointing to input variables: created when adding an input with buildInput function
 		std::vector<WrapperBase *> inputs_;
 		//! Vector of pointers pointing to output variables: created when adding an output with buildOutput function
 		std::vector<WrapperBase *> outputs_;
+		// ! Check if inputs are required on activation
+		std::vector<bool> are_inputs_required_on_activation;
 	};
 } // end namespace dls
 

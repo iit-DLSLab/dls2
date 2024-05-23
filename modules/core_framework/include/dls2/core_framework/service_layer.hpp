@@ -33,6 +33,9 @@ namespace dls
 		bool loadProcedure(const std::string& ID);
 		bool unloadProcedure(const std::string& ID);
 
+		bool loadTask(const std::string& ID);
+		bool unloadTask(const std::string& ID);
+
 		int numOfServices();
 		int numOfDataVisualizers();
 
@@ -44,6 +47,7 @@ namespace dls
 			std::map<std::string, std::shared_ptr<AppData>> data_visualizers_;
 			std::map<std::string, std::shared_ptr<AppData>> actions;
 			std::map<std::string, std::shared_ptr<AppData>> procedures;
+			std::map<std::string, std::shared_ptr<AppData>> tasks;
 		    std::mutex services_mutex;
 			std::mutex data_visualizers_mutex_;
 	    // END critical section

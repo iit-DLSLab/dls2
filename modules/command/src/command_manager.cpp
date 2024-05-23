@@ -324,4 +324,13 @@ bool CommandManager::waitCommand(const std::string& owner, const std::string& na
 		return true;
 }
 
+std::shared_ptr<CommandBase> CommandManager::getCommand(const std::string& name){
+	if(this->commands.contains(name))
+		return this->commands[name];
+	else{
+		std::cerr << "Error in getCommand: command " << name << " not found" << std::endl;
+		return nullptr;
+	}
+}
+
 #endif /* end of include guard: COMMAND_MANAGER_CPP */

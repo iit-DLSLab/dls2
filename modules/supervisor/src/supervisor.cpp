@@ -59,6 +59,26 @@ namespace dls
             true
         );
 
+        command_manager.addCommand<std::string>
+        (
+            "runTask",
+            "Execute task",
+            std::function<bool(std::string)>([&](std::string type)->bool
+            {
+                if(!state_machine_watcher.waitState(type, "idle", sm.async_events[sm.quit_request])){
+                    scout_warn << "Task " << type << " not in idle state" << std::endl;
+                }
+
+                if(command_manager.waitCommand(type, "activate", sm.async_events[sm.quit_request]))
+                    command_manager.callCommand("activate", {}, type);
+
+                return true;
+
+            }),
+            {},
+            true
+        );
+
     }
 
     Supervisor::~Supervisor()

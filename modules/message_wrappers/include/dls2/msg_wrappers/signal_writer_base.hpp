@@ -34,6 +34,8 @@ namespace dls
 
 		std::string getID() const;
 
+		std::vector<std::string> getMatchedReaders();
+
 	protected:
 		std::shared_ptr<dls::DDSParticipant> dds_participant_;
 		std::string ID_;

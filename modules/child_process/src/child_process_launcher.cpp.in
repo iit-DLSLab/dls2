@@ -154,7 +154,7 @@ int main(int argc, char **argv)
         }
         else if (args.component_type == "hardware")
         {
-            if (args.component_name.compare("gazebo_sim")==0 || args.component_name.compare("aliengo_hal")==0){
+            if (args.component_name.compare("gazebo_sim")==0){
                 pComponent =
                     ClassLoader::loadClass<Hardware, std::string>(
                         std::string("${DLS_INSTALL_HARDWARE_DIR}/lib") + args.lib_name + ".so",
@@ -239,6 +239,26 @@ int main(int argc, char **argv)
                         args.robot_name);
             }
         }
+        else if (args.component_type == "task")
+        {
+            try
+            {
+                pComponent =
+                    ClassLoader::loadClass<PeriodicAppPlugin, std::string>(
+                        std::string("${DLS_INSTALL_TASK_DIR}/lib") + args.lib_name + ".so",
+                        args.component_name,
+                        args.robot_name);
+            }
+            catch (const std::exception &e)
+	        {
+                scout_sys << "catch\n";
+                pComponent =
+                    ClassLoader::loadClass<PeriodicAppPlugin, std::string>(
+                        std::string("/usr/lib/dls2/lib") + args.lib_name + ".so",
+                        args.component_name,
+                        args.robot_name);
+            }
+        }
         else
         {
             scout_err << "component loading not yet implemented" << std::endl;
@@ -296,6 +316,7 @@ Args parse_args(int argc, char **argv)
         args.component_type != "service"&&
         args.component_type != "action"&&
         args.component_type != "procedure" &&
+        args.component_type != "task" &&
         args.component_type != "data_visualizer"
         )
     {
