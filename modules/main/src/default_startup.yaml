@@ -10,3 +10,6 @@ services: []
 
 # robot name
 robot_name : "aliengo"
+
+# applications to be activated
+activate: [gazebo_sim, pid, trunk_controller]

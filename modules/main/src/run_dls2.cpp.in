@@ -285,6 +285,8 @@ namespace dls
 		}
 		// get robot name
 		Options::robot_name = config["robot_name"].as<std::string>();
+		// get application to activate
+		std::vector<std::string> active_apps = config["activate"].as<std::vector<std::string>>();
 
 		// launch dds servers
 		Options::run_servers = true;
@@ -317,13 +319,20 @@ namespace dls
 			{
 				command_manager.callCommand(app_to_loading_command[app_type], {name}, app_to_layer[app_type]);
 				sm_watcher.waitState(name, "idle", should_quit);
+				if(std::find(active_apps.begin(), active_apps.end(), name) != active_apps.end())
+				{
+					if(command_manager.waitCommand(name, "activate", should_quit))
+						command_manager.callCommand("activate", {}, name);
+				}
 			}
 		}
 		// activate hardware and load model (loadModel does not have effect on real robot because currently it is directly loaded the HAL of the robot)
 		for (auto hardware : applications["hardwares"])
 		{
-			if(command_manager.waitCommand(hardware, "activate", should_quit))
-				command_manager.callCommand("activate", {}, hardware);
+			if(!sm_watcher.findState(hardware,"run")){
+				if(command_manager.waitCommand(hardware, "activate", should_quit))
+					command_manager.callCommand("activate", {}, hardware);
+			}
 			if(command_manager.waitCommand(hardware, "loadModel", should_quit))
 				command_manager.callCommand("loadModel", {Options::robot_name}, hardware);
 		}
