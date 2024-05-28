@@ -12,7 +12,7 @@ namespace dls
 	// Publisher Helper Listener Class Implementation
 	// =====================================================================
 
-	DDSPubListener::DDSPubListener()
+	DDSPubListener::DDSPubListener(): matched_count(0)
 	{ }
 
 	void DDSPubListener::on_publication_matched
@@ -45,8 +45,10 @@ namespace dls
 	DDSSubListener::DDSSubListener(
 		std::function<void(void *)> callback_) 
 		: sample_count(0)
+		, matched_count(0)
 		, callback(callback_)
 		, msg(nullptr)
+		, is_receiving_data_th(1000000)
 	{ 
 	}
 
@@ -60,11 +62,11 @@ namespace dls
 	{
 		if(info.current_count_change == 1)
 		{
-			// subscriber matched
+			matched_count = info.current_count;
 		}
 		else if(info.current_count_change == -1)
 		{
-			// subscriber unmatched
+			matched_count = info.current_count;
 		}
 		else
 		{
@@ -85,10 +87,17 @@ namespace dls
 		{
 			if(info.valid_data)
 			{
+				this->last_timestamp = std::chrono::high_resolution_clock::now();
 				this->sample_count++;
 				this->callback(this->msg);
 			}
 		}
+	}
+
+	bool DDSSubListener::is_receiving_data() const
+	{
+		return 	this->sample_count > 0 && 	
+				std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - this->last_timestamp).count()< this->is_receiving_data_th.count();
 	}
 } /// \endcond namespace dls
 #endif /* end of include guard: DDSLISTENERS_CPP */

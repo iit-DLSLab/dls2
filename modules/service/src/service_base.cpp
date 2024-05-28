@@ -16,20 +16,22 @@ namespace dls
 
     AppStatus ServiceBase::run()
 	{
-		while(!this->should_quit)
+		while(!sm.isRaised(sm.deactivation_request) &&  !sm.isRaised(sm.quit_request))
 		{
 			std::this_thread::sleep_for(std::chrono::milliseconds(200));
+		}
+
+		if(sm.isRaised(sm.deactivation_request))
+			sm.nextState(sm.deactivation_request);
+		else if (sm.isRaised(sm.quit_request))
+		{
+			sm.nextState(sm.quit_request);
 		}
 
 		return this->getStatus();
 	}
 
-	AppStatus ServiceBase::stop()
-	{
-		this->should_quit = true;
-
-		return this->getStatus();
-	}
+	void ServiceBase::close(){}
 }
 
 #endif /* end of include guard: SERVICE_BASE_CPP */

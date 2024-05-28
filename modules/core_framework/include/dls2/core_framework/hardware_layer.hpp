@@ -22,13 +22,9 @@ namespace dls
 		///
         ~HardwareLayer();
 
-        /// Run the layer
-		///
-        AppStatus run() override;
-
         /// Stop the layer
 		///
-	    AppStatus stop() override;
+	    void close() override;
 
         /// Activates a hardware
         ///
@@ -43,6 +39,8 @@ namespace dls
 		/// Print the state of this layer
 		///
 		std::string where() override{return "Base layer for hardwares";}
+
+		void monitor() override;
     
     private:
         // BEGIN critical section

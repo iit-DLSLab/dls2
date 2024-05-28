@@ -47,6 +47,11 @@ public:
 	static bool launch_console;
 	static bool launch_log;
 	static bool launch_service;
+	static bool launch_supervisor;
+	static bool run_startup;
+	static bool run_servers;
+	static bool kill_dls2;
+	static std::string startup_file;
 	static std::string estimation_layer_name;
 
 	static std::string robot_name;

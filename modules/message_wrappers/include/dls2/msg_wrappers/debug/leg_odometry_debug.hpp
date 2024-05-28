@@ -13,7 +13,7 @@ namespace dls
 	public:
         template <typename SignalType>
         friend class SignalWriter;
-        friend class PeriodicPluginBase;
+        friend class Plugin;
 
 		LegOdometryDebug(const std::shared_ptr<robotlib::RobotBase> robot);
 		LegOdometryDebug(LegOdometryDebug& leg_odometry_debug);

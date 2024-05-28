@@ -7,6 +7,7 @@ TrunkControllerDebug::TrunkControllerDebug(const std::shared_ptr<robotlib::Robot
 	, feet_forces_(robot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
     , desired_forces_(robot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
 	, desired_wrench_(Eigen::Matrix<double,6,1>::Zero())
+	, friction_coefficients_(robot->makeLegDataMap<double>(0.0))
 {}
 
 TrunkControllerDebug::TrunkControllerDebug(TrunkControllerDebug& trunk_controller_debug)
@@ -16,6 +17,7 @@ TrunkControllerDebug::TrunkControllerDebug(TrunkControllerDebug& trunk_controlle
 	, feet_forces_(trunk_controller_debug.feet_forces_)
 	, desired_forces_(trunk_controller_debug.desired_forces_)
 	, desired_wrench_(trunk_controller_debug.desired_wrench_)
+	, friction_coefficients_(trunk_controller_debug.friction_coefficients_)
 {}
 
 TrunkControllerDebug::~TrunkControllerDebug(){}
@@ -32,6 +34,7 @@ TrunkControllerDebug::operator TrunkControllerDebugMsg() const
 			trunk_controller_debug_msg.feet_forces()[i_leg*3 + i] = feet_forces_[leg.key_][i];
 			trunk_controller_debug_msg.desired_forces()[i_leg*3 + i] = desired_forces_[leg.key_][i];
 		}
+		trunk_controller_debug_msg.friction_coefficients()[i_leg] = friction_coefficients_[leg.key_];
 		i_leg++;
 	}
 
@@ -53,6 +56,7 @@ TrunkControllerDebug& TrunkControllerDebug::operator=(const TrunkControllerDebug
 			feet_forces_[leg.key_][i] = trunk_controller_debug_msg.feet_forces()[i_leg*3 + i];
 			desired_forces_[leg.key_][i] = trunk_controller_debug_msg.desired_forces()[i_leg*3 + i];
 		}
+		friction_coefficients_[leg.key_] = trunk_controller_debug_msg.friction_coefficients()[i_leg];
 		i_leg++;
 	}
 
@@ -73,6 +77,7 @@ TrunkControllerDebug& TrunkControllerDebug::operator=(const TrunkControllerDebug
 	feet_forces_ = trunk_controller_debug.feet_forces_;
 	desired_forces_ = trunk_controller_debug.desired_forces_;
 	desired_wrench_ = trunk_controller_debug.desired_wrench_;
+	friction_coefficients_ = trunk_controller_debug.friction_coefficients_;
 
 	return *this;
 }

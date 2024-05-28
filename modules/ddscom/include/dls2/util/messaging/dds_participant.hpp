@@ -38,7 +38,11 @@ namespace dls
 		/// Retrieves a list of all participants in the domain of the participant
 		///
 		std::vector<std::string> getParticipants();
+		std::vector<std::string> getDiscoveredTopics();
+
 		std::multimap<std::string, eprosima::fastrtps::rtps::GUID_t> getDiscoveredParticipantsInfo();
+
+		
 
 		eprosima::fastdds::dds::DataWriter* getWriter(std::string);
 		eprosima::fastdds::dds::DataReader* getReader(std::string);
@@ -59,6 +63,13 @@ namespace dls
 			eprosima::fastdds::dds::DataReaderQos qos = eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT
 		);
 
+		eprosima::fastdds::dds::DataReader *addReader(
+			std::string readerName,
+			std::string topicName,
+			std::function<void(void *)> callback,
+			eprosima::fastdds::dds::DataReaderQos qos = eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT
+		);
+
 		bool deleteReader(const std::string& reader_name);
 		bool deleteWriter(const std::string& writer_name);
 
@@ -67,11 +78,24 @@ namespace dls
 		void setTopicListener(dls::DDSPartListener *listener_);
 
 		bool is_type_registered_in_participant_(const std::string& type_name);
+
+		eprosima::fastdds::dds::Topic * getTopicFromString(const std::string& topic_name);
+
+		std::string getTypeNameFromTopic(const std::string& topic_name);
+
+		bool topicFound(const std::string& topic_name);
+		
+		std::string getName() const;		
+		
+
+		
 		
 	private:
 		std::string server_ip;
 		int server_port;
 		std::string server_guid_prefix;
+
+		std::string participant_name;
 
 		eprosima::fastdds::dds::DomainParticipant  					*participant;
 		std::map<std::string, eprosima::fastdds::dds::Topic *>  	topics;	
@@ -87,9 +111,12 @@ namespace dls
 
 		std::unordered_map<std::string, std::string> discovery_database;
 
+		
+
 		YAML::Node config;
 
 		eprosima::fastdds::dds::Topic* addTopic(dls::topicType topicData_);
+		eprosima::fastdds::dds::Topic* addTopic(std::string topicName);
 
 		std::multimap<std::string, eprosima::fastrtps::rtps::GUID_t> discovered_participants_info;
 
@@ -105,6 +132,11 @@ namespace dls
 		void on_publisher_discovery(
             eprosima::fastdds::dds::DomainParticipant* participant,
             eprosima::fastrtps::rtps::WriterDiscoveryInfo&& info) override;
+
+		void on_subscriber_discovery(
+                eprosima::fastdds::dds::DomainParticipant* participant,
+                eprosima::fastrtps::rtps::ReaderDiscoveryInfo&& info) override;
+        
 
 		void on_topic_discovery_(const std::string& topic_name, const std::string& type_name);
 

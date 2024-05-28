@@ -9,7 +9,7 @@
 using namespace dls;
 
 LogLayer::LogLayer(std::string ID)
-	: Layer(ID)
+	: Layer(ID, 50)
 	, dds_participant_(std::make_shared<dls::DDSParticipant>("log_layer", dls::domains::logging))
 {
 
@@ -94,27 +94,17 @@ LogLayer::LogLayer(std::string ID)
 	);
 }
 
-AppStatus LogLayer::run()
+void LogLayer::close()
 {
-	while(!this->should_quit)
+	bool close = false;
+	while(!close)
 	{
-		std::this_thread::sleep_for(std::chrono::milliseconds(50));
+		auto participants = ddspart_layer->getParticipants();
+		if(participants.size()<=2) // if it is two, only the server for layers and the LogLayer itself are left
+			close = true;
+		std::this_thread::sleep_for(std::chrono::milliseconds(5));
 	}
-
-	return getStatus();
 }
 
-AppStatus LogLayer::stop()
-{
-	int i = 0;
-	while(this->getParticipant()->getParticipants().size() > 1 && i < 10)
-	{
-		i++;
-		std::this_thread::sleep_for(std::chrono::milliseconds(500));
-	}
-
-	this->should_quit = true;
-	return getStatus();
-}
-
+void LogLayer::monitor(){}
 #endif /* end of include guard: LOG_LAYER_CPP_DLJLOFSG */

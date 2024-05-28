@@ -26,6 +26,7 @@
 #include <dls_messages/dds/controller_commandPubSubTypes.h>
 #include <dls_messages/dds/slip_flagPubSubTypes.h>
 #include <dls_messages/dds/mpc_generator_outputPubSubTypes.h>
+#include <dls_messages/dds/state_machinePubSubTypes.h>
 
 #include "dls2/topics/utils.hpp"
 
@@ -61,6 +62,9 @@ namespace dls
 
 		// services
 		extern dls::topicType param_server;
+
+		// state machine
+		extern dls::topicType state_machine;
 
 		namespace high_level_estimation
 		{

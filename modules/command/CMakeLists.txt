@@ -1,7 +1,7 @@
 add_library(dls_command SHARED
 	src/command_base.cpp
 	src/command.cpp
-	src/command_new.cpp
+	src/command_without_args.cpp
 	src/command_manager.cpp
 )
 
@@ -15,6 +15,7 @@ target_link_libraries(dls_command
 		dls_com
 		dls_topics
 		dls_domains
+		dls_utils
 )
 
 dls_install(dls_command)

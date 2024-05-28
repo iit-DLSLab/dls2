@@ -1,0 +1,75 @@
+#include "@PLUGIN_TYPE@/@PLUGIN_NAME@/plugin.hpp"
+
+// topics
+//#include <dls2/topics/topics.hpp> // off-the-shelf topics
+//#include "@PLUGIN_TYPE@/@PLUGIN_NAME@/topics.hpp" // custom topics
+
+namespace @PLUGIN_TYPE@ 
+{
+    @PLUGIN_CLASS_NAME@::@PLUGIN_CLASS_NAME@ (const std::string& ID/*, aguments_of_module_constructor*/) 
+    : dls::PeriodicAppPlugin(ID)
+    , @PLUGIN_NAME@(/*aguments_of_module_constructor*/) // instantiate module
+    , console_commands(&@PLUGIN_NAME@, &command_manager)
+    /*, construct_input_variables*/ // instantiate input
+    /*, construct_output_variables*/ //instantiate output
+    {
+        // Define inputs
+        /*this->buildInput<message_wrapper_class>(
+            topic_name,
+            &input_variable_name
+        );*/
+
+        // Define outputs
+        /*this->buildOutput<message_wrapper_class>(
+            topic_name,
+            &output_variable_name
+        );*/
+    }
+
+    @PLUGIN_CLASS_NAME@::~@PLUGIN_CLASS_NAME@()
+    { }
+    
+    std::string @PLUGIN_CLASS_NAME@::where()
+    {
+        std::stringstream ss;
+        ss << "TODO \n";
+
+        return ss.str();
+    }
+    
+    void @PLUGIN_CLASS_NAME@::run(const std::chrono::system_clock::time_point& time)
+    {
+        // Read inputs
+        read();
+        
+        // Run module
+        @PLUGIN_NAME@.run(/*input_arguments, output_arguments*/);
+
+        // Publish outputs
+        write();
+    }
+
+    bool @PLUGIN_CLASS_NAME@::checkActivation()
+    {
+        if(basicActivationChecks())
+        {
+            return @PLUGIN_NAME@.init(/*init_inputs*/);
+        }
+        return false;
+    }
+
+    bool @PLUGIN_CLASS_NAME@::deactivation(const std::chrono::system_clock::time_point& time){
+        return true;
+    }
+
+    extern "C" PeriodicAppPlugin *create(const std::string& ID, const std::string& robot_name)
+    {
+        /*call_plugin_constructor*/
+        return new @PLUGIN_CLASS_NAME@(ID/*, aguments_of_module_constructor*/);
+    }
+
+    extern "C" void destroy(PeriodicAppPlugin *p)
+    {
+            delete p;
+    }
+} //namespace @PLUGIN_TYPE@

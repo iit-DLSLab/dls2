@@ -57,11 +57,11 @@ namespace dls
 
 		/// Enable the command
 		/// 
-		void setEnabled();
+		void setEnabled() override;
 
 		/// Disable the command
 		///
-		void setDisabled();
+		void setDisabled() override;
 
 		/// Activate the command
 		/// 
@@ -86,13 +86,9 @@ namespace dls
 		///
 		void registerCommand();
 
-		/// Unregister command on command domain
-		///
-		void unregisterCommand();
-
 		/// Call method
 		///
-		bool call(std::vector<std::string>);
+		virtual bool call(std::vector<std::string>) override;
 
 	};
 

@@ -5,8 +5,18 @@ configure_file(src/main.cpp.in
 	${CMAKE_CURRENT_BINARY_DIR}/src/main.cpp
 )
 
+configure_file(src/run_dls2.cpp.in
+	${CMAKE_CURRENT_BINARY_DIR}/src/run_dls2.cpp
+)
+
 add_executable(dynamic_legged_systems_framework
 	${CMAKE_CURRENT_BINARY_DIR}/src/main.cpp
+	${CMAKE_CURRENT_BINARY_DIR}/src/run_dls2.cpp
+)
+
+target_include_directories(dynamic_legged_systems_framework
+	PUBLIC
+		include
 )
 
 target_link_libraries(dynamic_legged_systems_framework
@@ -15,8 +25,10 @@ target_link_libraries(dynamic_legged_systems_framework
 		dls_supervisor
 		dls_param_server
 		dls_web_socket_translator
+		state_machine_watcher
 		fastcdr
 		fastrtps
+		yaml-cpp
 )
 
 dls_install(dynamic_legged_systems_framework)
@@ -35,4 +47,10 @@ add_custom_target(
 
 add_dependencies(dynamic_legged_systems_framework
 	child_process_launcher
+)
+
+install(
+	FILES src/default_startup.yaml
+	DESTINATION ${DLS_INSTALL_STARTUP_DIR}
+	COMPONENT dynamic_legged_systems_framework
 )

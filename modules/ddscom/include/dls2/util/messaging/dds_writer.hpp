@@ -22,6 +22,11 @@ namespace dls
 
 		void sendMessage(void *msg);
 
+		ReturnCode_t setQos(const eprosima::fastdds::dds::DataWriterQos &qos);
+
+		// Check wheter the data writer has matched with at least one data reader
+		bool hasMatched();
+
 	private:
 
 		eprosima::fastdds::dds::DataWriter *writer;

@@ -11,6 +11,8 @@
 // #include <tuple>
 // #include <type_traits>
 
+#include <termios.h>
+#include <unistd.h>
 namespace dls
 {
 	template <typename...arg_ts>
@@ -43,18 +45,14 @@ namespace dls
 	{
 		if(this->isEnabled())
 			return;
-
-		this->registerCommand();
 		this->enabled = true;
 	}
 
 	template <typename... arg_ts>
 	void Command<arg_ts...>::setDisabled()
 	{
-		if(this->isEnabled())
+		if(!this->isEnabled())
 			return;
-
-		this->unregisterCommand();
 		this->enabled = false;
 	}
 
@@ -142,8 +140,10 @@ namespace dls
     bool CommandHelper::readValue(const std::string &comment, T &value, T default_value)
     {
         std::string input = "";
+        // flash (discard) previous inputs from the buffer
+        tcflush(STDIN_FILENO, TCIFLUSH);
         while(true) {
-            std::cout << comment << "[" << std::setprecision (3) << default_value << "]:";
+            std::cout << comment << "[" << std::setprecision (3) << default_value << "]: ";
             getline(std::cin, input);
             if (input == "") { //If user doesn't give input, return false
                 return false;
@@ -162,8 +162,10 @@ namespace dls
     bool CommandHelper::readValue(const std::string &comment, T &value)
     {
         std::string input = "";
+        // flash (discard) previous inputs from the buffer
+        tcflush(STDIN_FILENO, TCIFLUSH);
         while(true) {
-            std::cout << comment << ":";
+            std::cout << comment << ": ";
             getline(std::cin, input);
             if (input == "") { //If user doesn't give input, return false
                 return false;

@@ -13,7 +13,7 @@ namespace dls
 	public:
         template <typename SignalType>
         friend class SignalWriter;
-        friend class PeriodicPluginBase;
+        friend class Plugin;
 
 		TrunkControllerDebug(const std::shared_ptr<robotlib::RobotBase> robot);
 		TrunkControllerDebug(TrunkControllerDebug& trunk_controller_debug);
@@ -31,6 +31,7 @@ namespace dls
 		robotlib::LegDataMap<Eigen::Vector3d> feet_forces_;
 		robotlib::LegDataMap<Eigen::Vector3d> desired_forces_;
 		Eigen::Matrix<double,6,1> desired_wrench_{};
+		robotlib::LegDataMap<double> friction_coefficients_;
     private:
         virtual void setDataFromWrapperBase(WrapperBase *wrapper_base) override;
 	};

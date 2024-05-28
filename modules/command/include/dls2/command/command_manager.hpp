@@ -78,7 +78,7 @@ namespace dls
 		(
 			std::string name,
 			std::string doc,
-			bool(T::*function_ptr)(void),
+			bool(T::*function_ptr)(),
 			T* obj,
 			dls::CommandBase::LevelType level = {},
 			bool enabled = false
@@ -114,6 +114,22 @@ namespace dls
 
 		void changeTransitionSet(const std::string& command_name, const dls::CommandBase::LevelType& transition_set);
 
+		/*! @brief Wait command to be ready until timeout or the stop_wait variable becomes true 
+		*/
+		bool waitCommand(const std::string& owner, const std::string& name, bool& stop_wait);
+
+		/*! @brief Wait command to be ready until timeout or the stop_wait variable becomes true 
+		 * @details Using atomic_bool instead of bool 
+		*/
+		bool waitCommand(const std::string& owner, const std::string& name, std::atomic_bool& stop_wait);
+
+		/*! @brief Get command by name
+		*/
+		std::shared_ptr<CommandBase> getCommand(const std::string& name);
+
+		/*! @brief Trigger the level watcher
+		*/
+		void triggerLevelWatcher();
 	private:
 
 		/// Storage space for the commands
@@ -146,6 +162,8 @@ namespace dls
 		void sendMessage(std::pair<std::string, std::string> cmdData, std::vector<std::string> args);
 
 		std::atomic<bool> should_exit;
+
+		std::atomic_bool trigger_level_watcher;
 
 	};
 

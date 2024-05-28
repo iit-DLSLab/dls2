@@ -69,6 +69,11 @@ bool CommandBase::call(std::vector<std::string>)
 	return false;
 }
 
+bool CommandBase::call()
+{
+	return false;
+}
+
 int CommandBase::getNextLevel(uint curLevel)
 {
 	if(this->transitionSet.empty())
@@ -79,7 +84,10 @@ int CommandBase::getNextLevel(uint curLevel)
 
 bool CommandBase::testLevel(uint level_)
 {
-	if(this->transitionSet.empty())
+	// If the transition is empty OR
+	// the command is always available exept in state 0 and the actual level_ is not 0
+	if(	this->transitionSet.empty() || 
+		(this->transitionSet.size()==1 && this->transitionSet.contains(ALL_STATES_EXCEPT_ZERO) && level_!=0))
 		return true;
 		
 	return (this->transitionSet.find(level_) != this->transitionSet.end());

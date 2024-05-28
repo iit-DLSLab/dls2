@@ -17,10 +17,12 @@
 #include "dls2/class_loader.hpp"
 #include "dls2/motion_generator/motion_generator.hpp"
 #include "dls2/controller/controller.hpp"
-#include "dls2/plugin_base/periodic_plugin_base.hpp"
+#include "dls2/plugin/periodic_app_plugin.hpp"
+#include "dls2/plugin/app_plugin.hpp"
 #include "dls2/hardware/hardware.hpp"
 #include "dls2/estimator/estimator.hpp"
 #include "dls2/service/service_base.hpp"
+#include "dls2/data_visualizer/data_visualizer_base.hpp"
 #include "dls2/log/log.hpp"
 #include "dls2/application/layer.hpp"
 
@@ -30,12 +32,26 @@
 // Using Declarations
 // =============================================================================
 using namespace dls;
+std::string process_name("");
+CommandManager stopper("process_launcher");
+void shutdown(int)
+{
+    bool stop_wait = false;
+    if (process_name.compare("")==0)
+        exit(EXIT_FAILURE);
+    else if(stopper.waitCommand(process_name, "shutdown", stop_wait))
+        stopper.callCommand("shutdown", {}, process_name);
+    else{
+        std::cerr << process_name <<"::shutdown not found. Process is brutally killed.";
+        exit(EXIT_FAILURE);
+    }
+}
 
 // =============================================================================
 // Globals
 // =============================================================================
 // required to be global for visibility from signal handler
-std::shared_ptr<App> pComponent;
+// std::shared_ptr<App> pComponent;
 
 // =============================================================================
 // Classes
@@ -81,17 +97,20 @@ void change_process_name(char **argv, const std::string &name)
 // =============================================================================
 int main(int argc, char **argv)
 {
+    // When the user presses CTRL+C, make sure that all layers are shutdown
+    signal(
+        SIGINT,
+        shutdown);
     // give time to the logstrem connect to the logger layer
-    // std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    // scout_sys << "PROCESS LAUNCHER CALLED" << std::endl;
     Args args = parse_args(argc, argv);
+    
+    std::shared_ptr<App> pComponent;
 
     // Load the component
     try
     {
         if (args.component_type == "layer")
         {
-            // scout_sys << "LOADING " << args.component_name << std::endl;
             pComponent =
                 ClassLoader::loadClass<Layer, std::string, std::string>(
                     std::string("${DLS_INSTALL_LIB_DIR}/libdls_framework.so"),
@@ -101,44 +120,63 @@ int main(int argc, char **argv)
         }
         else if (args.component_type == "controller")
         {
-            // scout_sys << "LOADING CONTROLLER FROM '" << std::string("${DLS_INSTALL_CONTROLLER_DIR}/lib") + args.lib_name + ".so'" << std::endl;
-            pComponent =
-                ClassLoader::loadClass<Controller, std::string>(
-                    std::string("${DLS_INSTALL_CONTROLLER_DIR}/lib") + args.lib_name + ".so",
-                    args.robot_name);
+            if(args.component_name.compare("mpc_controller")==0 ||
+               args.component_name.compare("dw_mpc_generator")==0) {
+                pComponent =
+                    ClassLoader::loadClass<Controller, std::string>(
+                        std::string("${DLS_INSTALL_CONTROLLER_DIR}/lib") + args.lib_name + ".so",
+                        args.robot_name);
+                scout_sys << "LOADING CONTROLLER FROM '" << std::string("${DLS_INSTALL_CONTROLLER_DIR}/lib") + args.lib_name + ".so'" << std::endl;
+            }
+            else{// periodic plugin
+                pComponent =
+                        ClassLoader::loadClass<PeriodicAppPlugin, std::string>(
+                            std::string("${DLS_INSTALL_CONTROLLER_DIR}/lib") + args.lib_name + ".so",
+                            args.component_name,
+                            args.robot_name);
+            }
         }
         else if (args.component_type == "motion_generator")
         {
-            // scout_sys << "LOADING MOTION GENERATOR FROM '" << std::string("${DLS_INSTALL_MOTION_GENERATOR_DIR}/lib") + args.lib_name + ".so'" << std::endl;
-            pComponent =
-                ClassLoader::loadClass<MotionGenerator, std::string>(
-                    std::string("${DLS_INSTALL_MOTION_GENERATOR_DIR}/lib") + args.lib_name + ".so",
-                    args.robot_name);
+            if(args.component_name.compare("mpc_generator")==0){
+                pComponent =
+                    ClassLoader::loadClass<MotionGenerator, std::string>(
+                        std::string("${DLS_INSTALL_MOTION_GENERATOR_DIR}/lib") + args.lib_name + ".so",
+                        args.robot_name);
+            }
+            else{// periodic plugin
+                pComponent =
+                        ClassLoader::loadClass<PeriodicAppPlugin, std::string>(
+                            std::string("${DLS_INSTALL_MOTION_GENERATOR_DIR}/lib") + args.lib_name + ".so",
+                            args.component_name,
+                            args.robot_name);
+            }
         }
         else if (args.component_type == "hardware")
         {
-            // scout_sys << "LOADING HARDWARE FROM '" << std::string("${DLS_INSTALL_HARDWARE_DIR}/lib") + args.lib_name + ".so'" << std::endl;
-            pComponent =
-                ClassLoader::loadClass<Hardware, std::string>(
-                    std::string("${DLS_INSTALL_HARDWARE_DIR}/lib") + args.lib_name + ".so",
-                    args.robot_name);
+            if (args.component_name.compare("gazebo_sim")==0){
+                pComponent =
+                    ClassLoader::loadClass<Hardware, std::string>(
+                        std::string("${DLS_INSTALL_HARDWARE_DIR}/lib") + args.lib_name + ".so",
+                        args.robot_name);
+            }
+            else{
+                pComponent =
+                        ClassLoader::loadClass<PeriodicAppPlugin, std::string>(
+                            std::string("${DLS_INSTALL_HARDWARE_DIR}/lib") + args.lib_name + ".so",
+                            args.component_name,
+                            args.robot_name);
+            }
         }
         else if (args.component_type == "estimator")
         {
-            // scout_sys << "LOADING ESTIMATOR FROM '" << std::string("${DLS_INSTALL_ESTIMATOR_DIR}/lib") + args.lib_name + ".so'" << std::endl;
-            // pComponent =
-            //     ClassLoader::loadClass<Estimator, std::string>(
-            //         std::string("${DLS_INSTALL_ESTIMATOR_DIR}/lib") + args.lib_name + ".so",
-            //         args.component_name);
             pComponent =
-                ClassLoader::loadClass<PeriodicPluginBase, std::string>(
+                ClassLoader::loadClass<Estimator, std::string>(
                     std::string("${DLS_INSTALL_ESTIMATOR_DIR}/lib") + args.lib_name + ".so",
-                    args.component_name,
-                    args.robot_name);
+                    args.component_name);
         }
         else if (args.component_type == "service")
         {
-            // scout_sys << "LOADING SERVICE FROM '" << std::string("${DLS_INSTALL_SERVICE_DIR}/lib") + args.lib_name + ".so'" << std::endl;
             try
             {
                 pComponent =
@@ -152,6 +190,73 @@ int main(int argc, char **argv)
                     ClassLoader::loadClass<ServiceBase, std::string>(
                         std::string("/usr/lib/dls2/lib") + args.lib_name + ".so",
                         args.component_name);
+            }
+        }
+        else if (args.component_type == "data_visualizer")
+        {
+            pComponent =
+                ClassLoader::loadClass<DataVisualizerBase, std::string>(
+                    std::string("${DLS_INSTALL_DATA_VISUALIZER_DIR}/lib") + args.lib_name + ".so",
+                    args.robot_name);
+        }
+        else if (args.component_type == "action")
+        {
+            try
+            {
+                pComponent =
+                    ClassLoader::loadClass<PeriodicAppPlugin, std::string>(
+                        std::string("${DLS_INSTALL_ACTION_DIR}/"+args.lib_name+"/lib") + args.lib_name + ".so",
+                        args.component_name,
+                        args.robot_name);
+            }
+            catch (const std::exception &e)
+	        {
+                scout_sys << "catch\n";
+                pComponent =
+                    ClassLoader::loadClass<PeriodicAppPlugin, std::string>(
+                        std::string("/usr/lib/dls2/lib") + args.lib_name + ".so",
+                        args.component_name,
+                        args.robot_name);
+            }
+        }
+        else if (args.component_type == "procedure")
+        {
+            try
+            {
+                pComponent =
+                    ClassLoader::loadClass<AppPlugin, std::string>(
+                        std::string("${DLS_INSTALL_PROCEDURE_DIR}/lib") + args.lib_name + ".so",
+                        args.component_name,
+                        args.robot_name);
+            }
+            catch (const std::exception &e)
+	        {
+                scout_sys << "catch\n";
+                pComponent =
+                    ClassLoader::loadClass<AppPlugin, std::string>(
+                        std::string("/usr/lib/dls2/lib") + args.lib_name + ".so",
+                        args.component_name,
+                        args.robot_name);
+            }
+        }
+        else if (args.component_type == "task")
+        {
+            try
+            {
+                pComponent =
+                    ClassLoader::loadClass<PeriodicAppPlugin, std::string>(
+                        std::string("${DLS_INSTALL_TASK_DIR}/lib") + args.lib_name + ".so",
+                        args.component_name,
+                        args.robot_name);
+            }
+            catch (const std::exception &e)
+	        {
+                scout_sys << "catch\n";
+                pComponent =
+                    ClassLoader::loadClass<PeriodicAppPlugin, std::string>(
+                        std::string("/usr/lib/dls2/lib") + args.lib_name + ".so",
+                        args.component_name,
+                        args.robot_name);
             }
         }
         else
@@ -173,14 +278,13 @@ int main(int argc, char **argv)
         exit(EXIT_FAILURE);
     }
 
-    // Register signal handler
-    // std::signal(SIGINT, signal_handler);
+    process_name = pComponent->getID();
 
     change_process_name(argv, args.component_name.c_str());
 
     scout_sys << "Loaded component " << pComponent->getID() << std::endl;
 
-    pComponent->run();
+    pComponent->execute();
 
     return 0;
 }
@@ -209,7 +313,11 @@ Args parse_args(int argc, char **argv)
         args.component_type != "motion_generator" &&
         args.component_type != "hardware" &&
         args.component_type != "estimator" &&
-        args.component_type != "service"
+        args.component_type != "service"&&
+        args.component_type != "action"&&
+        args.component_type != "procedure" &&
+        args.component_type != "task" &&
+        args.component_type != "data_visualizer"
         )
     {
         std::cerr << "Error: unknown component type '" << args.component_type << "'" << std::endl;
@@ -218,18 +326,3 @@ Args parse_args(int argc, char **argv)
 
     return args;
 }
-
-// void signal_handler(int signal)
-// {
-//     if (signal == SIGINT)
-//     {
-//         pComponent->stop();
-
-//         // std::cout << pComponent->getID() << " received kill request" << std::endl;
-//         AppStatus exit_status = pComponent->getStatus();
-
-//         // give fastrtps a moment to send its message
-//         // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-//         exit(static_cast<int>(exit_status));
-//     }
-// }

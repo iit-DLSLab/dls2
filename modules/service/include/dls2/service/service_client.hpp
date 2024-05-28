@@ -103,7 +103,11 @@ namespace dls
 					std::numeric_limits<double>::infinity()
 				}
 		);
+		/// @brief  @brief Checking if the client has matched with the server
+		bool hasMatched();
 
+		/// @brief  waiting for the matching with the server
+		bool waitMatching();
 	private:
 		// BEGIN critical section
 			std::mutex              		response_mutex;

@@ -2,6 +2,7 @@
 #define COMMAND_MANAGER_CPP
 
 #include "dls2/command/command_manager.hpp"
+#include "dls2/util/utils.hpp"
 
 using namespace dls;
 
@@ -11,6 +12,7 @@ CommandManager::CommandManager(std::string owner_)
 	, level(0)
 	, levelThread(&CommandManager::levelWatcher, this)
 	, should_exit(false)
+	, trigger_level_watcher(false)
 {
 	eprosima::fastdds::dds::DataWriterQos qos(eprosima::fastdds::dds::DATAWRITER_QOS_DEFAULT);
 	qos.reliability().kind = eprosima::fastdds::dds::RELIABLE_RELIABILITY_QOS;
@@ -34,7 +36,7 @@ CommandManager::~CommandManager()
 		elem.second->deactivate();
 	}
 
-	this->levelCondVar.notify_one();
+	triggerLevelWatcher();
 	this->levelThread.join();
 }
 
@@ -121,6 +123,8 @@ std::multimap<std::string, std::string> CommandManager::getCommandsList()
 	auto discovered_participants_info = commands_monitor->getDiscoveredParticipantsInfo();
 	// Get writer listener
 	auto command_publisher_listener = commands_monitor->getPubListener(owner+"::commands_monitor");
+	if(command_publisher_listener == nullptr)
+		return {};
 	// Get matched datareaders instances
 	auto matched_datareaders_instances = command_publisher_listener->matched_datareaders_instances;
 	// Find the domain participant name associated to each matched data reader, and save the name (corresponding to the command name)
@@ -233,6 +237,13 @@ void CommandManager::changeLevel(uint level_)
 		std::unique_lock<std::mutex> lock(this->levelMutex);
 		this->level = level_; 
 	}
+	triggerLevelWatcher();
+}
+
+void CommandManager::triggerLevelWatcher()
+{
+	trigger_level_watcher.wait(true);
+	trigger_level_watcher.store(true);
 	this->levelCondVar.notify_one();
 }
 
@@ -240,7 +251,6 @@ void CommandManager::verifyLevel()
 {
 	for(auto cmd : this->commands)
 	{
-		// std::this_thread::sleep_for(std::chrono::milliseconds(200));
 		if(cmd.second->testLevel(this->level))
 		{
 			cmd.second->activate();
@@ -257,7 +267,9 @@ void CommandManager::levelWatcher()
 	while(true)
 	{
 		std::unique_lock<std::mutex> lock(this->levelMutex);
-		this->levelCondVar.wait(lock);
+		this->levelCondVar.wait(lock, [&]{return trigger_level_watcher.load();});
+		trigger_level_watcher.store(false);
+		trigger_level_watcher.notify_one();
 		if(this->should_exit.load())
 			break;
 		this->verifyLevel();
@@ -283,4 +295,42 @@ void CommandManager::changeTransitionSet(const std::string& command_name, const 
 	else
 		std::cout << "Could not find command " << command_name << std::endl;
 }
+
+bool CommandManager::waitCommand(const std::string& owner, const std::string& name, bool& stop_wait){
+		if(!utils::wait(std::function<bool()>([&](){
+					if(this->find(owner,name).size()==0){
+						return false;
+					}
+					return true;
+				}), 3000, 2, stop_wait)){
+			if(!stop_wait)
+				std::cerr << "Command " << owner << "::" << name<<" not found" << std::endl;
+			return false;
+		}
+		return true;
+}
+
+bool CommandManager::waitCommand(const std::string& owner, const std::string& name, std::atomic_bool& stop_wait){
+		if(!utils::wait(std::function<bool()>([&](){
+					if(this->find(owner,name).size()==0){
+						return false;
+					}
+					return true;
+				}), 3000, 2, stop_wait)){
+			if(!stop_wait.load())
+				std::cerr << "Command " << owner << "::" << name<<" not found" << std::endl;
+			return false;
+		}
+		return true;
+}
+
+std::shared_ptr<CommandBase> CommandManager::getCommand(const std::string& name){
+	if(this->commands.contains(name))
+		return this->commands[name];
+	else{
+		std::cerr << "Error in getCommand: command " << name << " not found" << std::endl;
+		return nullptr;
+	}
+}
+
 #endif /* end of include guard: COMMAND_MANAGER_CPP */

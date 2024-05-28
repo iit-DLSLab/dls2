@@ -2,8 +2,6 @@
 #define PERIODIC_APP_HPP_RY9LWBZG
 
 #include "dls2/application/app.hpp"
-
-#include <dls2/application/sched_attr.hpp>
 #include <dls2/util/time/time.hpp>
 
 #include <boost/process.hpp>
@@ -29,27 +27,67 @@ namespace dls
 
 		/// Runs the component
 		///
-		/// Automatically calls the abstract run function at the correct frequency
+		/// Automatically calls the abstract run function at the correct frequency - used in state machine
 		AppStatus run() override;
 
 		/// Stops this component
 		///
-		AppStatus stop() override;
+		void close() override;
+		
+		//! Get period
+		period_t getPeriod();
 
+		//! Run the activation function - used in state machine
+		virtual bool deactivating() override;
+
+		//! Run the deactivation function. It is used by the state machine with RT scheduling
+		virtual bool deactivation(const std::chrono::system_clock::time_point&);
+		
 		/// Virtual run function
 		///
 		/// Overwrite this function with the function that needs to be called at the
 		/// correct rate
 		virtual void run(const std::chrono::system_clock::time_point&) = 0;
 
+		//! Set SCHED_DEADLINE policy
+		void setRTSchedulerPolicy();
+
+		//! Pause the current execution
+		void pauseExecution();
+
+		//! Check whether the time factor has changed
+		bool newTimeFactor();
+		
+		//! Check failure
+		bool checkFailure();
+
+		//! Check if the app is running in real time
+		bool checkRT(const std::chrono::time_point<	std::chrono::_V2::system_clock, 
+													std::chrono::duration<double, std::ratio<1, 1000000000>>>& next_loop_time);
+
+		//! Check if a pause request was sent
+		bool isPaused();
+		
+		//! Set the app in failure state
+		void setFailure();
+
+		double dt;
 	protected:
         //! Config variable to load scheduler settings
 		YAML::Node config_scheduler;
 
-		/// The period of this component
-		///
+		//! The period of this component
 		const period_t period;
-
+		//! Runtime factor scaling the period to get the runtime
+		double sched_runtime_factor;
+		//! Deadline factor scaling the period to get the deadline
+		double sched_deadline_factor;
+		//! Runtime attribute
+		const period_t runtime;
+		//! Deadline attribute
+		const period_t deadline;
+		//! Variable identifying if the periodic app is in failure state
+		bool failure;
 	private:
 
 		// BEGIN critical section
@@ -66,9 +104,6 @@ namespace dls
 			std::condition_variable pause_request;
 		// END critical section
 
-		//! Attrributes of the scheduler
-		struct sched_attr scheduler_attributes;
-
 		/// The component's time rate
 		///
 		Time time_factor;
@@ -76,9 +111,6 @@ namespace dls
 		double cur_time_factor;
 
 		pid_t pid;
-
-		double sched_runtime_factor;
-		double sched_deadline_factor;
 	};
 } // end namespace dls
 

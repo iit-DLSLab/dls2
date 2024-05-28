@@ -49,7 +49,7 @@ namespace dls
 				record_mcap_log(true, get_current_time());
 				return true;
 			}),
-			{{}},
+			{},
 			true
 		);
 
@@ -63,7 +63,7 @@ namespace dls
 					record_mcap_log(false);
 					return true;
 			}),
-			{{}},
+			{},
 			true
 		);
 
@@ -81,7 +81,7 @@ namespace dls
 					}
 					return false;
 			}),
-			{{}},
+			{},
 			true
 		);
 
@@ -95,7 +95,7 @@ namespace dls
 					playback_mcap_log(false);
 					return true;
 			}),
-			{{}},
+			{},
 			true
 		);
 

@@ -4,6 +4,8 @@
 #include "dls2/application/app_status.hpp"
 #include "dls2/command/command_manager.hpp"
 #include "dls2/log/log.hpp"
+#include "dls2/application/state_machine/app_state_machine.hpp"
+#include <dls2/application/sched_attr.hpp>
 
 
 namespace dls
@@ -37,17 +39,16 @@ namespace dls
 		/// @param status the status
 		void setStatus(AppStatus status);
 
-		/// Runs the app
-		///
-		virtual AppStatus run() = 0;
-
-		/// Shutdown the app
-		///
-		virtual AppStatus stop() = 0;
+		//! Procedure to quit the app
+		virtual void close();
 
 		/// Prints the state of the app
 		///
-		virtual std::string where() = 0;
+		virtual std::string where();
+
+		/// Shutdown the app
+		///
+		virtual void stop();
 
 		/// Verify if the app should terminate
 		///
@@ -58,6 +59,33 @@ namespace dls
 		/// If a app does not override this function, it defaults to the app's
 		/// stop function
 		virtual AppStatus eStop();
+
+		//! Idle activity - used in state machine
+		virtual void idle();
+
+		//! Procedure to activate the app - used in state machine
+		virtual void activation();
+
+		/// Run activity - used in state machine
+		virtual AppStatus run() = 0;
+
+		//! Procedure to deactivate the app  - used in state machine
+		virtual void deactivation();
+	
+		//! Procedure to handle the failure - used in state machine
+		virtual void fail();
+	
+		//! Procedure to quit - used in state machine
+		virtual void quit();
+		
+		//! Execute the state machine starting from the initial state
+		virtual void execute();
+
+		//! Check if the activation can be performed
+		virtual bool checkActivation();
+
+		//! Procedure to deactivate the app, customizable
+		virtual bool deactivating();
 
 		/// Flag of the running loop
 		/// Exits when set to true
@@ -79,12 +107,24 @@ namespace dls
 		/// The ID of this app
 		///
 		const std::string ID_;
+
+		// Appliacation state machine
+		state_machine::app::AppStateMachine sm;
+
+		std::stringstream activation_message;
+
 	private:
 		// BEGIN critical section
 		mutable std::mutex status_mutex;
 		AppStatus status;
 		// END critical section
 	protected:
+		//! Set SCHED_OTHER policy
+		void setDefaultSchedulerPolicy();
+
+		//! Attrributes of the scheduler
+		struct sched_attr scheduler_attributes;
+
 		std::string get_current_time();
 	};
 } // end namespace dls

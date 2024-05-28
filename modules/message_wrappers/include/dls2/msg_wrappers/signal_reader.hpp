@@ -9,17 +9,21 @@ namespace dls
 	class SignalReader : public SignalReaderBase
 	{
 	public:
-		friend class PeriodicPluginBase;
+		friend class Plugin;
 
-		SignalReader(std::shared_ptr<dls::DDSParticipant>, const dls::topicType&, const std::shared_ptr<SignalType>);
-		SignalReader(std::shared_ptr<dls::DDSParticipant>, const dls::topicType&, const std::shared_ptr<SignalType>, const std::function<void()>& auxiliary_callback);
+		SignalReader(std::shared_ptr<dls::DDSParticipant>, const dls::topicType&, const std::shared_ptr<SignalType>, const std::function<void()>& auxiliary_callback = [](){}, eprosima::fastdds::dds::DataReaderQos qos = eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT);
+		
 		~SignalReader();
 		SignalReader() = delete;
 
 		SignalType getData();
 
+		bool is_receiving_data() const override;
+
 	protected:
 		const std::shared_ptr<SignalType> signal_;
+		std::shared_ptr<dls::DDSSubListener> listener_;
+
 		virtual WrapperBase* getWrapperBasePtr() override;
 		const std::function<void()> auxiliary_callback;
 	};

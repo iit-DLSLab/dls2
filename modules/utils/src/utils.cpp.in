@@ -1,0 +1,60 @@
+
+#include "dls2/util/utils.hpp"
+
+namespace dls{
+	namespace utils{
+		
+		bool wait(std::function<bool()> func, int timeout_ms, int period_ms, bool& stop_wait){
+			// Wait for timeout seconds the input readyness
+			auto start = std::chrono::high_resolution_clock::now();
+			auto end = start;
+			while(!stop_wait && std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() < timeout_ms)
+			{
+				if(func()){
+					return true;
+				}
+				std::this_thread::sleep_for(std::chrono::milliseconds(period_ms));
+				end = std::chrono::high_resolution_clock::now();
+			}
+			return false;
+		}
+
+		bool wait(std::function<bool()> func, int timeout_ms, int period_ms, std::atomic_bool& stop_wait){
+			// Wait for timeout seconds the input readyness
+			auto start = std::chrono::high_resolution_clock::now();
+			auto end = start;
+			while(!stop_wait.load() && std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() < timeout_ms)
+			{
+				if(func()){
+					return true;
+				}
+				std::this_thread::sleep_for(std::chrono::milliseconds(period_ms));
+				end = std::chrono::high_resolution_clock::now();
+			}
+			return false;
+		}
+
+		void readFoldConfiguration(std::shared_ptr<robotlib::RobotBase> robot, robotlib::LegDataMap<Eigen::Vector3d>& feet_pos_des){
+			YAML::Node config = YAML::LoadFile("@DLS_ACTIONS_HEADER_DIR@/goFold/config/config.yml");
+			getConfiguration(config, robot, feet_pos_des);
+		}
+
+		void readHomeConfiguration(std::shared_ptr<robotlib::RobotBase> robot, robotlib::LegDataMap<Eigen::Vector3d>& feet_pos_des){
+			YAML::Node config = YAML::LoadFile("@DLS_ACTIONS_HEADER_DIR@/goHome/config/config.yml");
+			getConfiguration(config, robot, feet_pos_des);
+		}
+
+		void getConfiguration(YAML::Node config, std::shared_ptr<robotlib::RobotBase> robot, robotlib::LegDataMap<Eigen::Vector3d>& feet_pos_des){
+			auto configuration = robot->makeJointState(0.0);
+			for(auto &leg_pair : configuration)
+			{
+				for(auto &joint_pair : *leg_pair.data_)
+				{
+					configuration[joint_pair.key_] = config[robot->getName()][joint_pair.key_->getName()].as<double>();
+				}
+			}
+			robot->forwardKinematics(configuration, feet_pos_des);
+		}
+
+	}
+}

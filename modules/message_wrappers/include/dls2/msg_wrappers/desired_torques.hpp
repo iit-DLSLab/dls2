@@ -13,7 +13,7 @@ namespace dls
 	public:
 	    template <typename SignalType>
 		friend class SignalWriter;
-		friend class PeriodicPluginBase;
+		friend class Plugin;
 
 		DesiredTorques(const std::shared_ptr<robotlib::RobotBase> robot);
 		DesiredTorques(DesiredTorques& desired_torques);

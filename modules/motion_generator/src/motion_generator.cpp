@@ -34,24 +34,28 @@ std::shared_ptr<const robotlib::RobotBase> MotionGenerator::getRobot()
 	return this->pRobot;
 }
 
-void MotionGenerator::setHomeConfiguration(YAML::Node& config, const std::string& data_name)
+void MotionGenerator::setHomeConfiguration()
 {
+	YAML::Node config = YAML::LoadFile("/usr/include/dls2/actions/goHome/config/config.yml");
+	const std::string robot_name = pRobot->getName();
 	for(auto &leg_pair : this->home_configuration)
 	{
 		for(auto &joint_pair : *leg_pair.data_)
 		{
-			this->home_configuration[joint_pair.key_] = config[data_name][joint_pair.key_->getName()].as<double>();
+			this->home_configuration[joint_pair.key_] = config[robot_name][joint_pair.key_->getName()].as<double>();
 		}
 	}
 }
 
-void MotionGenerator::setFoldConfiguration(YAML::Node& config, const std::string& data_name)
+void MotionGenerator::setFoldConfiguration()
 {
+	YAML::Node config = YAML::LoadFile("/usr/include/dls2/actions/goFold/config/config.yml");
+	const std::string robot_name = pRobot->getName();
 	for(auto &leg_pair : this->fold_configuration)
 	{
 		for(auto &joint_pair : *leg_pair.data_)
 		{
-			this->fold_configuration[joint_pair.key_] = config[data_name][joint_pair.key_->getName()].as<double>();
+			this->fold_configuration[joint_pair.key_] = config[robot_name][joint_pair.key_->getName()].as<double>();
 		}
 	}
 }
@@ -96,32 +100,6 @@ void MotionGenerator::runPostures()
 
 void MotionGenerator::setConsoleFunctions()
 {
-	command_manager.addCommand<>
-	(
-		"goHome",
-		"Go to home position",
-		std::function<bool()>([&]()->bool
-		{
-			goHome();
-			return true;
-		}),
-		{{1,1}, {2,2}, {3,3}},
-		true
-	);
-
-	command_manager.addCommand<>
-	(
-		"goFold",
-		"Go to fold position",
-		std::function<bool()>([&]()->bool
-		{
-			goFold();
-			return true;
-		}),
-		{{1,1}, {2,2}, {3,3}},
-		true
-	);
-
 	command_manager.addCommand<>
     (
         "stopMotion",

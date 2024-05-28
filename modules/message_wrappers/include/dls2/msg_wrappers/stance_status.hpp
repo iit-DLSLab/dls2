@@ -13,7 +13,7 @@ namespace dls
 	public:
 		template <typename SignalType>
 		friend class SignalWriter;
-		friend class PeriodicPluginBase;
+		friend class Plugin;
 
 		StanceStatus(const std::shared_ptr<robotlib::RobotBase> robot);
 		StanceStatus(StanceStatus &stance_status);

@@ -15,7 +15,7 @@ namespace dls
 	public:
 	    template <typename SignalType>
 		friend class SignalWriter;
-		friend class PeriodicPluginBase;
+		friend class Plugin;
 
 		BlindState(const std::shared_ptr<robotlib::RobotBase> robot);
 		BlindState(BlindState& blind_state);
@@ -40,6 +40,7 @@ namespace dls
 		robotlib::JointState joints_temperature_;
 
 		robotlib::LegDataMap<bool> feet_contact_;
+		robotlib::LegDataMap<Eigen::Vector3d> current_feet_positions_;
 	
 	private:
 		virtual void setDataFromWrapperBase(WrapperBase* wrapper_base) override;

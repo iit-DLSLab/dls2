@@ -21,12 +21,52 @@ set(DLS_INSTALL_LIB_DIR /usr/lib/dls2
 	CACHE STRING "Directory where framework shared object libraries are stored"
 )
 
+set(DLS_DEFAULT_HEADER_DIR /usr/include/dls2
+	CACHE STRING "Directory where framework headers are stored"
+)
+
+set(DLS_ACTIONS_HEADER_DIR /usr/include/dls2/actions
+	CACHE STRING "Directory where action headers are stored"
+)
+
+set(DLS_PROCEDURES_HEADER_DIR /usr/include/dls2/procedures
+	CACHE STRING "Directory where procedure headers are stored"
+)
+
+set(DLS_TASKS_HEADER_DIR /usr/include/dls2/tasks
+	CACHE STRING "Directory where task headers are stored"
+)
+
 set(DLS_SCHEDULERS_CONFIG_DIR /usr/include/dls2/schedulers
 	CACHE STRING "Directory where framework scheduler config are stored"
 )
 
 set(DLS_INSTALL_SERVICE_DIR /usr/lib/dls2/services
 	CACHE STRING "Directory where shared object libraries for services are stored"
+)
+
+set(DLS_INSTALL_SERVICE_HEADER_DIR /usr/include/dls2/services
+	CACHE STRING "Directory where services headers are stored"
+)
+
+set(DLS_INSTALL_DATA_VISUALIZER_DIR /usr/lib/dls2/data_visualizer
+	CACHE STRING "Directory where shared object libraries for data visualizer are stored"
+)
+
+set(DLS_INSTALL_DATA_VISUALIZER_HEADER_DIR /usr/include/dls2/data_visualizer
+	CACHE STRING "Directory where data visualizer headers are stored"
+)
+
+set(DLS_INSTALL_ACTION_DIR /usr/lib/dls2/actions
+	CACHE STRING "Directory where shared object libraries for actions are stored"
+)
+
+set(DLS_INSTALL_PROCEDURE_DIR /usr/lib/dls2/procedures
+	CACHE STRING "Directory where shared object libraries for procedures are stored"
+)
+
+set(DLS_INSTALL_TASK_DIR /usr/lib/dls2/tasks
+	CACHE STRING "Directory where shared object libraries for tasks are stored"
 )
 
 set(DLS_INSTALL_HARDWARE_DIR /usr/lib/dls2/hardwares
@@ -79,6 +119,10 @@ set(DLS_INSTALL_SCRIPTS_DIR /usr/bin/dls2/scripts
 
 set(DLS_INSTALL_DEVELOPMENT_DOCS_DIR /usr/share/doc/dls2
 	CACHE STRING "Directory where software development documentation is stored"
+)
+
+set(DLS_INSTALL_STARTUP_DIR /usr/include/dls2/startup
+	CACHE STRING "Directory where startup files are stored"
 )
 
 set(EIGEN_DIR /usr/include/eigen3

@@ -12,8 +12,12 @@ namespace dls
 	class CommandBase
 	{
 	friend class CommandManager;
+
 	public:
 		typedef std::map<uint, uint> LevelType;
+		//! Specify that a command is available in all states exept the zero one
+		static const uint ALL_STATES_EXCEPT_ZERO = -1;
+	
 
 		/// Argument and return type representations
 		///
@@ -111,6 +115,10 @@ namespace dls
 
 		void changeTransitionSet(const LevelType& transition_set);
 
+		virtual void setEnabled() = 0;
+
+		virtual void setDisabled() = 0;
+
 	protected:
 
 		/// Command execution level
@@ -129,6 +137,12 @@ namespace dls
 		///
 		CommandManager *owner;
 		
+		/// Associated function call of the command
+		///
+		virtual bool call(std::vector<std::string>);
+		/// Associated function call of the command
+		///
+		virtual bool call();
 	private:
 
 		/// The name of the command
@@ -142,11 +156,6 @@ namespace dls
 		/// Number of arguments of command
 		///
 		uint numArg;
-
-		/// Associated function call of the command
-		///
-		virtual bool call(std::vector<std::string>);
-
 	};
 
 } // end namespace dls

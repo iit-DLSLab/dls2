@@ -20,7 +20,7 @@ TrajectoryGenerator::TrajectoryGenerator(const std::shared_ptr<robotlib::RobotBa
     , normal_force_min_(robot->makeLegDataMap<double>(0.0))
 {}
 
-TrajectoryGenerator::TrajectoryGenerator(TrajectoryGenerator& trajectory_generator)
+TrajectoryGenerator::TrajectoryGenerator(const TrajectoryGenerator& trajectory_generator)
     : frame_id_(trajectory_generator.frame_id_)
 	, sequence_id_(trajectory_generator.sequence_id_)
 	, timestamp_(trajectory_generator.timestamp_)

@@ -17,8 +17,9 @@ namespace dls
 		typedef void destroy_t(Layer*);
 
 		/// Constructor
-		/// @parm ID the name of this layer
-		Layer(const std::string &ID);
+		/// @param ID the name of this layer
+		/// @param sleep_time_ms milliseconds to sleep before monitoring again
+		Layer(const std::string &ID, int sleep_time_ms=1000);
 
 		/// Destructor
 		virtual ~Layer();
@@ -46,19 +47,23 @@ namespace dls
 		/// exist
 		AppStatus getComponentStatus(const std::string &name);
 
-		/// Get the dds communication participant of the layer
-		/// @return pointer to the participant
-		std::shared_ptr<dls::DDSParticipant> getParticipant();
+		//! Run the layer - used in state machine
+		virtual AppStatus run() override;
+
+		//! Monitor the layer
+		virtual void monitor();
 
 		// BEGIN critical section
 			mutable std::mutex components_mutex;
 			std::map<std::string, pComponent_t> components;
 		// END critical section
 
-	private:
+		std::chrono::milliseconds sleep_time;
+
+	protected:
 		/// DDS communication link
         ///
-		std::shared_ptr<dls::DDSParticipant> ddsLink;
+		std::shared_ptr<dls::DDSParticipant> ddspart_layer;
 
 	};
 } // end namespace dls

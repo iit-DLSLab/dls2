@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# Script to run the ddstopic program from anywhere, all the error handling is done by the program itself
+/usr/bin/dls2/ddstopic $@
