@@ -1,0 +1,15 @@
+#ifndef @TOPICS_HEADER_GUARD@
+#define @TOPICS_HEADER_GUARD@
+
+#include "dls2/topics/utils.hpp"
+
+namespace dls
+{
+    namespace topics
+    {
+        namespace @PLUGIN_NAME@{
+            // extern dls::topicType topic_variable_name;
+        }
+    }
+}
+#endif /* end of include guard: @TOPICS_HEADER_GUARD@ */

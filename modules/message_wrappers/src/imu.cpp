@@ -98,3 +98,9 @@ Imu& Imu::operator=(const Imu& imu)
 
 	return *this;
 }
+
+void Imu::setDataFromWrapperBase(WrapperBase* wrapper_base)
+{
+    // Assuming wrapper is of type Wrapper<MsgType>
+    *this = static_cast<Imu&>(*wrapper_base);
+}

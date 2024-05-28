@@ -12,6 +12,10 @@ namespace dls
     class ControlSignal : public Wrapper<ControlSignalMsg>
     {
     public:
+	    template <typename SignalType>
+		friend class SignalWriter;
+		friend class PeriodicPluginBase;
+
         enum class SignalReconstructionMethod : uint64_t
         {
             ZERO_ORDER_HOLD,
@@ -33,6 +37,8 @@ namespace dls
 
         robotlib::JointState torques_;
         SignalReconstructionMethod signal_reconstruction_method_{};
+    private:
+		virtual void setDataFromWrapperBase(WrapperBase* wrapper_base) override;
     };
 } // namespace dls
 

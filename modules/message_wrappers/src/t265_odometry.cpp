@@ -90,3 +90,9 @@ T265Odometry& T265Odometry::operator=(const T265Odometry& t265_odometry)
 	
 	return *this;
 }
+
+void T265Odometry::setDataFromWrapperBase(WrapperBase* wrapper_base)
+{
+    // Assuming wrapper is of type Wrapper<MsgType>
+    *this = static_cast<T265Odometry&>(*wrapper_base);
+}

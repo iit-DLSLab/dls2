@@ -125,6 +125,10 @@ namespace dls
 				// Get only the "load[Layer]" command string
 				std::string load_layer_command = process_and_load_layer_command.substr(process_and_load_layer_command.find("::") + 2);
 
+				// Check if the path exists
+				if(!std::filesystem::exists(load_layers_paths.at(load_layer_command)))
+					return nullptr;
+
 				std::filesystem::directory_iterator dir_it(load_layers_paths.at(load_layer_command));
 
 				for(const auto &file : dir_it)

@@ -72,3 +72,9 @@ ControlSignal& ControlSignal::operator=(const ControlSignal& control_signal)
 	
 	return *this;
 }
+
+void ControlSignal::setDataFromWrapperBase(WrapperBase* wrapper_base)
+{
+    // Assuming wrapper is of type Wrapper<MsgType>
+    *this = static_cast<ControlSignal&>(*wrapper_base);
+}

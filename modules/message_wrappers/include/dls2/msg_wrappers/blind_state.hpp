@@ -13,6 +13,10 @@ namespace dls
 	class BlindState : public Wrapper<BlindStateMsg>
 	{
 	public:
+	    template <typename SignalType>
+		friend class SignalWriter;
+		friend class PeriodicPluginBase;
+
 		BlindState(const std::shared_ptr<robotlib::RobotBase> robot);
 		BlindState(BlindState& blind_state);
 		BlindState() = delete;
@@ -36,6 +40,9 @@ namespace dls
 		robotlib::JointState joints_temperature_;
 
 		robotlib::LegDataMap<bool> feet_contact_;
+	
+	private:
+		virtual void setDataFromWrapperBase(WrapperBase* wrapper_base) override;
 	};
 } // namespace dls
 

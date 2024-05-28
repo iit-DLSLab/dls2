@@ -11,6 +11,10 @@ namespace dls
 	class LegOdometryDebug : public Wrapper<LegOdometryDebugMsg>
 	{
 	public:
+        template <typename SignalType>
+        friend class SignalWriter;
+        friend class PeriodicPluginBase;
+
 		LegOdometryDebug(const std::shared_ptr<robotlib::RobotBase> robot);
 		LegOdometryDebug(LegOdometryDebug& leg_odometry_debug);
 		LegOdometryDebug() = delete;
@@ -55,6 +59,8 @@ namespace dls
         //LEG ODOMETRY ERROR
         robotlib::LegDataMap<Eigen::Vector3d> linear_velocity_error_legs_;
         robotlib::LegDataMap<Eigen::Vector3d> angular_velocity_error_legs_;
+    private:
+        virtual void setDataFromWrapperBase(WrapperBase *wrapper_base) override;
     };
 } // namespace dls
 

@@ -2,6 +2,7 @@
 #include "dls_messages/dds/controller_commandPubSubTypes.h"
 #include "dls_messages/dds/trunk_controller_debugPubSubTypes.h"
 #include <dls_messages/dds/base_statePubSubTypes.h>
+#include <dls_messages/dds/mpc_generator_outputPubSubTypes.h>
 
 #include <iostream>
 #include <signal.h>
@@ -13,7 +14,7 @@
 #include <mutex>
 
 bool stop = false;
-unsigned long int window_size = 10000;
+unsigned long int window_size = 1000;
 std::vector<double> times{};
 std::chrono::system_clock::time_point last = std::chrono::high_resolution_clock::now();
 void * msg;  // just to avoid warnings during compilation..... :)
@@ -89,6 +90,10 @@ int main(int argc, char** argv)
 	else if(topic_name == "mpc_controller")
 	{
 		topic = dls::topicType("mpc_controller", new  ControlSignalMsgPubSubType());
+	}
+	else if(topic_name == "mpc_generator_output")
+	{
+		topic = dls::topics::mpc_generator_output;
 	}
 	else
 	{

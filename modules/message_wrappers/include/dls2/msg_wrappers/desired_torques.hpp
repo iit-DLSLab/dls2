@@ -11,6 +11,10 @@ namespace dls
 	class DesiredTorques : public Wrapper<DesiredTorquesMsg>
 	{
 	public:
+	    template <typename SignalType>
+		friend class SignalWriter;
+		friend class PeriodicPluginBase;
+
 		DesiredTorques(const std::shared_ptr<robotlib::RobotBase> robot);
 		DesiredTorques(DesiredTorques& desired_torques);
 		DesiredTorques() = delete;
@@ -25,6 +29,8 @@ namespace dls
 		double timestamp_{};
 
 		robotlib::JointState desired_torques_;
+	private:
+		virtual void setDataFromWrapperBase(WrapperBase* wrapper_base) override;
 	};
 } // namespace dls
 

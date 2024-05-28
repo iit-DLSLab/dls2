@@ -17,6 +17,7 @@
 #include "dls2/class_loader.hpp"
 #include "dls2/motion_generator/motion_generator.hpp"
 #include "dls2/controller/controller.hpp"
+#include "dls2/plugin_base/periodic_plugin_base.hpp"
 #include "dls2/hardware/hardware.hpp"
 #include "dls2/estimator/estimator.hpp"
 #include "dls2/service/service_base.hpp"
@@ -125,10 +126,15 @@ int main(int argc, char **argv)
         else if (args.component_type == "estimator")
         {
             // scout_sys << "LOADING ESTIMATOR FROM '" << std::string("${DLS_INSTALL_ESTIMATOR_DIR}/lib") + args.lib_name + ".so'" << std::endl;
+            // pComponent =
+            //     ClassLoader::loadClass<Estimator, std::string>(
+            //         std::string("${DLS_INSTALL_ESTIMATOR_DIR}/lib") + args.lib_name + ".so",
+            //         args.component_name);
             pComponent =
-                ClassLoader::loadClass<Estimator, std::string>(
+                ClassLoader::loadClass<PeriodicPluginBase, std::string>(
                     std::string("${DLS_INSTALL_ESTIMATOR_DIR}/lib") + args.lib_name + ".so",
-                    args.component_name);
+                    args.component_name,
+                    args.robot_name);
         }
         else if (args.component_type == "service")
         {

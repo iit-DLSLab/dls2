@@ -11,6 +11,10 @@ namespace dls
     class Vicon : public Wrapper<ViconMsg>
     {
     public:
+        template <typename SignalType>
+        friend class SignalWriter;
+        friend class PeriodicPluginBase;
+
         Vicon();
         Vicon(Vicon& vicon);
         virtual ~Vicon();
@@ -28,6 +32,8 @@ namespace dls
         // EDIT#3/7 use it when PlotJuggler plugin for FastDDS supports sequence data structures
         // std::vector<Eigen::Vector3d> markers_positions{};
         std::array<double, 21> markers_positions_{};
+    private:
+        virtual void setDataFromWrapperBase(WrapperBase *wrapper_base) override;
     };
 } // namespace dls
 #endif

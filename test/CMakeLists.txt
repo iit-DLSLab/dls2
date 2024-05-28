@@ -1,2 +1,3 @@
 add_subdirectory(catch)
 add_subdirectory(topic_info)
+add_subdirectory(messages)

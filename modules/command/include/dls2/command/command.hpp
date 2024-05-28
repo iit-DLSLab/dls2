@@ -111,6 +111,11 @@ namespace dls
 
         static void changeCommandLevel(CommandManager *manager, int level);
         static int getCurrentLevel(CommandManager *manager);
+
+		template <typename T>
+    	static bool readValue(const std::string &comment, T &value, T default_value);
+		template <typename T>
+    	static bool readValue(const std::string &comment, T &value);
     };
 
 } // end namespace dls

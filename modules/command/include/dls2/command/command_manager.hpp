@@ -10,6 +10,7 @@
 #include <vector>
 #include <condition_variable>
 #include <atomic>
+#include <thread>
 
 namespace dls
 {
@@ -61,6 +62,24 @@ namespace dls
 			std::string name,
 			std::string doc,
 			const std::function<bool(arg_ts...)> &f,
+			dls::CommandBase::LevelType level = {},
+			bool enabled = false
+		);
+
+		/// Adds a command to the CommandManager
+		///
+		/// @param name command name as seen by the rest of the framework
+		/// @param doc some documentation for the command
+		/// @param f the function encapsulated by the command
+		/// @param level execution level of the command
+		/// @param enabled set command enabled state
+		template <class T>
+		void addCommand
+		(
+			std::string name,
+			std::string doc,
+			bool(T::*function_ptr)(void),
+			T* obj,
 			dls::CommandBase::LevelType level = {},
 			bool enabled = false
 		);
