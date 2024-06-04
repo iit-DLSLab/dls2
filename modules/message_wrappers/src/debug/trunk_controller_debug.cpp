@@ -8,6 +8,8 @@ TrunkControllerDebug::TrunkControllerDebug(const std::shared_ptr<robotlib::Robot
     , desired_forces_(robot->makeLegDataMap<Eigen::Vector3d>(Eigen::Vector3d::Zero()))
 	, desired_wrench_(Eigen::Matrix<double,6,1>::Zero())
 	, friction_coefficients_(robot->makeLegDataMap<double>(0.0))
+	, gravity_term_(robot->makeJointState(0.0))
+	, coriolis_centrifugal_terms_(robot->makeJointState(0.0))
 {}
 
 TrunkControllerDebug::TrunkControllerDebug(TrunkControllerDebug& trunk_controller_debug)
@@ -18,6 +20,8 @@ TrunkControllerDebug::TrunkControllerDebug(TrunkControllerDebug& trunk_controlle
 	, desired_forces_(trunk_controller_debug.desired_forces_)
 	, desired_wrench_(trunk_controller_debug.desired_wrench_)
 	, friction_coefficients_(trunk_controller_debug.friction_coefficients_)
+	, gravity_term_(trunk_controller_debug.gravity_term_)
+	, coriolis_centrifugal_terms_(trunk_controller_debug.coriolis_centrifugal_terms_)
 {}
 
 TrunkControllerDebug::~TrunkControllerDebug(){}
@@ -42,7 +46,16 @@ TrunkControllerDebug::operator TrunkControllerDebugMsg() const
 	{
 		trunk_controller_debug_msg.desired_wrench()[i] = desired_wrench_(i);
 	}
-
+	int i{0};
+	for(auto &leg : gravity_term_)
+	{
+		for(auto &joint : *leg.data_)
+		{
+			trunk_controller_debug_msg.gravity_term()[i] = gravity_term_[joint.key_];
+			trunk_controller_debug_msg.coriolis_centrifugal_terms()[i] = coriolis_centrifugal_terms_[joint.key_];
+			i++;
+		}
+	}
     return trunk_controller_debug_msg;
 }
 
@@ -64,7 +77,16 @@ TrunkControllerDebug& TrunkControllerDebug::operator=(const TrunkControllerDebug
 	{
 		desired_wrench_(i) = trunk_controller_debug_msg.desired_wrench()[i];
 	}
-
+	int i{0};
+	for(auto &leg : gravity_term_)
+	{
+		for(auto &joint : *leg.data_)
+		{
+			gravity_term_[joint.key_] = trunk_controller_debug_msg.gravity_term()[i];
+			coriolis_centrifugal_terms_[joint.key_] = trunk_controller_debug_msg.coriolis_centrifugal_terms()[i];
+			i++;
+		}
+	}
 	return *this;
 }
 
@@ -78,6 +100,8 @@ TrunkControllerDebug& TrunkControllerDebug::operator=(const TrunkControllerDebug
 	desired_forces_ = trunk_controller_debug.desired_forces_;
 	desired_wrench_ = trunk_controller_debug.desired_wrench_;
 	friction_coefficients_ = trunk_controller_debug.friction_coefficients_;
+	gravity_term_ = trunk_controller_debug.gravity_term_;
+	coriolis_centrifugal_terms_ = trunk_controller_debug.coriolis_centrifugal_terms_;
 
 	return *this;
 }
