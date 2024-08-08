@@ -238,3 +238,14 @@ void Pose::set(const Eigen::Vector3d &vec, const Eigen::AngleAxisd &aa)
 	this->position = vec;
 	this->quaternion = Eigen::Quaterniond(aa).normalized();
 }
+
+Eigen::Matrix<double, 7, 1> Pose::toVector() const
+{
+	Eigen::Matrix<double, 7, 1> vec;
+	{
+		std::lock_guard<std::mutex> lock(this->pose_mutex);
+		vec.block<3, 1>(0, 0) = this->position;
+		vec.block<4, 1>(3, 0) = Eigen::Matrix<double,4,1>(this->quaternion.x(), this->quaternion.y(), this->quaternion.z(), this->quaternion.w());
+	}
+	return vec;
+}
