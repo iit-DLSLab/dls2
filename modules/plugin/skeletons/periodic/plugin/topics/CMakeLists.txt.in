@@ -22,11 +22,11 @@ target_link_directories(${TOPICS_LIBRARY_NAME}
 install(
 	DIRECTORY   include/
 	DESTINATION /usr/include/dls2
-	COMPONENT   ${TOPICS_LIBRARY_NAME}_dev
+	COMPONENT ${PROJECT_NAME}_dev
 )
 
 install(
 	TARGETS             ${TOPICS_LIBRARY_NAME}
 	LIBRARY DESTINATION /usr/lib/dls2/@PLUGIN_TYPE@/${PLUGIN_NAME}
-	COMPONENT           ${TOPICS_LIBRARY_NAME}
+	COMPONENT ${PROJECT_NAME}
 )

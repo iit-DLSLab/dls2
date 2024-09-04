@@ -49,6 +49,6 @@ function(dls_add_message msg)
 		DESTINATION 
 			/usr/include/dls_messages/dds
 		COMPONENT 
-			${MSGS_LIBRARY_NAME}_dev
+			${PROJECT_NAME}_dev
 	)
 endfunction()
