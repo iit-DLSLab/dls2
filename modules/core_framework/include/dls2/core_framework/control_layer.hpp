@@ -60,9 +60,17 @@ public:
 	/// @return true if the controller loads correctly.
 	bool loadController(const std::string&);
 
+	/// Loads an external controller. It basically creates a subscriber to the topic equal to the input name, and let the control layer use the data from the topic
+	/// @return true if the controller loads correctly.
+	bool loadExternalController(const std::string&);
+
 	/// Unloads a controller
 	/// @return true if the controller unloads correctly.
 	bool unloadController(const std::string&);
+
+	/// Unloads an external controller
+	/// @return true if the controller unloads correctly.
+	bool unloadExternalController(const std::string&);
 
 	/// Loads a motion generator
 	/// @return true if the generator loaded correctly.
