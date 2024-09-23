@@ -15,13 +15,4 @@ target_link_libraries(task
 		state_machine_watcher
 )
 
-install(
-	DIRECTORY   include/
-	DESTINATION ${DLS_DEFAULT_HEADER_DIR}
-	COMPONENT   task_dev
-)
-install(
-	TARGETS             task
-	LIBRARY DESTINATION ${DLS_INSTALL_LIB_DIR}
-	COMPONENT           task
-)
+dls_install(task)

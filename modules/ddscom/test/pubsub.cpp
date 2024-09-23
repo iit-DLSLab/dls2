@@ -4,6 +4,7 @@
 
 #include <string>
 #include <chrono>
+#include <thread>
 
 TEST_CASE("Messages can be published and received via topics", "[pubsub]")
 {
