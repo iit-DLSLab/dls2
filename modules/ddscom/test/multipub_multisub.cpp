@@ -6,6 +6,7 @@
 #include <iostream>
 #include <vector>
 #include <memory>
+#include <thread>
 
 dls::topicType topic("this_is_a_long_dummy_test_topic", new StringMsgPubSubType());
 auto target_message = "this is the required message that has to be delivered";

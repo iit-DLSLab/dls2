@@ -20,10 +20,11 @@ dls_install(foxglove_websocket)
 
 install(
 	DIRECTORY   ${CMAKE_CURRENT_SOURCE_DIR}/include/
-	COMPONENT   foxglove_websocket_dev
+	COMPONENT   dls_dev
 	DESTINATION ${DLS_INSTALL_DATA_VISUALIZER_HEADER_DIR}/foxglove_websocket
 )
 install(
   FILES ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE
   DESTINATION ${DLS_INSTALL_DATA_VISUALIZER_HEADER_DIR}/foxglove_websocket/licenses/
+  COMPONENT dls_dev
 )

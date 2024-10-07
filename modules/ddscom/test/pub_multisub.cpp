@@ -7,6 +7,7 @@
 #include <vector>
 #include <chrono>
 #include <iostream>
+#include <thread>
 
 size_t number_of_subscribers      = 20;
 size_t number_of_messages_to_send = 10;

@@ -530,10 +530,10 @@ At the end of the outermost CMakeLists.txt, add the debian dependencies here
 
 and here
 
-      set(CPACK_DEBIAN_PERIODIC_DEV_PACKAGE_DEPENDS   "dls2-dev, dls-${PLUGIN_NAME}" CACHE INTERNAL "") # add here package dependencies
+      set(CPACK_DEBIAN_PERIODIC_DEV_PACKAGE_DEPENDS   "dls2-dev, dls-${PROJECT_NAME}" CACHE INTERNAL "") # add here package dependencies
 For example you can have
 
       set(CPACK_DEBIAN_PERIODIC_PACKAGE_DEPENDS       "dls2-runtime, dls-state-estimator" CACHE INTERNAL "")
 and
 
-      set(CPACK_DEBIAN_PERIODIC_DEV_PACKAGE_DEPENDS   "dls2-dev, dls-${PLUGIN_NAME}, dls-stance-detection, dls-state-estimator-dev" CACHE INTERNAL "")
+      set(CPACK_DEBIAN_PERIODIC_DEV_PACKAGE_DEPENDS   "dls2-dev, dls-${PROJECT_NAME}, dls-stance-detection, dls-state-estimator-dev" CACHE INTERNAL "")
