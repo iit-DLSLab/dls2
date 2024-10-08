@@ -1,0 +1,19 @@
+name: Add issues and PR to DLS2 Roadmap project
+
+on:
+  issues:
+    types:
+      - opened
+      - closed
+
+jobs:
+  add-to-project:
+    name: Add issue to project
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/add-to-project@RELEASE_VERSION
+        with:
+          # You can target a project in a different organization
+          # to the issue
+          project-url: https://github.com/orgs/iit-DLSLab/projects/21
+          github-token: ${{ secrets.ADD_TO_PROJECT_PAT }}
