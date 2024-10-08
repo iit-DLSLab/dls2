@@ -17,3 +17,5 @@ jobs:
           # to the issue
           project-url: https://github.com/orgs/iit-DLSLab/projects/21
           github-token: ${{ secrets.ADD_TO_PROJECT_PAT }}
+          labeled: bug, needs-triage
+          label-operator: OR
