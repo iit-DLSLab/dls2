@@ -1,5 +1,6 @@
 add_library(dls_topics SHARED
 	src/topics.cpp
+	src/utils.cpp
 )
 
 target_include_directories(dls_topics

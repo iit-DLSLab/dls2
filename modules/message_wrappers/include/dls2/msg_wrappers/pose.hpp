@@ -171,6 +171,9 @@ public:
 	/// @param [in] a The angle-axis representing the orientation
 	void set(const Eigen::Vector3d &vec, const Eigen::AngleAxisd &aa);
 
+	/// Return the pose in the x, y, z, qx, qy, qz, qw format (postion:x,y z, quaternion: qx, qy, qz, qw)
+	Eigen::Matrix<double, 7,1> toVector() const;
+
 private:
 	// BEGIN critical section
 		/// Mutex protecting position and quaternion
