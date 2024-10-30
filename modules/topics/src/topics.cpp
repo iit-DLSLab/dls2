@@ -38,6 +38,12 @@ namespace dls
 		// services
 		dls::topicType param_server = dls::topicType("add_double", new ParamServerMsgPubSubType());
 
+		// visualizations
+
+		dls::topicType sphere_list = dls::topicType("sphere_list", new SphereListPubSubType());
+		dls::topicType arrow_list = dls::topicType("arrow_list", new ArrowListPubSubType());
+
+
 		// state machine
 
 		dls::topicType state_machine = dls::topicType("state_machine", new StateMachineMsgPubSubType());

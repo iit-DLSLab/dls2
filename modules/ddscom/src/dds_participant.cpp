@@ -22,7 +22,7 @@ namespace dls
 		participantQos.wire_protocol().builtin.mutation_tries = 250u; //limit discoverable data readers/writers (default is 100u)
 		if (tupelookup_server)
 		{
-			participantQos.wire_protocol().builtin.typelookup_config.use_server = true;	
+			participantQos.wire_protocol().builtin.typelookup_config.use_server = true;
 		}
 		else
 		{
@@ -103,7 +103,7 @@ namespace dls
 		eprosima::fastdds::dds::StatusMask mask;
 
 		this->participant = eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->create_participant(
-			domain_, 
+			domain_,
 			participantQos,
 			this,
 			mask.none()
@@ -136,12 +136,12 @@ namespace dls
 	DDSParticipant::~DDSParticipant()
 	{
 
-	
+
 		if (!this->participant){
 			return;
 		}
 
-		
+
 		// delete all data writers and data readers
 		if (this->publisher->delete_contained_entities() != ReturnCode_t::RETCODE_OK)
 		{
@@ -151,7 +151,7 @@ namespace dls
 		{
 			std::cout << "CANNOT DELETE SUBSCRIBER CONTAINED ENTITIES FOR THE PARTICIPANT " << participant_name << std::endl;
 		}
-		
+
 		// delete publisher
 		if (this->publisher != nullptr)
 		{
@@ -262,14 +262,14 @@ namespace dls
 			std::cout <<  "THE WRITER " << writer_name << " DOES NOT BELONG TO THE SUBSCRIBER" << std::endl;
 			return false;
 		}
-		
+
 		ReturnCode_t result (this->publisher->delete_datawriter(writer));
 
 		if(result == ReturnCode_t::RETCODE_ERROR)
 		{
 			std::cout <<  "RETCODE_ERROR ERROR WHEN REMOVING THE WRITER " << writer_name << std::endl;
 		}
-		
+
 		this->writers.erase(writer_name);
 		return true;
 	}
@@ -284,7 +284,7 @@ namespace dls
 		{
 			std::cout << "THE READER " << readerName_ << " ALREADY EXISTS, YOU ARE TRYING TO CREATE TWICE" << std::endl;
 			return this->readers.find(readerName_)->second;
-		}		
+		}
 
 		auto topic = this->addTopic(topicData_);
 
@@ -301,7 +301,7 @@ namespace dls
 
 		if (reader != nullptr)
 		{
-			
+
 			this->readers.insert({readerName_, reader});
 			this->subListeners.insert({readerName_, listener});
 		}
@@ -319,9 +319,9 @@ namespace dls
 		{
 			std::cout << "THE READER " << readerName_ << " ALREADY EXISTS, YOU ARE TRYING TO CREATE TWICE" << std::endl;
 			return this->readers.find(readerName_)->second;
-		}	
+		}
 
-		
+
 		auto topic = this->addTopic(topicName);
 
 		// error could not add topic
@@ -329,7 +329,7 @@ namespace dls
 			return nullptr;
 
 		}
-		
+
 
 		std::shared_ptr<dls::DDSSubListener> listener = std::make_shared<DDSSubListener>(callback_);
 
@@ -340,7 +340,7 @@ namespace dls
 
 		if (reader != nullptr)
 		{
-			
+
 			this->readers.insert({readerName_, reader});
 			this->subListeners.insert({readerName_, listener});
 		}
@@ -369,7 +369,7 @@ namespace dls
 			return true;
 		}
 
-		return false;	
+		return false;
 
 	}
 
@@ -384,14 +384,14 @@ namespace dls
 			std::cout <<  "THE READER " << reader_name << " DOES NOT BELONG TO THE SUBSCRIBER" << std::endl;
 			return false;
 		}
-		
+
 		ReturnCode_t result (this->subscriber->delete_datareader(reader));
 
 		if(result == ReturnCode_t::RETCODE_ERROR)
 		{
 			std::cout <<  "RETCODE_ERROR ERROR WHEN REMOVING THE READER " << reader_name << std::endl;
 		}
-		
+
 		this->readers.erase(reader_name);
 		return true;
 	}
@@ -433,13 +433,13 @@ namespace dls
 			return nullptr;
 
 		}
-			
+
 		auto search = this->topics.find(topicName);
-		
+
 		if(search != topics.end()){
 			return search->second;
 		}
-		
+
 		std::string type_name = discovery_database[topicName];//has to be there as this is called after testing if the topic has been found
 
 		if(!this->participant->find_type(topicName))
@@ -537,15 +537,15 @@ namespace dls
 			std::string type_name = info.info.typeName().to_string();
 
 			// Set Topic as discovered. If it is not new nothing happen
-			if(DDSParticipant::is_type_registered_in_participant_(type_name))
-				on_topic_discovery_(topic_name, type_name);
+			// if(DDSParticipant::is_type_registered_in_participant_(type_name))
+			on_topic_discovery_(topic_name, type_name);
 		}
 	}
 
 	void DDSParticipant::on_subscriber_discovery(
                 eprosima::fastdds::dds::DomainParticipant* participant,
                 eprosima::fastrtps::rtps::ReaderDiscoveryInfo&& info){
-		
+
 		// warning suppress
 		(void)participant;
 				// Only set as new topic discovered if it is ALIVE
@@ -579,10 +579,10 @@ namespace dls
 			{
 				this->on_topic_discovery_(topic_name.to_string(), type->get_name());
 			});
-	
+
 		if(DDSParticipant::is_type_registered_in_participant_(type_name.to_string()))
 			return;
-		
+
 		// Registering type and creating reader
 		this->participant->register_remote_type(
 			type_information,

@@ -52,5 +52,5 @@ add_dependencies(dynamic_legged_systems_framework
 install(
 	FILES src/default_startup.yaml
 	DESTINATION ${DLS_INSTALL_STARTUP_DIR}
-	COMPONENT dynamic_legged_systems_framework
+	COMPONENT dls_runtime
 )
