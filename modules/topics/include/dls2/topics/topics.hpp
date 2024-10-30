@@ -27,6 +27,9 @@
 #include <dls_messages/dds/slip_flagPubSubTypes.h>
 #include <dls_messages/dds/mpc_generator_outputPubSubTypes.h>
 #include <dls_messages/dds/state_machinePubSubTypes.h>
+#include <dls_messages/dds/ArrowListPubSubTypes.h>
+#include <dls_messages/dds/SphereListPubSubTypes.h>
+
 
 #include "dls2/topics/utils.hpp"
 
