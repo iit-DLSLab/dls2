@@ -18,6 +18,7 @@ namespace dls
 		extern domainType logging;
 		extern domainType services;
 		extern domainType estimators;
+		extern domainType visualization;
 	}
 }
 

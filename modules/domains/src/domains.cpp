@@ -18,6 +18,7 @@ namespace dls
 		domainType logging 		= 7;
 		domainType services		= 8;
 		domainType estimators	= 9;
+		domainType visualization = 10;
 	}
 }
 
