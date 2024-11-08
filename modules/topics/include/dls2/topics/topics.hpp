@@ -29,6 +29,7 @@
 #include <dls_messages/dds/state_machinePubSubTypes.h>
 #include <dls_messages/dds/ArrowListPubSubTypes.h>
 #include <dls_messages/dds/SphereListPubSubTypes.h>
+#include <dls_messages/dds/FrictionConeListPubSubTypes.h>
 
 
 #include "dls2/topics/utils.hpp"
@@ -65,6 +66,11 @@ namespace dls
 
 		// services
 		extern dls::topicType param_server;
+
+		//visualizer
+		extern dls::topicType sphere_list;
+		extern dls::topicType arrow_list;
+		extern dls::topicType friction_cone_list;
 
 		// state machine
 		extern dls::topicType state_machine;
