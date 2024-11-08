@@ -201,6 +201,7 @@ namespace dls
 		servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer-logging", dls::domains::logging, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER));
 		servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer-services", dls::domains::services, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER));
 		servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer-estimators", dls::domains::estimators, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER));
+		servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer-visualization", dls::domains::visualization, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER));
 		// std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 	}
 
