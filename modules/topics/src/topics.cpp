@@ -42,6 +42,7 @@ namespace dls
 
 		dls::topicType sphere_list = dls::topicType("sphere_list", new SphereListPubSubType());
 		dls::topicType arrow_list = dls::topicType("arrow_list", new ArrowListPubSubType());
+		dls::topicType friction_cone_list = dls::topicType("friction_cone_list", new FrictionConeListPubSubType());
 
 
 		// state machine
