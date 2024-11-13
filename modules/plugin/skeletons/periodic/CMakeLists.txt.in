@@ -41,7 +41,7 @@ string(JOIN "." PROJECT_VERSION
 	${PROJECT_VERSION_PATCH}
 )
 unset(VERSION_ARRAY) # delete aray of version strings
-message(STATUS "SLIP DETECTION PROJECT VERSION ${PROJECT_VERSION}")
+message(STATUS "${PLUGIN_NAME} PROJECT VERSION ${PROJECT_VERSION}")
 
 # ==============================================================================
 # Setup the repository
