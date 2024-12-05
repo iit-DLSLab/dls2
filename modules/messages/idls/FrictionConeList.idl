@@ -1,0 +1,17 @@
+struct FrictionConeList{
+
+    sequence<double> x;
+	sequence<double> y;
+	sequence<double> z;
+
+    sequence<double> quaternion_x;
+    sequence<double> quaternion_y;
+    sequence<double> quaternion_z;
+    sequence<double> quaternion_w;
+
+    sequence<long> category;
+
+    sequence<double> scale;
+
+};
+

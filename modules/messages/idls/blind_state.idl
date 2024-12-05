@@ -1,0 +1,19 @@
+struct BlindStateMsg
+{
+	// Header
+	string frame_id;
+	unsigned long sequence_id;
+	double timestamp;
+
+	string robot_name;
+
+	string joints_name[12];
+	double joints_position[12];
+	double joints_velocity[12];
+	double joints_acceleration[12];
+	double joints_effort[12];
+	double joints_temperature[12];
+
+	double feet_contact[4];
+	double current_feet_positions[12];
+};

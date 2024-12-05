@@ -1,0 +1,10 @@
+
+struct BoolMsg
+{
+	// Header
+	string frame_id;
+	unsigned long sequence_id;
+	double timestamp;
+
+	boolean data;
+};

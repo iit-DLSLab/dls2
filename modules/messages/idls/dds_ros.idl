@@ -1,0 +1,4 @@
+struct DDSROSMsg
+{
+	string data;
+};

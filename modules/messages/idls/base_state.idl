@@ -1,0 +1,24 @@
+struct BaseStateMsg
+{
+	// Header
+	string frame_id;
+	unsigned long sequence_id;
+	double timestamp;
+
+	string robot_name;
+
+	// Base Pose
+	double position[3];
+	double orientation[4];
+
+	// Base velocity
+	double linear_velocity[3];
+	double angular_velocity[3];
+
+	// Base acceleration
+	double linear_acceleration[3];
+	double angular_acceleration[3];
+
+	// Stance status
+	double stance_status[4];
+};

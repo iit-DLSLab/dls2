@@ -1,0 +1,38 @@
+// Message for aliengo
+struct LegOdometryDebugMsg
+{
+	// Header
+	string frame_id;
+	unsigned long sequence_id;
+	double timestamp;
+
+	//GROUND TRUTH POSE FROM GAZEBO
+	double position_ground_truth[3];
+	double orientation_ground_truth[3];
+
+	//GROUND TRUTH VELOCITY FROM GAZEBO
+	double linear_velocity_ground_truth[3];
+	double angular_velocity_ground_truth[3];
+
+	//LEG ODOMETRY POSE
+	double position_legs[12];
+	double orientation_legs[16];
+	
+	//LEG ODOMETRY VELOCITY
+	double linear_velocity_legs[12];
+	double angular_velocity_legs[12];
+	
+	// MEAN
+	double position_mean[3];
+	double orientation_mean[3];
+	double linear_velocity_mean[3];
+	double angular_velocity_mean[3];
+
+	//ESTIMATION ERROR
+	double position_error[3];
+	double orientation_error[3];
+	double linear_velocity_error[3];
+	double angular_velocity_error[3];
+	double linear_velocity_error_legs[12];
+	double angular_velocity_error_legs[12];
+};

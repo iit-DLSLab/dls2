@@ -1,0 +1,10 @@
+struct ControlSignalMsg
+{
+	// Header
+	string frame_id;
+	unsigned long sequence_id;
+	double timestamp;
+
+	double torques[12];
+	unsigned long long signal_reconstruction_method;
+};

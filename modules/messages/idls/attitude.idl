@@ -1,0 +1,14 @@
+struct AttitudeMsg
+{
+	// Header
+	string frame_id;
+	unsigned long sequence_id;
+	double timestamp;
+
+       double orientation[4];
+       double orient_t265[4];
+
+       double angular_velocity[3];
+       double euler_angles_t265[3];
+       double euler_angles_estimation[3];
+};
