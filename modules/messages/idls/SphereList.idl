@@ -1,0 +1,11 @@
+struct SphereList{
+
+    //sequence<Sphere> s; Fixed in FastDDS 3.0.0
+    sequence<double> x;
+	sequence<double> y;
+	sequence<double> z;
+    sequence<long> category;
+
+
+};
+

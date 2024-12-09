@@ -1,0 +1,17 @@
+struct ControllerCommandMsg
+{
+	// Header
+	string frame_id;
+	unsigned long sequence_id;
+	double timestamp;
+
+	double robot_height;
+    double step_frequency;
+    double duty_factor;
+    double step_height[4];
+
+    double base_position_HF[3];
+	double base_orientation_HF[4]; //x, y, z, w
+	double base_linear_velocity_HF[3];
+	double base_angular_velocity_HF[3];
+};

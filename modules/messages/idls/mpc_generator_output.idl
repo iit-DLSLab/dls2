@@ -1,0 +1,35 @@
+struct MPCGeneratorOutputMsg
+{
+	// Header
+	string frame_id;
+	unsigned long sequence_id;
+	double timestamp;
+
+    // 45 = 3 * 15 where 3 is the base state dimension and 15 is the MPC prediction length
+    // 60 = 4 * 15 where 4 is the quaternion dimension (number of legs for the contacts sequence) and 15 is the MPC prediction length
+    // 180 = 12 * 15 where 12 is the state dimension and 15 is the MPC prediction length
+    // Temporary values until we can use sequence messages for dynamic sizes
+
+	double desired_base_positions[45];
+	double desired_base_orientations[60];
+
+	double desired_base_linear_velocities[45];
+	double desired_base_angular_velocities[45];
+
+	double desired_base_linear_accelerations[45];
+	double desired_base_angular_accelerations[45];
+
+	double desired_joints_positions[180];
+	double desired_joints_velocities[180];
+	double desired_joints_accelerations[180];
+
+	double desired_feet_positions[180];
+	double desired_feet_velocities[180];
+	double desired_feet_accelerations[180];
+
+	double desired_torques[180];
+
+	double desired_contacts_sequence[60];
+
+	double desired_ground_reaction_forces[180];
+};

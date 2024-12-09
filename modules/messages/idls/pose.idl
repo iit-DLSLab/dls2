@@ -1,0 +1,6 @@
+
+struct PoseMsg
+{
+	double position[3];
+	double quaternion[4];
+};

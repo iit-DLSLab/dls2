@@ -201,6 +201,7 @@ namespace dls
 		servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer-logging", dls::domains::logging, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER));
 		servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer-services", dls::domains::services, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER));
 		servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer-estimators", dls::domains::estimators, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER));
+		servers.push_back(std::make_shared<dls::DDSParticipant>("DiscoveryServer-visualization", dls::domains::visualization, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER));
 		// std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 	}
 
@@ -347,6 +348,7 @@ namespace dls
 				if(command_manager.waitCommand(hardware, "activate", should_quit))
 					command_manager.callCommand("activate", {}, hardware);
 			}
+			sleep(1); // if the model is spawned too fast (in gazebo) the simulation breaks
 			if(command_manager.waitCommand(hardware, "loadModel", should_quit))
 				command_manager.callCommand("loadModel", {Options::robot_name}, hardware);
 		}

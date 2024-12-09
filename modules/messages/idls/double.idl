@@ -1,0 +1,10 @@
+
+struct DoubleMsg
+{
+	// Header
+	string frame_id;
+	unsigned long sequence_id;
+	double timestamp;
+
+	double value;
+};

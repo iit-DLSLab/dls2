@@ -1,0 +1,10 @@
+struct Vector3dMsg
+{
+	// Header
+	string frame_id;
+	unsigned long sequence_id;
+	double timestamp;
+
+    // Vector3d
+    double data[3];
+};

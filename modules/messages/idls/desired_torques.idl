@@ -1,0 +1,10 @@
+struct DesiredTorquesMsg
+{
+	// Header
+	string frame_id;
+	unsigned long sequence_id;
+	double timestamp;
+
+	//data
+	double desired_torques[12];
+};

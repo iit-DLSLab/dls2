@@ -1,0 +1,12 @@
+// TODO this is a temporary construct that needs to be made dynamic
+struct ConsoleCommandMsg
+{
+	// Header
+	string frame_id;
+	unsigned long sequence_id;
+	double timestamp;
+
+	string command_name;
+	string docstring;
+	sequence<string> default_completions;
+};

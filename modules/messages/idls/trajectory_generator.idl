@@ -1,0 +1,32 @@
+struct TrajectoryGeneratorMsg
+{
+	// Header
+	string frame_id;
+	unsigned long sequence_id;
+	double timestamp;
+
+	double com_position[3];
+	double com_orientation[4];
+
+	double com_linear_velocity[3];
+	double com_angular_velocity[3];
+
+	double com_linear_acceleration[3];
+	double com_angular_acceleration[3];
+	
+	double joints_position[12];
+    double joints_velocity[12];
+    double joints_acceleration[12];
+    double joints_effort[12];
+
+	double wrench[6];
+
+	boolean stance_legs[4];
+
+	double nominal_touch_down[12];
+    double touch_down[12];
+    double swing_period[4];
+
+	double normal_force_max[4];
+	double normal_force_min[4];
+};
