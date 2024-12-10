@@ -42,6 +42,11 @@ function(dls_add_message msg)
 		PRIVATE
 		${generated_source}
 	)
+	
+	target_include_directories(${LIBRARY_NAME}
+	PUBLIC
+		${CMAKE_CURRENT_BINARY_DIR}/include
+	)
 
 	install(
 		FILES 

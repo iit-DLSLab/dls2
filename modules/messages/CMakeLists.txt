@@ -10,11 +10,6 @@ include(dls_message)          # message generation functions
 add_library(${LIBRARY_NAME} SHARED)
 
 # ================================== Messages =================================
-include(i${LIBRARY_NAME})
-
-target_include_directories(${LIBRARY_NAME}
-	PUBLIC
-		include
-)
+include(idls_messages)
 
 dls_install(${LIBRARY_NAME})
