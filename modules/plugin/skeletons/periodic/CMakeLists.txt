@@ -1,18 +1,6 @@
 cmake_minimum_required(VERSION 3.15)   
 project(${PLUGIN_NAME})
 
-# Copy README.md
-file(	COPY README.md # this is just a copy
-		DESTINATION .
-)
-# Copy githooks
-file(	COPY githooks # this is just a copy
-		DESTINATION .
-)
-# Copy setup.sh
-file(	COPY setup.sh # this is just a copy
-		DESTINATION .
-)
 # Copy version.txt
 file(	COPY version.txt # this is just a copy
 		DESTINATION .
