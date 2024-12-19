@@ -30,6 +30,7 @@
 #include <dls_messages/dds/ArrowListPubSubTypes.h>
 #include <dls_messages/dds/SphereListPubSubTypes.h>
 #include <dls_messages/dds/FrictionConeListPubSubTypes.h>
+#include <dls_messages/dds/GenericRobotPubSubTypes.h>
 
 
 #include "dls2/topics/utils.hpp"
@@ -71,6 +72,8 @@ namespace dls
 		extern dls::topicType sphere_list;
 		extern dls::topicType arrow_list;
 		extern dls::topicType friction_cone_list;
+
+		extern dls::topicType generic_robot;
 
 		// state machine
 		extern dls::topicType state_machine;
