@@ -8,5 +8,7 @@ struct GenericRobot{
     string joints_name;
     char delimiter;
 
+    string robot_name;
+
 };
 
