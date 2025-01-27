@@ -7,7 +7,7 @@
 // =============================================================================
 #include <mutex>
 
-#include <dls_messages/dds/pose.h>
+#include <dls_messages/dds/pose.hpp>
 
 #include <Eigen/Dense>
 

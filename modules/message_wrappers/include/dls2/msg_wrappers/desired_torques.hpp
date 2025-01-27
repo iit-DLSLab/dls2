@@ -3,7 +3,7 @@
 #define DESIRED_TORQUES_SIGNAL_HPP
 
 #include "dls2/msg_wrappers/wrapper.hpp"
-#include "dls_messages/dds/desired_torques.h"
+#include "dls_messages/dds/desired_torques.hpp"
 #include "robotlib/robot_base.hpp"
 
 namespace dls

@@ -14,6 +14,6 @@ target_include_directories(dds_ros_communication_main
 target_link_libraries(dds_ros_communication_main
 	PRIVATE
 		dls_messages
-		fastrtps
+		fastdds
 		fastcdr
 )

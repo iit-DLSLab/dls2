@@ -486,11 +486,11 @@ To create a topic
 
   becames
 
-      #include "dls_messages/dds/stance_statusPubSubTypes.h"
+      #include "dls_messages/dds/stance_statusPubSubTypes.hpp"
 
   If your module instead needs to create another topic from a off-the-shelf message, you can include it, for example, in this way
 
-      #include "dls_messages/dds/control_signalPubSubTypes.h"
+      #include "dls_messages/dds/control_signalPubSubTypes.hpp"
   where *control_signal* is the name of the idl file of the control signal message.
 * in topics.cpp, define the topic. For example
 

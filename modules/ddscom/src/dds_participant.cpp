@@ -1,17 +1,17 @@
-#ifndef DDSPARTICIPANT_CPP
-#define DDSPARTICIPANT_CPP
-
 #include "dls2/util/messaging/dds_participant.hpp"
-#include <fastrtps/xmlparser/XMLProfileManager.h>
-#include <fastrtps/types/TypeObjectFactory.h>
 
-#include <fastdds/rtps/transport/UDPv4TransportDescriptor.h>
+#include <fastdds/dds/xtypes/dynamic_types/DynamicType.hpp>
+#include <fastdds/dds/xtypes/dynamic_types/DynamicDataFactory.hpp>
+#include <fastdds/dds/xtypes/dynamic_types/DynamicTypeBuilder.hpp>
+#include <fastdds/dds/xtypes/dynamic_types/DynamicTypeBuilderFactory.hpp>
+
+#include <fastdds/rtps/transport/UDPv4TransportDescriptor.hpp>
 
 /// \cond doxygen_namespace_dls
 namespace dls
 {
 
-	DDSParticipant::DDSParticipant(std::string partName_, dls::domainType domain_, eprosima::fastrtps::rtps::DiscoveryProtocol_t part_type, bool tupelookup_server)
+	DDSParticipant::DDSParticipant(std::string partName_, dls::domainType domain_, eprosima::fastdds::rtps::DiscoveryProtocol part_type)
     	: participant(nullptr)
         , publisher(nullptr)
         , subscriber(nullptr)
@@ -20,50 +20,38 @@ namespace dls
 	{
 		eprosima::fastdds::dds::DomainParticipantQos participantQos;
 		participantQos.wire_protocol().builtin.mutation_tries = 250u; //limit discoverable data readers/writers (default is 100u)
-		if (tupelookup_server)
-		{
-			participantQos.wire_protocol().builtin.typelookup_config.use_server = true;
-		}
-		else
-		{
-			participantQos.wire_protocol().builtin.typelookup_config.use_client = true;
-		}
+		participantQos.properties().properties().emplace_back("fastdds.type_propagation","enabled"); // it is enabled by default
 
 		// Get server info from the yaml file
 		server_ip = config[domain_]["ip"].as<std::string>();
 		server_port = config[domain_]["port"].as<double>();
-		server_guid_prefix = config[domain_]["guid_prefix"].as<std::string>();
 
 		// Define server locator
-		eprosima::fastrtps::rtps::Locator_t server_locator;
-		eprosima::fastrtps::rtps::IPLocator::setIPv4(server_locator, server_ip);
-		eprosima::fastrtps::rtps::IPLocator::setPhysicalPort(server_locator, server_port);
+		eprosima::fastdds::rtps::Locator_t server_locator;
+		eprosima::fastdds::rtps::IPLocator::setIPv4(server_locator, server_ip);
+		server_locator.port = server_port;
 		server_locator.kind = LOCATOR_KIND_UDPv4;
 
-		// participantQos.wire_protocol().builtin.discovery_config.discoveryProtocol = eprosima::fastrtps::rtps::DiscoveryProtocol_t::SIMPLE;
+		// participantQos.wire_protocol().builtin.discovery_config.discoveryProtocol = eprosima::fastdds::rtps::DiscoveryProtocol::SIMPLE;
 		// Set participant QoS depending on if it is a CLIENT, a SERVER or a SUPER CLIENT
 		participantQos.wire_protocol().builtin.discovery_config.discoveryProtocol = part_type;
-		if(	part_type == eprosima::fastrtps::rtps::DiscoveryProtocol_t::CLIENT ||
-			part_type == eprosima::fastrtps::rtps::DiscoveryProtocol_t::SUPER_CLIENT) // -- Configure the participant as CLIENT or SUPER_CLIENT
+		if(	part_type == eprosima::fastdds::rtps::DiscoveryProtocol::CLIENT ||
+			part_type == eprosima::fastdds::rtps::DiscoveryProtocol::SUPER_CLIENT) // -- Configure the participant as CLIENT or SUPER_CLIENT
 		{
-			// -- Add the server locator in the metatraffic unicast locator list of the remote server attributes
-			eprosima::fastrtps::rtps::RemoteServerAttributes remote_server_attr;
-			remote_server_attr.metatrafficUnicastLocatorList.push_back(server_locator);
-			// -- Set the GUID prefix to identify the server
-			remote_server_attr.ReadguidPrefix(server_guid_prefix.c_str());
 			// -- Connect to the remote server
-			participantQos.wire_protocol().builtin.discovery_config.m_DiscoveryServers.push_back(remote_server_attr);
+			participantQos.wire_protocol().builtin.discovery_config.m_DiscoveryServers.push_back(server_locator);
 		}
-		else if (part_type == eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER) // -- Configure the participant as SERVER
+		else if (part_type == eprosima::fastdds::rtps::DiscoveryProtocol::SERVER) // -- Configure the participant as SERVER
 		{
 			// -- Add the server locator to the metatraffic uncast locator list
 			participantQos.wire_protocol().builtin.metatrafficUnicastLocatorList.push_back(server_locator);
-			// -- Set the GUID prefix to identify this server
-    		std::istringstream(server_guid_prefix) >> participantQos.wire_protocol().prefix;
 		}
 
-		participantQos.wire_protocol().builtin.discovery_config.leaseDuration = eprosima::fastrtps::Duration_t(3, 1);
-        participantQos.wire_protocol().builtin.discovery_config.leaseDuration_announcementperiod = eprosima::fastrtps::Duration_t(1, 2);
+		// participantQos.wire_protocol().builtin.discovery_config.initial_announcements.count = 0;
+		// participantQos.wire_protocol().builtin.discovery_config.initial_announcements.period = Duration_t(0, 100000000u);
+		
+		participantQos.wire_protocol().builtin.discovery_config.leaseDuration = eprosima::fastdds::dds::Duration_t(3, 1);
+        participantQos.wire_protocol().builtin.discovery_config.leaseDuration_announcementperiod = eprosima::fastdds::dds::Duration_t(1, 2);
 		participantQos.name(partName_);
 
 		participant_name = partName_;
@@ -143,11 +131,11 @@ namespace dls
 
 
 		// delete all data writers and data readers
-		if (this->publisher->delete_contained_entities() != ReturnCode_t::RETCODE_OK)
+		if (this->publisher->delete_contained_entities() !=eprosima::fastdds::dds::RETCODE_OK)
 		{
 			std::cout << "CANNOT DELETE PUBLISHER CONTAINED ENTITIES FOR THE PARTICIPANT " << participant_name << std::endl;
 		}
-		if (this->subscriber->delete_contained_entities() != ReturnCode_t::RETCODE_OK)
+		if (this->subscriber->delete_contained_entities() !=eprosima::fastdds::dds::RETCODE_OK)
 		{
 			std::cout << "CANNOT DELETE SUBSCRIBER CONTAINED ENTITIES FOR THE PARTICIPANT " << participant_name << std::endl;
 		}
@@ -155,7 +143,7 @@ namespace dls
 		// delete publisher
 		if (this->publisher != nullptr)
 		{
-			if (this->participant->delete_publisher(this->publisher) != ReturnCode_t::RETCODE_OK)
+			if (this->participant->delete_publisher(this->publisher) !=eprosima::fastdds::dds::RETCODE_OK)
 			{
 				std::cout << "CANNOT DELETE PUBLISHER OF THE PARTICIPANT " << participant_name << std::endl;
 			}
@@ -164,7 +152,7 @@ namespace dls
 		// delete subscriber
 		if (this->subscriber != nullptr)
 		{
-			if (this->participant->delete_subscriber(this->subscriber) != ReturnCode_t::RETCODE_OK)
+			if (this->participant->delete_subscriber(this->subscriber) !=eprosima::fastdds::dds::RETCODE_OK)
 			{
 				std::cout << "CANNOT DELETE SUBSCRIBER OF THE PARTICIPANT " << participant_name << std::endl;
 			}
@@ -174,7 +162,7 @@ namespace dls
 		{
 			if (elem.second != nullptr)
 			{
-				if(this->participant->delete_topic(elem.second) != ReturnCode_t::RETCODE_OK)
+				if(this->participant->delete_topic(elem.second) !=eprosima::fastdds::dds::RETCODE_OK)
 				{
 					std::cout << "CANNOT REMOVE TOPIC " << elem.first << " OF THE PARTICIPANT " << participant_name << std::endl;
 				}
@@ -263,9 +251,9 @@ namespace dls
 			return false;
 		}
 
-		ReturnCode_t result (this->publisher->delete_datawriter(writer));
+		eprosima::fastdds::dds::ReturnCode_t result (this->publisher->delete_datawriter(writer));
 
-		if(result == ReturnCode_t::RETCODE_ERROR)
+		if(result ==eprosima::fastdds::dds::RETCODE_ERROR)
 		{
 			std::cout <<  "RETCODE_ERROR ERROR WHEN REMOVING THE WRITER " << writer_name << std::endl;
 		}
@@ -309,45 +297,6 @@ namespace dls
 		return reader;
 	}
 
-	eprosima::fastdds::dds::DataReader* DDSParticipant::addReader(
-		std::string readerName_,
-		std::string topicName,
-		std::function<void(void *)> callback_,
-		eprosima::fastdds::dds::DataReaderQos qos)
-	{
-		if(this->readers.find(readerName_) != this->readers.end())
-		{
-			std::cout << "THE READER " << readerName_ << " ALREADY EXISTS, YOU ARE TRYING TO CREATE TWICE" << std::endl;
-			return this->readers.find(readerName_)->second;
-		}
-
-
-		auto topic = this->addTopic(topicName);
-
-		// error could not add topic
-		if (topic == nullptr){
-			return nullptr;
-
-		}
-
-
-		std::shared_ptr<dls::DDSSubListener> listener = std::make_shared<DDSSubListener>(callback_);
-
-		auto reader = this->subscriber->create_datareader(
-			topic,
-			qos,
-			listener.get());
-
-		if (reader != nullptr)
-		{
-
-			this->readers.insert({readerName_, reader});
-			this->subListeners.insert({readerName_, listener});
-		}
-
-		return reader;
-	}
-
 	eprosima::fastdds::dds::Topic * DDSParticipant::getTopicFromString(const std::string& topic_name){
 
 		eprosima::fastdds::dds::Topic * found_topic = this->topics.find(topic_name)->second;
@@ -358,7 +307,7 @@ namespace dls
 
 	std::string DDSParticipant::getTypeNameFromTopic(const std::string& topic_name)
 	{
-		std::string type_name = discovery_database[topic_name];
+		std::string type_name = discovery_database[topic_name].get_type_name();
 
 		return type_name;
 	}
@@ -385,9 +334,9 @@ namespace dls
 			return false;
 		}
 
-		ReturnCode_t result (this->subscriber->delete_datareader(reader));
+		eprosima::fastdds::dds::ReturnCode_t result (this->subscriber->delete_datareader(reader));
 
-		if(result == ReturnCode_t::RETCODE_ERROR)
+		if(result ==eprosima::fastdds::dds::RETCODE_ERROR)
 		{
 			std::cout <<  "RETCODE_ERROR ERROR WHEN REMOVING THE READER " << reader_name << std::endl;
 		}
@@ -410,8 +359,6 @@ namespace dls
 
 		if(!this->participant->find_type(topicData_.second.get_type_name()))
 		{
-			topicData_.second->auto_fill_type_information(false);
-			topicData_.second->auto_fill_type_object(true);
 			this->participant->register_type(topicData_.second);
 		}
 		auto topic = this->participant->create_topic(
@@ -427,40 +374,28 @@ namespace dls
 		return topic;
 	}
 
-	eprosima::fastdds::dds::Topic *DDSParticipant::addTopic(std::string topicName)
+	eprosima::fastdds::dds::Topic *DDSParticipant::addTopicFromDatabase(std::string topicName)
 	{
 		if(!this->participant){
 			return nullptr;
 
 		}
 
+		// check if topic was already added
 		auto search = this->topics.find(topicName);
-
 		if(search != topics.end()){
 			return search->second;
 		}
 
-		std::string type_name = discovery_database[topicName];//has to be there as this is called after testing if the topic has been found
-
-		if(!this->participant->find_type(topicName))
+		// check if topic was discovered
+		if(discovery_database.find(topicName) == discovery_database.end())
 		{
-			// Registering the type in the factory
-			auto type_obj = this->participant->find_type(type_name);
-			type_obj->auto_fill_type_information(false);
-			type_obj->auto_fill_type_object(true);
-			this->participant->register_type(type_obj);
+			std::cout << "THE TOPIC " << topicName << " IS NOT DISCOVERED."<< this->getName() <<".addTopicFromDatabase(topicName) function is returning nullptr." << std::endl;
+			return nullptr;
 		}
 
-
-		auto topic = this->participant->create_topic(
-			topicName,
-			type_name,
-			eprosima::fastdds::dds::TOPIC_QOS_DEFAULT);
-
-		if(topic == nullptr)
-			throw std::runtime_error("Error: could not create publisher topic");
-
-		this->topics.insert({topicName, topic});
+		// the topic was discovered, so it is stored its type support. The topic can be created
+		auto topic = this->addTopic(dls::topicType(topicName, discovery_database[topicName]));
 
 		return topic;
 	}
@@ -473,6 +408,16 @@ namespace dls
 		return topicList;
 	}
 
+	std::unordered_map<std::string, eprosima::fastdds::dds::TypeSupport> DDSParticipant::get_discovery_database()
+	{
+		return discovery_database;
+	}
+
+	std::unordered_map<std::string, eprosima::fastdds::dds::DynamicType::_ref_type> DDSParticipant::get_discovery_database_dyn_types()
+	{
+		return discovery_database_dyn_types;
+	}
+
 	std::vector<std::string> DDSParticipant::getParticipants()
 	{
 		if(!this->participant)
@@ -481,7 +426,7 @@ namespace dls
 		return this->participant->get_participant_names();
 	}
 
-	std::multimap<std::string, eprosima::fastrtps::rtps::GUID_t> DDSParticipant::getDiscoveredParticipantsInfo()
+	std::multimap<std::string, eprosima::fastdds::rtps::GUID_t> DDSParticipant::getDiscoveredParticipantsInfo()
 	{
 		return this->discovered_participants_info;
 	}
@@ -500,130 +445,86 @@ namespace dls
 
 	void DDSParticipant::on_participant_discovery(
             eprosima::fastdds::dds::DomainParticipant* participant,
-            eprosima::fastrtps::rtps::ParticipantDiscoveryInfo&& info)
+            eprosima::fastdds::rtps::ParticipantDiscoveryStatus status,
+            const eprosima::fastdds::dds::ParticipantBuiltinTopicData& info,
+            bool& should_be_ignored)
 	{
+		should_be_ignored = false;
 		static_cast<void>(participant);
-		if (info.status == eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DISCOVERY_STATUS::DISCOVERED_PARTICIPANT)
+		if (status == eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT)
 		{
-			// std::cout << this->participant->get_qos().name() <<": New participant discovered: " << info.info.m_participantName << ", current num. disc. DPs: " << discovered_participants_info.size()<< std::endl;
-			discovered_participants_info.insert({static_cast<std::string>(info.info.m_participantName), info.info.m_guid});
-			// std::cout << " Discovered a new participant:" << static_cast<std::string>(info.info.m_participantName) << std::endl;
-
+			// std::cout << this->participant->get_qos().name() <<": New participant discovered: " << info.participant_name << ", current num. disc. DPs: " << discovered_participants_info.size()<< std::endl;
+			discovered_participants_info.insert({static_cast<std::string>(info.participant_name), info.guid});
 		}
-		else if (info.status == eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DISCOVERY_STATUS::DROPPED_PARTICIPANT)
+		else if (status == eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DROPPED_PARTICIPANT)
 		{
-			// std::cout << this->participant->get_qos().name() <<": Participant is dropped: " << info.info.m_participantName << std::endl;
-			discovered_participants_info.erase(static_cast<std::string>(info.info.m_participantName));
+			// std::cout << this->participant->get_qos().name() <<": Participant is dropped: " << info.participant_name << std::endl;
+			discovered_participants_info.erase(static_cast<std::string>(info.participant_name));
 		}
-		else if (info.status == eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DISCOVERY_STATUS::REMOVED_PARTICIPANT)
+		else if (status == eprosima::fastdds::rtps::ParticipantDiscoveryStatus::REMOVED_PARTICIPANT)
 		{
-			// std::cout << this->participant->get_qos().name() <<": Participant is removed: " << info.info.m_participantName << std::endl;
-			discovered_participants_info.erase(static_cast<std::string>(info.info.m_participantName));
+			// std::cout << this->participant->get_qos().name() <<": Participant is removed: " << info.participant_name << std::endl;
+			discovered_participants_info.erase(static_cast<std::string>(info.participant_name));
 		}
 	}
 
-	void DDSParticipant::on_publisher_discovery(
-        eprosima::fastdds::dds::DomainParticipant* participant,
-        eprosima::fastrtps::rtps::WriterDiscoveryInfo&& info)
+	void DDSParticipant::on_data_writer_discovery(
+			eprosima::fastdds::dds::DomainParticipant* participant,
+			eprosima::fastdds::rtps::WriterDiscoveryStatus status,
+			const eprosima::fastdds::dds::PublicationBuiltinTopicData& info,
+			bool& should_be_ignored)
 	{
+		should_be_ignored = false;
+
 		// warning suppress
 		(void)participant;
 
-		// Only set as new topic discovered if it is ALIVE
-		if (info.status == eprosima::fastrtps::rtps::WriterDiscoveryInfo::DISCOVERY_STATUS::DISCOVERED_WRITER)
+		// For any new discovered topic, its type support is dynamically created and stored
+		if (status == eprosima::fastdds::rtps::WriterDiscoveryStatus::DISCOVERED_WRITER &&
+			discovery_database.find(info.topic_name.to_string()) == discovery_database.end())
 		{
-			// Get Topic of DataWriter discovered and set it as discovered
-			std::string topic_name = info.info.topicName().to_string();
-			std::string type_name = info.info.typeName().to_string();
+			// Get remote type information
+			eprosima::fastdds::dds::xtypes::TypeObject remote_type_object;
+			if (eprosima::fastdds::dds::RETCODE_OK != eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->type_object_registry().get_type_object(
+						info.type_information.type_information.complete().typeid_with_size().type_id(),
+						remote_type_object))
+			{
+				std::cout << "Cannot get the remote type information" << std::endl;
+				return;
+			}
 
-			// Set Topic as discovered. If it is not new nothing happen
-			// if(DDSParticipant::is_type_registered_in_participant_(type_name))
-			on_topic_discovery_(topic_name, type_name);
+			// Reconstruct the remote type
+			eprosima::fastdds::dds::DynamicType::_ref_type remote_type = eprosima::fastdds::dds::DynamicTypeBuilderFactory::get_instance()->create_type_w_type_object(
+				remote_type_object)->build();
+			eprosima::fastdds::dds::TypeSupport dyn_type_support(new eprosima::fastdds::dds::DynamicPubSubType(remote_type));
+
+			// Save the type support in the discovery database
+			discovery_database[info.topic_name.to_string()] = dyn_type_support;
+			discovery_database_dyn_types[info.topic_name.to_string()] = remote_type;
 		}
 	}
 
-	void DDSParticipant::on_subscriber_discovery(
-                eprosima::fastdds::dds::DomainParticipant* participant,
-                eprosima::fastrtps::rtps::ReaderDiscoveryInfo&& info){
-
+	void DDSParticipant::on_data_reader_discovery(
+            eprosima::fastdds::dds::DomainParticipant* participant,
+            eprosima::fastdds::rtps::ReaderDiscoveryStatus status,
+            const eprosima::fastdds::dds::SubscriptionBuiltinTopicData& info,
+            bool& should_be_ignored)
+	{
+		should_be_ignored = false;
 		// warning suppress
 		(void)participant;
 				// Only set as new topic discovered if it is ALIVE
-		if (info.status == eprosima::fastrtps::rtps::ReaderDiscoveryInfo::DISCOVERY_STATUS::DISCOVERED_READER)
+		if (status == eprosima::fastdds::rtps::ReaderDiscoveryStatus::DISCOVERED_READER)
 		{
 			// Get Topic of DataReader discovered and set it as discovered
-			std::string topic_name = info.info.topicName().to_string();
-			std::string type_name = info.info.typeName().to_string();
+			std::string topic_name = info.topic_name.to_string();
+			std::string type_name = info.type_name.to_string();
 
 			// Set Topic as discovered. If it is not new nothing happen
-			if(DDSParticipant::is_type_registered_in_participant_(type_name))
-				on_topic_discovery_(topic_name, type_name);
+			// if(DDSParticipant::is_type_registered_in_participant_(type_name))
+				// on_topic_discovery_(topic_name, type_name);
 		}
 
-	}
-
-
-	void DDSParticipant::on_type_information_received(
-        eprosima::fastdds::dds::DomainParticipant*,
-        const eprosima::fastrtps::string_255 topic_name,
-        const eprosima::fastrtps::string_255 type_name,
-        const eprosima::fastrtps::types::TypeInformation& type_information)
-	{
-		if(!this->participant)
-			return;
-
-		// Prepare callback that will be executed after registering type
-		std::function<void(const std::string&, const eprosima::fastrtps::types::DynamicType_ptr)> callback(
-			[this, topic_name]
-				(const std::string&, const eprosima::fastrtps::types::DynamicType_ptr type)
-			{
-				this->on_topic_discovery_(topic_name.to_string(), type->get_name());
-			});
-
-		if(DDSParticipant::is_type_registered_in_participant_(type_name.to_string()))
-			return;
-
-		// Registering type and creating reader
-		this->participant->register_remote_type(
-			type_information,
-			type_name.to_string(),
-			callback);
-	}
-
-	void DDSParticipant::on_type_discovery(
-			eprosima::fastdds::dds::DomainParticipant* participant,
-			const eprosima::fastrtps::rtps::SampleIdentity& request_sample_id,
-			const eprosima::fastrtps::string_255& topic,
-			const eprosima::fastrtps::types::TypeIdentifier* identifier,
-			const eprosima::fastrtps::types::TypeObject* object,
-			eprosima::fastrtps::types::DynamicType_ptr dyn_type)
-	{
-		static_cast<void>(participant); // remove compilation warnings
-		static_cast<void>(request_sample_id); // remove compilation warnings
-		static_cast<void>(identifier); // remove compilation warnings
-		static_cast<void>(object); // remove compilation warnings
-		// Create TypeSupport and register it
-		eprosima::fastdds::dds::TypeSupport(
-			new eprosima::fastrtps::types::DynamicPubSubType(dyn_type)).register_type(participant);
-
-		// In case this callback is sent, it means that the type is already registered, so notify
-		// TODO in future it would be better to update every topic in this type name, and not just the one calling here
-		on_topic_discovery_(topic.to_string(), dyn_type->get_name());
-	}
-
-	void DDSParticipant::on_topic_discovery_(const std::string& topic_name, const std::string& type_name)
-	{
-		// Check if this topic has already been discovered
-		if (discovery_database.find(topic_name) != discovery_database.end())
-			return;
-
-		discovery_database[topic_name] = type_name;
-
-		// Call listener callback to notify new topic
-		if (this->topicListener)
-		{
-			this->topicListener->on_topic_discovery(topic_name, type_name);
-		}
 	}
 
 	void DDSParticipant::setTopicListener(dls::DDSPartListener *listener_)
@@ -631,95 +532,7 @@ namespace dls
 		this->topicListener = listener_;
 	}
 
-
-	bool DDSParticipant::is_type_registered_in_participant_(const std::string& type_name)
-	{
-
-		if (!this->participant)
-			return false;
-
-		if (this->participant->find_type(type_name))
-			return true;
-
-		// It may happen that type is registered in XML and not in Participant
-		// If so, register it in Participant
-		if (is_type_registered_in_xml_(type_name))
-		{
-			// Create TypeSupport and register it
-			eprosima::fastdds::dds::TypeSupport(
-				new eprosima::fastrtps::types::DynamicPubSubType(
-					get_type_registered_(type_name))).register_type(this->participant);
-			return true;
-		}
-
-		// It could also be in TypeObjectFactory because it has been registered by other Participant (a previous one)
-		// and still be stored in the singleton
-		if (is_type_registered_in_factory_(type_name))
-		{
-			// Create TypeSupport and register it
-			eprosima::fastdds::dds::TypeSupport(
-				new eprosima::fastrtps::types::DynamicPubSubType(
-					get_type_registered_(type_name))).register_type(this->participant);
-			return true;
-		}
-
-		return false;
-	}
-
-	bool DDSParticipant::is_type_registered_in_xml_(
-			const std::string& type_name)
-	{
-		return nullptr != eprosima::fastrtps::xmlparser::XMLProfileManager::getDynamicTypeByName(type_name);
-	}
-
-	bool DDSParticipant::is_type_registered_in_factory_(
-			const std::string& type_name)
-	{
-		return nullptr !=  eprosima::fastrtps::types::TypeObjectFactory::get_instance()->get_type_object(type_name, true);
-	}
-
-	eprosima::fastrtps::types::DynamicType_ptr DDSParticipant::get_type_registered_(
-        const std::string& type_name)
-	{
-		// Get DynamicType builder
-		auto builder = eprosima::fastrtps::xmlparser::XMLProfileManager::getDynamicTypeByName(type_name);
-
-		// If not builder associated, the type does not exist
-		if (!builder)
-		{
-			// Check if it could be generated
-			// This case is when it has not been registered by XML
-			auto type_object =
-					eprosima::fastrtps::types::TypeObjectFactory::get_instance()->get_type_object(type_name,
-							true);
-			if (!type_object)
-			{
-				throw std::runtime_error("Dynamic type not registered");
-			}
-
-			auto type_id =
-					eprosima::fastrtps::types::TypeObjectFactory::get_instance()->get_type_identifier(type_name,
-							true);
-			if (!type_id)
-			{
-				throw std::runtime_error("Dynamic type not registered");
-			}
-
-			auto dyn_type = eprosima::fastrtps::types::TypeObjectFactory::get_instance()->build_dynamic_type(type_name,
-							type_id,
-							type_object);
-
-			return dyn_type;
-		}
-		else
-		{
-			return builder->build();
-		}
-	}
-
 	std::string DDSParticipant::getName() const{
 		return participant_name;
 	}
 } // namespace dls
-
-#endif /* end of include guard: DDSPARTICIPANT_CPP */

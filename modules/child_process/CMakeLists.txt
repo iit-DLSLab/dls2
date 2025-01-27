@@ -15,7 +15,7 @@ target_link_libraries(child_process_launcher
 		urdf
 		dls_framework
 		fastcdr
-		fastrtps
+		fastdds
 		periodic_app_plugin
 		app_plugin		
 )

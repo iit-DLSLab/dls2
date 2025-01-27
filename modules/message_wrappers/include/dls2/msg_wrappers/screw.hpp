@@ -2,7 +2,7 @@
 #ifndef SCREW_HPP_O9FQ1FIE
 #define SCREW_HPP_O9FQ1FIE
 
-#include <dls_messages/dds/screw.h>
+#include <dls_messages/dds/screw.hpp>
 #include <Eigen/Dense>
 
 /// Wrapper class for screw messages

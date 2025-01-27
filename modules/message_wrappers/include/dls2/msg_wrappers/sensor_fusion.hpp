@@ -2,7 +2,7 @@
 #define SENSOR_FUSION_HPP
 
 #include "dls2/msg_wrappers/wrapper.hpp"
-#include "dls_messages/dds/sensor_fusion.h"
+#include "dls_messages/dds/sensor_fusion.hpp"
 #include <Eigen/Dense>
 
 namespace dls

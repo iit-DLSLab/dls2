@@ -3,7 +3,7 @@
 #define LEG_ODOMETRY_DEBUG_HPP
 
 #include "dls2/msg_wrappers/wrapper.hpp"
-#include "dls_messages/dds/leg_odometry_debug.h"
+#include "dls_messages/dds/leg_odometry_debug.hpp"
 #include "robotlib/robot_base.hpp"
 
 namespace dls

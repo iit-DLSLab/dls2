@@ -58,48 +58,42 @@ int main(int argc, char** argv){
 		return EXIT_FAILURE;
 	}
 
-	dls::DDSReader sub("ddstopic",
-						domain,
-						eprosima::fastrtps::rtps::DiscoveryProtocol_t::SUPER_CLIENT);
+    dls::DDSParticipant participant("ddstopic", domain, eprosima::fastdds::rtps::DiscoveryProtocol::SUPER_CLIENT);
 
 	if(command == "list"){
+		std::vector<std::string> topicList = participant.getDiscoveredTopics();
+		for(auto& topic: topicList){
+			std::cout << "\t" << topic << std::endl;
+		}
 
-		sub.printDiscoveredTopics();
-
-	}else if(command == "participants"){
-
-		sub.printParticipants();
-
-	}else if(command == "hz"){
-
-
-
+	}
+	else if(command == "participants"){
+		auto participant_vect  = participant.getParticipants();
+		for(auto &t: participant_vect){
+			std::cout << "\t" << t << std::endl;
+		}
+	}
+	else if(command == "hz"){
 		const std::string topic_name = argv[2];
 
-		bool ret = sub.run(
-					topic_name,
-					std::function<void(void *)>
-					{
-						[&](void *tuple)
-						{
-							std::lock_guard<std::mutex> lock(status_mutex);
-							std::chrono::system_clock::time_point now = std::chrono::high_resolution_clock::now();
-							double diff = std::chrono::duration<double>(now-last).count();
-							last = now;
-							if(times.size()==window_size)
+		participant.addReader(topic_name+"_reader",
+							dls::topicType(topic_name, participant.get_discovery_database()[topic_name]),
+							std::function<void(void *)>
 							{
-								times.erase(times.begin());
-							}
-							times.push_back(diff);
-							msg = tuple;
-						}
-					}
-				);
-
-		if(ret == false){
-			std::cout << "Exiting ..." << std::endl;
-			return EXIT_FAILURE;
-		}
+								[&](void *tuple)
+								{
+									std::lock_guard<std::mutex> lock(status_mutex);
+									std::chrono::system_clock::time_point now = std::chrono::high_resolution_clock::now();
+									double diff = std::chrono::duration<double>(now-last).count();
+									last = now;
+									if(times.size()==window_size)
+									{
+										times.erase(times.begin());
+									}
+									times.push_back(diff);
+									msg = tuple;
+								}
+							});
 
 		//Loop that calculates the frequency, use CTRL + C to cancel
 		while(!stop)

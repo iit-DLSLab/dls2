@@ -9,7 +9,7 @@ namespace dls
 {
 	Supervisor::Supervisor(std::string ID)
     : Layer(ID, 500)
-    , ddspart_layers(ID, dls::domains::layers, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SUPER_CLIENT)
+    , ddspart_layers(ID, dls::domains::layers, eprosima::fastdds::rtps::DiscoveryProtocol::SUPER_CLIENT)
     , state_machine_watcher(ID+"_state_machine_watcher")
 	{        
        	command_manager.addCommand<>

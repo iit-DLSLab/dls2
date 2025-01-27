@@ -4,7 +4,7 @@
 # 	LINK
 # 		dls_command
 # 		dls_framework
-# 		fastrtps
+# 		fastdds
 # 		fastcdr
 # 		catch2
 # )

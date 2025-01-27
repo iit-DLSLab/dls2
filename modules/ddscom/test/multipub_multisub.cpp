@@ -55,7 +55,7 @@ int main(int /*argc*/, char ** /*argv*/)
 	std::cout << "Constructing " << COUNT_OF_SUBSCRIBERS << " subscribers and "
 	          << COUNT_OF_PUBLISHERS << " publishers" << std::endl;
 
-	dls::DDSParticipant server("test_server", 0, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER);
+	dls::DDSParticipant server("test_server", 0, eprosima::fastdds::rtps::DiscoveryProtocol::SERVER);
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 
 	std::vector<std::unique_ptr<dls::DDSWriter>> 		publishers;

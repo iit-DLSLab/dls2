@@ -3,7 +3,7 @@
 #define VICON_HPP
 
 #include "dls2/msg_wrappers/wrapper.hpp"
-#include "dls_messages/dds/vicon.h"
+#include "dls_messages/dds/vicon.hpp"
 #include <Eigen/Dense>
 
 namespace dls

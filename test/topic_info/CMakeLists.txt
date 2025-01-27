@@ -18,7 +18,7 @@ add_executable(ddstopic
 target_link_libraries(ddstopic
 	dls_framework
 	dls_messages
-	fastrtps
+	fastdds
 	fastcdr
 )
 dls_install(ddstopic)

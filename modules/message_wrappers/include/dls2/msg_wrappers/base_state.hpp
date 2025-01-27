@@ -3,7 +3,7 @@
 #define BASE_STATE_HPP
 
 #include "dls2/msg_wrappers/wrapper.hpp"
-#include "dls_messages/dds/base_state.h"
+#include "dls_messages/dds/base_state.hpp"
 #include "dls2/msg_wrappers/pose.hpp"
 #include "dls2/msg_wrappers/screw.hpp"
 #include "robotlib/robot_base.hpp"

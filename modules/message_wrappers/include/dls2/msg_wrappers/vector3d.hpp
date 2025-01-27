@@ -3,7 +3,7 @@
 #define VECTOR_THREE_DIM_HPP
 
 #include "dls2/msg_wrappers/wrapper.hpp"
-#include "dls_messages/dds/vector3d.h"
+#include "dls_messages/dds/vector3d.hpp"
 #include <Eigen/Dense>
 
 namespace dls

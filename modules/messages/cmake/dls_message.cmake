@@ -12,15 +12,15 @@
 function(dls_add_message msg)
 
 	set(generated_source
-		"${CMAKE_CURRENT_BINARY_DIR}/include/dls_messages/dds/${msg}.cxx"
 		"${CMAKE_CURRENT_BINARY_DIR}/include/dls_messages/dds/${msg}PubSubTypes.cxx"
-		"${CMAKE_CURRENT_BINARY_DIR}/include/dls_messages/dds/${msg}TypeObject.cxx"
+		"${CMAKE_CURRENT_BINARY_DIR}/include/dls_messages/dds/${msg}TypeObjectSupport.cxx"
 	)
 	set(generated_headers
-		"${CMAKE_CURRENT_BINARY_DIR}/include/dls_messages/dds/${msg}.h"
-		"${CMAKE_CURRENT_BINARY_DIR}/include/dls_messages/dds/${msg}PubSubTypes.h"
-		"${CMAKE_CURRENT_BINARY_DIR}/include/dls_messages/dds/${msg}TypeObject.h"
+		"${CMAKE_CURRENT_BINARY_DIR}/include/dls_messages/dds/${msg}.hpp"
+		"${CMAKE_CURRENT_BINARY_DIR}/include/dls_messages/dds/${msg}PubSubTypes.hpp"
+		"${CMAKE_CURRENT_BINARY_DIR}/include/dls_messages/dds/${msg}TypeObjectSupport.hpp"
 	)
+
 
 	# use fastddsgen to generate the message source and header files
 	add_custom_command(
@@ -30,7 +30,7 @@ function(dls_add_message msg)
 		COMMAND
 			[ -d ${CMAKE_CURRENT_BINARY_DIR}/include/dls_messages/dds ] || mkdir --parents ${CMAKE_CURRENT_BINARY_DIR}/include/dls_messages/dds
 		COMMAND
-			fastddsgen -typeobject -replace ${CMAKE_CURRENT_SOURCE_DIR}/idls/${msg}.idl -d ${CMAKE_CURRENT_BINARY_DIR}/include/dls_messages/dds
+			fastddsgen -replace ${CMAKE_CURRENT_SOURCE_DIR}/idls/${msg}.idl -d ${CMAKE_CURRENT_BINARY_DIR}/include/dls_messages/dds
 		COMMENT
 			"Generating message files for ${msg}.idl"
 		DEPENDS

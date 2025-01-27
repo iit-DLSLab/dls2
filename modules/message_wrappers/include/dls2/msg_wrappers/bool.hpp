@@ -3,7 +3,7 @@
 #define BOOL_HPP
 
 #include "dls2/msg_wrappers/wrapper.hpp"
-#include "dls_messages/dds/bool.h"
+#include "dls_messages/dds/bool.hpp"
 
 namespace dls
 {

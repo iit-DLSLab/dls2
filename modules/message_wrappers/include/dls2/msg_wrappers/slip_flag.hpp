@@ -3,7 +3,7 @@
 #define SLIP_FLAG_HPP
 
 #include "dls2/msg_wrappers/wrapper.hpp"
-#include "dls_messages/dds/slip_flag.h"
+#include "dls_messages/dds/slip_flag.hpp"
 #include "robotlib/robot_base.hpp"
 
 namespace dls

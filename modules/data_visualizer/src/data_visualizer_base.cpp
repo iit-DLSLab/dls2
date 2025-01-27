@@ -5,7 +5,7 @@ namespace dls
     DataVisualizerBase::DataVisualizerBase(const std::string& ID,
                                            const std::shared_ptr<robotlib::RobotBase> robot)
         : PeriodicApp(ID)
-        , dds_participant_(std::make_shared<dls::DDSParticipant>("DataVisualizerBase::" + ID, dls::domains::signals, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SUPER_CLIENT, false))
+        , dds_participant_(std::make_shared<dls::DDSParticipant>("DataVisualizerBase::" + ID, dls::domains::signals, eprosima::fastdds::rtps::DiscoveryProtocol::SUPER_CLIENT))
         , robot_(robot)
     {
         std::ifstream scene_schema("/usr/lib/dls2/data_visualizer/json/SceneUpdate.json");

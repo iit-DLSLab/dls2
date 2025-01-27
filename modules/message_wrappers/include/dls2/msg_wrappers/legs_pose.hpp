@@ -2,7 +2,7 @@
 #define LEGS_POSE_HPP
 
 #include "dls2/msg_wrappers/wrapper.hpp"
-#include "dls_messages/dds/legs_pose.h"
+#include "dls_messages/dds/legs_pose.hpp"
 #include "robotlib/robot_base.hpp"
 
 namespace dls

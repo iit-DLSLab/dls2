@@ -3,7 +3,7 @@
 #define STANCE_STATUS_HPP
 
 #include "dls2/msg_wrappers/wrapper.hpp"
-#include "dls_messages/dds/stance_status.h"
+#include "dls_messages/dds/stance_status.hpp"
 #include "robotlib/robot_base.hpp"
 
 namespace dls

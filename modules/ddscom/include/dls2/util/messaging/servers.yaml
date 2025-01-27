@@ -1,44 +1,33 @@
 0: #users
   ip: "127.0.0.1"
-  port: 56540
-  guid_prefix: "44.53.00.5f.45.50.52.4f.53.49.4d.40"
+  port: 11811
 1: #layers
   ip: "127.0.0.1"
-  port: 56541
-  guid_prefix: "44.53.00.5f.45.50.52.4f.53.49.4d.41"
+  port: 11812
 2: #command
   ip: "127.0.0.1"
-  port: 56542
-  guid_prefix: "44.53.00.5f.45.50.52.4f.53.49.4d.42"
+  port: 11813
 3: #signals
   ip: "127.0.0.1"
-  port: 56543
-  guid_prefix: "44.53.00.5f.45.50.52.4f.53.49.4d.43"
+  port: 11814
 4: #controllers
   ip: "127.0.0.1"
-  port: 56544
-  guid_prefix: "44.53.00.5f.45.50.52.4f.53.49.4d.44"
+  port: 11815
 5: #hardwares
   ip: "127.0.0.1"
-  port: 56545
-  guid_prefix: "44.53.00.5f.45.50.52.4f.53.49.4d.45"
+  port: 11816
 6: #consoles
   ip: "127.0.0.1"
-  port: 56546
-  guid_prefix: "44.53.00.5f.45.50.52.4f.53.49.4d.46"
+  port: 11817
 7: #logging
   ip: "127.0.0.1"
-  port: 56547
-  guid_prefix: "44.53.00.5f.45.50.52.4f.53.49.4d.47"
+  port: 11818
 8: #services
   ip: "127.0.0.1"
-  port: 56548
-  guid_prefix: "44.53.00.5f.45.50.52.4f.53.49.4d.48"
+  port: 11819
 9: #estimators
   ip: "127.0.0.1"
-  port: 56549
-  guid_prefix: "44.53.00.5f.45.50.52.4f.53.49.4d.49"
+  port: 11820
 10: #visualization
   ip: "127.0.0.1"
-  port: 56550
-  guid_prefix: "44.53.00.5f.45.50.52.4f.53.49.4d.50"
+  port: 11821

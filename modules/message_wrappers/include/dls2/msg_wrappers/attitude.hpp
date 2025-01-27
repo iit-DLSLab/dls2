@@ -3,7 +3,7 @@
 #define ATTITUDE_HPP
 
 #include "dls2/msg_wrappers/wrapper.hpp"
-#include "dls_messages/dds/attitude.h"
+#include "dls_messages/dds/attitude.hpp"
 #include <Eigen/Dense>
 
 /// A struct representing the control signal that is output by a Controller

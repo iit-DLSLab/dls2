@@ -2,7 +2,7 @@
 #define IMU_SIGNAL_HPP
 
 #include "dls2/msg_wrappers/wrapper.hpp"
-#include "dls_messages/dds/imu.h"
+#include "dls_messages/dds/imu.hpp"
 #include "robotlib/robot_base.hpp"
 
 namespace dls

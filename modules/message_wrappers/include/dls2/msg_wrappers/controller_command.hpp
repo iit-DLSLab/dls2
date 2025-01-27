@@ -4,7 +4,7 @@
 #define CONTROLLER_COMMAND_HPP
 
 #include "dls2/msg_wrappers/wrapper.hpp"
-#include "dls_messages/dds/controller_command.h"
+#include "dls_messages/dds/controller_command.hpp"
 #include "dls2/msg_wrappers/pose.hpp"
 #include "dls2/msg_wrappers/screw.hpp"
 #include <robotlib/robot_base.hpp>

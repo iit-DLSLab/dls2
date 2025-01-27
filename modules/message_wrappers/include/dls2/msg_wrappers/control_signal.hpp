@@ -3,7 +3,7 @@
 #define CONTROL_SIGNAL_HPP
 
 #include "dls2/msg_wrappers/wrapper.hpp"
-#include "dls_messages/dds/control_signal.h"
+#include "dls_messages/dds/control_signal.hpp"
 #include "robotlib/robot_base.hpp"
 
 /// A struct representing the control signal that is output by a Controller

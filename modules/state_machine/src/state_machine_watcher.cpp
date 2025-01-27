@@ -7,7 +7,7 @@
 namespace state_machine
 {
     StateMachineWatcher::StateMachineWatcher(const std::string &name)
-        : dds_sm_watcher(name, dls::domains::layers, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SUPER_CLIENT)
+        : dds_sm_watcher(name, dls::domains::layers, eprosima::fastdds::rtps::DiscoveryProtocol::SUPER_CLIENT)
     {
         eprosima::fastdds::dds::DataReaderQos qos(eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT);
         qos.history().kind = eprosima::fastdds::dds::KEEP_ALL_HISTORY_QOS;

@@ -2,7 +2,7 @@
 #define TRAJECTORY_GENERATOR_HPP
 
 #include "dls2/msg_wrappers/wrapper.hpp"
-#include "dls_messages/dds/trajectory_generator.h"
+#include "dls_messages/dds/trajectory_generator.hpp"
 #include "dls2/msg_wrappers/pose.hpp"
 #include "dls2/msg_wrappers/screw.hpp"
 #include <robotlib/robot_base.hpp>

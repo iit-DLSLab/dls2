@@ -13,7 +13,7 @@ namespace dls
 		, command_manager_(ID)
         , server_thread_(nullptr)
         , webserver_(8765, "webserver")
-        , dds_participant_(std::make_shared<dls::DDSParticipant>("Web_Socket_Translator::monitor", dls::domains::signals, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SUPER_CLIENT, false))
+        , dds_participant_(std::make_shared<dls::DDSParticipant>("Web_Socket_Translator::monitor", dls::domains::signals, eprosima::fastdds::rtps::DiscoveryProtocol::SUPER_CLIENT, false))
         , mcap_writer_utils_(std::make_shared<dls::MCAPWriterUtils>())
         , mcap_reader_utils_(std::make_shared<dls::MCAPReaderUtils>())
     {

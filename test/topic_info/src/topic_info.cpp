@@ -11,7 +11,7 @@
 // TODO temporarily list all the types here
 #include "dls_messages/dds/blind_statePubSubTypes.h"
 #include "dls_messages/dds/console_commandPubSubTypes.h"
-#include "dls_messages/dds/control_signalPubSubTypes.h"
+#include "dls_messages/dds/control_signalPubSubTypes.hpp"
 #include "dls_messages/dds/desired_torquesPubSubTypes.h"
 // #include "dls_messages/dds/headerPubSubTypes.h"
 #include "dls_messages/dds/imuPubSubTypes.h"

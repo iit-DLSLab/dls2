@@ -3,7 +3,7 @@
 #define TRUNK_CONTROLLER_DEBUG_HPP
 
 #include "dls2/msg_wrappers/wrapper.hpp"
-#include "dls_messages/dds/trunk_controller_debug.h"
+#include "dls_messages/dds/trunk_controller_debug.hpp"
 #include "robotlib/robot_base.hpp"
 
 namespace dls

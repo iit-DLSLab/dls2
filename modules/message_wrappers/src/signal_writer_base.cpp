@@ -36,7 +36,7 @@ namespace dls
 		{
 			for(auto participant_info : discovered_participants_info)
 			{
-				if(participant_info.second.guidPrefix == eprosima::fastrtps::rtps::iHandle2GUID(datareader_instance).guidPrefix)
+				if(participant_info.second.guidPrefix == eprosima::fastdds::rtps::iHandle2GUID(datareader_instance).guidPrefix)
 				{
 					data_readers.push_back(participant_info.first);
 				}

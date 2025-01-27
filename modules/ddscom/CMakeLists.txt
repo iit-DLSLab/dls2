@@ -15,7 +15,7 @@ target_include_directories(dls_com
 target_link_libraries(dls_com
 	PUBLIC
 		fastcdr
-		fastrtps
+		fastdds
 		dls_domains
 		dls_topics
 		yaml-cpp
