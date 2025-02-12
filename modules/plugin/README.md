@@ -99,7 +99,7 @@ Once an instance of this class is created in the Plugin class, all the console c
 ##### Steps
 From the organization point of view, for each plugin there is a repo.
 To create a periodic plugin:
-* [create an empty repo on GitLab](https://gitlab.advr.iit.it/projects/new)
+* [create an empty repo on GitHub](https://github.com/organizations/iit-DLSLab/repositories/new)
 * pull the repo you have just created in the folder shared with the dls2 docker image (any subfolder of it is also fine)
 * open the dls2 docker image
 * build and install dls2_deploy
