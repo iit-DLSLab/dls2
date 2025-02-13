@@ -126,7 +126,7 @@ To create a periodic plugin:
     The Plugin, module and console commands classes are automatically created, together with some suggestions on how to customize your plugin.
     
     Moreover, in the project structure there is also the possibility to define custom messages and topics, that you can use in your plugin and made available to the DLS2 network.
-* follow the instruction in the README of the project you have just created. You can find the README also [here](https://gitlab.advr.iit.it/dls-lab/dls2/-/tree/develop/modules%2Fplugin%2Fskeletons%2Fperiodic#periodic-plugin).
+* follow the instruction in the README of the project you have just created. You can find the README also [here](https://github.com/iit-DLSLab/dls2/tree/main/modules/plugin/skeletons/periodic#periodic-plugin).
 
 ### App plugin class overview
 TODO
