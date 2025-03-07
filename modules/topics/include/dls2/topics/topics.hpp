@@ -72,6 +72,8 @@ namespace dls
 		extern dls::topicType arrow_list;
 		extern dls::topicType friction_cone_list;
 
+		extern dls::topicType generic_robot;
+
 		// state machine
 		extern dls::topicType state_machine;
 

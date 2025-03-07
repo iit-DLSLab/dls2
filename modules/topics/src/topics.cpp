@@ -44,6 +44,8 @@ namespace dls
 		dls::topicType arrow_list = dls::topicType("arrow_list", new ArrowListPubSubType());
 		dls::topicType friction_cone_list = dls::topicType("friction_cone_list", new FrictionConeListPubSubType());
 
+		dls::topicType generic_robot = dls::topicType("generic_robot", new GenericRobotPubSubType());
+
 
 		// state machine
 

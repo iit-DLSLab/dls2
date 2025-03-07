@@ -1,4 +1,4 @@
-#include "dls2/util/messaging/dds_reader.hpp"
+#include "dls2/util/messaging/dds_participant.hpp"
 
 #include <iostream>
 #include <signal.h>
@@ -9,6 +9,9 @@
 #include <numeric>
 #include <mutex>
 #include <vector>
+
+// seconds to wait for the discovery process to finish (aritrary number)
+#define DISCOVERY_TIME 2
 
 volatile sig_atomic_t stop;
 
@@ -59,7 +62,9 @@ int main(int argc, char** argv){
 	}
 
     dls::DDSParticipant participant("ddstopic", domain, eprosima::fastdds::rtps::DiscoveryProtocol::SUPER_CLIENT);
-
+	
+	sleep(DISCOVERY_TIME);
+	
 	if(command == "list"){
 		std::vector<std::string> topicList = participant.getDiscoveredTopics();
 		for(auto& topic: topicList){
