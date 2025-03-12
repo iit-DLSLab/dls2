@@ -52,6 +52,10 @@ namespace dls
 
         robotlib::LegDataMap<double> normal_force_max_;
         robotlib::LegDataMap<double> normal_force_min_;
+
+		robotlib::JointState kp_;
+		robotlib::JointState kd_;
+
 	
 	private:
 		virtual void setDataFromWrapperBase(WrapperBase* wrapper_base) override;

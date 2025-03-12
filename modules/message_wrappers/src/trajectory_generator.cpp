@@ -18,6 +18,8 @@ TrajectoryGenerator::TrajectoryGenerator(const std::shared_ptr<robotlib::RobotBa
     , swing_period_(robot->makeLegDataMap<double>(0.0))
     , normal_force_max_(robot->makeLegDataMap<double>(0.0))
     , normal_force_min_(robot->makeLegDataMap<double>(0.0))
+    , kp_(robot->makeJointState())
+    , kd_(robot->makeJointState())
 {}
 
 TrajectoryGenerator::TrajectoryGenerator(const TrajectoryGenerator& trajectory_generator)
@@ -38,6 +40,8 @@ TrajectoryGenerator::TrajectoryGenerator(const TrajectoryGenerator& trajectory_g
     , swing_period_(trajectory_generator.swing_period_)
     , normal_force_max_(trajectory_generator.normal_force_max_)
     , normal_force_min_(trajectory_generator.normal_force_min_)
+    , kp_(trajectory_generator.kp_)
+    , kd_(trajectory_generator.kd_)
 {}
 
 TrajectoryGenerator::~TrajectoryGenerator(){}
@@ -72,6 +76,8 @@ TrajectoryGenerator::operator TrajectoryGeneratorMsg() const
             trajectory_generator_msg.joints_velocity()[i] = desired_joints_velocity_[joint.key_];
             trajectory_generator_msg.joints_acceleration()[i] = desired_joints_acceleration_[joint.key_];
             trajectory_generator_msg.joints_effort()[i] = desired_joints_effort_[joint.key_];
+            trajectory_generator_msg.kp()[i] = kp_[joint.key_];
+            trajectory_generator_msg.kd()[i] = kd_[joint.key_];
             i++;
         }
         trajectory_generator_msg.touch_down()[legs_id*3] = touch_down_[leg_pair.key_][0];
@@ -118,6 +124,9 @@ TrajectoryGenerator& TrajectoryGenerator::operator=(const TrajectoryGeneratorMsg
             desired_joints_velocity_[joint.key_] = trajectory_generator_msg.joints_velocity()[i];
             desired_joints_acceleration_[joint.key_] = trajectory_generator_msg.joints_acceleration()[i];
             desired_joints_effort_[joint.key_] = trajectory_generator_msg.joints_effort()[i];
+            kp_[joint.key_] = trajectory_generator_msg.kp()[i];
+            kd_[joint.key_] = trajectory_generator_msg.kd()[i];
+
             i++;
         }
         touch_down_[leg_pair.key_][0] = trajectory_generator_msg.touch_down()[legs_id*3];
@@ -156,6 +165,8 @@ TrajectoryGenerator& TrajectoryGenerator::operator=(const TrajectoryGenerator& t
     desired_joints_acceleration_ = trajectory_generator.desired_joints_acceleration_;
     desired_joints_effort_ = trajectory_generator.desired_joints_effort_;
     desired_wrench_ = trajectory_generator.desired_wrench_;
+	kp_ = trajectory_generator.kp_;
+    kd_ = trajectory_generator.kd_;
 
 	stance_legs_ = trajectory_generator.stance_legs_;
 

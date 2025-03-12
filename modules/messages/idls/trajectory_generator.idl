@@ -29,4 +29,7 @@ struct TrajectoryGeneratorMsg
 
 	double normal_force_max[4];
 	double normal_force_min[4];
+
+	double kp[12];
+	double kd[12];
 };
