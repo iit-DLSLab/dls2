@@ -330,8 +330,135 @@ typedef $typedef.typedefContentTypeCode.cppTypename$ $typedef.name$;
 }; separator="\n"$
 >>
 
-struct_type(ctx, parent, struct, extensions, member_list) ::= <<
+/*----- Robotlib utils -----*/
+// DLS ANNOTATIONS FOR MESSAGE WRAPPER
+JointState ::= ["JointState":true]
+JointDataMap ::= ["JointDataMap":true]
+LimbDataMap ::= ["LimbDataMap":true]
+LimbJointDataMap ::=  ["LimbJointDataMap":true]
+Robot ::=  ["Robot":true]
+LimbDataMap_EigenVector3 ::= ["LimbDataMap_EigenVector3":true]
+Eigen ::= ["Eigen":true]
 
+get_class_name() ::= <<$struct.name$Wrapper>>
+add_robotlib_argument() ::= <<
+$if (struct.annotationList)$$struct.annotationList : { annotation |$if(Robot.(annotation.name))$const std::shared_ptr<robotlib::RobotBase> robot$endif$}; separator=""$$endif$
+>>
+add_robotlib_include() ::= <<
+$if (struct.annotationList)$$struct.annotationList : { annotation |$if(Robot.(annotation.name))$#include "robotlib/robot_base.hpp"$endif$}; separator=""$$endif$
+>>
+add_eigen_include() ::= <<
+$if (struct.annotationList)$$struct.annotationList : { annotation |$if(Eigen.(annotation.name))$#include <Eigen/Dense>$endif$}; separator=""$$endif$
+>>
+add_eigen_vector3(member) ::= <<Eigen::Matrix<$member.typecode.contentTypeCode.cppTypename$,3,1>
+>>
+is_there_robotlib() ::= <<
+$if (struct.annotationList)$$struct.annotationList : { annotation |$if(Robot.(annotation.name))$$get_class_name()$() = delete;$endif$}; separator=""$$endif$
+>>
+initialize_variables() ::= <<            
+        :$struct.members:{ member |$if(member.annotationList)$$init_wrapped_var(member)$
+        $else$$member.name$$member_default_init(member)$
+        $endif$}; separator=",\t"$
+
+>>
+
+init_wrapped_var(member) ::= <<
+$member.annotationList : { annotation |$if (JointState.(annotation.name))$$member.name$(robot->makeJointState())$elseif (JointDataMap.(annotation.name))$$member.name$(robot->makeJointDataMap<$member.typecode.contentTypeCode.cppTypename$>($wrapped_member_default_init(member)$))$elseif (LimbDataMap.(annotation.name))$$member.name$(robot->makeLimbDataMap<$member.typecode.contentTypeCode.cppTypename$>($wrapped_member_default_init(member)$))$elseif(LimbDataMap_EigenVector3.(annotation.name))$$member.name$(robot->makeLimbDataMap<$add_eigen_vector3(member)$>($add_eigen_vector3(member)$()))$elseif (LimbJointDataMap.(annotation.name))$$member.name$(robot->makeLimbDataMap<robotlib::JointDataMap<$member.typecode.contentTypeCode.cppTypename$\>>(robot->makeJointDataMap<$member.typecode.contentTypeCode.cppTypename$>($wrapped_member_default_init(member)$)))$endif$}; separator=""$>>
+
+wrap_type(member, annotation) ::= <<
+$if (JointState.(annotation.name))$
+robotlib::JointState $member.name$;
+$elseif (JointDataMap.(annotation.name))$robotlib::JointDataMap<$member.typecode.contentTypeCode.cppTypename$> $member.name$;
+$elseif (LimbDataMap.(annotation.name))$robotlib::LimbDataMap<$member.typecode.contentTypeCode.cppTypename$> $member.name$;
+$elseif(LimbDataMap_EigenVector3.(annotation.name))$robotlib::LimbDataMap<$add_eigen_vector3(member)$> $member.name$;
+$elseif (LimbJointDataMap.(annotation.name))$robotlib::LimbDataMap<robotlib::JointDataMap<$member.typecode.contentTypeCode.cppTypename$\>> $member.name$;
+$else$$member_type_declaration(member)$ $member.name$;$endif$
+>>
+wrapped_member_declaration(member) ::= <<
+$if (member.annotationList)$
+$member.annotationList : { annotation |$wrap_type(member,annotation)$}; separator=""$$else$
+$member_type_declaration(member)$ $member.name$;
+$endif$
+>>
+from_wrapper_to_msg_default(member) ::= <<msg.$member.name$() = $member.name$;>>
+
+from_wrapper_to_msg(member) ::= <<
+$if(member.annotationList)$
+$member.annotationList : { annotation |$if (JointState.(annotation.name)|| LimbDataMap.(annotation.name) || JointDataMap.(annotation.name) || LimbJointDataMap.(annotation.name))$msg.$member.name$() = $member.name$.tovec_()$elseif(LimbDataMap_EigenVector3.(annotation.name))$
+int limb_id{0\};
+for (auto &pair : $member.name$){
+    msg.$member.name$()[limb_id*3] = pair.getData()[0];
+    msg.$member.name$()[limb_id*3+1] = pair.getData()[1];
+    msg.$member.name$()[limb_id*3+2] = pair.getData()[2];
+    limb_id++;
+\}$else$
+$from_wrapper_to_msg_default(member)$
+$endif$}; separator=""$$else$
+$from_wrapper_to_msg_default(member)$$endif$
+>>
+
+from_msg_to_wrapper(member) ::= <<
+$member.name$ = msg.$member.name$()
+>>
+
+/*HP: member of sequence type*/
+wrapped_member_default_init(member) ::= <%
+$if(member.typecode.contentTypeCode.isStringType)$
+ {""}
+$else$$member.typecode.contentTypeCode.initialValue$
+$endif$
+%>
+
+/*--------------------*/
+
+struct_type(ctx, parent, struct, member_list) ::= <<
+$member_list$
+$add_eigen_include()$
+$add_robotlib_include()$
+
+namespace dls
+{
+    class $get_class_name()$: public Wrapper<$struct.name$>
+    {
+    public:
+        template <typename SignalType>
+        friend class SignalWriter;
+        friend class Plugin;
+
+        $get_class_name()$($add_robotlib_argument()$)$initialize_variables()${}
+
+        $get_class_name()$(const $get_class_name()$& other):$struct.members:{member|$member.name$(other.$member.name$)}; separator=",\n\t\t\t"${}
+
+        $is_there_robotlib()$
+        virtual ~$get_class_name()$(){};
+
+        operator $struct.name$() const override{
+            $struct.name$ msg;
+
+            $struct.members:{ member |$from_wrapper_to_msg(member)$}; separator=";"$;
+
+            return msg;
+        }
+
+        $get_class_name()$& operator=(const $struct.name$& msg) override{
+            $struct.members:{ member |$from_msg_to_wrapper(member)$}; separator=";\n"$;
+
+            return *this;
+        }
+
+        $get_class_name()$& operator=(const $get_class_name()$& wrapper){
+            $struct.members:{ member |$member.name$ = wrapper.$member.name$}; separator=";\n"$;
+            return *this;
+        }
+
+        $struct.members:{ member | $wrapped_member_declaration(member=member)$}; separator=""$
+    private:
+        virtual void setDataFromWrapperBase(WrapperBase* wrapper_base) override{
+            // Assuming wrapper is of type Wrapper<MsgType>
+            *this = static_cast<$get_class_name()$&>(*wrapper_base);
+        }
+    };
+}
 >>
 
 union_type(ctx, parent, union, extensions, switch_type) ::= <<
