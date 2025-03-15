@@ -1,0 +1,864 @@
+// Copyright 2016 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+group TypesHeader;
+
+import "com/eprosima/fastdds/idl/templates/eprosima.stg"
+import "FastCdrCommon.stg"
+
+main(ctx, definitions) ::= <<
+$fileHeader(ctx=ctx, file=[ctx.filename, ".hpp"], description=["This header file contains the declaration of the described types in the IDL file."])$
+
+#ifndef FAST_DDS_GENERATED__$ctx.headerGuardName$_HPP
+#define FAST_DDS_GENERATED__$ctx.headerGuardName$_HPP
+
+$if(ctx.thereIsArray)$
+#include <array>
+$endif$
+#include <cstdint>
+$if(ctx.thereIsUnion)$
+#include <functional>
+$endif$
+$if(ctx.thereIsMap)$
+#include <map>
+$endif$
+$if(ctx.thereIsString)$
+#include <string>
+$endif$
+#include <utility>
+$if(ctx.thereIsSequence)$
+#include <vector>
+$endif$
+
+$if(ctx.thereIsString)$
+#include <fastcdr/cdr/fixed_size_string.hpp>
+$endif$
+$if(ctx.thereIsExternalAnnotation)$
+#include <fastcdr/xcdr/external.hpp>
+$endif$
+$if(ctx.thereIsOptionalAnnotation)$
+#include <fastcdr/xcdr/optional.hpp>
+$endif$
+$if(ctx.thereIsUnion)$
+#include <fastcdr/exceptions/BadParamException.h>
+$endif$
+
+$ctx.directIncludeDependencies : {include | #include "$include$.hpp"}; separator="\n"$
+
+#if defined(_WIN32)
+#if defined(EPROSIMA_USER_DLL_EXPORT)
+#define eProsima_user_DllExport __declspec( dllexport )
+#else
+#define eProsima_user_DllExport
+#endif  // EPROSIMA_USER_DLL_EXPORT
+#else
+#define eProsima_user_DllExport
+#endif  // _WIN32
+
+#if defined(_WIN32)
+#if defined(EPROSIMA_USER_DLL_EXPORT)
+#if defined($ctx.fileNameUpper$_SOURCE)
+#define $ctx.fileNameUpper$_DllAPI __declspec( dllexport )
+#else
+#define $ctx.fileNameUpper$_DllAPI __declspec( dllimport )
+#endif // $ctx.fileNameUpper$_SOURCE
+#else
+#define $ctx.fileNameUpper$_DllAPI
+#endif  // EPROSIMA_USER_DLL_EXPORT
+#else
+#define $ctx.fileNameUpper$_DllAPI
+#endif // _WIN32
+
+$definitions; separator="\n"$
+
+#endif // _FAST_DDS_GENERATED_$ctx.headerGuardName$_HPP_
+$"\n"$
+
+>>
+
+module(ctx, parent, module, definition_list) ::= <<
+namespace $module.name$ {
+
+$definition_list$
+
+} // namespace $module.name$
+>>
+
+annotation(ctx, annotation) ::= <<
+$if(annotation.enums || annotation.typeDefs || annotation.constDecls)$
+namespace $annotation.name$ {
+    $annotation.enums : { enum | $enum_type(ctx=ctx, parent=annotation, enum=enum)$}; separator="\n"$
+
+    $annotation.typeDefs : { typedef | $typedef_decl(ctx=ctx, parent=annotation, typedefs=typedef, typedefs_type="", declarator_type="")$}; separator="\n"$
+
+    $annotation.constDecls : { const | $const_decl(ctx=ctx, parent=annotation, const=const, const_type="")$}; separator="\n"$
+
+} // namespace $annotation.name$
+$endif$
+>>
+
+interface(ctx, parent, interface, export_list) ::= <<
+/*!
+ * @brief This class represents the interface $interface.name$ defined by the user in the IDL file.
+ * @ingroup $ctx.trimfilename$
+ */
+class $ctx.fileNameUpper$_DllAPI $interface.name$ $if(interface.bases)$: $interface.bases : {base |public $base.scopedname$}; separator=", "$$endif$
+{
+public:
+
+    $export_list$
+};
+>>
+
+const_decl(ctx, parent, const, const_type) ::= <<
+$const_type$
+const $const.typeCode.cppTypename$ $const.name$ = $const.value$$const_value_prefix(const)$;
+>>
+
+typedef_decl(ctx, parent, typedefs, typedefs_type, declarator_type) ::= <<
+$declarator_type$
+$typedefs_type$
+$typedefs :
+{ typedef |
+typedef $typedef.typedefContentTypeCode.cppTypename$ $typedef.name$;
+}; separator="\n"$
+>>
+
+struct_type(ctx, parent, struct, extensions, member_list) ::= <<
+$member_list$
+/*!
+ * @brief This class represents the structure $struct.name$ defined by the user in the IDL file.
+ * @ingroup $ctx.trimfilename$
+ */
+class $struct.name$$if(struct.inheritance)$ : public $public_struct_inheritances(struct.inheritance)$$endif$
+{
+public:
+
+    /*!
+     * @brief Default constructor.
+     */
+    eProsima_user_DllExport $struct.name$()
+        $if(struct.inheritance)$
+        : $struct_inherit_default_init(struct.inheritance)$
+        $endif$
+    {
+    }
+
+    /*!
+     * @brief Default destructor.
+     */
+    eProsima_user_DllExport ~$struct.name$()
+    {
+        $struct.members:{ member |$member_destructor(ctx=ctx, member=member)$}; separator="\n"$
+    }
+
+    /*!
+     * @brief Copy constructor.
+     * @param x Reference to the object $struct.scopedname$ that will be copied.
+     */
+    eProsima_user_DllExport $struct.name$(
+            const $struct.name$& x)
+        $if(struct.inheritance)$
+        : $struct_inherit_copy_init(struct.inheritance)$
+        $endif$
+    {
+        $if(struct.members)$
+        $struct.members:{ member |
+            m_$member.name$ = x.m_$member.name$;
+        }; separator="\n"$
+        $else$
+        static_cast<void>(x);
+        $endif$
+    }
+
+    /*!
+     * @brief Move constructor.
+     * @param x Reference to the object $struct.scopedname$ that will be copied.
+     */
+    eProsima_user_DllExport $struct.name$(
+            $struct.name$&& x) noexcept
+        $if(struct.inheritance)$
+        : $struct_inherit_move_init(struct.inheritance)$
+        $endif$
+
+    {
+        $if(struct.members)$
+        $struct.members:{ member | $member_move(member=member)$}; separator="\n"$
+        $else$
+        static_cast<void>(x);
+        $endif$
+    }
+
+    /*!
+     * @brief Copy assignment.
+     * @param x Reference to the object $struct.scopedname$ that will be copied.
+     */
+    eProsima_user_DllExport $struct.name$& operator =(
+            const $struct.name$& x)
+    {
+        $if(struct.inheritance)$$struct.inheritance.scopedname$::operator =(x);$endif$
+
+        $if(struct.members)$
+        $struct.members:{ member |
+            m_$member.name$ = x.m_$member.name$;
+        }; separator="\n"$
+        $else$
+        static_cast<void>(x);
+        $endif$
+
+        return *this;
+    }
+
+    /*!
+     * @brief Move assignment.
+     * @param x Reference to the object $struct.scopedname$ that will be copied.
+     */
+    eProsima_user_DllExport $struct.name$& operator =(
+            $struct.name$&& x) noexcept
+    {
+        $if(struct.inheritance)$$struct.inheritance.scopedname$::operator =(std::move(x));$endif$
+
+        $if(struct.members)$
+        $struct.members:{ member | $member_move(member=member)$}; separator="\n"$
+        $else$
+        static_cast<void>(x);
+        $endif$
+
+        return *this;
+    }
+
+    /*!
+     * @brief Comparison operator.
+     * @param x $struct.scopedname$ object to compare.
+     */
+    eProsima_user_DllExport bool operator ==(
+            const $struct.name$& x) const
+    {
+        $if(struct.inheritance)$if ($struct.inheritance.scopedname$::operator !=(x))
+        {
+            return false;
+        }
+        $endif$
+
+        $if(!struct.members)$
+        static_cast<void>(x);
+        return true;
+        $else$
+        return ($struct.members:{ member | m_$member.name$ == x.m_$member.name$}; separator=" &&\n           "$);
+        $endif$
+    }
+
+    /*!
+     * @brief Comparison operator.
+     * @param x $struct.scopedname$ object to compare.
+     */
+    eProsima_user_DllExport bool operator !=(
+            const $struct.name$& x) const
+    {
+        return !(*this == x);
+    }
+
+    $struct.members:{ member | $public_member_declaration(member)$}; separator="\n"$
+
+    $extensions : { extension | $extension$}; separator="\n"$
+
+private:
+
+    $struct.members:{ member | $private_member_declaration(member=member)$}; separator="\n"$
+
+};
+>>
+
+union_type(ctx, parent, union, extensions, switch_type) ::= <<
+$switch_type$
+/*!
+ * @brief This class represents the union $union.name$ defined by the user in the IDL file.
+ * @ingroup $ctx.trimfilename$
+ */
+class $union.name$
+{
+public:
+
+    /*!
+     * @brief Default constructor.
+     */
+    eProsima_user_DllExport $union.name$()
+    {
+        $if(union.defaultAnnotatedMember)$
+        $union_member_initialization(union.defaultAnnotatedMember)$
+        $elseif(union.defaultMember)$
+        $union_member_initialization(union.defaultMember)$
+        $endif$
+    }
+
+    /*!
+     * @brief Default destructor.
+     */
+    eProsima_user_DllExport ~$union.name$()
+    {
+        if (member_destructor_)
+        {
+            member_destructor_();
+        }
+    }
+
+    /*!
+     * @brief Copy constructor.
+     * @param x Reference to the object $union.scopedname$ that will be copied.
+     */
+    eProsima_user_DllExport $union.name$(
+            const $union.name$& x)
+    {
+        m__d = x.m__d;
+
+        switch (x.selected_member_)
+        {
+            $union.members:{ member |
+            case $member.id$:
+                $member.name$_() = x.m_$member.name$;
+                break;
+            }; separator="\n"$
+        }
+    }
+
+    /*!
+     * @brief Move constructor.
+     * @param x Reference to the object $union.scopedname$ that will be copied.
+     */
+    eProsima_user_DllExport $union.name$(
+            $union.name$&& x) noexcept
+    {
+        m__d = x.m__d;
+
+        switch (x.selected_member_)
+        {
+            $union.members:{ member |
+            case $member.id$:
+                $member.name$_() = std::move(x.m_$member.name$);
+                break;
+            }; separator="\n"$
+        }
+    }
+
+    /*!
+     * @brief Copy assignment.
+     * @param x Reference to the object $union.scopedname$ that will be copied.
+     */
+    eProsima_user_DllExport $union.name$& operator =(
+            const $union.name$& x)
+    {
+        m__d = x.m__d;
+
+        switch (x.selected_member_)
+        {
+            $union.members:{ member |
+            case $member.id$:
+                $member.name$_() = x.m_$member.name$;
+                break;
+            }; separator="\n"$
+        }
+
+        return *this;
+    }
+
+    /*!
+     * @brief Move assignment.
+     * @param x Reference to the object $union.scopedname$ that will be copied.
+     */
+    eProsima_user_DllExport $union.name$& operator =(
+            $union.name$&& x) noexcept
+    {
+        m__d = x.m__d;
+
+        switch (x.selected_member_)
+        {
+            $union.members:{ member |
+            case $member.id$:
+                $member.name$_() = std::move(x.m_$member.name$);
+                break;
+            }; separator="\n"$
+        }
+
+        return *this;
+    }
+
+    /*!
+     * @brief Comparison operator.
+     * @param x $union.scopedname$ object to compare.
+     */
+    eProsima_user_DllExport bool operator ==(
+            const $union.name$& x) const
+    {
+        bool ret_value {false};
+
+        if (x.selected_member_ == selected_member_)
+        {
+            if (0x0FFFFFFFu != selected_member_)
+            {
+                if (x.m__d == m__d)
+                {
+                    switch (selected_member_)
+                    {
+                        $union.members:{ member |
+                            case $member.id$:
+                                ret_value = (x.m_$member.name$ == m_$member.name$);
+                                break;
+                        }; separator="\n"$
+                    }
+                }
+            }
+            else
+            {
+                ret_value = true;
+            }
+        }
+
+        return ret_value;
+    }
+
+    /*!
+     * @brief Comparison operator.
+     * @param x $union.scopedname$ object to compare.
+     */
+    eProsima_user_DllExport bool operator !=(
+            const $union.name$& x) const
+    {
+        return !(*this == x);
+    }
+
+    /*!
+     * @brief This function sets the discriminator value.
+     * @param __d New value for the discriminator.
+     * @exception eprosima::fastcdr::exception::BadParamException This exception is thrown if the new value doesn't correspond to the selected union member.
+     */
+    eProsima_user_DllExport void _d(
+            $union.discriminator.typecode.cppTypename$ __d)
+    {
+        bool valid_discriminator = false;
+
+        switch (__d)
+        {
+            $union.members:{ member |
+            $member.labels:{ label | case $label$:}; separator="\n"$
+            $if(member.default)$
+            default:
+            $endif$
+                if ($member.id$ == selected_member_)
+                {
+                    valid_discriminator = true;
+                \}
+                break;
+            }; separator="\n"$
+        }
+
+        if (!valid_discriminator)
+        {
+            throw eprosima::fastcdr::exception::BadParamException("Discriminator doesn't correspond with the selected union member");
+        }
+
+        m__d = __d;
+    }
+
+    /*!
+     * @brief This function returns the value of the discriminator.
+     * @return Value of the discriminator
+     */
+    eProsima_user_DllExport $union.discriminator.typecode.cppTypename$ _d() const
+    {
+        return m__d;
+    }
+
+    $union.members: { member | $public_union_member_declaration(union, member)$}; separator="\n"$
+
+    $if(union.needDefaultCase)$
+    void _default()
+    {
+        if (member_destructor_)
+        {
+            member_destructor_();
+        }
+
+        selected_member_ = 0x0FFFFFFFu;
+    }
+    $endif$
+
+    $extensions : {extension | $extension$}; separator="\n"$
+
+private:
+
+    $union.members: { member |
+        $member_type_declaration(member)$& $member.name$_()
+        {
+            if ($member.id$ != selected_member_)
+            {
+                if (member_destructor_)
+                {
+                    member_destructor_();
+                \}
+
+                $union_member_initialization(member)$
+            \}
+
+            return m_$member.name$;
+        \}
+    }; separator="\n"$
+
+    $union.discriminator.typecode.cppTypename$ m__d {$if(union.defaultAnnotatedValue)$$union.defaultAnnotatedValue$$else$$union.defaultvalue$$endif$};
+
+    union
+    {
+        $union.members:{ member | $union_member_declaration(member=member)$}; separator="\n"$
+    };
+
+    uint32_t selected_member_ {0x0FFFFFFFu};
+
+    std::function<void()> member_destructor_;
+};
+>>
+
+bitset_type(ctx, parent, bitset, extensions) ::= <<
+/*!
+ * @brief This structure represents the bitset $bitset.name$ defined by the user in the IDL file.
+ * @ingroup $ctx.trimfilename$
+ */
+struct $bitset.name$
+{
+    $bitset.bitfields:{ bitfield |
+    $bitfield.spec.cppTypename$ $bitfield.name$ : $bitfield.spec.bitSize$;
+    }; separator="\n"$
+
+    /*!
+     * @brief Comparison operator.
+     * @param x $bitset.scopedname$ object to compare.
+     */
+    eProsima_user_DllExport bool operator ==(
+            const $bitset.name$& x) const
+    {
+        return ($bitset.definedBitfields : { bitfield | $bitfield.name$ == x.$bitfield.name$}; separator=" &&\n           "$);
+    }
+
+    /*!
+     * @brief Comparison operator.
+     * @param x $bitset.scopedname$ object to compare.
+     */
+    eProsima_user_DllExport bool operator !=(
+            const $bitset.name$& x) const
+    {
+        return !(*this == x);
+    }
+};
+>>
+
+enum_type(ctx, parent, enum) ::= <<
+/*!
+ * @brief This class represents the enumeration $enum.name$ defined by the user in the IDL file.
+ * @ingroup $ctx.trimfilename$
+ */
+enum class $enum.name$ : int32_t
+{
+    $enum.members:{ member | $member.name$$if(member.annotationValue)$ = $member.annotationValueValue$$endif$}; separator=",\n"$
+};
+>>
+
+bitmask_type(ctx, parent, bitmask) ::= <<
+/*!
+ * @brief This enumeration represents the $bitmask.name$ bitflags defined by the user in the IDL file.
+ * @ingroup $ctx.trimfilename$
+ */
+enum $bitmask.name$Bits$bitmask.boundType$
+{
+    $bitmask.members:{ member | $member.name$ = 0x01ull << $member.position$}; separator=",\n"$
+};
+typedef $bitmask.castingType$ $bitmask.name$;
+>>
+
+fwd_decl(ctx, parent, type) ::= <<
+class $type.name$;
+
+>>
+
+/***** Utils *****/
+
+public_struct_inheritances(parent) ::= <<$parent.scopedname$>>
+
+public_member_declaration(member) ::= <<
+$if(member.annotationOptional || member.annotationExternal)$
+$public_member_common_declaration(member=member)$
+$elseif(member.typecode.primitive)$
+$public_member_primitive_declaration(member=member)$
+$else$
+$public_member_common_declaration(member=member)$
+$endif$
+>>
+
+public_member_primitive_declaration(member) ::= <<
+/*!
+ * @brief This function sets a value in member $member.name$
+ * @param _$member.name$ New value for member $member.name$
+ */
+eProsima_user_DllExport void $member.name$(
+        $member_type_declaration(member)$ _$member.name$)
+{
+   $\ $m_$member.name$ = _$member.name$;
+}
+
+/*!
+ * @brief This function returns the value of member $member.name$
+ * @return Value of member $member.name$
+ */
+eProsima_user_DllExport $member_type_declaration(member)$ $member.name$() const
+{
+    return m_$member.name$;
+}
+
+/*!
+ * @brief This function returns a reference to member $member.name$
+ * @return Reference to member $member.name$
+ */
+eProsima_user_DllExport $member_type_declaration(member)$& $member.name$()
+{
+    return m_$member.name$;
+}
+>>
+
+public_member_common_declaration(member) ::= <<
+/*!
+ * @brief This function copies the value in member $member.name$
+ * @param _$member.name$ New value to be copied in member $member.name$
+ */
+eProsima_user_DllExport void $member.name$(
+        const $member_type_declaration(member)$& _$member.name$)
+{
+   $\ $m_$member.name$ = _$member.name$;
+}
+
+/*!
+ * @brief This function moves the value in member $member.name$
+ * @param _$member.name$ New value to be moved in member $member.name$
+ */
+eProsima_user_DllExport void $member.name$(
+        $member_type_declaration(member)$&& _$member.name$)
+{
+   $\ $m_$member.name$ = std::move(_$member.name$);
+}
+
+/*!
+ * @brief This function returns a constant reference to member $member.name$
+ * @return Constant reference to member $member.name$
+ */
+eProsima_user_DllExport const $member_type_declaration(member)$& $member.name$() const
+{
+    return m_$member.name$;
+}
+
+/*!
+ * @brief This function returns a reference to member $member.name$
+ * @return Reference to member $member.name$
+ */
+eProsima_user_DllExport $member_type_declaration(member)$& $member.name$()
+{
+    return m_$member.name$;
+}
+>>
+
+private_member_declaration(member) ::= <<
+$member_type_declaration(member)$ m_$member.name$$member_default_init(member)$;
+>>
+
+public_union_member_declaration(union, member) ::= <<
+$if(member.annotationExternal)$
+$public_union_member_common_declaration(union, member)$
+$elseif(member.typecode.primitive)$
+$public_union_member_primitive_declaration(union, member)$
+$else$
+$public_union_member_common_declaration(union, member)$
+$endif$
+>>
+
+public_union_member_primitive_declaration(union, member) ::= <<
+/*!
+ * @brief This function sets a value in member $member.name$
+ * @param _$member.name$ New value for member $member.name$
+ */
+eProsima_user_DllExport void $member.name$(
+        $member.typecode.cppTypename$ _$member.name$)
+{
+    $member.name$_() = _$member.name$;
+    $union_member_set_discriminator(member=member, defaultvalue=union.defaultvalue)$
+}
+
+/*!
+ * @brief This function returns the value of member $member.name$
+ * @return Value of member $member.name$
+ * @exception eprosima::fastcdr::exception::BadParamException This exception is thrown if the requested union member is not the current selection.
+ */
+eProsima_user_DllExport $member.typecode.cppTypename$ $member.name$() const
+{
+    if ($member.id$ != selected_member_)
+    {
+        throw eprosima::fastcdr::exception::BadParamException("This member has not been selected");
+    }
+
+    return m_$member.name$;
+}
+
+/*!
+ * @brief This function returns a reference to member $member.name$
+ * @return Reference to member $member.name$
+ * @exception eprosima::fastcdr::exception::BadParamException This exception is thrown if the requested union member is not the current selection.
+ */
+eProsima_user_DllExport $member.typecode.cppTypename$& $member.name$()
+{
+    if ($member.id$ != selected_member_)
+    {
+        throw eprosima::fastcdr::exception::BadParamException("This member has not been selected");
+    }
+
+    return m_$member.name$;
+}
+>>
+
+public_union_member_common_declaration(union, member) ::= <<
+/*!
+ * @brief This function copies the value in member $member.name$
+ * @param _$member.name$ New value to be copied in member $member.name$
+ */
+eProsima_user_DllExport void $member.name$(
+        const $member_type_declaration(member)$& _$member.name$)
+{
+    $member.name$_() = _$member.name$;
+    $union_member_set_discriminator(member=member, defaultvalue=union.defaultvalue)$
+}
+
+/*!
+ * @brief This function moves the value in member $member.name$
+ * @param _$member.name$ New value to be moved in member $member.name$
+ */
+eProsima_user_DllExport void $member.name$(
+        $member_type_declaration(member)$&& _$member.name$)
+{
+    $member.name$_() = _$member.name$;
+    $union_member_set_discriminator(member=member, defaultvalue=union.defaultvalue)$
+}
+
+/*!
+ * @brief This function returns a constant reference to member $member.name$
+ * @return Constant reference to member $member.name$
+ * @exception eprosima::fastcdr::exception::BadParamException This exception is thrown if the requested union member is not the current selection.
+ */
+eProsima_user_DllExport const $member_type_declaration(member)$& $member.name$() const
+{
+    if ($member.id$ != selected_member_)
+    {
+        throw eprosima::fastcdr::exception::BadParamException("This member has not been selected");
+    }
+
+    return m_$member.name$;
+}
+
+/*!
+ * @brief This function returns a reference to member $member.name$
+ * @return Reference to member $member.name$
+ * @exception eprosima::fastcdr::exception::BadParamException This exception is thrown if the requested union member is not the current selection.
+ */
+eProsima_user_DllExport $member_type_declaration(member)$& $member.name$()
+{
+    if ($member.id$ != selected_member_)
+    {
+        throw eprosima::fastcdr::exception::BadParamException("This member has not been selected");
+    }
+
+    return m_$member.name$;
+}
+>>
+
+member_move(member) ::= <%
+$if(member.typecode.primitive)$
+m_$member.name$ = x.m_$member.name$;
+$else$
+m_$member.name$ = std::move(x.m_$member.name$);
+$endif$
+%>
+
+union_member_declaration(member) ::= <<
+$member_type_declaration(member)$ m_$member.name$;
+>>
+
+union_member_destroy_call(member) ::= <%
+m_$member.name$.
+$if(member.annotationExternal)$
+~external();
+$elseif(!member.typecode.isAliasType && (member.typecode.isStringType || member.typecode.isWStringType))$
+$if(member.typecode.isBounded && member.typecode.isStringType)$
+~fixed_string();
+$else$
+~basic_string();
+$endif$
+$elseif(!member.typecode.isAliasType && member.typecode.isSequenceType)$
+~vector();
+$elseif(!member.typecode.isAliasType && member.typecode.isArrayType)$
+~array();
+$elseif(!member.typecode.isAliasType && member.typecode.isMapType)$
+~map();
+$else$
+~$member.typecode.noScopedCppTypename$();
+$endif$
+%>
+
+union_member_set_discriminator(member, defaultvalue) ::= <%
+$if(member.default)$
+m__d = $defaultvalue$;
+$else$
+m__d = $first(member.labels)$;
+$endif$
+%>
+
+const_value_prefix(const) ::= <%
+$if(const.typeCode.isFloat32Type)$
+f
+$endif$
+%>
+
+union_member_initialization(member) ::= <<
+selected_member_ = $member.id$;
+$if(member.typecode.primitive)$
+member_destructor_ = nullptr;
+m_$member.name$ = $member_default_init(member)$;
+$else$
+member_destructor_ = [&]()
+{
+    $if(member.typecode.isAliasType)$
+    $if(member.typecode.hasScope)$
+    using namespace $member.typecode.scope$;
+    $endif$
+    $endif$
+    $union_member_destroy_call(member)$
+};
+new(&m_$member.name$) $member_type_declaration(member)$();
+$endif$
+>>
+
+//{ Fast DDS-Gen extensions
+module_conversion(ctx, parent, modules, definition_list) ::= <<
+$modules : { module |
+namespace $module.name$ {
+}; separator="\n"$
+
+$definition_list$
+
+$reverse(modules) : { module |
+\} // namespace $module.name$
+}; separator="\n"$
+>>
+//}
