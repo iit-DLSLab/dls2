@@ -1,4 +1,4 @@
-struct CommandSendMsg
+struct CommandSend
 {
 	// Header
 	string frame_id;

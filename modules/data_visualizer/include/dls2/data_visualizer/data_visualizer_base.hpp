@@ -3,7 +3,7 @@
 
 #include "dls2/application/periodic_app.hpp"
 #include "dls2/util/messaging/dds_participant.hpp"
-#include "dls2/msg_wrappers/signal_reader.hpp"
+#include "dls2/signal/signal_reader.hpp"
 
 #include "robotlib/robot_factory.hpp"
 

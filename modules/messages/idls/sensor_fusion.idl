@@ -1,4 +1,4 @@
-struct SensorFusionMsg
+struct SensorFusion
 {
 	// Header
 	string frame_id;

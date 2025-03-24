@@ -50,7 +50,6 @@ With the build and install steps, you have created the following libraries:
 * *<plugin_name>_module*: module library
 * *<plugin_name>_console_commands*: console commands library
 * *<plugin_name>_msgs*: messages library
-* *<plugin_name>_msgs_wrappers*: messages wrappers library
 * *<plugin_name>_topics*: topics library
 
 For example, when creating a *stance_detection* plugin, you will have:
@@ -58,7 +57,6 @@ For example, when creating a *stance_detection* plugin, you will have:
 * *stance_detection_module*
 * *stance_detection_console_commands*
 * *stance_detection_msgs*
-* *stance_detection_msgs_wrappers*
 * *stance_detection_topics*
 
 Notice that the installation is a necessary step in order to load at run-time your plugin.
@@ -105,7 +103,7 @@ As we said, the module class has been already created. However, you can change t
       void run(/*input_arguments, output_arguments*/);
   becames
   
-      void run(robotlib::LegDataMap<bool> &stance_sensors_status, const Eigen::Matrix3d& w_R_b, const robotlib::JointState& q, const robotlib::JointState& qd, const robotlib::JointState& qdd, const robotlib::JointState& tau);
+      void run(robotlib::LimbDataMap<bool> &stance_sensors_status, const Eigen::Matrix3d& w_R_b, const robotlib::JointState& q, const robotlib::JointState& qd, const robotlib::JointState& qdd, const robotlib::JointState& tau);
   Rember that the order of the arguments is: *inputs* THEN *outputs*. Writing the run arguments in this way allows your module to be independent from the DLS2 messages and messages' wrappers.
 * define the inputs of the init function (and its implementation) that it is called when activating the plugin. For example
 
@@ -114,18 +112,18 @@ As we said, the module class has been already created. However, you can change t
 
       bool init( double period,
                     const robotlib::JointState& input_joints_position,
-                    const dls::Pose& input_pose,        
+                    const dls::utils::Pose& input_pose,        
                     robotlib::JointState& output_desired_joints_position,
                     robotlib::JointState& output_desired_joints_velocity,
                     robotlib::JointState& output_desired_joints_acceleration,
                     robotlib::JointState& output_desired_joints_effort,
-                    dls::Pose& output_desired_com_pose_world,
-                    robotlib::LegDataMap<Eigen::Vector3d>& output_nominal_touch_down,
-                    robotlib::LegDataMap<Eigen::Vector3d>& output_touch_down,
-                    robotlib::LegDataMap<bool>& output_stance_legs,
-                    robotlib::LegDataMap<double>& output_swing_period,
-                    robotlib::LegDataMap<double>& output_normal_force_min,
-                    robotlib::LegDataMap<double>& output_normal_force_max);
+                    dls::utils::Pose& output_desired_com_pose_world,
+                    robotlib::LimbDataMap<Eigen::Vector3d>& output_nominal_touch_down,
+                    robotlib::LimbDataMap<Eigen::Vector3d>& output_touch_down,
+                    robotlib::LimbDataMap<bool>& output_stance_legs,
+                    robotlib::LimbDataMap<double>& output_swing_period,
+                    robotlib::LimbDataMap<double>& output_normal_force_min,
+                    robotlib::LimbDataMap<double>& output_normal_force_max);
 * In the class it is also defined a YAML::Node, that it is used to read the module/config/config.yaml file. In this file you can add configurations for your modules, for example
 
       aliengo_th:
@@ -197,23 +195,23 @@ Now, you have to define the inputs and the outputs. This is done in three steps:
 To define input/output variables:
 * includes the headers of your inputs and outputs in plugin.hpp. For example
 
-      //#include <dls2/msg_wrappers/msg_wrapper_name.hpp> // off-the-shelf wrapper
-      //#include "estimators/stance_detection/msg_wrapper_name.hpp" // custom wrapper
+      //#include <dls_messages/dds/<msg_name>Wrapper.hpp> // off-the-shelf wrapper
+      //#include "estimators/stance_detection/<msg_name>Wrapper.hpp" // custom wrapper
   becames
 
-      #include <dls2/msg_wrappers/blind_state.hpp> // input, off-the-shelf
-      #include <dls2/msg_wrappers/base_state.hpp> //input, off-the-shelf
+      #include <dls_messages/dds/blind_stateWrapper.hpp> // input, off-the-shelf
+      #include <dls_messages/dds/base_stateWrapper.hpp> //input, off-the-shelf
       #include "estimators/stance_detection/stance_status.hpp" //output, custom
-  As you can see, the types of such variables correspond to a message wrapper. You can see also how to include either already provided messages, or custom ones. [Here](#create-custom-messages) you can see how to create a custom message.
+  As you can see, the types of such variables correspond to a message wrapper. A message wrapper is, as the name says (:)) a wrapper around the messages coming from the middleware (e.g. dds). The wrapper is used to customize the types you want to use, e.g. Eigen::Vector3d instead of std::vector<double> You can see also how to include either already provided messages, or custom ones. [Here](#create-custom-messages) you can see how to create a custom message.
 * declare the variables in plugin.hpp. For example
 
       /*define_inputs*/
       /*define_output*/
   becames
 
-      BlindState blind_state; //input
-      BaseState base_state; //input
-      StanceStatus stance_status; //output
+      BlindStateWrapper blind_state; //input
+      BaseStateWrapper base_state; //input
+      StanceStatusWrapper stance_status; //output
 * initialize the variables in plugin.cpp. For example
 
       /*, construct_input_variables*/ // instantiate input
@@ -255,16 +253,16 @@ You can now build the inputs and outputs. For example
 becames
         
         // Define inputs
-        this->buildInput<BlindState>(
+        this->buildInput<BlindStateWrapper>(
             dls::topics::low_level_estimation::blind_state,
             &blind_state
         );
-        this->buildInput<BaseState>(
+        this->buildInput<BaseStateWrapper>(
             dls::topics::high_level_estimation::base_state,
             &base_state
         );
         // Define outputs
-        this->buildInput<StanceStatus>(
+        this->buildInput<StanceStatusWrapper>(
             topics::stance_detection::stance_status,
             &stance_status
         );
@@ -282,11 +280,11 @@ There are few last steps to be done:
 
       stance_detection.run(   blind_state.feet_contact_,
                               base_state.pose_.toRotationMatrix.transpose(),
-                              blind_state.joints_position_,
+                              blind_state.joints_position,
                               blind_state.joints_velocity_,
                               blind_state.joints_acceleration_,
                               blind_state.joints_effort_
-                              stance_status.stance_status_);
+                              stance_status.stance_status);
 * _checkActivation_ is the function called when activating the plugin. If you want to initialize your module when activating the plugin, you can call the _init_ function of the module inside _checkActivation_. For example
 
       bool PeriodicGeneratorPlugin::checkActivation()
@@ -306,20 +304,20 @@ There are few last steps to be done:
                   read();
                   return periodic_generator.init(
                               getPeriod().count()/(1000000.0),
-                              input_blind_state.joints_position_,
+                              input_blind_state.joints_position,
                               input_base_state.pose_, 
 
                               output_traj_gen.desired_joints_position_,
-                              output_traj_gen.desired_joints_velocity_,
+                              output_traj_gen.joints_velocity,
                               output_traj_gen.desired_joints_acceleration_,
                               output_traj_gen.desired_joints_effort_,
                               output_traj_gen.desired_com_pose_world_,
-                              output_traj_gen.nominal_touch_down_,
-                              output_traj_gen.touch_down_,
-                              output_traj_gen.stance_legs_,
+                              output_traj_gen.nominal_touch_down,
+                              output_traj_gen.touch_down,
+                              output_traj_gen.stance_legs,
                               output_traj_gen.swing_period_,
-                              output_traj_gen.normal_force_min_,
-                              output_traj_gen.normal_force_max_);
+                              output_traj_gen.normal_force_min,
+                              output_traj_gen.normal_force_max);
             }
             return false;
         }
@@ -421,7 +419,7 @@ To do that:
 In plugin/messages you can define custom messages. To create a message:
 * add its idl file in plugin/messages/idls. For example, the *message.idl* file can be renamed to *stance_status.idl* and
 
-      struct <MessageName>Msg{}
+      struct MessageName{};
   becames
 
       struct StanceStatusMsg
@@ -434,13 +432,13 @@ In plugin/messages you can define custom messages. To create a message:
             // Stance status
             double stance_status[4];
       };
-  By convetion, please ends the struct name with *Msg*.
 * create a message wrapper
       
-      TODO
+      The message wrapper is created automatically when creating the message. It is an header only file.
+
 * In plugin/messages/CMakeLists.txt, call the function *dls_add_message* with the message idl file name as argument. For example,
 
-      dls_add_message(message) 	# generate message
+      dls_add_message(message ${MSGS_LIBRARY_NAME}) 	# generate message
   becames
  
       dls_add_message(stance_status) 	# generate message
@@ -453,10 +451,6 @@ So far, you have create a library for custom messages. To use the messages libra
 and 
       
       #${CMAKE_CURRENT_BINARY_DIR}/../messages/include
-
-To link instead the library of the custom messages' wrappers to your plugin, in plugin/core/CMakeLists.txt uncomment the following line
-
-      #${MSGS_WRAPPERS_LIBRARY_NAME}
 
 ### Create custom topics
 In plugin/topics you have the possiblity to create custom topics. For each topic you have to define a topic name and a topic message. If at least one of the custom topic is defined using off-the-shelf message, decomment 
@@ -497,7 +491,7 @@ To create a topic
       //dls::topicType topic_variable_name = dls::topicType("topic_name", new <message_name>PubSubType());
   becames
 
-      dls::topicType stance_status = dls::topicType("stance_status", new StanceStatusMsgPubSubType());
+      dls::topicType stance_status = dls::topicType("stance_status", new StanceStatusPubSubType());
 * when choosing what to build and install with the *ccmake ..* command, set to *ON* the *<plugin_name>_plugin/topics* option. Remember that if at least one of your topics is using custom messages, set to *ON* the *<plugin_name>_plugin/messages* option too.
 
 So far you have created the topic. In order to link the topic library to the plugin, in plugin/core/CMakeLists.txt decomment the following line
@@ -505,7 +499,7 @@ So far you have created the topic. In order to link the topic library to the plu
       #${TOPICS_LIBRARY_NAME}
 Remember that if at least one of your topics is using custom messages,
 
-      #${MSGS_WRAPPERS_LIBRARY_NAME}
+      #${MSGS_LIBRARY_NAME}
 
 should be uncommented too.
 

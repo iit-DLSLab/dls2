@@ -1,4 +1,9 @@
-struct ControllerCommandMsg
+#include "dls_annotation.idl"
+#include "pose.idl"
+#include "screw.idl"
+
+@Robot
+struct ControllerCommand
 {
 	// Header
 	string frame_id;
@@ -8,10 +13,9 @@ struct ControllerCommandMsg
 	double robot_height;
     double step_frequency;
     double duty_factor;
-    double step_height[4];
+    @LimbDataMap sequence<double> step_height;
 
-    double base_position_HF[3];
-	double base_orientation_HF[4]; //x, y, z, w
-	double base_linear_velocity_HF[3];
-	double base_angular_velocity_HF[3];
+	Pose base_pose_HF;
+
+	Screw base_velocity_HF;
 };

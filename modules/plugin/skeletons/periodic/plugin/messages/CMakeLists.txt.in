@@ -1,29 +1,20 @@
 # Add messages
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+list(APPEND CMAKE_MODULE_PATH "/usr/include/dls_messages/cmake") # when using the installed dls2 project
+list(APPEND CMAKE_MODULE_PATH  "${DLS_MESSAGE_FOLDER}/cmake") # when compiling together with the dls2 project
+
 add_library(${MSGS_LIBRARY_NAME} SHARED)
 include(dls_message)		# message generation function
 # Add idls here
-dls_add_message(message) 	# generate message
+dls_add_message(message ${MSGS_LIBRARY_NAME}) 	# generate message
 
-# Add wrappers
-add_library(${MSGS_WRAPPERS_LIBRARY_NAME} SHARED
-	# add wrappers files here
+target_link_directories(${MSGS_LIBRARY_NAME}
+PUBLIC
+	/usr/lib/dls2
 )
-set_property(TARGET ${MSGS_WRAPPERS_LIBRARY_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
-target_include_directories(${MSGS_WRAPPERS_LIBRARY_NAME}
-	PUBLIC
-		include
-        ${CMAKE_CURRENT_BINARY_DIR}/include
-)
-target_link_directories(${MSGS_WRAPPERS_LIBRARY_NAME}
-	PUBLIC
-		/usr/lib/dls2
-)
-target_link_libraries(${MSGS_WRAPPERS_LIBRARY_NAME}
-	PUBLIC
-		# add wrappers dependencies here
-		dls_message_wrappers
-		${MSGS_LIBRARY_NAME}
+
+target_link_libraries(${MSGS_LIBRARY_NAME}
+PUBLIC
+    dls_msg_wrapper
 )
 
 # ================================== Install =================================
@@ -31,16 +22,4 @@ install(
     TARGETS ${MSGS_LIBRARY_NAME}
     DESTINATION /usr/lib
     COMPONENT ${PROJECT_NAME}
-)
-
-install(
-	DIRECTORY   include/
-	DESTINATION /usr/include/dls2
-	COMPONENT   COMPONENT ${PROJECT_NAME}_dev
-)
-
-install(
-	TARGETS             ${MSGS_WRAPPERS_LIBRARY_NAME}
-	DESTINATION         /usr/lib/dls2/@PLUGIN_TYPE@/${PLUGIN_NAME}
-	COMPONENT ${PROJECT_NAME}
 )

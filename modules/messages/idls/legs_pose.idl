@@ -1,15 +1,17 @@
+#include "dls_annotation.idl"
 
-struct LegsPoseMsg
+@Robot @Eigen
+struct LegsPose
 {
 	// Header
 	string frame_id;
 	unsigned long sequence_id;
 	double timestamp;
 
-	double linear_velocity[12];
-	double angular_velocity[12];
+	@LimbDataMap_EigenVector3 sequence<double> linear_velocity;
+	@LimbDataMap_EigenVector3 sequence<double> angular_velocity;
 
 	double base_velocity[3];
 
-	double stance_status[4];
+	@LimbDataMap sequence<boolean> stance_status;
 };

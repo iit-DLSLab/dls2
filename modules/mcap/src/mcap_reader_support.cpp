@@ -19,7 +19,7 @@ namespace dls
         MCAPImu::MCAPImu() : MCAPBaseTopic()
         {
             topic_name_ = "imu:trunk_imu";
-            topic_type_ = dls::topicType(dls::topics::low_level_estimation::imu.first + ":trunk_imu", new ImuMsgPubSubType());
+            topic_type_ = dls::topicType(dls::topics::low_level_estimation::imu.first + ":trunk_imu", new ImuPubSubType());
             signal_writer_ = std::make_shared<SignalWriter<Imu>>(dds_participant_, topic_type_, std::make_shared<Imu>());
         }
         MCAPImu::~MCAPImu(){}
@@ -167,7 +167,7 @@ namespace dls
         MCAPBaseState::MCAPBaseState() : MCAPBaseTopic()
         {
             topic_name_ = "base_state";
-            topic_type_ = dls::topicType(dls::topics::high_level_estimation::base_state.first, new BaseStateMsgPubSubType());
+            topic_type_ = dls::topicType(dls::topics::high_level_estimation::base_state.first, new BaseStatePubSubType());
             signal_writer_ = std::make_shared<SignalWriter<BaseState>>(dds_participant_, topic_type_, std::make_shared<BaseState>(robot_));
         }
         MCAPBaseState::~MCAPBaseState(){}
@@ -249,7 +249,7 @@ namespace dls
         MCAPBlindState::MCAPBlindState() : MCAPBaseTopic()
         {
             topic_name_ = "blind_state";
-            topic_type_ = dls::topicType(dls::topics::low_level_estimation::blind_state.first, new BlindStateMsgPubSubType());
+            topic_type_ = dls::topicType(dls::topics::low_level_estimation::blind_state.first, new BlindStatePubSubType());
             signal_writer_ = std::make_shared<SignalWriter<BlindState>>(dds_participant_, topic_type_, std::make_shared<BlindState>(robot_));
         }
         MCAPBlindState::~MCAPBlindState(){}
@@ -336,7 +336,7 @@ namespace dls
         MCAPT265Odometry::MCAPT265Odometry() : MCAPBaseTopic()
         {
             topic_name_ = "t265_odometry";
-            topic_type_ = dls::topicType(dls::topics::high_level_estimation::t265_odometry.first, new T265OdometryMsgPubSubType());
+            topic_type_ = dls::topicType(dls::topics::high_level_estimation::t265_odometry.first, new T265OdometryPubSubType());
             signal_writer_ = std::make_shared<SignalWriter<T265Odometry>>(dds_participant_, topic_type_, std::make_shared<T265Odometry>());
         }
         MCAPT265Odometry::~MCAPT265Odometry(){}

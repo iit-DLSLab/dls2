@@ -1,0 +1,14 @@
+#include "dls_annotation.idl"
+
+struct MiniTest
+{
+	boolean status;
+	double number;
+};
+
+@Robot
+struct MiniTestRobot
+{
+	boolean status;
+	@JointState sequence<double> number;
+};

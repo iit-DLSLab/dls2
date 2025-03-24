@@ -1,4 +1,9 @@
-struct BaseStateMsg
+#include "dls_annotation.idl"
+#include "pose.idl"
+#include "screw.idl"
+
+@Robot
+struct BaseState
 {
 	// Header
 	string frame_id;
@@ -8,17 +13,14 @@ struct BaseStateMsg
 	string robot_name;
 
 	// Base Pose
-	double position[3];
-	double orientation[4];
+	Pose pose;
 
 	// Base velocity
-	double linear_velocity[3];
-	double angular_velocity[3];
+	Screw velocity;
 
 	// Base acceleration
-	double linear_acceleration[3];
-	double angular_acceleration[3];
+	Screw acceleration;
 
 	// Stance status
-	double stance_status[4];
+	@LimbDataMap sequence<boolean> stance_status;
 };

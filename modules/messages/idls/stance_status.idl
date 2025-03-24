@@ -1,4 +1,7 @@
-struct StanceStatusMsg
+#include "dls_annotation.idl"
+
+@Robot
+struct StanceStatus
 {
 	// Header
 	string frame_id;
@@ -6,5 +9,5 @@ struct StanceStatusMsg
 	double timestamp;
 
 	// Stance status
-	double stance_status[4];
+	@LimbDataMap sequence<boolean> stance_status;
 };

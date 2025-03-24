@@ -19,19 +19,15 @@ namespace dls
                                     fold_configuration(pRobot->makeJointState(0.0)),
                                     goal(pRobot)
     {
-        for(auto &leg_pair : this->fold_configuration)
-        {
-            for(auto &joint_pair : *leg_pair.data_)
-            {
-                this->fold_configuration[joint_pair.key_] = config[pRobot->getName()][joint_pair.key_->getName()].as<double>();
-            }
+        for(auto joint : this->fold_configuration.getJoints()){
+            this->fold_configuration[joint] = config[pRobot->getName()][joint->getName()].as<double>();
         }
     }
 
     bool GoFoldClient::consoleCommand()
     {
         // Call the action
-        this-> goal.q_ = this->fold_configuration; 
+        this-> goal.q = this->fold_configuration; 
         this->callAction(goal);
         return true;
     }

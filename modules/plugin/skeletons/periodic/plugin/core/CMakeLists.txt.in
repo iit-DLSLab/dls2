@@ -12,7 +12,6 @@ target_link_libraries(${PROJECT_NAME}
 		periodic_app_plugin
 		${MODULE_LIBRARY_NAME}
 		${CONSOLE_COMMANDS_LIBRARY_NAME}
-		#${MSGS_WRAPPERS_LIBRARY_NAME}
 		#${TOPICS_LIBRARY_NAME}
 		# add other linked libraries here
 )

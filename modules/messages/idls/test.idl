@@ -1,0 +1,25 @@
+#include "dls_annotation.idl"
+#include "header.idl"
+#include "minitest.idl"
+
+@Robot @Eigen
+struct Test
+{
+	@key string key;
+
+	double array[3];
+
+	sequence<uint32> vector;
+
+	map<string,double> map_data;
+
+	DLSHeader header;
+	MiniTest mini_test;
+	@Robot MiniTestRobot mini_test_robot;
+
+	@JointState sequence<double> joint_state;
+
+	@LimbDataMap sequence<boolean> limb_datamap;
+
+	@LimbDataMap_EigenVector3 sequence<double> limb_datamap_eigenvec3;
+};

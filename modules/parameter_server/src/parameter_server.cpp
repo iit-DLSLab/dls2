@@ -9,13 +9,13 @@ namespace dls
 		: ServiceServer(
 			ID,
 			dls::topics::param_server,
-			dls::topicType(dls::topics::param_server.first + "_response", new ParamServerMsgPubSubType()),
+			dls::topicType(dls::topics::param_server.first + "_response", new ParamServerPubSubType()),
 			[this](void* req, void* res) -> void
 			{
 				// std::lock_guard<std::mutex> lock(this->param_store_mutex);
 
-				ParamServerMsg* request_msg = (ParamServerMsg*) req;
-				ParamServerMsg* result_msg = (ParamServerMsg*) res;
+				ParamServer* request_msg = (ParamServer*) req;
+				ParamServer* result_msg = (ParamServer*) res;
 
 				auto param = this->param_store.find(request_msg->key());
 

@@ -26,10 +26,11 @@
 #include <dls_messages/dds/controller_commandPubSubTypes.hpp>
 #include <dls_messages/dds/slip_flagPubSubTypes.hpp>
 #include <dls_messages/dds/mpc_generator_outputPubSubTypes.hpp>
-#include <dls_messages/dds/state_machinePubSubTypes.hpp>
+#include <dls_messages/dds/state_machine_monitorPubSubTypes.hpp>
 #include <dls_messages/dds/ArrowListPubSubTypes.hpp>
 #include <dls_messages/dds/SphereListPubSubTypes.hpp>
 #include <dls_messages/dds/FrictionConeListPubSubTypes.hpp>
+#include <dls_messages/dds/GenericRobotPubSubTypes.hpp>
 
 
 #include "dls2/topics/utils.hpp"

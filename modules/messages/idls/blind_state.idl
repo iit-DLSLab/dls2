@@ -1,4 +1,7 @@
-struct BlindStateMsg
+#include "dls_annotation.idl"
+
+@Robot @Eigen
+struct BlindState
 {
 	// Header
 	string frame_id;
@@ -7,13 +10,14 @@ struct BlindStateMsg
 
 	string robot_name;
 
-	string joints_name[12];
-	double joints_position[12];
-	double joints_velocity[12];
-	double joints_acceleration[12];
-	double joints_effort[12];
-	double joints_temperature[12];
+	@JointDataMap sequence<string> joints_name;
+	@JointState sequence<double> joints_position;
+	@JointState sequence<double> joints_velocity;
+	@JointState sequence<double> joints_acceleration;
+	@JointState sequence<double> joints_effort;
+	@JointState sequence<double> joints_temperature;
 
-	double feet_contact[4];
-	double current_feet_positions[12];
+	@LimbDataMap sequence<boolean> feet_contact;
+		
+	@LimbDataMap_EigenVector3 sequence<double> current_feet_positions;
 };

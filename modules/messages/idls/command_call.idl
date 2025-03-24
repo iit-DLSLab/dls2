@@ -1,4 +1,4 @@
-struct CommandCallMsg
+struct CommandCall
 {
 	// Header
 	string frame_id;

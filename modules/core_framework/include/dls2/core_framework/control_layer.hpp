@@ -8,8 +8,8 @@
 #include "dls2/application/layer.hpp"
 #include "dls2/controller/controller.hpp"
 #include "dls2/motion_generator/motion_generator.hpp"
-#include "dls2/msg_wrappers/signal_writer.hpp"
-#include "dls2/msg_wrappers/desired_torques.hpp"
+#include "dls2/signal/signal_writer.hpp"
+#include "dls_messages/dds/desired_torquesWrapper.hpp"
 
 #include <map>
 #include <memory>
@@ -119,9 +119,9 @@ private:
 	std::shared_ptr<robotlib::RobotBase> pRobot;
 
 	/// @brief Output signals
-	SignalWriter<DesiredTorques> control_signal;
+	SignalWriter<DesiredTorquesWrapper> control_signal;
 
-	DesiredTorques torques;
+	DesiredTorquesWrapper torques;
 
 	bool unloadController(std::shared_ptr<ControllerData> pData);
 

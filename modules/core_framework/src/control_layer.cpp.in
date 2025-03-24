@@ -59,7 +59,7 @@ ControlLayer::ControlLayer(std::string ID, std::string robot_name)
 	, control_signal(
 		ddsSignalLink, 
 		dls::topics::desired_torques, 
-		std::make_shared<DesiredTorques>(pRobot))
+		std::make_shared<DesiredTorquesWrapper>(pRobot))
 	, torques(pRobot)
 	, clog(ID)
 	, cfatal(ID)
@@ -240,15 +240,15 @@ void *ControlLayer::controlSignalGather(void *data)
         auto epoch = std::chrono::time_point_cast<std::chrono::milliseconds>(now).time_since_epoch();
 
 		// Read the control signals
-		layer->torques.desired_torques_ = 0.0;
+		layer->torques.desired_torques = 0.0;
 		for(auto pair : layer->controllers)
 		{
-			layer->torques.desired_torques_ += pair.second->premultiplier * pair.second->control_signal.getData().torques_;
+			layer->torques.desired_torques += pair.second->premultiplier * pair.second->control_signal.getData().torques;
 		}
 
     	// Send the desired torques to HAL
-		layer->control_signal->desired_torques_ = layer->saturateTorques(layer->torques.desired_torques_);
-		layer->control_signal->timestamp_ = std::chrono::duration_cast<std::chrono::microseconds>(epoch).count();
+		layer->control_signal->desired_torques = layer->saturateTorques(layer->torques.desired_torques);
+		layer->control_signal->timestamp = std::chrono::duration_cast<std::chrono::microseconds>(epoch).count();
 		layer->control_signal.publish();
 
         delta.push_back(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - now).count());
@@ -323,7 +323,7 @@ std::string ControlLayer::where()
 	}
 	// Where Desired Torque
 	{
-		ss << "Last published torque: "	<< this->getPublishedDesiredTorques().vec_().transpose();
+		ss << "Last published torque: "	<< this->getPublishedDesiredTorques().toeig_().transpose();
 	}
 
 	return ss.str();
@@ -345,7 +345,7 @@ bool ControlLayer::loadController(const std::string& lib_name)
     std::shared_ptr<ControllerData> pData = std::make_shared<ControllerData>(
 		lib_name,
 		this->ddsSignalLink,
-		dls::topicType(lib_name, new ControlSignalMsgPubSubType()),
+		dls::topicType(lib_name, new ControlSignalPubSubType()),
 		this->pRobot,
 		this->pDefault_spline_in,
 		this->pDefault_spline_out,
@@ -408,7 +408,7 @@ bool ControlLayer::loadExternalController(const std::string& lib_name)
     std::shared_ptr<ControllerData> pData = std::make_shared<ControllerData>(
 		lib_name,
 		this->ddsSignalLink,
-		dls::topicType(lib_name, new ControlSignalMsgPubSubType()),
+		dls::topicType(lib_name, new ControlSignalPubSubType()),
 		this->pRobot,
 		this->pDefault_spline_in,
 		this->pDefault_spline_out,
@@ -587,6 +587,6 @@ robotlib::JointState ControlLayer::saturateTorques(const robotlib::JointState& r
 }
 
 robotlib::JointState ControlLayer::getPublishedDesiredTorques(){
-	// std::lock_guard<std::mutex>	lock(this->last_published_desired_torques_mutex);
-	return this->control_signal->desired_torques_;
+	// std::lock_guard<std::mutex>	lock(this->last_published_desired_torquesmutex);
+	return this->control_signal->desired_torques;
 }

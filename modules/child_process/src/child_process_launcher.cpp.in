@@ -15,8 +15,6 @@
 #include <sys/prctl.h>
 
 #include "dls2/class_loader.hpp"
-#include "dls2/motion_generator/motion_generator.hpp"
-#include "dls2/controller/controller.hpp"
 #include "dls2/plugin/periodic_app_plugin.hpp"
 #include "dls2/plugin/app_plugin.hpp"
 #include "dls2/hardware/hardware.hpp"
@@ -120,37 +118,19 @@ int main(int argc, char **argv)
         }
         else if (args.component_type == "controller")
         {
-            if(args.component_name.compare("mpc_controller")==0 ||
-               args.component_name.compare("dw_mpc_generator")==0) {
-                pComponent =
-                    ClassLoader::loadClass<Controller, std::string>(
+            pComponent =
+                    ClassLoader::loadClass<PeriodicAppPlugin, std::string>(
                         std::string("${DLS_INSTALL_CONTROLLER_DIR}/lib") + args.lib_name + ".so",
+                        args.component_name,
                         args.robot_name);
-                scout_sys << "LOADING CONTROLLER FROM '" << std::string("${DLS_INSTALL_CONTROLLER_DIR}/lib") + args.lib_name + ".so'" << std::endl;
-            }
-            else{// periodic plugin
-                pComponent =
-                        ClassLoader::loadClass<PeriodicAppPlugin, std::string>(
-                            std::string("${DLS_INSTALL_CONTROLLER_DIR}/lib") + args.lib_name + ".so",
-                            args.component_name,
-                            args.robot_name);
-            }
         }
         else if (args.component_type == "motion_generator")
         {
-            if(args.component_name.compare("mpc_generator")==0){
-                pComponent =
-                    ClassLoader::loadClass<MotionGenerator, std::string>(
+            pComponent =
+                    ClassLoader::loadClass<PeriodicAppPlugin, std::string>(
                         std::string("${DLS_INSTALL_MOTION_GENERATOR_DIR}/lib") + args.lib_name + ".so",
+                        args.component_name,
                         args.robot_name);
-            }
-            else{// periodic plugin
-                pComponent =
-                        ClassLoader::loadClass<PeriodicAppPlugin, std::string>(
-                            std::string("${DLS_INSTALL_MOTION_GENERATOR_DIR}/lib") + args.lib_name + ".so",
-                            args.component_name,
-                            args.robot_name);
-            }
         }
         else if (args.component_type == "hardware")
         {

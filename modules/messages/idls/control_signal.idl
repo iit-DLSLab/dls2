@@ -1,10 +1,13 @@
-struct ControlSignalMsg
+#include "dls_annotation.idl"
+
+@Robot
+struct ControlSignal
 {
 	// Header
 	string frame_id;
 	unsigned long sequence_id;
 	double timestamp;
 
-	double torques[12];
+	@JointState	sequence<double> torques;
 	unsigned long long signal_reconstruction_method;
 };

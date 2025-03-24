@@ -18,7 +18,7 @@ namespace state_machine
                                  dls::topics::state_machine,
                                  std::function<void(void *)>{[&](void *msg)
                                                              {
-                                                                 auto component = static_cast<StateMachineMsg *>(msg);
+                                                                 auto component = static_cast<StateMachineMonitor *>(msg);
                                                                  std::string name = component->app_name();
                                                                  std::string state = component->state();
                                                                  bool realtime = component->realtime();

@@ -1,4 +1,6 @@
-struct AttitudeMsg
+#include "dls_annotation.idl"
+
+struct Attitude
 {
 	// Header
 	string frame_id;

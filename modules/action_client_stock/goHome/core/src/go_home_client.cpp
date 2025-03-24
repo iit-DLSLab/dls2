@@ -19,19 +19,15 @@ namespace dls
                                     home_configuration(pRobot->makeJointState(0.0)),
                                     goal(pRobot)
     {
-        for(auto &leg_pair : this->home_configuration)
-        {
-            for(auto &joint_pair : *leg_pair.data_)
-            {
-                this->home_configuration[joint_pair.key_] = config[pRobot->getName()][joint_pair.key_->getName()].as<double>();
-            }
+        for(auto joint : this->home_configuration.getJoints()){
+            this->home_configuration[joint] = config[pRobot->getName()][joint->getName()].as<double>();
         }
     }
 
     bool GoHomeClient::consoleCommand()
     {
         // Call the action
-        this-> goal.q_ = this->home_configuration; 
+        this-> goal.q = this->home_configuration; 
         this->callAction(goal);
         return true;
     }

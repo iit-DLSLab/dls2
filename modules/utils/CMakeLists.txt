@@ -4,12 +4,15 @@ configure_file(src/utils.cpp.in
 
 add_library(dls_utils
 	${CMAKE_CURRENT_BINARY_DIR}/src/utils.cpp
+	src/pose.cpp
+	src/screw.cpp
 )
 
 target_link_libraries(dls_utils
 	PUBLIC
 		robotlib
 		yaml-cpp
+		dls_math
 )
 
 set_property(TARGET dls_utils PROPERTY POSITION_INDEPENDENT_CODE ON)

@@ -15,8 +15,7 @@ DummyController::DummyController
 		dog,
 		"dls_dummy_controller",
 		// std::chrono::duration<double, std::ratio<1, 1'000'000'000>>(1),
-		std::chrono::duration<double, std::ratio<1, 1>>(1),
-		ControlSignal::SignalReconstructionMethod::ZERO_ORDER_HOLD
+		std::chrono::duration<double, std::ratio<1, 1>>(1)
 	)//,
 	// command_manager(),
 	// outstream(getID()),
@@ -103,7 +102,7 @@ void DummyController::run(const std::chrono::system_clock::time_point &time)
 		std::cout << "DUMMY CONTROLLER GOT BLIND STATE" << std::endl;
 	}
 
-	ControlSignal s;
+	ControlSignalWrapper s;
 	s.torques_.resize(12);
 
 	publishSignal(s);

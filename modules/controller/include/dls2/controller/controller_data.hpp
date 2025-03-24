@@ -2,8 +2,8 @@
 #define CONTROLLER_DATA_HPP
 
 #include "dls2/application/app_data.hpp"
-#include "dls2/msg_wrappers/control_signal.hpp"
-#include "dls2/msg_wrappers/signal_reader.hpp"
+#include "dls_messages/dds/control_signalWrapper.hpp"
+#include "dls2/signal/signal_reader.hpp"
 #include "dls2/math/ramp.hpp"
 
 #include <memory>
@@ -31,7 +31,7 @@ namespace dls
         const std::shared_ptr<math::SplineBase<double>> pSpline_in;
         const std::shared_ptr<math::SplineBase<double>> pSpline_out;
 
-        SignalReader<ControlSignal> control_signal;
+        SignalReader<ControlSignalWrapper> control_signal;
     };
 }// end namespace dls
 

@@ -1,4 +1,4 @@
-add_compile_options("-std=c++17")
+add_compile_options("-std=c++20")
 
 add_executable(dds_ros_communication_main
 	src/dds_ros_communication_main.cpp

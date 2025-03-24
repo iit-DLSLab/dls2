@@ -16,7 +16,7 @@ DDSROSSubscriber::DDSROSSubscriber()
     , subscriber_(nullptr)
     , topic_(nullptr)
     , reader_(nullptr)
-    , type_(new DDSROSMsgPubSubType())
+    , type_(new DDSROSPubSubType())
 {}
 
 bool DDSROSSubscriber::init(const eprosima::fastdds::dds::DomainId_t domain_id, const std::string& topic_name)
