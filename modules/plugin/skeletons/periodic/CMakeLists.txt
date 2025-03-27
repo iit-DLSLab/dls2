@@ -60,15 +60,6 @@ configure_file(plugin/messages/CMakeLists.txt.in
 file(	COPY plugin/messages/idls/message.idl # this is just a copy
 		DESTINATION plugin/messages/idls
 )
-file(	COPY plugin/messages/cmake/dls_message.cmake # this is just a copy
-        DESTINATION plugin/messages/cmake
-)
-file(	COPY plugin/messages/include/message.hpp # this is just a copy
-        DESTINATION plugin/messages/include/${PLUGIN_TYPE}/${PLUGIN_NAME}
-)
-file(	COPY plugin/messages/src/message.cpp # this is just a copy
-        DESTINATION plugin/messages/src
-)
 
 # -- topics
 configure_file(plugin/topics/CMakeLists.txt.in

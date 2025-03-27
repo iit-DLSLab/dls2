@@ -1,7 +1,7 @@
 #ifndef DDS_ROS_PUBLISHER
 #define DDS_ROS_PUBLISHER
 
-#include <dls_messages/dds/dds_rosPubSubTypes.h>
+#include <dls_messages/dds/dds_rosPubSubTypes.hpp>
 
 #include <fastdds/dds/publisher/DataWriterListener.hpp>
 #include <fastdds/dds/topic/TypeSupport.hpp>

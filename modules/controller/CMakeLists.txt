@@ -17,7 +17,8 @@ target_link_libraries(dls_controller
 		dls_app
 		dls_command
 		dls_logging
-		dls_message_wrappers
+		dls_signal
+		dls_messages
 		dls_com
 		dls_topics
 		dls_domains

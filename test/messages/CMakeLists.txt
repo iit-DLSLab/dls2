@@ -5,6 +5,7 @@ add_executable(wrapper_tests
 target_link_libraries(wrapper_tests
 	PRIVATE
 		dls_messages
+		dls_signal
 		dls_framework
 		robotlib
 )
@@ -15,6 +16,7 @@ add_executable(signal_reader_writer_tests
 target_link_libraries(signal_reader_writer_tests
 	PRIVATE
 		dls_messages
+		dls_signal
 		dls_framework
 		robotlib
 )

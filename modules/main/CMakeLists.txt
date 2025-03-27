@@ -1,5 +1,5 @@
 
-add_compile_options("-std=c++17")
+add_compile_options("-std=c++20")
 
 configure_file(src/main.cpp.in
 	${CMAKE_CURRENT_BINARY_DIR}/src/main.cpp
@@ -24,10 +24,10 @@ target_link_libraries(dynamic_legged_systems_framework
 		dls_framework
 		dls_supervisor
 		dls_param_server
-		dls_web_socket_translator
+		# dls_web_socket_translator
 		state_machine_watcher
 		fastcdr
-		fastrtps
+		fastdds
 		yaml-cpp
 )
 

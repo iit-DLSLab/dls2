@@ -6,13 +6,13 @@
 #include "robotlib/robot_factory.hpp"
 
 #include "dls2/util/messaging/dds_participant.hpp"
-#include "dls2/msg_wrappers/signal_writer.hpp"
+#include "dls2/signal/signal_writer.hpp"
 
-#include "dls2/msg_wrappers/imu.hpp"
-#include "dls2/msg_wrappers/trajectory_generator.hpp"
-#include "dls2/msg_wrappers/base_state.hpp"
-#include "dls2/msg_wrappers/blind_state.hpp"
-#include "dls2/msg_wrappers/t265_odometry.hpp"
+#include "dls2/signal/imu.hpp"
+#include "dls_messages/dds/trajectory_generatorWrapper.hpp"
+#include "dls_messages/dds/base_stateWrapper.hpp"
+#include "dls_messages/dds/blind_stateWrapper.hpp"
+#include "dls2/signal/t265_odometry.hpp"
 
 #include <nlohmann/json.hpp>
 

@@ -133,7 +133,7 @@ std::multimap<std::string, std::string> CommandManager::getCommandsList()
 	{
 		for(auto participant_info : discovered_participants_info)
 		{
-			if(participant_info.second.guidPrefix == eprosima::fastrtps::rtps::iHandle2GUID(datareader_instance).guidPrefix)
+			if(participant_info.second.guidPrefix == eprosima::fastdds::rtps::iHandle2GUID(datareader_instance).guidPrefix)
 			{
 				const std::string participant_name (participant_info.first);
 				size_t idx = participant_name.find("::");
@@ -198,7 +198,7 @@ int CommandManager::callCommand(std::string name_, std::vector<std::string> args
 
 void CommandManager::sendMessage(std::pair<std::string, std::string> cmdData_, std::vector<std::string> args_)
 {
-	CommandCallMsg msg;
+	CommandCall msg;
 	std::string outString;
 
 	if (args_.empty())

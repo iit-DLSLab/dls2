@@ -16,7 +16,7 @@ TEST_CASE("Messages can be published and received via topics", "[pubsub]")
 		std::string received_message("garbage aslkdfjskldafjsklafjlskajfd");
 		REQUIRE(received_message != send_message);
 
-		dls::DDSParticipant server("test_server", 0, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER);
+		dls::DDSParticipant server("test_server", 0, eprosima::fastdds::rtps::DiscoveryProtocol::SERVER);
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 		dls::DDSWriter publisher("test_writer", 0, topic);
 		dls::DDSReader subscriber("test_reader", 0, topic,

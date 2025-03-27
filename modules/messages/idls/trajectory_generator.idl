@@ -1,35 +1,36 @@
-struct TrajectoryGeneratorMsg
+#include "dls_annotation.idl"
+#include "pose.idl"
+#include "screw.idl"
+
+@Robot @Eigen
+struct TrajectoryGenerator
 {
 	// Header
-	string frame_id;
+	@key string frame_id;
 	unsigned long sequence_id;
 	double timestamp;
 
-	double com_position[3];
-	double com_orientation[4];
-
-	double com_linear_velocity[3];
-	double com_angular_velocity[3];
-
-	double com_linear_acceleration[3];
-	double com_angular_acceleration[3];
+	Pose com_pose;
 	
-	double joints_position[12];
-    double joints_velocity[12];
-    double joints_acceleration[12];
-    double joints_effort[12];
+	Screw com_vel;
+
+	Screw com_acc;
+
+	@JointState sequence<double> joints_position;
+    @JointState sequence<double> joints_velocity;
+    @JointState sequence<double> joints_acceleration;
+    @JointState sequence<double> joints_effort;
+	@JointState sequence<double> kp;
+	@JointState sequence<double> kd;
 
 	double wrench[6];
 
-	boolean stance_legs[4];
+	@LimbDataMap sequence<boolean> stance_legs;
 
-	double nominal_touch_down[12];
-    double touch_down[12];
-    double swing_period[4];
+	@LimbDataMap_EigenVector3 sequence<double> nominal_touch_down;
+    @LimbDataMap_EigenVector3 sequence<double> touch_down;
+    @LimbDataMap sequence<double> swing_period;
 
-	double normal_force_max[4];
-	double normal_force_min[4];
-
-	double kp[12];
-	double kd[12];
+	@LimbDataMap sequence<double> normal_force_max;
+	@LimbDataMap sequence<double> normal_force_min;
 };

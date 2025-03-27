@@ -38,12 +38,8 @@ void MotionGenerator::setHomeConfiguration()
 {
 	YAML::Node config = YAML::LoadFile("/usr/include/dls2/actions/goHome/config/config.yml");
 	const std::string robot_name = pRobot->getName();
-	for(auto &leg_pair : this->home_configuration)
-	{
-		for(auto &joint_pair : *leg_pair.data_)
-		{
-			this->home_configuration[joint_pair.key_] = config[robot_name][joint_pair.key_->getName()].as<double>();
-		}
+	for(auto joint : this->home_configuration.getJoints()){
+		this->home_configuration[joint] = config[robot_name][joint->getName()].as<double>();
 	}
 }
 
@@ -51,12 +47,8 @@ void MotionGenerator::setFoldConfiguration()
 {
 	YAML::Node config = YAML::LoadFile("/usr/include/dls2/actions/goFold/config/config.yml");
 	const std::string robot_name = pRobot->getName();
-	for(auto &leg_pair : this->fold_configuration)
-	{
-		for(auto &joint_pair : *leg_pair.data_)
-		{
-			this->fold_configuration[joint_pair.key_] = config[robot_name][joint_pair.key_->getName()].as<double>();
-		}
+	for(auto joint : this->fold_configuration.getJoints()){
+		this->fold_configuration[joint] = config[robot_name][joint->getName()].as<double>();
 	}
 }
 

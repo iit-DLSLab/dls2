@@ -1,5 +1,5 @@
-#include "dls2/msg_wrappers/blind_state.hpp"
-#include "dls2/msg_wrappers/base_state.hpp"
+#include "dls_messages/dds/blind_stateWrapper.hpp"
+#include "dls_messages/dds/base_stateWrapper.hpp"
 #include "robotlib/robot_factory.hpp"
 
 #include <iostream>

@@ -2,7 +2,7 @@
 #define STATE_MACHINE_HPP
 
 #include "dls2/util/messaging/dds_writer.hpp"
-
+#include "dls_messages/dds/state_machine_monitor.hpp"
 #include <map>
 #include <atomic>
 #include <memory>
@@ -119,7 +119,7 @@ namespace state_machine
         //! Variable publishing state changes
         dls::DDSWriter notifier;
 
-        StateMachineMsg state_machine_msg;
+        StateMachineMonitor state_machine_msg;
     };
 }
 

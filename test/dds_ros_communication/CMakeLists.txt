@@ -1,4 +1,4 @@
-add_compile_options("-std=c++17")
+add_compile_options("-std=c++20")
 
 add_executable(dds_ros_communication_main
 	src/dds_ros_communication_main.cpp
@@ -14,6 +14,6 @@ target_include_directories(dds_ros_communication_main
 target_link_libraries(dds_ros_communication_main
 	PRIVATE
 		dls_messages
-		fastrtps
+		fastdds
 		fastcdr
 )

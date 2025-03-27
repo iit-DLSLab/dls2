@@ -11,7 +11,8 @@ target_include_directories(plugin
 target_link_libraries(plugin
 	PUBLIC
 		dls_app
-		dls_message_wrappers
+		dls_signal
+        dls_msg_wrapper
 )
 
 add_library(periodic_app_plugin
@@ -27,7 +28,8 @@ target_include_directories(periodic_app_plugin
 target_link_libraries(periodic_app_plugin
 	PUBLIC
 		dls_app
-		dls_message_wrappers
+		dls_signal
+        dls_msg_wrapper
 		plugin
 )
 
@@ -44,7 +46,8 @@ target_include_directories(app_plugin
 target_link_libraries(app_plugin
 	PUBLIC
 		dls_app
-		dls_message_wrappers
+		dls_signal
+        dls_msg_wrapper
 		plugin
 )
 

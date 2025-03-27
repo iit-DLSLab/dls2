@@ -17,7 +17,7 @@ DDSROSPublisher::DDSROSPublisher()
     , publisher_(nullptr)
     , topic_(nullptr)
     , writer_(nullptr)
-    , type_(new DDSROSMsgPubSubType())
+    , type_(new DDSROSPubSubType())
 {
 }
 

@@ -1,5 +1,4 @@
-
-struct ScrewMsg
+struct Screw
 {
 	double linear[3];
 	double angular[3];

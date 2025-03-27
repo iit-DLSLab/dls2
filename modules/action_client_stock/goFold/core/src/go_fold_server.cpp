@@ -16,39 +16,33 @@ namespace dls
                                 pRobot(pRobot),
                                 blind_state(pRobot)
     {
-		this->buildInput<BlindState>(dls::topics::low_level_estimation::blind_state, &this->blind_state);
+		this->buildInput<BlindStateWrapper>(dls::topics::low_level_estimation::blind_state, &this->blind_state);
     }
 
     void GoFoldServer::runAction()
     {
-        for(auto &leg: feedback.desired_joints_position_)
-        {
-            for(auto &joint: *leg.data_)
-            {
-                feedback.desired_joints_position_[joint.key_] = (1 - fCoeff) * feedback.desired_joints_position_[joint.key_] + fCoeff * this->goal.q_[joint.key_];
-            }
+        for(auto joint : this->feedback.joints_position.getJoints()){
+            feedback.joints_position[joint] = (1 - fCoeff) * feedback.joints_position[joint] + fCoeff * this->goal.q[joint];
         }
-        feedback.desired_joints_velocity_ = 0.0;
+        feedback.joints_velocity = 0.0;
 
-        pRobot->forwardKinematics(feedback.desired_joints_position_, feedback.touch_down_);
-        feedback.desired_joints_velocity_.setZero();
+        pRobot->forwardKinematics(feedback.joints_position, feedback.touch_down);
+        feedback.joints_velocity.setZero();
 
-        feedback.nominal_touch_down_ = feedback.touch_down_;
-        feedback.stance_legs_ = true;
+        feedback.nominal_touch_down = feedback.touch_down;
+        feedback.stance_legs = true;
 
         // Check that the configuration is reached
         double norm=0;
-        for(auto &leg: feedback.desired_joints_position_)
-        {
-            for(auto &joint: *leg.data_)
-            {
-                norm += pow(feedback.desired_joints_position_[joint.key_]-this->goal.q_[joint.key_],2);
+
+        for(auto joint : this->feedback.joints_position.getJoints()){
+                norm += pow(feedback.joints_position[joint]-this->goal.q[joint],2);
             }
-        }
+
         norm = sqrt(norm);
         if(norm < 0.01) {
             scout_sys<<"Fold configuration reached" <<std::endl;
-            this->result.data_ = true;
+            this->result.data = true;
             this->writeResult();
             this->stopAction();
         } 
@@ -59,7 +53,7 @@ namespace dls
         if(areInputsReceivingData() && areOutputsUnique())
         {
             read();
-            feedback.desired_joints_position_ = this->blind_state.joints_position_;
+            feedback.joints_position = this->blind_state.joints_position;
             return true;
         }
 		return false;

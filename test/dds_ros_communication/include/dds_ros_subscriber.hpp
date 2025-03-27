@@ -1,7 +1,7 @@
 #ifndef DDS_ROS_SUBSCRIBER
 #define DDS_ROS_SUBSCRIBER
 
-#include <dls_messages/dds/dds_rosPubSubTypes.h>
+#include <dls_messages/dds/dds_rosPubSubTypes.hpp>
 
 #include <fastdds/dds/domain/DomainParticipant.hpp>
 #include <fastdds/dds/subscriber/DataReaderListener.hpp>

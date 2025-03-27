@@ -1,2 +1,2 @@
-struct <MessageName>Msg
-{}
+struct MessageName
+{};

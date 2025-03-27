@@ -1,0 +1,15 @@
+#include "dls_annotation.idl"
+
+@Robot
+struct JointStates
+{
+	// Header
+	string frame_id;
+	unsigned long sequence_id;
+	double timestamp;
+
+    // Vector3d
+    @JointState sequence<double> q;
+    @JointState sequence<double> qd;
+    @JointState sequence<double> qdd;
+};

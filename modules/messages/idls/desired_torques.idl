@@ -1,4 +1,7 @@
-struct DesiredTorquesMsg
+#include "dls_annotation.idl"
+
+@Robot
+struct DesiredTorques
 {
 	// Header
 	string frame_id;
@@ -6,5 +9,5 @@ struct DesiredTorquesMsg
 	double timestamp;
 
 	//data
-	double desired_torques[12];
+	@JointState sequence<double> desired_torques;
 };

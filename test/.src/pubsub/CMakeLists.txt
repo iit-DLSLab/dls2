@@ -4,7 +4,7 @@
 # 	LINK
 # 		dls_messages
 # 		dls_com
-# 		fastrtps
+# 		fastdds
 # 		fastcdr
 # 		dls_framework
 # )
@@ -15,7 +15,7 @@
 # 	LINK
 # 		dls_messages
 # 		dls_com
-# 		fastrtps
+# 		fastdds
 # 		fastcdr
 # 		dls_framework
 # )
@@ -27,7 +27,7 @@ create_test(pubsub
 		dls_messages
 		dls_com
 		dls_framework
-		fastrtps
+		fastdds
 		fastcdr
 		catch2
 )
@@ -38,7 +38,7 @@ create_test(pub_multisub
 	LINK
 		dls_framework
 		dls_messages
-		fastrtps
+		fastdds
 		fastcdr
 		catch2
 )
@@ -49,7 +49,7 @@ create_test(pub_multisub
 # 	LINK
 # 		dls_framework
 # 		dls_messages
-# 		fastrtps
+# 		fastdds
 # 		fastcdr
 # 		catch2
 # )
@@ -62,7 +62,7 @@ target_link_libraries(dummy_blind_state_publisher
 	dls_framework
 	dls_com
 	dls_messages
-	fastrtps
+	fastdds
 	fastcdr
 )
 
@@ -73,7 +73,7 @@ add_executable(dummy_blind_state_subscriber
 target_link_libraries(dummy_blind_state_subscriber
 	dls_framework
 	dls_messages
-	fastrtps
+	fastdds
 	fastcdr
 )
 
@@ -88,7 +88,7 @@ target_link_libraries(bare_dummy_controller
 	dls_command
 	dls_logging
 	dls_framework
-	fastrtps
+	fastdds
 	fastcdr
 )
 
@@ -98,6 +98,6 @@ target_link_libraries(bare_dummy_controller
 # 	LINK
 # 		dls_framework
 # 		dls_messages
-# 		fastrtps
+# 		fastdds
 # 		fastcdr
 # )

@@ -12,6 +12,7 @@ struct ArrowList{
     sequence<long> category;
 
     sequence<double> scale;
+    sequence<double> temp;
 
 };
 

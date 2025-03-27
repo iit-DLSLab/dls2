@@ -25,7 +25,7 @@ ControllerData::ControllerData
 	, control_signal(
 		participant, 
 		topic,
-		std::make_shared<ControlSignal>(pRobot)
+		std::make_shared<ControlSignalWrapper>(pRobot)
 	)
 { }
 

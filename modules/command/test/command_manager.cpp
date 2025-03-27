@@ -14,7 +14,7 @@ using namespace dls;
 // initial direction for investigation.
 TEST_CASE("Creating a command manager and adding a command works", "[command manager]")
 {
-	dls::DDSParticipant server("test_server", dls::domains::command, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER);
+	dls::DDSParticipant server("test_server", dls::domains::command, eprosima::fastdds::rtps::DiscoveryProtocol::SERVER);
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 	CommandManager cm("test");
 

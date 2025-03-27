@@ -18,7 +18,7 @@ TEST_CASE("A single publisher can publish to multiple subscribers", "[pubsub]")
 	dls::topicType topic("topic_pub_multisub", new StringMsgPubSubType());
 	std::string send_message("this is the message that needs to be sent");
 
-	dls::DDSParticipant server("test_server", 0, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER);
+	dls::DDSParticipant server("test_server", 0, eprosima::fastdds::rtps::DiscoveryProtocol::SERVER);
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 	dls::DDSWriter publisher("test_publisher", 0, topic);
 

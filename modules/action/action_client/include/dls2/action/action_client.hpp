@@ -2,8 +2,8 @@
 #define ACTION_CLIENT_HPP
 
 #include "dls2/topics/utils.hpp"
-#include "dls2/msg_wrappers/signal_writer.hpp"
-#include "dls2/msg_wrappers/signal_reader.hpp"
+#include "dls2/signal/signal_writer.hpp"
+#include "dls2/signal/signal_reader.hpp"
 #include "dls2/util/messaging/dds_participant.hpp"
 #include "dls2/command/command_manager.hpp"
 #include "dls2/action/action_client_base.hpp"

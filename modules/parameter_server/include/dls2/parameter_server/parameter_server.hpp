@@ -8,10 +8,11 @@
 #include "dls2/service/service_server.hpp"
 #include "dls2/command/command_manager.hpp"
 #include "dls2/log/log.hpp"
+#include "dls_messages/dds/param_server.hpp"
 
 namespace dls
 {
-	class ParameterServer : public dls::ServiceServer<ParamServerMsg, ParamServerMsg>
+	class ParameterServer : public dls::ServiceServer<ParamServer, ParamServer>
 	{
 	public:
 		ParameterServer(std::string&);

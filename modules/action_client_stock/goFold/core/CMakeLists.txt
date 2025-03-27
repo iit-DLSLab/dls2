@@ -15,8 +15,7 @@ target_link_libraries(${ACTION_NAME}
 	PUBLIC
 		dls_action_server_base
 		dls_action_client
-		dls_message_wrappers
-		#${MSGS_WRAPPERS_LIBRARY_NAME}
+		dls_signal
 		${TOPICS_LIBRARY_NAME}
 		yaml-cpp
 		# add other linked libraries here

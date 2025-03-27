@@ -1,7 +1,3 @@
-
-#ifndef DDSLISTENERS_CPP
-#define DDSLISTENERS_CPP
-
 #include "dls2/util/messaging/dds_listeners.hpp"
 
 
@@ -83,7 +79,7 @@ namespace dls
 		if (this->msg == nullptr)
 			this->msg = reader->type().create_data();
 
-		if (reader->take_next_sample(this->msg, &info)	== ReturnCode_t::RETCODE_OK)
+		if (reader->take_next_sample(this->msg, &info)	== eprosima::fastdds::dds::RETCODE_OK)
 		{
 			if(info.valid_data)
 			{
@@ -100,4 +96,3 @@ namespace dls
 				std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - this->last_timestamp).count()< this->is_receiving_data_th.count();
 	}
 } /// \endcond namespace dls
-#endif /* end of include guard: DDSLISTENERS_CPP */

@@ -1,4 +1,4 @@
-struct DDSROSMsg
+struct DDSROS
 {
 	string data;
 };

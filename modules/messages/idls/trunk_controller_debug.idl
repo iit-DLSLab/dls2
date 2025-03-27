@@ -1,5 +1,7 @@
-// Message for aliengo
-struct TrunkControllerDebugMsg
+#include "dls_annotation.idl"
+
+@Robot
+struct TrunkControllerDebug
 {
 	// Header
 	string frame_id;
@@ -7,12 +9,13 @@ struct TrunkControllerDebugMsg
 	double timestamp;
 
 	// Actual feet forces
-	double feet_forces[12];
-	double desired_forces[12];
+	@LimbDataMap_EigenVector3 sequence<double> feet_forces;
+	@LimbDataMap_EigenVector3 sequence<double> desired_forces;
+
 	double desired_wrench[6];
 
-	double friction_coefficients[4];
+	@LimbDataMap sequence<double>  friction_coefficients;
 
-	double gravity_term[12];
-	double coriolis_centrifugal_terms[12];
+	@JointState sequence<double> gravity_term;
+	@JointState sequence<double>  coriolis_centrifugal_terms;
 };

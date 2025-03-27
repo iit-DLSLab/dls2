@@ -17,7 +17,7 @@ target_link_libraries(dls_data_visualizer
 		foxglove_websocket
 		robotlib
 		dls_app
-		dls_message_wrappers
+		dls_signal
 )
 
 dls_install(dls_data_visualizer)

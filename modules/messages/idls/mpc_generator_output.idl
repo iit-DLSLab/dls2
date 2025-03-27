@@ -1,4 +1,4 @@
-struct MPCGeneratorOutputMsg
+struct MPCGeneratorOutput
 {
 	// Header
 	string frame_id;

@@ -1,7 +1,7 @@
-add_compile_options("-std=c++17")
+add_compile_options("-std=c++20")
 
 # Common libraries/folders to be linked/included
-set(LIBS lz4 zstd dls_com dls_message_wrappers dls_logging)
+set(LIBS lz4 zstd dls_com dls_msgs_wrappers dls_logging)
 set(DIRS "include" "include/third_party")
 
 # MCAP writer library

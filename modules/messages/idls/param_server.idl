@@ -1,4 +1,4 @@
-struct ParamServerMsg
+struct ParamServer
 {
 	// Header
 	string frame_id;

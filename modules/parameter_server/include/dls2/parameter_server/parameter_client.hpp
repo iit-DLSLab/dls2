@@ -5,10 +5,11 @@
 #include <memory>
 
 #include "dls2/service/service_client.hpp"
+#include "dls_messages/dds/param_server.hpp"
 
 namespace dls
 {
-	class ParameterClient : public ServiceClient<ParamServerMsg, ParamServerMsg>
+	class ParameterClient : public ServiceClient<ParamServer, ParamServer>
 	{
 	public:
 		ParameterClient();

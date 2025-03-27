@@ -1,4 +1,7 @@
-struct SlipFlagMsg
+#include "dls_annotation.idl"
+
+@Robot
+struct SlipFlag
 {
 	// Header
 	string frame_id;
@@ -9,5 +12,5 @@ struct SlipFlagMsg
 	string robot_name;
 	
 	// Slip detection
-	double slip_flag[4];
+	@LimbDataMap sequence<double> slip_flag;
 };

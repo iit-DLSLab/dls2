@@ -10,7 +10,7 @@ TEST_CASE("Commands can be added to the framework", "[command]")
 {
 	bool foo_called = false;
 
-	dls::DDSParticipant server("test_server", dls::domains::command, eprosima::fastrtps::rtps::DiscoveryProtocol_t::SERVER);
+	dls::DDSParticipant server("test_server", dls::domains::command, eprosima::fastdds::rtps::DiscoveryProtocol::SERVER);
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 	dls::CommandManager command_manager("first_owner");
 	dls::CommandManager command_manager_2("second_owner");

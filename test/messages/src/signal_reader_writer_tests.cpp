@@ -1,7 +1,7 @@
-#include "dls2/msg_wrappers/blind_state.hpp"
-#include "dls2/msg_wrappers/desired_torques.hpp"
-#include "dls2/msg_wrappers/signal_writer.hpp"
-#include "dls2/msg_wrappers/signal_reader.hpp"
+#include "dls_messages/dds/blind_stateWrapper.hpp"
+#include "dls2/signal/desired_torques.hpp"
+#include "dls2/signal/signal_writer.hpp"
+#include "dls2/signal/signal_reader.hpp"
 #include "robotlib/robot_factory.hpp"
 
 #include <iostream>
@@ -57,14 +57,14 @@ int main(int argc, char** argv)
 	{
 		// Test if message is received
 		// wb_blind_state->setDataFromWrapperBase(signal_reader_base->getWrapperBasePtr());
-		blind_state.joints_position_.print();
+		blind_state.joints_position.print();
 		// // Test if message is published
-		desired_torques.desired_torques_["LF"]["LF_HAA"]=increment;
-		if (blind_state.joints_position_["LF"]["LF_HAA"]>=0.4)
+		desired_torques.desired_torques["LF"]["LF_HAA"]=increment;
+		if (blind_state.joints_position["LF"]["LF_HAA"]>=0.4)
 		{
 			increment=(-1)*abs(increment);
 		}
-		else if (blind_state.joints_position_["LF"]["LF_HAA"]<=-0.4)
+		else if (blind_state.joints_position["LF"]["LF_HAA"]<=-0.4)
 		{
 			increment=abs(increment);
 		}
