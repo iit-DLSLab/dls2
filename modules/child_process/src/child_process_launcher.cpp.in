@@ -151,9 +151,10 @@ int main(int argc, char **argv)
         else if (args.component_type == "estimator")
         {
             pComponent =
-                ClassLoader::loadClass<Estimator, std::string>(
+                ClassLoader::loadClass<PeriodicAppPlugin, std::string>(
                     std::string("${DLS_INSTALL_ESTIMATOR_DIR}/lib") + args.lib_name + ".so",
-                    args.component_name);
+                    args.component_name,
+                    args.robot_name);
         }
         else if (args.component_type == "service")
         {
