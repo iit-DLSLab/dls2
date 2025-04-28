@@ -3,6 +3,7 @@ struct GenericRobot{
     // Base Pose
 	double position[3];
 	double orientation[4];
+	double timestamp;
 
     sequence<double> joints_position;
     string joints_name;
