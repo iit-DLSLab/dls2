@@ -31,6 +31,7 @@
 #include <dls_messages/dds/SphereListPubSubTypes.hpp>
 #include <dls_messages/dds/FrictionConeListPubSubTypes.hpp>
 #include <dls_messages/dds/GenericRobotPubSubTypes.hpp>
+#include <dls_messages/dds/event_logPubSubTypes.hpp>
 
 
 #include "dls2/topics/utils.hpp"
@@ -45,6 +46,7 @@ namespace dls
 		extern dls::topicType error_log_stream;
 		extern dls::topicType fatal_log_stream;
 		extern dls::topicType debug_log_stream;
+		extern dls::topicType log_events;
 
 		// command
 		extern dls::topicType command_call;

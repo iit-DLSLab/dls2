@@ -1,0 +1,13 @@
+#include "header.idl"
+
+struct EventLog{  
+    DLSHeader header;
+
+    string component_name;       // Component name
+
+    uint16 event_id; 
+
+    uint16 severity;                   // INFO, WARNING, ERROR, FATAL 
+
+    string msg;                  // Message string
+};

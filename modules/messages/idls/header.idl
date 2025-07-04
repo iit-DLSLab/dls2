@@ -2,5 +2,5 @@ struct DLSHeader
 {
 	string frame_id;
 	unsigned long sequence_id;
-	double timestamp;
+	unsigned long long timestamp;
 };

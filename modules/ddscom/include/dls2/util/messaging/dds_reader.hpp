@@ -22,6 +22,9 @@ namespace dls
 
 		// Check wheter the data reader has matched with at least one data writer
 		bool hasMatched();
+
+		// Get the number of matches
+		int getNumOfMatches();
 	private:
 
 		eprosima::fastdds::dds::DataReader *reader;

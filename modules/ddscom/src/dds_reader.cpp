@@ -31,6 +31,11 @@ namespace dls
 		return false;
 	}
 
+	int DDSReader::getNumOfMatches()
+	{
+		return this->getSubListener(this->getName())->matched_count.load();
+	}
+
 
 } // end namespace dls
 

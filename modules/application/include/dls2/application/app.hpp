@@ -104,6 +104,8 @@ namespace dls
 		//! Log errors that occurred, but from which the system can recover. Also log possible future fatal errors for the operator's attention.
 		logging::cerrstream scout_err;
 
+		logging::EventNotifier event_notifier;
+
 		/// The ID of this app
 		///
 		const std::string ID_;
