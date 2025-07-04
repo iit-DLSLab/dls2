@@ -287,6 +287,5 @@ unsigned long long int EventListener::getUnboundedBufferIdx() const
 
 unsigned long int EventListener::getBufferMaxIdx() const
 {
-	std::lock_guard<std::mutex> lock(buffer_mutex);
 	return event_buffer.capacity()-1;
 } // end getBufferMaxIdx
