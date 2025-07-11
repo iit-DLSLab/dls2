@@ -19,6 +19,8 @@ PeriodicApp::PeriodicApp(const std::string &ID)
 	, is_paused(false)
 	, pause_request()
 	, time_factor()
+	, realtime_prec(true)
+	, realtime_curr(true)
 {
     this->pid = syscall(SYS_gettid);
 	this->cur_time_factor = this->time_factor.getRealTimeFactor();
@@ -76,14 +78,18 @@ AppStatus PeriodicApp::run()
 	setRTSchedulerPolicy();
 
 	bool failure = false;
-	bool realtime_prec = true;
-	bool realtime_curr = realtime_prec;
+	realtime_prec = true;
+	realtime_curr = realtime_prec;
+	loop_time_curr = std::chrono::system_clock::now();
+	loop_time_prec = loop_time_curr;
 	while(      !sm.isRaised(sm.deactivation_request)
 	        &&  !sm.isRaised(sm.quit_request)
 	        &&  !failure)
 	{
-	    // Compute when the next period should start
-	    auto next_loop_time = getPeriod() + std::chrono::system_clock::now();
+		#ifdef DEBUG_SCHEDULER
+	    // Check realtime
+	    checkRT();
+		#endif
 
 	    // Run
 	    run(std::chrono::time_point_cast<std::chrono::system_clock::duration, std::chrono::system_clock, std::chrono::duration<double>>(std::chrono::system_clock::now()));
@@ -91,16 +97,7 @@ AppStatus PeriodicApp::run()
 	    // Check failure
 	    failure = checkFailure();
 
-	    // Check realtime
-	    realtime_curr =  checkRT(next_loop_time);
-	    if  (realtime_curr!=sm.state->realtime || 
-	        (realtime_curr==sm.state->realtime && !realtime_prec))
-	    {
-	        sm.notifyRT(realtime_curr);
-	    }
-	    realtime_prec = realtime_curr;
-
-	    // Pause execution if a pause request was made
+		// Pause execution if a pause request was made
 	    if(isPaused())
 	       pauseExecution();
 		
@@ -174,10 +171,34 @@ bool PeriodicApp::checkFailure()
 {
 	return failure;
 }
-bool PeriodicApp::checkRT(const std::chrono::time_point<	std::chrono::_V2::system_clock, 
-													std::chrono::duration<double, std::ratio<1, 1000000000>>>& next_loop_time)
+
+void PeriodicApp::checkRT()
 {
-	return std::chrono::system_clock::now() <= next_loop_time;
+	// Compute current time
+	loop_time_curr = std::chrono::system_clock::now();
+
+	// compute current frequency
+	auto elapsed_time = loop_time_curr - loop_time_prec;
+	double current_frequency = 1.0 / (std::chrono::duration_cast<std::chrono::nanoseconds>(elapsed_time).count()/ 1e9);
+	loop_time_prec = loop_time_curr;
+
+	// check if the process is running in real time.
+	realtime_curr =  fabs(current_frequency - getDesiredFrequency()) < 10; // 1% tolerance
+
+	// notify if the process is not running in real time
+	if  (realtime_curr!=sm.state->realtime || 
+		(realtime_curr==sm.state->realtime && !realtime_prec))
+	{
+		sm.notifyRT(realtime_curr);
+	}
+	realtime_prec = realtime_curr;
+
+	// notify if the process is not running at the expected frequency
+	if(!realtime_curr){
+		event_notifier.notify(	EventID::WRONG_PROCESS_FREQUENCY,
+								EventSeverity::WARNING,
+								"Des freq: " + std::to_string(getDesiredFrequency()) + " Hz, " + "Curr freq: " + std::to_string(current_frequency) + " Hz");
+	}
 }
 void PeriodicApp::setFailure()
 {
@@ -187,24 +208,17 @@ void PeriodicApp::setFailure()
 bool PeriodicApp::deactivating()
 {
 	bool deactivated = false;
-	bool realtime_prec = true;
-	bool realtime_curr = realtime_prec;
+	realtime_prec = true;
+	realtime_curr = realtime_prec;
 	while(!deactivated && !sm.isRaised(sm.quit_request))
 	{
-	    // Compute when the next period should start
-	    auto next_loop_time = getPeriod() + std::chrono::system_clock::now();
+		#ifdef DEBUG_SCHEDULER
+	    // Check realtime
+	    checkRT();
+		#endif
 
 	    // Run
 	    deactivated = deactivation(std::chrono::time_point_cast<std::chrono::system_clock::duration, std::chrono::system_clock, std::chrono::duration<double>>(std::chrono::system_clock::now()));
-
-	    // Check realtime
-	    realtime_curr = checkRT(next_loop_time);
-	    if  (realtime_curr!=sm.state->realtime || 
-	        (realtime_curr==sm.state->realtime && !realtime_prec))
-	    {
-	        sm.notifyRT(realtime_curr);
-	    }
-	    realtime_prec = realtime_curr;
 
 	    // Pause execution if a pause request was made
 	    if(isPaused())
@@ -239,4 +253,9 @@ void PeriodicApp::close()
 
 PeriodicApp::period_t PeriodicApp::getPeriod(){
 	return period;
+}
+
+double PeriodicApp::getDesiredFrequency() const
+{
+	return 1 / dt;
 }

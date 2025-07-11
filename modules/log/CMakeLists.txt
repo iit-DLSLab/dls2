@@ -7,6 +7,7 @@ set_property(TARGET dls_logging PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_include_directories(dls_logging
 	PUBLIC
 		include
+		third-party/magic_enum/include
 )
 
 target_link_libraries(dls_logging
@@ -15,6 +16,8 @@ target_link_libraries(dls_logging
 		dls_domains
 		dls_topics
 )
+
+add_subdirectory(test)
 
 dls_install(dls_logging)
 

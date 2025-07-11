@@ -25,6 +25,12 @@ namespace dls
 
 	private:
 		std::shared_ptr<dls::DDSParticipant> dds_participant_;
+
+		logging::EventListener event_listener_;
+		
+		void readEvents();
+
+		std::string convertTimeToDate(long int timestamp);
 	};
 } // end namespace dls
 

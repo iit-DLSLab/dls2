@@ -62,14 +62,14 @@ namespace dls
 		bool checkFailure();
 
 		//! Check if the app is running in real time
-		bool checkRT(const std::chrono::time_point<	std::chrono::_V2::system_clock, 
-													std::chrono::duration<double, std::ratio<1, 1000000000>>>& next_loop_time);
-
+		void checkRT();
 		//! Check if a pause request was sent
 		bool isPaused();
 		
 		//! Set the app in failure state
 		void setFailure();
+
+		double getDesiredFrequency() const;
 
 		double dt;
 	protected:
@@ -111,6 +111,11 @@ namespace dls
 		double cur_time_factor;
 
 		pid_t pid;
+
+		bool realtime_prec;
+		bool realtime_curr;
+		std::chrono::time_point<std::chrono::high_resolution_clock> loop_time_curr;
+		std::chrono::time_point<std::chrono::high_resolution_clock>  loop_time_prec;
 	};
 } // end namespace dls
 

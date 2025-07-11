@@ -15,6 +15,7 @@ namespace dls
 		dls::topicType error_log_stream = dls::topicType("error_log_stream", new StringMsgPubSubType());
 		dls::topicType fatal_log_stream = dls::topicType("fatal_log_stream", new StringMsgPubSubType());
 		dls::topicType debug_log_stream = dls::topicType("debug_log_stream", new StringMsgPubSubType());
+		dls::topicType log_events = dls::topicType("log_events", new EventLogPubSubType());
 
 		// command
 		dls::topicType command_call = dls::topicType("command_call", new CommandCallPubSubType());
