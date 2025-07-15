@@ -3,7 +3,11 @@ find_package(fastdds 3 REQUIRED)
 
 # Create message library
 add_library(fastdds_ros2_msgs SHARED)
-dls_add_message(string_msg fastdds_ros2_msgs)
+dls_add_message(string_msg_from_ROS2msg fastdds_ros2_msgs)
+dls_add_message(RobotState fastdds_ros2_msgs)
+dls_add_message(Test fastdds_ros2_msgs)
+dls_add_message(DLSAnnotation fastdds_ros2_msgs  "annotation_only" )
+# dls_add_message(example_for_ros2 fastdds_ros2_msgs)
 
 target_link_libraries(fastdds_ros2_msgs
 PUBLIC

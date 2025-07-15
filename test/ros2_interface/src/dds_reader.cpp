@@ -1,5 +1,5 @@
 #include "dls2/util/messaging/dds_participant.hpp"
-#include "dls_messages/dds/string_msgPubSubTypes.hpp"
+#include "dls_messages/dds/RobotStatePubSubTypes.hpp"
 
 #include <thread>
 #include <any>
@@ -15,15 +15,42 @@
 int main()
 {
     dls::DDSParticipant participant("participant", 0);
-    participant.addReader("dds_reader", dls::topicType("rt/chatter", new std_msgs::msg::StringPubSubType()),std::function<void(void *)>
+    participant.addReader("dds_reader", dls::topicType("rt/chatter", new dls2_interfaces::msg::RobotStatePubSubType()), std::function<void(void *)>
     {
         [&](void *msg)
         {
-            std_msgs::msg::String string_msg = *(static_cast<std_msgs::msg::String*>(msg));
-            std::cout << "Received message: " << string_msg.data() << std::endl;
-        }
+            dls2_interfaces::msg::RobotState robot_state_msg = *(static_cast<dls2_interfaces::msg::RobotState*>(msg));
+            std::cout << "\nReceived message: " << robot_state_msg.frame_id() << std::endl;
+            std::cout << "Sequence ID: " << robot_state_msg.sequence_id() << std::endl;
+            std::cout << "Timestamp: " << robot_state_msg.timestamp() << std::endl;
+            std::cout << "Position: ";
+            for (const auto& pos : robot_state_msg.position())
+            {
+                std::cout << pos << " ";
+            }
+            std::cout << std::endl;
+            std::cout << "Orientation: ";
+            for (const auto& orient : robot_state_msg.orientation())
+            {
+                std::cout << orient << " ";
+            }
+            std::cout << std::endl;
+            std::cout << "Joint Positions: ";
+            for (const auto& joint_pos : robot_state_msg.joint_pos())
+            {
+                std::cout << joint_pos << " ";
+            }
+            std::cout << std::endl;
+            std::cout << "Test Num: " << robot_state_msg.test().num() << std::endl; // Accessing the Test message
+
+            std::cout << "Joints Temperature: ";
+            for (const auto& temp : robot_state_msg.joints_temperature())
+            {
+                std::cout << temp << " ";
+            }
+            std::cout << std::endl;
+            }
     });
-    
     while(true)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));

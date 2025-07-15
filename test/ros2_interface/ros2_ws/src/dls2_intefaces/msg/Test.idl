@@ -1,0 +1,7 @@
+module dls2_interfaces {
+  module msg {
+    struct Test{
+        double num;
+    };
+  };
+};
