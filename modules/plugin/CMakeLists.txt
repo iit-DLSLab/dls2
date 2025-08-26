@@ -51,6 +51,7 @@ target_link_libraries(app_plugin
 		plugin
 )
 
+add_subdirectory(test)
 # INSTALL
 # -- plugin
 dls_install(plugin)

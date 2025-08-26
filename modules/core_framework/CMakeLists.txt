@@ -14,7 +14,7 @@ add_library(dls_framework
 		${HARDWARE_LAYER_CPP}
 		src/log_layer.cpp
 		${OPTIONS_CPP}
-		src/service_layer.cpp
+		# src/service_layer.cpp
 		${VERSION_INFO_CPP}
 		src/core_interface.cpp
 )
@@ -50,7 +50,7 @@ target_link_libraries(dls_framework
 		dls_class_loader
 		dls_time
 		dls_messages
-		dls_action_client_stock
+		# dls_action_client_stock
 		dls_supervisor
 		dls_utils
 		dls_data_visualizer

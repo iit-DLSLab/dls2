@@ -14,54 +14,64 @@ namespace dls
 
 	void Plugin::read()
 	{
-		for (long unsigned int i = 0; i < readers_.size(); i++)
+		for (long unsigned int i = 0; i < inputs.size(); i++)
 		{
-			inputs_[i]->setDataFromWrapperBase(readers_[i]->getWrapperBasePtr());
+			inputs[i]->read();
 		}
 	}
 
 	void Plugin::read(const std::string& name)
 	{
-		readers_map_[name].second->setDataFromWrapperBase(readers_map_[name].first->getWrapperBasePtr());
+		try {
+			inputs[inputs_map.at(name)]->read();
+		}
+		catch (const std::out_of_range& e)
+		{
+			throw std::runtime_error("Input name '" + name + "' not found in the plugin inputs.");
+		}
 	}
 
 	void Plugin::write()
 	{
-		for (long unsigned int i = 0; i < writers_.size(); i++)
+		for (long unsigned int i = 0; i < outputs.size(); i++)
 		{
-			writers_[i]->setDataFromWrapperBase(outputs_[i]);
-			if (writers_[i]->hasTimestamp())
+			if (outputs[i]->hasTimestamp())
 			{
-				writers_[i]->setTimestamp(std::chrono::system_clock::now().time_since_epoch().count());
+				outputs[i]->setTimestamp(std::chrono::system_clock::now().time_since_epoch().count());
 			}
-			writers_[i]->publish();
+			outputs[i]->publish();
 		}
 	}
 
 	void Plugin::write(const std::string &name)
 	{
-		writers_map_[name].first->setDataFromWrapperBase(writers_map_[name].second);
-		if (writers_map_[name].first->hasTimestamp())
-		{
-			writers_map_[name].first->setTimestamp(std::chrono::system_clock::now().time_since_epoch().count());
+		try {
+			if (outputs[outputs_map.at(name)]->hasTimestamp())
+			{
+				outputs[outputs_map.at(name)]->setTimestamp(std::chrono::system_clock::now().time_since_epoch().count());
+			}
+			outputs[outputs_map.at(name)]->publish();
 		}
-		writers_map_[name].first->publish();
+		catch (const std::out_of_range& e)
+		{
+			throw std::runtime_error("Input name '" + name + "' not found in the plugin inputs.");
+		}
 	}
 
 	bool Plugin::areOutputsUnique()
 	{
 		common_outputs.str("");
 		// iterate over the writers, getting their topic type
-		for(auto writer : writers_)
+		for(auto out : outputs)
 		{
 			// for each writer, check if there is another writer publishing on its same topic
 			// -- create reader
-			const std::string reader_name = writer->getID() + "::" + "check_output_reader";
+			const std::string reader_name = out->getID() + "::" + "check_output_reader";
 			bool is_writer_active = false;
 			auto ddslink = std::make_shared<dls::DDSReader>(
 			reader_name,
 			dls::domains::signals,
-			writer->getTopic(),
+			out->getTopic(),
 			std::function<void(void *)>
 			{
 				[&](void *)
@@ -77,7 +87,7 @@ namespace dls
 			this->unique_outputs_cv.wait_for(lock, ddslink->getSubListener(reader_name)->is_receiving_data_th);
 			if(is_writer_active)
 			{
-				common_outputs << writer->getTopic().first << " ";
+				common_outputs << out->getTopic().first << " ";
 				return false;
 			}
 		}
@@ -88,24 +98,19 @@ namespace dls
 	{
 		bool are_inputs_receiving_data = true;
 		missing_inputs.str("");
-		for (long unsigned int i = 0; i < readers_.size(); i++)
+		for (long unsigned int i = 0; i < inputs.size(); i++)
 		{
 			// check data availability if: all the readers needs to be checked or only the ones required on activation
 			if (are_inputs_required_on_activation[i])
 			{
-				if(!readers_[i]->is_receiving_data())
+				if(!inputs[i]->is_receiving_data())
 				{
-					missing_inputs << readers_[i]->getTopic().first << " ";
+					missing_inputs << inputs[i]->getTopic().first << " ";
 					if(are_inputs_receiving_data)
 						are_inputs_receiving_data = false;
 				}
 			}
 		}
 		return are_inputs_receiving_data;
-	}
-
-	std::shared_ptr<SignalReaderBase> Plugin::getReader(const std::string &name)
-	{
-		return readers_map_[name].first;
 	}
 }

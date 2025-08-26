@@ -2,9 +2,8 @@
 #define PLUGIN_HPP
 
 #include "dls2/application/periodic_app.hpp"
-#include "dls_messages/wrapper_base.hpp"
-#include "dls2/signal/signal_writer.hpp"
-#include "dls2/signal/signal_reader.hpp"
+#include "dls2/signal/writer.hpp"
+#include "dls2/signal/reader.hpp"
 
 #include <mutex>
 namespace dls
@@ -32,53 +31,26 @@ namespace dls
 		 * @brief Add an input to the plugin.
 		 * @details
 		 * When calling this function, it is created a new data reader subscribed to the input topic and it is stored the pointer to the input WrapperBase variable.
-		 * @tparam MsgWrapperType class name of the wrapper handling the message associated to the input topic
-		 * @tparam constructor_args_types types of the constructor arguments of the MsgWrapperType class
+		 * @tparam MsgType class name of the wrapper handling the message associated to the input topic
+		 * @tparam constructor_args_types types of the constructor arguments of the MsgType class
 		 * @param[in] topic topic to subscribe to
 		 * @param[in] input pointer to the variable storing the last read input
 		 * @param[in] auxiliary_callback auxiliary function to be called when a new message is received
 		 */
-		template <typename MsgWrapperType>
-		void buildInput(const dls::topicType &topic, WrapperBase *input, const std::function<void()> &auxiliary_callback = std::function<void()>([](){}), bool required_on_activation = true);
-
-		/*!
-		 * @brief Add an input to the plugin.
-		 * @details
-		 * When calling this function, it is created a new data reader subscribed to the input topic and it is stored the pointer to the input WrapperBase variable.
-		 * @tparam MsgWrapperType class name of the wrapper handling the message associated to the input topic
-		 * @tparam constructor_args_types types of the constructor arguments of the MsgWrapperType class
-		 * @param[in] name input name
-		 * @param[in] topic topic to subscribe to
-		 * @param[in] input pointer to the variable storing the last read input
-		 * @param[in] auxiliary_callback auxiliary function to be called when a new message is received
-		 */
-		template <typename MsgWrapperType>
-		void buildInput(const std::string &name, const dls::topicType &topic, WrapperBase *input, const std::function<void()> &auxiliary_callback = std::function<void()>([](){}), bool required_on_activation = true);
+		template <typename MsgType>
+		dls::ReaderPtr<MsgType> buildInput(const dls::topicType &topic, const std::function<void()> &auxiliary_callback = std::function<void()>([](){}), bool required_on_activation = true);
 
 		/*!
 		 * @brief Add an output to the plugin.
 		 * @details
 		 * When calling this function, it is created a new writer publishing on the input topic and it is stored the pointer to the output WrapperBase variable.
-		 * @tparam MsgWrapperType class name of the wrapper handling the message associated to the input topic
-		 * @tparam constructor_args_types types of the constructor arguments of the MsgWrapperType class
+		 * @tparam MsgType class name of the wrapper handling the message associated to the input topic
+		 * @tparam constructor_args_types types of the constructor arguments of the MsgType class
 		 * @param[in] topic topic to subscribe to
 		 * @param[in] output pointer to the variable storing the last wrote output
 		 */
-		template <typename MsgWrapperType>
-		void buildOutput(const dls::topicType &topic, WrapperBase *output);
-		
-		/*!
-		 * @brief Add an output to the plugin.
-		 * @details
-		 * When calling this function, it is created a new writer publishing on the input topic and it is stored the pointer to the output WrapperBase variable.
-		 * @tparam MsgWrapperType class name of the wrapper handling the message associated to the input topic
-		 * @tparam constructor_args_types types of the constructor arguments of the MsgWrapperType class
-		 * @param[in] name name of the output
-		 * @param[in] topic topic to subscribe to
-		 * @param[in] output pointer to the variable storing the last wrote output
-		 */
-		template <typename MsgWrapperType>
-		void buildOutput(const std::string &name, const dls::topicType &topic, WrapperBase *output);
+		template <typename MsgType>
+		dls::WriterPtr<MsgType> buildOutput(const dls::topicType &topic);
 
 		/*!
 		 * @brief Read all the inputs.
@@ -110,8 +82,6 @@ namespace dls
 		 */
 		void write(const std::string &name);
 
-		std::shared_ptr<SignalReaderBase> getReader(const std::string &name);
-
 	protected:
 		//! Domain participant of the plugin
 		std::shared_ptr<dls::DDSParticipant> dds_participant_;
@@ -129,19 +99,16 @@ namespace dls
 		std::stringstream common_outputs;
 
 		//! Vector of inputs (data readers)
-		std::vector<std::shared_ptr<SignalReaderBase>> readers_;
+		std::vector<std::shared_ptr<ReaderBase>> inputs;
 		//! Vector of outputs (data writers)
-		std::vector<std::shared_ptr<SignalWriterBase>> writers_;
-		
-		//! Map of data readers with their corresponding outputs variable. It is populated when calling buildInput function with the input name as additional argument
-		std::map<std::string, std::pair<std::shared_ptr<SignalReaderBase>, WrapperBase*>> readers_map_;
-		//! Map of data writers with their corresponding outputs variable. It is populated when calling buildOutput function with the output name as additional argument
-		std::map<std::string, std::pair<std::shared_ptr<SignalWriterBase>, WrapperBase*>> writers_map_;
+		std::vector<std::shared_ptr<WriterBase>> outputs;
+
+		// Map from topic (input) name to id in the inputs vector
+		std::map<std::string, size_t> inputs_map;
+		// Map from topic (output) name to id in the outputs vector
+		std::map<std::string, size_t> outputs_map;
+
 		private:
-		//! Vector of pointers pointing to input variables: created when adding an input with buildInput function
-		std::vector<WrapperBase *> inputs_;
-		//! Vector of pointers pointing to output variables: created when adding an output with buildOutput function
-		std::vector<WrapperBase *> outputs_;
 		// ! Check if inputs are required on activation
 		std::vector<bool> are_inputs_required_on_activation;
 	};

@@ -21,7 +21,7 @@ namespace tasks{
         // get names of applications among the data readers names and check their states
         std::map<std::string, std::vector<std::string>> apps_not_ready;
         std::map<std::string, std::vector<std::string>> apps_ready;
-        for(auto writer : writers_){
+        for(auto writer : outputs){
             // writer topic name
             auto topic_name = writer->getTopic().first;
             apps_ready[topic_name]={};

@@ -1,0 +1,26 @@
+
+#ifndef READER_BASE_HPP
+#define READER_BASE_HPP
+
+#include "dls2/signal/signal_base.hpp"
+#include "dls2/util/messaging/dds_participant.hpp"
+
+#include <memory>
+
+namespace dls
+{
+	class ReaderBase : public SignalBase
+	{
+	public:
+		ReaderBase(std::shared_ptr<dls::DDSParticipant> dds_participant, const dls::topicType& topic);
+		~ReaderBase();
+		ReaderBase() = delete;	
+		
+		virtual bool is_receiving_data() const = 0;
+		virtual void read() = 0;
+
+		bool received;
+	};
+} // end namespace dls
+
+#endif /* end of include guard: SIGNAL_READER_BASE_HPP */

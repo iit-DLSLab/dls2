@@ -5,66 +5,31 @@
 
 namespace dls
 {
-	template <typename MsgWrapperType>
-	void Plugin::buildInput(const dls::topicType &topic, WrapperBase *input, const std::function<void()> &auxiliary_callback, bool required_on_activation)
+	template <typename MsgType>
+	dls::ReaderPtr<MsgType> Plugin::buildInput(const dls::topicType &topic, const std::function<void()> &auxiliary_callback, bool required_on_activation)
 	{
 		// Add data reader
-		readers_.push_back(std::make_shared<SignalReader<MsgWrapperType>>(
-			dds_participant_,
-			topic,
-			std::make_shared<MsgWrapperType>(static_cast<MsgWrapperType &>(*input)),
-			auxiliary_callback));
-		// Add pointer to input
-		inputs_.push_back(input);
-
+		ReaderPtr<MsgType> reader = std::make_shared<dls::Reader<MsgType>>(dds_participant_,topic,auxiliary_callback);
+		inputs.push_back(reader);
+		// TODO: Add number if topic is not unique
+		inputs_map[topic.first] = inputs.size() - 1; // Store the index of the input in the inputs vector
+	
 		// Add activation requirement info
 		are_inputs_required_on_activation.push_back(required_on_activation);
+
+		return reader;
 	}
 
-	template <typename MsgWrapperType>
-	void Plugin::buildInput(const std::string& name, const dls::topicType &topic, WrapperBase *input, const std::function<void()> &auxiliary_callback, bool required_on_activation)
-	{
-		// Add data reader
-		readers_.push_back(std::make_shared<SignalReader<MsgWrapperType>>(
-			dds_participant_,
-			topic,
-			std::make_shared<MsgWrapperType>(static_cast<MsgWrapperType &>(*input)),
-			auxiliary_callback));
-		// Add pointer to input
-		inputs_.push_back(input);
-
-		// Add output to the map
-		readers_map_[name] = std::make_pair(readers_.back(), input);
-
-		// Add activation requirement info
-		are_inputs_required_on_activation.push_back(required_on_activation);
-	}
-
-	template <typename MsgWrapperType>
-	void Plugin::buildOutput(const dls::topicType &topic, WrapperBase *output)
+	template <typename MsgType>
+	dls::WriterPtr<MsgType> Plugin::buildOutput(const dls::topicType &topic)
 	{
 		// Add data writer
-		writers_.push_back(std::make_shared<SignalWriter<MsgWrapperType>>(
-			dds_participant_,
-			topic,
-			std::make_shared<MsgWrapperType>(static_cast<MsgWrapperType &>(*output))));
-		// Add pointer to output
-		outputs_.push_back(output);
-	}
+		WriterPtr<MsgType> writer = std::make_shared<dls::Writer<MsgType>>(dds_participant_,topic);
+		outputs.push_back(writer);
+		// TODO: Add number if topic is not unique
+		outputs_map[topic.first] = outputs.size() - 1; // Store the index of the output in the outputs vector
 
-	template <typename MsgWrapperType>
-	void Plugin::buildOutput(const std::string& name, const dls::topicType &topic, WrapperBase *output)
-	{
-		// Add data writer
-		writers_.push_back(std::make_shared<SignalWriter<MsgWrapperType>>(
-			dds_participant_,
-			topic,
-			std::make_shared<MsgWrapperType>(static_cast<MsgWrapperType &>(*output))));
-		// Add pointer to output
-		outputs_.push_back(output);
-
-		// Add output to the map
-		writers_map_[name] = std::make_pair(writers_.back(), output);
+		return writer;
 	}
 }
 

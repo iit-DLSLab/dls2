@@ -1,0 +1,19 @@
+add_executable(reader
+    reader.cpp
+)
+target_link_libraries(reader
+    dls_com
+	dls_signal
+	dls_messages
+	dls_topics
+)
+
+add_executable(writer
+	writer.cpp
+)
+target_link_libraries(writer
+	dls_com
+	dls_signal
+	dls_messages
+	dls_topics
+)
