@@ -1,6 +1,0 @@
-struct DLSHeader
-{
-	string frame_id;
-	unsigned long sequence_id;
-	unsigned long long timestamp;
-};

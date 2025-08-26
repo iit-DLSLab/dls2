@@ -13,4 +13,5 @@ install
 .setup.lock
 .vscode/
 /nohup.out
-log
+test/ros2_interface/ros2_ws/log/*
+test/ros2_interface/ros2_ws/src/log/*
