@@ -13,3 +13,4 @@ install
 .setup.lock
 .vscode/
 /nohup.out
+log

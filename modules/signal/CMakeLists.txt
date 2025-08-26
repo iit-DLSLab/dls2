@@ -2,6 +2,9 @@ add_library(dls_signal
 	SHARED
 		src/signal_reader_base.cpp
 		src/signal_writer_base.cpp
+		src/signal_base.cpp
+		src/reader_base.cpp
+		src/writer_base.cpp
 )
 
 set_property(TARGET dls_signal PROPERTY POSITION_INDEPENDENT_CODE ON)
@@ -18,5 +21,6 @@ target_link_libraries(dls_signal
 		dls_msg_wrapper		
 )
 
+add_subdirectory(test)
 
 dls_install(dls_signal)

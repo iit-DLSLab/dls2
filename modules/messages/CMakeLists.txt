@@ -43,5 +43,3 @@ install(
 	COMPONENT
 		dls_dev
 )
-
-add_subdirectory(test_wrapper)

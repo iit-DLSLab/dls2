@@ -12,6 +12,7 @@
 
 # Set wrapper file path. If it is not in the current directory (e.g. other libraries are trying to use generate messages), the installed path is set
 set (WRAPPER_FILE ${CMAKE_CURRENT_LIST_DIR}/wrapper.stg)
+
 if(NOT EXISTS "${WRAPPER_FILE}")
 	set (WRAPPER_FILE "/usr/include/dls_messages/cmake/wrapper.stg")
 endif()
@@ -43,6 +44,7 @@ function(dls_add_message msg library_name)
 		"${MESSAGE_DIR}/${msg}Wrapper.hpp"
 	)
 
+	message("${WRAPPER_FILE}")
 	# use fastddsgen to generate the message source and header files
 	add_custom_command(
 		OUTPUT
@@ -51,7 +53,7 @@ function(dls_add_message msg library_name)
 		COMMAND
 			[ -d ${MESSAGE_DIR} ] || mkdir --parents ${MESSAGE_DIR}
 		COMMAND
-			fastddsgen -replace -cs ${CMAKE_CURRENT_SOURCE_DIR}/idls/${msg}.idl -d ${MESSAGE_DIR} -extrastg ${WRAPPER_FILE} ${msg}Wrapper.hpp
+			fastddsgen -typeros2 -replace -cs ${CMAKE_CURRENT_SOURCE_DIR}/idls/${msg}.idl -d ${MESSAGE_DIR} -extrastg ${WRAPPER_FILE} ${msg}Wrapper.hpp
 		COMMENT
 			"Generating message files for ${msg}.idl"
 		DEPENDS
