@@ -32,6 +32,7 @@
 #include <dls_messages/dds/FrictionConeListPubSubTypes.hpp>
 #include <dls_messages/dds/GenericRobotPubSubTypes.hpp>
 #include <dls_messages/dds/event_logPubSubTypes.hpp>
+#include <dls_messages/dds/navigation_referencePubSubTypes.hpp>
 
 
 #include "dls2/topics/utils.hpp"
@@ -66,6 +67,7 @@ namespace dls
 		extern dls::topicType joy_signal;
 		extern dls::topicType controller_signal;
 		extern dls::topicType mpc_generator_output;
+		extern dls::topicType navigation_reference;
 
 		// services
 		extern dls::topicType param_server;

@@ -35,6 +35,7 @@ namespace dls
 		dls::topicType joy_signal = dls::topicType("joy_signal", new ControllerCommandPubSubType());
 		dls::topicType controller_signal = dls::topicType("controller_command", new ControllerCommandPubSubType());
 		dls::topicType mpc_generator_output = dls::topicType("mpc_generator_output", new MPCGeneratorOutputPubSubType());
+		dls::topicType navigation_reference = dls::topicType("navigation_reference", new NavigationReferencePubSubType());
 
 		// services
 		dls::topicType param_server = dls::topicType("add_double", new ParamServerPubSubType());
