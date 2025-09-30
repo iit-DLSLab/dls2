@@ -24,3 +24,17 @@ aliengo:
     # RH_HAA : -0.2
     # RH_HFE : 0.75
     # RH_KFE : -1.5
+
+b2:
+    LF_HAA : 0.0
+    LF_HFE : 0.75
+    LF_KFE : -1.5
+    RF_HAA : 0.0
+    RF_HFE : 0.75
+    RF_KFE : -1.5
+    LH_HAA : 0.0
+    LH_HFE : 0.75
+    LH_KFE : -1.5
+    RH_HAA : 0.0
+    RH_HFE : 0.75
+    RH_KFE : -1.5
