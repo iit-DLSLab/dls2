@@ -9,6 +9,8 @@ command:
   port: 11813
 signals:
   ip: "127.0.0.1"
+  #ip: "192.168.123.164" # b2 via ethernet
+  #ip: "192.168.88.164" # b2 via wifi router
   port: 11814
 # controllers:
 #   ip: "127.0.0.1"

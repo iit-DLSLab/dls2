@@ -7,9 +7,37 @@
 
 #include <fastdds/rtps/transport/UDPv4TransportDescriptor.hpp>
 
+#include <fastdds/dds/rpc/RequestInfo.hpp>
+
 /// \cond doxygen_namespace_dls
 namespace dls
 {
+  RpcService::RpcService(const std::string& name, void* data)
+  : _name(name)
+  , _service(NULL)
+  , _requester(NULL)
+  , _replier(NULL)
+  , _data(data)
+  { }
+
+  void RpcService::sendReply(void* data)
+  {
+    dds_rpc::RequestInfo info;
+    if (_replier) _replier->send_reply(data, info);
+    else std::cout << "[RPCS] no requester available" << std::endl;
+  }
+
+  void RpcService::sendRequest(void* data)
+  {
+    dds_rpc::RequestInfo info;
+    if (_requester)
+    {
+      std::cout << "[RPCS] send request" << std::endl;
+      _requester->send_request(data, info);
+      std::cout << "[RPCS] request sent" << std::endl;
+    }
+    else std::cout << "[RPCS] no requester available" << std::endl;
+  }
 
 	DDSParticipant::DDSParticipant(std::string partName_, dls::domainType domain_, eprosima::fastdds::rtps::DiscoveryProtocol part_type)
     	: participant(nullptr)
@@ -49,7 +77,7 @@ namespace dls
 
 		// participantQos.wire_protocol().builtin.discovery_config.initial_announcements.count = 0;
 		// participantQos.wire_protocol().builtin.discovery_config.initial_announcements.period = Duration_t(0, 100000000u);
-		
+
 		participantQos.wire_protocol().builtin.discovery_config.leaseDuration = eprosima::fastdds::dds::Duration_t(3, 1);
         participantQos.wire_protocol().builtin.discovery_config.leaseDuration_announcementperiod = eprosima::fastdds::dds::Duration_t(1, 2);
 		participantQos.name(partName_);
@@ -547,15 +575,58 @@ namespace dls
 	}
 
 	YAML::Node DDSParticipant::getServersConfig(){
-		char * val;                                                                        
-		val = getenv("DLS_SERVERS_PATH");                                                       
-		std::string servers_path = "";                                                           
-		if (val != NULL) {                                                                 
-			servers_path = val;                                                                    
+		char * val;
+		val = getenv("DLS_SERVERS_PATH");
+		std::string servers_path = "";
+		if (val != NULL) {
+			servers_path = val;
 		}
 		else{
 			servers_path = "/usr/include/dls2/util/messaging/servers.yaml";
 		}
 		return YAML::LoadFile(servers_path);
 	}
+
+  std::shared_ptr<RpcService> DDSParticipant::createReplier(
+      const std::string &serviceName,
+      const dls::topicType &requestTopic,
+      const dls::topicType &replyTopic,
+      void* data)
+  {
+    std::shared_ptr<RpcService> rpcSrvcPtr = std::make_shared<RpcService>(serviceName, data);
+
+    dds_rpc::ServiceTypeSupport srvcTypSpprt(requestTopic.second, replyTopic.second);
+    participant->register_service_type(srvcTypSpprt, serviceName + "Type");
+    rpcSrvcPtr->_service = participant->create_service(serviceName, serviceName + "Type");
+
+    eprosima::fastdds::dds::ReplierQos qos;
+    rpcSrvcPtr->_replier = participant->create_service_replier(rpcSrvcPtr->_service, qos);
+
+    return rpcSrvcPtr;
+  }
+
+  std::shared_ptr<RpcService> DDSParticipant::createRequester(
+      const std::string &serviceName,
+      const dls::topicType &requestTopic,
+      const dls::topicType &replyTopic,
+      void* data)
+  {
+    std::shared_ptr<RpcService> rpcSrvcPtr = std::make_shared<RpcService>(serviceName, data);
+
+    dds_rpc::ServiceTypeSupport srvcTypSpprt(requestTopic.second, replyTopic.second);
+    participant->register_service_type(srvcTypSpprt, serviceName + "Type");
+    rpcSrvcPtr->_service = participant->create_service(serviceName, serviceName + "Type");
+
+    eprosima::fastdds::dds::RequesterQos qos;
+    rpcSrvcPtr->_requester = participant->create_service_requester(rpcSrvcPtr->_service, qos);
+
+    return rpcSrvcPtr;
+  }
+
+  void DDSParticipant::deleteService(const std::string &serviceName)
+  {
+    dds_rpc::Service* service = participant->find_service(serviceName);
+    if (service) participant->delete_service(service);
+  }
+
 } // namespace dls

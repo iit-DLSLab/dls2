@@ -10,6 +10,7 @@
 #include <dls_messages/dds/stringmsgPubSubTypes.hpp>
 #include <dls_messages/dds/desired_torquesPubSubTypes.hpp>
 #include <dls_messages/dds/control_signalPubSubTypes.hpp>
+#include <dls_messages/dds/arm_statePubSubTypes.hpp>
 #include <dls_messages/dds/blind_statePubSubTypes.hpp>
 #include <dls_messages/dds/base_statePubSubTypes.hpp>
 #include <dls_messages/dds/trajectory_generatorPubSubTypes.hpp>
@@ -35,6 +36,9 @@
 #include <dls_messages/dds/desired_arm_torquesPubSubTypes.hpp>
 #include <dls_messages/dds/arm_blind_statePubSubTypes.hpp>
 #include <dls_messages/dds/arm_trajectory_generatorPubSubTypes.hpp>
+#include <dls_messages/dds/navigation_referencePubSubTypes.hpp>
+#include <dls_messages/dds/button_eventPubSubTypes.hpp>
+#include <dls_messages/dds/operational_modePubSubTypes.hpp>
 
 
 #include "dls2/topics/utils.hpp"
@@ -71,6 +75,9 @@ namespace dls
 		extern dls::topicType mpc_generator_output;
 		extern dls::topicType arm_trajectory_generator;
 
+		extern dls::topicType navigation_reference;
+		extern dls::topicType button_event;
+		extern dls::topicType operational_mode;
 
 		// services
 		extern dls::topicType param_server;
@@ -101,6 +108,7 @@ namespace dls
 
 		namespace low_level_estimation
 		{
+			extern dls::topicType arm_state;
 			extern dls::topicType blind_state;
 			extern dls::topicType arm_blind_state;
 			extern dls::topicType imu;

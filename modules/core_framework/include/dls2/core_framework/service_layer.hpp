@@ -26,6 +26,9 @@ namespace dls
 		bool loadDataVisualizer(const std::string&);
 		bool unloadDataVisualizer(const std::string);
 
+		bool loadGeneric(const std::string& ID);
+		bool unloadGeneric(const std::string& ID);
+
 		bool loadTask(const std::string& ID);
 		bool unloadTask(const std::string& ID);
 
@@ -38,6 +41,7 @@ namespace dls
 		// BEGIN critical section
 		    std::map<std::string, std::shared_ptr<AppData>> services;
 			std::map<std::string, std::shared_ptr<AppData>> data_visualizers_;
+			std::map<std::string, std::shared_ptr<AppData>> generics;
 			std::map<std::string, std::shared_ptr<AppData>> tasks;
 		    std::mutex services_mutex;
 			std::mutex data_visualizers_mutex_;

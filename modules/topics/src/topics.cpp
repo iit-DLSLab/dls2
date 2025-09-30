@@ -35,6 +35,12 @@ namespace dls
 		dls::topicType joy_signal = dls::topicType("joy_signal", new dls2_interface::msg::ControllerCommandPubSubType());
 		dls::topicType controller_signal = dls::topicType("controller_command", new dls2_interface::msg::ControllerCommandPubSubType());
 		dls::topicType mpc_generator_output = dls::topicType("mpc_generator_output", new dls2_interface::msg::MPCGeneratorOutputPubSubType());
+    dls::topicType navigation_reference = dls::topicType("navigation_reference",
+        new dls2_interface::msg::NavigationReferencePubSubType());
+    dls::topicType button_event = dls::topicType("button_event",
+        new dls2_interface::msg::ButtonEventPubSubType());
+    dls::topicType operational_mode = dls::topicType("operational_mode",
+        new dls2_interface::msg::OperationalModePubSubType());
 
 		// services
 		dls::topicType param_server = dls::topicType("add_double", new dls2_interface::msg::ParamServerPubSubType());
@@ -68,11 +74,12 @@ namespace dls
 
 		namespace low_level_estimation
 		{
+      dls::topicType arm_state = dls::topicType("arm_state",
+          new dls2_interface::msg::ArmStatePubSubType());
 			dls::topicType blind_state = dls::topicType("blind_state", new dls2_interface::msg::BlindStatePubSubType());
 			dls::topicType imu = dls::topicType("imu", new dls2_interface::msg::ImuPubSubType());
 			dls::topicType slip_flag = dls::topicType("slip_flag", new dls2_interface::msg::SlipFlagPubSubType());
 			dls::topicType arm_blind_state = dls::topicType("arm_blind_state", new dls2_interface::msg::ArmBlindStatePubSubType());
-
 		}
 	}
 }

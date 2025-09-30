@@ -13,15 +13,35 @@
 #include <fastdds/dds/publisher/Publisher.hpp>
 #include <fastdds/dds/subscriber/Subscriber.hpp>
 
+#include <fastdds/dds/rpc/Replier.hpp>
+#include <fastdds/dds/rpc/Requester.hpp>
+
 #include <map>
 #include <set>
 #include <string>
 #include "yaml-cpp/yaml.h"
 
+namespace dds_rpc = eprosima::fastdds::dds::rpc;
+
 /// \cond doxygen_namespace_dls
 namespace dls
 {
-	class DDSParticipant : public eprosima::fastdds::dds::DomainParticipantListener 
+  class RpcService
+  {
+  public:
+    RpcService(const std::string& name, void* data);
+
+    void sendReply(void* data);
+    void sendRequest(void* data);
+
+    std::string _name;
+    dds_rpc::Service* _service;
+    dds_rpc::Requester* _requester;
+    dds_rpc::Replier* _replier;
+    void* _data;
+  };
+
+	class DDSParticipant : public eprosima::fastdds::dds::DomainParticipantListener
 	{
 
 	public:
@@ -40,7 +60,7 @@ namespace dls
 
 		std::multimap<std::string, eprosima::fastdds::rtps::GUID_t> getDiscoveredParticipantsInfo();
 
-		
+
 
 		eprosima::fastdds::dds::DataWriter* getWriter(std::string);
 		eprosima::fastdds::dds::DataReader* getReader(std::string);
@@ -84,14 +104,26 @@ namespace dls
 		std::string getTypeNameFromTopic(const std::string& topic_name);
 
 		bool topicFound(const std::string& topic_name);
-		
-		std::string getName() const;		
-		
+
+		std::string getName() const;
+
 		std::unordered_map<std::string, eprosima::fastdds::dds::TypeSupport> get_discovery_database();
 
 		std::unordered_map<std::string, eprosima::fastdds::dds::DynamicType::_ref_type> get_discovery_database_dyn_types();
-		
+
 		static YAML::Node getServersConfig();
+
+    std::shared_ptr<RpcService> createReplier(const std::string &serviceName,
+                                              const dls::topicType &requestTopic,
+                                              const dls::topicType &replyTopic,
+                                              void* data);
+
+    std::shared_ptr<RpcService> createRequester(const std::string &serviceName,
+                                                const dls::topicType &requestTopic,
+                                                const dls::topicType &replyTopic,
+                                                void* data);
+
+    void deleteService(const std::string &serviceName);
 
 	private:
 		std::string server_ip;
@@ -100,7 +132,7 @@ namespace dls
 		std::string participant_name;
 
 		eprosima::fastdds::dds::DomainParticipant  					*participant;
-		std::map<std::string, eprosima::fastdds::dds::Topic *>  	topics;	
+		std::map<std::string, eprosima::fastdds::dds::Topic *>  	topics;
 		std::map<std::string, eprosima::fastdds::dds::DataReader *> readers;
 		std::map<std::string, eprosima::fastdds::dds::DataWriter *> writers;
 		std::map<std::string, std::shared_ptr<dls::DDSSubListener>>	subListeners;
@@ -108,7 +140,7 @@ namespace dls
 
 		eprosima::fastdds::dds::Publisher  *publisher;
         eprosima::fastdds::dds::Subscriber *subscriber;
-		
+
 		dls::DDSPartListener *topicListener;
 
 		std::unordered_map<std::string, eprosima::fastdds::dds::TypeSupport> discovery_database;
@@ -149,7 +181,7 @@ namespace dls
 
 		eprosima::fastdds::dds::DynamicType::_ref_type get_type_registered_(const std::string& type_name);
 	};
-	
+
 } // namespace dls
 /// \endcond
 #endif // DDSPARTICIPANT_HPP

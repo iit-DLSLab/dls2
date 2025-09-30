@@ -5,7 +5,7 @@ namespace dls
 	Plugin::Plugin(const std::string &ID, const domainType &domain)
 		: dds_participant_(std::make_shared<dls::DDSParticipant>(ID, domain))
 		, missing_inputs("")
-		, common_outputs("") 
+		, common_outputs("")
 	{}
 
 	Plugin::~Plugin()
@@ -113,4 +113,67 @@ namespace dls
 		}
 		return are_inputs_receiving_data;
 	}
+
+  void Plugin::createReplier(const std::string &serviceName,
+                             const dls::topicType &requestTopic,
+                             const dls::topicType &replyTopic,
+                             void* data)
+  {
+    _rpc_srvc_map[serviceName] = dds_participant_->createReplier(serviceName,
+                                                                 requestTopic,
+                                                                 replyTopic,
+                                                                 data);
+  }
+
+  void Plugin::createRequester(const std::string &serviceName,
+                               const dls::topicType &requestTopic,
+                               const dls::topicType &replyTopic,
+                               void* data)
+  {
+    _rpc_srvc_map[serviceName] = dds_participant_->createRequester(serviceName,
+                                                                   requestTopic,
+                                                                   replyTopic,
+                                                                   data);
+  }
+
+  void Plugin::sendRequest(const std::string& serviceName, void* data)
+  {
+    _rpc_srvc_map[serviceName]->sendRequest(data);
+  }
+
+  void Plugin::sendReply(const std::string &serviceName, void* data)
+  {
+    _rpc_srvc_map[serviceName]->sendReply(data);
+  }
+
+  void* Plugin::getData(const std::string &serviceName)
+  {
+    std::shared_ptr<RpcService> srvcPtr = _rpc_srvc_map[serviceName];
+    if (srvcPtr && srvcPtr->_service)
+    {
+      if (srvcPtr->_replier && srvcPtr->_replier->is_enabled())
+      {
+        dds_rpc::RequestInfo info;
+        int32_t ret = srvcPtr->_replier->take_request(srvcPtr->_data, info);
+        if (ret == 0) return srvcPtr->_data;
+      }
+      else if (srvcPtr->_requester)
+      {
+        dds_rpc::RequestInfo info;
+        int32_t ret = srvcPtr->_requester->take_reply(srvcPtr->_data, info);
+        if (ret == 0) return srvcPtr->_data;
+      }
+    }
+
+    return NULL;
+  }
+
+  void Plugin::deleteServices()
+  {
+    for (auto& [key, srvcPtr] : _rpc_srvc_map)
+    {
+      dds_participant_->deleteService(key);
+    }
+    _rpc_srvc_map.clear();
+  }
 }

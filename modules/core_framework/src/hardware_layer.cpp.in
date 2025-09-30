@@ -7,7 +7,8 @@
 
 using namespace dls;
 
-HardwareLayer::HardwareLayer(std::string ID) 
+
+HardwareLayer::HardwareLayer(std::string ID)
 	: Layer(ID, 500)
 {
     command_manager.addCommand<std::string>
@@ -30,7 +31,7 @@ HardwareLayer::HardwareLayer(std::string ID)
         {
             return this->unloadHardware(name);
 		}),
-		{{1,0}},
+		{{1,1}},
 		true
 	);
 
@@ -44,7 +45,7 @@ HardwareLayer::HardwareLayer(std::string ID)
             for(auto elem : this->hardwares){
                 scout_sys << elem.first << std::endl;
             }
-            
+
             return true;
 		}),
 		{{1,1}},
@@ -67,8 +68,8 @@ bool HardwareLayer::loadHardware(const std::string &lib_name)
         return false;
 	}
 
-	if(this->hardwares.size() > 0)
-		return false;
+	// if(this->hardwares.size() > 0)
+	// 	return false;
 
 	std::shared_ptr<HardwareData> pData = std::make_shared<HardwareData>(lib_name);
 
@@ -107,7 +108,7 @@ bool HardwareLayer::unloadHardware(std::shared_ptr<AppData> pData)
 			return true;
 		}), 2000, 10, unloaded)){
 		scout_warn << "### FORCING HARDWARE " << pData->getID() << " EXIT ###" << std::endl;
-		kill(pData->proc->id(), SIGKILL);		
+		kill(pData->proc->id(), SIGKILL);
 	}
 
 	std::cout << "Hardware " << pData->getID() << " is unloaded" << std::endl;
@@ -136,7 +137,7 @@ void HardwareLayer::close()
 	std::vector<std::string> keys;
 	for(auto pair : this->hardwares)
 		keys.push_back(pair.first);
-	
+
 	for(auto key : keys)
 		this->unloadHardware(key);
 }

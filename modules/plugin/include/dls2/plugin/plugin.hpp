@@ -8,24 +8,24 @@
 #include <mutex>
 namespace dls
 {
-	/*!
-	 * @class Plugin
-	 * @brief This is a base class for creating plugins for either apps or periodic apps.
-	 */
-	class Plugin
-	{
-	public:
-		/*!
-		 * @brief Constructor.
-		 * @param[in] ID name of plugin
-		 * @param[in] domain domain the plugin belongs to
-		 */
-		Plugin(const std::string &ID, const domainType &domain);
+  /*!
+    * @class Plugin
+    * @brief This is a base class for creating plugins for either apps or periodic apps.
+    */
+  class Plugin
+  {
+  public:
+    /*!
+      * @brief Constructor.
+      * @param[in] ID name of plugin
+      * @param[in] domain domain the plugin belongs to
+      */
+    Plugin(const std::string &ID, const domainType &domain);
 
-		/*!
-		 * @brief Destructor.
-		 */
-		virtual ~Plugin();
+    /*!
+      * @brief Destructor.
+      */
+    virtual ~Plugin();
 
 		/*!
 		 * @brief Add an input to the plugin.
@@ -52,51 +52,89 @@ namespace dls
 		template <typename MsgType>
 		dls::WriterPtr<MsgType> buildOutput(const dls::topicType &topic);
 
-		/*!
-		 * @brief Read all the inputs.
-		 * @details
-		 * When calling this function, each reader updates the corresponding input variable with the last read message
-		 */
-		void read();
+    /*!
+      * @brief Read all the inputs.
+      * @details
+      * When calling this function, each reader updates the corresponding input variable with the last read message
+      */
+    void read();
 
-		/*!
-		 * @brief Read a specific the inputs.
-		 * @details
-		 * When calling this function, the reader associated to the input name updates the corresponding input variable with the last read message
-		 * @param[in] name name of the input to read
-		 */
-		void read(const std::string &name);
+    /*!
+      * @brief Read a specific the inputs.
+      * @details
+      * When calling this function, the reader associated to the input name updates the corresponding input variable with the last read message
+      * @param[in] name name of the input to read
+      */
+    void read(const std::string &name);
 
-		/*!
-		 * @brief Write all the outputs.
-		 * @details
-		 * When calling this function, each writer writes the corresponding output to the associated output topic. This function updates also the timestamp of the output, if it has one.
-		 */
-		void write();
+    /*!
+      * @brief Write all the outputs.
+      * @details
+      * When calling this function, each writer writes the corresponding output to the associated output topic. This function updates also the timestamp of the output, if it has one.
+      */
+    void write();
 
-		/*!
-		 * @brief Write a specific output.
-		 * @details
-		 * When calling this function, the writer associated to the output_name writes the corresponding output to the associated output topic. This function updates also the timestamp of the output, if it has one.
-		 * @param[in] name name of the output to write
-		 */
-		void write(const std::string &name);
+    /*!
+      * @brief Write a specific output.
+      * @details
+      * When calling this function, the writer associated to the output_name writes the corresponding output to the associated output topic. This function updates also the timestamp of the output, if it has one.
+      * @param[in] name name of the output to write
+      */
+    void write(const std::string &name);
 
 	protected:
 		//! Domain participant of the plugin
 		std::shared_ptr<dls::DDSParticipant> dds_participant_;
 
-		std::mutex unique_outputs_mutex;
-		std::condition_variable unique_outputs_cv;
+    std::mutex unique_outputs_mutex;
+    std::condition_variable unique_outputs_cv;
 
-		/*! @brief Check if the inputs are receiving data*/ 
-		bool areInputsReceivingData();
+    /*! @brief Check if the inputs are receiving data*/
+    bool areInputsReceivingData();
 
-		/*! @brief Check if there is no other data writers publishing on the same topics of the outputs*/ 
-		bool areOutputsUnique();
+    /*! @brief Check if there is no other data writers publishing on the same topics of the outputs*/
+    bool areOutputsUnique();
 
-		std::stringstream missing_inputs;
-		std::stringstream common_outputs;
+    std::stringstream missing_inputs;
+    std::stringstream common_outputs;
+
+    /*!
+     * @brief Add service and requester associated with a service name.
+     * @details
+     * When calling this function, a new service is created and the service type is registered.
+     * Furthermore, a replier is created to reply on received requests associated with this service.
+     * @note In DLS2, services only have one replier.
+     * @param[in] name name of the service
+     * @param[in] requestTopic topic for the request
+     * @param[in] replyTopic topic for the reply
+     */
+    void createReplier(const std::string &serviceName,
+                       const dls::topicType &replyTopic,
+                       const dls::topicType &requestTopic,
+                       void* data);
+
+    void createRequester(const std::string &serviceName,
+                         const dls::topicType &replyTopic,
+                         const dls::topicType &requestTopic,
+                         void* data);
+
+    void sendRequest(const std::string& serviceName, void* data);
+
+    void sendReply(const std::string &serviceName, void* data);
+
+    /*!
+      * @brief Check for new request/reply data for the registered services.
+      * @details
+      * When calling this function, the active services are checked for new data.
+      */
+    void* getData(const std::string &serviceName);
+
+    /*!
+      * @brief Remove all services from the plugin.
+      * @details
+      * When calling this function, all services will be removed.
+      */
+    void deleteServices();
 
 		//! Vector of inputs (data readers)
 		std::vector<std::shared_ptr<ReaderBase>> inputs;
@@ -111,6 +149,8 @@ namespace dls
 		private:
 		// ! Check if inputs are required on activation
 		std::vector<bool> are_inputs_required_on_activation;
+
+    std::map<std::string, std::shared_ptr<RpcService>> _rpc_srvc_map;
 	};
 } // end namespace dls
 

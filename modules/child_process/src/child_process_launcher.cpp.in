@@ -101,7 +101,7 @@ int main(int argc, char **argv)
         shutdown);
     // give time to the logstrem connect to the logger layer
     Args args = parse_args(argc, argv);
-    
+
     std::shared_ptr<App> pComponent;
 
     // Load the component
@@ -196,6 +196,26 @@ int main(int argc, char **argv)
                     args.component_name,
                     args.robot_name);
         }
+        else if (args.component_type == "generic")
+        {
+            try
+            {
+                pComponent =
+                    ClassLoader::loadClass<AppPlugin, std::string>(
+                        std::string("${DLS_INSTALL_GENERIC_DIR}/lib") + args.lib_name + ".so",
+                        args.component_name,
+                        args.robot_name);
+            }
+            catch (const std::exception &e)
+	          {
+                scout_sys << "catch\n";
+                pComponent =
+                    ClassLoader::loadClass<AppPlugin, std::string>(
+                        std::string("/usr/lib/dls2/lib") + args.lib_name + ".so",
+                        args.component_name,
+                        args.robot_name);
+            }
+        }
         else if (args.component_type == "task")
         {
             pComponent =
@@ -225,7 +245,7 @@ int main(int argc, char **argv)
         // s << "Component '" << args.component_name << "' of type '"
         // 	<< args.component_type << "' not found" << std::endl;
         scout_err << "Could not load component '" << args.component_name
-                  << "' of type '" << args.component_type 
+                  << "' of type '" << args.component_type
                   << ". Error msg: " << e.what() << std::endl;
             usleep(1000000);
         exit(EXIT_FAILURE);
@@ -269,6 +289,7 @@ Args parse_args(int argc, char **argv)
         args.component_type != "service"&&
         args.component_type != "action"&&
         args.component_type != "procedure" &&
+        args.component_type != "generic" &&
         args.component_type != "task" &&
         args.component_type != "data_visualizer" &&
         args.component_type != "generic_periodic"

@@ -26,6 +26,7 @@ namespace dls
         void launchSingleServer(const std::string& ip, int port);
 
         void launchParamServer();
+        void launchGenerics();
         static void shutdown_all(int);
 
         static CommandManager command_manager;

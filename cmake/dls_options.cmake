@@ -1,7 +1,7 @@
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 	set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build." FORCE)
 	set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release")
-endif()                                                       
+endif()
 # ==============================================================================
 # PATHS
 # ==============================================================================
@@ -23,6 +23,10 @@ set(DLS_INSTALL_LIB_DIR /usr/lib/dls2
 
 set(DLS_DEFAULT_HEADER_DIR /usr/include/dls2
 	CACHE STRING "Directory where framework headers are stored"
+)
+
+set(DLS_GENERICS_HEADER_DIR /usr/include/dls2/generics
+	CACHE STRING "Directory where generic headers are stored"
 )
 
 set(DLS_TASKS_HEADER_DIR /usr/include/dls2/tasks
@@ -55,6 +59,10 @@ set(DLS_INSTALL_ACTION_DIR /usr/lib/dls2/actions
 
 set(DLS_INSTALL_PROCEDURE_DIR /usr/lib/dls2/procedures
 	CACHE STRING "Directory where shared object libraries for procedures are stored"
+)
+
+set(DLS_INSTALL_GENERIC_DIR /usr/lib/dls2/generics
+	CACHE STRING "Directory where shared object libraries for generics are stored"
 )
 
 set(DLS_INSTALL_TASK_DIR /usr/lib/dls2/tasks
