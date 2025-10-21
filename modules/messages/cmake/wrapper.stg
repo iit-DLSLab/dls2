@@ -760,10 +760,10 @@ struct $bitset.name$
 
 enum_type(ctx, parent, enum) ::= <<
 /*!
- * @brief This class represents the enumeration $enum.name$ defined by the user in the IDL file.
+ * @brief This class represents the enumeration $enum.name$Wrapper defined by the user in the IDL file.
  * @ingroup $ctx.trimfilename$
  */
-enum class $enum.name$ : int32_t
+enum class $enum.name$Wrapper : int32_t
 {
     $enum.members:{ member | $member.name$$if(member.annotationValue)$ = $member.annotationValueValue$$endif$}; separator=",\n"$
 };

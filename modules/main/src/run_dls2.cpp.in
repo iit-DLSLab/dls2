@@ -40,7 +40,7 @@ namespace dls
 		command_manager.addCommand<>(
 			"shutdown",
 			"Shutdown the core. It will only exits after all the layers exits.",
-			std::function<bool()>([&]() -> bool{	
+			std::function<bool()>([&]() -> bool{
 				should_quit = true;
 				return true;}),
 			{},
@@ -185,6 +185,7 @@ namespace dls
 			launchParamServer();
 			launchActionServers();
 			launchProcedures();
+			launchGenerics();
 			launchTasks();
 		}
 	}
@@ -251,10 +252,27 @@ namespace dls
 		}
 	}
 
+  void RunDLS2::launchGenerics()
+  {
+    const std::string generics_path = "@DLS_INSTALL_GENERIC_DIR@";
+    // if the folder exist, load the generics
+    struct stat info;
+    if(stat(generics_path.c_str(), &info) == 0 && info.st_mode & S_IFDIR){
+      for (const auto &entry : std::filesystem::directory_iterator(generics_path))
+      {
+        const std::string path = entry.path();
+        std::string name = path.substr(path.rfind("lib") + 3);
+        name.erase(name.length()-3);
+        if(command_manager.waitCommand("ServiceLayer", "loadGeneric", should_quit))
+          command_manager.callCommand("loadGeneric", {name}, "ServiceLayer");
+      }
+    }
+  }
+
 	void RunDLS2::launchTasks()
 	{
 		const std::string tasks_path = "@DLS_INSTALL_TASK_DIR@";
-		// if the folder exist, load the tasks		
+		// if the folder exist, load the tasks
 		struct stat info;
 		if(stat(tasks_path.c_str(), &info) == 0 && info.st_mode & S_IFDIR){
 			for (const auto &entry : std::filesystem::directory_iterator(tasks_path))

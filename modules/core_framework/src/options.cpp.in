@@ -126,7 +126,7 @@ bool Options::parseArgs(int argc, char **argv)
 				std::set<std::string> libraries{};
 				std::string textstr(optarg);
 				std::filesystem::directory_iterator dir_it("${DLS_INSTALL_MODEL_DIR}");
-				
+
 
 				for(const auto &file : dir_it)
 				{
@@ -171,7 +171,7 @@ bool Options::parseArgs(int argc, char **argv)
 				char *value;
 				int opt;
 				char *subopts = optarg;
-				
+
 				while(*subopts != '\0')
 				{
 					// if(opt != -1)
@@ -241,9 +241,9 @@ bool Options::parseArgs(int argc, char **argv)
 	}
 
 	// verify if the options are valid
-	if (!Options::validate()) 
+	if (!Options::validate())
 		return false;
-	
+
 	// Save command line flags
 	Options::argc = argc;
 	Options::argv = argv;

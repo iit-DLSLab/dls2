@@ -33,6 +33,8 @@
 #include <dls_messages/dds/GenericRobotPubSubTypes.hpp>
 #include <dls_messages/dds/event_logPubSubTypes.hpp>
 #include <dls_messages/dds/navigation_referencePubSubTypes.hpp>
+#include <dls_messages/dds/button_eventPubSubTypes.hpp>
+#include <dls_messages/dds/operational_modePubSubTypes.hpp>
 
 
 #include "dls2/topics/utils.hpp"
@@ -68,6 +70,8 @@ namespace dls
 		extern dls::topicType controller_signal;
 		extern dls::topicType mpc_generator_output;
 		extern dls::topicType navigation_reference;
+		extern dls::topicType button_event;
+		extern dls::topicType operational_mode;
 
 		// services
 		extern dls::topicType param_server;

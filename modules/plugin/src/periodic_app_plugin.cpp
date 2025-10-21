@@ -22,6 +22,6 @@ namespace dls
 		if(common_outputs.str()!=""){
 			activation_message << "There is at list another writer publishing on the topics: " << common_outputs.str() << "\n";
 		}
-		return res;	
+		return res;
 	}
 }
