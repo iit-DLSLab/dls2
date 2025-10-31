@@ -16,7 +16,7 @@ namespace dls
                                 pRobot(pRobot),
                                 blind_state(pRobot)
     {
-		this->buildInput<BlindStateWrapper>(dls::topics::low_level_estimation::blind_state, &this->blind_state);
+		this->buildInput<BlindState>(dls::topics::low_level_estimation::blind_state, &this->blind_state);
     }
 
     void GoFoldServer::runAction()

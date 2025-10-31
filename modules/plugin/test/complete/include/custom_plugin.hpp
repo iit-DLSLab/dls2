@@ -1,3 +1,6 @@
+#ifndef CUSTOM_PLUGIN_HPP
+#define CUSTOM_PLUGIN_HPP
+
 #include <chrono>
 #include <cstdlib>
 #include <iostream>
@@ -21,9 +24,18 @@ class CustomPlugin : public dls::PeriodicAppPlugin
 public:
 	CustomPlugin(const std::string& ID);
 	
+	virtual ~CustomPlugin();
+
 	void run(const std::chrono::system_clock::time_point &time) override;
+	
+	// console commands
+	bool setJointTorque();
 
 	// I/O definition
 	dls::ReaderPtr<BlindState> reader_bs;
 	dls::WriterPtr<ControlSignal> writer_cs;
+
+	
 };
+
+#endif // end of include guard: CUSTOM_PLUGIN_HPP

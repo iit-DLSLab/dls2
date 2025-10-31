@@ -8,8 +8,8 @@
 #include "dls2/application/layer.hpp"
 #include "dls2/controller/controller.hpp"
 #include "dls2/motion_generator/motion_generator.hpp"
-#include "dls2/signal/signal_writer.hpp"
-#include "dls_messages/dds/desired_torquesWrapper.hpp"
+#include "dls2/signal/writer.hpp"
+#include "dls_messages/dds/desired_torques.hpp"
 
 #include <map>
 #include <memory>
@@ -81,7 +81,7 @@ public:
 	bool unloadMotionGenerator(const std::string&);
 
 	/// Returns the last published desired torques
-	robotlib::JointState getPublishedDesiredTorques();
+	std::vector<double> getPublishedDesiredTorques();
 
 private:
 	// TODO("This should be put in the robot class")
@@ -89,7 +89,7 @@ private:
 	///
 	/// @param req The requested torques
 	/// @ret A saturated version of the torques that do not exceed safe limits
-	robotlib::JointState saturateTorques(const robotlib::JointState& req) const;
+	std::vector<double> saturateTorques(const std::vector<double>& req) const;
 
 	// ============================= Data Members ==============================
 	// BEGIN critical section
@@ -119,9 +119,9 @@ private:
 	std::shared_ptr<robotlib::RobotBase> pRobot;
 
 	/// @brief Output signals
-	SignalWriter<DesiredTorquesWrapper> control_signal;
+	Writer<DesiredTorques> writer_control_signal;
 
-	DesiredTorquesWrapper torques;
+	DesiredTorques torques;
 
 	bool unloadController(std::shared_ptr<ControllerData> pData);
 

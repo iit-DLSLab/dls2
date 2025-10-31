@@ -1,4 +1,4 @@
-#include "dls_messages/dds/blind_stateWrapper.hpp"
+#include "dls_messages/dds/blind_state.hpp"
 #include "dls2/signal/desired_torques.hpp"
 #include "dls2/signal/signal_writer.hpp"
 #include "dls2/signal/signal_reader.hpp"

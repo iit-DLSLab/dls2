@@ -10,7 +10,6 @@ ControllerData::ControllerData
 	const std::string& ID,
 	std::shared_ptr<dls::DDSParticipant> participant,
 	const dls::topicType& topic,
-	const std::shared_ptr<robotlib::RobotBase> pRobot,
 	std::shared_ptr<math::SplineBase<double>> spline_in_,
 	std::shared_ptr<math::SplineBase<double>> spline_out_,
 	const std::chrono::duration<double> &duration_in,
@@ -22,11 +21,9 @@ ControllerData::ControllerData
 	, spline_out_duration(duration_out)
 	, pSpline_in(spline_in_)
 	, pSpline_out(spline_out_)
-	, control_signal(
+	, reader_control_signal(
 		participant, 
-		topic,
-		std::make_shared<ControlSignalWrapper>(pRobot)
-	)
+		topic)
 { }
 
 #endif /* end of include guard: CONTROL_SIGNAL_HPP_QCFRROHM */

@@ -56,14 +56,14 @@ ControlLayer::ControlLayer(std::string ID, std::string robot_name)
 	, pDefault_spline_out(std::make_shared<math::Ramp<double>> (0, 2, 1, 0))
 	, default_duration_seconds(2)
 	, pRobot(robotlib::RobotFactory::openRobot(robot_name))
-	, control_signal(
+	, writer_control_signal(
 		ddsSignalLink, 
-		dls::topics::desired_torques, 
-		std::make_shared<DesiredTorquesWrapper>(pRobot))
-	, torques(pRobot)
+		dls::topics::desired_torques)
+	, torques()
 	, clog(ID)
 	, cfatal(ID)
 {
+	torques.desired_torques().resize(pRobot->getNJOINTS());
 	command_manager.addCommand<std::string>
 	(
 		"loadGenerator",
@@ -240,16 +240,20 @@ void *ControlLayer::controlSignalGather(void *data)
         auto epoch = std::chrono::time_point_cast<std::chrono::milliseconds>(now).time_since_epoch();
 
 		// Read the control signals
-		layer->torques.desired_torques = 0.0;
+		std::fill(layer->torques.desired_torques().begin(), layer->torques.desired_torques().end(), 0);
+		
 		for(auto pair : layer->controllers)
 		{
-			layer->torques.desired_torques += pair.second->premultiplier * pair.second->control_signal.getData().torques;
+			pair.second->reader_control_signal.read();
+			for(long unsigned int i=0; i<layer->torques.desired_torques().size();i++){
+				layer->torques.desired_torques()[i] += pair.second->premultiplier * pair.second->reader_control_signal.msg.torques()[i];
+			}
 		}
 
     	// Send the desired torques to HAL
-		layer->control_signal->desired_torques = layer->saturateTorques(layer->torques.desired_torques);
-		layer->control_signal->timestamp = std::chrono::duration_cast<std::chrono::microseconds>(epoch).count();
-		layer->control_signal.publish();
+		layer->writer_control_signal.msg.desired_torques() = layer->saturateTorques(layer->torques.desired_torques());
+		layer->writer_control_signal.msg.timestamp() = std::chrono::duration_cast<std::chrono::microseconds>(epoch).count();
+		layer->writer_control_signal.publish();
 
         delta.push_back(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - now).count());
 
@@ -323,7 +327,11 @@ std::string ControlLayer::where()
 	}
 	// Where Desired Torque
 	{
-		ss << "Last published torque: "	<< this->getPublishedDesiredTorques().toeig_().transpose();
+		std::vector<double> torques = this->getPublishedDesiredTorques();
+		ss << "Last published torque: ";
+		for(auto t : torques)
+			ss << t << " ";
+		ss << "\n";		
 	}
 
 	return ss.str();
@@ -346,7 +354,6 @@ bool ControlLayer::loadController(const std::string& lib_name)
 		lib_name,
 		this->ddsSignalLink,
 		dls::topicType(lib_name, new ControlSignalPubSubType()),
-		this->pRobot,
 		this->pDefault_spline_in,
 		this->pDefault_spline_out,
 		default_duration_seconds,
@@ -409,7 +416,6 @@ bool ControlLayer::loadExternalController(const std::string& lib_name)
 		lib_name,
 		this->ddsSignalLink,
 		dls::topicType(lib_name, new ControlSignalPubSubType()),
-		this->pRobot,
 		this->pDefault_spline_in,
 		this->pDefault_spline_out,
 		default_duration_seconds,
@@ -579,14 +585,14 @@ bool ControlLayer::unloadMotionGenerator(const std::string& ID)
     return this->unloadMotionGenerator(pair_it->second);
 }
 
-robotlib::JointState ControlLayer::saturateTorques(const robotlib::JointState& req) const
+std::vector<double> ControlLayer::saturateTorques(const std::vector<double>& req) const
 {
 	// TODO("This is not implemented yet")
 	// TODO("Move this to the robot class")
 	return req;
 }
 
-robotlib::JointState ControlLayer::getPublishedDesiredTorques(){
+std::vector<double> ControlLayer::getPublishedDesiredTorques(){
 	// std::lock_guard<std::mutex>	lock(this->last_published_desired_torquesmutex);
-	return this->control_signal->desired_torques;
+	return this->writer_control_signal.msg.desired_torques();
 }

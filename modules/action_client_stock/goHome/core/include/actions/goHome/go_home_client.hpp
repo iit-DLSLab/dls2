@@ -3,7 +3,7 @@
 
 #include "dls2/action/action_client.hpp"
 #include "actions/goHome/msg_wrapper_types.hpp"
-#include "dls_messages/dds/control_signalWrapper.hpp"
+#include "dls_messages/dds/control_signal.hpp"
 
 namespace dls
 {

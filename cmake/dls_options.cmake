@@ -69,6 +69,10 @@ set(DLS_INSTALL_TASK_DIR /usr/lib/dls2/tasks
 	CACHE STRING "Directory where shared object libraries for tasks are stored"
 )
 
+set(DLS_INSTALL_GENERIC_PLUGIN_DIR /usr/lib/dls2/generic_plugins
+	CACHE STRING "Directory where shared object libraries for generic plugins are stored"
+)
+
 set(DLS_INSTALL_HARDWARE_DIR /usr/lib/dls2/hardwares
 	CACHE STRING "Directory where shared object libraries for hardwares are stored"
 )

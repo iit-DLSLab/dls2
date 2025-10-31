@@ -79,6 +79,18 @@ namespace dls
             true
         );
 
+        command_manager.addCommand<std::string>
+        (
+            "loadPlugin",
+            "Load a task",
+            std::function<bool(std::string)>([&](std::string type)->bool
+            {
+                return this->loadPlugin(type);
+            }),
+            {},
+            true
+        );
+
     }
 
     Supervisor::~Supervisor()
@@ -105,6 +117,47 @@ namespace dls
         auto layers = ddspart_layers.getParticipants();
 
         return (std::find(layers.begin(), layers.end(), name) != layers.end()); 
+    }
+
+    bool Supervisor::loadPlugin(const std::string& name)
+    {	
+        if(this->plugins.find(name) != this->plugins.end())
+        {
+            scout_err << "plugin " + name + " already loaded" << std::endl;
+            return false;
+        }
+
+        std::shared_ptr<AppData> pData = std::make_shared<AppData>(name);
+        
+        // launch the process
+        char *child_process_launcher = std::getenv("DLS_CHILD_PROCESS_LAUNCHER");
+        if(!child_process_launcher)
+        {
+            scout_err <<
+                "env variable DLS_CHILD_PROCESS_LAUNCHER not "
+                "defined.  This is probably an error with the launch script"
+            << std::endl;
+            return false;
+        }
+
+        pData->proc = std::make_shared<boost::process::child>(std::vector<std::string>({
+            child_process_launcher,
+            pData->getID(),
+            name,
+            "generic_periodic",
+            "aliengo"
+        }));
+
+        if (pData->proc == nullptr){
+            std::cout << "Task " << name <<" failed to launch: nullptr" << std::endl;
+            return false;
+        }
+        
+        pData->proc->detach();
+        
+        this->plugins.emplace(pData->getID(), pData);
+
+        return true;
     }
 }
 

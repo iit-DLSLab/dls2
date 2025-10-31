@@ -3,7 +3,7 @@
 
 #include "dls2/action/action_server_base.hpp"
 #include "actions/goFold/msg_wrapper_types.hpp"
-#include "dls_messages/dds/blind_stateWrapper.hpp"
+#include "dls_messages/dds/blind_state.hpp"
 
 namespace dls
 {
@@ -35,7 +35,7 @@ namespace dls
         double fCoeff{0.003};
 
 		//! Additional input for the action
-		BlindStateWrapper blind_state;
+		BlindState blind_state;
 
 	}; // end namespace dls
 }

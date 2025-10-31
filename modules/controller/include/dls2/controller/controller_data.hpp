@@ -2,9 +2,10 @@
 #define CONTROLLER_DATA_HPP
 
 #include "dls2/application/app_data.hpp"
-#include "dls_messages/dds/control_signalWrapper.hpp"
-#include "dls2/signal/signal_reader.hpp"
+#include "dls_messages/dds/control_signal.hpp"
+#include "dls2/signal/reader.hpp"
 #include "dls2/math/ramp.hpp"
+#include "robotlib/robot_base.hpp"
 
 #include <memory>
 
@@ -18,7 +19,6 @@ namespace dls
             const std::string&,
             std::shared_ptr<dls::DDSParticipant> participant,
             const dls::topicType& topic,
-            const std::shared_ptr<robotlib::RobotBase>,
             std::shared_ptr<math::SplineBase<double>> pSpline_in,
             std::shared_ptr<math::SplineBase<double>> pSpline_out,
             const std::chrono::duration<double> &duration_in,
@@ -31,7 +31,7 @@ namespace dls
         const std::shared_ptr<math::SplineBase<double>> pSpline_in;
         const std::shared_ptr<math::SplineBase<double>> pSpline_out;
 
-        SignalReader<ControlSignalWrapper> control_signal;
+        Reader<ControlSignal> reader_control_signal;
     };
 }// end namespace dls
 

@@ -40,7 +40,6 @@ function(dls_add_message msg library_name)
 		"${MESSAGE_DIR}/${msg}.hpp"
 		"${MESSAGE_DIR}/${msg}PubSubTypes.hpp"
 		"${MESSAGE_DIR}/${msg}TypeObjectSupport.hpp"
-		"${MESSAGE_DIR}/${msg}Wrapper.hpp"
 	)
 
 	# use fastddsgen to generate the message source and header files
@@ -51,7 +50,7 @@ function(dls_add_message msg library_name)
 		COMMAND
 			[ -d ${MESSAGE_DIR} ] || mkdir --parents ${MESSAGE_DIR}
 		COMMAND
-			fastddsgen -typeros2 -replace -cs ${CMAKE_CURRENT_SOURCE_DIR}/idls/${msg}.idl -d ${MESSAGE_DIR} -extrastg ${WRAPPER_FILE} ${msg}Wrapper.hpp
+			fastddsgen -typeros2 -replace -cs ${CMAKE_CURRENT_SOURCE_DIR}/idls/${msg}.idl -d ${MESSAGE_DIR}
 		COMMENT
 			"Generating message files for ${msg}.idl"
 		DEPENDS

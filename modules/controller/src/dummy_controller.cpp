@@ -102,7 +102,7 @@ void DummyController::run(const std::chrono::system_clock::time_point &time)
 		std::cout << "DUMMY CONTROLLER GOT BLIND STATE" << std::endl;
 	}
 
-	ControlSignalWrapper s;
+	ControlSignal s;
 	s.torques_.resize(12);
 
 	publishSignal(s);

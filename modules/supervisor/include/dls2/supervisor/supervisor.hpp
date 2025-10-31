@@ -11,6 +11,7 @@
 #include "dls2/log/log.hpp"
 #include "dls2/application/layer.hpp"
 #include "dls2/state_machine/state_machine_watcher.hpp"
+#include "dls2/application/app_data.hpp"
 
 namespace dls
 {
@@ -24,11 +25,15 @@ namespace dls
 		std::vector<std::string> getLayersNames();
 		bool containsLayer(std::string name);
 
+		bool loadPlugin(const std::string& ID);
+
 		virtual void monitor() override;
 
 	private:
         dls::DDSParticipant ddspart_layers;
         state_machine::StateMachineWatcher state_machine_watcher;
+
+		std::map<std::string, std::shared_ptr<AppData>> plugins;
 	};
 
 	
