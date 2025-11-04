@@ -32,14 +32,6 @@ The PeriodicAppPlugin class is the interface that allows a software module to ru
 
 The *create_t*, *destroy_t* and *run* functions has to be implemented in any class inheriting from PeriodicAppPlugin. See [How to write a periodic plugin](#how-to-write-a-periodic-plugin) section.
 
-When creating an input, the plugin performs two steps:
-* create a data reader, subscribed to the desired topic
-* store the pointer to the input variable, used by *read()*. This function automatically gets the last message read by each data reader and updates each corresponding input variable through its pointer
-
-Similarly, when creating an output, the plugin performs two steps:
-* create a data writer, publishing to the desired topic
-* store the pointer to the output variable. With this pointer, the plugin is aware of the current state of the output variable. Therefore, when calling the *write()* function, the plugin can automatically publish all the outputs, by setting also the timestap of the output, if it has one.
-
 #### How to write a periodic plugin
 In this section it is described which are the components that a specific plugin must have and how to implement them. The [Overview](#overview) section describes the components. The [Steps](#steps) section instead, tells you how to create a plugin, by following what it is written in the overview. So you could directly go to the [Steps](#steps) section, despite it is kindly suggested to read the overview.
 
@@ -56,15 +48,12 @@ The specific Plugin of the module has to be a C++ class inheriting from Periodic
 
 The Plugin has to store internally the following main objects:
 * module object: this is an instance of your module class
-* console command object: this is an instance of the class storing the console commands, that allows you to interact with the module at run-time
-* inputs variables: they are updated with the last read message, when calling the *read()* function
-* outputs variables: they are read by the plugin, and they are published to the DLS2 network when calling the *write()* function (the timestamp is already filled by *write()*)
+* readers: they store a msg variable updated with the last read message when calling the *read()* function
+* writers: they store a msg variable, that can be updated such that the message can be published to the DLS2 network when calling the *write()* function (the timestamp is already filled by *write()*)
 
 Once it is loaded, the Plugin constructor has to:
-* initialize the module and console commands objects
-* initialize the inputs and outputs
-* create a sets of signal readers, for getting the module inputs from the DLS2 network
-* create a sets of signal writers, for sending the module outputs to the DLS2 network
+* initialize the module
+* define the inputs and outputs (i.e. readers and writers)
 
 After the construction, the Plugin goes in the _idle_ state and the process holding it falls asleep waiting for an activation request. Once it is received, the _checkActivation()_ function is run periodically until a timeout: this is the function where you can initialize your module and do some basic checks. If the activation fails, the process goes back to the _idle_ state, otherwise the process starts executing its run function periodically, which has to call three main functions: 
 * *read()*: it gets all the inputs of the module from the DLS2 network
@@ -76,25 +65,15 @@ From this structure, it easy to understand that the only compatibility requireme
 ##### What is an input?
 In the Plugin an input is identified by:
 * a topic to read from
-* a SignalReader object, creating a data reader listening on the topic, and built by the *buildInput* function
-* an input variable, of message wrapper type, that is updated each time the *read()* function is called
-
-The SignalReader object is stored in a variable of the PeriodicAppPlugin class. The input variable instead has to be defined in the Plugin.
+* a reader object, listening on the topic, and built by the *buildInput* function
 
 ##### What is an output?
 In the Plugin an output is identified by:
 * a topic to write to
-* a SignalWriter object, creating a data writer publishing on the topic, and built by the *buildOutput* function
-* an output variable, of message wrapper type, whose content is sent to the topic each time the *write()* function is called
-
-the SignalWriter object is stored in a variable of the PeriodicAppPlugin class. The output variable instead has to be defined in the Plugin.
+* a writer object, publishing on the topic, and built by the *buildOutput* function
 
 ##### Custom console commands
-To interact with your module through the DLS2 console, you can create a C++ class that stores and implements all the console commads. This class should:
-*  have a pointer to the module object, which it is used in the console commands implemementation to change the variable of the object
-* register each of the console command to the command manager of the Plugin
-
-Once an instance of this class is created in the Plugin class, all the console commands became available.
+To interact with your module through the DLS2 console, you can define in the plugin class custom console commands.
 
 ##### Steps
 From the organization point of view, for each plugin there is a repo.
@@ -118,12 +97,9 @@ To create a periodic plugin:
 
     This command will create in the current directory (so in your repo) a basic project structure with the following main folders:
     * module: where you develop your module
-    * plugin/core: where you develop the plugin
-    * plugin/console_commands: where you develop your console commands
-    * plugin/messages: where you develop custom messages
-    * plugin/topics: where you develop custom topics
+    * plugin: where you develop the plugin
     
-    The Plugin, module and console commands classes are automatically created, together with some suggestions on how to customize your plugin.
+    The Plugin and module classes are automatically created, together with some suggestions on how to customize your plugin.
     
     Moreover, in the project structure there is also the possibility to define custom messages and topics, that you can use in your plugin and made available to the DLS2 network.
 * follow the instruction in the README of the project you have just created. You can find the README also [here](https://github.com/iit-DLSLab/dls2/tree/main/modules/plugin/skeletons/periodic#periodic-plugin).

@@ -1,29 +1,35 @@
 #include "@PLUGIN_TYPE@/@PLUGIN_NAME@/plugin.hpp"
 
 // topics
-//#include <dls2/topics/topics.hpp> // off-the-shelf topics
-//#include "@PLUGIN_TYPE@/@PLUGIN_NAME@/topics.hpp" // custom topics
+// Include the TypeSupport of each message associated to each topic
+// #include <dls_messages/dds/<idl_file_name>PubSubTypes.hpp> // # off-the-shelf message
+// #include "dls_messages/dds/<idl_file_name>PubSubTypes.hpp" // # custom message
+
+// namespace dls
+// {
+//     namespace topics
+//     {
+//         namespace @PLUGIN_NAME@{
+//             // dls::topicType topic_variable_name = dls::topicType("topic_name", new <message_name>PubSubType());
+//         }
+//     }
+// }
 
 namespace @PLUGIN_TYPE@ 
 {
     @PLUGIN_CLASS_NAME@::@PLUGIN_CLASS_NAME@ (const std::string& ID/*, aguments_of_module_constructor*/) 
     : dls::PeriodicAppPlugin(ID)
     , @PLUGIN_NAME@(/*aguments_of_module_constructor*/) // instantiate module
-    , console_commands(&@PLUGIN_NAME@, &command_manager)
-    /*, construct_input_variables*/ // instantiate input
-    /*, construct_output_variables*/ //instantiate output
     {
-        // Define inputs
-        /*this->buildInput<message_wrapper_class>(
-            topic_name,
-            &input_variable_name
-        );*/
+        // Define readers
+		// reader_name = buildInput<MsgType>(<topic>);
+		// Define writers
+		// writer_name = buildOutput<MsgType>(<topic>);
 
-        // Define outputs
-        /*this->buildOutput<message_wrapper_class>(
-            topic_name,
-            &output_variable_name
-        );*/
+		//define console functions here
+		// command_manager.addCommand("function_name",
+		// 									"Description",
+		// 									&@PLUGIN_CLASS_NAME@::function_name, this, {}, true);
     }
 
     @PLUGIN_CLASS_NAME@::~@PLUGIN_CLASS_NAME@()
@@ -61,6 +67,10 @@ namespace @PLUGIN_TYPE@
     bool @PLUGIN_CLASS_NAME@::deactivation(const std::chrono::system_clock::time_point& time){
         return true;
     }
+
+	// bool @PLUGIN_CLASS_NAME@::function_name(){
+	// 	return true;
+	// }
 
     extern "C" PeriodicAppPlugin *create(const std::string& ID, const std::string& robot_name)
     {

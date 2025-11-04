@@ -11,8 +11,6 @@ target_link_libraries(${PROJECT_NAME}
 	PUBLIC
 		periodic_app_plugin
 		${MODULE_LIBRARY_NAME}
-		${CONSOLE_COMMANDS_LIBRARY_NAME}
-		#${TOPICS_LIBRARY_NAME}
 		# add other linked libraries here
 )
 target_link_directories(${PROJECT_NAME}
@@ -20,6 +18,12 @@ target_link_directories(${PROJECT_NAME}
         /usr/lib/dls2
 		/usr/lib/dls2/@PLUGIN_TYPE@/${PLUGIN_NAME}
 )
+
+## add custom messages
+# list(APPEND CMAKE_MODULE_PATH "/usr/include/dls_messages/cmake") # when using the installed dls2 project
+# list(APPEND CMAKE_MODULE_PATH  "${DLS_MESSAGE_FOLDER}/cmake") # when compiling together with the dls2 project
+# include(dls_message)		# message generation function
+# dls_add_message(message ${PROJECT_NAME}) 	# generate message
 
 # ================================== Install =================================
 

@@ -29,45 +29,18 @@ file(	COPY module/config/config.yaml # this is just a copy
 )
 
 # Configure plugin
-# -- core
-configure_file(plugin/core/CMakeLists.txt.in
-	plugin/core/CMakeLists.txt @ONLY
+configure_file(plugin/CMakeLists.txt.in
+	plugin/CMakeLists.txt @ONLY
 )
-configure_file(plugin/core/include/plugin.hpp.in
-	plugin/core/include/${PLUGIN_TYPE}/${PLUGIN_NAME}/plugin.hpp @ONLY
+configure_file(plugin/include/plugin.hpp.in
+	plugin/include/${PLUGIN_TYPE}/${PLUGIN_NAME}/plugin.hpp @ONLY
 )
-configure_file(plugin/core/src/plugin.cpp.in
-	plugin/core/src/plugin.cpp @ONLY
+configure_file(plugin/src/plugin.cpp.in
+	plugin/src/plugin.cpp @ONLY
 )
-file(	COPY plugin/core/config/scheduler.yaml # this is just a copy
-		DESTINATION plugin/core/config
+file(	COPY plugin/config/scheduler.yaml # this is just a copy
+		DESTINATION plugin/config
 )
-# -- console_commands
-configure_file(plugin/console_commands/CMakeLists.txt.in
-	plugin/console_commands/CMakeLists.txt @ONLY
-)
-configure_file(plugin/console_commands/include/console_commands.hpp.in
-	plugin/console_commands/include/${PLUGIN_TYPE}/${PLUGIN_NAME}/console_commands.hpp @ONLY
-)
-configure_file(plugin/console_commands/src/console_commands.cpp.in
-	plugin/console_commands/src/console_commands.cpp @ONLY
-)
-
-# -- messages
-configure_file(plugin/messages/CMakeLists.txt.in
-	plugin/messages/CMakeLists.txt @ONLY
-)
-file(	COPY plugin/messages/idls/message.idl # this is just a copy
-		DESTINATION plugin/messages/idls
-)
-
-# -- topics
-configure_file(plugin/topics/CMakeLists.txt.in
-	plugin/topics/CMakeLists.txt @ONLY
-)
-configure_file(plugin/topics/include/topics.hpp.in
-	plugin/topics/include/${PLUGIN_TYPE}/${PLUGIN_NAME}/topics.hpp @ONLY
-)
-configure_file(plugin/topics/src/topics.cpp.in
-	plugin/topics/src/topics.cpp @ONLY
+file(	COPY plugin/idls/message.idl # this is just a copy
+		DESTINATION plugin/idls
 )

@@ -4,10 +4,26 @@
 // periodic plugin header
 #include <dls2/plugin/periodic_app_plugin.hpp>
 #include "@PLUGIN_TYPE@/@PLUGIN_NAME@/@PLUGIN_NAME@.hpp"
-#include "@PLUGIN_TYPE@/@PLUGIN_NAME@/console_commands.hpp"
-// wrappers
-//#include <dls2/signal/msg_wrapper_name.hpp> // off-the-shelf wrapper
-//#include "@PLUGIN_TYPE@/@PLUGIN_NAME@/msg_wrapper_name.hpp" // custom wrapper
+// reader include
+// #include "dls2/signal/reader.hpp"
+// writer include
+// #include "dls2/signal/writer.hpp"
+// messages includes
+// #include "dls_messages/dds/msg_name.hpp"
+
+// // header for implementing custom topics
+// #include "dls2/topics/utils.hpp"
+
+// // define topics here
+// namespace dls
+// {
+//     namespace topics
+//     {
+//         namespace @PLUGIN_NAME@{
+//             // extern dls::topicType topic_variable_name;
+//         }
+//     }
+// }
 
 namespace @PLUGIN_TYPE@
 {
@@ -30,13 +46,18 @@ namespace @PLUGIN_TYPE@
 
         bool deactivation(const std::chrono::system_clock::time_point& time) override;
 
+		// console commands definitions
+		/* bool function_name();*/
+
     private:
         @MODULE_CLASS_NAME@ @PLUGIN_NAME@;
-        @CONSOLE_COMMANDS_CLASS_NAME@ console_commands;
 
-        /*define_inputs*/
-        /*define_output*/
+        /*define readers*/
+		// dls::ReaderPtr<MsgType> reader_name;
+        /*define writers*/
+		// dls::WriterPtr<MsgType> writer_name;
     };
 } // namespace @PLUGIN_TYPE@
+
 
 #endif // end of include guard: @PLUGIN_HEADER_GUARD@

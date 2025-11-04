@@ -2,9 +2,6 @@ cmake_minimum_required(VERSION 3.15)
 # set configuration variables
 set(PLUGIN_NAME @PLUGIN_NAME@)
 set(MODULE_LIBRARY_NAME ${PLUGIN_NAME}_module)
-set(CONSOLE_COMMANDS_LIBRARY_NAME ${PLUGIN_NAME}_console_commands)
-set(MSGS_LIBRARY_NAME ${PLUGIN_NAME}_msgs)
-set(TOPICS_LIBRARY_NAME ${PLUGIN_NAME}_topics)
 
 project(${PLUGIN_NAME})
 
@@ -76,10 +73,7 @@ macro(conditional_deploy_plugin TARGET_NAME VALUE)
 		add_subdirectory(${TARGET_NAME})
 	endif()
 endmacro()
-conditional_deploy_plugin(plugin/core OFF)
-conditional_deploy_plugin(plugin/console_commands OFF)
-conditional_deploy_plugin(plugin/messages OFF)
-conditional_deploy_plugin(plugin/topics OFF)
+conditional_deploy_plugin(plugin OFF)
 conditional_deploy_plugin(module OFF)
 
 # ================================= Packaging =================================

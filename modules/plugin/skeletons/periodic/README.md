@@ -11,12 +11,9 @@ that requests you to provide a *Plugin Type* and a *Plugin Name* (which is also 
 
 The project structure is made by the following main folders:
 * module: where you develop your module
-* plugin/core: where you develop the plugin
-* plugin/console_commands: where you develop your console commands
-* plugin/messages: where you develop custom messages
-* plugin/topics: where you develop custom topics
+* plugin: where you develop the plugin
 
-The Plugin, module and console commands classes are automatically created, together with some suggestions on how to customize your plugin.
+The Plugin and module classes are automatically created, together with some suggestions on how to customize your plugin.
 
 Notice that the include directories has a subdirectory following this convention
 
@@ -38,26 +35,17 @@ Inside the dls2-framework docker image, to build and install the project you can
 
 With the `ccmake ..` command you can choose what to build and install:
 * the software module (*<plugin_name>_module*)
-* the plugin (*<plugin_name>_plugin/core*)
-* the console commands library (*<plugin_name>_plugin/console_comm*)
-* the messages library (*<plugin_name>_plugin/messages*)
-* the topics library (*<plugin_name>_plugin/topics*)
+* the plugin (*<plugin_name>_plugin*)
 
 In this way, you can build and install separately each software part.
 
 With the build and install steps, you have created the following libraries:
 * *<plugin_name>*: plugin library
 * *<plugin_name>_module*: module library
-* *<plugin_name>_console_commands*: console commands library
-* *<plugin_name>_msgs*: messages library
-* *<plugin_name>_topics*: topics library
 
 For example, when creating a *stance_detection* plugin, you will have:
 * *stance_detection*
 * *stance_detection_module*
-* *stance_detection_console_commands*
-* *stance_detection_msgs*
-* *stance_detection_topics*
 
 Notice that the installation is a necessary step in order to load at run-time your plugin.
 
@@ -104,7 +92,7 @@ As we said, the module class has been already created. However, you can change t
   becames
   
       void run(robotlib::LimbDataMap<bool> &stance_sensors_status, const Eigen::Matrix3d& w_R_b, const robotlib::JointState& q, const robotlib::JointState& qd, const robotlib::JointState& qdd, const robotlib::JointState& tau);
-  Rember that the order of the arguments is: *inputs* THEN *outputs*. Writing the run arguments in this way allows your module to be independent from the DLS2 messages and messages' wrappers.
+  Rember that the order of the arguments is: *inputs* THEN *outputs*. Writing the run arguments in this way allows your module to be independent from the DLS2 messages.
 * define the inputs of the init function (and its implementation) that it is called when activating the plugin. For example
 
       bool init(/*init_inputs*/);
@@ -112,18 +100,7 @@ As we said, the module class has been already created. However, you can change t
 
       bool init( double period,
                     const robotlib::JointState& input_joints_position,
-                    const dls::utils::Pose& input_pose,        
-                    robotlib::JointState& output_desired_joints_position,
-                    robotlib::JointState& output_desired_joints_velocity,
-                    robotlib::JointState& output_desired_joints_acceleration,
-                    robotlib::JointState& output_desired_joints_effort,
-                    dls::utils::Pose& output_desired_com_pose_world,
-                    robotlib::LimbDataMap<Eigen::Vector3d>& output_nominal_touch_down,
-                    robotlib::LimbDataMap<Eigen::Vector3d>& output_touch_down,
-                    robotlib::LimbDataMap<bool>& output_stance_legs,
-                    robotlib::LimbDataMap<double>& output_swing_period,
-                    robotlib::LimbDataMap<double>& output_normal_force_min,
-                    robotlib::LimbDataMap<double>& output_normal_force_max);
+                    const dls::utils::Pose& input_pose,);
 * In the class it is also defined a YAML::Node, that it is used to read the module/config/config.yaml file. In this file you can add configurations for your modules, for example
 
       aliengo_th:
@@ -138,7 +115,7 @@ The changes of the class constructor and run function signatures has to be impor
 In the plugin folder you can define the inputs and outputs of your plugin.
 
 #### plugin/core
-Here you define the plugin. The plugin stores internally an instance of both the module and console commands classes. To instantiate the module instance, you need to change the plugin constructor, adding the arguments of the module constructor. For example
+Here you define the plugin. The plugin stores internally an instance of the module. To instantiate the module instance, you need to change the plugin constructor, adding the arguments of the module constructor. For example
 
       StanceDetectionPlugin (
             std::string &ID
@@ -158,8 +135,6 @@ becames
     StanceDetectionPlugin::StanceDetectionPlugin (std::string& ID, const std::shared_ptr<robotlib::RobotBase> robot) 
     : dls::PeriodicAppPlugin(ID)
     , stance_detection(robot) // instantiate module
-
-The console commands instance is automatically instantiated.
 
 Notice that you need to change the *PeriodicAppPlugin \*create(const std::string& ID, const std::string& robot_name)* function too, according to the constructor arguments. This function is called when the plugin is loaded at run-time, and it is responsible for the creation of a plugin instance, by calling the plugin constructor. For example, if the plugin takes as input a robotlib::RobotBase argument
 
@@ -186,90 +161,66 @@ Notice that you need to change the *PeriodicAppPlugin \*create(const std::string
       
       return new StanceDetectionPlugin(ID, pRobot);
 
-Now, you have to define the inputs and the outputs. This is done in three steps:
+Now, you have to define the inputs and the outputs. This is done by declaring and defining member variables storing data readers and data writers.
 
-* define member variables storing inputs and outputs
-* define inputs and outputs topics
-* build inputs and outputs, i.e., data reader and data writer, according to the topics
+To declare and define data readers or data writers:
+* includes the headers of the readers and writers
 
-To define input/output variables:
-* includes the headers of your inputs and outputs in plugin.hpp. For example
+      // reader include
+      #include "dls2/signal/reader.hpp"
+      // writer include
+      #include "dls2/signal/writer.hpp"
 
-      //#include <dls_messages/dds/<msg_name>Wrapper.hpp> // off-the-shelf wrapper
-      //#include "estimators/stance_detection/<msg_name>Wrapper.hpp" // custom wrapper
-  becames
+  and the messages you want to use, e.g.
 
-      #include <dls_messages/dds/blind_stateWrapper.hpp> // input, off-the-shelf
-      #include <dls_messages/dds/base_stateWrapper.hpp> //input, off-the-shelf
+      #include "dls_messages/dds/msg_name.hpp"
+
+      becames
+
+      #include <dls_messages/dds/blind_state.hpp> // input, off-the-shelf
+      #include <dls_messages/dds/base_state.hpp> //input, off-the-shelf
       #include "estimators/stance_detection/stance_status.hpp" //output, custom
-  As you can see, the types of such variables correspond to a message wrapper. A message wrapper is, as the name says (:)) a wrapper around the messages coming from the middleware (e.g. dds). The wrapper is used to customize the types you want to use, e.g. Eigen::Vector3d instead of std::vector<double> You can see also how to include either already provided messages, or custom ones. [Here](#create-custom-messages) you can see how to create a custom message.
-* declare the variables in plugin.hpp. For example
 
-      /*define_inputs*/
-      /*define_output*/
+[Here](#create-custom-messages) you can see how to create a custom message.
+* declare the readers/writers in plugin.hpp. For example
+
+      /*define readers*/
+      // dls::ReaderPtr<MsgType> reader_name;
+      /*define writers*/
+      // dls::WriterPtr<MsgType> writer_name;
   becames
 
-      BlindStateWrapper blind_state; //input
-      BaseStateWrapper base_state; //input
-      StanceStatusWrapper stance_status; //output
-* initialize the variables in plugin.cpp. For example
+	dls::ReaderPtr<BlindState> reader_bs;
+	dls::WriterPtr<BaseState> writer_bs;
+	dls::WriterPtr<StanceDetection> writer_sd;
 
-      /*, construct_input_variables*/ // instantiate input
-      /*, construct_output_variables*/ //instantiate output
+* define the readers/writer in the constructor of the plugin (file plugin.cpp).
+      For example
 
-  becames
+            // Define readers
+            // reader_name = buildInput<MsgType>(<topic>);
+            // Define writers
+            // writer_name = buildOutput<MsgType>(<topic>);
+      becames
+            reader_bs = buildInput<BlindState>(dls::topics::low_level_estimation::blind_state);
+            writer_bs = buildOutput<BaseState>(dls::topics::high_level_estimation::base_state);
+            writer_sd = buildOutput<StanceDetection>(topics::stance_detection::stance_status);
 
-      , blind_state(robot)
-      , base_state(robot)
-      , stance_status(robot)
-  Notice here that we are using the robot variable to create the wrappers. If your module does not need a robot object to be created, you still have to add the robot object to the plugin constructor, to be passed to the wrappers constructor. At the same time, there might be wrappers that does not need a robot object in their constructor.
-
-To define the topics you can include them in the plugin.cpp. If you use already existing topics, decomment the follwing line
+  To include already existing topics, decomment the follwing line
 
       //#include <dls2/topics/topics.hpp> // off-the-shelf topics
-and in the plugin/core/CMakeLists.txt, add in the target_link_libraries command, under PUBLIC, the library *dls_topics*.
+  and in the plugin/core/CMakeLists.txt, add in the target_link_libraries command, under PUBLIC, the library *dls_topics*.
 
-If you use instead custom topics, you have to include your topics.hpp file and change the plugin/core/CMakeLists.txt. For example, you need to decomment
+  If you use instead custom topics, you have to include your topics.hpp file and change the plugin/core/CMakeLists.txt. For example, you need to decomment
 
       //#include "estimators/stance_detection/topics.hpp" // custom topics
-and in the plugin/core/CMakeLists.txt also decomment 
+  and in the plugin/core/CMakeLists.txt also decomment 
       
       #${TOPICS_LIBRARY_NAME}
-You can of course have both custom and off-the-shelf topics.
 
-You can now build the inputs and outputs. For example
-
-      // Define inputs
-        /*this->buildInput<message_wrapper_class>(
-            topic_name,
-            &input_variable_name
-        );*/
-
-        // Define outputs
-        /*this->buildOutput<message_wrapper_class>(
-            topic_name,
-            &output_variable_name
-        );*/
-becames
-        
-        // Define inputs
-        this->buildInput<BlindStateWrapper>(
-            dls::topics::low_level_estimation::blind_state,
-            &blind_state
-        );
-        this->buildInput<BaseStateWrapper>(
-            dls::topics::high_level_estimation::base_state,
-            &base_state
-        );
-        // Define outputs
-        this->buildInput<StanceStatusWrapper>(
-            topics::stance_detection::stance_status,
-            &stance_status
-        );
-
-With this functions, we created the data readers and data writers of the plugin, associated to off-the-shelf and custom topics. Moreover, since we are passing the reference to our input/output variables when building the inputs/outputs:
- * the read() function automatically updates all the inputs
- * the write() function automatically take the output variables and publish them. It also automatically fills the timestamp, if the variable has one; so you do not need to bother about setting it
+Notice that:
+* the read() function automatically updates all the inputs. Each reader has a msg member variable storing the read message
+* the write() function automatically take the output variables and publish them. It also automatically fills the timestamp, if the variable has one; so you do not need to bother about setting it
 
 There are few last steps to be done:
 * in the run function of the plugin, add the correct inputs and outputs to the run function of the module. For example 
@@ -278,13 +229,9 @@ There are few last steps to be done:
 
   becames (according to the run function we have defined in the previous example)
 
-      stance_detection.run(   blind_state.feet_contact_,
-                              base_state.pose_.toRotationMatrix.transpose(),
-                              blind_state.joints_position,
-                              blind_state.joints_velocity_,
-                              blind_state.joints_acceleration_,
-                              blind_state.joints_effort_
-                              stance_status.stance_status);
+      stance_detection.run(   reader_bs->msg.feet_contact(),
+                              reader_bs->msg.joints_position(),
+                              writer_sd->msg.stance_status());
 * _checkActivation_ is the function called when activating the plugin. If you want to initialize your module when activating the plugin, you can call the _init_ function of the module inside _checkActivation_. For example
 
       bool PeriodicGeneratorPlugin::checkActivation()
@@ -303,21 +250,8 @@ There are few last steps to be done:
             {
                   read();
                   return periodic_generator.init(
-                              getPeriod().count()/(1000000.0),
                               input_blind_state.joints_position,
-                              input_base_state.pose_, 
-
-                              output_traj_gen.desired_joints_position_,
-                              output_traj_gen.joints_velocity,
-                              output_traj_gen.desired_joints_acceleration_,
-                              output_traj_gen.desired_joints_effort_,
-                              output_traj_gen.desired_com_pose_world_,
-                              output_traj_gen.nominal_touch_down,
-                              output_traj_gen.touch_down,
-                              output_traj_gen.stance_legs,
-                              output_traj_gen.swing_period_,
-                              output_traj_gen.normal_force_min,
-                              output_traj_gen.normal_force_max);
+                              input_base_state.pose_,);
             }
             return false;
         }
@@ -344,7 +278,7 @@ There are few last steps to be done:
             return false;
       }
 
-* when choosing what to build and install with the *ccmake ..* command, set to *ON* the *<plugin_name>_plugin/core* and *<plugin_name>_plugin/console_comm* options. If you are using custom messages and/or custom topics set to *ON*, respectively, *<plugin_name>_plugin/messages* and *<plugin_name>_plugin/topics* options.
+* when choosing what to build and install with the *ccmake ..* command, set to *ON* the *<plugin_name>_plugin/core* option. If you are using custom messages and/or custom topics set to *ON*, respectively, *<plugin_name>_plugin/messages* and *<plugin_name>_plugin/topics* options.
 
 Congratulations! You have created your fist periodic plugin for dls2!
 
@@ -352,72 +286,62 @@ Congratulations! You have created your fist periodic plugin for dls2!
 In the plugin/config folder you have the possibility to set the properties of the scheduler.
 
 ### Create custom console commands
-Creating console commmands in plugin/console_commands is quite easy. The console commands are functions, called from the console, that change the status of your running module. Since the console is implemented as a DLS2 layer, to keep the module independent from how to interact with the console, a separated console function class is defined that links the plugin with the module. This is done by
-* defining functions, to be used in the console, that changes the status of the running module
-* adding such functions to the command manager of the plugin as console commands
+Creating console commmands in plugin/console_commands is quite easy. The console commands are functions, called from the console, that change the status of your running module. To add a console command:
+* define the function to be called from the console in plugin.hpp. E.g.
 
-To do that:
-* declare the console functions in console_functions.hpp. For example
+		// console commands definitions
+		/* bool function_name();*/
 
-      /* bool function_name();*/
+      becomes
+
+            // console commands definitions
+		bool setJointTorque()
+* register the function to the command manager in the constructor of the plugin (file plugin.cpp). E.g
+
+		//define console functions here
+		command_manager.addCommand("function_name",
+                                          "Description",
+                                          &CustomPlugin::function_name, this, {}, true);
+      becomes
+
+            //define console functions here
+            command_manager.addCommand("set_joint_torque",
+                                          "Set joint torque",
+                                          &CustomPlugin::setJointTorque, this, {}, true);
+
+* implement the console functions in plugin.cpp. For example
+
+	// bool CustomPlugin::function_name(){
+	// 	return true;
+	// }
+
   becames
 
-      bool setStanceDetectionMethod();
-
-* implement the console functions in console_functions.cpp. For example
-
-      /*
-	      bool StanceDetectionConsoleCommands::function_name()
-      {
-        // Define function here, using ptr to access to module object's state
-        
-        return true;
-      }
-      */
-
-  becames
-
-      bool StanceDetectionConsoleCommands::setStanceDetectionMethod()
-      {
-        std::cout   << "Stance detection methods:\n"
-                    <<  "Use sensor data: " << StanceDetectionMethod::use_sensor_data << "\n"
-                    <<  "Use estimated grf: " << StanceDetectionMethod::use_estimated_grf << "\n";
-        int stance_method{-1};
-        if(CommandHelper::readValue<int>("Stance method", stance_method, ptr->stance_detection_method_))
-        {
-            ptr_->stance_detection_method_ = stance_method;
-        }
+      bool CustomPlugin::setJointTorque(){
+            std::cout << "Choose the joint index\n";
+            int idx{0};
+            dls::CommandHelper::readValue<int>("Joint_ID", idx);
+            double tau{0.0};
+            if(dls::CommandHelper::readValue<double>("torque", tau, writer_cs->msg.torques()[idx]))
+            {
+                  writer_cs->msg.torques()[idx] = tau;
+            }
+            return true;
       }
 
-      return true;
-
-  As you can see from this example, the state of the module instance is changed through the ptr pointer. Moreover, to get the data from the command line, you can use the *CommandHelper::readValue<value_type>* function. This function takes as inputs:
+  As you can see from this example, to get the data from the command line, you can use the *CommandHelper::readValue<value_type>* function. This function takes as inputs:
   
   * a comment to be displayed
   * the variable to be filled with the command line value; this variable is of *value_type* type which has to be equal to the command line value type
   * an optional value corresponding to the current value that you want to change. If it is provided, it is displayed; otherwise it is not
 
-  It returns true if the console input is not empty: in this case you can then update the ptr state.
+  It returns true if the console input is not empty.
 
-* add the console functions to the command manager. For example
-
-        /*command_manager_ptr->addCommand(  "command_name",
-                                            "comment_of_the_command",
-                                            &StanceDetectionConsoleCommands::function_name, this, {}, true);
-        */
-  becames
-      
-      // Add console commands
-      command_manager_ptr->addCommand("setStanceDetectionMethod",
-                                        "Set stance detector method",
-                                        &StanceDetectionConsoleCommands::setStanceDetectionMethod, this, {}, true);
-  The *command_manager_ptr* is a pointer to the command manager object of the plugin creating an instance of the console commands class. See [here](https://gitlab.advr.iit.it/dls-lab/dls2/-/tree/clear_inputs_outputs/modules%2Fcommand#how-to-define-a-command) for how to create a command.
-  
 * when choosing what to build and install with the *ccmake ..* command, set to *ON* the *<plugin_name>_plugin/console_comm* option
 
 ### Create custom messages
 In plugin/messages you can define custom messages. To create a message:
-* add its idl file in plugin/messages/idls. For example, the *message.idl* file can be renamed to *stance_status.idl* and
+* add its idl file in plugin/idls. For example, the *message.idl* file can be renamed to *stance_status.idl* and
 
       struct MessageName{};
   becames
@@ -432,91 +356,89 @@ In plugin/messages you can define custom messages. To create a message:
             // Stance status
             double stance_status[4];
       };
-* create a message wrapper
-      
-      The message wrapper is created automatically when creating the message. It is an header only file.
 
-* In plugin/messages/CMakeLists.txt, call the function *dls_add_message* with the message idl file name as argument. For example,
+* In plugin/CMakeLists.txt
+  - decomment the following lines
+      
+      //# add custom messages
+      // list(APPEND CMAKE_MODULE_PATH "/usr/include/dls_messages/cmake") # when using the installed dls2 project
+      // list(APPEND CMAKE_MODULE_PATH  "${DLS_MESSAGE_FOLDER}/cmake") # when compiling together with the dls2 project
+      // include(dls_message)		# message generation function
+   - call the function *dls_add_message* with the message idl file name as argument. For example,
 
       dls_add_message(message ${MSGS_LIBRARY_NAME}) 	# generate message
-  becames
+    becames
  
       dls_add_message(stance_status) 	# generate message
 
-* when choosing what to build and install with the *ccmake ..* command, set to *ON* the *<plugin_name>_plugin/messages* option
-
-So far, you have create a library for custom messages. To use the messages library in the custom topics, in plugin/topics/CMakeLists.txt uncomment the following lines
-
-      #${MSGS_LIBRARY_NAME}
-and 
-      
-      #${CMAKE_CURRENT_BINARY_DIR}/../messages/include
-
 ### Create custom topics
-In plugin/topics you have the possiblity to create custom topics. For each topic you have to define a topic name and a topic message. If at least one of the custom topic is defined using off-the-shelf message, decomment 
+To create a custom topic
+* in plugin.hpp, declare the topic. For example
 
-      #dls_messages
+      // // header for implementing custom topics
+      // #include "dls2/topics/utils.hpp"
 
- in plugin/topics/CMakeLists.txt. If instead custom messages are used, decomment in the same file 
-      
-      #${CMAKE_CURRENT_BINARY_DIR}/../messages/include
-and 
-
-      ${MSGS_LIBRARY_NAME}
-which is the library of the custom message. Both of them can be uncommented if you have a mixed configuration.
-
-To create a topic
-* in topics.hpp, declare the topic. For example
-
-      //extern dls::topicType topic_variable_name;
+      // // define topics here
+      // namespace dls
+      // {
+      //     namespace topics
+      //     {
+      //         namespace CustomPlugin{
+      //             // extern dls::topicType topic_variable_name;
+      //         }
+      //     }
+      // }
   becames
+      // header for implementing custom topics
+      #include "dls2/topics/utils.hpp"
+      // define topics here
+      namespace dls
+      {
+          namespace topics
+          {
+              namespace CustomPlugin{
+                  extern dls::topicType custom_topic;
+              }
+          }
+      }
+* in plugin.cpp, define the topic. This implies first of all including the [TypeSupport](https://fast-dds.docs.eprosima.com/en/latest/fastdds/dds_layer/topic/typeSupport/typeSupport.html?highlight=TopicDataType#definition-of-data-types) of each topic. Thanks to [Fast DDS-Gen](https://fast-dds.docs.eprosima.com/en/latest/fastdds/dds_layer/topic/fastddsgen/fastddsgen.html#fast-dds-gen-for-data-types-source-code-generation), the TypeSupport of each message is automatically created from the corresponding idl file, when building the project. For example, if you have a custom idl file in plugin/idls called stance_status.idl, you have that
 
-      extern dls::topicType stance_status;
-* in topics.cpp, include the [TypeSupport](https://fast-dds.docs.eprosima.com/en/latest/fastdds/dds_layer/topic/typeSupport/typeSupport.html?highlight=TopicDataType#definition-of-data-types) of each topic. Thanks to [Fast DDS-Gen](https://fast-dds.docs.eprosima.com/en/latest/fastdds/dds_layer/topic/fastddsgen/fastddsgen.html#fast-dds-gen-for-data-types-source-code-generation), the TypeSupport of each message is automatically created from the corresponding idl file, when building the project. For example, if you have a custom idl file in plugin/messages/idls called stance_status.idl, you have that
-
+      // topics
       // Include the TypeSupport of each message associated to each topic
-      //#include <dls_messages/dds/<idl_file_name>PubSubTypes.h> // # off-the-shelf message
-      //#include "dls_messages/dds/<idl_file_name>PubSubTypes.h" // # custom message
+      // #include <dls_messages/dds/<idl_file_name>PubSubTypes.hpp> // # off-the-shelf message
+      // #include "dls_messages/dds/<idl_file_name>PubSubTypes.hpp" // # custom message
 
   becames
-
+      
+      // topics
       #include "dls_messages/dds/stance_statusPubSubTypes.hpp"
+  
+  Then you can define the topic. For example
 
-  If your module instead needs to create another topic from a off-the-shelf message, you can include it, for example, in this way
+      // namespace dls
+      // {
+      //     namespace topics
+      //     {
+      //         namespace CustomPlugin{
+      //             // dls::topicType topic_variable_name = dls::topicType("topic_name", new <message_name>PubSubType());
+      //         }
+      //     }
+      // }
 
-      #include "dls_messages/dds/control_signalPubSubTypes.hpp"
-  where *control_signal* is the name of the idl file of the control signal message.
-* in topics.cpp, define the topic. For example
-
-      //dls::topicType topic_variable_name = dls::topicType("topic_name", new <message_name>PubSubType());
   becames
 
-      dls::topicType stance_status = dls::topicType("stance_status", new StanceStatusPubSubType());
-* when choosing what to build and install with the *ccmake ..* command, set to *ON* the *<plugin_name>_plugin/topics* option. Remember that if at least one of your topics is using custom messages, set to *ON* the *<plugin_name>_plugin/messages* option too.
-
-So far you have created the topic. In order to link the topic library to the plugin, in plugin/core/CMakeLists.txt decomment the following line
-
-      #${TOPICS_LIBRARY_NAME}
-Remember that if at least one of your topics is using custom messages,
-
-      #${MSGS_LIBRARY_NAME}
-
-should be uncommented too.
+      namespace dls
+      {
+          namespace topics
+          {
+              namespace CustomPlugin{
+                  dls::topicType stance_status = dls::topicType("stance_status", new StanceStatusPubSubType());
+              }
+          }
+      }
 
 Notice that if you are creating a plugin of *controllers* type, to make the control layer using the output of the controller, the output topic should have the same name of the plugin library name. 
-#### How to include a custom topic in an external project
-To include the set of custom topics of your plugin in another external project
-* include the topics.hpp file in this way
-      #include "dls2/<plugin_type>/<plugin_name>/topics.hpp"
-  where <plugin_type> is the type of plugin  and <plugin_name> is its name. For example
 
-      #include "dls2/estimators/stance_detection/topics.hpp"
-* link the topics library name to the external project, adding the library
-
-      <topics_library_name>
-  to target_link_library (under PUBLIC keyword), where <topics_library_name> is the name of the topics library. For example
-
-      stance_detection_topics
 ### Customize debian packaging
 At the end of the outermost CMakeLists.txt, add the debian dependencies here
 
