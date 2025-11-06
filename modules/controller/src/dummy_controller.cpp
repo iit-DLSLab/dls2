@@ -23,7 +23,7 @@ DummyController::DummyController
 	// service_server_
 	// (
 	// 	"dls_dummy_controller_service",
-	// 	[](StringMsg msg)
+	// 	[](dls2_interface::msg::StringMsg msg)
 	// 	{
 	// 		std::cout << "Dummy controller got service call with msg: "
                       // << msg.msg() << std::endl;
@@ -102,7 +102,7 @@ void DummyController::run(const std::chrono::system_clock::time_point &time)
 		std::cout << "DUMMY CONTROLLER GOT BLIND STATE" << std::endl;
 	}
 
-	ControlSignal s;
+	dls2_interface::msg::ControlSignal s;
 	s.torques_.resize(12);
 
 	publishSignal(s);

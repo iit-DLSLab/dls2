@@ -38,7 +38,7 @@ int main()
 		auto pub = new DDSWriter(
 			"publisher:" + std::to_string(i),
 			0,
-			topicType("MULTI_PUBSUB_ONE_TO_ONE_CPP:" + std::to_string(i), new StringMsgPubSubType())
+			topicType("MULTI_PUBSUB_ONE_TO_ONE_CPP:" + std::to_string(i), new dls2_interface::msg::StringMsgPubSubType())
 		);
 		publishers.push_back(pub);
 
@@ -47,7 +47,7 @@ int main()
 		(
 			"subscriber:" + std::to_string(i),
 			0,
-			topicType("MULTI_PUBSUB_ONE_TO_ONE_CPP:" + std::to_string(i), new StringMsgPubSubType()),
+			topicType("MULTI_PUBSUB_ONE_TO_ONE_CPP:" + std::to_string(i), new dls2_interface::msg::StringMsgPubSubType()),
 			std::function<void(void *)>
 			{
 				[=, &count_received_messages](void *tuple)

@@ -190,8 +190,8 @@ To declare and define data readers or data writers:
       // dls::WriterPtr<MsgType> writer_name;
   becames
 
-	dls::ReaderPtr<BlindState> reader_bs;
-	dls::WriterPtr<BaseState> writer_bs;
+	dls::ReaderPtr<dls2_interface::msg::BlindState> reader_bs;
+	dls::WriterPtr<dls2_interface::msg::BaseState> writer_bs;
 	dls::WriterPtr<StanceDetection> writer_sd;
 
 * define the readers/writer in the constructor of the plugin (file plugin.cpp).
@@ -202,8 +202,8 @@ To declare and define data readers or data writers:
             // Define writers
             // writer_name = buildOutput<MsgType>(<topic>);
       becames
-            reader_bs = buildInput<BlindState>(dls::topics::low_level_estimation::blind_state);
-            writer_bs = buildOutput<BaseState>(dls::topics::high_level_estimation::base_state);
+            reader_bs = buildInput<dls2_interface::msg::BlindState>(dls::topics::low_level_estimation::blind_state);
+            writer_bs = buildOutput<dls2_interface::msg::BaseState>(dls::topics::high_level_estimation::base_state);
             writer_sd = buildOutput<StanceDetection>(topics::stance_detection::stance_status);
 
   To include already existing topics, decomment the follwing line
@@ -432,7 +432,7 @@ To create a custom topic
           namespace topics
           {
               namespace CustomPlugin{
-                  dls::topicType stance_status = dls::topicType("stance_status", new StanceStatusPubSubType());
+                  dls::topicType stance_status = dls::topicType("stance_status", new dls2_interface::msg::StanceStatusPubSubType());
               }
           }
       }

@@ -347,6 +347,9 @@ namespace dls
 
 	eprosima::fastdds::dds::Topic *DDSParticipant::addTopic(dls::topicType topicData_)
 	{
+		// add ROS2 namespace
+		topicData_.first = std::string("rt/")+topicData_.first;
+
 		if(!this->participant)
 			return nullptr;
 
@@ -376,6 +379,9 @@ namespace dls
 
 	eprosima::fastdds::dds::Topic *DDSParticipant::addTopicFromDatabase(std::string topicName)
 	{
+		// add ROS2 namespace
+		topicName = std::string("rt/")+topicName;
+
 		if(!this->participant){
 			return nullptr;
 

@@ -1,7 +1,6 @@
 #include "dls_annotation.idl"
 
-@Robot @Eigen
-struct BlindState
+struct dls2_interface::msg::BlindState
 {
 	// Header
 	string frame_id;
@@ -10,14 +9,14 @@ struct BlindState
 
 	string robot_name;
 
-	@JointDataMap sequence<string> joints_name;
-	@JointState sequence<double> joints_position;
-	@JointState sequence<double> joints_velocity;
-	@JointState sequence<double> joints_acceleration;
-	@JointState sequence<double> joints_effort;
-	@JointState sequence<double> joints_temperature;
+	sequence<string> joints_name;
+	 sequence<double> joints_position;
+	 sequence<double> joints_velocity;
+	 sequence<double> joints_acceleration;
+	 sequence<double> joints_effort;
+	 sequence<double> joints_temperature;
 
-	@LimbDataMap sequence<boolean> feet_contact;
+	sequence<boolean> feet_contact;
 		
-	@LimbDataMap_EigenVector3 sequence<double> current_feet_positions;
+	sequence<double> current_feet_positions;
 };

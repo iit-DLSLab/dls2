@@ -10,64 +10,64 @@ namespace dls
 	namespace topics
 	{
 		// logs
-		dls::topicType warn_log_stream = dls::topicType("warn_log_stream", new StringMsgPubSubType());
-		dls::topicType info_log_stream = dls::topicType("info_log_stream", new StringMsgPubSubType());
-		dls::topicType error_log_stream = dls::topicType("error_log_stream", new StringMsgPubSubType());
-		dls::topicType fatal_log_stream = dls::topicType("fatal_log_stream", new StringMsgPubSubType());
-		dls::topicType debug_log_stream = dls::topicType("debug_log_stream", new StringMsgPubSubType());
-		dls::topicType log_events = dls::topicType("log_events", new EventLogPubSubType());
+		dls::topicType warn_log_stream = dls::topicType("warn_log_stream", new dls2_interface::msg::StringMsgPubSubType());
+		dls::topicType info_log_stream = dls::topicType("info_log_stream", new dls2_interface::msg::StringMsgPubSubType());
+		dls::topicType error_log_stream = dls::topicType("error_log_stream", new dls2_interface::msg::StringMsgPubSubType());
+		dls::topicType fatal_log_stream = dls::topicType("fatal_log_stream", new dls2_interface::msg::StringMsgPubSubType());
+		dls::topicType debug_log_stream = dls::topicType("debug_log_stream", new dls2_interface::msg::StringMsgPubSubType());
+		dls::topicType log_events = dls::topicType("log_events", new dls2_interface::msg::EventLogPubSubType());
 
 		// command
-		dls::topicType command_call = dls::topicType("command_call", new CommandCallPubSubType());
-		dls::topicType command_send = dls::topicType("command_send", new CommandSendPubSubType());
-		dls::topicType command_feedback = dls::topicType("command_feedback", new StringMsgPubSubType());
+		dls::topicType command_call = dls::topicType("command_call", new dls2_interface::msg::CommandCallPubSubType());
+		dls::topicType command_send = dls::topicType("command_send", new dls2_interface::msg::CommandSendPubSubType());
+		dls::topicType command_feedback = dls::topicType("command_feedback", new dls2_interface::msg::StringMsgPubSubType());
 
 		// simulation
-		dls::topicType time_factor = dls::topicType("time_factor", new DoubleMsgPubSubType());
+		dls::topicType time_factor = dls::topicType("time_factor", new dls2_interface::msg::DoubleMsgPubSubType());
 
 		// development pool
-		dls::topicType develop_testbench = dls::topicType("develop_testbench", new StringMsgPubSubType());
+		dls::topicType develop_testbench = dls::topicType("develop_testbench", new dls2_interface::msg::StringMsgPubSubType());
 
 		// control signals
-		dls::topicType desired_torques = dls::topicType("desired_torques", new DesiredTorquesPubSubType());
-		dls::topicType control_signal = dls::topicType("control_signal", new ControlSignalPubSubType());
-		dls::topicType trajectory_generator = dls::topicType("trajectory_generator", new TrajectoryGeneratorPubSubType());
-		dls::topicType joy_signal = dls::topicType("joy_signal", new ControllerCommandPubSubType());
-		dls::topicType controller_signal = dls::topicType("controller_command", new ControllerCommandPubSubType());
-		dls::topicType mpc_generator_output = dls::topicType("mpc_generator_output", new MPCGeneratorOutputPubSubType());
+		dls::topicType desired_torques = dls::topicType("desired_torques", new dls2_interface::msg::DesiredTorquesPubSubType());
+		dls::topicType control_signal = dls::topicType("control_signal", new dls2_interface::msg::ControlSignalPubSubType());
+		dls::topicType trajectory_generator = dls::topicType("trajectory_generator", new dls2_interface::msg::TrajectoryGeneratorPubSubType());
+		dls::topicType joy_signal = dls::topicType("joy_signal", new dls2_interface::msg::ControllerCommandPubSubType());
+		dls::topicType controller_signal = dls::topicType("controller_command", new dls2_interface::msg::ControllerCommandPubSubType());
+		dls::topicType mpc_generator_output = dls::topicType("mpc_generator_output", new dls2_interface::msg::MPCGeneratorOutputPubSubType());
 
 		// services
-		dls::topicType param_server = dls::topicType("add_double", new ParamServerPubSubType());
+		dls::topicType param_server = dls::topicType("add_double", new dls2_interface::msg::ParamServerPubSubType());
 
 		// visualizations
 
-		dls::topicType sphere_list = dls::topicType("sphere_list", new SphereListPubSubType());
-		dls::topicType arrow_list = dls::topicType("arrow_list", new ArrowListPubSubType());
-		dls::topicType friction_cone_list = dls::topicType("friction_cone_list", new FrictionConeListPubSubType());
+		dls::topicType sphere_list = dls::topicType("sphere_list", new dls2_interface::msg::SphereListPubSubType());
+		dls::topicType arrow_list = dls::topicType("arrow_list", new dls2_interface::msg::ArrowListPubSubType());
+		dls::topicType friction_cone_list = dls::topicType("friction_cone_list", new dls2_interface::msg::FrictionConeListPubSubType());
 
-		dls::topicType generic_robot = dls::topicType("generic_robot", new GenericRobotPubSubType());
+		dls::topicType generic_robot = dls::topicType("generic_robot", new dls2_interface::msg::GenericRobotPubSubType());
 
 
 		// state machine
 
-		dls::topicType state_machine = dls::topicType("state_machine", new StateMachineMonitorPubSubType());
+		dls::topicType state_machine = dls::topicType("state_machine", new dls2_interface::msg::StateMachineMonitorPubSubType());
 
 		namespace high_level_estimation
 		{
-			dls::topicType legs_pose = dls::topicType("legs_pose", new LegsPosePubSubType());
-			dls::topicType t265_odometry = dls::topicType("t265_odometry", new T265OdometryPubSubType());
-			dls::topicType attitude_estimation = dls::topicType("attitude_estimation", new AttitudePubSubType());
-			dls::topicType sensor_fusion = dls::topicType("sensor_fusion", new SensorFusionPubSubType());
-			dls::topicType vicon = dls::topicType("vicon", new ViconPubSubType());
-			dls::topicType base_state = dls::topicType("base_state", new BaseStatePubSubType());
-			dls::topicType stance_status = dls::topicType("stance_status", new StanceStatusPubSubType());
+			dls::topicType legs_pose = dls::topicType("legs_pose", new dls2_interface::msg::LegsPosePubSubType());
+			dls::topicType t265_odometry = dls::topicType("t265_odometry", new dls2_interface::msg::T265OdometryPubSubType());
+			dls::topicType attitude_estimation = dls::topicType("attitude_estimation", new dls2_interface::msg::AttitudePubSubType());
+			dls::topicType sensor_fusion = dls::topicType("sensor_fusion", new dls2_interface::msg::SensorFusionPubSubType());
+			dls::topicType vicon = dls::topicType("vicon", new dls2_interface::msg::ViconPubSubType());
+			dls::topicType base_state = dls::topicType("base_state", new dls2_interface::msg::BaseStatePubSubType());
+			dls::topicType stance_status = dls::topicType("stance_status", new dls2_interface::msg::StanceStatusPubSubType());
 		}
 
 		namespace low_level_estimation
 		{
-			dls::topicType blind_state = dls::topicType("blind_state", new BlindStatePubSubType());
-			dls::topicType imu = dls::topicType("imu", new ImuPubSubType());
-			dls::topicType slip_flag = dls::topicType("slip_flag", new SlipFlagPubSubType());
+			dls::topicType blind_state = dls::topicType("blind_state", new dls2_interface::msg::BlindStatePubSubType());
+			dls::topicType imu = dls::topicType("imu", new dls2_interface::msg::ImuPubSubType());
+			dls::topicType slip_flag = dls::topicType("slip_flag", new dls2_interface::msg::SlipFlagPubSubType());
 		}
 	}
 }

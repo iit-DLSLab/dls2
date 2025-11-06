@@ -353,7 +353,7 @@ bool ControlLayer::loadController(const std::string& lib_name)
     std::shared_ptr<ControllerData> pData = std::make_shared<ControllerData>(
 		lib_name,
 		this->ddsSignalLink,
-		dls::topicType(lib_name, new ControlSignalPubSubType()),
+		dls::topicType(lib_name, new dls2_interface::msg::ControlSignalPubSubType()),
 		this->pDefault_spline_in,
 		this->pDefault_spline_out,
 		default_duration_seconds,
@@ -415,7 +415,7 @@ bool ControlLayer::loadExternalController(const std::string& lib_name)
     std::shared_ptr<ControllerData> pData = std::make_shared<ControllerData>(
 		lib_name,
 		this->ddsSignalLink,
-		dls::topicType(lib_name, new ControlSignalPubSubType()),
+		dls::topicType(lib_name, new dls2_interface::msg::ControlSignalPubSubType()),
 		this->pDefault_spline_in,
 		this->pDefault_spline_out,
 		default_duration_seconds,

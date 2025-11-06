@@ -8,7 +8,7 @@
 #include <memory>
 #include <thread>
 
-dls::topicType topic("this_is_a_long_dummy_test_topic", new StringMsgPubSubType());
+dls::topicType topic("this_is_a_long_dummy_test_topic", new dls2_interface::msg::StringMsgPubSubType());
 auto target_message = "this is the required message that has to be delivered";
 constexpr size_t COUNT_OF_SUBSCRIBERS             = 10;
 constexpr size_t COUNT_OF_PUBLISHERS              = 10;
@@ -35,7 +35,7 @@ SubscriberTestStruct::SubscriberTestStruct():
 		{
 			[&](void* tuple)
 			{
-				StringMsg msg = *((StringMsg*) tuple);
+				dls2_interface::msg::StringMsg msg = *((dls2_interface::msg::StringMsg*) tuple);
 				if(msg.msg() == target_message)
 				{
 					++this->count_of_received_messages;
@@ -94,7 +94,7 @@ int main(int /*argc*/, char ** /*argv*/)
 	std::cout << "Sending out " << NUMBER_OF_MESSAGES_PER_PUBLISHER
 	          << " messages for each of the " << COUNT_OF_PUBLISHERS
 	          << " publishers" << std::endl;
-	StringMsg msg;
+	dls2_interface::msg::StringMsg msg;
 	msg.msg() = target_message;
 	for(const auto &publisher: publishers)
 	{

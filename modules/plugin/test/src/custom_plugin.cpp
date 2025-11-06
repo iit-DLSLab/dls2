@@ -10,9 +10,9 @@
 
 CustomPlugin::CustomPlugin(const std::string& ID)
 	: dls::PeriodicAppPlugin(ID){
-	reader_bs = buildInput<BlindState>(dls::topics::low_level_estimation::blind_state, [](){}, false); // false: not required on activation
-	// reader_bs = buildInput<BlindState>(dls::topics::low_level_estimation::blind_state)); // by default the input is required on activation
-	writer_cs = buildOutput<ControlSignal>(dls::topics::control_signal);
+	reader_bs = buildInput<dls2_interface::msg::BlindState>(dls::topics::low_level_estimation::blind_state, [](){}, false); // false: not required on activation
+	// reader_bs = buildInput<dls2_interface::msg::BlindState>(dls::topics::low_level_estimation::blind_state)); // by default the input is required on activation
+	writer_cs = buildOutput<dls2_interface::msg::ControlSignal>(dls::topics::control_signal);
 	writer_cs->msg.torques().resize(12);
 
 	//define console functions here if needed

@@ -28,7 +28,7 @@ LogLayer::LogLayer(std::string ID)
 		{
 			[&](void *tuple)
 			{
-				StringMsg *msg = (StringMsg*) tuple;
+				dls2_interface::msg::StringMsg *msg = (dls2_interface::msg::StringMsg*) tuple;
 				std::cout << '\r' << get_current_time() << ": DEBUG: " <<  msg->msg() << std::flush;
 			}
 		},
@@ -43,7 +43,7 @@ LogLayer::LogLayer(std::string ID)
 		{
 			[&](void *tuple)
 			{
-				StringMsg *msg = (StringMsg*) tuple;
+				dls2_interface::msg::StringMsg *msg = (dls2_interface::msg::StringMsg*) tuple;
 				std::cout << '\r' << get_current_time() << ": INFO: " <<  msg->msg() << std::flush;
 			}
 		},
@@ -58,7 +58,7 @@ LogLayer::LogLayer(std::string ID)
 		{
 			[&](void *tuple)
 			{
-				StringMsg *msg = (StringMsg*) tuple;
+				dls2_interface::msg::StringMsg *msg = (dls2_interface::msg::StringMsg*) tuple;
 				std::cout << '\r' << get_current_time() << ": WARN: " <<  msg->msg() << std::flush;
 			}
 		},
@@ -73,7 +73,7 @@ LogLayer::LogLayer(std::string ID)
 		{
 			[&](void *tuple)
 			{
-				StringMsg *msg = (StringMsg*) tuple;
+				dls2_interface::msg::StringMsg *msg = (dls2_interface::msg::StringMsg*) tuple;
 				std::cout << '\r' << get_current_time() << ": ERROR: " <<  msg->msg() << std::flush;
 			}
 		},
@@ -88,7 +88,7 @@ LogLayer::LogLayer(std::string ID)
 		{
 			[&](void *tuple)
 			{
-				StringMsg *msg = (StringMsg*) tuple;
+				dls2_interface::msg::StringMsg *msg = (dls2_interface::msg::StringMsg*) tuple;
 				std::cout << '\r' << get_current_time() << ": FATAL: " <<  msg->msg() << std::flush;
 			}
 		},
@@ -135,7 +135,7 @@ void LogLayer::readEvents(){
 		// read values
 		for(long int i=idx_read; i<=idx_buffer; ++i)
 		{
-			EventLog event_log = event_listener_.event_buffer[i];
+			dls2_interface::msg::EventLog event_log = event_listener_.event_buffer[i];
 			// print event log
 			std::string timestamp = convertTimeToDate(event_log.header().timestamp());
 			std::cout << "\nEvent from component: " << event_log.component_name() << "\n"

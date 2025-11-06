@@ -108,7 +108,7 @@ namespace dls
 
 			std::string get_name() const;
 
-			EventLog getMsg() const;
+			dls2_interface::msg::EventLog getMsg() const;
 
 			bool hasMatched();
 
@@ -116,7 +116,7 @@ namespace dls
 
 		private:
 			const std::string name;
-			EventLog msg;
+			dls2_interface::msg::EventLog msg;
 			std::shared_ptr<dls::DDSWriter> dds_writer;
 		};
 
@@ -140,7 +140,7 @@ namespace dls
 			/// \return The maximum index of the buffer
 			unsigned long int getBufferMaxIdx() const;
 
-			boost::circular_buffer<EventLog> event_buffer;
+			boost::circular_buffer<dls2_interface::msg::EventLog> event_buffer;
 
 		private:
 			const std::string name;

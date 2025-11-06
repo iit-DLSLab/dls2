@@ -40,16 +40,16 @@ int main(int argc, char** argv)
 	auto robot = robotlib::RobotFactory::openRobot("aliengo");
 	std::shared_ptr<DDSParticipant> dds_participant (new DDSParticipant("dds_part", domains::signals));
 	// Define signal reader/writer base
-	std::shared_ptr<SignalReaderBase> signal_reader_base = std::make_shared<SignalReader<BlindState>>(
+	std::shared_ptr<SignalReaderBase> signal_reader_base = std::make_shared<SignalReader<dls2_interface::msg::BlindState>>(
 															dds_participant,
 															topics::low_level_estimation::blind_state,
-															std::make_shared<BlindState>(robot));
-	std::shared_ptr<SignalWriterBase> signal_writer_base = std::make_shared<SignalWriter<DesiredTorques>>(
+															std::make_shared<dls2_interface::msg::BlindState>(robot));
+	std::shared_ptr<SignalWriterBase> signal_writer_base = std::make_shared<SignalWriter<dls2_interface::msg::DesiredTorques>>(
 															dds_participant,
 															topics::desired_torques,
-															std::make_shared<DesiredTorques>(robot));
-	BlindState blind_state(robot);
-	DesiredTorques desired_torques(robot);
+															std::make_shared<dls2_interface::msg::DesiredTorques>(robot));
+	dls2_interface::msg::BlindState blind_state(robot);
+	dls2_interface::msg::DesiredTorques desired_torques(robot);
 	// WrapperBase* wb_blind_state = &blind_state;
 	// WrapperBase* wb_desired_torques = &desired_torques;
 	double increment = 0.3;

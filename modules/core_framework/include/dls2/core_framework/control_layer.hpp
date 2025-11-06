@@ -119,9 +119,9 @@ private:
 	std::shared_ptr<robotlib::RobotBase> pRobot;
 
 	/// @brief Output signals
-	Writer<DesiredTorques> writer_control_signal;
+	Writer<dls2_interface::msg::DesiredTorques> writer_control_signal;
 
-	DesiredTorques torques;
+	dls2_interface::msg::DesiredTorques torques;
 
 	bool unloadController(std::shared_ptr<ControllerData> pData);
 

@@ -8,7 +8,7 @@
 
 TEST_CASE("Messages can be published and received via topics", "[pubsub]")
 {
-	dls::topicType topic("this_is_a_pubsub_test_topic_a1212j3jL@#@!jfsxzc", new StringMsgPubSubType());
+	dls::topicType topic("this_is_a_pubsub_test_topic_a1212j3jL@#@!jfsxzc", new dls2_interface::msg::StringMsgPubSubType());
 	std::string send_message("this is the message that needs to be sent");
 
 	SECTION("A message is sent and received")
@@ -24,12 +24,12 @@ TEST_CASE("Messages can be published and received via topics", "[pubsub]")
 			{
 				[&](void *tuple)
 				{
-					received_message = ((StringMsg*) tuple)->msg();
+					received_message = ((dls2_interface::msg::StringMsg*) tuple)->msg();
 				}
 			}
 		);
 
-		StringMsg msg;
+		dls2_interface::msg::StringMsg msg;
 		msg.msg() = send_message;
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 		publisher.sendMessage(&msg);

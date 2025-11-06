@@ -119,7 +119,7 @@ namespace state_machine
         //! Variable publishing state changes
         dls::DDSWriter notifier;
 
-        StateMachineMonitor state_machine_msg;
+        dls2_interface::msg::StateMachineMonitor state_machine_msg;
     };
 }
 

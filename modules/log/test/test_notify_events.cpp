@@ -44,7 +44,7 @@ bool pub_thread(double frequency, const std::shared_ptr<dls::logging::EventNotif
         );
         {
             std::lock_guard<std::mutex> lock(pub_mutex);
-            EventLog event_log = event_notifier->getMsg();
+            dls2_interface::msg::EventLog event_log = event_notifier->getMsg();
             std::cout << "Event from component: " << event_log.component_name() << "\n"
                       << "Timestamp: " << event_log.header().timestamp() << "\n"
                       << "Sequence ID: " << event_log.header().sequence_id() << "\n"
@@ -95,7 +95,7 @@ void read_events(
         std::cout << "ssss "<<std::endl;
         for(long int i=idx_read; i<=idx_buffer; ++i)
         {
-            EventLog event_log = event_listener.event_buffer[i];
+            dls2_interface::msg::EventLog event_log = event_listener.event_buffer[i];
             // json_recorded_data[event_log.component_name()].push_back({
             //     {"timestamp", event_log.header().timestamp()},
             //     {"sequence_id", event_log.header().sequence_id()},

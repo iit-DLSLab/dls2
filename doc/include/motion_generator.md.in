@@ -1,5 +1,5 @@
 A motion generator may be written by inheriting from dls::MotionGenerator. It
-communicates with the rest of the framework by reading a `dls::BlindState` using
+communicates with the rest of the framework by reading a `dls2_interface::msg::StringMsgBlindState` using
 `dls::MotionGenerator::readBlindStateSignal` and publishes a `dls::GaitSignal`
 using the function `dls::MotionGenerator::publishData`.
 

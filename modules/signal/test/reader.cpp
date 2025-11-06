@@ -17,7 +17,7 @@ int main()
 
 	std::shared_ptr<dls::DDSParticipant> dds_participant = std::make_shared<dls::DDSParticipant>("ddsparticipant", domain_id);
 
-	dls::Reader<BlindState> reader (
+	dls::Reader<dls2_interface::msg::BlindState> reader (
 		dds_participant,
 		dls::topics::low_level_estimation::blind_state);
 

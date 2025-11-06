@@ -5,7 +5,7 @@ namespace dls
 	ParameterClient::ParameterClient() 
 		: ServiceClient(
 			topics::param_server,
-			dls::topicType(dls::topics::param_server.first + "_response", new ParamServerPubSubType())
+			dls::topicType(dls::topics::param_server.first + "_response", new dls2_interface::msg::ParamServerPubSubType())
 		)
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
@@ -16,8 +16,8 @@ namespace dls
 
 	void ParameterClient::set(const std::string& key, const std::string& data)
 	{
-		ParamServer req;
-		ParamServer res;
+		dls2_interface::msg::ParamServer req;
+		dls2_interface::msg::ParamServer res;
 		
 		req.key() = key;
 		req.value() = data;
@@ -28,8 +28,8 @@ namespace dls
 
 	std::string ParameterClient::get(const std::string& key)
 	{
-		ParamServer req;
-		ParamServer res;
+		dls2_interface::msg::ParamServer req;
+		dls2_interface::msg::ParamServer res;
 
 		req.key() = key;
 		req.rw() = false;

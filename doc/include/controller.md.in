@@ -1,7 +1,7 @@
 A controller may be written by inheriting from `dls::Controller`. It
 communicates with the rest of the framework by reading a `dls::GaitSignal` using
 `dls::Controller::readGaitSignal` and the getting the robot state using
-`dls::Controller::readBlindStateSignal`. It publishes a `dls::ControlSignal`
+`dls::Controller::readBlindStateSignal`. It publishes a `dls2_interface::msg::ControlSignal`
 using the call to `dls::publishSignal`.
 
 The controller is made available to the rest of the framework by exporting it

@@ -32,8 +32,8 @@ public:
 	bool setJointTorque();
 
 	// I/O definition
-	dls::ReaderPtr<BlindState> reader_bs;
-	dls::WriterPtr<ControlSignal> writer_cs;
+	dls::ReaderPtr<dls2_interface::msg::BlindState> reader_bs;
+	dls::WriterPtr<dls2_interface::msg::ControlSignal> writer_cs;
 
 	
 };

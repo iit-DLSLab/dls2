@@ -17,7 +17,7 @@ module dls2_interfaces {
 
               dls2_interfaces::msg::Test test;
 
-	            @JointState sequence<double> joints_temperature;
+	             sequence<double> joints_temperature;
        };
   };
 };

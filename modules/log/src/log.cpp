@@ -64,7 +64,7 @@ int LogStreamBuffer::sync()
 }
 bool LogStreamBuffer::flush_buffer()
 {
-	std::shared_ptr<StringMsg> msg(new StringMsg());
+	std::shared_ptr<dls2_interface::msg::StringMsg> msg(new dls2_interface::msg::StringMsg());
 	msg->msg(this->prefix + std::string(buf, pptr()));
 
 	this->ddsLogging->sendMessage(msg.get());
@@ -213,7 +213,7 @@ std::string EventNotifier::get_name() const
 	return name;
 } // end get_name
 
-EventLog EventNotifier::getMsg() const
+dls2_interface::msg::EventLog EventNotifier::getMsg() const
 {
 	return msg;
 } // end getMsg
@@ -249,7 +249,7 @@ EventListener::EventListener(const std::string &name)
 				{
 					[&](void *tuple)
 					{
-						EventLog *msg = (EventLog*) tuple;
+						dls2_interface::msg::EventLog *msg = (dls2_interface::msg::EventLog*) tuple;
 						// std::cout 	<< "###################"
 						// 			<< "\ntimestamp: " << msg->header().timestamp()
 						// 			<< "\nsequence_id: " << msg->header().sequence_id()

@@ -39,7 +39,7 @@ private:
 	// logging::clogstream outstream;
 	// logging::clogstream logstream;
 
-	// ServiceServer<StringMsgPubSubType, StringMsgPubSubType> service_server_;
+	// ServiceServer<dls2_interface::msg::StringMsgPubSubType, dls2_interface::msg::StringMsgPubSubType> service_server_;
 };
 } // end namespace dls
 

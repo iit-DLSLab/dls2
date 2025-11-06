@@ -103,7 +103,7 @@ namespace dls
 			{
 				[&](void *tuple)
 				{
-					CommandCall* msg = (CommandCall *)tuple;
+					dls2_interface::msg::CommandCall* msg = (dls2_interface::msg::CommandCall *)tuple;
 					// if the owner is known but it is not the one owning this command OR
 					// if the received command name is not equal to the name of this command
 					// do nothing

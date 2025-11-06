@@ -198,7 +198,7 @@ int CommandManager::callCommand(std::string name_, std::vector<std::string> args
 
 void CommandManager::sendMessage(std::pair<std::string, std::string> cmdData_, std::vector<std::string> args_)
 {
-	CommandCall msg;
+	dls2_interface::msg::CommandCall msg;
 	std::string outString;
 
 	if (args_.empty())

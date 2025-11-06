@@ -7,8 +7,8 @@
 int main()
 {
     dls::DDSParticipant participant("participant", 0);
-    auto writer = participant.addWriter("dds_writer", dls::topicType("Sample", new BaseReferencesPubSubType()));
-    BaseReferences msg;
+    auto writer = participant.addWriter("dds_writer", dls::topicType("Sample", new dls2_interface::msg::BaseReferencesPubSubType()));
+    dls2_interface::msg::BaseReferences msg;
     msg.sequence_id() = 0;
     msg.timestamp() = 1;
     msg.base_reference()[0] = 0;

@@ -12,7 +12,7 @@
 
 namespace dls
 {
-	class ParameterServer : public dls::ServiceServer<ParamServer, ParamServer>
+	class ParameterServer : public dls::ServiceServer<dls2_interface::msg::ParamServer, dls2_interface::msg::ParamServer>
 	{
 	public:
 		ParameterServer(std::string&);

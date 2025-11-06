@@ -15,7 +15,7 @@ Time::Time()
 		{
 			[&](void *tuple)
 			{	
-				DoubleMsg msg = *((DoubleMsg *)tuple);
+				dls2_interface::msg::DoubleMsg msg = *((dls2_interface::msg::DoubleMsg *)tuple);
 					
 				if(msg.value() > 1)
 					Time::time_factor = msg.value();
@@ -41,7 +41,7 @@ void Time::setRealTimeFactor(double factor)
 
 	this->time_factor = factor;
 
-	DoubleMsg msg;
+	dls2_interface::msg::DoubleMsg msg;
 	msg.value(factor);
 
 	this->timeLink.sendMessage("time_writer", (void*) &msg);

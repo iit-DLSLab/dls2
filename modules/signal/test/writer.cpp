@@ -15,7 +15,7 @@ int main()
 	const int domain_id = 3;
 	std::shared_ptr<dls::DDSParticipant> dds_participant = std::make_shared<dls::DDSParticipant>("ddsparticipant", domain_id);
 
-	dls::Writer<BlindState> writer (
+	dls::Writer<dls2_interface::msg::BlindState> writer (
 		dds_participant,
 		dls::topics::low_level_estimation::blind_state);
 

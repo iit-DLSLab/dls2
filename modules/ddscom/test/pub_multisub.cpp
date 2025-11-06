@@ -15,7 +15,7 @@ size_t number_of_messages_to_send = 10;
 TEST_CASE("A single publisher can publish to multiple subscribers", "[pubsub]")
 {
 	std::cout << "creating objects" << std::endl;
-	dls::topicType topic("topic_pub_multisub", new StringMsgPubSubType());
+	dls::topicType topic("topic_pub_multisub", new dls2_interface::msg::StringMsgPubSubType());
 	std::string send_message("this is the message that needs to be sent");
 
 	dls::DDSParticipant server("test_server", 0, eprosima::fastdds::rtps::DiscoveryProtocol::SERVER);
@@ -38,7 +38,7 @@ TEST_CASE("A single publisher can publish to multiple subscribers", "[pubsub]")
 			{
 				[=, &counts](void *tuple)
 				{
-					StringMsg msg = *((StringMsg *) tuple);
+					StringMsg msg = *((dls2_interface::msg::StringMsg *) tuple);
 
 					std::cout << "Sub " << std::to_string(i) << " got a message" << std::endl;
 					REQUIRE(msg.msg() == send_message);
@@ -57,7 +57,7 @@ TEST_CASE("A single publisher can publish to multiple subscribers", "[pubsub]")
 
 		for(size_t i = 0; i != number_of_messages_to_send; ++i)
 		{
-			StringMsg msg;
+			dls2_interface::msg::StringMsg msg;
 			msg.msg() = send_message;
 			std::cout << "publish " << i << "..." << std::endl;
 			publisher.sendMessage((void*) &msg);
