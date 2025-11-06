@@ -36,8 +36,8 @@ std::shared_ptr<const robotlib::RobotBase> MotionGenerator::getRobot()
 
 void MotionGenerator::setHomeConfiguration()
 {
-	YAML::Node config = YAML::LoadFile("/usr/include/dls2/actions/goHome/config/config.yml");
 	const std::string robot_name = pRobot->getName();
+	YAML::Node config = YAML::LoadFile("/usr/include/"+robot_name+"_description/default_postures/goHome.yml");
 	for(auto joint : this->home_configuration.getJoints()){
 		this->home_configuration[joint] = config[robot_name][joint->getName()].as<double>();
 	}
@@ -45,8 +45,8 @@ void MotionGenerator::setHomeConfiguration()
 
 void MotionGenerator::setFoldConfiguration()
 {
-	YAML::Node config = YAML::LoadFile("/usr/include/dls2/actions/goFold/config/config.yml");
 	const std::string robot_name = pRobot->getName();
+	YAML::Node config = YAML::LoadFile("/usr/include/"+robot_name+"_description/default_postures/goFold.yml");
 	for(auto joint : this->fold_configuration.getJoints()){
 		this->fold_configuration[joint] = config[robot_name][joint->getName()].as<double>();
 	}
