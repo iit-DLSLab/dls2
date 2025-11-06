@@ -98,14 +98,14 @@ LogLayer::LogLayer(std::string ID)
 
 void LogLayer::close()
 {
-	bool close = false;
-	while(!close)
-	{
-		auto participants = ddspart_layer->getParticipants();
-		if(participants.size()<=2) // if it is two, only the server for layers and the LogLayer itself are left
-			close = true;
-		std::this_thread::sleep_for(std::chrono::milliseconds(5));
-	}
+	// bool close = false;
+	// while(!close)
+	// {
+	// 	auto participants = ddspart_layer->getParticipants();
+	// 	if(participants.size()<=2) // if it is two, only the server for layers and the LogLayer itself are left
+	// 		close = true;
+	// 	std::this_thread::sleep_for(std::chrono::milliseconds(5));
+	// }
 }
 
 std::string LogLayer::convertTimeToDate(long int timestamp){

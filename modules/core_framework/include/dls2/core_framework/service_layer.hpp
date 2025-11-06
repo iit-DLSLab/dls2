@@ -4,7 +4,6 @@
 
 #include "dls2/application/layer.hpp"
 #include "dls2/application/app_data.hpp"
-#include "actions/action_client_stock.hpp"
 #include "dls2/data_visualizer/data_visualizer_base.hpp"
 
 namespace dls
@@ -27,12 +26,6 @@ namespace dls
 		bool loadDataVisualizer(const std::string&);
 		bool unloadDataVisualizer(const std::string);
 
-		bool loadAction(const std::string& ID);
-		bool unloadAction(const std::string& ID);
-
-		bool loadProcedure(const std::string& ID);
-		bool unloadProcedure(const std::string& ID);
-
 		bool loadTask(const std::string& ID);
 		bool unloadTask(const std::string& ID);
 
@@ -45,16 +38,12 @@ namespace dls
 		// BEGIN critical section
 		    std::map<std::string, std::shared_ptr<AppData>> services;
 			std::map<std::string, std::shared_ptr<AppData>> data_visualizers_;
-			std::map<std::string, std::shared_ptr<AppData>> actions;
-			std::map<std::string, std::shared_ptr<AppData>> procedures;
 			std::map<std::string, std::shared_ptr<AppData>> tasks;
 		    std::mutex services_mutex;
 			std::mutex data_visualizers_mutex_;
 	    // END critical section
 
 		std::shared_ptr<dls::DDSWriter> ddsMonitor;
-
-		ActionClientStock action_client_stock;
 
 		//! Name of the robot
 		const std::string robot_name;

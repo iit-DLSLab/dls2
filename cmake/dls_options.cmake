@@ -25,14 +25,6 @@ set(DLS_DEFAULT_HEADER_DIR /usr/include/dls2
 	CACHE STRING "Directory where framework headers are stored"
 )
 
-set(DLS_ACTIONS_HEADER_DIR /usr/include/dls2/actions
-	CACHE STRING "Directory where action headers are stored"
-)
-
-set(DLS_PROCEDURES_HEADER_DIR /usr/include/dls2/procedures
-	CACHE STRING "Directory where procedure headers are stored"
-)
-
 set(DLS_TASKS_HEADER_DIR /usr/include/dls2/tasks
 	CACHE STRING "Directory where task headers are stored"
 )

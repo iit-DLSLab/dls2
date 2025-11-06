@@ -24,9 +24,6 @@ namespace dls
         bool runLayer(const std::string &, const std::string &);
         void launchServers();
         void launchParamServer();
-        void launchActionServers();
-        void launchProcedures();
-        void launchTasks();
         static void shutdown_all(int);
 
         static CommandManager command_manager;

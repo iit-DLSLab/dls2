@@ -183,9 +183,6 @@ namespace dls
 		{
 			runLayer("service", "ServiceLayer");
 			launchParamServer();
-			launchActionServers();
-			launchProcedures();
-			launchTasks();
 		}
 	}
 
@@ -216,56 +213,6 @@ namespace dls
 		sm_watcher.waitState("dls_param_server", "run", should_quit);
 		if(command_manager.waitCommand("dls_param_server", "setParam", should_quit))
 			command_manager.callCommand("setParam", {"robot_name", Options::robot_name}, "dls_param_server");
-	}
-
-	void RunDLS2::launchActionServers()
-	{
-		const std::string actions_path = "@DLS_INSTALL_ACTION_DIR@";
-		// if the folder exist, load the cation servers
-		struct stat info;
-		if(stat(actions_path.c_str(), &info) == 0 && info.st_mode & S_IFDIR){
-			for (const auto &entry : std::filesystem::directory_iterator(actions_path))
-			{
-				const std::string path = entry.path();
-				const std::string action_name = path.substr(path.rfind("/") + 1);
-				if(command_manager.waitCommand("ServiceLayer", "loadAction", should_quit))
-					command_manager.callCommand("loadAction", {action_name}, "ServiceLayer");
-			}
-		}
-	}
-
-	void RunDLS2::launchProcedures()
-	{
-		const std::string procedures_path = "@DLS_INSTALL_PROCEDURE_DIR@";
-		// if the folder exist, load the procedures
-		struct stat info;
-		if(stat(procedures_path.c_str(), &info) == 0 && info.st_mode & S_IFDIR){
-			for (const auto &entry : std::filesystem::directory_iterator(procedures_path))
-			{
-				const std::string path = entry.path();
-				std::string name = path.substr(path.rfind("lib") + 3);
-				name.erase(name.length()-3);
-				if(command_manager.waitCommand("ServiceLayer", "loadProcedure", should_quit))
-					command_manager.callCommand("loadProcedure", {name}, "ServiceLayer");
-			}
-		}
-	}
-
-	void RunDLS2::launchTasks()
-	{
-		const std::string tasks_path = "@DLS_INSTALL_TASK_DIR@";
-		// if the folder exist, load the tasks		
-		struct stat info;
-		if(stat(tasks_path.c_str(), &info) == 0 && info.st_mode & S_IFDIR){
-			for (const auto &entry : std::filesystem::directory_iterator(tasks_path))
-			{
-				const std::string path = entry.path();
-				std::string name = path.substr(path.rfind("lib") + 3);
-				name.erase(name.length()-3);
-				if(command_manager.waitCommand("ServiceLayer", "loadTask", should_quit))
-					command_manager.callCommand("loadTask", {name}, "ServiceLayer");
-			}
-		}
 	}
 
 	void RunDLS2::runStartup(const std::string &startup_file)
