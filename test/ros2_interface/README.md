@@ -49,3 +49,10 @@
 
 Remember that a server is specified by IP + port. A value of _--server-id_ different from _0_ is just used in case of redundat servers (see [here](https://docs.ros.org/en/jazzy/Tutorials/Advanced/Discovery-Server/Discovery-Server.html#server-redundancy)).
 Please refere [here](../../modules/ddscom/README.md) for checking the _server\_id_ used by DLS2.
+
+Remeber that if you want to use the ROS2 CLI (like ros2 topic list or similar) you need to:
+
+  export ROS_DISCOVERY_SERVER=<server_ip>:<server_port>
+  export ROS_SUPER_CLIENT=TRUE
+
+Then you can launch the ros2 cli with the `--no-daemon` option. Basically, the daemon manages the cache of nodes, topics, and services. It makes CLI commands faster, but you need to stop and restart it to update it (for example, if you change the network, the discovery server, or the ROS_SUPER_CLIENT). Instead of stop and restart, you can use the '--no-daemon' option.
