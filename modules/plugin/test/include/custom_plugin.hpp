@@ -1,13 +1,6 @@
 #ifndef CUSTOM_PLUGIN_HPP
 #define CUSTOM_PLUGIN_HPP
 
-#include <chrono>
-#include <cstdlib>
-#include <iostream>
-#include <vector>
-#include <memory>
-#include <thread>
-
 #include "dls2/plugin/periodic_app_plugin.hpp"
 // includes for I/O *************************
 // -- readers/writers
@@ -34,8 +27,6 @@ public:
 	// I/O definition
 	dls::ReaderPtr<dls2_interface::msg::BlindState> reader_bs;
 	dls::WriterPtr<dls2_interface::msg::ControlSignal> writer_cs;
-
-	
 };
 
 #endif // end of include guard: CUSTOM_PLUGIN_HPP

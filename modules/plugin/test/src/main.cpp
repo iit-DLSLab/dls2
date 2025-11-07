@@ -2,7 +2,7 @@
 
 int main()
 {
-    CustomPlugin plugin("custom_plugin"); // same name of the library/executable the CustomPlugin is compiled into
+    CustomPlugin plugin("custom_plugin"); // same name of the library the CustomPlugin is compiled into
     plugin.execute();
 	return 0;
 }
