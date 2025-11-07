@@ -194,10 +194,11 @@ namespace dls
 	void RunDLS2::launchServers()
 	{
 		YAML::Node config = dls::DDSParticipant::getServersConfig();
-		launchSingleServer(config[dls::domains::layers]["ip"].as<std::string>(), config[dls::domains::layers]["port"].as<int>());
-		launchSingleServer(config[dls::domains::command]["ip"].as<std::string>(), config[dls::domains::command]["port"].as<int>());
-		launchSingleServer(config[dls::domains::signals]["ip"].as<std::string>(), config[dls::domains::signals]["port"].as<int>());
-		launchSingleServer(config[dls::domains::logging]["ip"].as<std::string>(), config[dls::domains::logging]["port"].as<int>());
+		// launch servers defined in the config file
+		for (const auto& server : config)
+		{
+			launchSingleServer(server.second["ip"].as<std::string>(), server.second["port"].as<int>());
+		}
 	}
 
 	void RunDLS2::launchSingleServer(const std::string& ip, int port){

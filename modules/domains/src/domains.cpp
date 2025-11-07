@@ -19,6 +19,36 @@ namespace dls
 		domainType services		= 8;
 		domainType estimators	= 9;
 		domainType visualization = 10;
+
+		// define id_to_name_map
+		std::map<domainType,std::string> id_to_name_map{
+			{users, "users"},
+			{layers, "layers"},
+			{command, "command"},
+			{signals, "signals"},
+			{controllers, "controllers"},
+			{hardwares, "hardwares"},
+			{consoles, "consoles"},
+			{logging, "logging"},
+			{services, "services"},
+			{estimators, "estimators"},
+			{visualization, "visualization"}
+		};
+
+		// define name_to_id_map
+		std::map<std::string,domainType> name_to_id_map{
+			{"users", users},
+			{"layers", layers},
+			{"command", command},
+			{"signals", signals},
+			{"controllers", controllers},
+			{"hardwares", hardwares},
+			{"consoles", consoles},
+			{"logging", logging},
+			{"services", services},
+			{"estimators", estimators},
+			{"visualization", visualization}
+		};
 	}
 }
 

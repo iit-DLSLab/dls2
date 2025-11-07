@@ -23,8 +23,8 @@ namespace dls
 		participantQos.properties().properties().emplace_back("fastdds.type_propagation","enabled"); // it is enabled by default
 
 		// Get server info from the yaml file
-		server_ip = config[domain_]["ip"].as<std::string>();
-		server_port = config[domain_]["port"].as<int>();
+		server_ip = config[dls::domains::id_to_name_map[domain_]]["ip"].as<std::string>();
+		server_port = config[dls::domains::id_to_name_map[domain_]]["port"].as<int>();
 
 		// Define server locator
 		eprosima::fastdds::rtps::Locator_t server_locator;

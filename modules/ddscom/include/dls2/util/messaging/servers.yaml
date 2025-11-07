@@ -1,33 +1,33 @@
-0: #users
-  ip: "127.0.0.1"
-  port: 11811
-1: #layers
+# users:
+#   ip: "127.0.0.1"
+#   port: 11811
+layers: 
   ip: "127.0.0.1"
   port: 11812
-2: #command
+command:
   ip: "127.0.0.1"
   port: 11813
-3: #signals
+signals:
   ip: "127.0.0.1"
   port: 11814
-4: #controllers
-  ip: "127.0.0.1"
-  port: 11815
-5: #hardwares
-  ip: "127.0.0.1"
-  port: 11816
-6: #consoles
-  ip: "127.0.0.1"
-  port: 11817
-7: #logging
+# controllers:
+#   ip: "127.0.0.1"
+#   port: 11815
+# hardwares:
+#   ip: "127.0.0.1"
+#   port: 11816
+# consoles:
+#   ip: "127.0.0.1"
+#   port: 11817
+logging:
   ip: "127.0.0.1"
   port: 11818
-8: #services
-  ip: "127.0.0.1"
-  port: 11819
-9: #estimators
-  ip: "127.0.0.1"
-  port: 11820
-10: #visualization
-  ip: "127.0.0.1"
-  port: 11821
+# services:
+#   ip: "127.0.0.1"
+#   port: 11819
+# estimators:
+#   ip: "127.0.0.1"
+#   port: 11820
+# visualization:
+#   ip: "127.0.0.1"
+#   port: 11821
