@@ -23,6 +23,8 @@ namespace dls
         void runStartup(const std::string &);
         bool runLayer(const std::string &, const std::string &);
         void launchServers();
+        void launchSingleServer(const std::string& ip, int port);
+
         void launchParamServer();
         static void shutdown_all(int);
 
