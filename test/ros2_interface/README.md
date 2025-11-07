@@ -50,6 +50,23 @@
 Remember that a server is specified by IP + port. A value of _--server-id_ different from _0_ is just used in case of redundat servers (see [here](https://docs.ros.org/en/jazzy/Tutorials/Advanced/Discovery-Server/Discovery-Server.html#server-redundancy)).
 Please refere [here](../../modules/ddscom/README.md) for checking the _server\_id_ used by DLS2.
 
+# ROS2-DLS2 interface
+1. generate .idl from .msg file:
+     rosidl translate --to idl -o . package_name message_name.msg
+    
+    Another option is to create a ROS2 package just for the messages, and in this way you can use the .idl files directly. See [dls2_interfaces](ros2_ws/src/dls2_intefaces) package.
+
+2. generate fastdds message using the -typeros2 option (-cs is used to allow case-sentitive names): 
+    fastddsgen -replace -cs -typeros2 message_name.idl
+
+    if you use `dls_add_message` in your CMakeLists for generating custom messages, this is automatically done.
+3. create a fastdd reader/writer connected to a topic with name rt/ros2_topic_name
+    NB: a reader/writer is configured to interface with ROS2. This means that the rt/ is automatically added before the topic name.
+
+To interface your ROS2 node with DLS2 you need to set the server ip and port with
+
+    export ROS_DISCOVERY_SERVER=<server_ip>:<server_port>
+
 Remeber that if you want to use the ROS2 CLI (like ros2 topic list or similar) you need to:
 
   export ROS_DISCOVERY_SERVER=<server_ip>:<server_port>

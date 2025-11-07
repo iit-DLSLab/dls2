@@ -1,5 +1,4 @@
 #include "Test.idl"
-#include "DLSAnnotation.idl"
 
 module dls2_interfaces {
   module msg {
