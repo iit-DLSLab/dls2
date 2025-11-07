@@ -98,7 +98,9 @@ int main(int argc, char** argv){
 									times.push_back(diff);
 									msg = tuple;
 								}
-							});
+							},
+							eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT,
+							false);
 
 		//Loop that calculates the frequency, use CTRL + C to cancel
 		while(!stop)

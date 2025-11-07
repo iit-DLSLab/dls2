@@ -16,7 +16,7 @@ namespace dls
         , publisher(nullptr)
         , subscriber(nullptr)
 		, topicListener(nullptr)
-		, config(YAML::LoadFile("/usr/include/dls2/util/messaging/servers.yaml"))
+		, config(DDSParticipant::getServersConfig())
 	{
 		eprosima::fastdds::dds::DomainParticipantQos participantQos;
 		participantQos.wire_protocol().builtin.mutation_tries = 250u; //limit discoverable data readers/writers (default is 100u)
@@ -24,7 +24,7 @@ namespace dls
 
 		// Get server info from the yaml file
 		server_ip = config[domain_]["ip"].as<std::string>();
-		server_port = config[domain_]["port"].as<double>();
+		server_port = config[domain_]["port"].as<int>();
 
 		// Define server locator
 		eprosima::fastdds::rtps::Locator_t server_locator;
@@ -215,12 +215,13 @@ namespace dls
 	eprosima::fastdds::dds::DataWriter* DDSParticipant::addWriter(
 		std::string writerName_,
 		dls::topicType topicData_,
-		eprosima::fastdds::dds::DataWriterQos qos)
+		eprosima::fastdds::dds::DataWriterQos qos,
+		bool add_ros2_namespace)
 	{
 		if(this->writers.find(writerName_) != this->writers.end())
 			throw std::runtime_error("THE WRITER " + writerName_ + " ALREADY EXISTS, YOU ARE TRYING TO CREATE TWICE");
 
-		auto topic = this->addTopic(topicData_);
+		auto topic = this->addTopic(topicData_, add_ros2_namespace);
 
 		if (topic == nullptr)
 			throw std::runtime_error("THE WRITER " + writerName_ + " COULDN'T CREATE THE TOPIC " + topicData_.first);
@@ -266,7 +267,8 @@ namespace dls
 		std::string readerName_,
 		dls::topicType topicData_,
 		std::function<void(void *)> callback_,
-		eprosima::fastdds::dds::DataReaderQos qos)
+		eprosima::fastdds::dds::DataReaderQos qos,
+		bool add_ros2_namespace)
 	{
 		if(this->readers.find(readerName_) != this->readers.end())
 		{
@@ -274,7 +276,7 @@ namespace dls
 			return this->readers.find(readerName_)->second;
 		}
 
-		auto topic = this->addTopic(topicData_);
+		auto topic = this->addTopic(topicData_,add_ros2_namespace);
 
 		// error could not add topic
 		if (topic == nullptr)
@@ -345,10 +347,11 @@ namespace dls
 		return true;
 	}
 
-	eprosima::fastdds::dds::Topic *DDSParticipant::addTopic(dls::topicType topicData_)
+	eprosima::fastdds::dds::Topic *DDSParticipant::addTopic(dls::topicType topicData_, bool add_ros2_namespace)
 	{
 		// add ROS2 namespace
-		topicData_.first = std::string("rt/")+topicData_.first;
+		if(add_ros2_namespace)
+			topicData_.first = std::string("rt/")+topicData_.first;
 
 		if(!this->participant)
 			return nullptr;
@@ -377,10 +380,11 @@ namespace dls
 		return topic;
 	}
 
-	eprosima::fastdds::dds::Topic *DDSParticipant::addTopicFromDatabase(std::string topicName)
+	eprosima::fastdds::dds::Topic *DDSParticipant::addTopicFromDatabase(std::string topicName, bool add_ros2_namespace)
 	{
 		// add ROS2 namespace
-		topicName = std::string("rt/")+topicName;
+		if(add_ros2_namespace)
+			topicName = std::string("rt/")+topicName;
 
 		if(!this->participant){
 			return nullptr;
@@ -401,7 +405,7 @@ namespace dls
 		}
 
 		// the topic was discovered, so it is stored its type support. The topic can be created
-		auto topic = this->addTopic(dls::topicType(topicName, discovery_database[topicName]));
+		auto topic = this->addTopic(dls::topicType(topicName, discovery_database[topicName]),false);
 
 		return topic;
 	}
@@ -540,5 +544,18 @@ namespace dls
 
 	std::string DDSParticipant::getName() const{
 		return participant_name;
+	}
+
+	YAML::Node DDSParticipant::getServersConfig(){
+		char * val;                                                                        
+		val = getenv("DLS_SERVERS_PATH");                                                       
+		std::string servers_path = "";                                                           
+		if (val != NULL) {                                                                 
+			servers_path = val;                                                                    
+		}
+		else{
+			servers_path = "/usr/include/dls2/util/messaging/servers.yaml";
+		}
+		return YAML::LoadFile(servers_path);
 	}
 } // namespace dls

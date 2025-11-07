@@ -51,14 +51,16 @@ namespace dls
 		eprosima::fastdds::dds::DataWriter* addWriter(
 			std::string    writerName,
 			dls::topicType topicData,
-			eprosima::fastdds::dds::DataWriterQos qos = eprosima::fastdds::dds::DATAWRITER_QOS_DEFAULT
+			eprosima::fastdds::dds::DataWriterQos qos = eprosima::fastdds::dds::DATAWRITER_QOS_DEFAULT,
+			bool add_ros2_namespace = true
 		);
 
 		eprosima::fastdds::dds::DataReader* addReader(
 			std::string                 readerName,
 			dls::topicType				topicData,
 			std::function<void(void *)>	callback,
-			eprosima::fastdds::dds::DataReaderQos qos = eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT
+			eprosima::fastdds::dds::DataReaderQos qos = eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT,
+			bool add_ros2_namespace = true
 		);
 
 		// eprosima::fastdds::dds::DataReader *addReader(
@@ -89,6 +91,8 @@ namespace dls
 
 		std::unordered_map<std::string, eprosima::fastdds::dds::DynamicType::_ref_type> get_discovery_database_dyn_types();
 		
+		static YAML::Node getServersConfig();
+
 	private:
 		std::string server_ip;
 		int server_port;
@@ -112,8 +116,8 @@ namespace dls
 
 		YAML::Node config;
 
-		eprosima::fastdds::dds::Topic* addTopic(dls::topicType topicData_);
-		eprosima::fastdds::dds::Topic* addTopicFromDatabase(std::string topicName);
+		eprosima::fastdds::dds::Topic* addTopic(dls::topicType topicData_, bool add_ros2_namespace = true);
+		eprosima::fastdds::dds::Topic* addTopicFromDatabase(std::string topicName, bool add_ros2_namespace = true);
 
 		std::multimap<std::string, eprosima::fastdds::rtps::GUID_t> discovered_participants_info;
 
