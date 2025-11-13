@@ -46,10 +46,9 @@ namespace dls{
 
 		void getConfiguration(YAML::Node config, std::shared_ptr<robotlib::RobotBase> robot, robotlib::LimbDataMap<Eigen::Vector3d>& feet_pos_des){
 			auto configuration = robot->makeJointState(0.0);
-			for(auto &joint : configuration.getJoints())
+			for(auto joint : robot->getJoints())
 			{
-				configuration[joint] = config[robot->getName()][joint->getName()].as<double>();
-
+				configuration[joint->id] = config[robot->getName()][joint->getName()].as<double>();
 			}
 			robot->forwardKinematics(configuration, feet_pos_des);
 		}
