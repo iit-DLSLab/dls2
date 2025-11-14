@@ -12,12 +12,12 @@ using namespace dls;
 EstimationLayer::EstimationLayer(std::string ID) :
 	Layer(ID, 300),
 	estimators(),
-	estimators_mutex(),
-	ddsMonitor(std::make_shared<dls::DDSWriter>(
-		"EstimatorLayer::monitor",
-		dls::domains::estimators,
-		dls::topics::command_send
-	))
+	estimators_mutex()
+	// ddsMonitor(std::make_shared<dls::DDSWriter>(
+	// 	"EstimatorLayer::monitor",
+	// 	dls::domains::estimators,
+	// 	dls::topics::command_send
+	// ))
 { 
 	command_manager.addCommand<std::string>
 	(

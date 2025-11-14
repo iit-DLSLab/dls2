@@ -43,7 +43,7 @@ namespace dls
 			std::mutex estimators_mutex;
 		// END critical section
 
-		std::shared_ptr<dls::DDSWriter> ddsMonitor;
+		// std::shared_ptr<dls::DDSWriter> ddsMonitor;
 	};
 } // end namespace dls
 
