@@ -52,6 +52,9 @@ namespace dls
 
 		dls::topicType state_machine = dls::topicType("state_machine", new dls2_interface::msg::StateMachineMonitorPubSubType());
 
+		// arm controller
+		dls::topicType desired_arm_torques = dls::topicType("desired_arm_torques", new dls2_interface::msg::DesiredArmTorquesPubSubType());
+		dls::topicType arm_trajectory_generator = dls::topicType("arm_trajectory_generator", new dls2_interface::msg::ArmTrajectoryGeneratorPubSubType());
 		namespace high_level_estimation
 		{
 			dls::topicType legs_pose = dls::topicType("legs_pose", new dls2_interface::msg::LegsPosePubSubType());
@@ -68,6 +71,8 @@ namespace dls
 			dls::topicType blind_state = dls::topicType("blind_state", new dls2_interface::msg::BlindStatePubSubType());
 			dls::topicType imu = dls::topicType("imu", new dls2_interface::msg::ImuPubSubType());
 			dls::topicType slip_flag = dls::topicType("slip_flag", new dls2_interface::msg::SlipFlagPubSubType());
+			dls::topicType arm_blind_state = dls::topicType("arm_blind_state", new dls2_interface::msg::ArmBlindStatePubSubType());
+
 		}
 	}
 }

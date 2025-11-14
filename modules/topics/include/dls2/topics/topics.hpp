@@ -32,6 +32,9 @@
 #include <dls_messages/dds/FrictionConeListPubSubTypes.hpp>
 #include <dls_messages/dds/GenericRobotPubSubTypes.hpp>
 #include <dls_messages/dds/event_logPubSubTypes.hpp>
+#include <dls_messages/dds/desired_arm_torquesPubSubTypes.hpp>
+#include <dls_messages/dds/arm_blind_statePubSubTypes.hpp>
+#include <dls_messages/dds/arm_trajectory_generatorPubSubTypes.hpp>
 
 
 #include "dls2/topics/utils.hpp"
@@ -66,6 +69,8 @@ namespace dls
 		extern dls::topicType joy_signal;
 		extern dls::topicType controller_signal;
 		extern dls::topicType mpc_generator_output;
+		extern dls::topicType arm_trajectory_generator;
+
 
 		// services
 		extern dls::topicType param_server;
@@ -79,6 +84,9 @@ namespace dls
 
 		// state machine
 		extern dls::topicType state_machine;
+
+		// arm controller
+		extern dls::topicType desired_arm_torques;
 
 		namespace high_level_estimation
 		{
@@ -94,6 +102,7 @@ namespace dls
 		namespace low_level_estimation
 		{
 			extern dls::topicType blind_state;
+			extern dls::topicType arm_blind_state;
 			extern dls::topicType imu;
 			extern dls::topicType slip_flag;
 		}
