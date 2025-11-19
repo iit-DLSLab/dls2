@@ -135,6 +135,6 @@ sudo ./../dls2/bin/Release/custom_plugin_test
 sudo is used for setting RT priority to the process. Then activate the plugin from the dls2 console.
 # launch test from dls2 console
 ```
-loadPlugin custom_plugin
+loadPeriodicAppPlugin custom_plugin
 ```
 Then activate the plugin from the dls2 console.

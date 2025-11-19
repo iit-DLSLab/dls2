@@ -25,12 +25,12 @@ set(DLS_DEFAULT_HEADER_DIR /usr/include/dls2
 	CACHE STRING "Directory where framework headers are stored"
 )
 
-set(DLS_GENERICS_HEADER_DIR /usr/include/dls2/generics
-	CACHE STRING "Directory where generic headers are stored"
+set(DLS_APP_PLUGIN_HEADER_DIR /usr/include/dls2/app_plugins
+	CACHE STRING "Directory where framework app plugin headers are stored"
 )
 
-set(DLS_TASKS_HEADER_DIR /usr/include/dls2/tasks
-	CACHE STRING "Directory where task headers are stored"
+set(DLS_PERIODIC_APP_PLUGIN_HEADER_DIR /usr/include/dls2/periodic_app_plugins
+	CACHE STRING "Directory where shared object libraries for periodic app plugins are stored"
 )
 
 set(DLS_SCHEDULERS_CONFIG_DIR /usr/include/dls2/schedulers
@@ -69,8 +69,12 @@ set(DLS_INSTALL_TASK_DIR /usr/lib/dls2/tasks
 	CACHE STRING "Directory where shared object libraries for tasks are stored"
 )
 
-set(DLS_INSTALL_GENERIC_PLUGIN_DIR /usr/lib/dls2/generic_plugins
-	CACHE STRING "Directory where shared object libraries for generic plugins are stored"
+set(DLS_INSTALL_PERIODIC_APP_PLUGIN_DIR /usr/lib/dls2/periodic_app_plugins
+	CACHE STRING "Directory where shared object libraries for periodic applications are stored"
+)
+
+set (DLS_INSTALL_APP_PLUGIN_DIR /usr/bin/dls2/app_plugins
+	CACHE STRING "Directory where executable applications are stored"
 )
 
 set(DLS_INSTALL_HARDWARE_DIR /usr/lib/dls2/hardwares

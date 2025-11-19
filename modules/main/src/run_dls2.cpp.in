@@ -250,14 +250,16 @@ namespace dls
 			{"controllers", "ControlLayer"},
 			{"motion_generators", "ControlLayer"},
 			{"estimators", "EstimationLayer"},
-			{"services", "ServiceLayer"}};
+			{"services", "ServiceLayer"},
+			{"others", "Supervisor"}};
 		// app_to_loading_command
 		std::map<std::string, std::string> app_to_loading_command = {
 			{"hardwares", "loadHardware"},
 			{"controllers", "loadController"},
 			{"motion_generators", "loadGenerator"},
 			{"estimators", "loadEstimator"},
-			{"services", "loadService"}};
+			{"services", "loadService"},
+			{"others", "loadAppPlugin"}};
 		// collect layers to be run
 		std::vector<std::string> layers;
 		for (std::string layer : config["layers"].as<std::vector<std::string>>())

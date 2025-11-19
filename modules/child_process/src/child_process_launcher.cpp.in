@@ -156,79 +156,19 @@ int main(int argc, char **argv)
                     args.component_name,
                     args.robot_name);
         }
-        // else if (args.component_type == "service")
-        // {
-        //     try
-        //     {
-        //         pComponent =
-        //             ClassLoader::loadClass<ServiceBase, std::string>(
-        //                 std::string("${DLS_INSTALL_SERVICE_DIR}/lib") + args.lib_name + ".so",
-        //                 args.component_name);
-        //     }
-        //     catch (const std::exception &e)
-	    //     {
-        //         pComponent =
-        //             ClassLoader::loadClass<ServiceBase, std::string>(
-        //                 std::string("/usr/lib/dls2/lib") + args.lib_name + ".so",
-        //                 args.component_name);
-        //     }
-        // }
-        else if (args.component_type == "data_visualizer")
-        {
-            pComponent =
-                ClassLoader::loadClass<DataVisualizerBase, std::string>(
-                    std::string("${DLS_INSTALL_DATA_VISUALIZER_DIR}/lib") + args.lib_name + ".so",
-                    args.robot_name);
-        }
-        else if (args.component_type == "action")
+        else if (args.component_type == "periodic_app_plugin")
         {
             pComponent =
                 ClassLoader::loadClass<PeriodicAppPlugin, std::string>(
-                    std::string("${DLS_INSTALL_ACTION_DIR}/"+args.lib_name+"/lib") + args.lib_name + ".so",
+                    std::string("${DLS_INSTALL_PERIODIC_APP_PLUGIN_DIR}/lib") + args.lib_name + ".so",
                     args.component_name,
                     args.robot_name);
         }
-        else if (args.component_type == "procedure")
+        else if (args.component_type == "app_plugin")
         {
             pComponent =
                 ClassLoader::loadClass<AppPlugin, std::string>(
-                    std::string("${DLS_INSTALL_PROCEDURE_DIR}/lib") + args.lib_name + ".so",
-                    args.component_name,
-                    args.robot_name);
-        }
-        else if (args.component_type == "generic")
-        {
-            try
-            {
-                pComponent =
-                    ClassLoader::loadClass<AppPlugin, std::string>(
-                        std::string("${DLS_INSTALL_GENERIC_DIR}/lib") + args.lib_name + ".so",
-                        args.component_name,
-                        args.robot_name);
-            }
-            catch (const std::exception &e)
-	          {
-                scout_sys << "catch\n";
-                pComponent =
-                    ClassLoader::loadClass<AppPlugin, std::string>(
-                        std::string("/usr/lib/dls2/lib") + args.lib_name + ".so",
-                        args.component_name,
-                        args.robot_name);
-            }
-        }
-        else if (args.component_type == "task")
-        {
-            pComponent =
-                ClassLoader::loadClass<PeriodicAppPlugin, std::string>(
-                    std::string("${DLS_INSTALL_TASK_DIR}/lib") + args.lib_name + ".so",
-                    args.component_name,
-                    args.robot_name);
-        }
-        else if (args.component_type == "generic_periodic")
-        {
-            pComponent =
-                ClassLoader::loadClass<PeriodicAppPlugin, std::string>(
-                    std::string("${DLS_INSTALL_GENERIC_PLUGIN_DIR}/lib") + args.lib_name + ".so",
+                    std::string("${DLS_INSTALL_APP_PLUGIN_DIR}/lib") + args.lib_name + ".so",
                     args.component_name,
                     args.robot_name);
         }
@@ -287,12 +227,8 @@ Args parse_args(int argc, char **argv)
         args.component_type != "hardware" &&
         args.component_type != "estimator" &&
         args.component_type != "service"&&
-        args.component_type != "action"&&
-        args.component_type != "procedure" &&
-        args.component_type != "generic" &&
-        args.component_type != "task" &&
-        args.component_type != "data_visualizer" &&
-        args.component_type != "generic_periodic"
+        args.component_type != "periodic_app_plugin" &&
+        args.component_type != "app_plugin"
         )
     {
         std::cerr << "Error: unknown component type '" << args.component_type << "'" << std::endl;
