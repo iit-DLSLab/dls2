@@ -37,6 +37,6 @@ install(
 # installing the library to make it loadable at runtime through DLS2 console
 install(
 	TARGETS             ${PLUGIN_NAME}
-	LIBRARY DESTINATION ${DLS_INSTALL_GENERIC_PLUGIN_DIR}
+	LIBRARY DESTINATION ${DLS_INSTALL_PERIODIC_APP_PLUGIN_DIR}
 	COMPONENT  ${PROJECT_NAME}
 )

@@ -25,7 +25,8 @@ namespace dls
 		std::vector<std::string> getLayersNames();
 		bool containsLayer(std::string name);
 
-		bool loadPlugin(const std::string& ID);
+		bool loadPeriodicAppPlugin(const std::string& ID);
+		bool loadAppPlugin(const std::string& ID);
 
 		virtual void monitor() override;
 
