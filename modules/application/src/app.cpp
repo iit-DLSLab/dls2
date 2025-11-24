@@ -77,8 +77,10 @@ App::App(const std::string &ID)
             return true;
 		}),
 		{{CommandBase::ALL_STATES_EXCEPT_ZERO, 0}},
-		false
-	);
+		false);
+
+	// Launching app status monitor thread
+	monitor_future_ = std::async(std::launch::async, &App::monitorApp, this);
 }
 
 App::~App(){}
@@ -256,4 +258,32 @@ bool App::checkActivation(){
 
 bool App::deactivating(){
 	return true;
+}
+
+void App::monitorApp()
+{
+	while (!should_quit)
+	{
+		// Fill in relevant fields
+		status_msg.component_name() = getID();
+		status_msg.current_state() = sm.state->name;
+		status_msg.desired_state() = "run"; // TODO: check
+		status_msg.cpu_usage() = 0.0;		// TODO: calculate
+
+		const bool anomaliesDetected = status_msg.current_state() != status_msg.desired_state();
+
+		// Notify anomalies if any at this stage
+		if (anomaliesDetected)
+		{
+			dls2_interface::msg::EventLog event_msg;
+			event_notifier.notify(EventID::CPU_THROTTLING, // TODO: method taking care of anomalies-event type association
+								  EventSeverity::ERROR,	   // TODO: method taking care of anomalies-event type association
+								  "Ops...");			   // TODO
+		}
+
+		childMonitor();
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(monitor_period_ms));
+	}
+	return;
 }

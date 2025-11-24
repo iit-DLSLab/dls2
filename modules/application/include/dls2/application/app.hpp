@@ -4,7 +4,10 @@
 #include "dls2/application/app_status.hpp"
 #include "dls2/command/command_manager.hpp"
 #include "dls2/log/log.hpp"
+#include <future>
+#include <thread>
 #include "dls2/application/state_machine/app_state_machine.hpp"
+#include "dls2/application/utils.hpp"
 #include <dls2/application/sched_attr.hpp>
 
 
@@ -38,6 +41,8 @@ namespace dls
 		///
 		/// @param status the status
 		void setStatus(AppStatus status);
+
+		void monitorApp();
 
 		//! Procedure to quit the app
 		virtual void close();
@@ -106,6 +111,9 @@ namespace dls
 
 		logging::EventNotifier event_notifier;
 
+		DDSWriter status_notifier;
+		ProcessStatus status_msg;
+
 		/// The ID of this app
 		///
 		const std::string ID_;
@@ -128,6 +136,11 @@ namespace dls
 		struct sched_attr scheduler_attributes;
 
 		std::string get_current_time();
+
+		virtual void childMonitor() {};
+
+		std::future<void> monitor_future_;
+		size_t monitor_period_ms{1000};
 	};
 } // end namespace dls
 

@@ -72,6 +72,8 @@ namespace dls
 		double getDesiredFrequency() const;
 
 		double dt;
+
+		double current_frequency;
 	protected:
         //! Config variable to load scheduler settings
 		YAML::Node config_scheduler;

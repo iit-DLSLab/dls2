@@ -8,12 +8,10 @@ using namespace dls;
 
 PeriodicApp::PeriodicApp(const std::string &ID) 
 	: App(ID)
+	, current_frequency(0.0)
 	, config_scheduler(YAML::LoadFile("/usr/include/dls2/schedulers/" + ID + "/scheduler.yaml"))
-	, period(std::chrono::milliseconds(config_scheduler["period"].as<int>()))
-	, sched_runtime_factor(config_scheduler["runtime_factor"].as<double>())
-	, sched_deadline_factor(config_scheduler["deadline_factor"].as<double>())
-	, runtime(period*sched_runtime_factor)
-	, deadline(period*sched_deadline_factor)
+	, period(std::chrono::milliseconds(config_scheduler["period"].as<int>())), sched_runtime_factor(config_scheduler["runtime_factor"].as<double>())
+	, sched_deadline_factor(config_scheduler["deadline_factor"].as<double>()), runtime(period * sched_runtime_factor), deadline(period * sched_deadline_factor)
 	, failure(false)
 	, pause_mutex()
 	, is_paused(false)
@@ -174,16 +172,7 @@ bool PeriodicApp::checkFailure()
 
 void PeriodicApp::checkRT()
 {
-	// Compute current time
-	loop_time_curr = std::chrono::system_clock::now();
-
-	// compute current frequency
-	auto elapsed_time = loop_time_curr - loop_time_prec;
-	double current_frequency = 1.0 / (std::chrono::duration_cast<std::chrono::nanoseconds>(elapsed_time).count()/ 1e9);
-	loop_time_prec = loop_time_curr;
-
-	// check if the process is running in real time.
-	realtime_curr =  fabs(current_frequency - getDesiredFrequency()) < 10; // 1% tolerance
+	realtime_curr = Time::checkFrequency(getDesiredFrequency(), loop_time_prec, current_frequency);
 
 	// notify if the process is not running in real time
 	if  (realtime_curr!=sm.state->realtime || 

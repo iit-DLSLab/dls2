@@ -44,5 +44,21 @@ void Time::setRealTimeFactor(double factor)
 	dls2_interface::msg::Double msg;
 	msg.value(factor);
 
-	this->timeLink.sendMessage("time_writer", (void*) &msg);
+	this->timeLink.sendMessage("time_writer", (void *)&msg);
+}
+
+bool Time::checkFrequency(const double &desired_frequency,
+						  std::chrono::time_point<std::chrono::high_resolution_clock> &loop_time_prec,
+						  double &current_frequency)
+{
+	// Compute current time
+	auto loop_time_curr = std::chrono::system_clock::now();
+
+	// compute current frequency
+	auto elapsed_time = loop_time_curr - loop_time_prec;
+	current_frequency = 1.0 / (std::chrono::duration_cast<std::chrono::nanoseconds>(elapsed_time).count() / 1e9);
+	loop_time_prec = loop_time_curr;
+
+	// check if the process is running in real time.
+	return (current_frequency - desired_frequency) < 10; // 1% tolerance
 }

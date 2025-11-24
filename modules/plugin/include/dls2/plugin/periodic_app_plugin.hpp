@@ -3,6 +3,7 @@
 
 #include "dls2/application/periodic_app.hpp"
 #include "dls2/plugin/plugin.hpp"
+#include "yaml-cpp/yaml.h"
 #include <mutex>
 namespace dls
 {
@@ -20,7 +21,7 @@ namespace dls
 		 * @param[in] ID name of plugin
 		 * @param[in] domain domain the plugin belongs to
 		 */
-		PeriodicAppPlugin(const std::string &ID, const domainType &domain = domains::signals);
+		PeriodicAppPlugin(const std::string &ID, const domainType &domain = domains::signals, const std::string &periods_file = "/home/michpest/dls_ws_home/dls2_deploy/periods.yaml"); // TODO: check
 
 		/*!
 		 * @brief Destructor.
@@ -52,6 +53,18 @@ namespace dls
 		 * 
 		 */
 		bool basicActivationChecks();
+
+		void savePeriodsFromFile(const std::string &periods_file);
+
+	protected:
+		void childMonitor() override;
+
+	private:
+		std::map<std::string, double> getInputsFrequency(bool &are_inputs_sync);
+		std::map<std::string, double> getInputsDesiredFrequency();
+
+		std::map<std::string, double> periods_map;
+		std::map<std::string, std::chrono::time_point<std::chrono::high_resolution_clock>> loop_time_prec_map;
 	};
 } // end namespace dls
 
