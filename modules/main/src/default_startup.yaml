@@ -6,9 +6,10 @@ hardwares: [gazebo_sim]
 controllers: [pid, trunk_controller]
 motion_generators: [periodic_generator, keyboard]
 estimators: []
+generic_app_plugins: []
 
 # robot name
-robot_name : "aliengo"
+robot_name: "aliengo"
 
 # applications to be activated
 activate: [gazebo_sim, pid, trunk_controller]
