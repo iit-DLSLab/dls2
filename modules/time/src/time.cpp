@@ -9,14 +9,14 @@ Time::Time()
 	, timeLink("Time::timeLink", dls::domains::signals)
 {
 	timeLink.addReader(
-		"Time::sinc", 
+		"Time::sinc",
 		dls::topics::time_factor,
 		std::function<void(void *)>
 		{
 			[&](void *tuple)
-			{	
-				dls2_interface::msg::DoubleMsg msg = *((dls2_interface::msg::DoubleMsg *)tuple);
-					
+			{
+				dls2_interface::msg::Double msg = *((dls2_interface::msg::Double *)tuple);
+
 				if(msg.value() > 1)
 					Time::time_factor = msg.value();
 			}
@@ -41,7 +41,7 @@ void Time::setRealTimeFactor(double factor)
 
 	this->time_factor = factor;
 
-	dls2_interface::msg::DoubleMsg msg;
+	dls2_interface::msg::Double msg;
 	msg.value(factor);
 
 	this->timeLink.sendMessage("time_writer", (void*) &msg);

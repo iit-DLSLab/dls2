@@ -6,39 +6,33 @@
 #include <utility>
 #include <typeinfo>
 #include <functional>
-#include <dls_messages/dds/command_callPubSubTypes.hpp>
-#include <dls_messages/dds/stringmsgPubSubTypes.hpp>
-#include <dls_messages/dds/desired_torquesPubSubTypes.hpp>
-#include <dls_messages/dds/control_signalPubSubTypes.hpp>
-#include <dls_messages/dds/arm_statePubSubTypes.hpp>
-#include <dls_messages/dds/blind_statePubSubTypes.hpp>
-#include <dls_messages/dds/base_statePubSubTypes.hpp>
-#include <dls_messages/dds/trajectory_generatorPubSubTypes.hpp>
-#include <dls_messages/dds/imuPubSubTypes.hpp>
-#include <dls_messages/dds/command_sendPubSubTypes.hpp>
-#include <dls_messages/dds/legs_posePubSubTypes.hpp>
-#include <dls_messages/dds/t265_odometryPubSubTypes.hpp>
-#include <dls_messages/dds/attitudePubSubTypes.hpp>
-#include <dls_messages/dds/sensor_fusionPubSubTypes.hpp>
-#include <dls_messages/dds/viconPubSubTypes.hpp>
-#include <dls_messages/dds/stance_statusPubSubTypes.hpp>
-#include <dls_messages/dds/param_serverPubSubTypes.hpp>
-#include <dls_messages/dds/doublePubSubTypes.hpp>
-#include <dls_messages/dds/controller_commandPubSubTypes.hpp>
-#include <dls_messages/dds/slip_flagPubSubTypes.hpp>
-#include <dls_messages/dds/mpc_generator_outputPubSubTypes.hpp>
-#include <dls_messages/dds/state_machine_monitorPubSubTypes.hpp>
-#include <dls_messages/dds/ArrowListPubSubTypes.hpp>
-#include <dls_messages/dds/SphereListPubSubTypes.hpp>
-#include <dls_messages/dds/FrictionConeListPubSubTypes.hpp>
-#include <dls_messages/dds/GenericRobotPubSubTypes.hpp>
-#include <dls_messages/dds/event_logPubSubTypes.hpp>
-#include <dls_messages/dds/desired_arm_torquesPubSubTypes.hpp>
-#include <dls_messages/dds/arm_blind_statePubSubTypes.hpp>
-#include <dls_messages/dds/arm_trajectory_generatorPubSubTypes.hpp>
-#include <dls_messages/dds/navigation_referencePubSubTypes.hpp>
-#include <dls_messages/dds/button_eventPubSubTypes.hpp>
-#include <dls_messages/dds/operational_modePubSubTypes.hpp>
+#include <dls_messages/dds/ArmStatePubSubTypes.hpp>
+#include <dls_messages/dds/ArmTrajectoryGeneratorPubSubTypes.hpp>
+#include <dls_messages/dds/AttitudePubSubTypes.hpp>
+#include <dls_messages/dds/BaseStatePubSubTypes.hpp>
+#include <dls_messages/dds/BlindStatePubSubTypes.hpp>
+#include <dls_messages/dds/BoolPubSubTypes.hpp>
+#include <dls_messages/dds/ButtonEventPubSubTypes.hpp>
+#include <dls_messages/dds/CommandCallPubSubTypes.hpp>
+#include <dls_messages/dds/ControllerCommandPubSubTypes.hpp>
+#include <dls_messages/dds/ControlSignalPubSubTypes.hpp>
+#include <dls_messages/dds/DesiredArmTorquesPubSubTypes.hpp>
+#include <dls_messages/dds/DesiredTorquesPubSubTypes.hpp>
+#include <dls_messages/dds/DlsHeaderPubSubTypes.hpp>
+#include <dls_messages/dds/DoublePubSubTypes.hpp>
+#include <dls_messages/dds/EventLogPubSubTypes.hpp>
+#include <dls_messages/dds/ImuPubSubTypes.hpp>
+#include <dls_messages/dds/LegsPosePubSubTypes.hpp>
+#include <dls_messages/dds/NavigationReferencePubSubTypes.hpp>
+#include <dls_messages/dds/ParamServerPubSubTypes.hpp>
+#include <dls_messages/dds/PosePubSubTypes.hpp>
+#include <dls_messages/dds/ScrewPubSubTypes.hpp>
+#include <dls_messages/dds/SensorFusionPubSubTypes.hpp>
+#include <dls_messages/dds/StanceStatusPubSubTypes.hpp>
+#include <dls_messages/dds/StateMachineMonitorPubSubTypes.hpp>
+#include <dls_messages/dds/StringPubSubTypes.hpp>
+#include <dls_messages/dds/TrajectoryGeneratorPubSubTypes.hpp>
+#include <dls_messages/dds/ViconPubSubTypes.hpp>
 
 
 #include "dls2/topics/utils.hpp"
@@ -57,7 +51,6 @@ namespace dls
 
 		// command
 		extern dls::topicType command_call;
-		extern dls::topicType command_send;
 		extern dls::topicType command_feedback;
 
 		// simulation
@@ -67,27 +60,17 @@ namespace dls
 		extern dls::topicType develop_testbench;
 
 		// control signals
+		extern dls::topicType controller_command;
 		extern dls::topicType desired_torques;
 		extern dls::topicType control_signal;
 		extern dls::topicType trajectory_generator;
-		extern dls::topicType joy_signal;
-		extern dls::topicType controller_signal;
-		extern dls::topicType mpc_generator_output;
 		extern dls::topicType arm_trajectory_generator;
 
 		extern dls::topicType navigation_reference;
 		extern dls::topicType button_event;
-		extern dls::topicType operational_mode;
 
 		// services
 		extern dls::topicType param_server;
-
-		//visualizer
-		extern dls::topicType sphere_list;
-		extern dls::topicType arrow_list;
-		extern dls::topicType friction_cone_list;
-
-		extern dls::topicType generic_robot;
 
 		// state machine
 		extern dls::topicType state_machine;
@@ -98,7 +81,6 @@ namespace dls
 		namespace high_level_estimation
 		{
 			extern dls::topicType legs_pose;
-			extern dls::topicType t265_odometry;
 			extern dls::topicType attitude_estimation;
 			extern dls::topicType sensor_fusion;
 			extern dls::topicType vicon;
@@ -110,9 +92,7 @@ namespace dls
 		{
 			extern dls::topicType arm_state;
 			extern dls::topicType blind_state;
-			extern dls::topicType arm_blind_state;
 			extern dls::topicType imu;
-			extern dls::topicType slip_flag;
 		}
 	}
 }

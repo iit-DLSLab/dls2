@@ -28,7 +28,7 @@ LogLayer::LogLayer(std::string ID)
 		{
 			[&](void *tuple)
 			{
-				dls2_interface::msg::StringMsg *msg = (dls2_interface::msg::StringMsg*) tuple;
+				dls2_interface::msg::String *msg = (dls2_interface::msg::String*) tuple;
 				std::cout << '\r' << get_current_time() << ": DEBUG: " <<  msg->msg() << std::flush;
 			}
 		},
@@ -43,7 +43,7 @@ LogLayer::LogLayer(std::string ID)
 		{
 			[&](void *tuple)
 			{
-				dls2_interface::msg::StringMsg *msg = (dls2_interface::msg::StringMsg*) tuple;
+				dls2_interface::msg::String *msg = (dls2_interface::msg::String*) tuple;
 				std::cout << '\r' << get_current_time() << ": INFO: " <<  msg->msg() << std::flush;
 			}
 		},
@@ -58,7 +58,7 @@ LogLayer::LogLayer(std::string ID)
 		{
 			[&](void *tuple)
 			{
-				dls2_interface::msg::StringMsg *msg = (dls2_interface::msg::StringMsg*) tuple;
+				dls2_interface::msg::String *msg = (dls2_interface::msg::String*) tuple;
 				std::cout << '\r' << get_current_time() << ": WARN: " <<  msg->msg() << std::flush;
 			}
 		},
@@ -73,7 +73,7 @@ LogLayer::LogLayer(std::string ID)
 		{
 			[&](void *tuple)
 			{
-				dls2_interface::msg::StringMsg *msg = (dls2_interface::msg::StringMsg*) tuple;
+				dls2_interface::msg::String *msg = (dls2_interface::msg::String*) tuple;
 				std::cout << '\r' << get_current_time() << ": ERROR: " <<  msg->msg() << std::flush;
 			}
 		},
@@ -88,7 +88,7 @@ LogLayer::LogLayer(std::string ID)
 		{
 			[&](void *tuple)
 			{
-				dls2_interface::msg::StringMsg *msg = (dls2_interface::msg::StringMsg*) tuple;
+				dls2_interface::msg::String *msg = (dls2_interface::msg::String*) tuple;
 				std::cout << '\r' << get_current_time() << ": FATAL: " <<  msg->msg() << std::flush;
 			}
 		},
@@ -144,9 +144,9 @@ void LogLayer::readEvents(){
 					  << "Event ID: " << magic_enum::enum_name(static_cast<EventID>(event_log.event_id())) << "\n"
 					  << "Severity: " << magic_enum::enum_name(static_cast<EventSeverity>(event_log.severity())) << "\n"
 					  << "Message: " << event_log.msg() << std::endl;
-		} 
+		}
 		// update read index
-		idx_read = idx_buffer+1;     
+		idx_read = idx_buffer+1;
 	}
 }
 void LogLayer::monitor(){

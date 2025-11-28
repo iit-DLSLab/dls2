@@ -22,7 +22,7 @@ LogStreamBuffer::LogStreamBuffer
 	dls::topicType topic_,
 	std::size_t buffer_size,
 	std::string prefix_
-) 
+)
 	: topic(topic_)
 	, buf(new char[buffer_size])
 	, prefix(prefix_ + ": ")
@@ -64,7 +64,7 @@ int LogStreamBuffer::sync()
 }
 bool LogStreamBuffer::flush_buffer()
 {
-	std::shared_ptr<dls2_interface::msg::StringMsg> msg(new dls2_interface::msg::StringMsg());
+	std::shared_ptr<dls2_interface::msg::String> msg(new dls2_interface::msg::String());
 	msg->msg(this->prefix + std::string(buf, pptr()));
 
 	this->ddsLogging->sendMessage(msg.get());
@@ -182,7 +182,7 @@ EventNotifier::EventNotifier(const std::string &name)
 {
 	msg.component_name() = name;
 	msg.header().sequence_id() = 0;
-	
+
 	eprosima::fastdds::dds::DataWriterQos qos(eprosima::fastdds::dds::DATAWRITER_QOS_DEFAULT);
 	qos.reliability().kind = eprosima::fastdds::dds::RELIABLE_RELIABILITY_QOS;
 	qos.history().kind = eprosima::fastdds::dds::KEEP_ALL_HISTORY_QOS;
