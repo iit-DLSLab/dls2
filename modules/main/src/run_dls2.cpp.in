@@ -128,7 +128,7 @@ namespace dls
 
 		// close servers
 		if(system("pkill -SIGINT fast-disc")!=0){
-			throw std::runtime_error("CANNOT SHUTDOWN FASTDDS SERVES");
+			throw std::runtime_error("CANNOT SHUTDOWN FASTDDS SERVERS");
 		}
 
 		std::cout << "=== FRAMEWORK NODE STOPPED ===" << std::endl;

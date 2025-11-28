@@ -28,7 +28,6 @@ set(DLS_DEFAULT_HEADER_DIR /usr/include/dls2
 set(DLS_APP_PLUGIN_HEADER_DIR /usr/include/dls2/app_plugins
 	CACHE STRING "Directory where framework app plugin headers are stored"
 )
-
 set(DLS_PERIODIC_APP_PLUGIN_HEADER_DIR /usr/include/dls2/periodic_app_plugins
 	CACHE STRING "Directory where shared object libraries for periodic app plugins are stored"
 )

@@ -172,6 +172,14 @@ int main(int argc, char **argv)
                     args.component_name,
                     args.robot_name);
         }
+        else if (args.component_type == "app_plugin")
+        {
+            pComponent =
+                ClassLoader::loadClass<AppPlugin, std::string>(
+                    std::string("${DLS_INSTALL_APP_PLUGIN_DIR}/lib") + args.lib_name + ".so",
+                    args.component_name,
+                    args.robot_name);
+        }
         else
         {
             scout_err << "component loading not yet implemented" << std::endl;
