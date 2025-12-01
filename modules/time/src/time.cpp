@@ -48,11 +48,11 @@ void Time::setRealTimeFactor(double factor)
 }
 
 bool Time::checkFrequency(const double &desired_frequency,
-						  std::chrono::time_point<std::chrono::high_resolution_clock> &loop_time_prec,
+						  std::chrono::time_point<std::chrono::steady_clock> &loop_time_prec,
 						  double &current_frequency)
 {
 	// Compute current time
-	auto loop_time_curr = std::chrono::system_clock::now();
+	auto loop_time_curr = std::chrono::steady_clock::now();
 
 	// compute current frequency
 	auto elapsed_time = loop_time_curr - loop_time_prec;

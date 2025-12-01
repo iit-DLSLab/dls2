@@ -23,7 +23,7 @@ namespace dls
 		void setRealTimeFactor(double);
 		static bool checkFrequency(
 			const double &desired_frequency,
-			std::chrono::time_point<std::chrono::high_resolution_clock> &loop_time_prec,
+			std::chrono::time_point<std::chrono::steady_clock> &loop_time_prec,
 			double &current_frequency
 		);
 
