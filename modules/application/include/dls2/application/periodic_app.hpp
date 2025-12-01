@@ -3,6 +3,7 @@
 
 #include "dls2/application/app.hpp"
 #include <dls2/util/time/time.hpp>
+#include "dls2/application/resource_monitor.hpp"
 
 #include <boost/process.hpp>
 #include <yaml-cpp/yaml.h>
@@ -71,9 +72,10 @@ namespace dls
 
 		double getDesiredFrequency() const;
 
+		void childMonitor() override;
+
 		double dt;
 
-		double current_frequency;
 	protected:
         //! Config variable to load scheduler settings
 		YAML::Node config_scheduler;
@@ -116,8 +118,12 @@ namespace dls
 
 		bool realtime_prec;
 		bool realtime_curr;
-		std::chrono::time_point<std::chrono::high_resolution_clock> loop_time_curr;
-		std::chrono::time_point<std::chrono::high_resolution_clock>  loop_time_prec;
+		std::chrono::time_point<std::chrono::steady_clock> loop_time_prec;
+
+		std::unique_ptr<ResourceMonitor> resource_monitor_;
+
+		double current_frequency_;
+		std::mutex frequency_mutex_;
 	};
 } // end namespace dls
 
