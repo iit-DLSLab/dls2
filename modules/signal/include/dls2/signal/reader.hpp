@@ -18,6 +18,8 @@ namespace dls
 
 		void read() override;
 
+		std::chrono::steady_clock::time_point get_latest_timestamp() override;
+
 		MsgType msg;
 	protected:
 		std::shared_ptr<dls::DDSSubListener> listener_;

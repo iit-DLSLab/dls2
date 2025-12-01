@@ -18,6 +18,7 @@ namespace dls
 		
 		virtual bool is_receiving_data() const = 0;
 		virtual void read() = 0;
+		virtual std::chrono::steady_clock::time_point get_latest_timestamp() = 0;
 
 		bool received;
 	};

@@ -57,5 +57,11 @@ namespace dls
 			this->msg = *static_cast<MsgType*>(listener_->msg);
 		}
 	}
+
+	template <typename MsgType>
+	std::chrono::steady_clock::time_point Reader<MsgType>::get_latest_timestamp()
+	{
+		return listener_->last_timestamp;
+	}
 }
 #endif /* end of include guard: SIGNAL_READER_TPP */

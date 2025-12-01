@@ -62,7 +62,7 @@ namespace dls
 		bool is_receiving_data() const;
 
 		const std::chrono::microseconds is_receiving_data_th;
-		std::chrono::system_clock::time_point last_timestamp;
+		std::chrono::steady_clock::time_point last_timestamp;
 	};
 
 
