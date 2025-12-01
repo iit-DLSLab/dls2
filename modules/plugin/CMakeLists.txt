@@ -15,12 +15,6 @@ target_link_libraries(plugin
         dls_msg_wrapper
 )
 
-find_library(PROCPS_LIB NAMES procps)
-
-if(NOT PROCPS_LIB)
-	message(FATAL_ERROR "libprocps (procps) not found. Install libprocps-dev.")
-endif()
-
 add_library(periodic_app_plugin
 	SHARED
 		src/periodic_app_plugin.cpp
@@ -39,7 +33,6 @@ target_link_libraries(periodic_app_plugin
         dls_msg_wrapper
 		plugin
 	PRIVATE
-	${PROCPS_LIB} # libprocps
 )
 
 add_library(app_plugin
