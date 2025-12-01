@@ -7,7 +7,6 @@
 #include "dls2/util/messaging/dds_writer.hpp"
 
 #include "event_config.hpp"
-#include <dls_messages/dds/event_log.hpp>
 #include "dls2/util/messaging/dds_reader.hpp"
 #include "dls2/util/messaging/dds_writer.hpp"
 #include <boost/circular_buffer.hpp>
@@ -101,7 +100,7 @@ namespace dls
 		class EventNotifier{
 		public:
 			EventNotifier(const std::string &name);
-			
+
 			virtual ~EventNotifier() = default;
 
 			virtual void notify(const EventID& event_id, const EventSeverity& severity, const std::string &message="");
@@ -129,7 +128,7 @@ namespace dls
 			std::string get_name() const;
 
 			int getNumOfMatches() const;
-			
+
 			/// \brief Get the unbounded index of the last value written in the buffer
 			///
 			/// \return The unbounded index of the last value written in the buffer

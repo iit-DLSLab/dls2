@@ -2,7 +2,6 @@
 #define STATE_MACHINE_HPP
 
 #include "dls2/util/messaging/dds_writer.hpp"
-#include "dls_messages/dds/state_machine_monitor.hpp"
 #include <map>
 #include <atomic>
 #include <memory>
@@ -99,7 +98,7 @@ namespace state_machine
         //! notify that the state machine has changed its state
         void notifyState();
 
-        //! notify the execution type of the running state activity: realtime or not 
+        //! notify the execution type of the running state activity: realtime or not
         void notifyRT(bool realtime);
 
         // Store asynchronous event occurrence
