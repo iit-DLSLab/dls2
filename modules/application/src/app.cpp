@@ -12,6 +12,7 @@ App::App(const std::string &ID)
     , ID_(ID)
 	, sm(this)
 	, activation_message("")
+	, status_notifier(ID + "_status_notifier", dls::domains::logging, dls::topics::process_status)
 	, status_mutex()
 	, status(AppStatus::INITIALISING)
 {
@@ -79,8 +80,32 @@ App::App(const std::string &ID)
 		{{CommandBase::ALL_STATES_EXCEPT_ZERO, 0}},
 		false);
 
+	if (!this->monitoring_started_.load())
+	{
+		this->startMonitoring();
+		this->monitoring_started_.store(true);
+	}
+}
+
+void App::startMonitoring()
+{
 	// Launching app status monitor thread
-	monitor_future_ = std::async(std::launch::async, &App::monitorApp, this);
+	std::cout << "Starting monitoring thread for " << this->getID() << " app...\n";
+
+	static int threadsCount = 0;
+
+	try
+	{
+		monitor_thread_ = std::thread(&App::monitorApp, this);
+		threadsCount++;
+	}
+	catch (const std::system_error &e)
+	{
+		std::cerr << "Failed to start monitor thread for app " << this->getID() << " @ " << this
+		          << " : " << e.what() << " (code " << e.code() << "). This process spawned "
+		          << threadsCount << " threads\n";
+		throw;
+	}
 }
 
 App::~App(){}
@@ -266,24 +291,37 @@ void App::monitorApp()
 	{
 		// Fill in relevant fields
 		status_msg.component_name() = getID();
-		status_msg.current_state() = sm.state->name;
-		status_msg.desired_state() = "run"; // TODO: check
-		status_msg.cpu_usage() = 0.0;		// TODO: calculate
-
-		const bool anomaliesDetected = status_msg.current_state() != status_msg.desired_state();
+		status_msg.current_state() = this->sm.getStateName();
+		status_msg.desired_state() = this->sm.getDesiredStateName();
 
 		// Notify anomalies if any at this stage
-		if (anomaliesDetected)
+		bool anomalies_detected = false;
+		
+		if(status_msg.current_state() != status_msg.desired_state()){
+			// Current-target state mismatch 1-cycle tolerance check
+			const auto stamp_now = std::chrono::steady_clock::now();
+			const auto elapsed = stamp_now - this->sm.getDesiredStateStamp();
+			const auto delta_time_ms = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(elapsed).count();
+			if(delta_time_ms > monitor_period_ms_){
+				anomalies_detected = true;
+			}
+		}
+		
+		if (anomalies_detected)
 		{
 			dls2_interface::msg::EventLog event_msg;
-			event_notifier.notify(EventID::CPU_THROTTLING, // TODO: method taking care of anomalies-event type association
-								  EventSeverity::ERROR,	   // TODO: method taking care of anomalies-event type association
-								  "Ops...");			   // TODO
+			event_notifier.notify(
+			    EventID::WRONG_PROCESS_STATE,
+			    EventSeverity::WARNING,
+			    this->getID() + " app state is " + status_msg.current_state() + " (not " +
+			        status_msg.desired_state() + ")..."
+			);
 		}
 
-		childMonitor();
+		this->childMonitor();
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(monitor_period_ms));
+		std::this_thread::sleep_for(std::chrono::milliseconds(monitor_period_ms_));
 	}
+
 	return;
 }

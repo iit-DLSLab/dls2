@@ -7,7 +7,6 @@
 #include <future>
 #include <thread>
 #include "dls2/application/state_machine/app_state_machine.hpp"
-#include "dls2/application/utils.hpp"
 #include <dls2/application/sched_attr.hpp>
 
 
@@ -42,6 +41,7 @@ namespace dls
 		/// @param status the status
 		void setStatus(AppStatus status);
 
+	void startMonitoring();
 		void monitorApp();
 
 		//! Procedure to quit the app
@@ -128,6 +128,10 @@ namespace dls
 		mutable std::mutex status_mutex;
 		AppStatus status;
 		// END critical section
+
+	std::thread monitor_thread_;
+	std::atomic<bool> monitoring_started_{false};
+
 	protected:
 		//! Set SCHED_OTHER policy
 		void setDefaultSchedulerPolicy();
@@ -139,8 +143,7 @@ namespace dls
 
 		virtual void childMonitor() {};
 
-		std::future<void> monitor_future_;
-		size_t monitor_period_ms{1000};
+	size_t monitor_period_ms_{100};
 	};
 } // end namespace dls
 
