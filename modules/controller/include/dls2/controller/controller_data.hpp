@@ -2,7 +2,6 @@
 #define CONTROLLER_DATA_HPP
 
 #include "dls2/application/app_data.hpp"
-#include "dls_messages/dds/control_signal.hpp"
 #include "dls2/signal/reader.hpp"
 #include "dls2/math/ramp.hpp"
 #include "robotlib/robot_base.hpp"

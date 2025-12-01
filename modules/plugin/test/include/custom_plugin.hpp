@@ -6,9 +6,6 @@
 // -- readers/writers
 #include "dls2/signal/reader.hpp"
 #include "dls2/signal/writer.hpp"
-// -- messages
-#include "dls_messages/dds/blind_state.hpp"
-#include "dls_messages/dds/control_signal.hpp"
 // ******************************************
 
 // plugin loaded at run-time
@@ -16,11 +13,11 @@ class CustomPlugin : public dls::PeriodicAppPlugin
 {
 public:
 	CustomPlugin(const std::string& ID);
-	
+
 	virtual ~CustomPlugin();
 
 	void run(const std::chrono::system_clock::time_point &time) override;
-	
+
 	// console commands
 	bool setJointTorque();
 

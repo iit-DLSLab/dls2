@@ -8,7 +8,6 @@
 #include "dls2/util/messaging/dds_participant.hpp"
 #include "dls2/signal/reader.hpp"
 #include "dls2/topics/topics.hpp"
-#include "dls_messages/dds/blind_state.hpp"
 
 int main()
 {

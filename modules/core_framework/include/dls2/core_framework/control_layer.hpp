@@ -9,7 +9,6 @@
 #include "dls2/controller/controller.hpp"
 #include "dls2/motion_generator/motion_generator.hpp"
 #include "dls2/signal/writer.hpp"
-#include "dls_messages/dds/desired_torques.hpp"
 
 #include <map>
 #include <memory>
@@ -37,9 +36,9 @@ namespace dls
 class ControlLayer : public Layer
 {
 	typedef void * (*THREADFUNCPTR)(void *);
-	
+
 public:
-	/// Constructor	
+	/// Constructor
 	ControlLayer(std::string ID, std::string robot_name);
 
 	/// Destructor
@@ -101,9 +100,9 @@ private:
 		std::map<std::string, std::shared_ptr<AppData>> motion_generators;
 		std::mutex motion_mutex;
 	// END critical section
-	
+
 	std::shared_ptr<dls::DDSParticipant> ddsSignalLink;
-	
+
 	/// Default controller spline-in
 	///
 	std::shared_ptr<math::Ramp<double>> pDefault_spline_in;
