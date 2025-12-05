@@ -63,6 +63,7 @@ ControlLayer::ControlLayer(std::string ID, std::string robot_name)
 	, clog(ID)
 	, cfatal(ID)
 {
+	writer_control_signal.msg.desired_torques().resize(pRobot->getNJOINTS());
 	torques.desired_torques().resize(pRobot->getNJOINTS());
 	command_manager.addCommand<std::string>
 	(
@@ -245,7 +246,7 @@ void *ControlLayer::controlSignalGather(void *data)
 		for(auto pair : layer->controllers)
 		{
 			pair.second->reader_control_signal.read();
-			for(long unsigned int i=0; i<layer->torques.desired_torques().size();i++){
+			for(long unsigned int i=0; i<pair.second->reader_control_signal.msg.torques().size();i++){
 				layer->torques.desired_torques()[i] += pair.second->premultiplier * pair.second->reader_control_signal.msg.torques()[i];
 			}
 		}
