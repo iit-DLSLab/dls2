@@ -8,6 +8,7 @@
 #include <thread>
 #include "dls2/application/state_machine/app_state_machine.hpp"
 #include <dls2/application/sched_attr.hpp>
+#include <dls_messages/dds/process_status_light.hpp>
 
 
 namespace dls
@@ -112,7 +113,7 @@ namespace dls
 		logging::EventNotifier event_notifier;
 
 		DDSWriter status_notifier;
-		ProcessStatus status_msg;
+		dls2_interface::msg::ProcessStatus status_msg;
 
 		/// The ID of this app
 		///

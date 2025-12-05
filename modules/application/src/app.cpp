@@ -9,10 +9,10 @@ App::App(const std::string &ID)
 	, scout_warn(ID)
 	, scout_err(ID)
 	, event_notifier(ID)
-    , ID_(ID)
+	, status_notifier(ID + "_status_notifier", dls::domains::signals, dls::topics::process_status)
+	, ID_(ID)
 	, sm(this)
 	, activation_message("")
-	, status_notifier(ID + "_status_notifier", dls::domains::logging, dls::topics::process_status)
 	, status_mutex()
 	, status(AppStatus::INITIALISING)
 {
@@ -79,12 +79,6 @@ App::App(const std::string &ID)
 		}),
 		{{CommandBase::ALL_STATES_EXCEPT_ZERO, 0}},
 		false);
-
-	if (!this->monitoring_started_.load())
-	{
-		this->startMonitoring();
-		this->monitoring_started_.store(true);
-	}
 }
 
 void App::startMonitoring()
@@ -150,6 +144,13 @@ std::string App::get_current_time()
 }
 
 void App::execute(){
+
+	if (!this->monitoring_started_.load())
+	{
+		this->startMonitoring();
+		this->monitoring_started_.store(true);
+	}
+	
 	sm.nextState(sm.initialized);
 	sm.start();
 }
