@@ -5,7 +5,7 @@ namespace dls
 	PeriodicAppPlugin::PeriodicAppPlugin(const std::string &ID, const domainType &domain, const std::string &periods_file)
 		: PeriodicApp(ID), Plugin(ID, domain)
 	{
-		savePeriodsFromFile(periods_file);
+		topic_frequency_monitor_ = std::make_unique<TopicFrequencyMonitor>(this->inputs_map, periods_file);
 	}
 
 	PeriodicAppPlugin::~PeriodicAppPlugin()
@@ -29,23 +29,21 @@ namespace dls
 
 	void PeriodicAppPlugin::childMonitor()
 	{
-		if (this->monitor_period_ms > this->dt)
-		{
-			this->monitor_period_ms = static_cast<size_t>(this->dt);
+		PeriodicApp::childMonitor();
+
+		if(topic_frequency_monitor_->isInputsMapEmpty()){
+			topic_frequency_monitor_->setInputMap(this->inputs_map);
 		}
+
+		status_msg.inputs_current_freq() = topic_frequency_monitor_->computeFrequencies(this->inputs_latest_periods_ms);
+		status_msg.inputs_desired_freq() = topic_frequency_monitor_->getExpectedPeriods();
+
 		bool are_inputs_sync = true;
-		status_msg.current_frequency() = current_frequency;
-		status_msg.desired_frequency() = getDesiredFrequency();
-		status_msg.realtime() = static_cast<uint8_t>(sm.state->realtime);
-		status_msg.inputs_current_freq() = getInputsFrequency(are_inputs_sync);
-		status_msg.inputs_desired_freq() = getInputsDesiredFrequency();
 		status_msg.inputs_synchronized() = static_cast<int32_t>(are_inputs_sync);
+		status_msg.status_string() = ""; // TODO: needed?
 
-		showProcessInfo();			  // TODO: working? here or in app.cpp?
-		status_msg.cpu_usage() = 0.0; // TODO: calculate
-
-		std::cout << "sendind status... " << static_cast<int32_t>(are_inputs_sync) << "\n";
 		status_notifier.sendMessage(&status_msg);
+
 	}
 
 	void PeriodicAppPlugin::savePeriodsFromFile(const std::string &periods_file)
