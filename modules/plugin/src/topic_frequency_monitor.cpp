@@ -1,0 +1,77 @@
+#include "dls2/plugin/topic_frequency_monitor.hpp"
+
+namespace dls
+{
+
+    TopicFrequencyMonitor::TopicFrequencyMonitor(
+		const std::map<std::string, size_t>& inputs_map,
+		const std::string &periods_file)
+    {
+		inputs_map_ = inputs_map;
+		savePeriodsFromFile(periods_file);
+
+		for(const auto& [key, _] : expected_periods_){
+			frequencies_moving_windows_[key] = std::make_unique<NumericalMovingWindow<double>>(FREQ_MOVING_WINDOW_DEFAULT_SIZE);
+		}
+	}
+
+	void TopicFrequencyMonitor::savePeriodsFromFile(const std::string &periods_file)
+	{
+		YAML::Node config;
+		try
+		{
+			config = YAML::LoadFile(periods_file);
+		}
+		catch (const YAML::BadFile &e)
+		{
+			std::cerr << "Error loading periods file: " << e.what() << "\n";
+			return;
+		}
+
+		for (auto it = config.begin(); it != config.end(); ++it)
+		{
+			std::string key = it->first.as<std::string>();
+			double value = it->second.as<double>();
+			expected_periods_[key] = value;
+		}
+	}
+
+	double TopicFrequencyMonitor::getActualFrequency(const std::string& input_topic, const double& period_ms){
+
+		double period_sec = period_ms / SEC_TO_MS;
+
+		if (period_sec > 0.0)
+		{
+			const auto new_freq = 1.0 / period_sec;
+			frequencies_moving_windows_[input_topic]->push(new_freq);
+		}
+		
+		return frequencies_moving_windows_[input_topic]->mean();
+	}
+
+	std::map<std::string, double> TopicFrequencyMonitor::getExpectedPeriods(){
+		return expected_periods_;
+	}
+
+	std::map<std::string, double> TopicFrequencyMonitor::computeFrequencies(const std::vector<double>& latest_periods_ms)
+    {
+        std::map<std::string, double> result;
+
+        for (const auto &[input_topic, _] : inputs_map_)
+		{
+			const auto actual_frequency = this->getActualFrequency(input_topic, latest_periods_ms[inputs_map_.at(input_topic)]);
+			result.emplace(input_topic, actual_frequency);
+		}
+
+        return result;
+    }
+
+	bool TopicFrequencyMonitor::isInputsMapEmpty(){
+		return inputs_map_.empty();
+	}
+
+	void TopicFrequencyMonitor::setInputMap(const std::map<std::string, size_t>& inputs_map){
+		inputs_map_ = inputs_map;
+	}
+
+} // namespace dls

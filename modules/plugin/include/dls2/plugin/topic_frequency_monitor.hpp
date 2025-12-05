@@ -1,0 +1,50 @@
+
+#include <mutex>
+#include <chrono>
+#include <string>
+#include <unordered_map>
+#include <optional>
+#include "yaml-cpp/yaml.h"
+#include <iostream>
+
+#include "dls2/plugin/numerical_moving_window.tpp"
+
+namespace dls
+{
+
+class TopicFrequencyMonitor
+{
+
+	static constexpr size_t FREQ_MOVING_WINDOW_DEFAULT_SIZE = 1000;
+	static constexpr double SEC_TO_MS = 1e3;
+
+public:
+
+    explicit TopicFrequencyMonitor(const std::map<std::string, size_t>& inputs_map, const std::string &periods_file);
+
+	void savePeriodsFromFile(const std::string &periods_file);
+
+	[[nodiscard]] double getActualFrequency(const std::string& input_topic, const double& period_ms);
+
+	[[nodiscard]] std::map<std::string, double> getExpectedPeriods();
+
+	[[nodiscard]] std::map<std::string, double> computeFrequencies(const std::vector<double>& latest_periods_ms);
+
+	[[nodiscard]] bool isInputsMapEmpty();
+
+	void setInputMap(const std::map<std::string, size_t>& inputs_map);
+
+private:
+
+	// topic name -> expected period mapping
+ 	std::map<std::string, double> expected_periods_;
+
+	// topic name -> frequency moving window mapping
+    std::map<std::string, std::unique_ptr<NumericalMovingWindow<double>>> frequencies_moving_windows_;
+
+	// topic name -> index in inputs vector mapping
+	std::map<std::string, size_t> inputs_map_;
+};
+
+
+} // end namespace dls
