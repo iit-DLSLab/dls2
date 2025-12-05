@@ -17,6 +17,7 @@ namespace dls
 		for (long unsigned int i = 0; i < inputs.size(); i++)
 		{
 			inputs[i]->read();
+			inputs_latest_periods_ms[i] = inputs[i]->get_latest_period_ms();
 		}
 	}
 

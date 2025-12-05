@@ -11,6 +11,7 @@ namespace dls
 		// Add data reader
 		ReaderPtr<MsgType> reader = std::make_shared<dls::Reader<MsgType>>(dds_participant_,topic,auxiliary_callback);
 		inputs.push_back(reader);
+		inputs_latest_periods_ms.push_back(0.0);
 		// TODO: Add number if topic is not unique
 		inputs_map[topic.first] = inputs.size() - 1; // Store the index of the input in the inputs vector
 	

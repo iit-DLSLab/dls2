@@ -141,6 +141,8 @@ namespace dls
 		//! Vector of outputs (data writers)
 		std::vector<std::shared_ptr<WriterBase>> outputs;
 
+		std::vector<double> inputs_latest_periods_ms;
+
 		// Map from topic (input) name to id in the inputs vector
 		std::map<std::string, size_t> inputs_map;
 		// Map from topic (output) name to id in the outputs vector
