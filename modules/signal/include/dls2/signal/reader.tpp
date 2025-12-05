@@ -63,5 +63,11 @@ namespace dls
 	{
 		return listener_->last_timestamp;
 	}
+
+	template <typename MsgType>
+	double Reader<MsgType>::get_latest_period_ms()
+	{
+		return listener_->last_period_ms;
+	}
 }
 #endif /* end of include guard: SIGNAL_READER_TPP */

@@ -63,6 +63,7 @@ namespace dls
 
 		const std::chrono::microseconds is_receiving_data_th;
 		std::chrono::steady_clock::time_point last_timestamp;
+		double last_period_ms;
 	};
 
 

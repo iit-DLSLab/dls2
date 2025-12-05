@@ -83,7 +83,12 @@ namespace dls
 		{
 			if(info.valid_data)
 			{
-				this->last_timestamp = std::chrono::steady_clock::now();
+				auto now = std::chrono::steady_clock::now();
+				if(now > this->last_timestamp){
+					std::chrono::duration<double, std::milli> period_duration_ms = now - this->last_timestamp;
+					this->last_period_ms = period_duration_ms.count();
+				}
+				this->last_timestamp = now;
 				this->sample_count++;
 				this->callback(this->msg);
 			}

@@ -19,6 +19,7 @@ namespace dls
 		void read() override;
 
 		std::chrono::steady_clock::time_point get_latest_timestamp() override;
+		double get_latest_period_ms() override;
 
 		MsgType msg;
 	protected:
