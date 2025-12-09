@@ -81,7 +81,7 @@ void PeriodicApp::childMonitor()
 	status_msg.desired_frequency() = getDesiredFrequency();
 	status_msg.realtime() = static_cast<uint8_t>(sm.state->realtime);
 	status_msg.cpu_usage() = resource_monitor_->getCpuPercent();
-	status_msg.mem_usage() = resource_monitor_->getMemUsage();
+	status_msg.mem_usage() = resource_monitor_->getMemPercent();
 }
 
 AppStatus PeriodicApp::run()
@@ -99,10 +99,15 @@ AppStatus PeriodicApp::run()
 	        &&  !sm.isRaised(sm.quit_request)
 	        &&  !failure)
 	{
-		#ifdef DEBUG_SCHEDULER
+		
 	    // Check realtime
 	    checkRT();
-		#endif
+
+		// Check hardware resource usage
+		auto resource_monitor_success = resource_monitor_->update();
+		if(resource_monitor_success != 0){
+			std::cout << this->ID_ << ": resource monitor failed, exit code: " << resource_monitor_success << "\n";
+		}
 
 	    // Run
 	    run(std::chrono::time_point_cast<std::chrono::system_clock::duration, std::chrono::system_clock, std::chrono::duration<double>>(std::chrono::system_clock::now()));
@@ -220,10 +225,8 @@ bool PeriodicApp::deactivating()
 	realtime_curr = realtime_prec;
 	while(!deactivated && !sm.isRaised(sm.quit_request))
 	{
-		#ifdef DEBUG_SCHEDULER
 	    // Check realtime
 	    checkRT();
-		#endif
 
 	    // Run
 	    deactivated = deactivation(std::chrono::time_point_cast<std::chrono::system_clock::duration, std::chrono::system_clock, std::chrono::duration<double>>(std::chrono::system_clock::now()));
