@@ -2,26 +2,31 @@
 
 using namespace dls;
 
-ResourceMonitor::ResourceMonitor(pid_t pid) : ticks_per_sec_(sysconf(_SC_CLK_TCK))
+ResourceMonitor::ResourceMonitor(pid_t pid) : 
+	sys_ticks_per_sec_(sysconf(_SC_CLK_TCK))
+	, sys_page_size_(sysconf(_SC_PAGE_SIZE))
 {
 	stat_path_ = "/proc/" + std::to_string(pid) + "/stat";
 	statm_path_ = "/proc/" + std::to_string(pid) + "/statm";
 
-	std::cout << "statm_path_: " << statm_path_ << "\n";
+	total_ram_kb_ = getTotalRAMkB();
+	if(total_ram_kb_ <= 0){
+		std::cerr << "Total amount of ram not found\n";
+	}
 };
 
-bool ResourceMonitor::update()
+size_t ResourceMonitor::update()
 {
 	std::lock_guard<std::mutex> lock(this->resource_mutex_);
 	if (!updateAllocatedMemory())
 	{
-		return false;
+		return 1;
 	}
 
 	unsigned long long total_ticks = 0;
 	if (!updateCpuTicks(total_ticks))
 	{
-		return false;
+		return 2;
 	}
 
 	auto now = std::chrono::steady_clock::now();
@@ -31,28 +36,27 @@ bool ResourceMonitor::update()
 		// First sample – just store baseline, no % yet.
 		last_total_ticks_ = total_ticks;
 		last_time_ = now;
-		return false;
+		return 0;
 	}
 
-	auto delta_time =
-	    std::chrono::duration_cast<std::chrono::duration<double>>(now - last_time_).count();
+	auto delta_time = toSec<double>(now - last_time_);
 	if (delta_time <= 0.0 || total_ticks < last_total_ticks_)
 	{
 		// Time went backwards or counters reset
 		last_total_ticks_ = total_ticks;
 		last_time_ = now;
-		return false;
+		return 3;
 	}
 
 	unsigned long long d_ticks = total_ticks - last_total_ticks_;
-	double d_seconds = static_cast<double>(d_ticks) / static_cast<double>(ticks_per_sec_);
+	double d_seconds = static_cast<double>(d_ticks) / static_cast<double>(sys_ticks_per_sec_);
 
 	cpu_percent_ = 100.0 * (d_seconds / delta_time);
 
 	last_total_ticks_ = total_ticks;
 	last_time_ = now;
 
-	return true;
+	return 0;
 }
 
 const double& ResourceMonitor::getCpuPercent() const
@@ -61,10 +65,10 @@ const double& ResourceMonitor::getCpuPercent() const
 	return cpu_percent_;
 }
 
-const double& ResourceMonitor::getMemUsage() const
+const double& ResourceMonitor::getMemPercent() const
 {
 	std::lock_guard<std::mutex> lock(this->resource_mutex_);
-	return memory_usage_;
+	return memory_percent_;
 }
 
 bool ResourceMonitor::updateAllocatedMemory()
@@ -79,8 +83,10 @@ bool ResourceMonitor::updateAllocatedMemory()
 	}
 	buffer.close();
 
-	long page_size_kb = ticks_per_sec_ / 1024; // in case x86-64 is configured to use 2MB pages
-	memory_usage_ = static_cast<double>(resident) * static_cast<double>(page_size_kb);
+	long page_size_kb = sys_page_size_ / 1024; // in case x86-64 is configured to use 2MB pages
+	auto memory_usage = static_cast<double>(resident) * static_cast<double>(page_size_kb);
+	memory_percent_ = 100.0 * (memory_usage / total_ram_kb_);
+
 	return true;
 }
 
@@ -135,4 +141,18 @@ bool ResourceMonitor::updateCpuTicks(unsigned long long &total_ticks)
 
 	total_ticks = utime + stime;
 	return true;
+}
+
+long ResourceMonitor::getTotalRAMkB() {
+    std::ifstream meminfo("/proc/meminfo");
+    std::string key;
+    long value;
+    std::string unit;
+
+    while (meminfo >> key >> value >> unit) {
+        if (key == "MemTotal:") {
+            return value; // kB
+        }
+    }
+    return -1;
 }
