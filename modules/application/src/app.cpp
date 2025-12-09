@@ -321,6 +321,8 @@ void App::monitorApp()
 
 		this->childMonitor();
 
+		status_notifier.sendMessage(&status_msg);
+
 		std::this_thread::sleep_for(std::chrono::milliseconds(monitor_period_ms_));
 	}
 

@@ -40,10 +40,7 @@ namespace dls
 
 		bool are_inputs_sync = true;
 		status_msg.inputs_synchronized() = static_cast<int32_t>(are_inputs_sync);
-		status_msg.status_string() = ""; // TODO: needed?
-
-		status_notifier.sendMessage(&status_msg);
-
+		status_msg.status_string() = ""; // TODO: fill in
 	}
 
 	void PeriodicAppPlugin::savePeriodsFromFile(const std::string &periods_file)
