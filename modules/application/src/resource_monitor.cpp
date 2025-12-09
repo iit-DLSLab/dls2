@@ -3,8 +3,8 @@
 using namespace dls;
 
 ResourceMonitor::ResourceMonitor(pid_t pid) : 
-	sys_ticks_per_sec_(sysconf(_SC_CLK_TCK))
-	, sys_page_size_(sysconf(_SC_PAGE_SIZE))
+	sys_page_size_(sysconf(_SC_PAGE_SIZE))
+	, sys_ticks_per_sec_(sysconf(_SC_CLK_TCK))
 {
 	stat_path_ = "/proc/" + std::to_string(pid) + "/stat";
 	statm_path_ = "/proc/" + std::to_string(pid) + "/statm";
