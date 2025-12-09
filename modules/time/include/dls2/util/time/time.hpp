@@ -7,6 +7,7 @@
 #include <chrono>
 #include <memory>
 #include <map>
+#include "dls2/util/time/duration_utils.hpp"
 
 namespace dls
 {

@@ -55,8 +55,10 @@ bool Time::checkFrequency(const double &desired_frequency,
 	auto loop_time_curr = std::chrono::steady_clock::now();
 
 	// compute current frequency
-	auto elapsed_time = loop_time_curr - loop_time_prec;
-	current_frequency = 1.0 / (std::chrono::duration_cast<std::chrono::nanoseconds>(elapsed_time).count() / 1e9);
+	auto elapsed_time_sec = toSec(loop_time_curr - loop_time_prec);
+ 
+	current_frequency = 1.0 / (elapsed_time_sec); 
+	
 	loop_time_prec = loop_time_curr;
 
 	// check if the process is running in real time.
