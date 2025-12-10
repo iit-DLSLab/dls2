@@ -142,6 +142,7 @@ namespace dls
 		std::vector<std::shared_ptr<WriterBase>> outputs;
 
 		std::vector<double> inputs_latest_periods_ms;
+		std::vector<std::chrono::steady_clock::time_point> inputs_latest_timestamp;
 
 		// Map from topic (input) name to id in the inputs vector
 		std::map<std::string, size_t> inputs_map;

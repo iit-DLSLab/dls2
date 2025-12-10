@@ -28,7 +28,10 @@ namespace dls
 			return;
 		}
 
-		for (auto it = config.begin(); it != config.end(); ++it)
+		sync_threshold_ms_ = config["checks"]["sync_threshold"].as<double>();
+		auto periods_config = config["periods"];
+
+		for (auto it = periods_config.begin(); it != periods_config.end(); ++it)
 		{
 			std::string key = it->first.as<std::string>();
 			double value = it->second.as<double>();
@@ -65,6 +68,18 @@ namespace dls
 
         return result;
     }
+
+	bool TopicFrequencyMonitor::areTopicsSync(const std::vector<std::chrono::steady_clock::time_point>& latest_timestamp){
+		if(latest_timestamp.size() > 1){
+			for(size_t i = 1; i < latest_timestamp.size(); i++){
+				auto delta_time = abs(toMs<double>(latest_timestamp[0] - latest_timestamp[i]));
+				if(delta_time > sync_threshold_ms_){
+					return false;
+				}
+			}
+		}
+		return true;
+	}
 
 	bool TopicFrequencyMonitor::isInputsMapEmpty(){
 		return inputs_map_.empty();

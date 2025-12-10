@@ -38,8 +38,9 @@ namespace dls
 		status_msg.inputs_current_freq() = topic_frequency_monitor_->computeFrequencies(this->inputs_latest_periods_ms);
 		status_msg.inputs_desired_freq() = topic_frequency_monitor_->getExpectedPeriods();
 
-		bool are_inputs_sync = true;
-		status_msg.inputs_synchronized() = static_cast<int32_t>(are_inputs_sync);
+		bool are_inputs_sync = topic_frequency_monitor_->areTopicsSync(this->inputs_latest_timestamp);
+
+		status_msg.inputs_synchronized() = static_cast<int32_t>(are_inputs_sync); 
 		status_msg.status_string() = ""; // TODO: fill in
 	}
 

@@ -18,6 +18,7 @@ namespace dls
 		{
 			inputs[i]->read();
 			inputs_latest_periods_ms[i] = inputs[i]->get_latest_period_ms();
+			inputs_latest_timestamp[i] = inputs[i]->get_latest_timestamp();
 		}
 	}
 

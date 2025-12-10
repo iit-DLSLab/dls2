@@ -7,6 +7,7 @@
 #include "yaml-cpp/yaml.h"
 #include <iostream>
 
+#include "dls2/util/time/duration_utils.hpp"
 #include "dls2/plugin/numerical_moving_window.tpp"
 
 namespace dls
@@ -30,6 +31,8 @@ public:
 
 	[[nodiscard]] std::map<std::string, double> computeFrequencies(const std::vector<double>& latest_periods_ms);
 
+	[[nodiscard]] bool areTopicsSync(const std::vector<std::chrono::steady_clock::time_point>& latest_timestamp);
+
 	[[nodiscard]] bool isInputsMapEmpty();
 
 	void setInputMap(const std::map<std::string, size_t>& inputs_map);
@@ -44,6 +47,9 @@ private:
 
 	// topic name -> index in inputs vector mapping
 	std::map<std::string, size_t> inputs_map_;
+
+	// topic sync threshold
+	double sync_threshold_ms_{ 1000 };
 };
 
 
