@@ -1,9 +1,9 @@
-#include "dls2/plugin/topic_frequency_monitor.hpp"
+#include "dls2/plugin/topic_monitor.hpp"
 
 namespace dls
 {
 
-    TopicFrequencyMonitor::TopicFrequencyMonitor(
+    TopicMonitor::TopicMonitor(
 		const std::map<std::string, size_t>& inputs_map,
 		const std::string &periods_file)
     {
@@ -15,7 +15,7 @@ namespace dls
 		}
 	}
 
-	void TopicFrequencyMonitor::savePeriodsFromFile(const std::string &periods_file)
+	void TopicMonitor::savePeriodsFromFile(const std::string &periods_file)
 	{
 		YAML::Node config;
 		try
@@ -39,7 +39,7 @@ namespace dls
 		}
 	}
 
-	double TopicFrequencyMonitor::getActualFrequency(const std::string& input_topic, const double& period_ms){
+	double TopicMonitor::getActualFrequency(const std::string& input_topic, const double& period_ms){
 
 		double period_sec = period_ms / SEC_TO_MS;
 
@@ -52,11 +52,11 @@ namespace dls
 		return frequencies_moving_windows_[input_topic]->mean();
 	}
 
-	std::map<std::string, double> TopicFrequencyMonitor::getExpectedPeriods(){
+	std::map<std::string, double> TopicMonitor::getExpectedPeriods(){
 		return expected_periods_;
 	}
 
-	std::map<std::string, double> TopicFrequencyMonitor::computeFrequencies(const std::vector<double>& latest_periods_ms)
+	std::map<std::string, double> TopicMonitor::computeFrequencies(const std::vector<double>& latest_periods_ms)
     {
         std::map<std::string, double> result;
 
@@ -69,7 +69,7 @@ namespace dls
         return result;
     }
 
-	bool TopicFrequencyMonitor::areTopicsSync(const std::vector<std::chrono::steady_clock::time_point>& latest_timestamp){
+	bool TopicMonitor::areTopicsSync(const std::vector<std::chrono::steady_clock::time_point>& latest_timestamp){
 		if(latest_timestamp.size() > 1){
 			for(size_t i = 1; i < latest_timestamp.size(); i++){
 				auto delta_time = abs(toMs<double>(latest_timestamp[0] - latest_timestamp[i]));
@@ -81,11 +81,11 @@ namespace dls
 		return true;
 	}
 
-	bool TopicFrequencyMonitor::isInputsMapEmpty(){
+	bool TopicMonitor::isInputsMapEmpty(){
 		return inputs_map_.empty();
 	}
 
-	void TopicFrequencyMonitor::setInputMap(const std::map<std::string, size_t>& inputs_map){
+	void TopicMonitor::setInputMap(const std::map<std::string, size_t>& inputs_map){
 		inputs_map_ = inputs_map;
 	}
 

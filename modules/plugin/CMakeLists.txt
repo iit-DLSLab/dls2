@@ -18,7 +18,7 @@ target_link_libraries(plugin
 add_library(periodic_app_plugin
 	SHARED
 		src/periodic_app_plugin.cpp
-		src/topic_frequency_monitor.cpp
+		src/topic_monitor.cpp
 )
 
 target_include_directories(periodic_app_plugin

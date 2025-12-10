@@ -13,7 +13,7 @@
 namespace dls
 {
 
-class TopicFrequencyMonitor
+class TopicMonitor
 {
 
 	static constexpr size_t FREQ_MOVING_WINDOW_DEFAULT_SIZE = 1000;
@@ -21,7 +21,7 @@ class TopicFrequencyMonitor
 
 public:
 
-    explicit TopicFrequencyMonitor(const std::map<std::string, size_t>& inputs_map, const std::string &periods_file);
+    explicit TopicMonitor(const std::map<std::string, size_t>& inputs_map, const std::string &periods_file);
 
 	void savePeriodsFromFile(const std::string &periods_file);
 

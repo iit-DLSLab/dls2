@@ -5,7 +5,7 @@ namespace dls
 	PeriodicAppPlugin::PeriodicAppPlugin(const std::string &ID, const domainType &domain, const std::string &periods_file)
 		: PeriodicApp(ID), Plugin(ID, domain)
 	{
-		topic_frequency_monitor_ = std::make_unique<TopicFrequencyMonitor>(this->inputs_map, periods_file);
+		topic_monitor_ = std::make_unique<TopicMonitor>(this->inputs_map, periods_file);
 	}
 
 	PeriodicAppPlugin::~PeriodicAppPlugin()
@@ -31,14 +31,14 @@ namespace dls
 	{
 		PeriodicApp::childMonitor();
 
-		if(topic_frequency_monitor_->isInputsMapEmpty()){
-			topic_frequency_monitor_->setInputMap(this->inputs_map);
+		if(topic_monitor_->isInputsMapEmpty()){
+			topic_monitor_->setInputMap(this->inputs_map);
 		}
 
-		status_msg.inputs_current_freq() = topic_frequency_monitor_->computeFrequencies(this->inputs_latest_periods_ms);
-		status_msg.inputs_desired_freq() = topic_frequency_monitor_->getExpectedPeriods();
+		status_msg.inputs_current_freq() = topic_monitor_->computeFrequencies(this->inputs_latest_periods_ms);
+		status_msg.inputs_desired_freq() = topic_monitor_->getExpectedPeriods();
 
-		bool are_inputs_sync = topic_frequency_monitor_->areTopicsSync(this->inputs_latest_timestamp);
+		bool are_inputs_sync = topic_monitor_->areTopicsSync(this->inputs_latest_timestamp);
 
 		status_msg.inputs_synchronized() = static_cast<int32_t>(are_inputs_sync); 
 		status_msg.status_string() = ""; // TODO: fill in

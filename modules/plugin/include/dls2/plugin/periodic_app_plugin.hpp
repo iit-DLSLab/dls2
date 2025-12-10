@@ -3,7 +3,7 @@
 
 #include "dls2/application/periodic_app.hpp"
 #include "dls2/plugin/plugin.hpp"
-#include "dls2/plugin/topic_frequency_monitor.hpp"
+#include "dls2/plugin/topic_monitor.hpp"
 #include <mutex>
 namespace dls
 {
@@ -61,7 +61,7 @@ namespace dls
 		std::map<std::string, double> getInputsFrequency(bool &are_inputs_sync);
 		std::map<std::string, double> getInputsDesiredFrequency();
 
-		std::unique_ptr<TopicFrequencyMonitor> topic_frequency_monitor_{ nullptr };
+		std::unique_ptr<TopicMonitor> topic_monitor_{ nullptr };
 		
 		double sync_threshold_ms_{ 1000.0 };
 };
