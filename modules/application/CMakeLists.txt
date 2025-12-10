@@ -13,7 +13,7 @@ add_library(dls_app
 		src/app.cpp
 		${LAYER_CPP}
 		src/periodic_app.cpp
-	src/resource_monitor.cpp
+		src/resource_monitor.cpp
 		src/state_machine/initialization.cpp
 		# src/state_machine/breaking_rt.cpp
 		src/state_machine/run.cpp

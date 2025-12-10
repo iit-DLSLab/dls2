@@ -86,8 +86,7 @@ void PeriodicApp::childMonitor()
 
 AppStatus PeriodicApp::run()
 {
-	resource_monitor_->update();
-
+	
 	//set RT scheduling policy
 	setRTSchedulerPolicy();
 
