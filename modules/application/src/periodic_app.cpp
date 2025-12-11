@@ -79,9 +79,17 @@ void PeriodicApp::childMonitor()
 			this->current_frequency_;
 	}
 	status_msg.desired_frequency() = getDesiredFrequency();
-	status_msg.realtime() = static_cast<uint8_t>(sm.state->realtime);
+	status_msg.realtime() = static_cast<uint8_t>(realtime_curr);
 	status_msg.cpu_usage() = resource_monitor_->getCpuPercent();
 	status_msg.mem_usage() = resource_monitor_->getMemPercent();
+
+	// notify if the process is not running at the expected frequency
+	if(!realtime_curr){
+		std::lock_guard<std::mutex> lock(this->frequency_mutex_);
+		event_notifier.notify(	EventID::WRONG_PROCESS_FREQUENCY,
+								EventSeverity::WARNING,
+								"Des freq: " + std::to_string(getDesiredFrequency()) + " Hz, " + "Curr freq: " + std::to_string(current_frequency_) + " Hz");
+	}
 }
 
 AppStatus PeriodicApp::run()
@@ -203,14 +211,6 @@ void PeriodicApp::checkRT()
 		sm.notifyRT(realtime_curr);
 	}
 	realtime_prec = realtime_curr;
-
-	// notify if the process is not running at the expected frequency
-	if(!realtime_curr){
-		std::lock_guard<std::mutex> lock(this->frequency_mutex_);
-		event_notifier.notify(	EventID::WRONG_PROCESS_FREQUENCY,
-								EventSeverity::WARNING,
-								"Des freq: " + std::to_string(getDesiredFrequency()) + " Hz, " + "Curr freq: " + std::to_string(current_frequency_) + " Hz");
-	}
 }
 void PeriodicApp::setFailure()
 {
