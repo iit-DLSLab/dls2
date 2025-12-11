@@ -4,16 +4,18 @@
 #include <stdint.h>
 
 enum class EventID : uint8_t {
-    // Health anomalies
+
+    // Health anomalies (backend)
     WRONG_PROCESS_STATE = 0,
     WRONG_PROCESS_FREQUENCY,
-    CPU_THROTTLING,
     MISSING_INPUT,
-    LOW_FREQUENCY_INPUT,
+    CPU_USAGE_TOO_HIGH,
+    MEM_USAGE_TOO_HIGH,
+    INPUTS_NOT_SYNCHRONIZED,
+    WRONG_INPUT_FREQUENCY,
     MISSING_SEQUENCE_ID,
-    MOTOR_OVERHEAT,
 
-    // Safety anomalies
+    // Safety anomalies (user)
     JOINT_POS_OUT_OF_BOUND,
     JOINT_VEL_OUT_OF_BOUND,
     JOINT_ACC_OUT_OF_BOUND,
@@ -21,8 +23,8 @@ enum class EventID : uint8_t {
     REACHED_KINEMATIC_SINGULARITY,
     DETECTED_AUTOCOLLISION,
     NAN_VALUE,
-    TOO_HIGH_VALUE,
-    INPUTS_NOT_SYNCHRONIZED,
+    INF_VALUE,
+    MOTOR_OVERHEAT
 };
 
 enum class EventSeverity : uint8_t {
