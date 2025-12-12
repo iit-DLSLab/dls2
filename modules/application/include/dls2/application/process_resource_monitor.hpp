@@ -14,10 +14,10 @@ namespace dls
  * @brief Simple class to monitor CPU and memory usage of a process exploiting the Linux /proc filesystem.
  * More details at https://docs.kernel.org/filesystems/proc.html
  */
-class ResourceMonitor
+class ProcessResourceMonitor
 {
   public:
-	explicit ResourceMonitor(pid_t pid);
+	explicit ProcessResourceMonitor(pid_t pid);
 
 	size_t update();
 	const double &getCpuPercent() const;

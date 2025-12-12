@@ -3,7 +3,7 @@
 
 #include "dls2/application/app.hpp"
 #include <dls2/util/time/time.hpp>
-#include "dls2/application/resource_monitor.hpp"
+#include "dls2/application/process_resource_monitor.hpp"
 
 #include <boost/process.hpp>
 #include <yaml-cpp/yaml.h>
@@ -120,7 +120,7 @@ namespace dls
 		bool realtime_curr;
 		std::chrono::time_point<std::chrono::steady_clock> loop_time_prec;
 
-		std::unique_ptr<ResourceMonitor> resource_monitor_;
+		std::unique_ptr<ProcessResourceMonitor> process_resource_monitor_;
 
 		double current_frequency_;
 		std::mutex frequency_mutex_;

@@ -1,8 +1,8 @@
-#include "dls2/application/resource_monitor.hpp"
+#include "dls2/application/process_resource_monitor.hpp"
 
 using namespace dls;
 
-ResourceMonitor::ResourceMonitor(pid_t pid) : 
+ProcessResourceMonitor::ProcessResourceMonitor(pid_t pid) : 
 	sys_page_size_(sysconf(_SC_PAGE_SIZE))
 	, sys_ticks_per_sec_(sysconf(_SC_CLK_TCK))
 {
@@ -15,7 +15,7 @@ ResourceMonitor::ResourceMonitor(pid_t pid) :
 	}
 };
 
-size_t ResourceMonitor::update()
+size_t ProcessResourceMonitor::update()
 {
 	std::lock_guard<std::mutex> lock(this->resource_mutex_);
 	if (!updateAllocatedMemory())
@@ -59,19 +59,19 @@ size_t ResourceMonitor::update()
 	return 0;
 }
 
-const double& ResourceMonitor::getCpuPercent() const
+const double& ProcessResourceMonitor::getCpuPercent() const
 {
 	std::lock_guard<std::mutex> lock(this->resource_mutex_);
 	return cpu_percent_;
 }
 
-const double& ResourceMonitor::getMemPercent() const
+const double& ProcessResourceMonitor::getMemPercent() const
 {
 	std::lock_guard<std::mutex> lock(this->resource_mutex_);
 	return memory_percent_;
 }
 
-bool ResourceMonitor::updateAllocatedMemory()
+bool ProcessResourceMonitor::updateAllocatedMemory()
 {
 	int tSize = 0;
 	int resident = 0;
@@ -90,7 +90,7 @@ bool ResourceMonitor::updateAllocatedMemory()
 	return true;
 }
 
-bool ResourceMonitor::updateCpuTicks(unsigned long long &total_ticks)
+bool ProcessResourceMonitor::updateCpuTicks(unsigned long long &total_ticks)
 {
 	std::ifstream stat(stat_path_);
 	if (!stat.is_open())
@@ -143,7 +143,7 @@ bool ResourceMonitor::updateCpuTicks(unsigned long long &total_ticks)
 	return true;
 }
 
-long ResourceMonitor::getTotalRAMkB() {
+long ProcessResourceMonitor::getTotalRAMkB() {
     std::ifstream meminfo("/proc/meminfo");
     std::string key;
     long value;

@@ -68,7 +68,7 @@ PeriodicApp::PeriodicApp(const std::string &ID)
 		true
 	);
 
-	resource_monitor_ = std::make_unique<ResourceMonitor>(this->pid);
+	process_resource_monitor_ = std::make_unique<ProcessResourceMonitor>(this->pid);
 }
 
 void PeriodicApp::childMonitor()
@@ -80,8 +80,8 @@ void PeriodicApp::childMonitor()
 	}
 	status_msg.desired_frequency() = getDesiredFrequency();
 	status_msg.realtime() = static_cast<uint8_t>(realtime_curr);
-	status_msg.cpu_usage() = resource_monitor_->getCpuPercent();
-	status_msg.mem_usage() = resource_monitor_->getMemPercent();
+	status_msg.cpu_usage() = process_resource_monitor_->getCpuPercent();
+	status_msg.mem_usage() = process_resource_monitor_->getMemPercent();
 
 	// notify if the process is not running at the expected frequency
 	if(!realtime_curr){
@@ -111,9 +111,9 @@ AppStatus PeriodicApp::run()
 	    checkRT();
 
 		// Check hardware resource usage
-		auto resource_monitor_success = resource_monitor_->update();
-		if(resource_monitor_success != 0){
-			std::cout << this->ID_ << ": resource monitor failed, exit code: " << resource_monitor_success << "\n";
+		auto process_resource_monitor_success = process_resource_monitor_->update();
+		if(process_resource_monitor_success != 0){
+			std::cout << this->ID_ << ": resource monitor failed, exit code: " << process_resource_monitor_success << "\n";
 		}
 
 	    // Run
