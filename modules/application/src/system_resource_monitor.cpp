@@ -88,7 +88,11 @@ void SystemResourceMonitor::computeCpusUsage()
 void SystemResourceMonitor::computeTemperature(const std::string& desired_type)
 {
     // One-time initialization: discover zones and read their "type"
-    if (!thermal_zones_initialized_) {
+    if (!thermal_zones_type2path_.has_value()) {
+        
+        // Constructing an empty std::map
+        thermal_zones_type2path_.emplace(); 
+        
         const char* base_dir = "/sys/class/thermal";
         DIR* dir = ::opendir(base_dir);
         if (!dir) {
@@ -124,57 +128,59 @@ void SystemResourceMonitor::computeTemperature(const std::string& desired_type)
                 buf[--n] = '\0';
             }
 
-            ThermalZone z;
-            z.type = buf;
-            z.temp_path = temp_path;
-            thermal_zones_.push_back(std::move(z));
+            thermal_zones_type2path_->emplace(buf, std::move(temp_path));
         }
         ::closedir(dir);
 
-        thermal_zones_initialized_ = true;
-        if (thermal_zones_.empty()) {
-            // No zones found, nothing more to do
+        if(thermal_zones_type2path_->empty()){
+            // No zones found
             return;
         }
     }
-	
-    for (const auto& z : thermal_zones_) {
-        if(z.type != desired_type){
-            continue;
-        }
 
-        int fd = ::open(z.temp_path.c_str(), O_RDONLY);
-        if (fd < 0) {
-            // If temp can't be read this time, skip it
-            continue;
-        }
-
-        char buf[32];
-        ssize_t n = ::read(fd, buf, sizeof(buf) - 1);
-        ::close(fd);
-        if (n <= 0){
-            continue;
-        }
-
-        buf[n] = '\0';
-        // Strip trailing whitespace
-        while (n > 0 && (buf[n - 1] == '\n' || buf[n - 1] == '\r' ||
-                         buf[n - 1] == ' '  || buf[n - 1] == '\t')) {
-            buf[--n] = '\0';
-        }
-
-        // temp is in millidegrees Celsius
-        long temp_milli = std::strtol(buf, nullptr, 10);
-        double temp_celsius = temp_milli / 1000.0;
-
-        latest_temperature_ = temp_celsius;
+    if(!thermal_zones_type2path_.has_value()){
+        return;
     }
+    auto zone_it = thermal_zones_type2path_->find(desired_type);
+    if(zone_it == thermal_zones_type2path_->end()){
+        // Desired zone type not found
+        return;
+    }
+
+    const auto& zone_path = zone_it->second;
+    int fd = ::open(zone_path.c_str(), O_RDONLY);
+    if (fd < 0) {
+        // If temp can't be read this time, skip it
+        return;
+    }
+
+    char buf[32];
+    ssize_t n = ::read(fd, buf, sizeof(buf) - 1);
+    ::close(fd);
+    if (n <= 0){
+        return;
+    }
+
+    buf[n] = '\0';
+    // Strip trailing whitespace
+    while (n > 0 && (buf[n - 1] == '\n' || buf[n - 1] == '\r' ||
+                        buf[n - 1] == ' '  || buf[n - 1] == '\t')) {
+        buf[--n] = '\0';
+    }
+
+    // temp is in millidegrees Celsius
+    long temp_milli = std::strtol(buf, nullptr, 10);
+    double temp_celsius = temp_milli / 1000.0;
+
+    latest_temperature_.first = desired_type;
+    latest_temperature_.second = temp_celsius;
+    
 }
 
 const std::vector<double>& SystemResourceMonitor::getCpusUsage(){
 	return latest_cpus_usage_;
 }
 
-double SystemResourceMonitor::getTemperature(){
+std::pair<std::string, double> SystemResourceMonitor::getTemperature(){
 	return latest_temperature_;
 }

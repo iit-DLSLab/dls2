@@ -10,9 +10,11 @@
 #include <iostream>
 #include <deque>
 #include <iomanip>
+#include <map>
 #include <cstring>
 #include <dirent.h>
 #include <fcntl.h>
+#include <optional>
 #include <unistd.h>
 
 namespace dls
@@ -40,11 +42,6 @@ namespace dls
 		}
 	};
 
-	struct ThermalZone {
-        std::string type;      // human-readable label (e.g. x86_pkg_temp)
-        std::string temp_path;  // path to /sys/.../temp
-    };
-
 /**
  * @brief Simple class to monitor CPU and memory usage of a system exploiting the Linux /proc filesystem.
  * More details at https://docs.kernel.org/filesystems/proc.html
@@ -70,8 +67,20 @@ class SystemResourceMonitor
 		void computeCpusUsage();
 		void computeTemperature(const std::string& desired_type = "x86_pkg_temp");
 
+		/**
+		 * @brief Get the overall cpus usage (in terms of task ticks / clock available ticks)
+		 * 
+		 * @return const std::vector<double>& 
+		 */
 		[[nodiscard]] const std::vector<double>& getCpusUsage();
-		[[nodiscard]] double getTemperature();
+
+		/**
+		 * @brief Get the latest value for a thermal zone temperature computed 
+		 * in computeTemperature (default is x86_pkg_temp zone) .
+		 * 
+		 * @return std::pair<std::string, double> 
+		 */
+		[[nodiscard]] std::pair<std::string, double> getTemperature();
 
 	private:
 
@@ -80,9 +89,8 @@ class SystemResourceMonitor
 
 		std::vector<double> latest_cpus_usage_;
 
-		std::vector<ThermalZone> thermal_zones_{};
-		bool thermal_zones_initialized_{ false };
-		double latest_temperature_{ 0.0 };
+		std::optional<std::map<std::string, std::string>> thermal_zones_type2path_{};
+		std::pair<std::string, double> latest_temperature_{"", 0.0};
 
 };
 } // namespace dls
