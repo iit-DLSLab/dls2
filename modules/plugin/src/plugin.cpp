@@ -14,6 +14,7 @@ namespace dls
 
 	void Plugin::read()
 	{
+		std::lock_guard<std::mutex> lock(input_info_mutex_);
 		for (long unsigned int i = 0; i < input_info_.size(); i++)
 		{
 			input_info_[i].reader->read();
@@ -25,6 +26,9 @@ namespace dls
 	{
 		try {
 			const auto& input_idx = inputs_map.at(name);
+			
+			std::lock_guard<std::mutex> lock(input_info_mutex_);
+
 			input_info_[input_idx].reader->read();
 			updateInputInfo(input_info_[input_idx]);
 		}
@@ -101,6 +105,9 @@ namespace dls
 	{
 		bool are_inputs_receiving_data = true;
 		missing_inputs.str("");
+
+		std::lock_guard<std::mutex> lock(input_info_mutex_);
+
 		for (long unsigned int i = 0; i < input_info_.size(); i++)
 		{
 			// check data availability if: all the readers needs to be checked or only the ones required on activation

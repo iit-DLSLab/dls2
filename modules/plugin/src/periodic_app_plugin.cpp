@@ -35,7 +35,11 @@ namespace dls
 			topic_monitor_->setInputMap(this->inputs_map);
 		}
 
-		const auto input_info = this->input_info_;
+		std::vector<InputInfo> input_info{};
+		{
+			std::lock_guard<std::mutex> lock(input_info_mutex_);
+			input_info = this->input_info_;
+		}
 
 		for(size_t i = 0; i < input_info.size(); ++i){
 			if(!input_info.at(i).sequence_id_sane){

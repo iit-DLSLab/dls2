@@ -148,12 +148,8 @@ namespace dls
       * When calling this function, all services will be removed.
       */
     void deleteServices();
-    
-		/*! @brief Updating input sanity check-related data */
-		void updateInputInfo(InputInfo& input_info);
 
-		/*! @brief Sanity check on msg sequence id, wrapping included */
-		bool checkSequenceId(unsigned long prev_sequence_id, unsigned long received_sequence_id);
+		std::mutex input_info_mutex_;
 
 		//! Vector of inputs (data readers)
 		std::vector<InputInfo> input_info_{};
@@ -165,9 +161,16 @@ namespace dls
 		// Map from topic (output) name to id in the outputs vector
 		std::map<std::string, size_t> outputs_map;
 
-		private:
+	private:
+		
+		/*! @brief Updating input sanity check-related data */
+		void updateInputInfo(InputInfo& input_info);
 
-      std::map<std::string, std::shared_ptr<RpcService>> _rpc_srvc_map;
+		/*! @brief Sanity check on msg sequence id, wrapping included */
+		bool checkSequenceId(unsigned long prev_sequence_id, unsigned long received_sequence_id);
+
+    std::map<std::string, std::shared_ptr<RpcService>> _rpc_srvc_map;
+
 	};
 } // end namespace dls
 

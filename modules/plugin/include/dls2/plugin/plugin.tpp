@@ -18,6 +18,8 @@ namespace dls
 		input_info.are_inputs_required_on_activation = required_on_activation;
 		input_info.topic_name = topic.first;
 
+		std::lock_guard<std::mutex> lock(input_info_mutex_);
+
 		input_info_.push_back(input_info);
 
 		// TODO: Add number if topic is not unique
