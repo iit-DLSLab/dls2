@@ -20,7 +20,6 @@ namespace dls
 
 		bool is_receiving_data() const override;
 		
-		virtual bool hasSequenceId() override;
 
 	protected:
 		const std::shared_ptr<SignalType> signal_;
@@ -28,13 +27,6 @@ namespace dls
 
 		virtual WrapperBase* getWrapperBasePtr() override;
 		const std::function<void()> auxiliary_callback;
-
-		template <typename T, typename = int>
-		struct HasSequenceId : std::false_type { };
-		template <typename T>
-		struct HasSequenceId <T, decltype((void) T::sequence_id, 0)> : std::true_type { };
-
-		bool has_sequence_id_;
 	};
 } // end namespace dls
 
