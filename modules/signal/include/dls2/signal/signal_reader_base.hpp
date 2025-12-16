@@ -19,6 +19,7 @@ namespace dls
 		bool received;
 
 		virtual bool is_receiving_data() const = 0;
+		virtual bool hasSequenceId() const = 0;
 		dls::topicType getTopic() const;
 
 	protected:

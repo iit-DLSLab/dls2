@@ -14,7 +14,8 @@ namespace dls
 										   const std::shared_ptr<SignalType> signal, const std::function<void()> &auxiliary_callback, eprosima::fastdds::dds::DataReaderQos qos)
 		: SignalReaderBase(participant, topic),
 		  signal_(signal),
-		  auxiliary_callback(auxiliary_callback)
+		  auxiliary_callback(auxiliary_callback),
+		  has_sequence_id_(HasSequenceId<SignalType>::value)
 	{
 		int id = std::experimental::randint(100000, 999999);
 		while(dds_participant_->getWriter(dds_participant_->getName() + "::" + std::to_string(id)) != nullptr)
@@ -59,6 +60,12 @@ namespace dls
 	bool SignalReader<SignalType>::is_receiving_data() const
 	{
 		return listener_->is_receiving_data();
+	}
+
+	template <typename SignalType>
+	bool SignalReader<SignalType>::hasSequenceId()
+	{
+		return has_sequence_id_;
 	}
 }
 #endif /* end of include guard: SIGNAL_READER_TPP */

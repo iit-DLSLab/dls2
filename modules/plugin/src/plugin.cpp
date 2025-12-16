@@ -16,9 +16,18 @@ namespace dls
 	{
 		for (long unsigned int i = 0; i < inputs.size(); i++)
 		{
-			inputs[i]->read();
-			inputs_latest_periods_ms[i] = inputs[i]->get_latest_period_ms();
-			inputs_latest_timestamp[i] = inputs[i]->get_latest_timestamp();
+			const auto& reader = inputs[i];
+			reader->read();
+			inputs_latest_periods_ms[i] = reader->get_latest_period_ms();
+			inputs_latest_timestamp[i] = reader->get_latest_timestamp();
+
+			bool is_sequence_id_sane = true; // TODO: check enable?
+			if(reader->hasSequenceId() && reader->hasStartedReceivingData()){
+				is_sequence_id_sane = checkSequenceId(inputs_latest_sequence_ids[i], reader->getLatestSequenceId());
+				inputs_latest_sequence_ids[i] = reader->getLatestSequenceId(); 
+			}
+
+			inputs_sequence_id_sane[i] = is_sequence_id_sane;
 		}
 	}
 
@@ -176,4 +185,12 @@ namespace dls
     }
     _rpc_srvc_map.clear();
   }
+
+	bool Plugin::checkSequenceId(unsigned long prev_sequence_id, unsigned long received_sequence_id)
+	{
+		const auto is_sequence_id_nominal = received_sequence_id == prev_sequence_id + 1;
+		const auto is_sequence_id_wrapped = prev_sequence_id + 1 > MAX_SEQUENCE_ID && received_sequence_id == 0;
+
+		return is_sequence_id_nominal || is_sequence_id_wrapped;
+	}
 }

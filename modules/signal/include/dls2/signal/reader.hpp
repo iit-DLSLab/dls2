@@ -20,11 +20,23 @@ namespace dls
 
 		std::chrono::steady_clock::time_point get_latest_timestamp() override;
 		double get_latest_period_ms() override;
+		virtual bool hasSequenceId() override;
+		virtual int sampleCount() override;
+		virtual bool hasStartedReceivingData() override;
+		virtual unsigned long getLatestSequenceId() override;
 
 		MsgType msg;
 	protected:
 		std::shared_ptr<dls::DDSSubListener> listener_;
 		std::function<void()> auxiliary_callback;
+	
+	private:
+		template <typename T, typename = std::void_t<>>
+		struct HasSequenceId : std::false_type { };
+		template <typename T>
+		struct HasSequenceId <T, std::void_t<decltype(std::declval<T>().sequence_id())>> : std::true_type { };
+
+		bool has_sequence_id_;
 	};
 
 	template <typename MsgType>

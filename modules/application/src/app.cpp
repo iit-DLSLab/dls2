@@ -310,7 +310,6 @@ void App::monitorApp()
 		
 		if (anomalies_detected)
 		{
-			dls2_interface::msg::EventLog event_msg;
 			event_notifier.notify(
 			    EventID::WRONG_PROCESS_STATE,
 			    EventSeverity::WARNING,

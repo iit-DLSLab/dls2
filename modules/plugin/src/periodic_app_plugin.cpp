@@ -35,6 +35,16 @@ namespace dls
 			topic_monitor_->setInputMap(this->inputs_map);
 		}
 
+		for(size_t i = 0; i < inputs_sequence_id_sane.size(); ++i){
+			if(!inputs_sequence_id_sane.at(i)){
+				event_notifier.notify(
+					EventID::WRONG_SEQUENCE_ID,
+					EventSeverity::WARNING,
+					this->getID() + " app is missing sequence id from subscription n. " + std::to_string(i) + "\n"
+				);
+			}
+		}
+
 		status_msg.inputs_current_freq() = topic_monitor_->computeFrequencies(this->inputs_latest_periods_ms);
 		status_msg.inputs_desired_freq() = topic_monitor_->getExpectedPeriods();
 

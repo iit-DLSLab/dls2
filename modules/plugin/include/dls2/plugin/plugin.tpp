@@ -13,6 +13,9 @@ namespace dls
 		inputs.push_back(reader);
 		inputs_latest_periods_ms.push_back(0.0);
 		inputs_latest_timestamp.push_back(std::chrono::steady_clock::now());
+		inputs_latest_sequence_ids.push_back(0);
+		inputs_sequence_id_sane.push_back(true);
+
 		// TODO: Add number if topic is not unique
 		inputs_map[topic.first] = inputs.size() - 1; // Store the index of the input in the inputs vector
 	

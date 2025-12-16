@@ -90,6 +90,10 @@ namespace dls
 				}
 				this->last_timestamp = now;
 				this->sample_count++;
+				if(!started_receiving_data_){
+					started_receiving_data_ = true;
+				}
+
 				this->callback(this->msg);
 			}
 		}

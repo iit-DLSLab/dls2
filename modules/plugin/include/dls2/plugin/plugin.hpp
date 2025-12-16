@@ -8,19 +8,21 @@
 #include <mutex>
 namespace dls
 {
-  /*!
-    * @class Plugin
-    * @brief This is a base class for creating plugins for either apps or periodic apps.
-    */
-  class Plugin
-  {
-  public:
-    /*!
-      * @brief Constructor.
-      * @param[in] ID name of plugin
-      * @param[in] domain domain the plugin belongs to
-      */
-    Plugin(const std::string &ID, const domainType &domain);
+	static constexpr unsigned long MAX_SEQUENCE_ID = 1000;
+
+	/*!
+	 * @class Plugin
+	 * @brief This is a base class for creating plugins for either apps or periodic apps.
+	 */
+	class Plugin
+	{
+	public:
+		/*!
+		 * @brief Constructor.
+		 * @param[in] ID name of plugin
+		 * @param[in] domain domain the plugin belongs to
+		 */
+		Plugin(const std::string &ID, const domainType &domain);
 
     /*!
       * @brief Destructor.
@@ -135,6 +137,9 @@ namespace dls
       * When calling this function, all services will be removed.
       */
     void deleteServices();
+    
+		/*! @brief Sanity check on msg sequence id, wrapping included */
+		bool checkSequenceId(unsigned long prev_sequence_id, unsigned long received_sequence_id);
 
 		//! Vector of inputs (data readers)
 		std::vector<std::shared_ptr<ReaderBase>> inputs;
@@ -143,6 +148,8 @@ namespace dls
 
 		std::vector<double> inputs_latest_periods_ms;
 		std::vector<std::chrono::steady_clock::time_point> inputs_latest_timestamp;
+		std::vector<unsigned long> inputs_latest_sequence_ids; 
+		std::vector<bool> inputs_sequence_id_sane;
 
 		// Map from topic (input) name to id in the inputs vector
 		std::map<std::string, size_t> inputs_map;

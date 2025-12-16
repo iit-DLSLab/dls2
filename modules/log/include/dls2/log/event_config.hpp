@@ -13,7 +13,7 @@ enum class EventID : uint8_t {
     MEM_USAGE_TOO_HIGH,
     INPUTS_NOT_SYNCHRONIZED,
     WRONG_INPUT_FREQUENCY,
-    MISSING_SEQUENCE_ID,
+    WRONG_SEQUENCE_ID,
 
     // Safety anomalies (user)
     JOINT_POS_OUT_OF_BOUND,

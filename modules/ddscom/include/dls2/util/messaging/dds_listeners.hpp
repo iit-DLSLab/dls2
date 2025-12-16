@@ -44,6 +44,7 @@ namespace dls
 
 		std::atomic_int sample_count;
 		std::atomic_int matched_count;
+		bool started_receiving_data_{ false };
 		std::function<void(void *)> callback;
         void *msg;
 
