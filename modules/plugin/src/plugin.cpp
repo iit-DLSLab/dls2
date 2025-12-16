@@ -16,25 +16,17 @@ namespace dls
 	{
 		for (long unsigned int i = 0; i < inputs.size(); i++)
 		{
-			const auto& reader = inputs[i];
-			reader->read();
-			inputs_latest_periods_ms[i] = reader->get_latest_period_ms();
-			inputs_latest_timestamp[i] = reader->get_latest_timestamp();
-
-			bool is_sequence_id_sane = true; // TODO: check enable?
-			if(reader->hasSequenceId() && reader->hasStartedReceivingData()){
-				is_sequence_id_sane = checkSequenceId(inputs_latest_sequence_ids[i], reader->getLatestSequenceId());
-				inputs_latest_sequence_ids[i] = reader->getLatestSequenceId(); 
-			}
-
-			inputs_sequence_id_sane[i] = is_sequence_id_sane;
+			inputs[i]->read();
+			updateInputInfo(i);
 		}
 	}
 
 	void Plugin::read(const std::string& name)
 	{
 		try {
-			inputs[inputs_map.at(name)]->read();
+			const auto& input_idx = inputs_map.at(name);
+			inputs[input_idx]->read();
+			updateInputInfo(input_idx);
 		}
 		catch (const std::out_of_range& e)
 		{
@@ -185,6 +177,21 @@ namespace dls
     }
     _rpc_srvc_map.clear();
   }
+	void Plugin::updateInputInfo(size_t input_idx)
+	{
+		const auto& reader = inputs[input_idx];
+		
+		inputs_latest_periods_ms[input_idx] = reader->get_latest_period_ms();
+		inputs_latest_timestamp[input_idx] = reader->get_latest_timestamp();
+
+		bool is_sequence_id_sane = true;
+		if(reader->hasSequenceId() && reader->hasStartedReceivingData()){
+			is_sequence_id_sane = checkSequenceId(inputs_latest_sequence_ids[input_idx], reader->getLatestSequenceId());
+			inputs_latest_sequence_ids[input_idx] = reader->getLatestSequenceId(); 
+		}
+
+		inputs_sequence_id_sane[input_idx] = is_sequence_id_sane;
+	}
 
 	bool Plugin::checkSequenceId(unsigned long prev_sequence_id, unsigned long received_sequence_id)
 	{

@@ -138,6 +138,9 @@ namespace dls
       */
     void deleteServices();
     
+		/*! @brief Updating input sanity check-related data */
+		void updateInputInfo(size_t input_idx);
+
 		/*! @brief Sanity check on msg sequence id, wrapping included */
 		bool checkSequenceId(unsigned long prev_sequence_id, unsigned long received_sequence_id);
 
