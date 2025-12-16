@@ -35,20 +35,22 @@ namespace dls
 			topic_monitor_->setInputMap(this->inputs_map);
 		}
 
-		for(size_t i = 0; i < inputs_sequence_id_sane.size(); ++i){
-			if(!inputs_sequence_id_sane.at(i)){
+		const auto input_info = this->input_info_;
+
+		for(size_t i = 0; i < input_info.size(); ++i){
+			if(!input_info.at(i).sequence_id_sane){
 				event_notifier.notify(
 					EventID::WRONG_SEQUENCE_ID,
 					EventSeverity::WARNING,
-					this->getID() + " app is missing sequence id from subscription n. " + std::to_string(i) + "\n"
+					this->getID() + " app is missing sequence id from subscription n. " + input_info.at(i).topic_name + "\n"
 				);
 			}
 		}
 
-		status_msg.inputs_current_freq() = topic_monitor_->computeFrequencies(this->inputs_latest_periods_ms);
+		status_msg.inputs_current_freq() = topic_monitor_->computeFrequencies(input_info);
 		status_msg.inputs_desired_freq() = topic_monitor_->getExpectedPeriods();
 
-		bool are_inputs_sync = topic_monitor_->areTopicsSync(this->inputs_latest_timestamp);
+		bool are_inputs_sync = topic_monitor_->areTopicsSync(input_info);
 
 		status_msg.inputs_synchronized() = static_cast<int32_t>(are_inputs_sync); 
 		status_msg.status_string() = ""; // TODO: fill in

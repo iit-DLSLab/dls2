@@ -41,7 +41,7 @@ namespace dls
 
 	double TopicMonitor::getActualFrequency(const std::string& input_topic, const double& period_ms){
 
-		double period_sec = period_ms / SEC_TO_MS;
+		double period_sec = toSec(fromMs(period_ms));
 
 		if (period_sec > 0.0)
 		{
@@ -69,10 +69,35 @@ namespace dls
         return result;
     }
 
+	std::map<std::string, double> TopicMonitor::computeFrequencies(const std::vector<InputInfo>& input_info)
+    {
+        std::map<std::string, double> result;
+
+        for (const auto &[input_topic, _] : inputs_map_)
+		{
+			const auto actual_frequency = this->getActualFrequency(input_topic, input_info[inputs_map_.at(input_topic)].latest_period_ms);
+			result.emplace(input_topic, actual_frequency);
+		}
+
+        return result;
+    }
+
 	bool TopicMonitor::areTopicsSync(const std::vector<std::chrono::steady_clock::time_point>& latest_timestamp){
 		if(latest_timestamp.size() > 1){
 			for(size_t i = 1; i < latest_timestamp.size(); i++){
 				auto delta_time = abs(toMs<double>(latest_timestamp[0] - latest_timestamp[i]));
+				if(delta_time > sync_threshold_ms_){
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	bool TopicMonitor::areTopicsSync(const std::vector<InputInfo>& input_info){
+		if(input_info.size() > 1){
+			for(size_t i = 1; i < input_info.size(); i++){
+				auto delta_time = abs(toMs<double>(input_info[0].latest_timestamp - input_info[i].latest_timestamp));
 				if(delta_time > sync_threshold_ms_){
 					return false;
 				}

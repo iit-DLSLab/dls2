@@ -10,6 +10,17 @@ namespace dls
 {
 	static constexpr unsigned long MAX_SEQUENCE_ID = 1000;
 
+	struct InputInfo
+	{
+		double latest_period_ms{};
+		std::chrono::steady_clock::time_point latest_timestamp{};
+		unsigned long latest_sequence_id { 0 }; 
+		bool sequence_id_sane{ true };
+		bool are_inputs_required_on_activation{ false };
+		std::string topic_name{""};
+		std::shared_ptr<ReaderBase> reader{};
+	};
+
 	/*!
 	 * @class Plugin
 	 * @brief This is a base class for creating plugins for either apps or periodic apps.
@@ -139,20 +150,15 @@ namespace dls
     void deleteServices();
     
 		/*! @brief Updating input sanity check-related data */
-		void updateInputInfo(size_t input_idx);
+		void updateInputInfo(InputInfo& input_info);
 
 		/*! @brief Sanity check on msg sequence id, wrapping included */
 		bool checkSequenceId(unsigned long prev_sequence_id, unsigned long received_sequence_id);
 
 		//! Vector of inputs (data readers)
-		std::vector<std::shared_ptr<ReaderBase>> inputs;
+		std::vector<InputInfo> input_info_{};
 		//! Vector of outputs (data writers)
 		std::vector<std::shared_ptr<WriterBase>> outputs;
-
-		std::vector<double> inputs_latest_periods_ms;
-		std::vector<std::chrono::steady_clock::time_point> inputs_latest_timestamp;
-		std::vector<unsigned long> inputs_latest_sequence_ids; 
-		std::vector<bool> inputs_sequence_id_sane;
 
 		// Map from topic (input) name to id in the inputs vector
 		std::map<std::string, size_t> inputs_map;
@@ -160,10 +166,8 @@ namespace dls
 		std::map<std::string, size_t> outputs_map;
 
 		private:
-		// ! Check if inputs are required on activation
-		std::vector<bool> are_inputs_required_on_activation;
 
-    std::map<std::string, std::shared_ptr<RpcService>> _rpc_srvc_map;
+      std::map<std::string, std::shared_ptr<RpcService>> _rpc_srvc_map;
 	};
 } // end namespace dls
 

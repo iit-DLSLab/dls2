@@ -1,3 +1,4 @@
+#pragma once
 
 #include <mutex>
 #include <chrono>
@@ -9,6 +10,7 @@
 
 #include "dls2/util/time/duration_utils.hpp"
 #include "dls2/plugin/numerical_moving_window.tpp"
+#include "dls2/plugin/plugin.hpp"
 
 namespace dls
 {
@@ -30,8 +32,11 @@ public:
 	[[nodiscard]] std::map<std::string, double> getExpectedPeriods();
 
 	[[nodiscard]] std::map<std::string, double> computeFrequencies(const std::vector<double>& latest_periods_ms);
+	[[nodiscard]] std::map<std::string, double> computeFrequencies(const std::vector<InputInfo>& input_info);
 
 	[[nodiscard]] bool areTopicsSync(const std::vector<std::chrono::steady_clock::time_point>& latest_timestamp);
+	[[nodiscard]] bool areTopicsSync(const std::vector<InputInfo>& input_info);
+
 
 	[[nodiscard]] bool isInputsMapEmpty();
 

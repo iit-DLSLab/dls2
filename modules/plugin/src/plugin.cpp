@@ -14,10 +14,10 @@ namespace dls
 
 	void Plugin::read()
 	{
-		for (long unsigned int i = 0; i < inputs.size(); i++)
+		for (long unsigned int i = 0; i < input_info_.size(); i++)
 		{
-			inputs[i]->read();
-			updateInputInfo(i);
+			input_info_[i].reader->read();
+			updateInputInfo(input_info_[i]);
 		}
 	}
 
@@ -25,8 +25,8 @@ namespace dls
 	{
 		try {
 			const auto& input_idx = inputs_map.at(name);
-			inputs[input_idx]->read();
-			updateInputInfo(input_idx);
+			input_info_[input_idx].reader->read();
+			updateInputInfo(input_info_[input_idx]);
 		}
 		catch (const std::out_of_range& e)
 		{
@@ -101,16 +101,17 @@ namespace dls
 	{
 		bool are_inputs_receiving_data = true;
 		missing_inputs.str("");
-		for (long unsigned int i = 0; i < inputs.size(); i++)
+		for (long unsigned int i = 0; i < input_info_.size(); i++)
 		{
 			// check data availability if: all the readers needs to be checked or only the ones required on activation
-			if (are_inputs_required_on_activation[i])
+			if (input_info_[i].are_inputs_required_on_activation)
 			{
-				if(!inputs[i]->is_receiving_data())
+				if(!input_info_[i].reader->is_receiving_data())
 				{
-					missing_inputs << inputs[i]->getTopic().first << " ";
-					if(are_inputs_receiving_data)
+					missing_inputs << input_info_[i].reader->getTopic().first << " ";
+					if(are_inputs_receiving_data){
 						are_inputs_receiving_data = false;
+					}
 				}
 			}
 		}
@@ -177,20 +178,20 @@ namespace dls
     }
     _rpc_srvc_map.clear();
   }
-	void Plugin::updateInputInfo(size_t input_idx)
+  
+	void Plugin::updateInputInfo(InputInfo& input_info)
 	{
-		const auto& reader = inputs[input_idx];
-		
-		inputs_latest_periods_ms[input_idx] = reader->get_latest_period_ms();
-		inputs_latest_timestamp[input_idx] = reader->get_latest_timestamp();
+		const auto& reader = input_info.reader;
+		input_info.latest_period_ms = reader->get_latest_period_ms();
+		input_info.latest_timestamp = reader->get_latest_timestamp();
 
 		bool is_sequence_id_sane = true;
 		if(reader->hasSequenceId() && reader->hasStartedReceivingData()){
-			is_sequence_id_sane = checkSequenceId(inputs_latest_sequence_ids[input_idx], reader->getLatestSequenceId());
-			inputs_latest_sequence_ids[input_idx] = reader->getLatestSequenceId(); 
+			is_sequence_id_sane = checkSequenceId(input_info.latest_sequence_id, reader->getLatestSequenceId());
+			input_info.latest_sequence_id = reader->getLatestSequenceId(); 
 		}
 
-		inputs_sequence_id_sane[input_idx] = is_sequence_id_sane;
+		input_info.sequence_id_sane = is_sequence_id_sane;
 	}
 
 	bool Plugin::checkSequenceId(unsigned long prev_sequence_id, unsigned long received_sequence_id)

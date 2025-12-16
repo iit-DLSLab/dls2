@@ -8,20 +8,21 @@ namespace dls
 	template <typename MsgType>
 	dls::ReaderPtr<MsgType> Plugin::buildInput(const dls::topicType &topic, const std::function<void()> &auxiliary_callback, bool required_on_activation)
 	{
-		// Add data reader
+		InputInfo input_info{};
 		ReaderPtr<MsgType> reader = std::make_shared<dls::Reader<MsgType>>(dds_participant_,topic,auxiliary_callback);
-		inputs.push_back(reader);
-		inputs_latest_periods_ms.push_back(0.0);
-		inputs_latest_timestamp.push_back(std::chrono::steady_clock::now());
-		inputs_latest_sequence_ids.push_back(0);
-		inputs_sequence_id_sane.push_back(true);
+		input_info.reader = reader;
+		input_info.latest_period_ms = 0.0;
+		input_info.latest_timestamp = std::chrono::steady_clock::now();
+		input_info.latest_sequence_id = 0;
+		input_info.sequence_id_sane = true;
+		input_info.are_inputs_required_on_activation = required_on_activation;
+		input_info.topic_name = topic.first;
+
+		input_info_.push_back(input_info);
 
 		// TODO: Add number if topic is not unique
-		inputs_map[topic.first] = inputs.size() - 1; // Store the index of the input in the inputs vector
+		inputs_map[topic.first] = input_info_.size() - 1; // Store the index of the input in the inputs vector
 	
-		// Add activation requirement info
-		are_inputs_required_on_activation.push_back(required_on_activation);
-
 		return reader;
 	}
 
