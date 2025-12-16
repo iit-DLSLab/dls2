@@ -46,7 +46,7 @@ namespace dls
 				event_notifier.notify(
 					EventID::WRONG_SEQUENCE_ID,
 					EventSeverity::WARNING,
-					this->getID() + " app is missing sequence id from subscription n. " + input_info.at(i).topic_name + "\n"
+					this->getID() + " app detected wrong sequence id from topic " + input_info.at(i).topic_name + "\n"
 				);
 			}
 		}
