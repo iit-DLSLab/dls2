@@ -153,14 +153,12 @@ namespace dls
     {
       if (srvcPtr->_replier && srvcPtr->_replier->is_enabled())
       {
-        dds_rpc::RequestInfo info;
-        int32_t ret = srvcPtr->_replier->take_request(srvcPtr->_data, info);
+        int32_t ret = srvcPtr->_replier->take_request(srvcPtr->_data, srvcPtr->_info);
         if (ret == 0) return srvcPtr->_data;
       }
       else if (srvcPtr->_requester)
       {
-        dds_rpc::RequestInfo info;
-        int32_t ret = srvcPtr->_requester->take_reply(srvcPtr->_data, info);
+        int32_t ret = srvcPtr->_requester->take_reply(srvcPtr->_data, srvcPtr->_info);
         if (ret == 0) return srvcPtr->_data;
       }
     }

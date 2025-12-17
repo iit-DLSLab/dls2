@@ -38,6 +38,7 @@ namespace dls
     dds_rpc::Service* _service;
     dds_rpc::Requester* _requester;
     dds_rpc::Replier* _replier;
+    dds_rpc::RequestInfo _info;
     void* _data;
   };
 
