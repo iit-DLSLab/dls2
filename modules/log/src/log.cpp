@@ -232,6 +232,41 @@ bool EventNotifier::waitForMatch()
 	return true;
 } // end waitForMatch
 
+
+// =============================================================================
+// RobustEventNotifier
+// =============================================================================
+RobustEventNotifier::RobustEventNotifier(const std::string &name, 
+										 const double &spamming_threshold)
+: EventNotifier(name)
+{
+	spamming_threshold_ms_ = spamming_threshold;
+}
+
+void RobustEventNotifier::notify(const EventID& event_id, 
+							const EventSeverity& severity, 
+							const std::string &message)
+{
+	auto now = std::chrono::steady_clock::now();
+
+	const auto last_it = last_event_pub_time_.find(event_id);
+	auto publish = (last_it == last_event_pub_time_.end());
+
+	if(!publish){
+		const auto spamming_event = toMs(now - last_it->second) < spamming_threshold_ms_;
+		publish = !spamming_event;
+	}
+
+	if(publish){
+		EventNotifier::notify(event_id, severity, message);
+		last_event_pub_time_.insert_or_assign(event_id, now);
+	}
+}
+
+void RobustEventNotifier::setSpammingThreshold(const double &spamming_threshold){
+	spamming_threshold_ms_ = spamming_threshold;
+}
+
 // =============================================================================
 // EventListener
 // =============================================================================

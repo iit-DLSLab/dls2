@@ -5,6 +5,7 @@
 #include "dls2/domains/domains.hpp"
 #include "dls2/topics/topics.hpp"
 #include "dls2/util/messaging/dds_writer.hpp"
+#include "dls2/util/time/duration_utils.hpp"
 
 #include "event_config.hpp"
 #include "dls2/util/messaging/dds_reader.hpp"
@@ -96,7 +97,6 @@ namespace dls
 			~cfatalstream();
 		};
 
-
 		class EventNotifier{
 		public:
 			EventNotifier(const std::string &name);
@@ -117,6 +117,24 @@ namespace dls
 			const std::string name;
 			dls2_interface::msg::EventLog msg;
 			std::shared_ptr<dls::DDSWriter> dds_writer;
+		};
+
+		/**
+		 * @brief EventNotifier wrapper implementing event type-level antispamming
+		 * and safety check enable flag 
+		 */
+		class RobustEventNotifier : public EventNotifier{
+		public:
+			RobustEventNotifier(const std::string &name, const double &spamming_threshold = 250.0);
+			
+			void setSpammingThreshold(const double &spamming_threshold);
+			double getSpammingThreshold();
+
+			virtual void notify(const EventID& event_id, const EventSeverity& severity, const std::string &message="");
+
+		private:
+			std::map<EventID, std::chrono::steady_clock::time_point> last_event_pub_time_;
+			double spamming_threshold_ms_;
 		};
 
 		class EventListener{
