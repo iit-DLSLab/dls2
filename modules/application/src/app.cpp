@@ -8,7 +8,7 @@ App::App(const std::string &ID)
 	, scout_sys(ID)
 	, scout_warn(ID)
 	, scout_err(ID)
-	, event_notifier(ID)
+	, robust_event_notifier(ID)
 	, status_notifier(ID + "_status_notifier", dls::domains::signals, dls::topics::process_status)
 	, ID_(ID)
 	, sm(this)
@@ -310,7 +310,7 @@ void App::monitorApp()
 		
 		if (anomalies_detected)
 		{
-			event_notifier.notify(
+			robust_event_notifier.notify(
 			    EventID::WRONG_PROCESS_STATE,
 			    EventSeverity::WARNING,
 			    this->getID() + " app state is " + status_msg.current_state() + " (not " +

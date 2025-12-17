@@ -8,6 +8,7 @@ using namespace dls;
 PeriodicApp::PeriodicApp(const std::string &ID) 
 	: App(ID)
 	, config_scheduler(YAML::LoadFile("/usr/include/dls2/schedulers/" + ID + "/scheduler.yaml"))
+	, config_safety(YAML::LoadFile("/usr/config/safety_layer_config.yaml"))
 	, period(std::chrono::milliseconds(config_scheduler["period"].as<int>())), sched_runtime_factor(config_scheduler["runtime_factor"].as<double>())
 	, sched_deadline_factor(config_scheduler["deadline_factor"].as<double>()), runtime(period * sched_runtime_factor), deadline(period * sched_deadline_factor)
 	, failure(false)
@@ -73,6 +74,14 @@ PeriodicApp::PeriodicApp(const std::string &ID)
 
 void PeriodicApp::childMonitor()
 {
+	[[maybe_unused]] static const bool initialized = [this] 
+	{
+		// Running at first thread callback execution only 
+		auto spam_threshold = config_safety["events"]["spam_threshold"].as<double>();
+       	this->robust_event_notifier.setSpammingThreshold(spam_threshold);
+        return true;
+    }();
+
 	{
 		std::lock_guard<std::mutex> lock(this->frequency_mutex_);
 		status_msg.current_frequency() =
@@ -86,7 +95,7 @@ void PeriodicApp::childMonitor()
 	// notify if the process is not running at the expected frequency
 	if(!realtime_curr){
 		std::lock_guard<std::mutex> lock(this->frequency_mutex_);
-		event_notifier.notify(	EventID::WRONG_PROCESS_FREQUENCY,
+		this->robust_event_notifier.notify(	EventID::WRONG_PROCESS_FREQUENCY,
 								EventSeverity::WARNING,
 								"Des freq: " + std::to_string(getDesiredFrequency()) + " Hz, " + "Curr freq: " + std::to_string(current_frequency_) + " Hz");
 	}

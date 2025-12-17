@@ -110,7 +110,7 @@ namespace dls
 		//! Log errors that occurred, but from which the system can recover. Also log possible future fatal errors for the operator's attention.
 		logging::cerrstream scout_err;
 
-		logging::EventNotifier event_notifier;
+		logging::RobustEventNotifier robust_event_notifier;
 
 		DDSWriter status_notifier;
 		dls2_interface::msg::ProcessStatus status_msg;
