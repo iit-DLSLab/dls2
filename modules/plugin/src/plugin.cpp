@@ -202,24 +202,32 @@ namespace dls
   
 	void Plugin::updateInputInfo(InputInfo& input_info)
 	{
-		const auto& reader = input_info.reader;
+		auto& reader = input_info.reader;
 		input_info.latest_period_ms = reader->get_latest_period_ms();
 		input_info.latest_timestamp = reader->get_latest_timestamp();
 
 		bool is_sequence_id_sane = true;
-		if(reader->hasSequenceId() && reader->hasStartedReceivingData()){
-			is_sequence_id_sane = checkSequenceId(input_info.latest_sequence_id, reader->getLatestSequenceId());
-			input_info.latest_sequence_id = reader->getLatestSequenceId(); 
+		if(reader->hasSequenceId() && reader->hasStartedReceivingData())
+		{
+			const auto delta_sample_count = reader->getRelativeSampleCount();
+			const auto reader_latest_sequence_id = reader->getLatestSequenceId();
+			if(input_info.got_first_sequence_id){
+				is_sequence_id_sane = checkSequenceId(input_info.latest_sequence_id, reader_latest_sequence_id, delta_sample_count);
+			}else{
+				input_info.got_first_sequence_id = true;
+			}
+			
+			input_info.latest_sequence_id = reader_latest_sequence_id;
 		}
 
 		input_info.sequence_id_sane = is_sequence_id_sane;
 	}
 
-	bool Plugin::checkSequenceId(unsigned long prev_sequence_id, unsigned long received_sequence_id)
+	bool Plugin::checkSequenceId(uint32_t prev_sequence_id, uint32_t received_sequence_id, int delta_sample_count)
 	{
-		const auto is_sequence_id_nominal = received_sequence_id == prev_sequence_id + 1;
-		const auto is_sequence_id_wrapped = prev_sequence_id + 1 > MAX_SEQUENCE_ID && received_sequence_id == 0;
-
-		return is_sequence_id_nominal || is_sequence_id_wrapped;
+		const auto expected_sequence_id = (prev_sequence_id + delta_sample_count) % MAX_SEQUENCE_ID;
+		auto sane = received_sequence_id == expected_sequence_id;
+		
+		return sane;
 	}
 }

@@ -41,6 +41,7 @@ namespace dls
 	DDSSubListener::DDSSubListener(
 		std::function<void(void *)> callback_) 
 		: sample_count(0)
+		, relative_sample_count(0)
 		, matched_count(0)
 		, callback(callback_)
 		, msg(nullptr)
@@ -90,6 +91,7 @@ namespace dls
 				}
 				this->last_timestamp = now;
 				this->sample_count++;
+				this->relative_sample_count++;
 				if(!started_receiving_data_){
 					started_receiving_data_ = true;
 				}
@@ -103,5 +105,10 @@ namespace dls
 	{
 		return 	this->sample_count > 0 && 	
 				std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - this->last_timestamp).count()< this->is_receiving_data_th.count();
+	}
+
+	void DDSSubListener::resetRelativeSampleCount()
+	{
+		this->relative_sample_count = 0;
 	}
 } /// \endcond namespace dls

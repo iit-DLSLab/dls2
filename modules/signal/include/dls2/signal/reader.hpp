@@ -15,15 +15,17 @@ namespace dls
 		Reader() = delete;
 
 		bool is_receiving_data() const override;
+		int getRelativeSampleCount() override;
+		bool hasStartedReceivingData() override;
+		int sampleCount() override;
+
 
 		void read() override;
 
 		std::chrono::steady_clock::time_point get_latest_timestamp() override;
 		double get_latest_period_ms() override;
 		virtual bool hasSequenceId() override;
-		virtual int sampleCount() override;
-		virtual bool hasStartedReceivingData() override;
-		virtual unsigned long getLatestSequenceId() override;
+		virtual uint32_t getLatestSequenceId() override;
 
 		MsgType msg;
 	protected:

@@ -47,6 +47,24 @@ namespace dls
 	}
 
 	template <typename MsgType>
+	int Reader<MsgType>::getRelativeSampleCount(){
+		int count = listener_->relative_sample_count;
+		listener_->resetRelativeSampleCount();
+		return count;
+	}
+
+	template <typename MsgType>
+	bool Reader<MsgType>::hasStartedReceivingData(){
+		return listener_->started_receiving_data_;
+	}
+
+	template <typename MsgType>
+	int Reader<MsgType>::sampleCount(){
+		int count = listener_->sample_count;
+		return count;
+	}
+
+	template <typename MsgType>
 	void Reader<MsgType>::read()
 	{
 		if(listener_ == nullptr)
@@ -78,20 +96,9 @@ namespace dls
 	}
 
 	template <typename MsgType>
-	int Reader<MsgType>::sampleCount(){
-		int count = listener_->sample_count;
-		return count;
-	}
-
-	template <typename MsgType>
-	bool Reader<MsgType>::hasStartedReceivingData(){
-		return listener_->started_receiving_data_;
-	}
-
-	template <typename MsgType>
-	unsigned long Reader<MsgType>::getLatestSequenceId(){
+	uint32_t Reader<MsgType>::getLatestSequenceId(){
 		if(hasSequenceId()){
-			return msg.sequence_id(); 
+			return this->msg.sequence_id(); 
 		}
 		return 0;
 	}

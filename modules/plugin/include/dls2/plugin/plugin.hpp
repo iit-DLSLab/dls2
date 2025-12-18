@@ -12,7 +12,8 @@ namespace dls
 	{
 		double latest_period_ms{};
 		std::chrono::steady_clock::time_point latest_timestamp{};
-		unsigned long latest_sequence_id { 0 }; 
+		uint32_t latest_sequence_id { 0 }; 
+		bool got_first_sequence_id{ false };
 		bool sequence_id_sane{ true };
 		bool are_inputs_required_on_activation{ false };
 		std::string topic_name{""};
@@ -181,7 +182,7 @@ namespace dls
 		void updateInputInfo(InputInfo& input_info);
 
 		/*! @brief Sanity check on msg sequence id, wrapping included */
-		bool checkSequenceId(unsigned long prev_sequence_id, unsigned long received_sequence_id);
+		bool checkSequenceId(uint32_t prev_sequence_id, uint32_t received_sequence_id, int delta_sample_count);
 
     std::map<std::string, std::shared_ptr<RpcService>> _rpc_srvc_map;
 
