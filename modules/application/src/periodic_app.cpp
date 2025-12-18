@@ -18,7 +18,6 @@ PeriodicApp::PeriodicApp(const std::string &ID)
 	, time_factor()
 	, realtime_prec(true)
 	, realtime_curr(true)
-	, current_frequency_(0.0)
 {
     this->pid = syscall(SYS_gettid);
 	this->cur_time_factor = this->time_factor.getRealTimeFactor();
@@ -36,6 +35,8 @@ PeriodicApp::PeriodicApp(const std::string &ID)
 	sm.DEACTIVATION.makeRealTime();
 
 	dt = period.count()/(1000000.0);
+	current_frequency_ = getDesiredFrequency();
+	loop_time_prec = std::chrono::steady_clock::now();
 
 	this->command_manager.addCommand<>
 	(
@@ -110,7 +111,6 @@ AppStatus PeriodicApp::run()
 	bool failure = false;
 	realtime_prec = true;
 	realtime_curr = realtime_prec;
-	loop_time_prec = std::chrono::steady_clock::now();
 	while(      !sm.isRaised(sm.deactivation_request)
 	        &&  !sm.isRaised(sm.quit_request)
 	        &&  !failure)
