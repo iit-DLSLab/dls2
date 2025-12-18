@@ -40,24 +40,35 @@ namespace dls
 
 	void Plugin::write()
 	{
-		for (long unsigned int i = 0; i < outputs.size(); i++)
+		std::lock_guard<std::mutex> lock(output_info_mutex_);
+		for (long unsigned int i = 0; i < output_info_.size(); i++)
 		{
-			if (outputs[i]->hasTimestamp())
+			auto& output_info = output_info_[i];
+			if (output_info.writer->hasTimestamp())
 			{
-				outputs[i]->setTimestamp(std::chrono::system_clock::now().time_since_epoch().count());
+				output_info.writer->setTimestamp(std::chrono::system_clock::now().time_since_epoch().count());
 			}
-			outputs[i]->publish();
+
+			if (output_info.writer->hasSequenceId())
+			{
+				auto seq = output_info.nextSequenceId();
+				output_info.writer->setSequenceId(seq);
+			}
+
+			output_info.writer->publish();
 		}
 	}
 
 	void Plugin::write(const std::string &name)
 	{
 		try {
-			if (outputs[outputs_map.at(name)]->hasTimestamp())
+			std::lock_guard<std::mutex> lock(output_info_mutex_);
+			const auto& writer = output_info_[outputs_map.at(name)].writer;
+			if (writer->hasTimestamp())
 			{
-				outputs[outputs_map.at(name)]->setTimestamp(std::chrono::system_clock::now().time_since_epoch().count());
+				writer->setTimestamp(std::chrono::system_clock::now().time_since_epoch().count());
 			}
-			outputs[outputs_map.at(name)]->publish();
+			writer->publish();
 		}
 		catch (const std::out_of_range& e)
 		{
@@ -68,9 +79,12 @@ namespace dls
 	bool Plugin::areOutputsUnique()
 	{
 		common_outputs.str("");
+		std::lock_guard<std::mutex> lock(output_info_mutex_);
+
 		// iterate over the writers, getting their topic type
-		for(auto out : outputs)
+		for(const auto& out_info : output_info_)
 		{
+			const auto& out = out_info.writer;
 			// for each writer, check if there is another writer publishing on its same topic
 			// -- create reader
 			const std::string reader_name = out->getID() + "::" + "check_output_reader";

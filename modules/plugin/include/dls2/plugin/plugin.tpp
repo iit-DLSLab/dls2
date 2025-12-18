@@ -31,11 +31,17 @@ namespace dls
 	template <typename MsgType>
 	dls::WriterPtr<MsgType> Plugin::buildOutput(const dls::topicType &topic)
 	{
-		// Add data writer
+		OutputInfo output_info{};
 		WriterPtr<MsgType> writer = std::make_shared<dls::Writer<MsgType>>(dds_participant_,topic);
-		outputs.push_back(writer);
+		output_info.writer = writer;
+		output_info.topic_name = topic.first;
+		
+		std::lock_guard<std::mutex> lock(output_info_mutex_);
+
+		output_info_.push_back(output_info);
+
 		// TODO: Add number if topic is not unique
-		outputs_map[topic.first] = outputs.size() - 1; // Store the index of the output in the outputs vector
+		outputs_map[topic.first] = output_info_.size() - 1; // Store the index of the output in the outputs vector
 
 		return writer;
 	}

@@ -8,8 +8,6 @@
 #include <mutex>
 namespace dls
 {
-	static constexpr unsigned long MAX_SEQUENCE_ID = 1000;
-
 	struct InputInfo
 	{
 		double latest_period_ms{};
@@ -19,6 +17,21 @@ namespace dls
 		bool are_inputs_required_on_activation{ false };
 		std::string topic_name{""};
 		std::shared_ptr<ReaderBase> reader{};
+	};
+
+	struct OutputInfo
+	{
+		public:
+			std::shared_ptr<WriterBase> writer;
+			std::string topic_name{""};
+
+			uint32_t nextSequenceId()
+			{
+				return ++sequence_id % MAX_SEQUENCE_ID;
+			}
+
+		private:
+			uint32_t sequence_id{ 0 };
 	};
 
 	/*!
@@ -150,11 +163,12 @@ namespace dls
     void deleteServices();
 
 		std::mutex input_info_mutex_;
+		std::mutex output_info_mutex_;
 
 		//! Vector of inputs (data readers)
 		std::vector<InputInfo> input_info_{};
 		//! Vector of outputs (data writers)
-		std::vector<std::shared_ptr<WriterBase>> outputs;
+		std::vector<OutputInfo> output_info_{};
 
 		// Map from topic (input) name to id in the inputs vector
 		std::map<std::string, size_t> inputs_map;

@@ -11,6 +11,7 @@ template <typename MsgType>
 Writer<MsgType>::Writer(std::shared_ptr<dls::DDSParticipant> dds_participant, const dls::topicType& topic_, eprosima::fastdds::dds::DataWriterQos qos)
 	: WriterBase(dds_participant, topic_)
 	, has_timestamp_(HasTimeStamp<MsgType>::value)
+	, has_sequence_id_(HasSequenceId<MsgType>::value)
 {
 	computeName("writer");
 	dds_participant_->addWriter(ID_, topic_, qos);
@@ -32,9 +33,21 @@ bool Writer<MsgType>::hasTimestamp()
 }
 
 template <typename MsgType>
+bool Writer<MsgType>::hasSequenceId()
+{
+	return has_sequence_id_;
+}
+
+template <typename MsgType>
 void Writer<MsgType>::setTimestamp(double timestamp)
 {
 	msg.timestamp() = timestamp;
+}
+
+template <typename MsgType>
+void Writer<MsgType>::setSequenceId(uint32_t sequence_id)
+{
+	msg.sequence_id() = sequence_id;
 }
 
 #endif /* end of include guard: WRITER_TPP */

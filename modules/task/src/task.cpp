@@ -21,26 +21,31 @@ namespace tasks{
         // get names of applications among the data readers names and check their states
         std::map<std::string, std::vector<std::string>> apps_not_ready;
         std::map<std::string, std::vector<std::string>> apps_ready;
-        for(auto writer : outputs){
-            // writer topic name
-            auto topic_name = writer->getTopic().first;
-            apps_ready[topic_name]={};
-            apps_not_ready[topic_name]={};
-            // get matched data readers names
-            auto data_readers = writer->getMatchedReaders();
-            if(!data_readers.empty()){
-                for (const auto &name : data_readers){
-                    size_t idx = name.find("::");
-                    const std::string updated_name = name.substr(0, idx);
-                    // if app is found in data readers name 
-                    // and its state is "activation" or "run"
-                    // the writer is ready
-                    if(updated_name!=this->getID() && sm_watcher.app_states.find(updated_name) != sm_watcher.app_states.end()){
-                        if(sm_watcher.app_states[updated_name].first == "activation" || sm_watcher.app_states[updated_name].first == "run"){//if apps among matching in run or activation state --> app ready
-                            apps_ready[topic_name].push_back(updated_name);
-                        }
-                        else{// if apps among matching but not in run or activation state --> app listening but not ready
-                            apps_not_ready[topic_name].push_back(updated_name);
+
+        {
+            std::lock_guard<std::mutex> lock(output_info_mutex_);
+            for(const auto& info : this->output_info_){
+                const auto& writer = info.writer;
+                // writer topic name
+                auto topic_name = writer->getTopic().first;
+                apps_ready[topic_name]={};
+                apps_not_ready[topic_name]={};
+                // get matched data readers names
+                auto data_readers = writer->getMatchedReaders();
+                if(!data_readers.empty()){
+                    for (const auto &name : data_readers){
+                        size_t idx = name.find("::");
+                        const std::string updated_name = name.substr(0, idx);
+                        // if app is found in data readers name 
+                        // and its state is "activation" or "run"
+                        // the writer is ready
+                        if(updated_name!=this->getID() && sm_watcher.app_states.find(updated_name) != sm_watcher.app_states.end()){
+                            if(sm_watcher.app_states[updated_name].first == "activation" || sm_watcher.app_states[updated_name].first == "run"){//if apps among matching in run or activation state --> app ready
+                                apps_ready[topic_name].push_back(updated_name);
+                            }
+                            else{// if apps among matching but not in run or activation state --> app listening but not ready
+                                apps_not_ready[topic_name].push_back(updated_name);
+                            }
                         }
                     }
                 }
