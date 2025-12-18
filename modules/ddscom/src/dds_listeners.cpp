@@ -77,6 +77,8 @@ namespace dls
 	{
 		eprosima::fastdds::dds::SampleInfo info;
 
+		std::unique_lock<std::shared_mutex> lock(listener_info_mtx);
+
 		if (this->msg == nullptr)
 			this->msg = reader->type().create_data();
 

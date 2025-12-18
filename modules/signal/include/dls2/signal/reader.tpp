@@ -72,6 +72,9 @@ namespace dls
 			std::cout << "Listener of " << ID_<<" is null, cannot read data" << std::endl;
 			return;
 		}
+
+		std::shared_lock<std::shared_mutex> lock(listener_->listener_info_mtx);
+
 		if(is_receiving_data()){
 			this->msg = *static_cast<MsgType*>(listener_->msg);
 		}

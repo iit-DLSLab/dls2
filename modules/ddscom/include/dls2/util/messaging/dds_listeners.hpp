@@ -7,6 +7,7 @@
 #include <fastdds/dds/subscriber/DataReaderListener.hpp>
 
 #include <string>
+#include <shared_mutex>
 
 /// \cond doxygen_namespace_dls
 namespace dls
@@ -41,6 +42,8 @@ namespace dls
 		DDSSubListener(std::function<void(void *)> callback_);
 
 		~DDSSubListener();
+
+		std::shared_mutex listener_info_mtx;
 
 		std::atomic_int sample_count;
 		std::atomic_int relative_sample_count;
