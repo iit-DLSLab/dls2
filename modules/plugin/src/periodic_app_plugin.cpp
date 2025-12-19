@@ -59,44 +59,4 @@ namespace dls
 		status_msg.inputs_synchronized() = static_cast<int32_t>(are_inputs_sync); 
 		status_msg.status_string() = ""; // TODO: fill in
 	}
-
-	void PeriodicAppPlugin::savePeriodsFromFile(const std::string &periods_file)
-	{
-		YAML::Node config = YAML::LoadFile(periods_file);
-
-		for (auto it = config.begin(); it != config.end(); ++it)
-		{
-			std::string key = it->first.as<std::string>();
-			double value = it->second.as<double>();
-			periods_map[key] = value;
-			std::cout << "reading period: " << key << ", " << value << "\n";
-		}
-	}
-
-	std::map<std::string, double> PeriodicAppPlugin::getInputsFrequency(bool &are_inputs_sync)
-	{
-		std::map<std::string, double> inputs_freq;
-		for (const auto &[input_topic, _] : this->inputs_map)
-		{
-			double current_frequency = 0.0;
-			auto is_input_sync = Time::checkFrequency(periods_map[input_topic], loop_time_prec_map[input_topic], current_frequency);
-			if (!is_input_sync && are_inputs_sync)
-			{
-				are_inputs_sync = false;
-			}
-			inputs_freq.emplace(input_topic, current_frequency);
-		}
-		return inputs_freq;
-	}
-
-	std::map<std::string, double> PeriodicAppPlugin::getInputsDesiredFrequency()
-	{
-		std::map<std::string, double> inputs_desired_freq;
-		for (const auto &[input_topic, _] : this->inputs_map)
-		{
-			inputs_desired_freq.emplace(input_topic, periods_map[input_topic]);
-		}
-		return inputs_desired_freq;
-	}
-
 }

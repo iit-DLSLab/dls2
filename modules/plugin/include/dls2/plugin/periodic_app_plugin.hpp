@@ -58,8 +58,6 @@ namespace dls
 		void childMonitor() override;
 
 	private:
-		std::map<std::string, double> getInputsFrequency(bool &are_inputs_sync);
-		std::map<std::string, double> getInputsDesiredFrequency();
 
 		std::unique_ptr<TopicMonitor> topic_monitor_{ nullptr };
 		
