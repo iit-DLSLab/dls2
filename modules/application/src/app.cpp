@@ -297,27 +297,29 @@ void App::monitorApp()
 		status_msg.current_state() = this->sm.getStateName();
 		status_msg.desired_state() = this->sm.getDesiredStateName();
 
-		// Notify anomalies if any at this stage
-		bool state_anomaly_detected = false;
-		
-		if(status_msg.current_state() != status_msg.desired_state()){
-			// Current-target state mismatch 1-cycle tolerance check
-			const auto stamp_now = std::chrono::steady_clock::now();
-			const auto elapsed = stamp_now - this->sm.getDesiredStateStamp();
-			const auto delta_time_ms = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(elapsed).count();
-			if(delta_time_ms > safety_layer_config_->monitor_period_ms){
-				state_anomaly_detected = true;
+		if(this->safety_layer_config_->enable_wrong_process_state){
+			// Notify anomalies if any at this stage
+			bool state_anomaly_detected = false;
+			
+			if(status_msg.current_state() != status_msg.desired_state()){
+				// Current-target state mismatch 1-cycle tolerance check
+				const auto stamp_now = std::chrono::steady_clock::now();
+				const auto elapsed = stamp_now - this->sm.getDesiredStateStamp();
+				const auto delta_time_ms = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(elapsed).count();
+				if(delta_time_ms > safety_layer_config_->monitor_period_ms){
+					state_anomaly_detected = true;
+				}
 			}
-		}
-		
-		if (state_anomaly_detected)
-		{
-			robust_event_notifier.notify(
-			    EventID::WRONG_PROCESS_STATE,
-			    EventSeverity::WARNING,
-			    this->getID() + " app state is " + status_msg.current_state() + " (not " +
-			        status_msg.desired_state() + ")..."
-			);
+			
+			if (state_anomaly_detected)
+			{
+				robust_event_notifier.notify(
+					EventID::WRONG_PROCESS_STATE,
+					EventSeverity::WARNING,
+					this->getID() + " app state is " + status_msg.current_state() + " (not " +
+						status_msg.desired_state() + ")..."
+				);
+			}
 		}
 
 		this->childMonitor();

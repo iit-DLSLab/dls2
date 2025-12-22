@@ -41,14 +41,24 @@ namespace dls
 			input_info = this->input_info_;
 		}
 
-		for(size_t i = 0; i < input_info.size(); ++i){
-			if(!input_info.at(i).sequence_id_sane){
-				this->robust_event_notifier.notify(
-					EventID::WRONG_SEQUENCE_ID,
-					EventSeverity::WARNING,
-					this->getID() + " app detected wrong sequence id from topic " + input_info.at(i).topic_name + "\n"
-				);
+		if(this->safety_layer_config_->enable_wrong_sequence_id){
+			for(size_t i = 0; i < input_info.size(); ++i){
+				if(!input_info.at(i).sequence_id_sane){
+					this->robust_event_notifier.notify(
+						EventID::WRONG_SEQUENCE_ID,
+						EventSeverity::WARNING,
+						this->getID() + " app detected wrong sequence id from topic " + input_info.at(i).topic_name + "\n"
+					);
+				}
 			}
+		}
+
+		if(this->safety_layer_config_->enable_missing_input && missing_inputs.str()!=""){
+			this->robust_event_notifier.notify(
+						EventID::MISSING_INPUT,
+						EventSeverity::WARNING,
+						this->getID() + " app detected missing input topic " + missing_inputs.str() + "\n"
+					);
 		}
 
 		status_msg.input_topic_info() = topic_monitor_->getInputTopicInfo(input_info); 
@@ -56,7 +66,8 @@ namespace dls
 		for(size_t i = 0; i < status_msg.input_topic_info().size(); ++i){
 			 const auto info = status_msg.input_topic_info()[i];
 
-			 if(abs(info.desired_freq() - info.current_freq()) > this->safety_layer_config_->max_exceeding_factor * info.desired_freq()){
+			 if(this->safety_layer_config_->enable_wrong_input_frequency && 
+			   (abs(info.desired_freq() - info.current_freq()) > this->safety_layer_config_->max_exceeding_factor * info.desired_freq())){
 				this->robust_event_notifier.notify(
 					EventID::WRONG_INPUT_FREQUENCY,
 					EventSeverity::WARNING,
@@ -68,7 +79,7 @@ namespace dls
 
 		bool are_inputs_sync = topic_monitor_->areTopicsSync(input_info);
 
-		if(!are_inputs_sync){
+		if(this->safety_layer_config_->enable_inputs_not_synchronized && !are_inputs_sync){
 			this->robust_event_notifier.notify(
 				EventID::INPUTS_NOT_SYNCHRONIZED,
 				EventSeverity::WARNING,

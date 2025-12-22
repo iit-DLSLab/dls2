@@ -6,6 +6,15 @@ namespace dls
 {
 	struct SafetyLayerConfig{
 
+		bool enable_wrong_process_state{false};
+		bool enable_wrong_process_frequency{false};
+		bool enable_missing_input{false};
+		bool enable_cpu_usage_too_high{false};
+		bool enable_mem_usage_too_high{false};
+		bool enable_inputs_not_synchronized{false};
+		bool enable_wrong_input_frequency{false};
+		bool enable_wrong_sequence_id{false};
+
 		double spam_threshold{200};
         double max_exceeding_factor{0.5};
 		double sync_threshold_ms{500};
@@ -27,6 +36,15 @@ namespace dls
 				std::cerr << "Error loading periods file: " << e.what() << "\n";
 				return;
 			}
+
+			enable_wrong_process_state = config["checks"]["enable_wrong_process_state"].as<bool>();
+			enable_wrong_process_frequency = config["checks"]["enable_wrong_process_frequency"].as<bool>();
+			enable_missing_input = config["checks"]["enable_missing_input"].as<bool>();
+			enable_cpu_usage_too_high = config["checks"]["enable_cpu_usage_too_high"].as<bool>();
+			enable_mem_usage_too_high = config["checks"]["enable_mem_usage_too_high"].as<bool>();
+			enable_inputs_not_synchronized = config["checks"]["enable_inputs_not_synchronized"].as<bool>();
+			enable_wrong_input_frequency = config["checks"]["enable_wrong_input_frequency"].as<bool>();
+			enable_wrong_sequence_id = config["checks"]["enable_wrong_sequence_id"].as<bool>();
 
             max_exceeding_factor = config["checks"]["max_exceeding_factor"].as<double>();
 			sync_threshold_ms = config["checks"]["sync_threshold"].as<double>();
