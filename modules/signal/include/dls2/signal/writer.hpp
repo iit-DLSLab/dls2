@@ -22,12 +22,17 @@ namespace dls
 		virtual void publish() override;
 
 		/*!
-		@brief Check if the signal stored timestamp in any child class
+		@brief Check if the signal msg has a header field
+		*/
+		virtual bool hasHeader() override;
+
+		/*!
+		@brief Check if the signal msg has a timestamp field
 		*/
 		virtual bool hasTimestamp() override;
 
 		/*!
-		@brief Check if the signal stored sequence id in any child class
+		@brief Check if the signal msg has a sequence id field
 		*/
 		virtual bool hasSequenceId() override;
 
@@ -45,6 +50,14 @@ namespace dls
 	
 		MsgType msg;
 	private:
+		
+		template <typename T, typename = std::void_t<>>
+		struct HasHeader : std::false_type { };
+		template <typename T>
+		struct HasHeader <T, std::void_t<decltype(std::declval<T>().header())>> : std::true_type { };
+
+		bool has_header_;
+
 		template <typename T, typename = std::void_t<>>
 		struct HasTimeStamp : std::false_type { };
 		template <typename T>

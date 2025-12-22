@@ -21,12 +21,12 @@ namespace dls
 		virtual void publish() = 0;
 
 		/*!
-		@brief Check if the signal stored in any child class
+		@brief Check if the signal msg has a header field
 		*/
-		virtual bool hasTimestamp() = 0;
+		virtual bool hasHeader() = 0;
 
 		/*!
-		@brief Set the timestamp of the signal stored in any child class
+		@brief Set the timestamp field of the signal msg
 		*/
 		virtual void setTimestamp(double timestamp) = 0;
 

@@ -63,12 +63,21 @@ namespace dls
 	{
 		try {
 			std::lock_guard<std::mutex> lock(output_info_mutex_);
-			const auto& writer = output_info_[outputs_map.at(name)].writer;
-			if (writer->hasTimestamp())
+
+			auto& output_info = output_info_[outputs_map.at(name)];
+			if (output_info.writer->hasTimestamp())
 			{
-				writer->setTimestamp(std::chrono::system_clock::now().time_since_epoch().count());
+				output_info.writer->setTimestamp(std::chrono::system_clock::now().time_since_epoch().count());
+				
 			}
-			writer->publish();
+
+			if (output_info.writer->hasSequenceId())
+			{
+				auto seq = output_info.nextSequenceId();
+				output_info.writer->setSequenceId(seq);
+			}
+
+			output_info.writer->publish();
 		}
 		catch (const std::out_of_range& e)
 		{

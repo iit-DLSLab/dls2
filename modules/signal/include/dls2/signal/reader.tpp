@@ -14,6 +14,7 @@ namespace dls
 										   const std::function<void()> &auxiliary_callback, eprosima::fastdds::dds::DataReaderQos qos)
 		: ReaderBase(participant, topic),
 		  auxiliary_callback(auxiliary_callback),
+		  has_header_(HasHeader<MsgType>::value),
 		  has_sequence_id_(HasSequenceId<MsgType>::value)
 	{
 		computeName("reader");
@@ -93,17 +94,27 @@ namespace dls
 	}
 
 	template <typename MsgType>
-	bool Reader<MsgType>::hasSequenceId()
+	bool Reader<MsgType>::hasHeader()
 	{
-		return has_sequence_id_;
+		return has_header_;
 	}
 
 	template <typename MsgType>
-	uint32_t Reader<MsgType>::getLatestSequenceId(){
-		if(hasSequenceId()){
-			return this->msg.sequence_id(); 
+	bool Reader<MsgType>::hasSequenceId()
+	{
+		return has_header_ || has_sequence_id_;
+	}
+
+	template <typename MsgType>
+	uint32_t Reader<MsgType>::getLatestSequenceId()
+	{
+		if constexpr (HasHeader<MsgType>::value){
+			return this->msg.header().sequence_id();
+		}else if constexpr (HasSequenceId<MsgType>::value){
+			return this->msg.sequence_id();
+		}else{
+			throw std::runtime_error("Calling getLatestSequenceId for msg type " + *typeid(MsgType).name());
 		}
-		return 0;
 	}
 }
 #endif /* end of include guard: SIGNAL_READER_TPP */

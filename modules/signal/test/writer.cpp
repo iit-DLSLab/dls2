@@ -22,10 +22,20 @@ int main()
 
 	int count = 0;
 	// check if message has timestamp
+	if (writer.hasHeader()) {
+		std::cout << "Message has a header." << std::endl;
+	}else {
+		std::cout << "Message does not have a header." << std::endl;
+	}
 	if (writer.hasTimestamp()) {
 		std::cout << "Message has a timestamp." << std::endl;
-	} else {
-		std::cout << "Message does not have a timestamp." << std::endl;
+	}else {
+		std::cout << "Message does not have a timestamp field." << std::endl;
+	}
+	if (writer.hasSequenceId()) {
+		std::cout << "Message has a sequence id." << std::endl;
+	}else {
+		std::cout << "Message does not have a sequence id field." << std::endl;
 	}
 	while(true){
 		// Fill the joint positions with random values

@@ -10,6 +10,7 @@ using namespace dls;
 template <typename MsgType>
 Writer<MsgType>::Writer(std::shared_ptr<dls::DDSParticipant> dds_participant, const dls::topicType& topic_, eprosima::fastdds::dds::DataWriterQos qos)
 	: WriterBase(dds_participant, topic_)
+	, has_header_(HasHeader<MsgType>::value)
 	, has_timestamp_(HasTimeStamp<MsgType>::value)
 	, has_sequence_id_(HasSequenceId<MsgType>::value)
 {
@@ -27,27 +28,45 @@ void Writer<MsgType>::publish()
 }
 
 template <typename MsgType>
+bool Writer<MsgType>::hasHeader()
+{
+	return has_header_;
+}
+
+template <typename MsgType>
 bool Writer<MsgType>::hasTimestamp()
 {
-	return has_timestamp_;
+	return has_header_ || has_timestamp_;
 }
 
 template <typename MsgType>
 bool Writer<MsgType>::hasSequenceId()
 {
-	return has_sequence_id_;
+	return has_header_ || has_sequence_id_;
 }
 
 template <typename MsgType>
 void Writer<MsgType>::setTimestamp(double timestamp)
 {
-	msg.timestamp() = timestamp;
+	if constexpr (HasHeader<MsgType>::value){
+		msg.header().timestamp() = timestamp;
+	}else if constexpr (HasTimeStamp<MsgType>::value){
+		msg.timestamp() = timestamp;
+	}else{
+		throw std::runtime_error("Calling setTimestamp for msg type " + *typeid(MsgType).name());
+	}
 }
 
 template <typename MsgType>
 void Writer<MsgType>::setSequenceId(uint32_t sequence_id)
 {
-	msg.sequence_id() = sequence_id;
+	if constexpr (HasHeader<MsgType>::value){
+		msg.header().sequence_id() = sequence_id;
+	}else if constexpr (HasSequenceId<MsgType>::value){
+		msg.sequence_id() = sequence_id;
+	}else{
+		throw std::runtime_error("Calling setSequenceId for msg type " + *typeid(MsgType).name());
+	}
 }
 
 #endif /* end of include guard: WRITER_TPP */

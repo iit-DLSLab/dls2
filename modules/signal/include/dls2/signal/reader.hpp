@@ -17,6 +17,8 @@ namespace dls
 		bool is_receiving_data() const override;
 		int getRelativeSampleCount() override;
 		bool hasStartedReceivingData() override;
+		bool hasHeader() override;
+		bool hasSequenceId() override;
 		int sampleCount() override;
 
 
@@ -24,7 +26,6 @@ namespace dls
 
 		std::chrono::steady_clock::time_point get_latest_timestamp() override;
 		double get_latest_period_ms() override;
-		virtual bool hasSequenceId() override;
 		virtual uint32_t getLatestSequenceId() override;
 
 		MsgType msg;
@@ -33,6 +34,13 @@ namespace dls
 		std::function<void()> auxiliary_callback;
 	
 	private:
+		template <typename T, typename = int>
+		struct HasHeader : std::false_type { };
+		template <typename T>
+		struct HasHeader <T, decltype((void) T::header, 0)> : std::true_type { };
+
+		bool has_header_;
+
 		template <typename T, typename = std::void_t<>>
 		struct HasSequenceId : std::false_type { };
 		template <typename T>

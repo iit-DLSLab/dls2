@@ -12,6 +12,7 @@ template <typename SignalType>
 SignalWriter<SignalType>::SignalWriter(std::shared_ptr<dls::DDSParticipant> dds_participant, const dls::topicType& topic_, const std::shared_ptr<SignalType> signal, eprosima::fastdds::dds::DataWriterQos qos)
 	: SignalWriterBase(dds_participant, topic_)
 	, signal_(signal)
+	, has_header_(HasHeader<SignalType>::value)
 	, has_timestamp_(HasTimeStamp<SignalType>::value)
 {
 	int id = std::experimental::randint(100000, 999999);
@@ -42,15 +43,27 @@ void SignalWriter<SignalType>::publish()
 }
 
 template <typename SignalType>
+bool SignalWriter<SignalType>::hasHeader()
+{
+	return has_header_;
+}
+
+template <typename SignalType>
 bool SignalWriter<SignalType>::hasTimestamp()
 {
-	return has_timestamp_;
+	return has_header_ || has_timestamp_;
 }
 
 template <typename SignalType>
 void SignalWriter<SignalType>::setTimestamp(double timestamp)
 {
-	signal_->timestamp = timestamp;
+	if constexpr (HasHeader<MsgType>::value){
+		signal_->header.timestamp = timestamp;
+	}else if constexpr (HasTimeStamp<MsgType>::value){
+		signal_->timestamp = timestamp;
+	}else{
+		throw std::runtime_error("Calling setTimestamp for msg type " + *typeid(MsgType).name());
+	}
 }
 
 template <typename SignalType>

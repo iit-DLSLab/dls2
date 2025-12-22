@@ -19,12 +19,17 @@ namespace dls
 		virtual void publish() = 0;
 
 		/*!
-		@brief Check if the signal stored timestamp in any child class
+		@brief Check if the signal msg has a header field
+		*/
+		virtual bool hasHeader() = 0;
+
+		/*!
+		@brief Check if the signal msg has a timestamp field
 		*/
 		virtual bool hasTimestamp() = 0;
 
 		/*!
-		@brief Check if the signal stored sequence id in any child class
+		@brief Check if the signal msg has a sequence id field
 		*/
 		virtual bool hasSequenceId() = 0;
 
