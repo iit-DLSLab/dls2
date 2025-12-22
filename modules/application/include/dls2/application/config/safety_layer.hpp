@@ -5,11 +5,12 @@
 namespace dls
 {
 	struct SafetyLayerConfig{
+
 		double spam_threshold{200};
         double max_exceeding_factor{0.5};
 		double sync_threshold_ms{500};
 		size_t monitor_period_ms{100};
-		std::vector<dls2_interface::msg::InputTopicInfo> input_topic_info;
+		std::vector<std::pair<std::string, double>> topic_specs;
 
 		explicit SafetyLayerConfig(const std::string &config_file)
 		{
@@ -33,13 +34,8 @@ namespace dls
 			for (auto it = periods_config.begin(); it != periods_config.end(); ++it)
 			{
 				std::string topic = it->first.as<std::string>();
-				double period = it->second.as<double>();
-
-				dls2_interface::msg::InputTopicInfo info;
-				info.topic_name() = topic;
-				info.current_freq() = 0.0;
-				info.desired_freq() = 1.0 / period;
-				input_topic_info.push_back(info);
+				double period_ms = it->second.as<double>();
+				topic_specs.push_back({topic, 1.0 / (period_ms / 1e3)});
 			}
 		}
 	};

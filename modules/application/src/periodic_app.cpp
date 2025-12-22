@@ -8,7 +8,6 @@ using namespace dls;
 PeriodicApp::PeriodicApp(const std::string &ID) 
 	: App(ID)
 	, config_scheduler(YAML::LoadFile("/usr/include/dls2/schedulers/" + ID + "/scheduler.yaml"))
-	, config_safety(YAML::LoadFile("/usr/config/safety_layer_config.yaml"))
 	, period(std::chrono::milliseconds(config_scheduler["period"].as<int>())), sched_runtime_factor(config_scheduler["runtime_factor"].as<double>())
 	, sched_deadline_factor(config_scheduler["deadline_factor"].as<double>()), runtime(period * sched_runtime_factor), deadline(period * sched_deadline_factor)
 	, failure(false)

@@ -31,7 +31,7 @@ namespace dls
 	{
 		PeriodicApp::childMonitor();
 
-		if(topic_monitor_->isInputsMapEmpty()){
+		if(topic_monitor_->inputsMapSize() != inputs_map.size()){
 			topic_monitor_->setInputMap(this->inputs_map);
 		}
 

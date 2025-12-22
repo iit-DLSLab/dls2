@@ -5,7 +5,6 @@
 #include <string>
 #include <unordered_map>
 #include <optional>
-#include "yaml-cpp/yaml.h"
 #include <iostream>
 
 #include "dls2/util/time/duration_utils.hpp"
@@ -31,8 +30,7 @@ public:
 	[[nodiscard]] bool areTopicsSync(const std::vector<std::chrono::steady_clock::time_point>& latest_timestamp);
 	[[nodiscard]] bool areTopicsSync(const std::vector<InputInfo>& input_info);
 
-	[[nodiscard]] bool isInputsMapEmpty();
-
+	[[nodiscard]] size_t inputsMapSize();
 	void setInputMap(const std::map<std::string, size_t>& inputs_map);
 
 private:

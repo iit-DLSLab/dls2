@@ -79,7 +79,6 @@ namespace dls
 	protected:
         //! Config variable to load scheduler settings
 		YAML::Node config_scheduler;
-		YAML::Node config_safety;
 
 		//! The period of this component
 		const period_t period;
