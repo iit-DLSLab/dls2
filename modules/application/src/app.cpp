@@ -298,7 +298,7 @@ void App::monitorApp()
 		status_msg.desired_state() = this->sm.getDesiredStateName();
 
 		// Notify anomalies if any at this stage
-		bool anomalies_detected = false;
+		bool state_anomaly_detected = false;
 		
 		if(status_msg.current_state() != status_msg.desired_state()){
 			// Current-target state mismatch 1-cycle tolerance check
@@ -306,11 +306,11 @@ void App::monitorApp()
 			const auto elapsed = stamp_now - this->sm.getDesiredStateStamp();
 			const auto delta_time_ms = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(elapsed).count();
 			if(delta_time_ms > safety_layer_config_->monitor_period_ms){
-				anomalies_detected = true;
+				state_anomaly_detected = true;
 			}
 		}
 		
-		if (anomalies_detected)
+		if (state_anomaly_detected)
 		{
 			robust_event_notifier.notify(
 			    EventID::WRONG_PROCESS_STATE,
