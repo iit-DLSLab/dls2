@@ -5,6 +5,8 @@
 #include <sstream>
 #include <string>
 #include <thread>
+
+#include "dls2/plugin/numerical_moving_window.hpp"
 #include "dls2/util/time/duration_utils.hpp"
 
 namespace dls
@@ -17,11 +19,11 @@ namespace dls
 class ProcessResourceMonitor
 {
   public:
-	explicit ProcessResourceMonitor(pid_t pid);
+	explicit ProcessResourceMonitor(pid_t pid, size_t process_monitor_window_size);
 
 	size_t update();
-	const double &getCpuPercent() const;
-	const double &getMemPercent() const;
+	double getCpuPercent() const;
+	double getMemPercent() const;
 	static long getTotalRAMkB();
 	
   private:
@@ -34,8 +36,8 @@ class ProcessResourceMonitor
 	std::chrono::steady_clock::time_point last_time_{};
 	
 	mutable std::mutex resource_mutex_;
-	double cpu_percent_{0.0};
-	double memory_percent_{0.0};
+	std::unique_ptr<NumericalMovingWindow<double>> cpu_percentage_w_;
+	std::unique_ptr<NumericalMovingWindow<double>> memory_percentage_w_;
 
 	std::string stat_path_{};
 	std::string statm_path_{};

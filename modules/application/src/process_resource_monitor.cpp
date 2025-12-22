@@ -2,7 +2,7 @@
 
 using namespace dls;
 
-ProcessResourceMonitor::ProcessResourceMonitor(pid_t pid) : 
+ProcessResourceMonitor::ProcessResourceMonitor(pid_t pid, size_t process_monitor_window_size) : 
 	sys_page_size_(sysconf(_SC_PAGE_SIZE))
 	, sys_ticks_per_sec_(sysconf(_SC_CLK_TCK))
 {
@@ -13,6 +13,9 @@ ProcessResourceMonitor::ProcessResourceMonitor(pid_t pid) :
 	if(total_ram_kb_ <= 0){
 		std::cerr << "Total amount of ram not found\n";
 	}
+
+	cpu_percentage_w_ = std::make_unique<NumericalMovingWindow<double>>(process_monitor_window_size);
+	memory_percentage_w_ = std::make_unique<NumericalMovingWindow<double>>(process_monitor_window_size);
 };
 
 size_t ProcessResourceMonitor::update()
@@ -51,7 +54,9 @@ size_t ProcessResourceMonitor::update()
 	unsigned long long d_ticks = total_ticks - last_total_ticks_;
 	double d_seconds = static_cast<double>(d_ticks) / static_cast<double>(sys_ticks_per_sec_);
 
-	cpu_percent_ = 100.0 * (d_seconds / delta_time);
+	auto cpu_percentage = 100.0 * (d_seconds / delta_time);
+
+	cpu_percentage_w_->push(cpu_percentage);
 
 	last_total_ticks_ = total_ticks;
 	last_time_ = now;
@@ -59,16 +64,16 @@ size_t ProcessResourceMonitor::update()
 	return 0;
 }
 
-const double& ProcessResourceMonitor::getCpuPercent() const
+double ProcessResourceMonitor::getCpuPercent() const
 {
 	std::lock_guard<std::mutex> lock(this->resource_mutex_);
-	return cpu_percent_;
+	return cpu_percentage_w_->mean();
 }
 
-const double& ProcessResourceMonitor::getMemPercent() const
+double ProcessResourceMonitor::getMemPercent() const
 {
 	std::lock_guard<std::mutex> lock(this->resource_mutex_);
-	return memory_percent_;
+	return memory_percentage_w_->mean();
 }
 
 bool ProcessResourceMonitor::updateAllocatedMemory()
@@ -85,8 +90,8 @@ bool ProcessResourceMonitor::updateAllocatedMemory()
 
 	long page_size_kb = sys_page_size_ / 1024; // in case x86-64 is configured to use 2MB pages
 	auto memory_usage = static_cast<double>(resident) * static_cast<double>(page_size_kb);
-	memory_percent_ = 100.0 * (memory_usage / total_ram_kb_);
-
+	auto memory_percentage = 100.0 * (memory_usage / total_ram_kb_);
+	memory_percentage_w_->push(memory_percentage);
 	return true;
 }
 

@@ -69,7 +69,8 @@ PeriodicApp::PeriodicApp(const std::string &ID)
 		true
 	);
 
-	process_resource_monitor_ = std::make_unique<ProcessResourceMonitor>(this->pid);
+	process_resource_monitor_ = std::make_unique<ProcessResourceMonitor>(
+						this->pid, this->safety_layer_config_->process_monitor_window_size);
 }
 
 void PeriodicApp::childMonitor()
@@ -93,10 +94,29 @@ void PeriodicApp::childMonitor()
 
 	// notify if the process is not running at the expected frequency
 	if(!realtime_curr){
-		std::lock_guard<std::mutex> lock(this->frequency_mutex_);
-		this->robust_event_notifier.notify(	EventID::WRONG_PROCESS_FREQUENCY,
+		this->robust_event_notifier.notify(	
+								EventID::WRONG_PROCESS_FREQUENCY,
 								EventSeverity::WARNING,
-								"Des freq: " + std::to_string(getDesiredFrequency()) + " Hz, " + "Curr freq: " + std::to_string(current_frequency_) + " Hz");
+								"Des freq: " + std::to_string(status_msg.desired_frequency()) + " Hz, " 
+								+ "Curr freq: " + std::to_string(status_msg.current_frequency()) + " Hz");
+	}
+
+	// notify if the process is using more cpu than expected over time
+	if(status_msg.cpu_usage() > this->safety_layer_config_->cpu_threshold){
+		this->robust_event_notifier.notify(	
+								EventID::CPU_USAGE_TOO_HIGH,
+								EventSeverity::WARNING,
+								"CPU usage is " + std::to_string(status_msg.cpu_usage()) + " (threshold is: " 
+								+ std::to_string(this->safety_layer_config_->cpu_threshold));
+	}
+
+	// notify if the process is using more memory than expected over time
+	if(status_msg.mem_usage() > this->safety_layer_config_->mem_threshold){
+		this->robust_event_notifier.notify(	
+								EventID::MEM_USAGE_TOO_HIGH,
+								EventSeverity::WARNING,
+								"MEM usage is " + std::to_string(status_msg.mem_usage()) + " (threshold is: " 
+								+ std::to_string(this->safety_layer_config_->mem_threshold));
 	}
 }
 
