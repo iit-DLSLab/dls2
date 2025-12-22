@@ -5,37 +5,15 @@ namespace dls
 
     TopicMonitor::TopicMonitor(
 		const std::map<std::string, size_t>& inputs_map,
-		const std::string &periods_file)
+		const std::shared_ptr<SafetyLayerConfig> &safety_layer_config)
     {
+		sync_threshold_ms_ = safety_layer_config->sync_threshold_ms;
+		input_topic_infos_ = safety_layer_config->input_topic_info;
+
 		inputs_map_ = inputs_map;
-		savePeriodsFromFile(periods_file);
 
-		for(const auto& [key, _] : expected_periods_){
-			frequencies_moving_windows_[key] = std::make_unique<NumericalMovingWindow<double>>(FREQ_MOVING_WINDOW_DEFAULT_SIZE);
-		}
-	}
-
-	void TopicMonitor::savePeriodsFromFile(const std::string &periods_file)
-	{
-		YAML::Node config;
-		try
-		{
-			config = YAML::LoadFile(periods_file);
-		}
-		catch (const YAML::BadFile &e)
-		{
-			std::cerr << "Error loading periods file: " << e.what() << "\n";
-			return;
-		}
-
-		sync_threshold_ms_ = config["checks"]["sync_threshold"].as<double>();
-		auto periods_config = config["periods"];
-
-		for (auto it = periods_config.begin(); it != periods_config.end(); ++it)
-		{
-			std::string key = it->first.as<std::string>();
-			double value = it->second.as<double>();
-			expected_periods_[key] = value;
+		for(const auto& info : input_topic_infos_){
+			frequencies_moving_windows_[info.topic_name()] = std::make_unique<NumericalMovingWindow<double>>(FREQ_MOVING_WINDOW_DEFAULT_SIZE);
 		}
 	}
 
@@ -52,35 +30,18 @@ namespace dls
 		return frequencies_moving_windows_[input_topic]->mean();
 	}
 
-	std::map<std::string, double> TopicMonitor::getExpectedPeriods(){
-		return expected_periods_;
+	std::vector<dls2_interface::msg::InputTopicInfo> TopicMonitor::getInputTopicInfo(const std::vector<InputInfo>& input_info){
+
+		for (auto &topic_info : input_topic_infos_)
+		{
+			const auto latest_period_ms = input_info[inputs_map_.at(topic_info.topic_name())].latest_period_ms;
+			const auto actual_frequency = this->getActualFrequency(topic_info.topic_name(), 
+																   latest_period_ms);
+			topic_info.current_freq() = actual_frequency;
+		}
+		return input_topic_infos_;
+
 	}
-
-	std::map<std::string, double> TopicMonitor::computeFrequencies(const std::vector<double>& latest_periods_ms)
-    {
-        std::map<std::string, double> result;
-
-        for (const auto &[input_topic, _] : inputs_map_)
-		{
-			const auto actual_frequency = this->getActualFrequency(input_topic, latest_periods_ms[inputs_map_.at(input_topic)]);
-			result.emplace(input_topic, actual_frequency);
-		}
-
-        return result;
-    }
-
-	std::map<std::string, double> TopicMonitor::computeFrequencies(const std::vector<InputInfo>& input_info)
-    {
-        std::map<std::string, double> result;
-
-        for (const auto &[input_topic, _] : inputs_map_)
-		{
-			const auto actual_frequency = this->getActualFrequency(input_topic, input_info[inputs_map_.at(input_topic)].latest_period_ms);
-			result.emplace(input_topic, actual_frequency);
-		}
-
-        return result;
-    }
 
 	bool TopicMonitor::areTopicsSync(const std::vector<std::chrono::steady_clock::time_point>& latest_timestamp){
 		if(latest_timestamp.size() > 1){

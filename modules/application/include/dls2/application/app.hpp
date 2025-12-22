@@ -9,7 +9,7 @@
 #include "dls2/application/state_machine/app_state_machine.hpp"
 #include <dls2/application/sched_attr.hpp>
 #include <dls_messages/dds/process_status_light.hpp>
-
+#include <dls2/application/config/safety_layer.hpp>
 
 namespace dls
 {
@@ -144,7 +144,7 @@ namespace dls
 
 		virtual void childMonitor() {};
 
-	size_t monitor_period_ms_{100};
+		std::shared_ptr<SafetyLayerConfig> safety_layer_config_;
 	};
 } // end namespace dls
 

@@ -78,8 +78,7 @@ void PeriodicApp::childMonitor()
 	[[maybe_unused]] static const bool initialized = [this] 
 	{
 		// Running at first thread callback execution only 
-		auto spam_threshold = config_safety["events"]["spam_threshold"].as<double>();
-       	this->robust_event_notifier.setSpammingThreshold(spam_threshold);
+       	this->robust_event_notifier.setSpammingThreshold(this->safety_layer_config_->spam_threshold);
         return true;
     }();
 

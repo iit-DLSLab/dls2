@@ -2,10 +2,10 @@
 
 namespace dls
 {
-	PeriodicAppPlugin::PeriodicAppPlugin(const std::string &ID, const domainType &domain, const std::string &periods_file)
+	PeriodicAppPlugin::PeriodicAppPlugin(const std::string &ID, const domainType &domain)
 		: PeriodicApp(ID), Plugin(ID, domain)
 	{
-		topic_monitor_ = std::make_unique<TopicMonitor>(this->inputs_map, periods_file);
+		topic_monitor_ = std::make_unique<TopicMonitor>(this->inputs_map, this->safety_layer_config_);
 	}
 
 	PeriodicAppPlugin::~PeriodicAppPlugin()
@@ -51,10 +51,30 @@ namespace dls
 			}
 		}
 
-		status_msg.inputs_current_freq() = topic_monitor_->computeFrequencies(input_info);
-		status_msg.inputs_desired_freq() = topic_monitor_->getExpectedPeriods();
+		status_msg.input_topic_info() = topic_monitor_->getInputTopicInfo(input_info); 
+		
+		for(size_t i = 0; i < status_msg.input_topic_info().size(); ++i){
+			 const auto info = status_msg.input_topic_info()[i];
+
+			 if(abs(info.desired_freq() - info.current_freq()) > this->safety_layer_config_->max_exceeding_factor * info.desired_freq()){
+				this->robust_event_notifier.notify(
+					EventID::WRONG_INPUT_FREQUENCY,
+					EventSeverity::WARNING,
+					this->getID() + " app detected unexpected input frequency (" + std::to_string(info.current_freq()) 
+						+ " Hz vs " + std::to_string(info.desired_freq()) +" Hz) on topic " + info.topic_name() + "\n"
+				);
+			 }
+		}
 
 		bool are_inputs_sync = topic_monitor_->areTopicsSync(input_info);
+
+		if(!are_inputs_sync){
+			this->robust_event_notifier.notify(
+				EventID::INPUTS_NOT_SYNCHRONIZED,
+				EventSeverity::WARNING,
+				this->getID() + " app detected not synchronized input topics\n"
+			);
+		}
 
 		status_msg.inputs_synchronized() = static_cast<int32_t>(are_inputs_sync); 
 		status_msg.status_string() = ""; // TODO: fill in

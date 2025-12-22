@@ -16,6 +16,8 @@ App::App(const std::string &ID)
 	, status_mutex()
 	, status(AppStatus::INITIALISING)
 {
+	safety_layer_config_ = std::make_shared<SafetyLayerConfig>("/usr/config/safety_layer_config.yaml");
+
 	command_manager.addCommand<>
 	(
 		"shutdown",
@@ -303,7 +305,7 @@ void App::monitorApp()
 			const auto stamp_now = std::chrono::steady_clock::now();
 			const auto elapsed = stamp_now - this->sm.getDesiredStateStamp();
 			const auto delta_time_ms = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(elapsed).count();
-			if(delta_time_ms > monitor_period_ms_){
+			if(delta_time_ms > safety_layer_config_->monitor_period_ms){
 				anomalies_detected = true;
 			}
 		}
@@ -322,7 +324,7 @@ void App::monitorApp()
 
 		status_notifier.sendMessage(&status_msg);
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(monitor_period_ms_));
+		std::this_thread::sleep_for(std::chrono::milliseconds(this->safety_layer_config_->monitor_period_ms));
 	}
 
 	return;

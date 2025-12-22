@@ -21,7 +21,7 @@ namespace dls
 		 * @param[in] ID name of plugin
 		 * @param[in] domain domain the plugin belongs to
 		 */
-	PeriodicAppPlugin(const std::string &ID, const domainType &domain = domains::signals, const std::string &periods_file = "/usr/config/safety_layer_config.yaml");
+	PeriodicAppPlugin(const std::string &ID, const domainType &domain = domains::signals);
 
 		/*!
 		 * @brief Destructor.
@@ -61,7 +61,6 @@ namespace dls
 
 		std::unique_ptr<TopicMonitor> topic_monitor_{ nullptr };
 		
-		double sync_threshold_ms_{ 1000.0 };
 };
 } // end namespace dls
 
