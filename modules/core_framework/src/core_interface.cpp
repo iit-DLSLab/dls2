@@ -27,7 +27,7 @@ extern "C" Layer *create(const std::string& layer_name, const std::string& type,
 	}
 	else if (type == "estimation")	
 	{
-		p = new EstimationLayer(layer_name);
+		p = new EstimationLayer(layer_name, robot_name);
 	}
 	// else if (type == "service")	
 	// {
@@ -35,7 +35,7 @@ extern "C" Layer *create(const std::string& layer_name, const std::string& type,
 	// }
 	else if (type == "supervisor")	
 	{
-		p = new Supervisor(layer_name);
+		p = new Supervisor(layer_name, robot_name);
 	}
 
 	return p;
