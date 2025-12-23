@@ -235,6 +235,12 @@ namespace dls
 		}
 		// get robot name
 		Options::robot_name = config["robot_name"].as<std::string>();
+		if(config["robot_spawning_height"])
+			Options::robot_spawning_height = config["robot_spawning_height"].as<double>();
+		else{
+			throw std::runtime_error("robot_spawning_height field not defined in startup file");
+		}
+
 		// get application to activate
 		std::vector<std::string> active_apps = config["activate"].as<std::vector<std::string>>();
 
@@ -283,7 +289,7 @@ namespace dls
 			}
 			sleep(1); // if the model is spawned too fast (in gazebo) the simulation breaks
 			if(command_manager.waitCommand(hardware, "loadModel", should_quit))
-				command_manager.callCommand("loadModel", {Options::robot_name}, hardware);
+				command_manager.callCommand("loadModel", {Options::robot_name, std::to_string(Options::robot_spawning_height)}, hardware);
 		}
 	}
 }

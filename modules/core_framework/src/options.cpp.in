@@ -39,6 +39,7 @@ std::string Options::estimation_layer_name = "EstimationLayer";
 bool Options::show_docs                     = false;
 
 std::string Options::robot_name             = "";
+double Options::robot_spawning_height		= 0.0;
 static bool robot_is_specified              = false;
 
 // =============================================================================
