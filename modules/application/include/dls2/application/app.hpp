@@ -8,7 +8,7 @@
 #include <thread>
 #include "dls2/application/state_machine/app_state_machine.hpp"
 #include <dls2/application/sched_attr.hpp>
-#include <dls_messages/dds/process_status_light.hpp>
+#include <dls_messages/dds/ProcessStatusLight.hpp>
 #include <dls2/util/config/safety_layer.hpp>
 
 namespace dls
