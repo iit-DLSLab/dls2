@@ -45,6 +45,9 @@ private:
 
 	// topic sync threshold
 	double sync_threshold_ms_{ 1000 };
+
+	// topic expected frequencies
+	std::vector<std::pair<std::string, double>> topic_specs_;
 };
 
 

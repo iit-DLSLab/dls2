@@ -8,21 +8,9 @@ namespace dls
 		const std::shared_ptr<SafetyLayerConfig> &safety_layer_config)
     {
 		sync_threshold_ms_ = safety_layer_config->sync_threshold_ms;
+		topic_specs_ = safety_layer_config->topic_specs;
 
-		inputs_map_ = inputs_map;
-
-		for(const auto& [topic, desired_freq] : safety_layer_config->topic_specs){
-			if(inputs_map.find(topic) != inputs_map.end()){
-
-				dls2_interface::msg::InputTopicInfo info;
-				info.topic_name() = topic;
-				info.desired_freq() = desired_freq;
-				info.current_freq() = desired_freq;
-				input_topic_infos_.push_back(info);
-				
-				frequencies_moving_windows_[topic] = std::make_unique<NumericalMovingWindow<double>>(FREQ_MOVING_WINDOW_DEFAULT_SIZE);
-			}
-		}
+		setInputMap(inputs_map);
 	}
 
 	double TopicMonitor::getActualFrequency(const std::string& input_topic, const double& period_ms){
@@ -40,9 +28,12 @@ namespace dls
 
 	std::vector<dls2_interface::msg::InputTopicInfo> TopicMonitor::getInputTopicInfo(const std::vector<InputInfo>& input_info){
 
-		if(inputsMapSize() < 1){
+		if(inputsMapSize() > 0){
 			for (auto &topic_info : input_topic_infos_)
 			{				
+				if(inputs_map_.find(topic_info.topic_name()) == inputs_map_.end()){
+					continue;
+				}
 				const auto latest_period_ms = input_info[inputs_map_.at(topic_info.topic_name())].latest_period_ms;
 				const auto actual_frequency = this->getActualFrequency(topic_info.topic_name(), 
 																	latest_period_ms);
@@ -83,6 +74,19 @@ namespace dls
 
 	void TopicMonitor::setInputMap(const std::map<std::string, size_t>& inputs_map){
 		inputs_map_ = inputs_map;
+
+		for(const auto& [topic, desired_freq] : topic_specs_){
+			if(inputs_map.find(topic) != inputs_map.end()){
+
+				dls2_interface::msg::InputTopicInfo info;
+				info.topic_name() = topic;
+				info.desired_freq() = desired_freq;
+				info.current_freq() = desired_freq;
+				input_topic_infos_.push_back(info);
+				
+				frequencies_moving_windows_[topic] = std::make_unique<NumericalMovingWindow<double>>(FREQ_MOVING_WINDOW_DEFAULT_SIZE);
+			}
+		}
 	}
 
 } // namespace dls
