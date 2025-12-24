@@ -6,7 +6,7 @@
 #include <cstddef>
 #include <sstream>
 
-#include "dls2/plugin/numerical_moving_window.hpp"
+#include "dls2/util/numerical_moving_window.hpp"
 #include "dls2/util/time/duration_utils.hpp"
 
 namespace dls::profiler

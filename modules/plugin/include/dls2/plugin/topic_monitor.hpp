@@ -8,9 +8,9 @@
 #include <iostream>
 
 #include "dls2/util/time/duration_utils.hpp"
-#include "dls2/plugin/numerical_moving_window.hpp"
+#include "dls2/util/numerical_moving_window.hpp"
 #include "dls2/plugin/plugin.hpp"
-#include <dls2/application/config/safety_layer.hpp>
+#include <dls2/util/config/safety_layer.hpp>
 
 namespace dls
 {

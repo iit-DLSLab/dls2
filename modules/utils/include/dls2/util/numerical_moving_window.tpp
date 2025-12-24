@@ -1,6 +1,6 @@
 #pragma once
 
-#include "dls2/plugin/numerical_moving_window.hpp"
+#include "dls2/util/numerical_moving_window.hpp"
 
 namespace dls
 {

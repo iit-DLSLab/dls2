@@ -3,7 +3,7 @@
 
 #include "dls2/application/app.hpp"
 #include <dls2/util/time/time.hpp>
-#include "dls2/application/process_resource_monitor.hpp"
+#include "dls2/util/process_resource_monitor.hpp"
 
 #include <boost/process.hpp>
 #include <yaml-cpp/yaml.h>
