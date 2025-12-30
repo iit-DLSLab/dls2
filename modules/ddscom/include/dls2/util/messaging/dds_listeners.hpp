@@ -43,10 +43,7 @@ namespace dls
 
 		~DDSSubListener();
 
-		std::shared_mutex listener_info_mtx;
-
 		std::atomic_int sample_count;
-		std::atomic_int relative_sample_count;
 		std::atomic_int matched_count;
 		bool started_receiving_data_{ false };
 		std::function<void(void *)> callback;
@@ -65,8 +62,6 @@ namespace dls
 		 * @return True if the subscriber is receiving data, false otherwise
 		*/
 		bool is_receiving_data() const;
-
-		void resetRelativeSampleCount();
 
 		const std::chrono::microseconds is_receiving_data_th;
 		std::chrono::steady_clock::time_point last_timestamp;

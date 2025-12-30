@@ -214,29 +214,6 @@ namespace dls
 		auto& reader = input_info.reader;
 		input_info.latest_period_ms = reader->get_latest_period_ms();
 		input_info.latest_timestamp = reader->get_latest_timestamp();
-
-		bool is_sequence_id_sane = true;
-		if(reader->hasSequenceId() && reader->hasStartedReceivingData())
-		{
-			const auto delta_sample_count = reader->getRelativeSampleCount();
-			const auto reader_latest_sequence_id = reader->getLatestSequenceId();
-			if(input_info.got_first_sequence_id){
-				is_sequence_id_sane = checkSequenceId(input_info.latest_sequence_id, reader_latest_sequence_id, delta_sample_count);
-			}else{
-				input_info.got_first_sequence_id = true;
-			}
-			
-			input_info.latest_sequence_id = reader_latest_sequence_id;
-		}
-
-		input_info.sequence_id_sane = is_sequence_id_sane;
-	}
-
-	bool Plugin::checkSequenceId(uint32_t prev_sequence_id, uint32_t received_sequence_id, int delta_sample_count)
-	{
-		const auto expected_sequence_id = (prev_sequence_id + delta_sample_count) % MAX_SEQUENCE_ID;
-		auto sane = received_sequence_id == expected_sequence_id;
-		
-		return sane;
+		input_info.sequence_id_sane = reader->isSequenceIdSane();
 	}
 }

@@ -13,7 +13,6 @@ namespace dls
 		input_info.reader = reader;
 		input_info.latest_period_ms = 0.0;
 		input_info.latest_timestamp = std::chrono::steady_clock::now();
-		input_info.latest_sequence_id = 0;
 		input_info.sequence_id_sane = true;
 		input_info.are_inputs_required_on_activation = required_on_activation;
 		input_info.topic_name = topic.first;

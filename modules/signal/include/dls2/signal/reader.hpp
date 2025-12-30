@@ -15,7 +15,6 @@ namespace dls
 		Reader() = delete;
 
 		bool is_receiving_data() const override;
-		int getRelativeSampleCount() override;
 		bool hasStartedReceivingData() override;
 		bool hasHeader() override;
 		bool hasSequenceId() override;
@@ -26,7 +25,7 @@ namespace dls
 
 		std::chrono::steady_clock::time_point get_latest_timestamp() override;
 		double get_latest_period_ms() override;
-		virtual uint32_t getLatestSequenceId() override;
+		virtual bool isSequenceIdSane() override;
 
 		MsgType msg;
 	protected:
@@ -34,10 +33,10 @@ namespace dls
 		std::function<void()> auxiliary_callback;
 	
 	private:
-		template <typename T, typename = int>
+		template <typename T, typename = std::void_t<>>
 		struct HasHeader : std::false_type { };
 		template <typename T>
-		struct HasHeader <T, decltype((void) T::header, 0)> : std::true_type { };
+		struct HasHeader <T, std::void_t<decltype(std::declval<T>().header())>> : std::true_type { };
 
 		bool has_header_;
 
@@ -47,6 +46,9 @@ namespace dls
 		struct HasSequenceId <T, std::void_t<decltype(std::declval<T>().sequence_id())>> : std::true_type { };
 
 		bool has_sequence_id_;
+
+		bool is_sequence_id_sane_{ true }; // TODO: make this a number (missed msgs)
+		unsigned long prev_sequence_id_ { 0 };
 	};
 
 	template <typename MsgType>

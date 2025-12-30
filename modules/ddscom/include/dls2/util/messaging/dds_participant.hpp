@@ -26,6 +26,8 @@ namespace dds_rpc = eprosima::fastdds::dds::rpc;
 /// \cond doxygen_namespace_dls
 namespace dls
 {
+	static constexpr uint32_t MAX_SEQUENCE_ID = 1000;
+
   class RpcService
   {
   public:

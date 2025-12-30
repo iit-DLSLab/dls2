@@ -27,6 +27,31 @@ namespace dls
 											// Suppress unused parameter warning
 											static_cast<void>(tuple);
 
+											if constexpr (HasSequenceId<MsgType>::value || HasHeader<MsgType>::value)
+											{
+												// Read current sequence id
+												const MsgType* msg = static_cast<MsgType*>(tuple);
+												unsigned long current_seq_id = 0;
+												if constexpr (HasSequenceId<MsgType>::value)
+												{
+													current_seq_id = msg->sequence_id();
+												}else if constexpr (HasHeader<MsgType>::value)
+												{
+													current_seq_id = msg->header().sequence_id();
+												}
+
+												// Check sequence id sanity
+												if(this->listener_->sample_count > 1)
+												{
+													auto expected_seq_id = (this->prev_sequence_id_ + 1) % MAX_SEQUENCE_ID;
+													this->is_sequence_id_sane_ = (expected_seq_id == current_seq_id);
+												}else
+												{
+													this->is_sequence_id_sane_ = true;
+												}
+												this->prev_sequence_id_ = current_seq_id;
+											}
+											
 											received = true;
 											this->auxiliary_callback();
 										}},
@@ -48,13 +73,6 @@ namespace dls
 	}
 
 	template <typename MsgType>
-	int Reader<MsgType>::getRelativeSampleCount(){
-		int count = listener_->relative_sample_count;
-		listener_->resetRelativeSampleCount();
-		return count;
-	}
-
-	template <typename MsgType>
 	bool Reader<MsgType>::hasStartedReceivingData(){
 		return listener_->started_receiving_data_;
 	}
@@ -73,8 +91,6 @@ namespace dls
 			std::cout << "Listener of " << ID_<<" is null, cannot read data" << std::endl;
 			return;
 		}
-
-		std::shared_lock<std::shared_mutex> lock(listener_->listener_info_mtx);
 
 		if(is_receiving_data()){
 			this->msg = *static_cast<MsgType*>(listener_->msg);
@@ -106,15 +122,9 @@ namespace dls
 	}
 
 	template <typename MsgType>
-	uint32_t Reader<MsgType>::getLatestSequenceId()
+	bool Reader<MsgType>::isSequenceIdSane()
 	{
-		if constexpr (HasHeader<MsgType>::value){
-			return this->msg.header().sequence_id();
-		}else if constexpr (HasSequenceId<MsgType>::value){
-			return this->msg.sequence_id();
-		}else{
-			throw std::runtime_error("Calling getLatestSequenceId for msg type " + *typeid(MsgType).name());
-		}
+		return is_sequence_id_sane_;
 	}
 }
 #endif /* end of include guard: SIGNAL_READER_TPP */
