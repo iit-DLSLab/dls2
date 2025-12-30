@@ -43,19 +43,7 @@ namespace dls
 		std::lock_guard<std::mutex> lock(output_info_mutex_);
 		for (long unsigned int i = 0; i < output_info_.size(); i++)
 		{
-			auto& output_info = output_info_[i];
-			if (output_info.writer->hasTimestamp())
-			{
-				output_info.writer->setTimestamp(std::chrono::system_clock::now().time_since_epoch().count());
-			}
-
-			if (output_info.writer->hasSequenceId())
-			{
-				auto seq = output_info.nextSequenceId();
-				output_info.writer->setSequenceId(seq);
-			}
-
-			output_info.writer->publish();
+			output_info_[i].writer->publish();
 		}
 	}
 
@@ -63,21 +51,7 @@ namespace dls
 	{
 		try {
 			std::lock_guard<std::mutex> lock(output_info_mutex_);
-
-			auto& output_info = output_info_[outputs_map.at(name)];
-			if (output_info.writer->hasTimestamp())
-			{
-				output_info.writer->setTimestamp(std::chrono::system_clock::now().time_since_epoch().count());
-				
-			}
-
-			if (output_info.writer->hasSequenceId())
-			{
-				auto seq = output_info.nextSequenceId();
-				output_info.writer->setSequenceId(seq);
-			}
-
-			output_info.writer->publish();
+			output_info_[outputs_map.at(name)].writer->publish();
 		}
 		catch (const std::out_of_range& e)
 		{

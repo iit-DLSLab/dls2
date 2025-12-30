@@ -2,6 +2,7 @@
 #define WRITER_TPP
 
 #include "dls2/signal/writer.hpp"
+#include "dls2/util/time/duration_utils.hpp"
 
 #include <experimental/random>
 
@@ -24,6 +25,15 @@ Writer<MsgType>::~Writer(){this->dds_participant_->deleteWriter(this->ID_); }
 template <typename MsgType>
 void Writer<MsgType>::publish()
 {
+	if (hasTimestamp())
+	{
+		setTimestamp(toNs<unsigned long long>(std::chrono::system_clock::now()));
+	}
+	if (hasSequenceId())
+	{
+		setSequenceId(++sequence_id_ % MAX_SEQUENCE_ID);
+	}
+
 	dds_participant_->sendMessage(ID_, &msg);
 }
 

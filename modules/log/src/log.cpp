@@ -203,7 +203,7 @@ void EventNotifier::notify(
 	msg.event_id() = static_cast<uint8_t>(event_id);
 	msg.severity() = static_cast<uint8_t>(severity);
 	msg.msg() = message;
-	msg.header().sequence_id()++;
+	msg.header().sequence_id() = (msg.header().sequence_id() + 1) % MAX_SEQUENCE_ID;
 	msg.header().timestamp() = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
 	dds_writer->sendMessage(&msg);
 } // end notify

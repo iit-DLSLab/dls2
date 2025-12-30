@@ -8,8 +8,6 @@
 
 namespace dls
 {
-	static constexpr uint32_t MAX_SEQUENCE_ID = 1000;
-
 	template <typename MsgType>
 	class Writer : public WriterBase
 	{
@@ -71,6 +69,8 @@ namespace dls
 		struct HasSequenceId <T, std::void_t<decltype(std::declval<T>().sequence_id())>> : std::true_type { };
 
 		bool has_sequence_id_;
+
+		unsigned long sequence_id_{ 0 };
 	};
 
 	template <typename MsgType>

@@ -23,14 +23,6 @@ namespace dls
 		public:
 			std::shared_ptr<WriterBase> writer;
 			std::string topic_name{""};
-
-			uint32_t nextSequenceId()
-			{
-				return ++sequence_id % MAX_SEQUENCE_ID;
-			}
-
-		private:
-			uint32_t sequence_id{ 0 };
 	};
 
 	/*!
