@@ -62,5 +62,5 @@ bool Time::checkFrequency(const double &desired_frequency,
 	loop_time_prec = loop_time_curr;
 
 	// check if the process is running in real time.
-	return (current_frequency - desired_frequency) < 10; // 1% tolerance
+	return std::abs(desired_frequency - current_frequency) < 0.1 * desired_frequency; // 10% tolerance
 }
