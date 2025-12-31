@@ -17,6 +17,7 @@ Writer<MsgType>::Writer(std::shared_ptr<dls::DDSParticipant> dds_participant, co
 {
 	computeName("writer");
 	dds_participant_->addWriter(ID_, topic_, qos);
+	setTimestamp(0.0);
 }
 	
 template <typename MsgType>
@@ -25,7 +26,7 @@ Writer<MsgType>::~Writer(){this->dds_participant_->deleteWriter(this->ID_); }
 template <typename MsgType>
 void Writer<MsgType>::publish()
 {
-	if (hasTimestamp())
+	if (hasTimestamp() && isSameTimestamp())
 	{
 		setTimestamp(toNs<unsigned long long>(std::chrono::system_clock::now()));
 	}
@@ -58,13 +59,52 @@ bool Writer<MsgType>::hasSequenceId()
 template <typename MsgType>
 void Writer<MsgType>::setTimestamp(unsigned long long timestamp)
 {
-	if constexpr (HasHeader<MsgType>::value){
+	if constexpr (HasHeader<MsgType>::value)
+	{
 		msg.header().timestamp() = timestamp;
-	}else if constexpr (HasTimeStamp<MsgType>::value){
+		prev_stamp = msg.header().timestamp();
+
+	}else if constexpr (HasTimeStamp<MsgType>::value)
+	{
 		msg.timestamp() = timestamp;
+		prev_stamp = msg.timestamp();
+
 	}else{
 		throw std::runtime_error("Calling setTimestamp for msg type " + *typeid(MsgType).name());
 	}
+}
+
+template <typename MsgType>
+bool Writer<MsgType>::isSameTimestamp()
+{
+	unsigned long long curr_stamp;
+
+	if constexpr (HasHeader<MsgType>::value)
+	{
+		curr_stamp = msg.header().timestamp();
+
+	}else if constexpr (HasTimeStamp<MsgType>::value)
+	{
+		curr_stamp = msg.timestamp();
+	}else{
+		throw std::runtime_error("Calling sameTimestamp for msg type " + *typeid(MsgType).name());
+	}
+
+	if(prev_stamp == 0 && curr_stamp == 0){
+		// first execution, nobody set timestamp
+		return true;
+	}
+	else if(prev_stamp == 0 && curr_stamp != 0){
+		// first execution, somebody set timestamp
+		prev_stamp = curr_stamp;
+		return false;
+	}
+	// standard execution, checking if timestamp is same as previous
+	auto same_stamp = (prev_stamp == curr_stamp);
+	if(!same_stamp){
+		prev_stamp = curr_stamp;
+	}
+	return same_stamp;
 }
 
 template <typename MsgType>

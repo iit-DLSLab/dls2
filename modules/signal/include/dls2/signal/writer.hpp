@@ -47,6 +47,7 @@ namespace dls
 		virtual void setSequenceId(uint32_t sequence_id) override;
 	
 		MsgType msg;
+		unsigned long long prev_stamp { 0 };
 	private:
 		
 		template <typename T, typename = std::void_t<>>
@@ -71,6 +72,7 @@ namespace dls
 		bool has_sequence_id_;
 
 		unsigned long sequence_id_{ 0 };
+		bool isSameTimestamp();
 	};
 
 	template <typename MsgType>
