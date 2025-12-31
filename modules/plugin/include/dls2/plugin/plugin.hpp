@@ -12,7 +12,7 @@ namespace dls
 	{
 		double latest_period_ms{};
 		std::chrono::steady_clock::time_point latest_timestamp{};
-		bool sequence_id_sane{ true };
+		uint32_t missed_sequence_ids{ 0 };
 		bool are_inputs_required_on_activation{ false };
 		std::string topic_name{""};
 		std::shared_ptr<ReaderBase> reader{};

@@ -25,7 +25,7 @@ namespace dls
 
 		std::chrono::steady_clock::time_point get_latest_timestamp() override;
 		double get_latest_period_ms() override;
-		virtual bool isSequenceIdSane() override;
+		virtual uint32_t getMissedSequenceIds() override;
 
 		MsgType msg;
 	protected:
@@ -47,7 +47,7 @@ namespace dls
 
 		bool has_sequence_id_;
 
-		bool is_sequence_id_sane_{ true }; // TODO: make this a number (missed msgs)
+		uint32_t missed_sequence_ids_{ true };
 		unsigned long prev_sequence_id_ { 0 };
 	};
 

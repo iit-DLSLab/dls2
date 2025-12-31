@@ -31,23 +31,23 @@ namespace dls
 											{
 												// Read current sequence id
 												const MsgType* msg = static_cast<MsgType*>(tuple);
-												unsigned long current_seq_id = 0;
+												long current_seq_id = 0;
 												if constexpr (HasSequenceId<MsgType>::value)
 												{
-													current_seq_id = msg->sequence_id();
+													current_seq_id = static_cast<long>(msg->sequence_id());
 												}else if constexpr (HasHeader<MsgType>::value)
 												{
-													current_seq_id = msg->header().sequence_id();
+													current_seq_id = static_cast<long>(msg->header().sequence_id());
 												}
 
 												// Check sequence id sanity
 												if(this->listener_->sample_count > 1)
 												{
-													auto expected_seq_id = (this->prev_sequence_id_ + 1) % MAX_SEQUENCE_ID;
-													this->is_sequence_id_sane_ = (expected_seq_id == current_seq_id);
+													auto expected_seq_id = static_cast<long>((this->prev_sequence_id_ + 1) % MAX_SEQUENCE_ID);
+													this->missed_sequence_ids_ = std::abs(expected_seq_id - current_seq_id);
 												}else
 												{
-													this->is_sequence_id_sane_ = true;
+													this->missed_sequence_ids_ = true;
 												}
 												this->prev_sequence_id_ = current_seq_id;
 											}
@@ -122,9 +122,9 @@ namespace dls
 	}
 
 	template <typename MsgType>
-	bool Reader<MsgType>::isSequenceIdSane()
+	uint32_t Reader<MsgType>::getMissedSequenceIds()
 	{
-		return is_sequence_id_sane_;
+		return missed_sequence_ids_;
 	}
 }
 #endif /* end of include guard: SIGNAL_READER_TPP */

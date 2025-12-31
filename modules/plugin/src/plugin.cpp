@@ -188,6 +188,6 @@ namespace dls
 		auto& reader = input_info.reader;
 		input_info.latest_period_ms = reader->get_latest_period_ms();
 		input_info.latest_timestamp = reader->get_latest_timestamp();
-		input_info.sequence_id_sane = reader->isSequenceIdSane();
+		input_info.missed_sequence_ids = reader->getMissedSequenceIds();
 	}
 }

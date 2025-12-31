@@ -26,7 +26,7 @@ namespace dls
 		virtual std::chrono::steady_clock::time_point get_latest_timestamp() = 0;
 		virtual double get_latest_period_ms() = 0;
 
-		virtual bool isSequenceIdSane() = 0;
+		virtual uint32_t getMissedSequenceIds() = 0;
 
 		bool received;
 	};

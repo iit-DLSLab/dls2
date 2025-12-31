@@ -43,11 +43,12 @@ namespace dls
 
 		if(this->safety_layer_config_->enable_wrong_sequence_id){
 			for(size_t i = 0; i < input_info.size(); ++i){
-				if(!input_info.at(i).sequence_id_sane){
+				if(input_info.at(i).missed_sequence_ids != 0){
 					this->robust_event_notifier.notify(
 						EventID::WRONG_SEQUENCE_ID,
 						EventSeverity::WARNING,
-						this->getID() + " app detected wrong sequence id from topic " + input_info.at(i).topic_name + "\n"
+						this->getID() + " app detected wrong sequence id from topic " + input_info.at(i).topic_name 
+							+ " (missed " + std::to_string(input_info.at(i).missed_sequence_ids) + ")\n"
 					);
 				}
 			}
