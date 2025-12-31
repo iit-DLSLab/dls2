@@ -305,7 +305,7 @@ void App::monitorApp()
 				// Current-target state mismatch 1-cycle tolerance check
 				const auto stamp_now = std::chrono::steady_clock::now();
 				const auto elapsed = stamp_now - this->sm.getDesiredStateStamp();
-				const auto delta_time_ms = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(elapsed).count();
+				const auto delta_time_ms = toMs(elapsed);
 				if(delta_time_ms > safety_layer_config_->monitor_period_ms){
 					state_anomaly_detected = true;
 				}

@@ -10,6 +10,7 @@
 #include <dls2/application/sched_attr.hpp>
 #include <dls_messages/dds/ProcessStatusLight.hpp>
 #include <dls2/util/config/safety_layer.hpp>
+#include "dls2/util/time/duration_utils.hpp"
 
 namespace dls
 {

@@ -18,6 +18,7 @@ target_link_libraries(dls_signal
 	PUBLIC
 		dls_com
 		dls_topics
+		dls_time
 		dls_msg_wrapper		
 )
 
