@@ -93,7 +93,7 @@ void PeriodicApp::childMonitor()
 	status_msg.mem_usage() = process_resource_monitor_->getMemPercent();
 
 	// notify if the process is not running at the expected frequency
-	if(this->safety_layer_config_->enable_wrong_process_state && !realtime_curr){
+	if(this->safety_layer_config_->enable_wrong_process_frequency && !realtime_curr){
 		this->robust_event_notifier.notify(	
 								EventID::WRONG_PROCESS_FREQUENCY,
 								EventSeverity::WARNING,
