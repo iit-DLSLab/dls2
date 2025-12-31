@@ -28,7 +28,7 @@ namespace dls
 		/*!
 		@brief Set the timestamp field of the signal msg
 		*/
-		virtual void setTimestamp(double timestamp) = 0;
+		virtual void setTimestamp(unsigned long long timestamp) = 0;
 
 		dls::topicType getTopic() const;
 

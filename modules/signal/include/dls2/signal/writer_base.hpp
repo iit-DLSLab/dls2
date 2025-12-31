@@ -36,7 +36,7 @@ namespace dls
 		/*!
 		@brief Set the timestamp of the signal stored in any child class
 		*/
-		virtual void setTimestamp(double timestamp) = 0;
+		virtual void setTimestamp(unsigned long long timestamp) = 0;
 
 		/*!
 		@brief Set the sequence id of the signal stored in any child class

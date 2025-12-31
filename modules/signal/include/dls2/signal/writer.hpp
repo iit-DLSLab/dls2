@@ -38,7 +38,7 @@ namespace dls
 		@brief Set the timestamp of the signal stored in any child class
 		@param[in] timestamp		
 		*/
-		virtual void setTimestamp(double timestamp) override;
+		virtual void setTimestamp(unsigned long long timestamp) override;
 
 		/*!
 		@brief Set the timestamp of the signal stored in any child class

@@ -56,7 +56,7 @@ bool Writer<MsgType>::hasSequenceId()
 }
 
 template <typename MsgType>
-void Writer<MsgType>::setTimestamp(double timestamp)
+void Writer<MsgType>::setTimestamp(unsigned long long timestamp)
 {
 	if constexpr (HasHeader<MsgType>::value){
 		msg.header().timestamp() = timestamp;

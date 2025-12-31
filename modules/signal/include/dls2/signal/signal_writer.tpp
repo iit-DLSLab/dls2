@@ -55,7 +55,7 @@ bool SignalWriter<SignalType>::hasTimestamp()
 }
 
 template <typename SignalType>
-void SignalWriter<SignalType>::setTimestamp(double timestamp)
+void SignalWriter<SignalType>::setTimestamp(unsigned long long timestamp)
 {
 	if constexpr (HasHeader<MsgType>::value){
 		signal_->header.timestamp = timestamp;
