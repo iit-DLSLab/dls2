@@ -142,4 +142,6 @@ void HardwareLayer::close()
 		this->unloadHardware(key);
 }
 
-void HardwareLayer::monitor(){}
+void HardwareLayer::monitor(){
+	this->checkAppData(this->hardwares);
+}

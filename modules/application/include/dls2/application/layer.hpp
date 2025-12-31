@@ -2,6 +2,7 @@
 #define LAYER_HPP_H7JRIVPM
 
 #include "dls2/application/app.hpp"
+#include "dls2/application/app_data.hpp"
 
 namespace dls
 {
@@ -53,6 +54,9 @@ namespace dls
 		//! Monitor the layer
 		virtual void monitor();
 
+		template<class Map>
+		void checkAppData(const Map& app_data);
+
 		// BEGIN critical section
 			mutable std::mutex components_mutex;
 			std::map<std::string, pComponent_t> components;
@@ -67,5 +71,7 @@ namespace dls
 
 	};
 } // end namespace dls
+
+#include "dls2/application/layer.tpp"
 
 #endif /* end of include guard: LAYER_HPP_H7JRIVPM */

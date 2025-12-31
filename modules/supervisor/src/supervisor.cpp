@@ -110,7 +110,9 @@ namespace dls
 	{ }
 
     void Supervisor::monitor()
-    { }
+    { 
+        this->checkAppData(plugins);
+    }
 
     int Supervisor::getNumLayers()
     {

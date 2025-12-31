@@ -170,7 +170,13 @@ ServiceLayer::~ServiceLayer()
 	scout_sys << "#### SERVICE LAYER OFF ####" << std::endl;
 }
 
-void ServiceLayer::monitor(){}
+void ServiceLayer::monitor()
+{
+	this->checkAppData(services);
+	this->checkAppData(data_visualizers_);
+	this->checkAppData(generics);
+	this->checkAppData(tasks);
+}
 
 void ServiceLayer::close(){
 	for(auto pair : this->services)

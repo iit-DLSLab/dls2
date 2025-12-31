@@ -159,4 +159,6 @@ int EstimationLayer::numOfEstimators()
 	return this->estimators.size();
 }
 
-void EstimationLayer::monitor(){}
+void EstimationLayer::monitor(){
+	this->checkAppData(this->estimators);
+}
