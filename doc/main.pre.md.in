@@ -8,6 +8,7 @@
 	* [Building a new controller](#building-a-new-controller)
 	* [Building a new generator](#building-a-new-generator)
 	* [Packaging](#packaging)
+	* [Safety layer](#safety)
 
 <a name="introduction"></a>
 # Introduction
@@ -82,3 +83,8 @@ documentation of a component.
 ## Packaging
 
 @PACKAGING_MD@
+
+<a name="safety"></a>
+## Safety layer
+
+@SAFETY_MD@
