@@ -17,10 +17,10 @@ void Layer::checkAppData(const Map& app_data)
 	{
 		if(!data->proc->running())
 		{
-			if (this->safety_layer_config_->enable_wrong_process_state)
+			if (this->safety_layer_config_->enable_process_died)
 			{
 				this->robust_event_notifier.notify(
-					EventID::WRONG_PROCESS_STATE,
+					EventID::PROCESS_DIED,
 					EventSeverity::ERROR,
 					this->getID() + ": " + key + " is not running"
 				);

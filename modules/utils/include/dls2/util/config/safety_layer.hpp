@@ -6,6 +6,7 @@ namespace dls
 {
 	struct SafetyLayerConfig{
 
+		bool enable_process_died{false};
 		bool enable_wrong_process_state{false};
 		bool enable_wrong_process_frequency{false};
 		bool enable_missing_input{false};
@@ -37,6 +38,7 @@ namespace dls
 				return;
 			}
 
+			enable_process_died = config["checks"]["enable_process_died"].as<bool>();
 			enable_wrong_process_state = config["checks"]["enable_wrong_process_state"].as<bool>();
 			enable_wrong_process_frequency = config["checks"]["enable_wrong_process_frequency"].as<bool>();
 			enable_missing_input = config["checks"]["enable_missing_input"].as<bool>();

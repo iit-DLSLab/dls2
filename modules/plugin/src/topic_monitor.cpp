@@ -38,6 +38,7 @@ namespace dls
 				const auto actual_frequency = this->getActualFrequency(topic_info.topic_name(), 
 																	latest_period_ms);
 				topic_info.current_freq() = actual_frequency;
+				topic_info.missed_sequence_ids() = input_info[inputs_map_.at(topic_info.topic_name())].missed_sequence_ids;
 			}
 		}
 		return input_topic_infos_;

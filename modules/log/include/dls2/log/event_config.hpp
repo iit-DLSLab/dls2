@@ -6,7 +6,8 @@
 enum class EventID : uint8_t {
 
     // Health anomalies (backend)
-    WRONG_PROCESS_STATE = 0,
+    PROCESS_DIED = 0,
+    WRONG_PROCESS_STATE,
     WRONG_PROCESS_FREQUENCY,
     MISSING_INPUT,
     CPU_USAGE_TOO_HIGH,
