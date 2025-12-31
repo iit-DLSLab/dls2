@@ -43,7 +43,8 @@ namespace dls
 	};
 
 /**
- * @brief Simple class to monitor CPU and memory usage of a system exploiting the Linux /proc filesystem.
+ * @brief Simple class to monitor relevant hardware resources.
+ * It checks overall CPU, memory usage and temperatures of the system exploiting the Linux /proc filesystem.
  * More details at https://docs.kernel.org/filesystems/proc.html
  * 
  * Temperature-related useful command: 
@@ -62,10 +63,7 @@ namespace dls
 class SystemResourceMonitor
 {
 	public:
-
-		void readProcStat();
-		void computeCpusUsage();
-		void computeTemperature(const std::string& desired_type = "x86_pkg_temp");
+		void monitor();
 
 		/**
 		 * @brief Get the overall cpus usage (in terms of task ticks / clock available ticks)
@@ -73,6 +71,13 @@ class SystemResourceMonitor
 		 * @return const std::vector<double>& 
 		 */
 		[[nodiscard]] const std::vector<double>& getCpusUsage();
+
+		/**
+		 * @brief Get the overall memory usage
+		 * 
+		 * @return double
+		 */
+		[[nodiscard]] double getMemUsage();
 
 		/**
 		 * @brief Get the latest value for a thermal zone temperature computed 
@@ -84,10 +89,16 @@ class SystemResourceMonitor
 
 	private:
 
+		void readProcStat();
+		void computeCpusUsage();
+		void computeMemUsage();
+		void computeTemperature(const std::string& desired_type = "x86_pkg_temp");
+
 		std::deque<std::vector<CpuTimes>> cpus_times_{};
 		std::vector<CpuTimes> cpus_times_tmp_{};
 
 		std::vector<double> latest_cpus_usage_;
+		double latest_mem_usage_;
 
 		std::optional<std::map<std::string, std::string>> thermal_zones_type2path_{};
 		std::pair<std::string, double> latest_temperature_{"", 0.0};

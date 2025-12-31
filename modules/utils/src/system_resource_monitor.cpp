@@ -2,6 +2,25 @@
 
 using namespace dls;
 
+void SystemResourceMonitor::monitor(){
+    readProcStat();
+    computeCpusUsage();
+    computeMemUsage();
+    computeTemperature();
+}
+
+const std::vector<double>& SystemResourceMonitor::getCpusUsage(){
+	return latest_cpus_usage_;
+}
+
+double SystemResourceMonitor::getMemUsage(){
+	return latest_mem_usage_;
+}
+
+std::pair<std::string, double> SystemResourceMonitor::getTemperature(){
+	return latest_temperature_;
+}
+
 void SystemResourceMonitor::readProcStat()
 {
     cpus_times_tmp_.clear();
@@ -83,6 +102,44 @@ void SystemResourceMonitor::computeCpusUsage()
     }
 
 	latest_cpus_usage_ = result;
+}
+
+void SystemResourceMonitor::computeMemUsage()
+{    
+    long long totalKB = 0;
+    long long availableKB = 0;
+
+    FILE* f = std::fopen("/proc/meminfo", "r");
+    if (!f){
+        return;
+    }
+
+    char line[256];
+
+    while (std::fgets(line, sizeof(line), f)) {
+        if (std::strncmp(line, "MemTotal:", 9) == 0) {
+            std::sscanf(line + 9, "%lld", &totalKB);
+        } else if (std::strncmp(line, "MemAvailable:", 13) == 0) {
+            std::sscanf(line + 13, "%lld", &availableKB);
+        }
+
+        if (totalKB && availableKB){
+            break;
+        }
+    }
+
+    std::fclose(f);
+
+    if (totalKB <= 0){
+        latest_mem_usage_ = 0.0;
+        return;
+    } 
+    if (availableKB <= 0){
+        latest_mem_usage_ = 100.0;
+        return;
+    } 
+    
+    latest_mem_usage_ = 100.0 * (1.0 - static_cast<double>(availableKB) / static_cast<double>(totalKB));
 }
 
 void SystemResourceMonitor::computeTemperature(const std::string& desired_type)
@@ -175,12 +232,4 @@ void SystemResourceMonitor::computeTemperature(const std::string& desired_type)
     latest_temperature_.first = desired_type;
     latest_temperature_.second = temp_celsius;
     
-}
-
-const std::vector<double>& SystemResourceMonitor::getCpusUsage(){
-	return latest_cpus_usage_;
-}
-
-std::pair<std::string, double> SystemResourceMonitor::getTemperature(){
-	return latest_temperature_;
 }
