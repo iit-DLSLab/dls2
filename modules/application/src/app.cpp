@@ -293,6 +293,8 @@ void App::monitorApp()
 	while (!should_quit)
 	{
 		// Fill in relevant fields
+		status_msg.header().timestamp() = toNs<unsigned long long>(std::chrono::system_clock::now());
+		status_msg.header().sequence_id() = (status_msg.header().sequence_id() + 1) % MAX_SEQUENCE_ID;
 		status_msg.component_name() = getID();
 		status_msg.current_state() = this->sm.getStateName();
 		status_msg.desired_state() = this->sm.getDesiredStateName();
