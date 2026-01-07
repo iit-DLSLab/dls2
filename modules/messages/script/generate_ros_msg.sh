@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
+shopt -s nullglob
 
-src_dir="./idls/" dst_dir="./ros_msgs" && \
+src_dir="../idls" dst_dir="./ros_msgs" && \
 
 mkdir -p "$dst_dir"
 
@@ -29,3 +30,5 @@ for f in "$src_dir"/*.idl; do
     }
   ' "$f" > "$out"
 done
+
+echo "Files created at: $dst_dir (absolute: $(pwd)/$dst_dir)"
