@@ -29,6 +29,9 @@ namespace dls
 		bool loadGeneric(const std::string& ID);
 		bool unloadGeneric(const std::string& ID);
 
+		bool loadGeneric(const std::string& ID);
+		bool unloadGeneric(const std::string& ID);
+
 		bool loadTask(const std::string& ID);
 		bool unloadTask(const std::string& ID);
 
