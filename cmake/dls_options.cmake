@@ -60,6 +60,10 @@ set(DLS_INSTALL_PROCEDURE_DIR /usr/lib/dls2/procedures
 	CACHE STRING "Directory where shared object libraries for procedures are stored"
 )
 
+set(DLS_INSTALL_GENERIC_DIR /usr/lib/dls2/generics
+	CACHE STRING "Directory where shared object libraries for generics are stored"
+)
+
 set(DLS_INSTALL_TASK_DIR /usr/lib/dls2/tasks
 	CACHE STRING "Directory where shared object libraries for tasks are stored"
 )
