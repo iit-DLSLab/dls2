@@ -22,20 +22,13 @@ namespace dls
 
   void RpcService::sendReply(void* data)
   {
-    dds_rpc::RequestInfo info;
-    if (_replier) _replier->send_reply(data, info);
+    if (_replier) _replier->send_reply(data, _info);
     else std::cout << "[RPCS] no requester available" << std::endl;
   }
 
   void RpcService::sendRequest(void* data)
   {
-    dds_rpc::RequestInfo info;
-    if (_requester)
-    {
-      std::cout << "[RPCS] send request" << std::endl;
-      _requester->send_request(data, info);
-      std::cout << "[RPCS] request sent" << std::endl;
-    }
+    if (_requester) _requester->send_request(data, _info);
     else std::cout << "[RPCS] no requester available" << std::endl;
   }
 
