@@ -54,7 +54,8 @@ Please refere [here](../../modules/ddscom/README.md) for checking the _server\_i
 1. generate .idl from .msg file:
      rosidl translate --to idl -o . package_name message_name.msg
     
-    Another option is to create a ROS2 package just for the messages, and in this way you can use the .idl files directly. See [dls2_interfaces](ros2_ws/src/dls2_intefaces) package.
+    - Another option is to create a ROS2 package just for the messages, and in this way you can use the .idl files directly. See [dls2_interfaces](ros2_ws/src/dls2_intefaces) package.
+    - An additional option, in order to have full ros compatibility, is the `idl_to_msg.py` tool (e.g. `python3 idl_to_msg.py ../idls/BaseState.idl -o ./ `) 
 
 2. generate fastdds message using the -typeros2 option (-cs is used to allow case-sentitive names): 
     fastddsgen -replace -cs -typeros2 message_name.idl
@@ -67,9 +68,14 @@ To interface your ROS2 node with DLS2 you need to set the server ip and port wit
 
     export ROS_DISCOVERY_SERVER=<server_ip>:<server_port>
 
-Remeber that if you want to use the ROS2 CLI (like ros2 topic list or similar) you need to:
+Remember that if you want to use the ROS2 CLI (like ros2 topic list or similar) you need to:
 
   export ROS_DISCOVERY_SERVER=<server_ip>:<server_port>
   export ROS_SUPER_CLIENT=TRUE
 
+Restarting the ros daemon is needed, it can be done with
+```bash
+ros2 daemon stop
+ros2 daemon start
+```
 Then you can launch the ros2 cli with the `--no-daemon` option. Basically, the daemon manages the cache of nodes, topics, and services. It makes CLI commands faster, but you need to stop and restart it to update it (for example, if you change the network, the discovery server, or the ROS_SUPER_CLIENT). Instead of stop and restart, you can use the '--no-daemon' option.
