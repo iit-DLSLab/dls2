@@ -411,6 +411,79 @@ bool ServiceLayer::unloadGeneric(const std::string &name)
     return true;
 }
 
+bool ServiceLayer::loadGeneric(const std::string& name)
+{
+  if (this->generics.find(name) != this->generics.end())
+  {
+    scout_err << "generic " + name + " already loaded" << std::endl;
+    return false;
+  }
+
+  std::shared_ptr<AppData> pData = std::make_shared<AppData>(name);
+
+  // launch the generic
+  char *child_process_launcher = std::getenv("DLS_CHILD_PROCESS_LAUNCHER");
+  if (!child_process_launcher)
+  {
+    scout_err <<
+      "env variable DLS_CHILD_PROCESS_LAUNCHER not "
+      "defined.  This is probably an error with the launch script"
+      << std::endl;
+    return false;
+  }
+
+  pData->proc = std::make_shared<boost::process::child>(std::vector<std::string>({
+    child_process_launcher,
+    pData->getID(),
+    name,
+    "generic",
+    this->robot_name
+  }));
+
+  if (pData->proc == nullptr)
+  {
+    std::cout << "Generic " << name <<" failed to launch: nullptr" << std::endl;
+    return false;
+  }
+
+  pData->proc->detach();
+
+  this->generics.emplace(pData->getID(), pData);
+
+  return true;
+}
+
+bool ServiceLayer::unloadGeneric(const std::string &name)
+{
+  // Find generic inside the generic list
+  auto res = this->generics.find(name);
+
+  if (res == this->generics.end())
+  {
+    scout_err << "Generic " + name + " is not loaded" << std::endl;
+    return false;
+  }
+
+  auto pData = res->second;
+
+    //shutdown generic over the dds comunication layer
+  command_manager.callCommand("shutdown", {}, name);
+
+  bool unloaded = false;
+  if (!utils::wait(std::function<bool()>([&](){ return !pData->proc->running(); }),
+                   2000, 10, unloaded))
+  {
+    std::cout << "### FORCING GENERIC " << name << " EXIT ###" << std::endl;
+    kill(pData->proc->id(), SIGKILL);
+  }
+
+  std::cout << "Generic " + name + " is unloaded" << std::endl;
+
+  pData->proc = nullptr;
+  this->generics.erase(name);
+    return true;
+}
+
 bool ServiceLayer::loadTask(const std::string& name)
 {
 	if(this->tasks.find(name) != this->tasks.end())
