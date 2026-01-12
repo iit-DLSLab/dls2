@@ -17,7 +17,9 @@ Writer<MsgType>::Writer(std::shared_ptr<dls::DDSParticipant> dds_participant, co
 {
 	computeName("writer");
 	dds_participant_->addWriter(ID_, topic_, qos);
-	setTimestamp(0.0);
+	if(hasTimestamp()){
+		setTimestamp(0.0);
+	}
 }
 	
 template <typename MsgType>
@@ -70,7 +72,7 @@ void Writer<MsgType>::setTimestamp(unsigned long long timestamp)
 		prev_stamp = msg.timestamp();
 
 	}else{
-		throw std::runtime_error("Calling setTimestamp for msg type " + *typeid(MsgType).name());
+		std::cout << "WARNING: Calling setTimestamp for msg type " + std::string(typeid(MsgType).name());
 	}
 }
 
@@ -87,7 +89,7 @@ bool Writer<MsgType>::isSameTimestamp()
 	{
 		curr_stamp = msg.timestamp();
 	}else{
-		throw std::runtime_error("Calling sameTimestamp for msg type " + *typeid(MsgType).name());
+		std::cout << "WARNING: Calling sameTimestamp for msg type " + std::string(typeid(MsgType).name());
 	}
 
 	if(prev_stamp == 0 && curr_stamp == 0){
@@ -115,7 +117,7 @@ void Writer<MsgType>::setSequenceId(uint32_t sequence_id)
 	}else if constexpr (HasSequenceId<MsgType>::value){
 		msg.sequence_id() = sequence_id;
 	}else{
-		throw std::runtime_error("Calling setSequenceId for msg type " + *typeid(MsgType).name());
+		std::cout << "WARNING: Calling setSequenceId for msg type " + std::string(typeid(MsgType).name());
 	}
 }
 
