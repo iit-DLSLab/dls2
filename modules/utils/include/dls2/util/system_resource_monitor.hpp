@@ -17,6 +17,8 @@
 #include <optional>
 #include <unistd.h>
 
+#include "dls2/util/numerical_moving_window.hpp"
+
 namespace dls
 {
 
@@ -63,6 +65,8 @@ namespace dls
 class SystemResourceMonitor
 {
 	public:
+		explicit SystemResourceMonitor(size_t resource_monitor_window_size);
+
 		void monitor();
 
 		/**
@@ -97,10 +101,15 @@ class SystemResourceMonitor
 		std::deque<std::vector<CpuTimes>> cpus_times_{};
 		std::vector<CpuTimes> cpus_times_tmp_{};
 
+		size_t resource_monitor_window_size_;
+		std::vector<std::unique_ptr<NumericalMovingWindow<double>>> cpu_usage_w_;
 		std::vector<double> latest_cpus_usage_;
+
+		std::unique_ptr<NumericalMovingWindow<double>> mem_usage_w_;
 		double latest_mem_usage_;
 
 		std::optional<std::map<std::string, std::string>> thermal_zones_type2path_{};
+		std::unique_ptr<NumericalMovingWindow<double>> temperature_w_;
 		std::pair<std::string, double> latest_temperature_{"", 0.0};
 
 };

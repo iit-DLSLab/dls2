@@ -2,6 +2,12 @@
 
 using namespace dls;
 
+SystemResourceMonitor::SystemResourceMonitor(size_t resource_monitor_window_size){
+    resource_monitor_window_size_ = resource_monitor_window_size;
+	mem_usage_w_ = std::make_unique<NumericalMovingWindow<double>>(resource_monitor_window_size_);
+	temperature_w_ = std::make_unique<NumericalMovingWindow<double>>(resource_monitor_window_size_);
+}
+
 void SystemResourceMonitor::monitor(){
     readProcStat();
     computeCpusUsage();
@@ -86,10 +92,21 @@ void SystemResourceMonitor::computeCpusUsage()
 	const auto& prev_cpus_times = cpus_times_.front();
 	const auto& new_cpus_times = cpus_times_.back();
 
-	std::vector<double> result;
-    result.reserve(prev_cpus_times.size());
+    const auto core_num = prev_cpus_times.size();
 
-    for (size_t i = 0; i < prev_cpus_times.size(); i++) {
+    // Initialize a numerical window for each core if not done
+    if(cpu_usage_w_.size() != core_num){
+        cpu_usage_w_.resize(core_num);
+        for(auto& window : cpu_usage_w_){
+            window = std::make_unique<NumericalMovingWindow<double>>(resource_monitor_window_size_);
+        }
+    }
+
+    
+	std::vector<double> result;
+    result.reserve(core_num);
+
+    for (size_t i = 0; i < core_num; i++) {
         unsigned long long idleDiff  = new_cpus_times[i].idleAll() - prev_cpus_times[i].idleAll();	
         unsigned long long totalDiff = new_cpus_times[i].total() - prev_cpus_times[i].total();
 
@@ -98,7 +115,9 @@ void SystemResourceMonitor::computeCpusUsage()
             usage = 100.0 * (totalDiff - idleDiff) / totalDiff;
         }
 
-        result.push_back(usage);
+        cpu_usage_w_.at(i)->push(usage);
+
+        result.push_back(cpu_usage_w_.at(i)->mean());
     }
 
 	latest_cpus_usage_ = result;
@@ -131,15 +150,19 @@ void SystemResourceMonitor::computeMemUsage()
     std::fclose(f);
 
     if (totalKB <= 0){
-        latest_mem_usage_ = 0.0;
+        mem_usage_w_->push(0.0);
+        latest_mem_usage_ = mem_usage_w_->mean();
         return;
     } 
     if (availableKB <= 0){
-        latest_mem_usage_ = 100.0;
+        mem_usage_w_->push(100.0);
+        latest_mem_usage_ = mem_usage_w_->mean();
         return;
     } 
     
-    latest_mem_usage_ = 100.0 * (1.0 - static_cast<double>(availableKB) / static_cast<double>(totalKB));
+    auto usage = 100.0 * (1.0 - static_cast<double>(availableKB) / static_cast<double>(totalKB));
+    mem_usage_w_->push(usage);
+    latest_mem_usage_ = mem_usage_w_->mean();
 }
 
 void SystemResourceMonitor::computeTemperature(const std::string& desired_type)
@@ -229,7 +252,8 @@ void SystemResourceMonitor::computeTemperature(const std::string& desired_type)
     long temp_milli = std::strtol(buf, nullptr, 10);
     double temp_celsius = temp_milli / 1000.0;
 
+    temperature_w_->push(temp_celsius);
+
     latest_temperature_.first = desired_type;
-    latest_temperature_.second = temp_celsius;
-    
+    latest_temperature_.second = temperature_w_->mean();
 }
