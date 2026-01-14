@@ -13,6 +13,7 @@ target_include_directories(dls_supervisor
 target_link_libraries(dls_supervisor
 	PUBLIC
 		dls_app
+		dls_utils
 		state_machine_watcher
 )
 

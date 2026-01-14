@@ -21,6 +21,7 @@ namespace dls
 		double sync_threshold_ms{500};
 		size_t monitor_period_ms{100};
 		size_t process_monitor_window_size {100};
+		size_t resource_monitor_window_size {100};
 		double cpu_threshold{100.0};
 		double mem_threshold{100.0};
 		std::vector<std::pair<std::string, double>> topic_specs;
@@ -53,6 +54,7 @@ namespace dls
 			spam_threshold = config["events"]["spam_threshold"].as<double>();
 			monitor_period_ms = config["monitor"]["period"].as<size_t>();
             process_monitor_window_size = config["checks"]["process_monitor_window_size"].as<size_t>();
+            resource_monitor_window_size = config["checks"]["resource_monitor_window_size"].as<size_t>();
             cpu_threshold = config["checks"]["cpu_threshold"].as<double>();
             mem_threshold = config["checks"]["mem_threshold"].as<double>();
 
