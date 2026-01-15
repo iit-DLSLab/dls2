@@ -7,9 +7,6 @@ using namespace dls;
 
 PeriodicApp::PeriodicApp(const std::string &ID) 
 	: App(ID)
-	, config_scheduler(YAML::LoadFile("/usr/include/dls2/schedulers/" + ID + "/scheduler.yaml"))
-	, period(std::chrono::milliseconds(config_scheduler["period"].as<int>())), sched_runtime_factor(config_scheduler["runtime_factor"].as<double>())
-	, sched_deadline_factor(config_scheduler["deadline_factor"].as<double>()), runtime(period * sched_runtime_factor), deadline(period * sched_deadline_factor)
 	, failure(false)
 	, pause_mutex()
 	, is_paused(false)
@@ -18,6 +15,14 @@ PeriodicApp::PeriodicApp(const std::string &ID)
 	, realtime_prec(true)
 	, realtime_curr(true)
 {
+	getSchedulerConfig();
+
+	period = std::chrono::milliseconds(config_scheduler["period"].as<int>());
+	sched_runtime_factor = config_scheduler["runtime_factor"].as<double>();
+	sched_deadline_factor = config_scheduler["deadline_factor"].as<double>();
+	runtime = period * sched_runtime_factor;
+	deadline = period * sched_deadline_factor;
+
     this->pid = syscall(SYS_gettid);
 	this->cur_time_factor = this->time_factor.getRealTimeFactor();
 
@@ -71,6 +76,34 @@ PeriodicApp::PeriodicApp(const std::string &ID)
 
 	process_resource_monitor_ = std::make_unique<ProcessResourceMonitor>(
 						this->pid, this->safety_layer_config_->process_monitor_window_size);
+}
+
+void PeriodicApp::getSchedulerConfig()
+{
+	char * val;
+	val = getenv("DLS_SCHEDULER_PATH");
+	std::string scheduler_path = "";
+	if (val != NULL) {
+		scheduler_path = val;
+		std::cout << "SCHEDULER: env var\n";
+	}
+	else{
+		std::string default_path = "/usr/include/dls2/util/messaging/scheduler.yaml";
+		std::ifstream f(default_path.c_str());
+    	auto default_file_exists = f.good();
+		if(default_file_exists){
+			scheduler_path = default_path;
+			std::cout << "SCHEDULER: def path\n";
+			config_scheduler = YAML::LoadFile(scheduler_path)[this->getID()];
+			return;
+		}else{
+			scheduler_path = "/usr/include/dls2/schedulers/" + this->getID() + "/scheduler.yaml";
+			std::cout << "SCHEDULER: plugin path\n";
+		}
+	}
+	config_scheduler = YAML::LoadFile(scheduler_path);
+	std::cout << "Period? " << config_scheduler["period"].as<int>() <<"\n";
+
 }
 
 void PeriodicApp::childMonitor()

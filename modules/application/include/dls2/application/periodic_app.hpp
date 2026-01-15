@@ -7,6 +7,8 @@
 
 #include <boost/process.hpp>
 #include <yaml-cpp/yaml.h>
+#include <string>
+#include <fstream>
 
 namespace dls
 {
@@ -72,6 +74,7 @@ namespace dls
 
 		double getDesiredFrequency() const;
 
+		void getSchedulerConfig();
 		void childMonitor() override;
 
 		double dt;
@@ -81,15 +84,15 @@ namespace dls
 		YAML::Node config_scheduler;
 
 		//! The period of this component
-		const period_t period;
+		period_t period;
 		//! Runtime factor scaling the period to get the runtime
 		double sched_runtime_factor;
 		//! Deadline factor scaling the period to get the deadline
 		double sched_deadline_factor;
 		//! Runtime attribute
-		const period_t runtime;
+		period_t runtime;
 		//! Deadline attribute
-		const period_t deadline;
+		period_t deadline;
 		//! Variable identifying if the periodic app is in failure state
 		bool failure;
 	private:
