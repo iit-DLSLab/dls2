@@ -7,10 +7,11 @@
 
 namespace dls
 {
-	Supervisor::Supervisor(std::string ID)
+	Supervisor::Supervisor(std::string ID, const std::string& robot_name)
     : Layer(ID, 500)
     , ddspart_layers(ID, dls::domains::layers, eprosima::fastdds::rtps::DiscoveryProtocol::SUPER_CLIENT)
     , state_machine_watcher(ID+"_state_machine_watcher")
+    , robot_name(robot_name)
 	{        
        	command_manager.addCommand<>
         (
@@ -157,7 +158,7 @@ namespace dls
             pData->getID(),
             name,
             "periodic_app_plugin",
-            "aliengo"
+            robot_name
         }));
 
         if (pData->proc == nullptr){
@@ -198,7 +199,7 @@ namespace dls
             pData->getID(),
             name,
             "app_plugin",
-            "aliengo"
+            robot_name
         }));
 
         if (pData->proc == nullptr){

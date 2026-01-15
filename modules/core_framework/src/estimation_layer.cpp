@@ -9,10 +9,11 @@
 
 using namespace dls;
 
-EstimationLayer::EstimationLayer(std::string ID) :
+EstimationLayer::EstimationLayer(std::string ID, const std::string& robot_name) :
 	Layer(ID, 300),
 	estimators(),
-	estimators_mutex()
+	estimators_mutex(),
+	robot_name(robot_name)
 	// ddsMonitor(std::make_shared<dls::DDSWriter>(
 	// 	"EstimatorLayer::monitor",
 	// 	dls::domains::estimators,
@@ -103,7 +104,7 @@ bool EstimationLayer::loadEstimator(const Estimator::ID_t& lib_name)
 			pData->getID(),
 			lib_name,
 			"estimator",
-			"aliengo"
+			robot_name
 		}));
 
 		if (pData->proc == nullptr){

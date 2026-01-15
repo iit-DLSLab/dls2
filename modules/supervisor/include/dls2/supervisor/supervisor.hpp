@@ -18,7 +18,7 @@ namespace dls
 	class Supervisor: public Layer
 	{
 	public:
-		Supervisor(std::string ID);
+		Supervisor(std::string ID, const std::string& robot_name);
 		~Supervisor();
 
 		int getNumLayers();
@@ -35,6 +35,8 @@ namespace dls
         state_machine::StateMachineWatcher state_machine_watcher;
 
 		std::map<std::string, std::shared_ptr<AppData>> plugins;
+
+		const std::string robot_name;
 	};
 
 	

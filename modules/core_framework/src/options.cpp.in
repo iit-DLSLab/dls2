@@ -39,6 +39,7 @@ std::string Options::estimation_layer_name = "EstimationLayer";
 bool Options::show_docs                     = false;
 
 std::string Options::robot_name             = "";
+double Options::robot_spawning_height		= 0.0;
 static bool robot_is_specified              = false;
 
 // =============================================================================
@@ -116,40 +117,6 @@ bool Options::parseArgs(int argc, char **argv)
 			}
 			case 'r':
 			{
-				// Verify if the diretory exists
-				if(!std::filesystem::exists("${DLS_INSTALL_MODEL_DIR}"))
-				{
-					std::cerr << "There is no robot library installed" << std::endl;
-					goto invalid_command_line;
-				}
-
-				std::set<std::string> libraries{};
-				std::string textstr(optarg);
-				std::filesystem::directory_iterator dir_it("${DLS_INSTALL_MODEL_DIR}");
-
-
-				for(const auto &file : dir_it)
-				{
-					std::string filename(file.path().filename());
-
-					// Fill "libraries" with the shared libraries that can be called from "load_layer_command"
-					if(filename.find("lib", 0) != std::string::npos &&
-       				   filename.find(".so", filename.size()-3) != std::string::npos)
-					{
-						libraries.insert(filename.substr(3, filename.size() - 6));
-					}
-				}
-
-				if (libraries.size() == 0 || libraries.find(optarg) == libraries.end())
-				{
-					std::cerr << "Unknown robot: " << optarg <<"\nvalid options are: ";
-					for(const auto& lib_name : libraries)
-						std::cerr << lib_name << " ";
-
-					std::cerr << std::endl;
-					goto invalid_command_line;
-				}
-
 				Options::robot_name = std::string{optarg};
 				robot_is_specified = true;
 				// launch_service = true;
