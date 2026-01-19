@@ -47,7 +47,7 @@ namespace dls
 													this->missed_sequence_ids_ = std::abs(expected_seq_id - current_seq_id);
 												}else
 												{
-													this->missed_sequence_ids_ = true;
+													this->missed_sequence_ids_ = 0;
 												}
 												this->prev_sequence_id_ = current_seq_id;
 											}

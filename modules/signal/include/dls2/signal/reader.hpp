@@ -47,7 +47,7 @@ namespace dls
 
 		bool has_sequence_id_;
 
-		uint32_t missed_sequence_ids_{ true };
+		uint32_t missed_sequence_ids_{ 0 };
 		unsigned long prev_sequence_id_ { 0 };
 	};
 
