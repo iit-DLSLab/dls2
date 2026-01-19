@@ -19,6 +19,7 @@ namespace dls
 		double spam_threshold{200};
         double max_exceeding_factor{0.5};
 		double sync_threshold_ms{500};
+		double realtime_tolerance_factor{0.3};
 		size_t monitor_period_ms{100};
 		size_t process_monitor_window_size {100};
 		size_t resource_monitor_window_size {100};
@@ -51,6 +52,7 @@ namespace dls
 
             max_exceeding_factor = config["checks"]["max_exceeding_factor"].as<double>();
 			sync_threshold_ms = config["checks"]["sync_threshold"].as<double>();
+			realtime_tolerance_factor = config["checks"]["realtime_tolerance_factor"].as<double>();
 			spam_threshold = config["events"]["spam_threshold"].as<double>();
 			monitor_period_ms = config["monitor"]["period"].as<size_t>();
             process_monitor_window_size = config["checks"]["process_monitor_window_size"].as<size_t>();

@@ -262,7 +262,7 @@ void PeriodicApp::checkRT()
 {
 	{
 		std::lock_guard<std::mutex> lock(this->frequency_mutex_);
-		realtime_curr = Time::checkFrequency(getDesiredFrequency(), loop_time_prec, current_frequency_);
+		realtime_curr = Time::checkFrequency(this->safety_layer_config_->realtime_tolerance_factor, getDesiredFrequency(), loop_time_prec, current_frequency_);
 	}
 
 	// notify if the process is not running in real time

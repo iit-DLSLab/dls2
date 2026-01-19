@@ -47,7 +47,8 @@ void Time::setRealTimeFactor(double factor)
 	this->timeLink.sendMessage("time_writer", (void *)&msg);
 }
 
-bool Time::checkFrequency(const double &desired_frequency,
+bool Time::checkFrequency(const double &tolerance_factor, 
+						  const double &desired_frequency,
 						  std::chrono::time_point<std::chrono::steady_clock> &loop_time_prec,
 						  double &current_frequency)
 {
@@ -62,5 +63,5 @@ bool Time::checkFrequency(const double &desired_frequency,
 	loop_time_prec = loop_time_curr;
 
 	// check if the process is running in real time.
-	return std::abs(desired_frequency - current_frequency) < 0.1 * desired_frequency; // 10% tolerance
+	return std::abs(desired_frequency - current_frequency) < tolerance_factor * desired_frequency;
 }
