@@ -1,6 +1,6 @@
 set(FASTDDS_STATISTICS OFF CACHE BOOL "Enable fastdds statistics")
 
-add_library(dls_com SHARED
+add_library(dls_com STATIC
 		src/dds_participant.cpp
 		src/dds_listeners.cpp
 		src/dds_reader.cpp
@@ -18,6 +18,7 @@ target_link_libraries(dls_com
 		fastdds
 		dls_domains
 		dls_topics
+		dls_utils
 		yaml-cpp
 		fastdds_statistics_backend
 )
