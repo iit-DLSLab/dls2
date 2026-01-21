@@ -84,7 +84,6 @@ std::string PeriodicApp::getSchedulerPath(const std::string &ID)
 	for (const auto& entry : std::filesystem::directory_iterator(sched_path)) {
 		if (entry.is_regular_file() &&
 			entry.path().filename() == target_file) {
-			std::cout << "Found file: " << entry.path() << '\n';
 			return entry.path();
 		}
 	}
