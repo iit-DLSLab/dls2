@@ -17,4 +17,15 @@ target_link_libraries(dls_supervisor
 		state_machine_watcher
 )
 
+install(
+    FILES
+        data/safety_layer.yaml
+    DESTINATION
+        /usr/include/dls2/supervisor/data
+    COMPONENT
+        dls_dev
+	RENAME 
+		safety_layer.yaml
+)
+
 dls_install(dls_supervisor)
