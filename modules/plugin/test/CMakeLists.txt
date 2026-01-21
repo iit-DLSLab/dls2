@@ -30,8 +30,9 @@ target_link_libraries(${EXECUTABLE_NAME}
 
 install(
 	FILES 				config/scheduler.yaml
-	DESTINATION 		${DLS_SCHEDULERS_CONFIG_DIR}/${PLUGIN_NAME}
+	DESTINATION 		${DLS_SCHEDULERS_CONFIG_DIR}
 	COMPONENT   		dls_runtime
+	RENAME 				${PLUGIN_NAME}.yaml
 )
 
 # installing the library to make it loadable at runtime through DLS2 console

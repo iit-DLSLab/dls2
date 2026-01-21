@@ -35,8 +35,9 @@ install(
 
 install(
 	FILES		config/scheduler.yaml
-	DESTINATION /usr/include/dls2/schedulers/${PLUGIN_NAME}
+	DESTINATION /usr/include/dls2/schedulers/
 	COMPONENT   ${PROJECT_NAME}
+	RENAME  	${PLUGIN_NAME}.yaml
 )
 
 install(

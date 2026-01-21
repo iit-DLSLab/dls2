@@ -1,0 +1,22 @@
+events:
+  spam_threshold: 200 # [ms]
+
+checks:
+  enable_process_died: true
+  enable_wrong_process_state: false # gazebo fails to comply at startup
+  enable_wrong_process_frequency: false
+  enable_missing_input: false # issue: spamming before a trajectory_generator is alive
+  enable_cpu_usage_too_high: true
+  enable_mem_usage_too_high: true
+  enable_inputs_not_synchronized: true
+  enable_wrong_input_frequency: true # problem: safety params to be taken from new yaml files
+  enable_wrong_sequence_id: true
+
+  monitor_period: 100 # [ms]
+  max_exceeding_factor: 0.5 # value in [0,1]: factor of input topic desired freq
+  sync_threshold: 500 # [ms]
+  realtime_tolerance_factor: 0.25 # value in [0,1]: factor of node desired freq
+  resource_monitor_window_size: 30 # samples in cpu/mem usage window
+  process_monitor_window_size: 400 # samples in cpu/mem usage window
+  cpu_threshold: 90.0 # [%] max cpu percentage without warning (process_monitor_window_size buffer mean) 
+  mem_threshold: 90.0 # [%] max mem percentage without warning (process_monitor_window_size buffer mean) 

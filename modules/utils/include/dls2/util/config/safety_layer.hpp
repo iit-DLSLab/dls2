@@ -1,6 +1,10 @@
 #pragma once
 
 #include "yaml-cpp/yaml.h"
+#include <filesystem>
+#include <unordered_map>
+
+#include "dls2/util/time/duration_utils.hpp"
 
 namespace dls
 {
@@ -25,7 +29,7 @@ namespace dls
 		size_t resource_monitor_window_size {100};
 		double cpu_threshold{100.0};
 		double mem_threshold{100.0};
-		std::vector<std::pair<std::string, double>> topic_specs;
+		std::unordered_map<std::string, double> nodes_specs;
 
 		explicit SafetyLayerConfig(const std::string &config_file)
 		{
@@ -36,7 +40,7 @@ namespace dls
 			}
 			catch (const YAML::BadFile &e)
 			{
-				std::cerr << "Error loading periods file: " << e.what() << "\n";
+				std::cerr << "Error loading file: " << e.what() << "\n";
 				return;
 			}
 
@@ -53,19 +57,30 @@ namespace dls
             max_exceeding_factor = config["checks"]["max_exceeding_factor"].as<double>();
 			sync_threshold_ms = config["checks"]["sync_threshold"].as<double>();
 			realtime_tolerance_factor = config["checks"]["realtime_tolerance_factor"].as<double>();
-			spam_threshold = config["events"]["spam_threshold"].as<double>();
-			monitor_period_ms = config["monitor"]["period"].as<size_t>();
+			monitor_period_ms = config["checks"]["monitor_period"].as<size_t>();
             process_monitor_window_size = config["checks"]["process_monitor_window_size"].as<size_t>();
             resource_monitor_window_size = config["checks"]["resource_monitor_window_size"].as<size_t>();
             cpu_threshold = config["checks"]["cpu_threshold"].as<double>();
             mem_threshold = config["checks"]["mem_threshold"].as<double>();
 
-			auto periods_config = config["periods"];
-			for (auto it = periods_config.begin(); it != periods_config.end(); ++it)
-			{
-				std::string topic = it->first.as<std::string>();
-				double period_ms = it->second.as<double>();
-				topic_specs.push_back({topic, 1.0 / (period_ms / 1e3)});
+			spam_threshold = config["events"]["spam_threshold"].as<double>();
+
+			char * val;
+			val = getenv("DLS_SCHEDULER_PATH");
+			std::string sched_default_path = "/usr/include/dls2/schedulers";
+			std::string sched_path = sched_default_path;
+			if (val != NULL) {
+				sched_path = val;
+			}
+			
+			for (const auto& entry : std::filesystem::directory_iterator(sched_path)) {
+				if (entry.is_regular_file() &&
+					entry.path().extension() == ".yaml") {
+						YAML::Node sched_config = YAML::LoadFile(entry.path());
+						auto node_name = entry.path().stem();
+						nodes_specs.insert_or_assign(node_name, 1.0 / (sched_config["period"].as<double>() / 1e3));
+						nodes_specs.insert_or_assign(node_name, 1.0 / toSec(fromMs(sched_config["period"].as<double>())));
+				}
 			}
 		}
 	};

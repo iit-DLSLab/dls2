@@ -7,7 +7,7 @@
 
 #include <boost/process.hpp>
 #include <yaml-cpp/yaml.h>
-#include <string>
+#include <filesystem>
 #include <fstream>
 
 namespace dls
@@ -74,7 +74,7 @@ namespace dls
 
 		double getDesiredFrequency() const;
 
-		void getSchedulerConfig();
+		std::string getSchedulerPath(const std::string &ID);
 		void childMonitor() override;
 
 		double dt;
