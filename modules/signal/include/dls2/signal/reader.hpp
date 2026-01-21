@@ -26,8 +26,11 @@ namespace dls
 		std::chrono::steady_clock::time_point get_latest_timestamp() override;
 		double get_latest_period_ms() override;
 		virtual uint32_t getMissedSequenceIds() override;
+		virtual std::unordered_map<std::string, std::string> getTopicToWriter() override;
 
 		MsgType msg;
+
+		std::string topic_name_ {""};
 	protected:
 		std::shared_ptr<dls::DDSSubListener> listener_;
 		std::function<void()> auxiliary_callback;

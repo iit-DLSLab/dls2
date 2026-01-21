@@ -19,7 +19,7 @@ namespace dls
 	{
 		computeName("reader");
 
-		dds_participant_->addReader(ID_,
+		auto reader = dds_participant_->addReader(ID_,
 									topic,
 									std::function<void(void *)>{
 										[&](void *tuple)
@@ -56,6 +56,11 @@ namespace dls
 											this->auxiliary_callback();
 										}},
 									qos);
+
+		const eprosima::fastdds::dds::TopicDescription* topic_desc = reader->get_topicdescription();
+		if (topic_desc != nullptr) {
+			topic_name_ = topic_desc->get_name();
+		}
 		
 		listener_ = dds_participant_->getSubListener(ID_);
 	}
@@ -125,6 +130,12 @@ namespace dls
 	uint32_t Reader<MsgType>::getMissedSequenceIds()
 	{
 		return missed_sequence_ids_;
+	}
+
+	template <typename MsgType>
+	std::unordered_map<std::string, std::string> Reader<MsgType>::getTopicToWriter()
+	{
+		return this->dds_participant_->getTopicToWriter();
 	}
 }
 #endif /* end of include guard: SIGNAL_READER_TPP */

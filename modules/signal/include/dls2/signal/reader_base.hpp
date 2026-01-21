@@ -27,8 +27,12 @@ namespace dls
 		virtual double get_latest_period_ms() = 0;
 
 		virtual uint32_t getMissedSequenceIds() = 0;
+		virtual std::unordered_map<std::string, std::string> getTopicToWriter() = 0;
 
 		bool received;
+
+		std::unordered_map<std::string, std::string> topic_to_writer_;
+
 	};
 } // end namespace dls
 
