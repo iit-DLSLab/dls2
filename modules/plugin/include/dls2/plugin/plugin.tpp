@@ -15,14 +15,14 @@ namespace dls
 		input_info.latest_timestamp = std::chrono::steady_clock::now();
 		input_info.missed_sequence_ids = 0;
 		input_info.are_inputs_required_on_activation = required_on_activation;
-		input_info.topic_name = topic.first;
-
+		input_info.topic_name = reader->topic_name_;
+		
 		std::lock_guard<std::mutex> lock(input_info_mutex_);
 
 		input_info_.push_back(input_info);
 
 		// TODO: Add number if topic is not unique
-		inputs_map[topic.first] = input_info_.size() - 1; // Store the index of the input in the inputs vector
+		inputs_map[reader->topic_name_] = input_info_.size() - 1; // Store the index of the input in the inputs vector
 	
 		return reader;
 	}

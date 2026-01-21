@@ -5,7 +5,8 @@ namespace dls
 	PeriodicAppPlugin::PeriodicAppPlugin(const std::string &ID, const domainType &domain)
 		: PeriodicApp(ID), Plugin(ID, domain)
 	{
-		topic_monitor_ = std::make_unique<TopicMonitor>(this->inputs_map, this->safety_layer_config_);
+		topic_monitor_ = std::make_unique<TopicMonitor>(ID, this->safety_layer_config_->max_exceeding_factor, 
+			this->inputs_map, this->input_info_, this->safety_layer_config_);
 	}
 
 	PeriodicAppPlugin::~PeriodicAppPlugin()
@@ -31,14 +32,14 @@ namespace dls
 	{
 		PeriodicApp::childMonitor();
 
-		if(topic_monitor_->inputsMapSize() != inputs_map.size()){
-			topic_monitor_->setInputMap(this->inputs_map);
-		}
-
 		std::vector<InputInfo> input_info{};
 		{
 			std::lock_guard<std::mutex> lock(input_info_mutex_);
 			input_info = this->input_info_;
+		}
+
+		if(topic_monitor_->inputsMapSize() != inputs_map.size()){
+			topic_monitor_->init(this->inputs_map, input_info);
 		}
 
 		if(this->safety_layer_config_->enable_wrong_sequence_id){
@@ -63,21 +64,23 @@ namespace dls
 		}
 
 		status_msg.input_topic_info() = topic_monitor_->getInputTopicInfo(input_info); 
-		
-		for(size_t i = 0; i < status_msg.input_topic_info().size(); ++i){
-			 const auto info = status_msg.input_topic_info()[i];
 
-			 if(this->safety_layer_config_->enable_wrong_input_frequency && 
-			   (abs(info.desired_freq() - info.current_freq()) > this->safety_layer_config_->max_exceeding_factor * info.desired_freq())){
-				this->robust_event_notifier.notify(
-					EventID::WRONG_INPUT_FREQUENCY,
-					EventSeverity::WARNING,
-					this->getID() + " app detected unexpected input frequency (" + std::to_string(info.current_freq()) 
-						+ " Hz vs " + std::to_string(info.desired_freq()) +" Hz) on topic " + info.topic_name() + "\n"
-				);
-			 }
+		if(this->safety_layer_config_->enable_wrong_input_frequency){
+			auto nominalFrequency = topic_monitor_->checkDesiredFrequency();
+
+			for(size_t i = 0; i < nominalFrequency.size(); ++i){
+				if(!nominalFrequency.at(i)){
+					const auto& info = status_msg.input_topic_info().at(i);
+					this->robust_event_notifier.notify(
+						EventID::WRONG_INPUT_FREQUENCY,
+						EventSeverity::WARNING,
+						this->getID() + " app detected unexpected input frequency (" + std::to_string(info.current_freq()) 
+							+ " Hz vs " + std::to_string(info.desired_freq()) +" Hz) on topic " + info.topic_name() + "\n"
+					);
+				}
+			}
 		}
-
+		
 		bool are_inputs_sync = topic_monitor_->areTopicsSync(input_info);
 
 		if(this->safety_layer_config_->enable_inputs_not_synchronized && !are_inputs_sync){

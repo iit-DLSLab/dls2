@@ -21,17 +21,24 @@ class TopicMonitor
 
 public:
 
-    explicit TopicMonitor(const std::map<std::string, size_t>& inputs_map, const std::shared_ptr<SafetyLayerConfig> &safety_layer_config);
+    explicit TopicMonitor(
+		const std::string &ID,
+		const double& max_exceeding_factor,
+		const std::map<std::string, size_t>& inputs_map,
+		const std::vector<InputInfo> &input_info,
+		const std::shared_ptr<SafetyLayerConfig> &safety_layer_config);
 
 	[[nodiscard]] double getActualFrequency(const std::string& input_topic, const double& period_ms);
 
+	[[nodiscard]] std::vector<bool> checkDesiredFrequency();
+
 	[[nodiscard]] std::vector<dls2_interface::msg::InputTopicInfo> getInputTopicInfo(const std::vector<InputInfo>& input_info);
 
-	[[nodiscard]] bool areTopicsSync(const std::vector<std::chrono::steady_clock::time_point>& latest_timestamp);
 	[[nodiscard]] bool areTopicsSync(const std::vector<InputInfo>& input_info);
 
 	[[nodiscard]] size_t inputsMapSize();
-	void setInputMap(const std::map<std::string, size_t>& inputs_map);
+	void init(const std::map<std::string, size_t>& inputs_map, 
+								   const std::vector<InputInfo> &input_info);
 
 private:
 
@@ -46,8 +53,12 @@ private:
 	// topic sync threshold
 	double sync_threshold_ms_{ 1000 };
 
+	double max_exceeding_factor_{0.5};
+
 	// topic expected frequencies
-	std::vector<std::pair<std::string, double>> topic_specs_;
+	std::unordered_map<std::string, double> nodes_specs_;
+	std::unordered_map<std::string, bool> enable_checks_;
+	std::string plugin_id_;
 };
 
 

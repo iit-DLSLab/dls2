@@ -15,7 +15,7 @@ namespace dls
 		uint32_t missed_sequence_ids{ 0 };
 		bool are_inputs_required_on_activation{ false };
 		std::string topic_name{""};
-		std::shared_ptr<ReaderBase> reader{};
+		std::shared_ptr<ReaderBase> reader{nullptr};
 	};
 
 	struct OutputInfo
