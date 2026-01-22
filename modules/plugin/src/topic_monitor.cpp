@@ -37,9 +37,8 @@ namespace dls
 		is_nominal.resize(input_topic_infos_.size());
 		for (size_t i = 0; i < input_topic_infos_.size(); i++){
 			const auto& topic_info = input_topic_infos_.at(i);
-			auto& enable_check = enable_checks_.at(topic_info.topic_name());
 
-			if(enable_check && topic_info.current_freq() > 0.0){
+			if(enable_checks_.at(i) && topic_info.current_freq() > 0.0){
 				// Desired frequency available, comparing it against the measured one 
 				auto delta = abs(topic_info.desired_freq() - topic_info.current_freq());
 				is_nominal.at(i) = delta < max_exceeding_factor_ * topic_info.desired_freq();
@@ -58,10 +57,6 @@ namespace dls
 				if(inputs_map_.find(topic_info.topic_name()) == inputs_map_.end()){
 					continue;
 				}
-				auto enable_checks_it = enable_checks_.find(topic_info.topic_name());
-				if(enable_checks_it == enable_checks_.end()){
-					continue;
-				}
 
 				// Latest measurements update
 				const size_t input_info_idx = inputs_map_.at(topic_info.topic_name());
@@ -73,7 +68,7 @@ namespace dls
 				topic_info.missed_sequence_ids() = input_info_item.missed_sequence_ids;
 
 				// Checking if desired frequency is up to date, if needed
-				if(input_info_item.reader == nullptr || enable_checks_it->second){
+				if(input_info_item.reader == nullptr || enable_checks_.at(input_info_idx)){
 					continue;
 				}
 				auto topic_to_writer_map = input_info_item.reader->getTopicToWriter();
@@ -85,11 +80,11 @@ namespace dls
 
 				auto node_it = nodes_specs_.find(writer_it->second);
 				if(node_it == nodes_specs_.end()){
-					enable_checks_[topic_info.topic_name()] = false;
+					enable_checks_.at(input_info_idx) = false;
 				}else{
 					auto desired_freq = node_it->second;
 					topic_info.desired_freq() = desired_freq;
-					enable_checks_[topic_info.topic_name()] = true;
+					enable_checks_.at(input_info_idx) = true;
 				}
 			}
 		}
@@ -150,7 +145,7 @@ namespace dls
 			
 			if(inputs_map.find(topic) != inputs_map.end()){
 				input_topic_infos_.push_back(info);
-				enable_checks_.emplace(topic, false);
+				enable_checks_.push_back(false);
 				frequencies_moving_windows_[topic] = std::make_unique<NumericalMovingWindow<double>>(FREQ_MOVING_WINDOW_DEFAULT_SIZE);
 			}
 		}

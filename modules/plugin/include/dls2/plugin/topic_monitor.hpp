@@ -57,7 +57,7 @@ private:
 
 	// topic expected frequencies
 	std::unordered_map<std::string, double> nodes_specs_;
-	std::unordered_map<std::string, bool> enable_checks_;
+	std::vector<bool> enable_checks_;
 	std::string plugin_id_;
 };
 
