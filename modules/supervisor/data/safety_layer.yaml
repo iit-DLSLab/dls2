@@ -3,13 +3,13 @@ events:
 
 checks:
   enable_process_died: true
-  enable_wrong_process_state: false # gazebo fails to comply at startup
-  enable_wrong_process_frequency: false
-  enable_missing_input: false # issue: spamming before a trajectory_generator is alive
+  enable_wrong_process_state: true
+  enable_wrong_process_frequency: true
+  enable_missing_input: false
   enable_cpu_usage_too_high: true
   enable_mem_usage_too_high: true
   enable_inputs_not_synchronized: true
-  enable_wrong_input_frequency: true # problem: safety params to be taken from new yaml files
+  enable_wrong_input_frequency: false
   enable_wrong_sequence_id: true
 
   monitor_period: 100 # [ms]
