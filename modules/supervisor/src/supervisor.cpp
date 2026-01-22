@@ -126,12 +126,12 @@ namespace dls
         
         for(size_t i = 0; i < cpus_usage.size(); i++){
             if(this->safety_layer_config_->enable_cpu_usage_too_high && 
-               cpus_usage.at(i) > this->safety_layer_config_->cpu_threshold){
+               cpus_usage.at(i) > this->safety_layer_config_->system_cpu_threshold){
                 this->robust_event_notifier.notify(
                     EventID::CPU_USAGE_TOO_HIGH,
                     EventSeverity::WARNING,
                     this->getID() + ": overall cpu usage - on core n. " + std::to_string(i) + " - is " 
-                        + std::to_string(cpus_usage.at(i)) + "(threshold is " + std::to_string(this->safety_layer_config_->cpu_threshold) + ")"
+                        + std::to_string(cpus_usage.at(i)) + "(threshold is " + std::to_string(this->safety_layer_config_->system_cpu_threshold) + ")"
                 );
             }
 

@@ -54,7 +54,8 @@ size_t ProcessResourceMonitor::update()
 	unsigned long long d_ticks = total_ticks - last_total_ticks_;
 	double d_seconds = static_cast<double>(d_ticks) / static_cast<double>(sys_ticks_per_sec_);
 
-	auto cpu_percentage = 100.0 * (d_seconds / delta_time);
+	// cpu_percentage is in [0, N_cores * 100]
+	auto cpu_percentage = 100.0 * (d_seconds / delta_time); // 100 * (CPU_seconds_used / wall_seconds_elapsed)
 
 	cpu_percentage_w_->push(cpu_percentage);
 

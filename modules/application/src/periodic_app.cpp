@@ -122,12 +122,12 @@ void PeriodicApp::childMonitor()
 
 	// notify if the process is using more cpu than expected over time
 	if(this->safety_layer_config_->enable_cpu_usage_too_high &&
-	  (status_msg.cpu_usage() > this->safety_layer_config_->cpu_threshold)){
+	  (status_msg.cpu_usage() > this->safety_layer_config_->process_cpu_threshold)){
 		this->robust_event_notifier.notify(	
 								EventID::CPU_USAGE_TOO_HIGH,
 								EventSeverity::WARNING,
 								"CPU usage is " + std::to_string(status_msg.cpu_usage()) + " (threshold is: " 
-								+ std::to_string(this->safety_layer_config_->cpu_threshold) + ")");
+								+ std::to_string(this->safety_layer_config_->process_cpu_threshold) + ")");
 	}
 
 	// notify if the process is using more memory than expected over time

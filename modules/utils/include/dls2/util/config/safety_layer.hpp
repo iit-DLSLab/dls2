@@ -27,7 +27,8 @@ namespace dls
 		size_t monitor_period_ms{100};
 		size_t process_monitor_window_size {100};
 		size_t resource_monitor_window_size {100};
-		double cpu_threshold{100.0};
+		double system_cpu_threshold{100.0};
+		double process_cpu_threshold{300.0};
 		double mem_threshold{100.0};
 		std::unordered_map<std::string, double> nodes_specs;
 
@@ -60,7 +61,8 @@ namespace dls
 			monitor_period_ms = config["checks"]["monitor_period"].as<size_t>();
             process_monitor_window_size = config["checks"]["process_monitor_window_size"].as<size_t>();
             resource_monitor_window_size = config["checks"]["resource_monitor_window_size"].as<size_t>();
-            cpu_threshold = config["checks"]["cpu_threshold"].as<double>();
+			system_cpu_threshold = config["checks"]["system_cpu_threshold"].as<double>();
+			process_cpu_threshold = config["checks"]["process_cpu_threshold"].as<double>();
             mem_threshold = config["checks"]["mem_threshold"].as<double>();
 
 			spam_threshold = config["events"]["spam_threshold"].as<double>();

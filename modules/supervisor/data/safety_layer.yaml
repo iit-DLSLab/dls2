@@ -18,5 +18,6 @@ checks:
   realtime_tolerance_factor: 0.25 # value in [0,1]: factor of node desired freq
   resource_monitor_window_size: 30 # samples in cpu/mem usage window
   process_monitor_window_size: 400 # samples in cpu/mem usage window
-  cpu_threshold: 90.0 # [%] max cpu percentage without warning (process_monitor_window_size buffer mean) 
-  mem_threshold: 90.0 # [%] max mem percentage without warning (process_monitor_window_size buffer mean) 
+  process_cpu_threshold: 300.0 # [%] value in [0, N_cores * 100] max single process cpu percentage usage without warning (moving window mean)
+  system_cpu_threshold: 90.0 # [%] value in [0, 100] max overall cpu percentage usage without warning (moving window mean)
+  mem_threshold: 90.0 # [%] max mem percentage without warning (moving window mean)
