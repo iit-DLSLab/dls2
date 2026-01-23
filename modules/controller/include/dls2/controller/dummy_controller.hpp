@@ -6,7 +6,6 @@
 #include "dls2/controller/controller.hpp"
 #include "dls2/util/service/service_server.hpp"
 #include "dls2/command/command.hpp"
-#include "dls2/log/log.hpp"
 
 #include "dls_messages/dds/stringmsgPubSubTypes.h"
 
@@ -36,8 +35,6 @@ public:
 
 private:
 	// CommandManager command_manager;
-	// logging::clogstream outstream;
-	// logging::clogstream logstream;
 
 	// ServiceServer<dls2_interface::msg::StringMsgPubSubType, dls2_interface::msg::StringMsgPubSubType> service_server_;
 };

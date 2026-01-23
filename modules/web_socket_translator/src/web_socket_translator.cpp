@@ -99,7 +99,7 @@ namespace dls
 			true
 		);
 
-		scout_sys << "SERVICE " + ID + " IS RUNNING" << std::endl;
+		terminal_logger.info("SERVICE " + ID + " IS RUNNING" << std::endl;
 	}
 
 	WebSocketTranslator::~WebSocketTranslator()
@@ -108,14 +108,14 @@ namespace dls
 
         webserver_.stop();
 
-		scout_sys << "SERVICE " + this->getID() + " IS OFF" << std::endl;
+		terminal_logger.info("SERVICE " + this->getID() + " IS OFF" << std::endl;
 	}
 
     void WebSocketTranslator::serverFunc()
     {
         webserver_.run();
 
-        scout_sys << "#### Web Socket Translator Stopped #####" << std::endl;
+        terminal_logger.info("#### Web Socket Translator Stopped #####" << std::endl;
     } 
 
     void WebSocketTranslator::on_topic_discovery(const std::string& topic_name, const std::string& type_name)
@@ -123,7 +123,7 @@ namespace dls
         if (type_name.find("eprosima::fastdds::statistics::") != std::string::npos)
             return;
 
-        scout_sys << "Topic discovered: " << topic_name << " [ " << type_name << " ]" << std::endl;
+        terminal_logger.info("Topic discovered: " << topic_name << " [ " << type_name << " ]" << std::endl;
 
         auto type_ = dds::get_type_registered_(type_name);
 

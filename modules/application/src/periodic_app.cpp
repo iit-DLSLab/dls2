@@ -43,7 +43,7 @@ PeriodicApp::PeriodicApp(const std::string &ID)
 			std::lock_guard<std::mutex> lock(this->pause_mutex);
 			this->is_paused = true;
 			this->pause_request.notify_all();
-			scout_sys << this->getID() << " execution paused" << std::endl;
+			this->terminal_logger.info(this->getID() + " execution paused");
             return true;
 		}),
 		{{0,1}},
@@ -59,7 +59,7 @@ PeriodicApp::PeriodicApp(const std::string &ID)
 			std::lock_guard<std::mutex> lock(this->pause_mutex);
 			this->is_paused = false;
 			this->pause_request.notify_all();
-			scout_sys << this->getID() << " execution continued" << std::endl;
+			this->terminal_logger.info(this->getID() + " execution continued");
             return true;
 		}),
 		{{1,0}},

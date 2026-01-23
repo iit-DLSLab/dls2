@@ -49,7 +49,7 @@ bool Layer::loadComponentFromDisk(const std::string &name)
     const std::string ID(name);
 	if(this->components.find(ID) != this->components.end())
 	{
-		scout_sys << name << " is already loaded." << std::endl;
+		this->terminal_logger.info(name + " is already loaded.");
 		return false;
 	}
 
@@ -65,7 +65,7 @@ bool Layer::loadComponentFromDisk(const std::string &name)
 	}
 	catch (const std::exception &e)
 	{
-        scout_err << e.what() << std::endl;
+        this->terminal_logger.error(e.what());
 
 		// Try from install location of this layer
 		try
@@ -78,13 +78,13 @@ bool Layer::loadComponentFromDisk(const std::string &name)
 		}
 		catch (const std::exception &e)
 		{
-            scout_err << e.what() << std::endl;
-            scout_err << name << " not found" << std::endl;
+            this->terminal_logger.error(e.what());
+            this->terminal_logger.error(name + " not found");
             return false;
 		}
 	}
 
-	scout_sys << name << " is loaded." << std::endl;
+	this->terminal_logger.info(name + " is loaded.");
 
 	this->addComponent(ID, component);
 	

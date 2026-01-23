@@ -30,7 +30,7 @@ namespace dls
                     }
                     info+="\n";
                 }
-                scout_sys << info << std::endl;
+                this->terminal_logger.info(info);
                 return true;
             }),
             {},
@@ -47,7 +47,7 @@ namespace dls
                 //     command_manager.callCommand("loadProcedure", {type}, "ServiceLayer");
 
                 if(!state_machine_watcher.waitState(type, "idle", sm.async_events[sm.quit_request])){
-                    scout_warn << "Procedure " << type << " not in idle state" << std::endl;
+                    this->terminal_logger.warning("Procedure " + type + " not in idle state");
                 }
 
                 if(command_manager.waitCommand(type, "activate", sm.async_events[sm.quit_request]))
@@ -67,7 +67,7 @@ namespace dls
             std::function<bool(std::string)>([&](std::string type)->bool
             {
                 if(!state_machine_watcher.waitState(type, "idle", sm.async_events[sm.quit_request])){
-                    scout_warn << "Task " << type << " not in idle state" << std::endl;
+                    this->terminal_logger.warning("Task " + type + " not in idle state");
                 }
 
                 if(command_manager.waitCommand(type, "activate", sm.async_events[sm.quit_request]))
@@ -173,7 +173,7 @@ namespace dls
     {	
         if(this->plugins.find(name) != this->plugins.end())
         {
-            scout_err << "plugin " + name + " already loaded" << std::endl;
+            this->terminal_logger.error("plugin " + name + " already loaded");
             return false;
         }
 
@@ -183,10 +183,10 @@ namespace dls
         char *child_process_launcher = std::getenv("DLS_CHILD_PROCESS_LAUNCHER");
         if(!child_process_launcher)
         {
-            scout_err <<
+            this->terminal_logger.error(
                 "env variable DLS_CHILD_PROCESS_LAUNCHER not "
                 "defined.  This is probably an error with the launch script"
-            << std::endl;
+        );
             return false;
         }
 
@@ -214,7 +214,7 @@ namespace dls
     {	
         if(this->plugins.find(name) != this->plugins.end())
         {
-            scout_err << "plugin " + name + " already loaded" << std::endl;
+            this->terminal_logger.error("plugin " + name + " already loaded");
             return false;
         }
 
@@ -224,10 +224,10 @@ namespace dls
         char *child_process_launcher = std::getenv("DLS_CHILD_PROCESS_LAUNCHER");
         if(!child_process_launcher)
         {
-            scout_err <<
+            this->terminal_logger.error(
                 "env variable DLS_CHILD_PROCESS_LAUNCHER not "
                 "defined.  This is probably an error with the launch script"
-            << std::endl;
+            );
             return false;
         }
 

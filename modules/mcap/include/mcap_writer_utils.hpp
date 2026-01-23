@@ -2,7 +2,7 @@
 #define MCAP_WRITER_UTILS_HPP
 
 #include "mcap/writer.hpp"
-#include "dls2/log/log.hpp"
+#include "dls2/log/terminal_logger.hpp"
 #include <nlohmann/json.hpp>
 #include <map>
 
@@ -110,7 +110,7 @@ namespace dls
 		/**
 		 * @brief Used to print information in Log layer
 		 */
-		dls::logging::clogstream clogstream_;
+		dls::logging::TerminalLogger terminal_logger_;
     };
 } //namespace dls
 

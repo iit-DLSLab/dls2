@@ -3,7 +3,7 @@
 
 #include "mcap/reader.hpp"
 #include "mcap_support/mcap_reader_support.hpp"
-#include "dls2/log/log.hpp"
+#include "dls2/log/terminal_logger.hpp"
 #include <nlohmann/json.hpp>
 
 namespace dls
@@ -71,7 +71,7 @@ namespace dls
 		/**
 		 * @brief Used to print information in Log layer
 		 */
-		dls::logging::clogstream clogstream_;
+		dls::logging::TerminalLogger terminal_logger_;
     };
 } //namespace dls
 

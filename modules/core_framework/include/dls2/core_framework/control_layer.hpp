@@ -20,7 +20,7 @@
 #include "dls2/util/messaging/dds_reader.hpp"
 #include "dls2/util/messaging/dds_writer.hpp"
 #include "dls2/math/ramp.hpp"
-#include "dls2/log/log.hpp"
+#include "dls2/log/terminal_logger.hpp"
 
 #include <pthread.h>
 
@@ -130,10 +130,6 @@ private:
 	pthread_t controlSignalGatherThread;
 
 	static void *controlSignalGather(void *data);
-
-	// ================================ Members ================================
-	logging::clogstream clog;
-	logging::cfatalstream cfatal;
 };
 
 } // end namespace dls

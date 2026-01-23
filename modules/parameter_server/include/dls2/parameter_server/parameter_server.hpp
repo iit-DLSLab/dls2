@@ -7,7 +7,6 @@
 
 #include "dls2/service/service_server.hpp"
 #include "dls2/command/command_manager.hpp"
-#include "dls2/log/log.hpp"
 
 namespace dls
 {

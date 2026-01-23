@@ -6,7 +6,7 @@ namespace dls
 {
     MCAPReaderUtils::MCAPReaderUtils()
         : mcap_reader_support_(std::make_shared<mcap_reader_support::MCAPReaderSupport>())
-        , clogstream_("MCAPReaderUtils")
+        , terminal_logger_("MCAPReaderUtils")
         {}
 
     MCAPReaderUtils::~MCAPReaderUtils()
@@ -56,13 +56,13 @@ namespace dls
             }
             else
             {
-                clogstream_ << "Start playback of an MCAP log file" << std::endl;
+                terminal_logger_.info("Start playback of an MCAP log file");
 
                 setPlaybackStatus(true);
 
                 readMCAPLog(false);
 
-                clogstream_ << "End of MCAP log file" << std::endl;
+                terminal_logger_.info("End of MCAP log file");
 
                 resetData();
             }
@@ -70,7 +70,7 @@ namespace dls
         // Return if there is an error (e.g. the path to the MCAP file is not valid)
         catch(const std::string& error)
         {
-            clogstream_ << error << std::endl;
+            terminal_logger_.error(error);
             return;
         }
     }
@@ -79,11 +79,11 @@ namespace dls
     {
         if(isPlaybackOngoing())
         {
-            clogstream_ << "Stop playback of the MCAP log file" << std::endl;
+            terminal_logger_.info("Stop playback of the MCAP log file");
 
             setPlaybackStatus(false);
         }
-        else { clogstream_ << "No MCAP log playback ongoing" << std::endl; }
+        else { terminal_logger_.info("No MCAP log playback ongoing"); }
     }
 
     void MCAPReaderUtils::readMCAPLog(bool print_mcap_log)
@@ -123,14 +123,14 @@ namespace dls
             // Print the MCAP log file content for debug
             if (print_mcap_log)
             {
-                clogstream_ << it->message.sequence << ") " << it->channel->topic << "\t\t\t Time: " << it->message.logTime << std::endl;
+                terminal_logger_.info(it->message.sequence << ") " + it->channel->topic + "\t\t\t Time: " + it->message.logTime);
 
-                clogstream_ << "{" << std::endl;
+                terminal_logger_.info("{");
                 for (auto kv : parsed.items())
                 {
-                    clogstream_ << "\t" << kv.key() << ": " << kv.value() << std::endl;
+                    terminal_logger_.info("\t" + kv.key() + ": " + kv.value());
                 }
-                clogstream_ << "}" << std::endl;
+                terminal_logger_.info("}");
             }
         }
     }

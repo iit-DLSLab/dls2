@@ -1,4 +1,4 @@
-#include "dls2/log/log.hpp"
+#include "dls2/log/event_logger.hpp"
 #include "magic_enum/magic_enum.hpp"
 
 #include "dls2/util/messaging/dds_writer.hpp"
