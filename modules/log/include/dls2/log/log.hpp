@@ -5,99 +5,118 @@
 #include "dls2/domains/domains.hpp"
 #include "dls2/topics/topics.hpp"
 #include "dls2/util/messaging/dds_writer.hpp"
-#include "dls2/util/time/duration_utils.hpp"
-
 #include "event_config.hpp"
 #include "dls2/util/messaging/dds_reader.hpp"
 #include "dls2/util/messaging/dds_writer.hpp"
+#include <dls2/util/time/time.hpp>
+
 #include <boost/circular_buffer.hpp>
 
 #include <streambuf>
 #include <mutex>
+#include <iostream>
+#include <string>
+#include <cstddef>
+#include <ctime>
+#include <cstdio>
+
 namespace dls
 {
 	namespace logging
 	{
-		class LogStreamBuffer : public std::streambuf
-		{
-		public:
-			LogStreamBuffer
-			(
-				dls::topicType topic_,
-				std::size_t buffer_size = 512,
-				std::string prefix_ = ""
-			);
-			~LogStreamBuffer();
+		constexpr const char* RED    = "\033[31m";
+		constexpr const char* YELLOW = "\033[33m";
+		constexpr const char* RESET  = "\033[0m";
 
-			LogStreamBuffer(const LogStreamBuffer&) = delete;
-			LogStreamBuffer &operator=(const LogStreamBuffer&) = delete;
+		class ColorStreambuf : public std::streambuf {
 
-		private:
-			int_type overflow(int_type ch) override;
-			int sync() override;
-			bool flush_buffer();
-			dls::topicType topic;
-			std::shared_ptr<dls::DDSWriter> ddsLogging;
+			public:
+				ColorStreambuf(std::ostream& out,
+								std::string prefix,
+								const char* color_code,
+								std::size_t /*buffer_size*/ = 512);
+				~ColorStreambuf() override;
 
-			char *buf;
-			const std::string prefix;
-		};
+			protected:
+				int overflow(int ch) override; // Called when a character is inserted
+				int sync() override; // Called on std::flush / std::endl and some other cases
+
+			private:
+				void flush_line_if_needed(bool flush_even_if_empty);
+
+				std::ostream& out_;
+				std::string prefix_;
+				const char* color_;
+				std::string buffer_;
+			};
 
 		/// Debug log stream
-		///
-		/// Use this log stream to log debugging data
-		class cdbgstream : public std::ostream
+		class cdbgstream : public std::ostream 
 		{
 		public:
-			cdbgstream(const std::string &prefix, std::size_t buffer_size = 512);
-			~cdbgstream();
+			cdbgstream(const std::string& prefix, std::size_t buffer_size = 512);
+			~cdbgstream() override;
+
+			void print(const std::string& s);
+
+		private:
+			ColorStreambuf buf_;
 		};
 
-		/// Log log stream
-		///
-		/// Use this stream to log system events, such as 'controller loaded', 'motion
-		/// generator exited' etc.
-		class clogstream : public std::ostream
+		/// Log info stream
+		class clogstream : public std::ostream 
 		{
 		public:
-			clogstream(const std::string &prefix, std::size_t buffer_size = 512);
-			~clogstream();
+			clogstream(const std::string& prefix, std::size_t buffer_size = 512);
+			~clogstream() override;
+
+			void print(const std::string& s);
+
+		private:
+			ColorStreambuf buf_;
 		};
 
 		/// Print log stream
-		///
-		/// Use this class to log messages that should also be shown to the user
-		class warnstream : public std::ostream
+		class warnstream : public std::ostream 
 		{
 		public:
-			warnstream(const std::string &prefix, std::size_t buffer_size = 512);
-			~warnstream();
-		};
+			warnstream(const std::string& prefix, std::size_t buffer_size = 512);
+			~warnstream() override;
 
+			void print(const std::string& s);
+
+		private:
+			ColorStreambuf buf_;
+		};
+		
 		/// Error log stream
-		///
-		/// Use this log stream to report errors that occurred, but from which the
-		/// system can recover. Also log possible future fatal errors for the operator's
-		/// attention here.
-		class cerrstream : public std::ostream
+		class cerrstream : public std::ostream 
 		{
 		public:
-			cerrstream(const std::string &prefix, std::size_t buffer_size = 512);
-			~cerrstream();
+			cerrstream(const std::string& prefix, std::size_t buffer_size = 512);
+			~cerrstream() override;
+
+			void print(const std::string& s);
+
+		private:
+			ColorStreambuf buf_;
 		};
 
 		/// Fatal error log stream
-		///
-		/// Log fatal errors that occured here. These should be errors from which the
-		/// system cannot recover without operator intervention.
-		class cfatalstream : public std::ostream
+		class cfatalstream : public std::ostream 
 		{
 		public:
-			cfatalstream(const std::string &prefix, std::size_t buffer_size = 512);
-			~cfatalstream();
+			cfatalstream(const std::string& prefix, std::size_t buffer_size = 512);
+			~cfatalstream() override;
+
+			void print(const std::string& s);
+
+		private:
+			ColorStreambuf buf_;
 		};
 
-		class EventNotifier{
+		class EventNotifier
+		{
 		public:
 			EventNotifier(const std::string &name);
 

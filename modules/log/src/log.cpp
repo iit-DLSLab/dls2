@@ -6,172 +6,162 @@
 #include <thread>
 #include <climits>
 
-// =============================================================================
-// Using Declarations
-// =============================================================================
 using namespace dls::logging;
 
 // =============================================================================
-// LogStreamBuffer
+// ColorStreambuf
 // =============================================================================
-// -----------------------------------------------------------------------------
-// Constructors
-// -----------------------------------------------------------------------------
-LogStreamBuffer::LogStreamBuffer
-(
-	dls::topicType topic_,
-	std::size_t buffer_size,
-	std::string prefix_
-)
-	: topic(topic_)
-	, buf(new char[buffer_size])
-	, prefix(prefix_ + ": ")
-{
-	eprosima::fastdds::dds::DataWriterQos qos(eprosima::fastdds::dds::DATAWRITER_QOS_DEFAULT);
-	qos.reliability().kind = eprosima::fastdds::dds::RELIABLE_RELIABILITY_QOS;
-	qos.history().kind = eprosima::fastdds::dds::KEEP_ALL_HISTORY_QOS;
-	ddsLogging = std::make_shared<dls::DDSWriter>(
-				prefix_,
-				dls::domains::logging,
-				topic_,
-				qos
-			);
-	setp(buf, buf + buffer_size -1);
+ColorStreambuf::ColorStreambuf(std::ostream& out,
+								std::string prefix,
+								const char* color_code,
+								std::size_t /*buffer_size*/)
+	: out_(out),
+	prefix_(std::move(prefix)),
+	color_(color_code)
+{}
+
+ColorStreambuf::~ColorStreambuf() {
+	flush_line_if_needed(true);
 }
 
-LogStreamBuffer::~LogStreamBuffer()
-{
-	delete[] buf;
-}
-// -----------------------------------------------------------------------------
-// Interface Override
-// -----------------------------------------------------------------------------
-LogStreamBuffer::int_type LogStreamBuffer::overflow(int_type ch)
-{
-	if(ch != traits_type::eof())
-	{
-		*pptr() = ch;
-		pbump(1);
-		if(flush_buffer()) return ch;
+// Called when a character is inserted
+int ColorStreambuf::overflow(int ch) {
+	if (ch == traits_type::eof()) {
+		return traits_type::not_eof(ch);
 	}
 
-	return traits_type::eof();
+	char c = static_cast<char>(ch);
+	if (c == '\n') {
+		flush_line_if_needed(false); // flush current line
+		return ch;
+	}
+
+	buffer_.push_back(c);
+	return ch;
 }
 
-int LogStreamBuffer::sync()
-{
-	return flush_buffer()? 0 : -1;
+// Called on std::flush / std::endl and some other cases
+int ColorStreambuf::sync() {
+	flush_line_if_needed(false);
+	return 0;
 }
-bool LogStreamBuffer::flush_buffer()
+
+void ColorStreambuf::flush_line_if_needed(bool flush_even_if_empty) {
+	if (buffer_.empty() && !flush_even_if_empty) return;
+
+	// Print: color + prefix + buffered text + reset + newline (if we flushed because of '\n', newline already implied)
+	out_ << color_ << prefix_ << buffer_ << RESET << '\n';
+	out_.flush();
+	buffer_.clear();
+}
+// =============================================================================
+// cdbgstream
+// =============================================================================
+cdbgstream::cdbgstream(const std::string& prefix, std::size_t buffer_size)
+	: std::ostream(nullptr),
+	buf_(std::cout, prefix, YELLOW, buffer_size)
 {
-	std::shared_ptr<dls2_interface::msg::String> msg(new dls2_interface::msg::String());
-	msg->msg(this->prefix + std::string(buf, pptr()));
+	rdbuf(&buf_);
+}
 
-	this->ddsLogging->sendMessage(msg.get());
+cdbgstream::~cdbgstream() {
+	// Ensure any partial line is flushed and color reset happens in buf_
+	flush();
+}
 
-	// std::cout << std::string(buf, pptr());
-	auto n = pptr() - pbase();
-	pbump(-n);
-	return true;
+void cdbgstream::print(const std::string& s) { 
+	auto time = Time::convertTimeToDate(std::chrono::duration_cast<std::chrono::nanoseconds>( 
+					std::chrono::system_clock::now().time_since_epoch()).count()
+				);
+	(*this) << time << " [DEBUG] " << s << '\n'; 
 }
 
 // =============================================================================
-// Streams
+// clogstream
 // =============================================================================
-// -----------------------------------------------------------------------------
-// Debug Stream
-// -----------------------------------------------------------------------------
-cdbgstream::cdbgstream(const std::string &prefix, std::size_t buffer_size) :
-	std::ostream
-	(
-		new LogStreamBuffer
-		(
-			dls::topics::debug_log_stream,
-			buffer_size,
-			prefix
-		)
-	)
-{ }
-
-cdbgstream::~cdbgstream()
+clogstream::clogstream(const std::string& prefix, std::size_t buffer_size)
+	: std::ostream(nullptr),
+	buf_(std::cout, prefix, RESET, buffer_size)
 {
-	delete rdbuf();
+	rdbuf(&buf_);
 }
-// -----------------------------------------------------------------------------
-// Log Stream
-// -----------------------------------------------------------------------------
-clogstream::clogstream(const std::string &prefix, std::size_t buffer_size) :
-	std::ostream
-	(
-		new LogStreamBuffer
-		(
-			dls::topics::info_log_stream,
-			buffer_size,
-			prefix
-		)
-	)
-{ }
 
-clogstream::~clogstream()
-{
-	delete rdbuf();
+clogstream::~clogstream() {
+	// Ensure any partial line is flushed and color reset happens in buf_
+	flush();
 }
-// -----------------------------------------------------------------------------
-// Cout Stream
-// -----------------------------------------------------------------------------
-warnstream::warnstream(const std::string &prefix, std::size_t buffer_size) :
-	std::ostream
-	(
-		new LogStreamBuffer
-		(
-			dls::topics::warn_log_stream,
-			buffer_size,
-			prefix
-		)
-	)
-{ }
 
-warnstream::~warnstream()
-{
-	delete rdbuf();
+void clogstream::print(const std::string& s) { 
+	auto time = Time::convertTimeToDate(std::chrono::duration_cast<std::chrono::nanoseconds>( 
+					std::chrono::system_clock::now().time_since_epoch()).count()
+				);
+	(*this) << time << " [INFO] " << s << '\n'; 
 }
-// -----------------------------------------------------------------------------
-// Error Stream
-// -----------------------------------------------------------------------------
-cerrstream::cerrstream(const std::string &prefix, std::size_t buffer_size) :
-	std::ostream
-	(
-		new LogStreamBuffer
-		(
-			dls::topics::error_log_stream,
-			buffer_size,
-			prefix
-		)
-	)
-{ }
 
-cerrstream::~cerrstream()
+// =============================================================================
+// warnstream
+// =============================================================================
+warnstream::warnstream(const std::string& prefix, std::size_t buffer_size)
+	: std::ostream(nullptr),
+	buf_(std::cout, prefix, YELLOW, buffer_size)
 {
-	delete rdbuf();
+	rdbuf(&buf_);
 }
-// -----------------------------------------------------------------------------
-// Fatal Error Stream
-// -----------------------------------------------------------------------------
-cfatalstream::cfatalstream(const std::string &prefix, std::size_t buffer_size) :
-	std::ostream
-	(
-		new LogStreamBuffer
-		(
-			dls::topics::fatal_log_stream,
-			buffer_size,
-			prefix
-		)
-	)
-{ }
 
-cfatalstream::~cfatalstream()
+warnstream::~warnstream() {
+	// Ensure any partial line is flushed and color reset happens in buf_
+	flush();
+}
+
+void warnstream::print(const std::string& s) { 
+	auto time = Time::convertTimeToDate(std::chrono::duration_cast<std::chrono::nanoseconds>( 
+					std::chrono::system_clock::now().time_since_epoch()).count()
+				);
+	(*this) << time << " [WARNING] " << s << '\n'; 
+}
+
+// =============================================================================
+// cerrstream
+// =============================================================================
+cerrstream::cerrstream(const std::string& prefix, std::size_t buffer_size)
+	: std::ostream(nullptr),
+	buf_(std::cerr, prefix, RED, buffer_size)
 {
-	delete rdbuf();
+	rdbuf(&buf_);
+}
+
+cerrstream::~cerrstream() {
+	// Ensure any partial line is flushed and color reset happens in buf_
+	flush();
+}
+
+void cerrstream::print(const std::string& s) { 
+	auto time = Time::convertTimeToDate(std::chrono::duration_cast<std::chrono::nanoseconds>( 
+					std::chrono::system_clock::now().time_since_epoch()).count()
+				);
+	(*this) << time << " [ERROR] " << s << '\n'; 
+}
+
+// =============================================================================
+// cfatalstream
+// =============================================================================
+cfatalstream::cfatalstream(const std::string& prefix, std::size_t buffer_size)
+	: std::ostream(nullptr),
+	buf_(std::cerr, prefix, RED, buffer_size)
+{
+	rdbuf(&buf_);
+}
+
+cfatalstream::~cfatalstream() {
+	// Ensure any partial line is flushed and color reset happens in buf_
+	flush();
+}
+
+void cfatalstream::print(const std::string& s) {
+	auto time = Time::convertTimeToDate(std::chrono::duration_cast<std::chrono::nanoseconds>( 
+					std::chrono::system_clock::now().time_since_epoch()).count()
+				);
+	(*this) << time << " [FATAL] " << s << '\n'; 
 }
 
 // =============================================================================
@@ -192,7 +182,7 @@ EventNotifier::EventNotifier(const std::string &name)
 				dls::topics::log_events,
 				qos
 	);
-} // end constructor
+}
 
 void EventNotifier::notify(
 	const EventID& event_id,
@@ -206,22 +196,22 @@ void EventNotifier::notify(
 	msg.header().sequence_id() = (msg.header().sequence_id() + 1) % MAX_SEQUENCE_ID;
 	msg.header().timestamp() = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
 	dds_writer->sendMessage(&msg);
-} // end notify
+}
 
 std::string EventNotifier::get_name() const
 {
 	return name;
-} // end get_name
+}
 
 dls2_interface::msg::EventLog EventNotifier::getMsg() const
 {
 	return msg;
-} // end getMsg
+}
 
 bool EventNotifier::hasMatched()
 {
 	return dds_writer->hasMatched();
-} // end hasMatched
+}
 
 bool EventNotifier::waitForMatch()
 {
@@ -230,7 +220,7 @@ bool EventNotifier::waitForMatch()
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
 	return true;
-} // end waitForMatch
+}
 
 
 // =============================================================================
@@ -303,24 +293,24 @@ EventListener::EventListener(const std::string &name)
 					}
 				},
 				qos);
-} // end constructor
+}
 
 std::string EventListener::get_name() const
 {
 	return name;
-} // end get_name
+}
 
 int EventListener::getNumOfMatches() const
 {
 	return dds_reader->getNumOfMatches();
-} // end getNumOfMatches
+}
 
 unsigned long long int EventListener::getUnboundedBufferIdx() const
 {
 	return unbounded_buffer_idx;
-} // end getUnboundedBufferIdx
+}
 
 unsigned long int EventListener::getBufferMaxIdx() const
 {
 	return event_buffer.capacity()-1;
-} // end getBufferMaxIdx
+}
