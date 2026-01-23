@@ -28,6 +28,7 @@ namespace dls
 			std::chrono::time_point<std::chrono::steady_clock> &loop_time_prec,
 			double &current_frequency
 		);
+		static std::string convertTimeToDate(long long epoch_ns);
 
 	private:
 		

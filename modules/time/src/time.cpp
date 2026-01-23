@@ -65,3 +65,31 @@ bool Time::checkFrequency(const double &tolerance_factor,
 	// check if the process is running in real time.
 	return std::abs(desired_frequency - current_frequency) < tolerance_factor * desired_frequency;
 }
+
+
+std::string Time::convertTimeToDate(long long epoch_ns)
+{
+	// Split into seconds + nanoseconds
+	std::time_t seconds = static_cast<std::time_t>(epoch_ns / 1'000'000'000);
+	long int nanoseconds = epoch_ns % 1'000'000'000;
+
+	std::tm tm{};
+#if defined(_WIN32)
+	localtime_s(&tm, &seconds);
+#else
+	localtime_r(&seconds, &tm);
+#endif
+
+	char buf[64];
+	std::snprintf(buf, sizeof(buf),
+				"%04d-%02d-%02d %02d:%02d:%02d.%09ld",
+				tm.tm_year + 1900,
+				tm.tm_mon + 1,
+				tm.tm_mday,
+				tm.tm_hour,
+				tm.tm_min,
+				tm.tm_sec,
+				nanoseconds);
+
+	return std::string(buf);
+}
