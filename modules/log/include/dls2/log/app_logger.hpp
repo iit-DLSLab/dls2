@@ -22,9 +22,11 @@ namespace dls
 				void fatal(const std::string& s, const EventID& event_id = EventID::GENERAL_ERROR);
 
 			private:
+				
 				TerminalLogger terminal_logger_;
 				EventNotifier event_notifier_; // TODO: put robust event notifier
-				FileLogger file_logger_;
+				std::unique_ptr<FileLogger> file_logger_ { nullptr };
+
 				bool enable_log_terminal_;
 				bool enable_event_notify_;
 				bool enable_file_log_;
