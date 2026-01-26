@@ -167,7 +167,7 @@ ServiceLayer::ServiceLayer(std::string ID, const std::string& robot_name)
 
 ServiceLayer::~ServiceLayer()
 {
-	this->terminal_logger.info("#### SERVICE LAYER OFF ####");
+	this->app_logger.info("#### SERVICE LAYER OFF ####");
 }
 
 void ServiceLayer::monitor()
@@ -194,7 +194,7 @@ bool ServiceLayer::loadService(const std::string& lib_name)
 
 	if(this->services.find(lib_name) != this->services.end())
 	{
-		this->terminal_logger.error( "service " + lib_name + " already loaded");
+		this->app_logger.error( "service " + lib_name + " already loaded");
 		return false;
 	}
 
@@ -207,7 +207,7 @@ bool ServiceLayer::loadService(const std::string& lib_name)
 		char *child_process_launcher = std::getenv("DLS_CHILD_PROCESS_LAUNCHER");
 		if(!child_process_launcher)
 		{
-			this->terminal_logger.error(
+			this->app_logger.error(
 				"env variable DLS_CHILD_PROCESS_LAUNCHER not "
 				"defined.  This is probably an error with the launch script"
 		);
@@ -223,7 +223,7 @@ bool ServiceLayer::loadService(const std::string& lib_name)
 		}));
 
 		if (pData->proc == nullptr){
-			this->terminal_logger.error( "Service " << lib_name <<" failed to launch: nullptr");
+			this->app_logger.error( "Service " << lib_name <<" failed to launch: nullptr");
 			return false;
 		}
 
@@ -242,7 +242,7 @@ bool ServiceLayer::unloadService(const std::string ID)
 
 	if (res == this->services.end())
 	{
-		this->terminal_logger.error( "Service " + ID + " is not loaded");
+		this->app_logger.error( "Service " + ID + " is not loaded");
 		return false;
 	}
 
@@ -258,11 +258,11 @@ bool ServiceLayer::unloadService(const std::string ID)
 			}
 			return true;
 		}), 2000, 10, unloaded)){
-		this->terminal_logger.warning("### FORCING SERVICE " << ID << " EXIT ###");
+		this->app_logger.warning("### FORCING SERVICE " << ID << " EXIT ###");
 		kill(pData->proc->id(), SIGKILL);
 	}
 
-	this->terminal_logger.info("Service " + ID + " is unloaded");
+	this->app_logger.info("Service " + ID + " is unloaded");
 	pData->proc = nullptr;
 	this->services.erase(ID);
     return true;
@@ -272,7 +272,7 @@ bool ServiceLayer::loadDataVisualizer(const std::string& lib_name)
 {
 	if(this->data_visualizers_.find(lib_name) != this->data_visualizers_.end())
 	{
-		this->terminal_logger.error( "Data visualizer " + lib_name + " already loaded");
+		this->app_logger.error( "Data visualizer " + lib_name + " already loaded");
 		return false;
 	}
 
@@ -285,7 +285,7 @@ bool ServiceLayer::loadDataVisualizer(const std::string& lib_name)
 		char *child_process_launcher = std::getenv("DLS_CHILD_PROCESS_LAUNCHER");
 		if(!child_process_launcher)
 		{
-			this->terminal_logger.error(
+			this->app_logger.error(
 				"env variable DLS_CHILD_PROCESS_LAUNCHER not "
 				"defined.  This is probably an error with the launch script"
 			);
@@ -301,7 +301,7 @@ bool ServiceLayer::loadDataVisualizer(const std::string& lib_name)
 		}));
 
 		if (pData->proc == nullptr){
-			this->terminal_logger.error( "Data visualizer " << lib_name <<" failed to launch: nullptr");
+			this->app_logger.error( "Data visualizer " << lib_name <<" failed to launch: nullptr");
 			return false;
 		}
 
@@ -318,7 +318,7 @@ bool ServiceLayer::unloadDataVisualizer(const std::string ID)
 
 	if (res == this->data_visualizers_.end())
 	{
-		this->terminal_logger.error( "Data visualizer " + ID + " is not loaded");
+		this->app_logger.error( "Data visualizer " + ID + " is not loaded");
 		return false;
 	}
 
@@ -334,11 +334,11 @@ bool ServiceLayer::unloadDataVisualizer(const std::string ID)
 			}
 			return true;
 		}), 2000, 10, unloaded)){
-		this->terminal_logger.warning("### FORCING DATA VISUALIZER " << ID << " EXIT ###");
+		this->app_logger.warning("### FORCING DATA VISUALIZER " << ID << " EXIT ###");
 		kill(pData->proc->id(), SIGKILL);
 	}
 
-	this->terminal_logger.info("Data visualizer " + ID + " is unloaded");
+	this->app_logger.info("Data visualizer " + ID + " is unloaded");
 	pData->proc = nullptr;
 	this->data_visualizers_.erase(ID);
     return true;
@@ -348,7 +348,7 @@ bool ServiceLayer::loadGeneric(const std::string& name)
 {
   if (this->generics.find(name) != this->generics.end())
   {
-    this->terminal_logger.error( "generic " + name + " already loaded");
+    this->app_logger.error( "generic " + name + " already loaded");
     return false;
   }
 
@@ -358,7 +358,7 @@ bool ServiceLayer::loadGeneric(const std::string& name)
   char *child_process_launcher = std::getenv("DLS_CHILD_PROCESS_LAUNCHER");
   if (!child_process_launcher)
   {
-    this->terminal_logger.error(
+    this->app_logger.error(
       "env variable DLS_CHILD_PROCESS_LAUNCHER not "
       "defined.  This is probably an error with the launch script"
       );
@@ -393,7 +393,7 @@ bool ServiceLayer::unloadGeneric(const std::string &name)
 
   if (res == this->generics.end())
   {
-    this->terminal_logger.error( "Generic " + name + " is not loaded");
+    this->app_logger.error( "Generic " + name + " is not loaded");
     return false;
   }
 
@@ -421,7 +421,7 @@ bool ServiceLayer::loadGeneric(const std::string& name)
 {
   if (this->generics.find(name) != this->generics.end())
   {
-    this->terminal_logger.error( "generic " + name + " already loaded");
+    this->app_logger.error( "generic " + name + " already loaded");
     return false;
   }
 
@@ -431,7 +431,7 @@ bool ServiceLayer::loadGeneric(const std::string& name)
   char *child_process_launcher = std::getenv("DLS_CHILD_PROCESS_LAUNCHER");
   if (!child_process_launcher)
   {
-    this->terminal_logger.error(
+    this->app_logger.error(
       "env variable DLS_CHILD_PROCESS_LAUNCHER not "
       "defined.  This is probably an error with the launch script"
       );
@@ -466,7 +466,7 @@ bool ServiceLayer::unloadGeneric(const std::string &name)
 
   if (res == this->generics.end())
   {
-    this->terminal_logger.error( "Generic " + name + " is not loaded");
+    this->app_logger.error( "Generic " + name + " is not loaded");
     return false;
   }
 
@@ -494,7 +494,7 @@ bool ServiceLayer::loadTask(const std::string& name)
 {
 	if(this->tasks.find(name) != this->tasks.end())
 	{
-		this->terminal_logger.error( "task " + name + " already loaded");
+		this->app_logger.error( "task " + name + " already loaded");
 		return false;
 	}
 
@@ -504,7 +504,7 @@ bool ServiceLayer::loadTask(const std::string& name)
 	char *child_process_launcher = std::getenv("DLS_CHILD_PROCESS_LAUNCHER");
 	if(!child_process_launcher)
 	{
-		this->terminal_logger.error(
+		this->app_logger.error(
 			"env variable DLS_CHILD_PROCESS_LAUNCHER not "
 			"defined.  This is probably an error with the launch script"
 		);
@@ -538,7 +538,7 @@ bool ServiceLayer::unloadTask(const std::string &name)
 
 	if (res == this->tasks.end())
 	{
-		this->terminal_logger.error( "Task " + name + " is not loaded");
+		this->app_logger.error( "Task " + name + " is not loaded");
 		return false;
 	}
 

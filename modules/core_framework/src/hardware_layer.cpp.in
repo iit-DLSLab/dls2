@@ -42,7 +42,7 @@ HardwareLayer::HardwareLayer(std::string ID)
 		std::function<bool()>([&]()->bool
         {
             for(auto elem : this->hardwares){
-                this->terminal_logger.info(elem.first);
+                this->app_logger.info(elem.first);
             }
 
             return true;
@@ -54,7 +54,7 @@ HardwareLayer::HardwareLayer(std::string ID)
 
 HardwareLayer::~HardwareLayer()
 {
-	this->terminal_logger.info("#### HARDWARE INTERFACE OFF ####");
+	this->app_logger.info("#### HARDWARE INTERFACE OFF ####");
 }
 
 bool HardwareLayer::loadHardware(const std::string &lib_name)
@@ -63,7 +63,7 @@ bool HardwareLayer::loadHardware(const std::string &lib_name)
 
 	if(this->hardwares.find(lib_name) != this->hardwares.end())
 	{
-		this->terminal_logger.error("hardware " + lib_name + " already loaded");
+		this->app_logger.error("hardware " + lib_name + " already loaded");
         return false;
 	}
 
@@ -82,7 +82,7 @@ bool HardwareLayer::loadHardware(const std::string &lib_name)
 	}));
 
 	if (pData->proc == nullptr){
-		this->terminal_logger.error("Hardware " + lib_name +" failed to launch: nullptr");
+		this->app_logger.error("Hardware " + lib_name +" failed to launch: nullptr");
 		return false;
 	}
 
@@ -106,7 +106,7 @@ bool HardwareLayer::unloadHardware(std::shared_ptr<AppData> pData)
 			}
 			return true;
 		}), 2000, 10, unloaded)){
-		this->terminal_logger.warning("### FORCING HARDWARE " + pData->getID() + " EXIT ###");
+		this->app_logger.warning("### FORCING HARDWARE " + pData->getID() + " EXIT ###");
 		kill(pData->proc->id(), SIGKILL);
 	}
 
@@ -124,7 +124,7 @@ bool HardwareLayer::unloadHardware(const std::string &ID)
 
 	if(pair_it == this->hardwares.end())
 	{
-		this->terminal_logger.error("hardware " + ID + " is not loaded");
+		this->app_logger.error("hardware " + ID + " is not loaded");
 		return false;
 	}
 

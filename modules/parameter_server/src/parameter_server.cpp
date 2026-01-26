@@ -49,7 +49,7 @@ namespace dls
 			"Set a param in parameter server",
 			std::function<bool(std::string key, std::string)>([&](std::string key, std::string data) -> bool
 			{
-				this->terminal_logger.info("Setting param: " + key + " with data: " + data);
+				this->app_logger.info("Setting param: " + key + " with data: " + data);
 				param_store.emplace(key, data);
 				return true;
 			}),
@@ -66,7 +66,7 @@ namespace dls
 				for (auto elem : this->param_store)
 				{
 					std::cout << "key: " + elem.first + " data: " + elem.second << std::endl;
-					this->terminal_logger.info("key: " + elem.first + " data: " + elem.second);
+					this->app_logger.info("key: " + elem.first + " data: " + elem.second);
 				}
 				return true;
 			}),
@@ -75,12 +75,12 @@ namespace dls
 		);
 
 
-		this->terminal_logger.info("SERVICE " + ID + " IS RUNNING");
+		this->app_logger.info("SERVICE " + ID + " IS RUNNING");
 	}
 
 	ParameterServer::~ParameterServer() 
 	{
-		this->terminal_logger.info("SERVICE " + this->getID() + " IS OFF");
+		this->app_logger.info("SERVICE " + this->getID() + " IS OFF");
 	}
 
 	// the class factories

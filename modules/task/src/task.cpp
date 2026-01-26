@@ -96,6 +96,6 @@ namespace tasks{
 
     void Task::stopTask(){
         sm.raiseEvent(sm.deactivation_request);
-        this->terminal_logger.info("TASK IS COMPLETED.");
+        this->app_logger.info("TASK IS COMPLETED.");
     }
 }

@@ -5,7 +5,7 @@ using namespace dls;
 App::App(const std::string &ID) 
     : should_quit(false)
     , command_manager(ID)
-	, terminal_logger(ID)
+	, app_logger(ID)
 	, event_notifier(ID)
 	, robust_event_notifier(ID)
 	, status_notifier(ID + "_status_notifier", dls::domains::signals, dls::topics::process_status)
@@ -192,7 +192,7 @@ void App::activation()
 	    activate = checkActivation();
 
 		if(activation_message.str()!="" && old_message!=activation_message.str())
-			terminal_logger.warning(activation_message.str());
+			app_logger.warning(activation_message.str());
 		old_message = activation_message.str();
 		activation_message.str("");
 
@@ -230,7 +230,7 @@ void App::deactivation()
 	    sm.nextState(sm.deactivated);
 	}
 	else{
-		terminal_logger.error("Deactivation failed. Quitting the application...");
+		app_logger.error("Deactivation failed. Quitting the application...", EventID::WRONG_PROCESS_STATE);
 		sm.nextState(sm.quit_request);
 	}
 }

@@ -8,7 +8,7 @@
 #include "dls2/application/app_status.hpp"
 #include "dls2/command/command_manager.hpp"
 #include "dls2/log/log.hpp"
-#include "dls2/log/terminal_logger.hpp"
+#include "dls2/log/app_logger.hpp"
 #include "dls2/log/event_logger.hpp"
 #include "dls2/application/state_machine/app_state_machine.hpp"
 #include <dls2/application/sched_attr.hpp>
@@ -104,7 +104,7 @@ namespace dls
 		///
 		CommandManager command_manager;
 
-		dls::logging::TerminalLogger terminal_logger;
+		dls::logging::AppLogger app_logger;
 
 		logging::RobustEventNotifier robust_event_notifier;
 
