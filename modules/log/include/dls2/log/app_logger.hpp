@@ -22,6 +22,8 @@ namespace dls
 				void fatal(const std::string& s, const EventID& event_id = EventID::GENERAL_ERROR);
 
 			private:
+
+				void write_file_if_enabled_(const std::string& line);
 				
 				TerminalLogger terminal_logger_;
 				EventNotifier event_notifier_; // TODO: put robust event notifier
