@@ -6,20 +6,20 @@ TerminalLogger::TerminalLogger(const std::string& ID)
 	: id_(ID)
 {}
 
-void TerminalLogger::info(const std::string& s)    {
-	log(Level::INFO,    s);
+void TerminalLogger::info(const std::string& s, bool enable /* = true */, std::string* out_line /* = nullptr */)    {
+	log(Level::INFO,    s, enable, out_line);
 }
-void TerminalLogger::debug(const std::string& s)    {
-	log(Level::DEBUG,    s);
+void TerminalLogger::debug(const std::string& s, bool enable /* = true */, std::string* out_line /* = nullptr */)    {
+	log(Level::DEBUG,    s, enable, out_line);
 }
-void TerminalLogger::warning(const std::string& s) {
-	log(Level::WARNING, s);
+void TerminalLogger::warning(const std::string& s, bool enable /* = true */, std::string* out_line /* = nullptr */) {
+	log(Level::WARNING, s, enable, out_line);
 }
-void TerminalLogger::error(const std::string& s)   {
-	log(Level::ERROR,   s);
+void TerminalLogger::error(const std::string& s, bool enable /* = true */, std::string* out_line /* = nullptr */)   {
+	log(Level::ERROR,   s, enable, out_line);
 }
-void TerminalLogger::fatal(const std::string& s)   {
-	log(Level::FATAL,   s);
+void TerminalLogger::fatal(const std::string& s, bool enable /* = true */, std::string* out_line /* = nullptr */)   {
+	log(Level::FATAL,   s, enable, out_line);
 }
 
 const char* TerminalLogger::level_key(Level lvl) {
@@ -69,19 +69,32 @@ std::string TerminalLogger::format_timestamp_local(std::int64_t epoch_ns) {
 	return std::string(buf);
 }
 
-void TerminalLogger::log(Level lvl, std::string_view msg) {
+void TerminalLogger::log(Level lvl, std::string_view msg, bool enable /* = true */, std::string* out_line /* = nullptr */) {
 	using clock = std::chrono::system_clock;
 	const auto ns =  std::chrono::duration_cast<std::chrono::nanoseconds>(
 						clock::now().time_since_epoch()).count();
 	const auto ts = format_timestamp_local(ns);
 
-	// Decide where to print (you can route INFO to cout if you want)
-	std::ostream& out = std::cout;
+	if(enable){
+		std::ostream& out = std::cout;
+		out << level_color(lvl)
+			<< ts << " [" << level_key(lvl) << "] "
+			<< id_ << ": " << msg
+			<< WHITE
+			<< '\n';
+		out.flush();
+	}
 
-	out << level_color(lvl)
-		<< ts << " [" << level_key(lvl) << "] "
-		<< id_ << ": " << msg
-		<< WHITE
-		<< '\n';
-	out.flush();
+	// Optionally producing line for file logging
+	if (out_line) {
+		out_line->clear();
+		out_line->reserve(64 + id_.size() + msg.size());
+		out_line->append(ts);
+		out_line->append(" [");
+		out_line->append(level_key(lvl));
+		out_line->append("] ");
+		out_line->append(id_);
+		out_line->append(": ");
+		out_line->append(msg);
+	}
 }

@@ -1,6 +1,8 @@
 add_library(dls_logging
 	src/event_logger.cpp
 	src/terminal_logger.cpp
+	src/file_logger.cpp
+	src/app_logger.cpp
 )
 
 set_property(TARGET dls_logging PROPERTY POSITION_INDEPENDENT_CODE ON)

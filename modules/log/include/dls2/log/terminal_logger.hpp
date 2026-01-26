@@ -23,11 +23,11 @@ namespace dls
 			public:
 				explicit TerminalLogger(const std::string& ID);
 
-				void info(const std::string& s);
-				void debug(const std::string& s);
-				void warning(const std::string& s);
-				void error(const std::string& s);
-				void fatal(const std::string& s);
+				void info(const std::string& s, bool enable = true, std::string* out_line = nullptr);
+				void debug(const std::string& s, bool enable = true, std::string* out_line = nullptr);
+				void warning(const std::string& s, bool enable = true, std::string* out_line = nullptr);
+				void error(const std::string& s, bool enable = true, std::string* out_line = nullptr);
+				void fatal(const std::string& s, bool enable = true, std::string* out_line = nullptr);
 
 			private:
 				enum class Level { 
@@ -42,7 +42,7 @@ namespace dls
 				static const char* level_color(Level lvl);
 				static std::string format_timestamp_local(std::int64_t epoch_ns);
 
-				void log(Level lvl, std::string_view msg);
+				void log(Level lvl, std::string_view msg, bool enable = true, std::string* out_line = nullptr);
 
 				std::string id_;
 			};
