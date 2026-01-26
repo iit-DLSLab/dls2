@@ -26,6 +26,11 @@ enum class EventID : uint8_t {
     NAN_VALUE,
     INF_VALUE,
     MOTOR_OVERHEAT
+    TOO_HIGH_VALUE,
+
+    NOMINAL_OPERATION,
+    GENERAL_WARNING,
+    GENERAL_ERROR
 };
 
 enum class EventSeverity : uint8_t {
