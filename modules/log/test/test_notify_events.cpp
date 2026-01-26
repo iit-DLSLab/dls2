@@ -95,7 +95,7 @@ void read_events(
         std::cout << "ssss "<<std::endl;
         for(long int i=idx_read; i<=idx_buffer; ++i)
         {
-            dls2_interface::msg::EventLog event_log = event_listener.event_buffer[i];
+            dls2_interface::msg::EventLog event_log = event_listener.event_buffer_[i];
             // json_recorded_data[event_log.component_name()].push_back({
             //     {"timestamp", event_log.header().timestamp()},
             //     {"sequence_id", event_log.header().sequence_id()},
@@ -140,7 +140,7 @@ void event_listener(int num_pub, int test_time){
     read_events(event_listener, idx_read, json_recorded_data);
 
     // //get events
-    // boost::circular_buffer<EventLog> events = event_listener.get_event_buffer();
+    // boost::circular_buffer<EventLog> events = event_listener.get_event_buffer_();
 
     // // save recorded events to json
     // nlohmann::json json_recorded_data;

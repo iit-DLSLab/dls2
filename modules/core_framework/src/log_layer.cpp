@@ -127,7 +127,7 @@ void LogLayer::readEvents(){
 		// read values
 		for(long int i=idx_read; i<=idx_buffer; ++i)
 		{
-			dls2_interface::msg::EventLog event_log = event_listener_.event_buffer[i];
+			dls2_interface::msg::EventLog event_log = event_listener_.event_buffer_[i];
 			// print event log
 			std::string timestamp = Time::convertTimeToDate(event_log.header().timestamp());
 			std::cout << "\nEvent from component: " << event_log.component_name() << "\n"

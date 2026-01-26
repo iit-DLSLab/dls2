@@ -41,9 +41,9 @@ namespace dls
 			bool waitForMatch();
 
 		private:
-			const std::string name;
-			dls2_interface::msg::EventLog msg;
-			std::shared_ptr<dls::DDSWriter> dds_writer;
+			const std::string name_;
+			dls2_interface::msg::EventLog msg_;
+			std::shared_ptr<dls::DDSWriter> dds_writer_;
 		};
 
 		class EventListener{
@@ -66,14 +66,14 @@ namespace dls
 			/// \return The maximum index of the buffer
 			unsigned long int getBufferMaxIdx() const;
 
-			boost::circular_buffer<dls2_interface::msg::EventLog> event_buffer;
+			boost::circular_buffer<dls2_interface::msg::EventLog> event_buffer_;
 
 		private:
-			const std::string name;
-			std::shared_ptr<dls::DDSReader> dds_reader;
+			const std::string name_;
+			std::shared_ptr<dls::DDSReader> dds_reader_;
 
-			long long int unbounded_buffer_idx;
-			long int buffer_max_idx;
+			long long int unbounded_buffer_idx_;
+			long int buffer_max_idx_;
 		};
 
 	} // namespace logging

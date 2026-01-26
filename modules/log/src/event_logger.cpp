@@ -12,15 +12,15 @@ using namespace dls::logging;
 // EventNotifier
 // =============================================================================
 EventNotifier::EventNotifier(const std::string &name)
-	: name(name)
+	: name_(name)
 {
-	msg.component_name() = name;
-	msg.header().sequence_id() = 0;
+	msg_.component_name() = name;
+	msg_.header().sequence_id() = 0;
 
 	eprosima::fastdds::dds::DataWriterQos qos(eprosima::fastdds::dds::DATAWRITER_QOS_DEFAULT);
 	qos.reliability().kind = eprosima::fastdds::dds::RELIABLE_RELIABILITY_QOS;
 	qos.history().kind = eprosima::fastdds::dds::KEEP_ALL_HISTORY_QOS;
-	dds_writer = std::make_shared<dls::DDSWriter>(
+	dds_writer_ = std::make_shared<dls::DDSWriter>(
 				name,
 				dls::domains::logging,
 				dls::topics::log_events,
@@ -34,32 +34,32 @@ void EventNotifier::notify(
 	const std::string &message
 )
 {
-	msg.event_id() = static_cast<uint8_t>(event_id);
-	msg.severity() = static_cast<uint8_t>(severity);
-	msg.msg() = message;
-	msg.header().sequence_id()++;
-	msg.header().timestamp() = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
-	dds_writer->sendMessage(&msg);
+	msg_.event_id() = static_cast<uint8_t>(event_id);
+	msg_.severity() = static_cast<uint8_t>(severity);
+	msg_.msg() = message;
+	msg_.header().sequence_id()++;
+	msg_.header().timestamp() = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
+	dds_writer_->sendMessage(&msg_);
 }
 
 std::string EventNotifier::get_name() const
 {
-	return name;
+	return name_;
 }
 
 dls2_interface::msg::EventLog EventNotifier::getMsg() const
 {
-	return msg;
+	return msg_;
 }
 
 bool EventNotifier::hasMatched()
 {
-	return dds_writer->hasMatched();
+	return dds_writer_->hasMatched();
 }
 
 bool EventNotifier::waitForMatch()
 {
-	while(!dds_writer->hasMatched())
+	while(!dds_writer_->hasMatched())
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
@@ -70,13 +70,13 @@ bool EventNotifier::waitForMatch()
 // EventListener
 // =============================================================================
 EventListener::EventListener(const std::string &name)
-	: event_buffer(1000000), name(name), unbounded_buffer_idx(-1) {
+	: event_buffer_(1000000), name_(name), unbounded_buffer_idx_(-1) {
 	eprosima::fastdds::dds::DataReaderQos qos(eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT);
 	qos.reliability().kind = eprosima::fastdds::dds::RELIABLE_RELIABILITY_QOS;
 	qos.durability().kind = eprosima::fastdds::dds::TRANSIENT_LOCAL_DURABILITY_QOS;
 
-	dds_reader = std::make_shared<dls::DDSReader>(
-				name,
+	dds_reader_ = std::make_shared<dls::DDSReader>(
+				name_,
 				dls::domains::logging,
 				dls::topics::log_events,
 				std::function<void(void *)>
@@ -92,10 +92,10 @@ EventListener::EventListener(const std::string &name)
 						// 		  	<< "\ncomponent: " << msg->component_name()
 						// 		  	<< "\nmessage: " << msg->msg()
 						// 		  	<< "\n###################" << std::endl;
-						event_buffer.push_back(*msg);
+						event_buffer_.push_back(*msg);
 						// }
-						unbounded_buffer_idx++;
-						if(unbounded_buffer_idx>LLONG_MAX)
+						unbounded_buffer_idx_++;
+						if(unbounded_buffer_idx_ > LLONG_MAX)
 						{
 							throw std::runtime_error("Unbounded buffer index of EventLister exceeded ULLONG_MAX");
 						}
@@ -106,20 +106,20 @@ EventListener::EventListener(const std::string &name)
 
 std::string EventListener::get_name() const
 {
-	return name;
+	return name_;
 }
 
 int EventListener::getNumOfMatches() const
 {
-	return dds_reader->getNumOfMatches();
+	return dds_reader_->getNumOfMatches();
 }
 
 unsigned long long int EventListener::getUnboundedBufferIdx() const
 {
-	return unbounded_buffer_idx;
+	return unbounded_buffer_idx_;
 }
 
 unsigned long int EventListener::getBufferMaxIdx() const
 {
-	return event_buffer.capacity()-1;
+	return event_buffer_.capacity()-1;
 }
