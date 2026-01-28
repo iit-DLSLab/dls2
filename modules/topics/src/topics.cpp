@@ -24,6 +24,8 @@ namespace dls
         new dls2_interface::msg::EventLogPubSubType());
     dls::topicType process_status = dls::topicType("process_status", 
         new dls2_interface::msg::ProcessStatusPubSubType());
+    dls::topicType dls_events = dls::topicType("dls/events", 
+        new dls2_interface::msg::DlsEventsPubSubType());
     
 
     // command
