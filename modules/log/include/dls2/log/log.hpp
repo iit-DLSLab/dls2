@@ -157,14 +157,18 @@ namespace dls
 			/// \return The maximum index of the buffer
 			unsigned long int getBufferMaxIdx() const;
 
-			boost::circular_buffer<dls2_interface::msg::EventLog> event_buffer;
+			std::vector<dls2_interface::msg::EventLog> readEvents();
 
 		private:
+			boost::circular_buffer<dls2_interface::msg::EventLog> event_buffer;
+
 			const std::string name;
 			std::shared_ptr<dls::DDSReader> dds_reader;
 
 			long long int unbounded_buffer_idx;
-			long int buffer_max_idx;
+
+			long int idx_read_ { 0 };
+			long int buffer_max_idx_;
 		};
 	} // namespace logging
 } // namespace dls

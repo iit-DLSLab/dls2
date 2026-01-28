@@ -116,40 +116,20 @@ std::string LogLayer::convertTimeToDate(long int timestamp){
     return oss.str();
 } // end convertTimeToString
 
-void LogLayer::readEvents(){
-	static long int idx_read = 0;
-	static long int buffer_max_idx = event_listener_.getBufferMaxIdx();
-	long long int idx_buffer = event_listener_.getUnboundedBufferIdx();
-	if(idx_buffer>=idx_read){
-		// mapping unbounded indexes in bounded indexes
-		long int delta = idx_buffer - idx_read;
-		if(delta> buffer_max_idx){
-			idx_read = 0;
-			idx_buffer = buffer_max_idx;
-		}
-		else if (idx_buffer >= buffer_max_idx)
-		{
-			idx_read = buffer_max_idx - delta;
-			idx_buffer = idx_read + delta;
-		}
-		// read values
-		for(long int i=idx_read; i<=idx_buffer; ++i)
-		{
-			dls2_interface::msg::EventLog event_log = event_listener_.event_buffer[i];
-			// print event log
-			std::string timestamp = convertTimeToDate(event_log.header().timestamp());
-			std::cout << "\nEvent from component: " << event_log.component_name() << "\n"
-					  << "Timestamp:" << timestamp << "\n"
-					  << "Sequence ID: " << event_log.header().sequence_id() << "\n"
-					  << "Event ID: " << magic_enum::enum_name(static_cast<EventID>(event_log.event_id())) << "\n"
-					  << "Severity: " << magic_enum::enum_name(static_cast<EventSeverity>(event_log.severity())) << "\n"
-					  << "Message: " << event_log.msg() << std::endl;
-		}
-		// update read index
-		idx_read = idx_buffer+1;
+void LogLayer::printEvents(){
+	auto events = event_listener_.readEvents();
+	for(const auto& event_log : events){
+		// print event log
+		std::string timestamp = convertTimeToDate(event_log.header().timestamp());
+		std::cout << "\nEvent from component: " << event_log.component_name() << "\n"
+					<< "Timestamp:" << timestamp << "\n"
+					<< "Sequence ID: " << event_log.header().sequence_id() << "\n"
+					<< "Event ID: " << magic_enum::enum_name(static_cast<EventID>(event_log.event_id())) << "\n"
+					<< "Severity: " << magic_enum::enum_name(static_cast<EventSeverity>(event_log.severity())) << "\n"
+					<< "Message: " << event_log.msg() << std::endl;
 	}
 }
 void LogLayer::monitor(){
-	readEvents();
+	printEvents();
 }
 #endif /* end of include guard: LOG_LAYER_CPP_DLJLOFSG */

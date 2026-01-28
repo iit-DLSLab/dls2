@@ -28,7 +28,7 @@ namespace dls
 
 		logging::EventListener event_listener_;
 		
-		void readEvents();
+		void printEvents();
 
 		std::string convertTimeToDate(long int timestamp);
 	};
