@@ -71,44 +71,14 @@ bool pub_thread(double frequency, const std::shared_ptr<dls::logging::EventNotif
 
 void read_events(
     dls::logging::EventListener &event_listener,
-    long int &idx_read,
     nlohmann::json &json_recorded_data)
 {
-    long long int idx_buffer = event_listener.getUnboundedBufferIdx();
-    std::cout << "Unbounded buffer index: " << idx_buffer << std::endl;
+    std::cout << "Unbounded buffer index: " << event_listener.getUnboundedBufferIdx() << std::endl;
 
-    if(idx_buffer>=idx_read){
-        // mapping unbounded indexes in bounded indexes
-        long int buffer_max_idx = event_listener.getBufferMaxIdx();
-        long int delta = idx_buffer - idx_read;
-        if(delta> buffer_max_idx){
-            idx_read = 0;
-            idx_buffer = buffer_max_idx;
-        }
-        else if (idx_buffer >= buffer_max_idx)
-        {
-            idx_read = buffer_max_idx - delta;
-            idx_buffer = idx_read + delta;
-        }
-        // read values
-        std::cout << "Reading events from index " << idx_read << " to " << idx_buffer << std::endl;
-        std::cout << "ssss "<<std::endl;
-        for(long int i=idx_read; i<=idx_buffer; ++i)
-        {
-            dls2_interface::msg::EventLog event_log = event_listener.event_buffer_[i];
-            // json_recorded_data[event_log.component_name()].push_back({
-            //     {"timestamp", event_log.header().timestamp()},
-            //     {"sequence_id", event_log.header().sequence_id()},
-            //     {"event_id", magic_enum::enum_name(static_cast<EventID>(event_log.event_id()))},
-            //     {"severity", magic_enum::enum_name(static_cast<EventSeverity>(event_log.severity()))},
-            //     {"message", event_log.msg()}
-            // });
-            // light version
-            json_recorded_data[event_log.component_name()]["timestamp"].push_back(event_log.header().timestamp());
-            json_recorded_data[event_log.component_name()]["sequence_id"].push_back(event_log.header().sequence_id());
-        } 
-        // update read index
-        idx_read = idx_buffer+1;     
+    auto events = event_listener.readEvents();
+	for(const auto& event_log : events){
+        json_recorded_data[event_log.component_name()]["timestamp"].push_back(event_log.header().timestamp());
+        json_recorded_data[event_log.component_name()]["sequence_id"].push_back(event_log.header().sequence_id());
     }
 }
 void event_listener(int num_pub, int test_time){
@@ -125,11 +95,10 @@ void event_listener(int num_pub, int test_time){
     std::chrono::high_resolution_clock::time_point start_time = std::chrono::high_resolution_clock::now();
     std::chrono::high_resolution_clock::time_point end_time = start_time + std::chrono::seconds(test_time);
 
-    long int idx_read=0;
     nlohmann::json json_recorded_data;
     while(std::chrono::high_resolution_clock::now() < end_time || event_listener.getNumOfMatches() > 0)
     {
-        read_events(event_listener, idx_read, json_recorded_data);
+        read_events(event_listener, json_recorded_data);
 
         auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - start_time).count();
         std::cout << "Event listener running... Elapsed time: " << elapsed << "/" << test_time << " seconds\r" << std::endl;
@@ -137,7 +106,7 @@ void event_listener(int num_pub, int test_time){
     }
     // do another round of event read to avoid missing last events due to the fact that the unmatches happen while reading in the last while loop.
     // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    read_events(event_listener, idx_read, json_recorded_data);
+    read_events(event_listener, json_recorded_data);
 
     // //get events
     // boost::circular_buffer<EventLog> events = event_listener.get_event_buffer_();
