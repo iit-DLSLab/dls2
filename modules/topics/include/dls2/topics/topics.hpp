@@ -22,6 +22,7 @@
 #include <dls_messages/dds/DoublePubSubTypes.hpp>
 #include <dls_messages/dds/EventLogPubSubTypes.hpp>
 #include <dls_messages/dds/ProcessStatusPubSubTypes.hpp>
+#include <dls_messages/dds/DlsEventsPubSubTypes.hpp>
 #include <dls_messages/dds/ImuPubSubTypes.hpp>
 #include <dls_messages/dds/LegsPosePubSubTypes.hpp>
 #include <dls_messages/dds/NavigationReferencePubSubTypes.hpp>
@@ -50,6 +51,7 @@ namespace dls
 		extern dls::topicType debug_log_stream;
 		extern dls::topicType log_events;
 		extern dls::topicType process_status;
+		extern dls::topicType dls_events;
 
 		// command
 		extern dls::topicType command_call;
