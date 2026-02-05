@@ -40,7 +40,7 @@ namespace dls
 		 *  fill in dls status msgs
 		 *  fill in dls action msgs
 		 */
-		virtual void orchestrate(const EventsPriorityQueue& events) {};
+		virtual void orchestrate(const std::chrono::system_clock::time_point&, const EventsPriorityQueue&) {};
 
 		/**
 		 * @brief Virtual method implementing core processing in telemetry callback related to specifically typed messages.
@@ -49,7 +49,7 @@ namespace dls
 		 * 	telemetry_manager.tick(input_struct, output_struct)
 		 * 
 		 */
-		virtual void telemetryMain(const std::vector<dls2_interface::msg::EventLog> &events_to_publish) { };
+		virtual void telemetryMain(const std::vector<dls2_interface::msg::EventLog>&) {};
 
 		// Events
 		std::mutex event_mutex_;
