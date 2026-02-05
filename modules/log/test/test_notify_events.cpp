@@ -74,8 +74,8 @@ void read_events(
     nlohmann::json &json_recorded_data)
 {
     std::cout << "Unbounded buffer index: " << event_listener.getUnboundedBufferIdx() << std::endl;
-
-    auto events = event_listener.readEvents();
+	static long int idx_read = 0;
+    auto events = event_listener.readEvents(idx_read);
 	for(const auto& event_log : events){
         json_recorded_data[event_log.component_name()]["timestamp"].push_back(event_log.header().timestamp());
         json_recorded_data[event_log.component_name()]["sequence_id"].push_back(event_log.header().sequence_id());

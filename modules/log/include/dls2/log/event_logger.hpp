@@ -84,7 +84,7 @@ namespace dls
 			/// \return The maximum index of the buffer
 			unsigned long int getBufferMaxIdx() const;
 
-			std::vector<dls2_interface::msg::EventLog> readEvents();
+			std::vector<dls2_interface::msg::EventLog> readEvents(long int& idx_read);
 
 			boost::circular_buffer<dls2_interface::msg::EventLog> event_buffer_;
 
