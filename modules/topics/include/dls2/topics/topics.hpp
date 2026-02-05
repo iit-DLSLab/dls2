@@ -36,6 +36,17 @@
 #include <dls_messages/dds/TrajectoryGeneratorPubSubTypes.hpp>
 #include <dls_messages/dds/ViconPubSubTypes.hpp>
 
+#include <dls_messages/dds/DlsStatusPubSubTypes.hpp>
+#include <dls_messages/dds/CSBasicCommandPubSubTypes.hpp>
+#include <dls_messages/dds/CSEmergencyPubSubTypes.hpp>
+#include <dls_messages/dds/TargetPositionPubSubTypes.hpp>
+#include <dls_messages/dds/StayOutZonesPubSubTypes.hpp>
+#include <dls_messages/dds/ReferencePathPubSubTypes.hpp>
+#include <dls_messages/dds/FeetReferencePubSubTypes.hpp>
+#include <dls_messages/dds/BaseReferencePubSubTypes.hpp>
+#include <dls_messages/dds/JointStatesPubSubTypes.hpp>
+#include <dls_messages/dds/CommandCallPubSubTypes.hpp>
+
 
 #include "dls2/topics/utils.hpp"
 
@@ -52,6 +63,17 @@ namespace dls
 		extern dls::topicType log_events;
 		extern dls::topicType process_status;
 		extern dls::topicType dls_events;
+		extern dls::topicType dls_status;
+		extern dls::topicType cs_basic_command;
+		extern dls::topicType cs_emergency;
+		extern dls::topicType cs_target_position;
+		extern dls::topicType cs_stay_out_zones;
+		extern dls::topicType cs_reference_path;
+		extern dls::topicType cs_feet_reference;
+		extern dls::topicType cs_base_reference;
+		extern dls::topicType cs_joint_states;
+		extern dls::topicType cs_loc_reset;
+		extern dls::topicType cs_command_call;
 
 		// command
 		extern dls::topicType command_call;

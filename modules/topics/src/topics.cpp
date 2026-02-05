@@ -26,7 +26,31 @@ namespace dls
         new dls2_interface::msg::ProcessStatusPubSubType());
     dls::topicType dls_events = dls::topicType("dls/events", 
         new dls2_interface::msg::DlsEventsPubSubType());
-    
+
+    // CS-OBSW related topics
+    dls::topicType dls_status = dls::topicType("dls/status", 
+        new dls2_interface::msg::DlsStatusPubSubType());
+
+    dls::topicType cs_basic_command = dls::topicType("cs/basic_command", 
+        new dls2_interface::msg::CSBasicCommandPubSubType());
+    dls::topicType cs_emergency = dls::topicType("cs/emergency", 
+        new dls2_interface::msg::CSEmergencyPubSubType());
+    dls::topicType cs_target_position = dls::topicType("cs/target_position", 
+        new dls2_interface::msg::TargetPositionPubSubType());
+    dls::topicType cs_stay_out_zones = dls::topicType("cs/stay_out_zones", 
+        new dls2_interface::msg::StayOutZonesPubSubType());
+    dls::topicType cs_reference_path = dls::topicType("cs/reference_path", 
+        new dls2_interface::msg::ReferencePathPubSubType());
+    dls::topicType cs_feet_reference = dls::topicType("cs/feet_reference", 
+        new dls2_interface::msg::FeetReferencePubSubType());
+    dls::topicType cs_base_reference = dls::topicType("cs/base_reference", 
+        new dls2_interface::msg::BaseReferencePubSubType());
+    dls::topicType cs_joint_states = dls::topicType("cs/joint_reference", 
+        new dls2_interface::msg::JointStatesPubSubType());
+    dls::topicType cs_loc_reset = dls::topicType("cs/loc_reset", 
+        new dls2_interface::msg::BaseReferencePubSubType());
+    dls::topicType cs_command_call = dls::topicType("cs/command_call", 
+        new dls2_interface::msg::CommandCallPubSubType());
 
     // command
     dls::topicType command_call = dls::topicType("command_call",
