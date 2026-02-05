@@ -75,7 +75,7 @@ namespace dls
             events_priority_queue_tmp = events_priority_queue_;
         }
 
-        orchestrate(events_priority_queue_tmp);
+        orchestrate(time, events_priority_queue_tmp);
 
         write();
     }
