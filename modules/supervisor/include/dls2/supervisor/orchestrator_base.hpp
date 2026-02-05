@@ -11,6 +11,7 @@
 #include "dls2/plugin/periodic_app_plugin.hpp"
 #include "dls2/state_machine/state_machine.hpp"
 #include "dls2/log/event_logger.hpp"
+#include "dls2/supervisor/telemetry_base.hpp"
 
 namespace dls
 {
@@ -23,59 +24,54 @@ namespace dls
 
 	public:
 
-		explicit OrchestratorBase(const std::string &ID, const std::shared_ptr<state_machine::StateMachine> &sm);
+		explicit OrchestratorBase(const std::string &ID, const std::shared_ptr<state_machine::StateMachine> &sm = nullptr);
 		~OrchestratorBase() = default;
 
     	void run(const std::chrono::system_clock::time_point &time) override;
 
 	protected:
 
-		 /**
-		  * @brief Main orchestration logic (deciding actions to perform considering input/output data copied in getInputOutput).
-		  * It implememts the internal state machine step.
-		  * 
-		  * @param time 
-		  */
-		virtual void updateState(const std::chrono::system_clock::time_point &time) {};
-
-		virtual void getDlsInputMsgs() {};
-
-        virtual void getDlsOutputMsgs() {};
-
-		virtual void setDlsInputMsgs() {};
-
-        virtual void setDlsOutputMsgs() {};
+		/**
+		 * @brief Virtual method implementing core processing in run method related to specifically typed messages. 
+		 * A logical structure like the following one is expected but not enforced in this method body.
+		 * 
+		 *  get data sent from Control Station
+		 *  update state machine state
+		 *  fill in dls status msgs
+		 *  fill in dls action msgs
+		 */
+		virtual void orchestrate(const EventsPriorityQueue& events) {};
 
 		/**
-		 * @brief Filling in all relevant messages composing the orchestrator action
+		 * @brief Virtual method implementing core processing in telemetry callback related to specifically typed messages.
+		 * A logical structure like the following one is expected but not enforced in this method body.
 		 * 
-		 * @param time
+		 * 	telemetry_manager.tick(input_struct, output_struct)
+		 * 
 		 */
-		virtual void setActionMsgs(const std::chrono::system_clock::time_point &time) {};
+		virtual void telemetryMain(const std::vector<dls2_interface::msg::EventLog> &events_to_publish) { };
 
+		// Events
+		std::mutex event_mutex_;
+		logging::EventListener event_listener_;
+        EventsPriorityQueue events_priority_queue_;
+
+		// Telemetry
+		std::vector<std::shared_ptr<dls::ReaderBase>> telemetry_readers_;
+		std::vector<std::shared_ptr<dls::WriterBase>> telemetry_writers_;
+		size_t telemetry_thread_period_ms_{500}; // TODO: param
+		size_t event_to_publish_{1}; // TODO: param
+		std::atomic<bool> telemetry_started_{false};
+		std::thread telemetry_thread_;
+		TelemetryBase telemetry_manager_;
+
+		// State machine
+		std::shared_ptr<state_machine::StateMachine> sm_;
 
 	private:
 
-		/**
-		 * @brief Periodically-called thread job managing communication with the Control Station
-		 * 
-		 */
 		void telemetryCallback();
 
-		std::vector<std::shared_ptr<ReaderBase>> telemetry_readers_;
-		std::vector<std::shared_ptr<WriterBase>> telemetry_writers_;
-		size_t event_to_publish_{ 1 };
-
-		std::mutex event_mutex_;
-		logging::EventListener event_listener_;
-
-		bool spawned_telemetry_thread_{ false };
-		std::thread telemetry_thread_;
-		size_t telemetry_thread_period_ms_{ 200 };
-
-		std::shared_ptr<state_machine::StateMachine> sm_;
-
-        EventsPriorityQueue events_priority_queue_;
 	};
 
 } // end namespace dls
