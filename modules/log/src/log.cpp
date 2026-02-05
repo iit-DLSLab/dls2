@@ -325,37 +325,36 @@ unsigned long int EventListener::getBufferMaxIdx() const
 	return event_buffer.capacity()-1;
 } // end getBufferMaxIdx
 
-std::vector<dls2_interface::msg::EventLog> EventListener::readEvents()
+std::vector<dls2_interface::msg::EventLog> EventListener::readEvents(long int& idx_read)
 {
 	std::vector<dls2_interface::msg::EventLog> events;
 	events.clear();
 
-	idx_read_ = 0;
 	buffer_max_idx_ = getBufferMaxIdx();
 
 	long int idx_buffer = getUnboundedBufferIdx();
-	if(idx_buffer >= idx_read_)
+	if(idx_buffer >= idx_read)
 	{
 		// mapping unbounded indexes in bounded indexes
-		long int delta = idx_buffer - idx_read_;
+		long int delta = idx_buffer - idx_read;
 		if(delta > buffer_max_idx_){
-			idx_read_ = 0;
+			idx_read = 0;
 			idx_buffer = buffer_max_idx_;
 		}
 		else if (idx_buffer >= buffer_max_idx_)
 		{
-			idx_read_ = buffer_max_idx_ - delta;
-			idx_buffer = idx_read_ + delta;
+			idx_read = buffer_max_idx_ - delta;
+			idx_buffer = idx_read + delta;
 		}
 
 		// read values
-		for(long int i = idx_read_; i <= idx_buffer; ++i)
+		for(long int i = idx_read; i <= idx_buffer; ++i)
 		{
 			events.push_back(event_buffer[i]);
 		}
 		
 		// update read index
-		idx_read_ = idx_buffer + 1;
+		idx_read = idx_buffer + 1;
 	}
 
 	return events;

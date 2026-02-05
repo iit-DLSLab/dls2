@@ -117,7 +117,8 @@ std::string LogLayer::convertTimeToDate(long int timestamp){
 } // end convertTimeToString
 
 void LogLayer::printEvents(){
-	auto events = event_listener_.readEvents();
+	static long int idx_read = 0;
+	auto events = event_listener_.readEvents(idx_read);
 	for(const auto& event_log : events){
 		// print event log
 		std::string timestamp = convertTimeToDate(event_log.header().timestamp());
