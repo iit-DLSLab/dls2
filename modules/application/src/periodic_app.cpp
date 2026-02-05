@@ -88,7 +88,7 @@ std::string PeriodicApp::getSchedulerPath(const std::string &ID)
 		}
 	}
 
-	std::cout << ID << " WARNING: Scheduler file not found, returning empty path" << std::string(ID) << "\n";
+	std::cout << ID << " WARNING: Scheduler file not found, returning empty path\n";
 	return "";
 }
 

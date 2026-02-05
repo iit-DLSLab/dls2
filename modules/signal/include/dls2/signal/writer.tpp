@@ -79,7 +79,7 @@ void Writer<MsgType>::setTimestamp(unsigned long long timestamp)
 template <typename MsgType>
 bool Writer<MsgType>::isSameTimestamp()
 {
-	unsigned long long curr_stamp;
+	unsigned long long curr_stamp = 0;
 
 	if constexpr (HasHeader<MsgType>::value)
 	{
