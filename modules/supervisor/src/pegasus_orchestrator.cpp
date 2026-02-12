@@ -43,18 +43,59 @@ namespace dls
                                          &PegasusOutput::dls_events_msg);
     }
 
+    void PegasusOrchestrator::goToStatus(OrchestratorStatus new_status){
+        if(status_ != new_status){
+            prev_status_ = status_;
+        }else{
+            return;
+        }
+        status_ = new_status;
+    }
+
+    void PegasusOrchestrator::goToPrevStatus(){
+        status_ = prev_status_;
+    }
+
     void PegasusOrchestrator::orchestrate(const std::chrono::system_clock::time_point &time, 
                                           const EventsPriorityQueue &events){
 
-        // TODO: check events -> how to react?
+        std::cout << "status: " << OrchestratorStatusTypes[to_underlying(status_)];
+        std::cout << "\nautonomy_level: " << OrchestratorAutonomyLevelTypes[to_underlying(autonomy_level_)] <<
+        "; control_strategy: " << OrchestratorControlStrategyTypes[to_underlying(control_strategy_)] <<
+        "; locomotion_strategy: " << OrchestratorLocomotionStrategyTypes[to_underlying(locomotion_strategy_)] << "\n";
 
-        // Consuming latest control station alive and commands    
+        if(status_ == OrchestratorStatus::INITIALIZATION){
+            // TODO: perform some checks
+            goToStatus(OrchestratorStatus::WAITING_FOR_REFERENCE);
+        }
+
+        // 0. Checking triggered events, if at least one err stop
+        bool err_found = !events.empty() && 
+            (events.top().severity() == to_underlying(EventSeverity::ERROR) || 
+             events.top().severity() == to_underlying(EventSeverity::FATAL));
+        is_event_queue_ok_ = !err_found;
+
+        if(err_found){
+            // TODO: trigger stop, go to state machine update directly
+            std::cout << "orch: err/fatal event found!\n";
+            goToStatus(OrchestratorStatus::STOP);
+        }
+
+        // Consuming latest control station alive and commands
         {
             std::lock_guard<std::mutex> input_lock(dls_input_.mutex);
             // 1. CSBasicCommand: check if msg is too old
-            auto basic_command_delta_sec = toSec<double>(time - fromNs(dls_input_.cs_basic_command_msg.header().timestamp()));
-            if(!dls_input_.cs_basic_command_msg.enable() || basic_command_delta_sec > cs_timeout_sec_){
+            // auto basic_command_delta_sec = toSec<double>(time - fromNs(dls_input_.cs_basic_command_msg.header().timestamp()));
+
+            auto cs_time = fromNs<std::chrono::system_clock::time_point>(dls_input_.cs_basic_command_msg.header().timestamp());
+            auto basic_command_delta_sec = toSec<double>(time - cs_time);
+
+            is_cs_basic_command_ok_ = basic_command_delta_sec < cs_timeout_sec_ && dls_input_.cs_basic_command_msg.enable();
+            if(is_cs_basic_command_ok_){
+                // std::cout << "orch: cs_basic_command received\n";
+            }else{
                 // TODO: trigger stop and stop consuming control station msgs, go to state machine update directly
+                goToStatus(OrchestratorStatus::STOP);
             }
 
             const auto& autonomy_level = dls_input_.cs_basic_command_msg.autonomy_level();
@@ -63,8 +104,21 @@ namespace dls
 
             // 2. Check if stop requested (dls_input_.cs_emergency_msg)
             auto emergency_delta_sec = toSec<double>(time - fromNs(dls_input_.cs_emergency_msg.header().timestamp()));
-            if(emergency_delta_sec < cs_timeout_sec_){ // Execute it if sent recently
+            auto emergency_triggered = emergency_delta_sec < cs_timeout_sec_ && dls_input_.cs_emergency_msg.emergency_stop() == true;
+            if(emergency_triggered){
+                has_emergency_been_triggered_ = true;
+            }
+
+            is_emergency_stop_msg_ok_ = true;
+            if(has_emergency_been_triggered_ && (emergency_delta_sec > cs_timeout_sec_ || dls_input_.cs_emergency_msg.emergency_stop() == true)){
+                std::cout << "emergency_delta_sec > cs_timeout_sec_: " << (emergency_delta_sec > cs_timeout_sec_) << "; emergency_stop: " << dls_input_.cs_emergency_msg.emergency_stop() << "\n";
+                is_emergency_stop_msg_ok_ = false;
+            }
+
+            if(emergency_triggered){ // Execute it if sent recently
                 // TODO: trigger stop / hard stop?
+                goToStatus(OrchestratorStatus::STOP);
+                std::cout << "orch: cs_emergency_msg received\n";
             }
 
             // 3. Check if any console command has been sent from cs (dls_input_.command_call_msg)
@@ -73,105 +127,166 @@ namespace dls
                 // TODO: parse and execute console command
             }
 
-            // 4. Check if locomotion strategy update has been triggered
-            if(locomotion_strategy_ != locomotion_strategy){
-                // TODO: request locomotion strategy update
-            }
+            // 4. Check if basic command has been updated during execution
             
-            // 5. Check if any control msg has been sent from cs
-            if(autonomy_level == static_cast<uint8_t>(AutonomyLevel::AUTONOMOUS)){
-                switch (control_strategy)
+            if(status_ == OrchestratorStatus::EXECUTING_REFERENCE || status_ == OrchestratorStatus::WAITING_FOR_REFERENCE){
+
+                // 4.1 Check if autonomy level has been updated
+                if(autonomy_level != to_underlying(autonomy_level_))
                 {
-                    case static_cast<uint8_t>(ControlStrategy::TARGET_POSITION):
-                    {
-                        // Check if dls_input_.target_position_msg recently arrived
-                        auto target_position_delta_sec = toSec<double>(time - fromNs(dls_input_.target_position_msg.header().timestamp()));
-                        if(target_position_delta_sec < cs_timeout_sec_){
-                            // TODO: plan a path to desired point
-                        }
-                        break;
-
+                    std::optional<AutonomyLevel> autonomy_level_enum_opt = to_enum_checked<AutonomyLevel>(autonomy_level);
+                    if(autonomy_level_enum_opt.has_value()){
+                        std::cout << "autonomy_level update\n";
+                        autonomy_level_ = autonomy_level_enum_opt.value();
+                        goToStatus(OrchestratorStatus::WAITING_FOR_REFERENCE);
                     }
-                    case static_cast<uint8_t>(ControlStrategy::REFERENCE_PATH):
-                    {
-                        // Check if dls_input_.reference_path_msg recently arrived
-                        auto reference_path_delta_sec = toSec<double>(time - fromNs(dls_input_.reference_path_msg.header().timestamp()));
-                        if(reference_path_delta_sec < cs_timeout_sec_){
-                            // TODO: plan a path to desired point
-                        }
-                        break;
-
-                    }
-                    case static_cast<uint8_t>(ControlStrategy::STAY_OUT_ZONES):
-                    {
-                        // Check if dls_input_.stay_out_zones_msg recently arrived
-                        auto stay_out_zones_delta_sec = toSec<double>(time - fromNs(dls_input_.stay_out_zones_msg.header().timestamp()));
-                        if(stay_out_zones_delta_sec < cs_timeout_sec_){
-                            // TODO: forward stay-out zones to planner
-                        }
-                        break;
-                    }
-
-                    default:
-                        std::cout << "Unexpected control_strategy value = " << control_strategy << " with autonomy_level " << autonomy_level << "\n";
-                        break;
                 }
 
-            }else if(autonomy_level == static_cast<uint8_t>(AutonomyLevel::MANUAL)){
-                switch (control_strategy)
+                // 4.2 Check if control strategy has been updated
+                if(control_strategy != to_underlying(control_strategy_))
                 {
-                    case static_cast<uint8_t>(ControlStrategy::FEET_REFERENCE):
-                    {
-                        // Check if dls_input_.feet_reference_msg recently arrived
-                        auto feet_reference_delta_sec = toSec<double>(time - fromNs(dls_input_.feet_reference_msg.header().timestamp()));
-                        if(feet_reference_delta_sec < cs_timeout_sec_){
-                            // TODO: forward/set feet reference to/for controller
-                        }
-                        break;
-
+                    auto control_strategy_enum_opt = to_enum_checked<ControlStrategy>(control_strategy);
+                    if(control_strategy_enum_opt.has_value()){
+                        std::cout << "control strategy update\n";
+                        control_strategy_ = control_strategy_enum_opt.value();
+                        goToStatus(OrchestratorStatus::WAITING_FOR_REFERENCE);
                     }
-                    case static_cast<uint8_t>(ControlStrategy::BASE_REFERENCE):
-                    {
-                        // Check if dls_input_.base_reference_msg recently arrived
-                        auto base_reference_delta_sec = toSec<double>(time - fromNs(dls_input_.base_reference_msg.header().timestamp()));
-                        if(base_reference_delta_sec < cs_timeout_sec_){
-                            // TODO: forward/set base reference to/for controller
-                        }
-                        break;
+                }
 
+                // 4.3 Check if locomotion strategy has been updated
+                if(locomotion_strategy != to_underlying(locomotion_strategy_))
+                {
+                    // TODO: request locomotion strategy update, go to state machine update directly
+                    std::optional<LocomotionStrategy> locomotion_strategy_enum_opt = to_enum_checked<LocomotionStrategy>(locomotion_strategy);
+                    if(locomotion_strategy_enum_opt.has_value()){
+                        std::cout << "locomotion_strategy update\n";
+                        locomotion_strategy_ = locomotion_strategy_enum_opt.value();
+                        goToStatus(OrchestratorStatus::SWITCHING_CONTROLLER);
                     }
-                    case static_cast<uint8_t>(ControlStrategy::JOINT_REFERENCE):
-                    {
-                        // Check if dls_input_.joint_states_msg recently arrived
-                        auto joint_states_delta_sec = toSec<double>(time - fromNs(dls_input_.joint_states_msg.header().timestamp()));
-                        if(joint_states_delta_sec < cs_timeout_sec_){
-                            // TODO: forward/set joint reference to/for controller
-                        }
-                        break;
+                }
 
-                    }
-                    case static_cast<uint8_t>(ControlStrategy::LOC_RESET):
+                // 5. Check if any control msg has been sent from cs
+                if(autonomy_level_ == AutonomyLevel::AUTONOMOUS){
+                    switch (control_strategy_)
                     {
-                        // Check if dls_input_.base_reference_msg recently arrived
-                        auto loc_reset_delta_sec = toSec<double>(time - fromNs(dls_input_.loc_reset_msg.header().timestamp()));
-                        if(loc_reset_delta_sec < cs_timeout_sec_){
-                            // TODO: set localization state
+                        case ControlStrategy::TARGET_POSITION:
+                        {
+                            // Check if dls_input_.target_position_msg recently arrived
+                            auto target_position_delta_sec = toSec<double>(time - fromNs(dls_input_.target_position_msg.header().timestamp()));
+                            if(target_position_delta_sec < cs_timeout_sec_){
+                                // TODO: plan a path to desired point
+                                std::cout << "orch: target_position_msg received\n";
+                                std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                                goToStatus(OrchestratorStatus::EXECUTING_REFERENCE);
+                            }
+                            break;
+
                         }
-                        break;
+                        case ControlStrategy::REFERENCE_PATH:
+                        {
+                            // Check if dls_input_.reference_path_msg recently arrived
+                            auto reference_path_delta_sec = toSec<double>(time - fromNs(dls_input_.reference_path_msg.header().timestamp()));
+                            if(reference_path_delta_sec < cs_timeout_sec_){
+                                // TODO: plan a path to desired point
+                                std::cout << "orch: reference_path_msg received\n";
+                                goToStatus(OrchestratorStatus::EXECUTING_REFERENCE);
+                            }
+                            break;
+
+                        }
+                        case ControlStrategy::STAY_OUT_ZONES:
+                        {
+                            // Check if dls_input_.stay_out_zones_msg recently arrived
+                            auto stay_out_zones_delta_sec = toSec<double>(time - fromNs(dls_input_.stay_out_zones_msg.header().timestamp()));
+                            if(stay_out_zones_delta_sec < cs_timeout_sec_){
+                                // TODO: forward stay-out zones to planner
+                                goToStatus(OrchestratorStatus::EXECUTING_REFERENCE);
+                            }
+                            break;
+                        }
+
+                        default:
+                            std::cout << "Unexpected control_strategy_ value = " << to_underlying(control_strategy_) << " with autonomy_level_ " << to_underlying(autonomy_level_) << "\n";
+                            break;
                     }
 
-                    default:
-                        std::cout << "Unexpected control_strategy value = " << control_strategy << " with autonomy_level " << autonomy_level << "\n";
-                        break;
+                }else if(autonomy_level_ == AutonomyLevel::MANUAL){
+                    switch (control_strategy_)
+                    {
+                        case ControlStrategy::FEET_REFERENCE:
+                        {
+                            // Check if dls_input_.feet_reference_msg recently arrived
+                            auto feet_reference_delta_sec = toSec<double>(time - fromNs(dls_input_.feet_reference_msg.header().timestamp()));
+                            if(feet_reference_delta_sec < cs_timeout_sec_){
+                                // TODO: forward/set feet reference to/for controller
+                                goToStatus(OrchestratorStatus::EXECUTING_REFERENCE); // TODO: enforce specific periodic data requirement 
+                                // Q&A: Manual requires periodic input from cs?
+                            }
+                            break;
+
+                        }
+                        case ControlStrategy::BASE_REFERENCE:
+                        {
+                            // Check if dls_input_.base_reference_msg recently arrived
+                            auto base_reference_delta_sec = toSec<double>(time - fromNs(dls_input_.base_reference_msg.header().timestamp()));
+                            if(base_reference_delta_sec < cs_timeout_sec_){
+                                std::cout << "orch: base_reference_msg received\n";
+                                // TODO: forward/set base reference to/for controller
+                                goToStatus(OrchestratorStatus::EXECUTING_REFERENCE); // TODO: enforce specific periodic data requirement 
+                                // Q&A: Manual requires periodic input from cs?
+                            }
+                            break;
+
+                        }
+                        case ControlStrategy::JOINT_REFERENCE:
+                        {
+                            // Check if dls_input_.joint_states_msg recently arrived
+                            auto joint_states_delta_sec = toSec<double>(time - fromNs(dls_input_.joint_states_msg.header().timestamp()));
+                            if(joint_states_delta_sec < cs_timeout_sec_){
+                                // TODO: forward/set joint reference to/for controller
+                                goToStatus(OrchestratorStatus::EXECUTING_REFERENCE); // TODO: enforce specific periodic data requirement 
+                                // Q&A: Manual requires periodic input from cs?
+                            }
+                            break;
+
+                        }
+                        case ControlStrategy::LOC_RESET:
+                        {
+                            // Check if dls_input_.base_reference_msg recently arrived
+                            auto loc_reset_delta_sec = toSec<double>(time - fromNs(dls_input_.loc_reset_msg.header().timestamp()));
+                            if(loc_reset_delta_sec < cs_timeout_sec_){
+                                // TODO: set localization state
+                                goToStatus(OrchestratorStatus::EXECUTING_REFERENCE);
+                            }
+                            break;
+                        }
+
+                        default:
+                            std::cout << "Unexpected control_strategy value = " << to_underlying(control_strategy_) << " with autonomy_level_ " << to_underlying(autonomy_level_) << "\n";
+                            break;
+                    }
                 }
             }
         
-            // TODO: call state machine update
+            // TODO: if in SWITCHING_CONTROLLER or in STOP state, wait for updates
+            if(status_ == OrchestratorStatus::SWITCHING_CONTROLLER){
+                // TODO: wait for completion
+                std::cout << "switching scope\n";
+                // goToPrevStatus();
+            }
+            if(status_ == OrchestratorStatus::STOP){
+                // TODO: wait for solved issue
+                std::cout << "Robot stopped (basic cs command ok: " << is_cs_basic_command_ok_ << ", emergency ok: " 
+                    << is_emergency_stop_msg_ok_ <<", event ok: " << is_event_queue_ok_ << ")\n";
+                if(is_cs_basic_command_ok_ && is_emergency_stop_msg_ok_ && is_event_queue_ok_){
+                    has_emergency_been_triggered_ = false;
+                    goToPrevStatus();
+                }
+            }
         
             std::lock_guard<std::mutex> output_lock(dls_output_.mutex);
             // TODO: fill in dls_output_.dls_status_msg
         }
-
     }
 
     void PegasusOrchestrator::telemetryMain(const std::vector<dls2_interface::msg::EventLog> &events_to_publish)
@@ -179,7 +294,6 @@ namespace dls
          {
             std::lock_guard<std::mutex> lock(dls_output_.mutex);
             dls_output_.dls_events_msg.events() = events_to_publish;    
-            std::cout << "dls_output_.dls_events_msg.events: " << dls_output_.dls_events_msg.events().size() << "\n";
         }
         this->telemetry_manager_.tick(dls_input_, dls_output_);
     }

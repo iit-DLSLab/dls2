@@ -5,6 +5,9 @@
 #include <vector>
 #include <list>
 #include <mutex>
+#include <type_traits>
+#include <magic_enum/magic_enum.hpp>
+#include <optional>
 
 #include "dls2/topics/topics.hpp"
 #include <dls_messages/dds/CSBasicCommand.hpp>
@@ -29,25 +32,76 @@
 namespace dls
 {
 
+	template <typename E>
+	constexpr std::underlying_type_t<E> to_underlying(E e) noexcept {
+		return static_cast<std::underlying_type_t<E>>(e);
+	}
+
+	template <class E, class I>
+	std::optional<E> to_enum_checked(I v) {
+		return magic_enum::enum_cast<E>(v); // empty optional if not a valid enumerator
+	}
+
+	enum class OrchestratorStatus : uint8_t {
+		INITIALIZATION = 0,
+		WAITING_FOR_REFERENCE,
+		EXECUTING_REFERENCE,
+		STOP,
+		SWITCHING_CONTROLLER
+	};
+
+	constexpr std::string_view OrchestratorStatusTypes[] =
+	{
+		"INITIALIZATION",
+		"WAITING_FOR_REFERENCE",
+		"EXECUTING_REFERENCE",
+		"STOP",
+		"SWITCHING_CONTROLLER"
+	};
+
 	enum class AutonomyLevel : uint8_t {
 		AUTONOMOUS = 0,
 		MANUAL
 	};
 
+	constexpr std::string_view OrchestratorAutonomyLevelTypes[] =
+	{
+		"AUTONOMOUS",
+		"MANUAL"
+	};
+
 	enum class ControlStrategy : uint8_t {
 		TARGET_POSITION = 0,
-		REFERENCE_PATH,
 		STAY_OUT_ZONES,
+		REFERENCE_PATH,
 		FEET_REFERENCE,
 		BASE_REFERENCE,
 		JOINT_REFERENCE,
 		LOC_RESET
 	};
 
+	constexpr std::string_view OrchestratorControlStrategyTypes[] =
+	{
+		"TARGET_POSITION",
+		"REFERENCE_PATH",
+		"STAY_OUT_ZONES",
+		"FEET_REFERENCE",
+		"BASE_REFERENCE",
+		"JOINT_REFERENCE",
+		"LOC_RESET"
+	};
+
 	enum class LocomotionStrategy : uint8_t {
 		MPC = 0,
 		RL,
 		RL_3_LEGS
+	};
+
+	constexpr std::string_view OrchestratorLocomotionStrategyTypes[] =
+	{
+		"MPC",
+		"RL",
+		"RL_3_LEGS"
 	};
 	
 	struct PegasusInput 
@@ -95,15 +149,29 @@ namespace dls
         void telemetryMain(const std::vector<dls2_interface::msg::EventLog> &events_to_publish) override;
 
 	private:
+
+		void goToStatus(OrchestratorStatus new_status);
+		void goToPrevStatus();
+
 		PegasusInput dls_input_;
 		PegasusOutput dls_output_;
 
 		PegasusInternalFeedback dls_internal_feedback_;
 		PegasusInternalAction dls_internal_action_;
 
-		double cs_timeout_sec_{ 1000 };
+		double cs_timeout_sec_{ 1 };
 
-		LocomotionStrategy locomotion_strategy_;
+		AutonomyLevel autonomy_level_{AutonomyLevel::AUTONOMOUS};
+		ControlStrategy control_strategy_{ControlStrategy::TARGET_POSITION};
+		LocomotionStrategy locomotion_strategy_{LocomotionStrategy::MPC};
+
+		OrchestratorStatus status_{OrchestratorStatus::INITIALIZATION};
+		OrchestratorStatus prev_status_{OrchestratorStatus::INITIALIZATION};
+
+		bool has_emergency_been_triggered_ {false};
+		bool is_emergency_stop_msg_ok_ {true};
+		bool is_cs_basic_command_ok_ {true};
+		bool is_event_queue_ok_ {true};
 
 	};
 } // end namespace dls
