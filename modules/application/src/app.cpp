@@ -16,7 +16,16 @@ App::App(const std::string &ID)
 	, status_mutex()
 	, status(AppStatus::INITIALISING)
 {
-	safety_layer_config_ = std::make_shared<SafetyLayerConfig>("/usr/include/dls2/supervisor/data/safety_layer.yaml");
+
+	char * val;
+	val = getenv("DLS_SAFETY_LAYER_PATH");
+	std::string safety_layer_default_path = "/usr/include/dls2/supervisor/data/safety_layer.yaml";
+	std::string safety_layer_path = safety_layer_default_path;
+	if (val != NULL) {
+		safety_layer_path = val;
+	}
+
+	safety_layer_config_ = std::make_shared<SafetyLayerConfig>(safety_layer_path);
 
 	command_manager.addCommand<>
 	(
