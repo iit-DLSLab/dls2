@@ -40,7 +40,14 @@ namespace dls
             }
             size_t event_count = 0;
             while (!events_priority_queue_tmp.empty() && event_count < event_to_publish_) {
-                events_to_publish.push_back(events_priority_queue_tmp.top());
+
+                if(events_to_publish.empty() || 
+                  (events_to_publish.back().component_name() != events_priority_queue_tmp.top().component_name() && 
+                   events_to_publish.back().event_id() != events_priority_queue_tmp.top().event_id()))
+                {
+                    events_to_publish.push_back(events_priority_queue_tmp.top());
+                }
+
                 events_priority_queue_tmp.pop();
                 event_count++;
             }
