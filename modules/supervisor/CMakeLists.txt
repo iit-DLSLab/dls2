@@ -3,6 +3,7 @@ add_library(dls_supervisor
 		src/supervisor.cpp
 		src/orchestrator_base.cpp
 		src/pegasus_orchestrator.cpp
+		src/fake_control_station.cpp
 )
 
 set_property(TARGET dls_supervisor PROPERTY POSITION_INDEPENDENT_CODE ON)
