@@ -143,7 +143,10 @@ namespace dls
 	{
 
 	public:
-		PegasusOrchestrator(const std::string &ID, const std::shared_ptr<state_machine::StateMachine> &sm = nullptr);
+		PegasusOrchestrator(const std::string &ID,
+							const double& cs_timeout_sec, 
+							const double& cs_manual_timeout_sec,
+							size_t expected_joint_size);
 
 		void orchestrate(const std::chrono::system_clock::time_point &time, const EventsPriorityQueue &events) override;
         void telemetryMain(const std::vector<dls2_interface::msg::EventLog> &events_to_publish) override;
@@ -152,6 +155,8 @@ namespace dls
 
 		void goToStatus(OrchestratorStatus new_status);
 		void goToPrevStatus();
+    	bool allowed(const AutonomyLevel& autonomy_level, const ControlStrategy& control_strategy);
+		bool allowed(const ControlStrategy& control_strategy, const LocomotionStrategy& locomotion_strategy);
 
 		PegasusInput dls_input_;
 		PegasusOutput dls_output_;
@@ -159,7 +164,9 @@ namespace dls
 		PegasusInternalFeedback dls_internal_feedback_;
 		PegasusInternalAction dls_internal_action_;
 
-		double cs_timeout_sec_{ 1 };
+		double cs_standard_timeout_sec_{ 1 };
+		double cs_manual_timeout_sec_{ 1 };
+		size_t expected_joint_size_ { 6 };
 
 		AutonomyLevel autonomy_level_{AutonomyLevel::AUTONOMOUS};
 		ControlStrategy control_strategy_{ControlStrategy::TARGET_POSITION};

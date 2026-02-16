@@ -4,8 +4,11 @@
 
 namespace dls
 {
-    PegasusOrchestrator::PegasusOrchestrator(const std::string &ID, const std::shared_ptr<state_machine::StateMachine> &sm)
-        : dls::OrchestratorBase(ID, sm)
+    PegasusOrchestrator::PegasusOrchestrator(const std::string &ID, const double& cs_timeout_sec, const double& cs_manual_timeout_sec, size_t expected_joint_size)
+        : dls::OrchestratorBase(ID)
+        , cs_standard_timeout_sec_(cs_timeout_sec)
+        , cs_manual_timeout_sec_(cs_manual_timeout_sec)
+        , expected_joint_size_(expected_joint_size)
     {
 
         // Telemetry-related readers and writers definition
@@ -56,6 +59,33 @@ namespace dls
         status_ = prev_status_;
     }
 
+    bool PegasusOrchestrator::allowed(const AutonomyLevel& autonomy_level, 
+                                      const ControlStrategy& control_strategy){
+        if(autonomy_level == AutonomyLevel::AUTONOMOUS)
+        {
+            return 
+                control_strategy == ControlStrategy::TARGET_POSITION || 
+                control_strategy == ControlStrategy::REFERENCE_PATH;
+        }else if(autonomy_level == AutonomyLevel::MANUAL)
+        {
+            return 
+                control_strategy == ControlStrategy::FEET_REFERENCE || 
+                control_strategy == ControlStrategy::BASE_REFERENCE || 
+                control_strategy == ControlStrategy::JOINT_REFERENCE;
+        }
+        return false;
+    }
+
+    bool PegasusOrchestrator::allowed(const ControlStrategy& control_strategy, 
+                                      const LocomotionStrategy& locomotion_strategy){
+        if(control_strategy == ControlStrategy::FEET_REFERENCE || 
+           control_strategy == ControlStrategy::JOINT_REFERENCE)
+        {
+            return locomotion_strategy == LocomotionStrategy::MPC;
+        }
+        return true;
+    }
+
     void PegasusOrchestrator::orchestrate(const std::chrono::system_clock::time_point &time, 
                                           const EventsPriorityQueue &events){
 
@@ -90,7 +120,7 @@ namespace dls
             auto cs_time = fromNs<std::chrono::system_clock::time_point>(dls_input_.cs_basic_command_msg.header().timestamp());
             auto basic_command_delta_sec = toSec<double>(time - cs_time);
 
-            is_cs_basic_command_ok_ = basic_command_delta_sec < cs_timeout_sec_ && dls_input_.cs_basic_command_msg.enable();
+            is_cs_basic_command_ok_ = basic_command_delta_sec < cs_standard_timeout_sec_ && dls_input_.cs_basic_command_msg.enable();
             if(is_cs_basic_command_ok_){
                 // std::cout << "orch: cs_basic_command received\n";
             }else{
@@ -104,14 +134,14 @@ namespace dls
 
             // 2. Check if stop requested (dls_input_.cs_emergency_msg)
             auto emergency_delta_sec = toSec<double>(time - fromNs(dls_input_.cs_emergency_msg.header().timestamp()));
-            auto emergency_triggered = emergency_delta_sec < cs_timeout_sec_ && dls_input_.cs_emergency_msg.emergency_stop() == true;
+            auto emergency_triggered = emergency_delta_sec < cs_standard_timeout_sec_ && dls_input_.cs_emergency_msg.emergency_stop() == true;
             if(emergency_triggered){
                 has_emergency_been_triggered_ = true;
             }
 
             is_emergency_stop_msg_ok_ = true;
-            if(has_emergency_been_triggered_ && (emergency_delta_sec > cs_timeout_sec_ || dls_input_.cs_emergency_msg.emergency_stop() == true)){
-                std::cout << "emergency_delta_sec > cs_timeout_sec_: " << (emergency_delta_sec > cs_timeout_sec_) << "; emergency_stop: " << dls_input_.cs_emergency_msg.emergency_stop() << "\n";
+            if(has_emergency_been_triggered_ && (emergency_delta_sec > cs_standard_timeout_sec_ || dls_input_.cs_emergency_msg.emergency_stop() == true)){
+                std::cout << "emergency_delta_sec > cs_standard_timeout_sec_: " << (emergency_delta_sec > cs_standard_timeout_sec_) << "; emergency_stop: " << dls_input_.cs_emergency_msg.emergency_stop() << "\n";
                 is_emergency_stop_msg_ok_ = false;
             }
 
@@ -123,15 +153,22 @@ namespace dls
 
             // 3. Check if any console command has been sent from cs (dls_input_.command_call_msg)
             auto command_call_delta_sec = toSec<double>(time - fromNs(dls_input_.command_call_msg.header().timestamp()));
-            if(command_call_delta_sec < cs_timeout_sec_){ // Execute it if sent recently
+            if(command_call_delta_sec < cs_standard_timeout_sec_){ // Execute it if sent recently
                 // TODO: parse and execute console command
             }
 
-            // 4. Check if basic command has been updated during execution
+            // 4. Check if stay_out_zones_msg recently arrived
+            auto stay_out_zones_delta_sec = toSec<double>(time - fromNs(dls_input_.stay_out_zones_msg.header().timestamp()));
+            if(stay_out_zones_delta_sec < cs_standard_timeout_sec_){
+                // TODO: forward stay-out zones to planner
+                std::cout << "stay_out_zones_msg received\n";
+            }
+
+            // 5. Check if basic command has been updated during execution
             
             if(status_ == OrchestratorStatus::EXECUTING_REFERENCE || status_ == OrchestratorStatus::WAITING_FOR_REFERENCE){
 
-                // 4.1 Check if autonomy level has been updated
+                // 5.1 Check if autonomy level has been updated
                 if(autonomy_level != to_underlying(autonomy_level_))
                 {
                     std::optional<AutonomyLevel> autonomy_level_enum_opt = to_enum_checked<AutonomyLevel>(autonomy_level);
@@ -142,30 +179,37 @@ namespace dls
                     }
                 }
 
-                // 4.2 Check if control strategy has been updated
+                // 5.2 Check if control strategy has been updated
                 if(control_strategy != to_underlying(control_strategy_))
                 {
                     auto control_strategy_enum_opt = to_enum_checked<ControlStrategy>(control_strategy);
-                    if(control_strategy_enum_opt.has_value()){
+                    if(control_strategy_enum_opt.has_value() && 
+                        allowed(autonomy_level_, control_strategy_enum_opt.value()))
+                    {
                         std::cout << "control strategy update\n";
                         control_strategy_ = control_strategy_enum_opt.value();
                         goToStatus(OrchestratorStatus::WAITING_FOR_REFERENCE);
+                    }else{
+                        std::cout << "Not valid control strategy, discarded\n";
                     }
                 }
 
-                // 4.3 Check if locomotion strategy has been updated
+                // 5.3 Check if locomotion strategy has been updated
                 if(locomotion_strategy != to_underlying(locomotion_strategy_))
                 {
                     // TODO: request locomotion strategy update, go to state machine update directly
                     std::optional<LocomotionStrategy> locomotion_strategy_enum_opt = to_enum_checked<LocomotionStrategy>(locomotion_strategy);
-                    if(locomotion_strategy_enum_opt.has_value()){
+                    if(locomotion_strategy_enum_opt.has_value() && 
+                        allowed(control_strategy_, locomotion_strategy_enum_opt.value())){
                         std::cout << "locomotion_strategy update\n";
                         locomotion_strategy_ = locomotion_strategy_enum_opt.value();
                         goToStatus(OrchestratorStatus::SWITCHING_CONTROLLER);
+                    }else{
+                        std::cout << "Not valid locomotion strategy, discarded\n";
                     }
                 }
 
-                // 5. Check if any control msg has been sent from cs
+                // 6. Check if any control msg has been sent from cs
                 if(autonomy_level_ == AutonomyLevel::AUTONOMOUS){
                     switch (control_strategy_)
                     {
@@ -173,7 +217,7 @@ namespace dls
                         {
                             // Check if dls_input_.target_position_msg recently arrived
                             auto target_position_delta_sec = toSec<double>(time - fromNs(dls_input_.target_position_msg.header().timestamp()));
-                            if(target_position_delta_sec < cs_timeout_sec_){
+                            if(target_position_delta_sec < cs_standard_timeout_sec_){
                                 // TODO: plan a path to desired point
                                 std::cout << "orch: target_position_msg received\n";
                                 std::this_thread::sleep_for(std::chrono::milliseconds(500));
@@ -186,20 +230,9 @@ namespace dls
                         {
                             // Check if dls_input_.reference_path_msg recently arrived
                             auto reference_path_delta_sec = toSec<double>(time - fromNs(dls_input_.reference_path_msg.header().timestamp()));
-                            if(reference_path_delta_sec < cs_timeout_sec_){
+                            if(reference_path_delta_sec < cs_standard_timeout_sec_){
                                 // TODO: plan a path to desired point
                                 std::cout << "orch: reference_path_msg received\n";
-                                goToStatus(OrchestratorStatus::EXECUTING_REFERENCE);
-                            }
-                            break;
-
-                        }
-                        case ControlStrategy::STAY_OUT_ZONES:
-                        {
-                            // Check if dls_input_.stay_out_zones_msg recently arrived
-                            auto stay_out_zones_delta_sec = toSec<double>(time - fromNs(dls_input_.stay_out_zones_msg.header().timestamp()));
-                            if(stay_out_zones_delta_sec < cs_timeout_sec_){
-                                // TODO: forward stay-out zones to planner
                                 goToStatus(OrchestratorStatus::EXECUTING_REFERENCE);
                             }
                             break;
@@ -217,10 +250,12 @@ namespace dls
                         {
                             // Check if dls_input_.feet_reference_msg recently arrived
                             auto feet_reference_delta_sec = toSec<double>(time - fromNs(dls_input_.feet_reference_msg.header().timestamp()));
-                            if(feet_reference_delta_sec < cs_timeout_sec_){
+                            if(feet_reference_delta_sec < cs_manual_timeout_sec_){
                                 // TODO: forward/set feet reference to/for controller
-                                goToStatus(OrchestratorStatus::EXECUTING_REFERENCE); // TODO: enforce specific periodic data requirement 
-                                // Q&A: Manual requires periodic input from cs?
+                                goToStatus(OrchestratorStatus::EXECUTING_REFERENCE); 
+                            }else{
+                                std::cout << "ASYNC msg not arrived in time!\n";
+                                goToStatus(OrchestratorStatus::WAITING_FOR_REFERENCE); 
                             }
                             break;
 
@@ -229,11 +264,10 @@ namespace dls
                         {
                             // Check if dls_input_.base_reference_msg recently arrived
                             auto base_reference_delta_sec = toSec<double>(time - fromNs(dls_input_.base_reference_msg.header().timestamp()));
-                            if(base_reference_delta_sec < cs_timeout_sec_){
+                            if(base_reference_delta_sec < cs_manual_timeout_sec_){
                                 std::cout << "orch: base_reference_msg received\n";
                                 // TODO: forward/set base reference to/for controller
-                                goToStatus(OrchestratorStatus::EXECUTING_REFERENCE); // TODO: enforce specific periodic data requirement 
-                                // Q&A: Manual requires periodic input from cs?
+                                goToStatus(OrchestratorStatus::EXECUTING_REFERENCE); 
                             }
                             break;
 
@@ -242,10 +276,17 @@ namespace dls
                         {
                             // Check if dls_input_.joint_states_msg recently arrived
                             auto joint_states_delta_sec = toSec<double>(time - fromNs(dls_input_.joint_states_msg.header().timestamp()));
-                            if(joint_states_delta_sec < cs_timeout_sec_){
-                                // TODO: forward/set joint reference to/for controller
-                                goToStatus(OrchestratorStatus::EXECUTING_REFERENCE); // TODO: enforce specific periodic data requirement 
-                                // Q&A: Manual requires periodic input from cs?
+                            if(joint_states_delta_sec < cs_manual_timeout_sec_){
+                                if(dls_input_.joint_states_msg.joints().position().size() == expected_joint_size_ || 
+                                 dls_input_.joint_states_msg.joints().velocity().size() == expected_joint_size_ || 
+                                 dls_input_.joint_states_msg.joints().effort().size() == expected_joint_size_)
+                                 {
+                                    // TODO: forward/set joint reference to/for controller
+                                    goToStatus(OrchestratorStatus::EXECUTING_REFERENCE); 
+                                 }else
+                                 {
+                                    std::cout << "Provided message size not matching expected size, discarded\n";
+                                 }
                             }
                             break;
 
@@ -254,7 +295,7 @@ namespace dls
                         {
                             // Check if dls_input_.base_reference_msg recently arrived
                             auto loc_reset_delta_sec = toSec<double>(time - fromNs(dls_input_.loc_reset_msg.header().timestamp()));
-                            if(loc_reset_delta_sec < cs_timeout_sec_){
+                            if(loc_reset_delta_sec < cs_standard_timeout_sec_){
                                 // TODO: set localization state
                                 goToStatus(OrchestratorStatus::EXECUTING_REFERENCE);
                             }
