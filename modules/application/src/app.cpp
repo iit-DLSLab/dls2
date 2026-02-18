@@ -132,11 +132,6 @@ void App::setStatus(AppStatus s)
 	this->status = s;
 }
 
-bool App::shouldQuit()
-{
-	return should_quit;
-}
-
 AppStatus App::eStop()
 {
 	this->stop();
@@ -258,7 +253,19 @@ void App::quit()
 {
 	setDefaultSchedulerPolicy();
 	close();
-	sm.stop();
+
+	should_quit = true;
+	
+	// Waiting for monitoring thread to notify "quit" state transition
+	{
+		std::unique_lock<std::mutex> lock(quit_mutex);
+		quit_cv.wait(lock, 
+			[this] { 
+				return this->can_die;
+			});
+	}
+
+	sm.stop();	
 }
 
 void App::close(){}
@@ -299,7 +306,7 @@ bool App::deactivating(){
 
 void App::monitorApp()
 {
-	while (!should_quit)
+	while (true)
 	{
 		// Fill in relevant fields
 		status_msg.header().timestamp() = toNs<unsigned long long>(std::chrono::system_clock::now());
@@ -336,6 +343,18 @@ void App::monitorApp()
 		this->childMonitor();
 
 		status_notifier.sendMessage(&status_msg);
+
+		if(should_quit && 
+			status_msg.current_state() == status_msg.desired_state() &&
+			status_msg.current_state() == "quit")
+		{
+			{
+				std::lock_guard<std::mutex> lock(quit_mutex); // allowing sm to terminate
+				this->can_die = true;
+				quit_cv.notify_one();
+			}
+			break; // stopping monitoring thread
+		}
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(this->safety_layer_config_->monitor_period_ms));
 	}

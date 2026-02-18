@@ -6,6 +6,7 @@
 #include "dls2/log/log.hpp"
 #include <future>
 #include <thread>
+#include <condition_variable>
 #include "dls2/application/state_machine/app_state_machine.hpp"
 #include <dls2/application/sched_attr.hpp>
 #include <dls_messages/dds/ProcessStatusLight.hpp>
@@ -57,10 +58,6 @@ namespace dls
 		///
 		virtual void stop();
 
-		/// Verify if the app should terminate
-		///
-		bool shouldQuit();
-
         /// Emergency stop
 		///
 		/// If a app does not override this function, it defaults to the app's
@@ -94,9 +91,11 @@ namespace dls
 		//! Procedure to deactivate the app, customizable
 		virtual bool deactivating();
 
-		/// Flag of the running loop
-		/// Exits when set to true
+		/// Flag for quitting, additional threads exiting when set to true
 		bool should_quit;
+		std::condition_variable quit_cv;
+		bool can_die{ false };
+		std::mutex quit_mutex;
 
 		/// Stores commands registered in the app
 		///
