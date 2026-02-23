@@ -17,6 +17,8 @@ target_link_libraries(dls_supervisor
 		state_machine_watcher
 )
 
+add_subdirectory(test)
+
 install(
     FILES
         data/safety_layer.yaml
