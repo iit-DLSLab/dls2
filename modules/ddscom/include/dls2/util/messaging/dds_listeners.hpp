@@ -7,6 +7,7 @@
 #include <fastdds/dds/subscriber/DataReaderListener.hpp>
 
 #include <string>
+#include <shared_mutex>
 
 /// \cond doxygen_namespace_dls
 namespace dls
@@ -44,6 +45,7 @@ namespace dls
 
 		std::atomic_int sample_count;
 		std::atomic_int matched_count;
+		bool started_receiving_data_{ false };
 		std::function<void(void *)> callback;
         void *msg;
 
@@ -62,7 +64,8 @@ namespace dls
 		bool is_receiving_data() const;
 
 		const std::chrono::microseconds is_receiving_data_th;
-		std::chrono::system_clock::time_point last_timestamp;
+		std::chrono::steady_clock::time_point last_timestamp;
+		double last_period_ms;
 	};
 
 

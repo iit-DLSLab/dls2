@@ -8,19 +8,36 @@
 #include <mutex>
 namespace dls
 {
-  /*!
-    * @class Plugin
-    * @brief This is a base class for creating plugins for either apps or periodic apps.
-    */
-  class Plugin
-  {
-  public:
-    /*!
-      * @brief Constructor.
-      * @param[in] ID name of plugin
-      * @param[in] domain domain the plugin belongs to
-      */
-    Plugin(const std::string &ID, const domainType &domain);
+	struct InputInfo
+	{
+		double latest_period_ms{};
+		std::chrono::steady_clock::time_point latest_timestamp{};
+		uint32_t missed_sequence_ids{ 0 };
+		bool are_inputs_required_on_activation{ false };
+		std::string topic_name{""};
+		std::shared_ptr<ReaderBase> reader{nullptr};
+	};
+
+	struct OutputInfo
+	{
+		public:
+			std::shared_ptr<WriterBase> writer;
+			std::string topic_name{""};
+	};
+
+	/*!
+	 * @class Plugin
+	 * @brief This is a base class for creating plugins for either apps or periodic apps.
+	 */
+	class Plugin
+	{
+	public:
+		/*!
+		 * @brief Constructor.
+		 * @param[in] ID name of plugin
+		 * @param[in] domain domain the plugin belongs to
+		 */
+		Plugin(const std::string &ID, const domainType &domain);
 
     /*!
       * @brief Destructor.
@@ -136,21 +153,25 @@ namespace dls
       */
     void deleteServices();
 
+		std::mutex input_info_mutex_;
+		std::mutex output_info_mutex_;
+
 		//! Vector of inputs (data readers)
-		std::vector<std::shared_ptr<ReaderBase>> inputs;
+		std::vector<InputInfo> input_info_{};
 		//! Vector of outputs (data writers)
-		std::vector<std::shared_ptr<WriterBase>> outputs;
+		std::vector<OutputInfo> output_info_{};
 
 		// Map from topic (input) name to id in the inputs vector
 		std::map<std::string, size_t> inputs_map;
 		// Map from topic (output) name to id in the outputs vector
 		std::map<std::string, size_t> outputs_map;
 
-		private:
-		// ! Check if inputs are required on activation
-		std::vector<bool> are_inputs_required_on_activation;
+	private:
+		
+		/*! @brief Updating input sanity check-related data */
+		void updateInputInfo(InputInfo& input_info);
 
-    std::map<std::string, std::shared_ptr<RpcService>> _rpc_srvc_map;
+    	std::map<std::string, std::shared_ptr<RpcService>> _rpc_srvc_map;
 	};
 } // end namespace dls
 

@@ -7,6 +7,7 @@
 #include <chrono>
 #include <memory>
 #include <map>
+#include "dls2/util/time/duration_utils.hpp"
 
 namespace dls
 {
@@ -21,6 +22,12 @@ namespace dls
 
 		double getRealTimeFactor();
 		void setRealTimeFactor(double);
+		static bool checkFrequency(
+			const double &tolerance_factor, 
+			const double &desired_frequency,
+			std::chrono::time_point<std::chrono::steady_clock> &loop_time_prec,
+			double &current_frequency
+		);
 
 	private:
 		

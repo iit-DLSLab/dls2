@@ -1,0 +1,23 @@
+events:
+  spam_threshold: 200 # [ms]
+
+checks:
+  enable_process_died: true
+  enable_wrong_process_state: true
+  enable_wrong_process_frequency: true
+  enable_missing_input: false
+  enable_cpu_usage_too_high: true
+  enable_mem_usage_too_high: true
+  enable_inputs_not_synchronized: true
+  enable_wrong_input_frequency: false
+  enable_wrong_sequence_id: true
+
+  monitor_period: 100 # [ms]
+  max_exceeding_factor: 0.5 # value in [0,1]: factor of input topic desired freq
+  sync_threshold: 500 # [ms]
+  realtime_tolerance_factor: 0.25 # value in [0,1]: factor of node desired freq
+  resource_monitor_window_size: 30 # samples in cpu/mem usage window
+  process_monitor_window_size: 400 # samples in cpu/mem usage window
+  process_cpu_threshold: 300.0 # [%] value in [0, N_cores * 100] max single process cpu percentage usage without warning (moving window mean)
+  system_cpu_threshold: 90.0 # [%] value in [0, 100] max overall cpu percentage usage without warning (moving window mean)
+  mem_threshold: 90.0 # [%] max mem percentage without warning (moving window mean)

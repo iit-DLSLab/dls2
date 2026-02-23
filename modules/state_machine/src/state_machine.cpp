@@ -62,7 +62,12 @@ namespace state_machine
 
     void StateMachine::initState(State *state)
     {
+	{
+		std::lock_guard<std::mutex> lock(state_mutex);
         this->state = state;
+		this->desired_state_ = state;
+		this->desired_state_timestamp_ = std::chrono::steady_clock::now();
+	}
         notifyState();
     }
 
@@ -87,13 +92,21 @@ namespace state_machine
 
     bool StateMachine::raiseEvent(const AsyncEvent &event)
     {
-        // discard event if not usable in the current state --> does not remember event happened in past states
-        if (transitions.find({state, event}) == transitions.end())
+	// discard event if not usable in the current state --> does not remember event happened in past
+	// states
+	auto des_state_it = transitions.find({state, event});
+	if (des_state_it == transitions.end())
         {
             return false;
         }
         else
         {
+		{
+			std::lock_guard<std::mutex> lock(state_mutex);
+			desired_state_ = des_state_it->second;
+			desired_state_timestamp_ = std::chrono::steady_clock::now();
+		}
+
             async_events[event].store(true);
             async_cv.notify_all();
         }
@@ -112,25 +125,51 @@ namespace state_machine
 
     void StateMachine::nextState(const Event &event)
     {
-        state = transitions[{state, event}];
-        if(state==nullptr)
+	 State * new_state = nullptr;
+	{
+		std::lock_guard<std::mutex> lock(state_mutex);
+		new_state = transitions[{state, event}];
+	}
+	if (new_state == nullptr)
         {
             std::cerr << "dls2 state machine - transition does not exist" << std::endl;
         }
         else
+	{
+		{
+			std::lock_guard<std::mutex> lock(state_mutex);
+			state = new_state;
+			desired_state_ = state;
+			desired_state_timestamp_ = std::chrono::steady_clock::now();
+		}
             notifyState();
+	}
     }
 
     void StateMachine::nextState(const AsyncEvent &event)
     {
         consumeEvent(event);
-        state = transitions[{state, event}];
-        if(state==nullptr)
+
+	State * new_state = nullptr;
+	{
+		std::lock_guard<std::mutex> lock(state_mutex);
+		new_state = transitions[{state, event}];
+	}
+
+	if (new_state == nullptr)
         {
             std::cerr << "dls2 state machine - transition does not exist" << std::endl;
         }
         else
+	{
+		{
+			std::lock_guard<std::mutex> lock(state_mutex);
+			state = new_state;
+			desired_state_ = state;
+			desired_state_timestamp_ = std::chrono::steady_clock::now();
+		}
             notifyState();
+	}
     }
 
     void StateMachine::transit(const Event &event)
@@ -157,6 +196,22 @@ namespace state_machine
             return condition;
             });
     }
+
+std::string StateMachine::getStateName()
+{
+	std::lock_guard<std::mutex> lock(state_mutex);
+	return state->name;
+}
+std::string StateMachine::getDesiredStateName()
+{
+	std::lock_guard<std::mutex> lock(state_mutex);
+	return desired_state_->name;
+}
+std::chrono::steady_clock::time_point StateMachine::getDesiredStateStamp()
+{
+	std::lock_guard<std::mutex> lock(state_mutex);
+	return desired_state_timestamp_;
+}
 
     void StateMachine::notifyState()
     {

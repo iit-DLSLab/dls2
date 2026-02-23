@@ -18,6 +18,7 @@ target_link_libraries(plugin
 add_library(periodic_app_plugin
 	SHARED
 		src/periodic_app_plugin.cpp
+		src/topic_monitor.cpp
 )
 
 target_include_directories(periodic_app_plugin
@@ -29,8 +30,10 @@ target_link_libraries(periodic_app_plugin
 	PUBLIC
 		dls_app
 		dls_signal
+	dls_time
         dls_msg_wrapper
 		plugin
+	PRIVATE
 )
 
 add_library(app_plugin

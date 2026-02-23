@@ -19,6 +19,7 @@ namespace dls
 		SignalType getData();
 
 		bool is_receiving_data() const override;
+		
 
 	protected:
 		const std::shared_ptr<SignalType> signal_;

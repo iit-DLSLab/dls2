@@ -1,19 +1,12 @@
 #include "dls2/application/periodic_app.hpp"
-#include "dls2/util/time/time.hpp"
-#include <fstream>
-#include <filesystem>
-
 
 using namespace dls;
 
 PeriodicApp::PeriodicApp(const std::string &ID) 
 	: App(ID)
-	, config_scheduler(YAML::LoadFile("/usr/include/dls2/schedulers/" + ID + "/scheduler.yaml"))
-	, period(std::chrono::milliseconds(config_scheduler["period"].as<int>()))
-	, sched_runtime_factor(config_scheduler["runtime_factor"].as<double>())
-	, sched_deadline_factor(config_scheduler["deadline_factor"].as<double>())
-	, runtime(period*sched_runtime_factor)
-	, deadline(period*sched_deadline_factor)
+	, config_scheduler(YAML::LoadFile(getSchedulerPath(ID)))
+	, period(std::chrono::milliseconds(config_scheduler["period"].as<int>())), sched_runtime_factor(config_scheduler["runtime_factor"].as<double>())
+	, sched_deadline_factor(config_scheduler["deadline_factor"].as<double>()), runtime(period * sched_runtime_factor), deadline(period * sched_deadline_factor)
 	, failure(false)
 	, pause_mutex()
 	, is_paused(false)
@@ -38,6 +31,8 @@ PeriodicApp::PeriodicApp(const std::string &ID)
 	sm.DEACTIVATION.makeRealTime();
 
 	dt = period.count()/(1000000.0);
+	current_frequency_ = getDesiredFrequency();
+	loop_time_prec = std::chrono::steady_clock::now();
 
 	this->command_manager.addCommand<>
 	(
@@ -70,26 +65,103 @@ PeriodicApp::PeriodicApp(const std::string &ID)
 		{{1,0}},
 		true
 	);
+
+	process_resource_monitor_ = std::make_unique<ProcessResourceMonitor>(
+						this->pid, this->safety_layer_config_->process_monitor_window_size);
+}
+
+std::string PeriodicApp::getSchedulerPath(const std::string &ID)
+{
+	char * val;
+	val = getenv("DLS_SCHEDULER_PATH");
+	std::string sched_default_path = "/usr/include/dls2/schedulers";
+	std::string sched_path = sched_default_path;
+	if (val != NULL) {
+		sched_path = val;
+	}
+	
+	std::string target_file = ID + ".yaml";
+	for (const auto& entry : std::filesystem::directory_iterator(sched_path)) {
+		if (entry.is_regular_file() &&
+			entry.path().filename() == target_file) {
+			return entry.path();
+		}
+	}
+
+	std::cout << ID << " WARNING: Scheduler file not found, returning empty path\n";
+	return "";
+}
+
+void PeriodicApp::childMonitor()
+{
+	[[maybe_unused]] static const bool initialized = [this] 
+	{
+		// Running at first thread callback execution only 
+       	this->robust_event_notifier.setSpammingThreshold(this->safety_layer_config_->spam_threshold);
+        return true;
+    }();
+
+	{
+		std::lock_guard<std::mutex> lock(this->frequency_mutex_);
+		status_msg.current_frequency() =
+			this->current_frequency_;
+	}
+	status_msg.desired_frequency() = getDesiredFrequency();
+	status_msg.realtime() = static_cast<uint8_t>(realtime_curr);
+	status_msg.cpu_usage() = process_resource_monitor_->getCpuPercent();
+	status_msg.mem_usage() = process_resource_monitor_->getMemPercent();
+
+	// notify if the process is not running at the expected frequency
+	if(this->safety_layer_config_->enable_wrong_process_frequency && !realtime_curr){
+		this->robust_event_notifier.notify(	
+								EventID::WRONG_PROCESS_FREQUENCY,
+								EventSeverity::WARNING,
+								"Des freq: " + std::to_string(status_msg.desired_frequency()) + " Hz, " 
+								+ "Curr freq: " + std::to_string(status_msg.current_frequency()) + " Hz");
+	}
+
+	// notify if the process is using more cpu than expected over time
+	if(this->safety_layer_config_->enable_cpu_usage_too_high &&
+	  (status_msg.cpu_usage() > this->safety_layer_config_->process_cpu_threshold)){
+		this->robust_event_notifier.notify(	
+								EventID::CPU_USAGE_TOO_HIGH,
+								EventSeverity::WARNING,
+								"CPU usage is " + std::to_string(status_msg.cpu_usage()) + " (threshold is: " 
+								+ std::to_string(this->safety_layer_config_->process_cpu_threshold) + ")");
+	}
+
+	// notify if the process is using more memory than expected over time
+	if(this->safety_layer_config_->enable_mem_usage_too_high && (status_msg.mem_usage() > this->safety_layer_config_->mem_threshold)){
+		this->robust_event_notifier.notify(	
+								EventID::MEM_USAGE_TOO_HIGH,
+								EventSeverity::WARNING,
+								"MEM usage is " + std::to_string(status_msg.mem_usage()) + " (threshold is: " 
+								+ std::to_string(this->safety_layer_config_->mem_threshold) + ")");
+	}
 }
 
 AppStatus PeriodicApp::run()
 {
+	
 	//set RT scheduling policy
 	setRTSchedulerPolicy();
 
 	bool failure = false;
 	realtime_prec = true;
 	realtime_curr = realtime_prec;
-	loop_time_curr = std::chrono::system_clock::now();
-	loop_time_prec = loop_time_curr;
 	while(      !sm.isRaised(sm.deactivation_request)
 	        &&  !sm.isRaised(sm.quit_request)
 	        &&  !failure)
 	{
-		#ifdef DEBUG_SCHEDULER
+		
 	    // Check realtime
 	    checkRT();
-		#endif
+
+		// Check hardware resource usage
+		auto process_resource_monitor_success = process_resource_monitor_->update();
+		if(process_resource_monitor_success != 0){
+			std::cout << this->ID_ << ": resource monitor failed, exit code: " << process_resource_monitor_success << "\n";
+		}
 
 	    // Run
 	    run(std::chrono::time_point_cast<std::chrono::system_clock::duration, std::chrono::system_clock, std::chrono::duration<double>>(std::chrono::system_clock::now()));
@@ -174,16 +246,10 @@ bool PeriodicApp::checkFailure()
 
 void PeriodicApp::checkRT()
 {
-	// Compute current time
-	loop_time_curr = std::chrono::system_clock::now();
-
-	// compute current frequency
-	auto elapsed_time = loop_time_curr - loop_time_prec;
-	double current_frequency = 1.0 / (std::chrono::duration_cast<std::chrono::nanoseconds>(elapsed_time).count()/ 1e9);
-	loop_time_prec = loop_time_curr;
-
-	// check if the process is running in real time.
-	realtime_curr =  fabs(current_frequency - getDesiredFrequency()) < 10; // 1% tolerance
+	{
+		std::lock_guard<std::mutex> lock(this->frequency_mutex_);
+		realtime_curr = Time::checkFrequency(this->safety_layer_config_->realtime_tolerance_factor, getDesiredFrequency(), loop_time_prec, current_frequency_);
+	}
 
 	// notify if the process is not running in real time
 	if  (realtime_curr!=sm.state->realtime || 
@@ -192,13 +258,6 @@ void PeriodicApp::checkRT()
 		sm.notifyRT(realtime_curr);
 	}
 	realtime_prec = realtime_curr;
-
-	// notify if the process is not running at the expected frequency
-	if(!realtime_curr){
-		event_notifier.notify(	EventID::WRONG_PROCESS_FREQUENCY,
-								EventSeverity::WARNING,
-								"Des freq: " + std::to_string(getDesiredFrequency()) + " Hz, " + "Curr freq: " + std::to_string(current_frequency) + " Hz");
-	}
 }
 void PeriodicApp::setFailure()
 {
@@ -212,10 +271,8 @@ bool PeriodicApp::deactivating()
 	realtime_curr = realtime_prec;
 	while(!deactivated && !sm.isRaised(sm.quit_request))
 	{
-		#ifdef DEBUG_SCHEDULER
 	    // Check realtime
 	    checkRT();
-		#endif
 
 	    // Run
 	    deactivated = deactivation(std::chrono::time_point_cast<std::chrono::system_clock::duration, std::chrono::system_clock, std::chrono::duration<double>>(std::chrono::system_clock::now()));

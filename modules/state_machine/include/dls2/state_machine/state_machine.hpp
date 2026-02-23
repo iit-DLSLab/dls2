@@ -79,7 +79,12 @@ namespace state_machine
         // go to the next state based on the input asynch event, consume it (i.e. set to false the corresponding variable) and execute the next state
         void transit(const AsyncEvent &async_event);
         // waits for the asynchronous event to happen
-        void waitAsynchEvent(const std::initializer_list<AsyncEvent>& async_events);
+	void waitAsynchEvent(const std::initializer_list<AsyncEvent>& async_events);
+
+	std::string getStateName();
+	std::string getDesiredStateName();
+	std::chrono::steady_clock::time_point getDesiredStateStamp();
+
         std::mutex async_mutex;
         std::condition_variable async_cv;
 
@@ -88,6 +93,11 @@ namespace state_machine
 
         // current state
         State *state;
+	std::mutex state_mutex;
+
+	// desired state
+	State *desired_state_;
+	std::chrono::steady_clock::time_point desired_state_timestamp_;
 
         // check if the state machine is ended
         bool quit;

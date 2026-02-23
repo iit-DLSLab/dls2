@@ -22,21 +22,28 @@ namespace dls
 		virtual void publish() override;
 
 		/*!
-		@brief Check if the signal stored in any child class
+		@brief Check if the signal msg has a header field
 		*/
-		virtual bool hasTimestamp() override;
+		virtual bool hasHeader() override;
 
 		/*!
 		@brief Set the timestamp of the signal stored in any child class
 		@param[in] timestamp		
 		*/
-		virtual void setTimestamp(double timestamp) override;
+		virtual void setTimestamp(unsigned long long timestamp) override;
 
 		/*! @brief*/
 		void setSignal(const SignalType&);
 	
 	private:
 		const std::shared_ptr<SignalType> signal_;
+
+		template <typename T, typename = int>
+		struct HasHeader : std::false_type { };
+		template <typename T>
+		struct HasHeader <T, decltype((void) T::header, 0)> : std::true_type { };
+
+		bool has_header_;
 
 		template <typename T, typename = int>
 		struct HasTimeStamp : std::false_type { };

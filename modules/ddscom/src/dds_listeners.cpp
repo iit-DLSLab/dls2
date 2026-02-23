@@ -83,8 +83,17 @@ namespace dls
 		{
 			if(info.valid_data)
 			{
-				this->last_timestamp = std::chrono::high_resolution_clock::now();
+				auto now = std::chrono::steady_clock::now();
+				if(now > this->last_timestamp){
+					std::chrono::duration<double, std::milli> period_duration_ms = now - this->last_timestamp;
+					this->last_period_ms = period_duration_ms.count();
+				}
+				this->last_timestamp = now;
 				this->sample_count++;
+				if(!started_receiving_data_){
+					started_receiving_data_ = true;
+				}
+
 				this->callback(this->msg);
 			}
 		}
@@ -93,6 +102,6 @@ namespace dls
 	bool DDSSubListener::is_receiving_data() const
 	{
 		return 	this->sample_count > 0 && 	
-				std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - this->last_timestamp).count()< this->is_receiving_data_th.count();
+				std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - this->last_timestamp).count()< this->is_receiving_data_th.count();
 	}
 } /// \endcond namespace dls

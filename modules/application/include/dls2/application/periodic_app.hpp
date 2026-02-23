@@ -3,9 +3,12 @@
 
 #include "dls2/application/app.hpp"
 #include <dls2/util/time/time.hpp>
+#include "dls2/util/process_resource_monitor.hpp"
 
 #include <boost/process.hpp>
 #include <yaml-cpp/yaml.h>
+#include <filesystem>
+#include <fstream>
 
 namespace dls
 {
@@ -71,21 +74,25 @@ namespace dls
 
 		double getDesiredFrequency() const;
 
+		std::string getSchedulerPath(const std::string &ID);
+		void childMonitor() override;
+
 		double dt;
+
 	protected:
         //! Config variable to load scheduler settings
 		YAML::Node config_scheduler;
 
 		//! The period of this component
-		const period_t period;
+		period_t period;
 		//! Runtime factor scaling the period to get the runtime
 		double sched_runtime_factor;
 		//! Deadline factor scaling the period to get the deadline
 		double sched_deadline_factor;
 		//! Runtime attribute
-		const period_t runtime;
+		period_t runtime;
 		//! Deadline attribute
-		const period_t deadline;
+		period_t deadline;
 		//! Variable identifying if the periodic app is in failure state
 		bool failure;
 	private:
@@ -114,8 +121,12 @@ namespace dls
 
 		bool realtime_prec;
 		bool realtime_curr;
-		std::chrono::time_point<std::chrono::high_resolution_clock> loop_time_curr;
-		std::chrono::time_point<std::chrono::high_resolution_clock>  loop_time_prec;
+		std::chrono::time_point<std::chrono::steady_clock> loop_time_prec;
+
+		std::unique_ptr<ProcessResourceMonitor> process_resource_monitor_;
+
+		double current_frequency_;
+		std::mutex frequency_mutex_;
 	};
 } // end namespace dls
 

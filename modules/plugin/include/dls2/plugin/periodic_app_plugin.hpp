@@ -3,6 +3,7 @@
 
 #include "dls2/application/periodic_app.hpp"
 #include "dls2/plugin/plugin.hpp"
+#include "dls2/plugin/topic_monitor.hpp"
 #include <mutex>
 namespace dls
 {
@@ -20,7 +21,7 @@ namespace dls
 		 * @param[in] ID name of plugin
 		 * @param[in] domain domain the plugin belongs to
 		 */
-		PeriodicAppPlugin(const std::string &ID, const domainType &domain = domains::signals);
+	PeriodicAppPlugin(const std::string &ID, const domainType &domain = domains::signals);
 
 		/*!
 		 * @brief Destructor.
@@ -52,7 +53,15 @@ namespace dls
 		 * 
 		 */
 		bool basicActivationChecks();
-	};
+
+	protected:
+		void childMonitor() override;
+
+	private:
+
+		std::unique_ptr<TopicMonitor> topic_monitor_{ nullptr };
+		
+};
 } // end namespace dls
 
 #endif /* PERIODIC_APP_PLUGIN_HPP */

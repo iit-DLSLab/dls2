@@ -4,9 +4,14 @@
 #include "dls2/application/app_status.hpp"
 #include "dls2/command/command_manager.hpp"
 #include "dls2/log/log.hpp"
+#include <future>
+#include <thread>
+#include <condition_variable>
 #include "dls2/application/state_machine/app_state_machine.hpp"
 #include <dls2/application/sched_attr.hpp>
-
+#include <dls_messages/dds/ProcessStatusLight.hpp>
+#include <dls2/util/config/safety_layer.hpp>
+#include "dls2/util/time/duration_utils.hpp"
 
 namespace dls
 {
@@ -39,6 +44,9 @@ namespace dls
 		/// @param status the status
 		void setStatus(AppStatus status);
 
+	void startMonitoring();
+		void monitorApp();
+
 		//! Procedure to quit the app
 		virtual void close();
 
@@ -49,10 +57,6 @@ namespace dls
 		/// Shutdown the app
 		///
 		virtual void stop();
-
-		/// Verify if the app should terminate
-		///
-		bool shouldQuit();
 
         /// Emergency stop
 		///
@@ -87,9 +91,11 @@ namespace dls
 		//! Procedure to deactivate the app, customizable
 		virtual bool deactivating();
 
-		/// Flag of the running loop
-		/// Exits when set to true
+		/// Flag for quitting, additional threads exiting when set to true
 		bool should_quit;
+		std::condition_variable quit_cv;
+		bool can_die{ false };
+		std::mutex quit_mutex;
 
 		/// Stores commands registered in the app
 		///
@@ -104,7 +110,10 @@ namespace dls
 		//! Log errors that occurred, but from which the system can recover. Also log possible future fatal errors for the operator's attention.
 		logging::cerrstream scout_err;
 
-		logging::EventNotifier event_notifier;
+		logging::RobustEventNotifier robust_event_notifier;
+
+		DDSWriter status_notifier;
+		dls2_interface::msg::ProcessStatus status_msg;
 
 		/// The ID of this app
 		///
@@ -120,6 +129,10 @@ namespace dls
 		mutable std::mutex status_mutex;
 		AppStatus status;
 		// END critical section
+
+	std::thread monitor_thread_;
+	std::atomic<bool> monitoring_started_{false};
+
 	protected:
 		//! Set SCHED_OTHER policy
 		void setDefaultSchedulerPolicy();
@@ -128,6 +141,10 @@ namespace dls
 		struct sched_attr scheduler_attributes;
 
 		std::string get_current_time();
+
+		virtual void childMonitor() {};
+
+		std::shared_ptr<SafetyLayerConfig> safety_layer_config_;
 	};
 } // end namespace dls
 

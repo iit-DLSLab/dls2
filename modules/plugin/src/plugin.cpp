@@ -14,16 +14,23 @@ namespace dls
 
 	void Plugin::read()
 	{
-		for (long unsigned int i = 0; i < inputs.size(); i++)
+		std::lock_guard<std::mutex> lock(input_info_mutex_);
+		for (long unsigned int i = 0; i < input_info_.size(); i++)
 		{
-			inputs[i]->read();
+			input_info_[i].reader->read();
+			updateInputInfo(input_info_[i]);
 		}
 	}
 
 	void Plugin::read(const std::string& name)
 	{
 		try {
-			inputs[inputs_map.at(name)]->read();
+			const auto& input_idx = inputs_map.at(name);
+			
+			std::lock_guard<std::mutex> lock(input_info_mutex_);
+
+			input_info_[input_idx].reader->read();
+			updateInputInfo(input_info_[input_idx]);
 		}
 		catch (const std::out_of_range& e)
 		{
@@ -33,24 +40,18 @@ namespace dls
 
 	void Plugin::write()
 	{
-		for (long unsigned int i = 0; i < outputs.size(); i++)
+		std::lock_guard<std::mutex> lock(output_info_mutex_);
+		for (long unsigned int i = 0; i < output_info_.size(); i++)
 		{
-			if (outputs[i]->hasTimestamp())
-			{
-				outputs[i]->setTimestamp(std::chrono::system_clock::now().time_since_epoch().count());
-			}
-			outputs[i]->publish();
+			output_info_[i].writer->publish();
 		}
 	}
 
 	void Plugin::write(const std::string &name)
 	{
 		try {
-			if (outputs[outputs_map.at(name)]->hasTimestamp())
-			{
-				outputs[outputs_map.at(name)]->setTimestamp(std::chrono::system_clock::now().time_since_epoch().count());
-			}
-			outputs[outputs_map.at(name)]->publish();
+			std::lock_guard<std::mutex> lock(output_info_mutex_);
+			output_info_[outputs_map.at(name)].writer->publish();
 		}
 		catch (const std::out_of_range& e)
 		{
@@ -61,9 +62,12 @@ namespace dls
 	bool Plugin::areOutputsUnique()
 	{
 		common_outputs.str("");
+		std::lock_guard<std::mutex> lock(output_info_mutex_);
+
 		// iterate over the writers, getting their topic type
-		for(auto out : outputs)
+		for(const auto& out_info : output_info_)
 		{
+			const auto& out = out_info.writer;
 			// for each writer, check if there is another writer publishing on its same topic
 			// -- create reader
 			const std::string reader_name = out->getID() + "::" + "check_output_reader";
@@ -98,16 +102,20 @@ namespace dls
 	{
 		bool are_inputs_receiving_data = true;
 		missing_inputs.str("");
-		for (long unsigned int i = 0; i < inputs.size(); i++)
+
+		std::lock_guard<std::mutex> lock(input_info_mutex_);
+
+		for (long unsigned int i = 0; i < input_info_.size(); i++)
 		{
 			// check data availability if: all the readers needs to be checked or only the ones required on activation
-			if (are_inputs_required_on_activation[i])
+			if (input_info_[i].are_inputs_required_on_activation)
 			{
-				if(!inputs[i]->is_receiving_data())
+				if(!input_info_[i].reader->is_receiving_data())
 				{
-					missing_inputs << inputs[i]->getTopic().first << " ";
-					if(are_inputs_receiving_data)
+					missing_inputs << input_info_[i].reader->getTopic().first << " ";
+					if(are_inputs_receiving_data){
 						are_inputs_receiving_data = false;
+					}
 				}
 			}
 		}
@@ -174,4 +182,12 @@ namespace dls
     }
     _rpc_srvc_map.clear();
   }
+  
+	void Plugin::updateInputInfo(InputInfo& input_info)
+	{
+		auto& reader = input_info.reader;
+		input_info.latest_period_ms = reader->get_latest_period_ms();
+		input_info.latest_timestamp = reader->get_latest_timestamp();
+		input_info.missed_sequence_ids = reader->getMissedSequenceIds();
+	}
 }

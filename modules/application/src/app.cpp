@@ -8,13 +8,25 @@ App::App(const std::string &ID)
 	, scout_sys(ID)
 	, scout_warn(ID)
 	, scout_err(ID)
-	, event_notifier(ID)
-    , ID_(ID)
+	, robust_event_notifier(ID)
+	, status_notifier(ID + "_status_notifier", dls::domains::signals, dls::topics::process_status)
+	, ID_(ID)
 	, sm(this)
 	, activation_message("")
 	, status_mutex()
 	, status(AppStatus::INITIALISING)
 {
+
+	char * val;
+	val = getenv("DLS_SAFETY_LAYER_PATH");
+	std::string safety_layer_default_path = "/usr/include/dls2/supervisor/data/safety_layer.yaml";
+	std::string safety_layer_path = safety_layer_default_path;
+	if (val != NULL) {
+		safety_layer_path = val;
+	}
+
+	safety_layer_config_ = std::make_shared<SafetyLayerConfig>(safety_layer_path);
+
 	command_manager.addCommand<>
 	(
 		"shutdown",
@@ -77,8 +89,28 @@ App::App(const std::string &ID)
             return true;
 		}),
 		{{CommandBase::ALL_STATES_EXCEPT_ZERO, 0}},
-		false
-	);
+		false);
+}
+
+void App::startMonitoring()
+{
+	// Launching app status monitor thread
+	std::cout << "Starting monitoring thread for " << this->getID() << " app...\n";
+
+	static int threadsCount = 0;
+
+	try
+	{
+		monitor_thread_ = std::thread(&App::monitorApp, this);
+		threadsCount++;
+	}
+	catch (const std::system_error &e)
+	{
+		std::cerr << "Failed to start monitor thread for app " << this->getID() << " @ " << this
+		          << " : " << e.what() << " (code " << e.code() << "). This process spawned "
+		          << threadsCount << " threads\n";
+		throw;
+	}
 }
 
 App::~App(){}
@@ -100,11 +132,6 @@ void App::setStatus(AppStatus s)
 	this->status = s;
 }
 
-bool App::shouldQuit()
-{
-	return should_quit;
-}
-
 AppStatus App::eStop()
 {
 	this->stop();
@@ -123,6 +150,13 @@ std::string App::get_current_time()
 }
 
 void App::execute(){
+
+	if (!this->monitoring_started_.load())
+	{
+		this->startMonitoring();
+		this->monitoring_started_.store(true);
+	}
+	
 	sm.nextState(sm.initialized);
 	sm.start();
 }
@@ -219,7 +253,19 @@ void App::quit()
 {
 	setDefaultSchedulerPolicy();
 	close();
-	sm.stop();
+
+	should_quit = true;
+	
+	// Waiting for monitoring thread to notify "quit" state transition
+	{
+		std::unique_lock<std::mutex> lock(quit_mutex);
+		quit_cv.wait(lock, 
+			[this] { 
+				return this->can_die;
+			});
+	}
+
+	sm.stop();	
 }
 
 void App::close(){}
@@ -256,4 +302,62 @@ bool App::checkActivation(){
 
 bool App::deactivating(){
 	return true;
+}
+
+void App::monitorApp()
+{
+	while (true)
+	{
+		// Fill in relevant fields
+		status_msg.header().timestamp() = toNs<unsigned long long>(std::chrono::system_clock::now());
+		status_msg.header().sequence_id() = (status_msg.header().sequence_id() + 1) % MAX_SEQUENCE_ID;
+		status_msg.component_name() = getID();
+		status_msg.current_state() = this->sm.getStateName();
+		status_msg.desired_state() = this->sm.getDesiredStateName();
+
+		if(this->safety_layer_config_->enable_wrong_process_state){
+			// Notify anomalies if any at this stage
+			bool state_anomaly_detected = false;
+			
+			if(status_msg.current_state() != status_msg.desired_state()){
+				// Current-target state mismatch 1-cycle tolerance check
+				const auto stamp_now = std::chrono::steady_clock::now();
+				const auto elapsed = stamp_now - this->sm.getDesiredStateStamp();
+				const auto delta_time_ms = toMs(elapsed);
+				if(delta_time_ms > safety_layer_config_->monitor_period_ms){
+					state_anomaly_detected = true;
+				}
+			}
+			
+			if (state_anomaly_detected)
+			{
+				robust_event_notifier.notify(
+					EventID::WRONG_PROCESS_STATE,
+					EventSeverity::WARNING,
+					this->getID() + " app state is " + status_msg.current_state() + " (not " +
+						status_msg.desired_state() + ")..."
+				);
+			}
+		}
+
+		this->childMonitor();
+
+		status_notifier.sendMessage(&status_msg);
+
+		if(should_quit && 
+			status_msg.current_state() == status_msg.desired_state() &&
+			status_msg.current_state() == "quit")
+		{
+			{
+				std::lock_guard<std::mutex> lock(quit_mutex); // allowing sm to terminate
+				this->can_die = true;
+				quit_cv.notify_one();
+			}
+			break; // stopping monitoring thread
+		}
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(this->safety_layer_config_->monitor_period_ms));
+	}
+
+	return;
 }

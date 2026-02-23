@@ -15,6 +15,7 @@ target_link_libraries(dls_logging
 		dls_com
 		dls_domains
 		dls_topics
+		dls_time
 )
 
 add_subdirectory(test)

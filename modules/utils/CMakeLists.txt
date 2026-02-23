@@ -6,6 +6,8 @@ add_library(dls_utils
 	${CMAKE_CURRENT_BINARY_DIR}/src/utils.cpp
 	src/pose.cpp
 	src/screw.cpp
+	src/process_resource_monitor.cpp
+	src/system_resource_monitor.cpp
 )
 
 target_link_libraries(dls_utils
@@ -13,6 +15,7 @@ target_link_libraries(dls_utils
 		robotlib
 		yaml-cpp
 		dls_math
+		dls_time
 )
 
 set_property(TARGET dls_utils PROPERTY POSITION_INDEPENDENT_CODE ON)

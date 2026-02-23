@@ -462,6 +462,10 @@ namespace dls
 		return this->discovered_participants_info;
 	}
 
+	std::unordered_map<std::string, std::string> DDSParticipant::getTopicToWriter(){
+		return this->topic_to_writer;
+	}
+
 	bool DDSParticipant::sendMessage(std::string writerName, void *msg)
 	{
 		auto writer = this->writers.find(writerName);
@@ -484,18 +488,22 @@ namespace dls
 		static_cast<void>(participant);
 		if (status == eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT)
 		{
-			// std::cout << this->participant->get_qos().name() <<": New participant discovered: " << info.participant_name << ", current num. disc. DPs: " << discovered_participants_info.size()<< std::endl;
 			discovered_participants_info.insert({static_cast<std::string>(info.participant_name), info.guid});
+			
+			std::string component_name = dls::utils::splitSafe(info.participant_name);
+			participants_by_prefix[guid_prefix_key(info.guid)] = component_name;
 		}
 		else if (status == eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DROPPED_PARTICIPANT)
 		{
 			// std::cout << this->participant->get_qos().name() <<": Participant is dropped: " << info.participant_name << std::endl;
 			discovered_participants_info.erase(static_cast<std::string>(info.participant_name));
+			participants_by_prefix.erase(guid_prefix_key(info.guid));
 		}
 		else if (status == eprosima::fastdds::rtps::ParticipantDiscoveryStatus::REMOVED_PARTICIPANT)
 		{
 			// std::cout << this->participant->get_qos().name() <<": Participant is removed: " << info.participant_name << std::endl;
 			discovered_participants_info.erase(static_cast<std::string>(info.participant_name));
+			participants_by_prefix.erase(guid_prefix_key(info.guid));
 		}
 	}
 
@@ -532,6 +540,15 @@ namespace dls
 			// Save the type support in the discovery database
 			discovery_database[info.topic_name.to_string()] = dyn_type_support;
 			discovery_database_dyn_types[info.topic_name.to_string()] = remote_type;
+			
+			auto it = participants_by_prefix.find(guid_prefix_key(info.guid));
+			if (it != participants_by_prefix.end())
+			{
+				const std::string& writer_name = it->second;
+				const std::string topic = std::string(info.topic_name);
+
+				topic_to_writer[topic] = writer_name;
+			}
 		}
 	}
 

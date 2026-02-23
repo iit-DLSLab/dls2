@@ -12,6 +12,7 @@
 #include "dls2/application/layer.hpp"
 #include "dls2/state_machine/state_machine_watcher.hpp"
 #include "dls2/application/app_data.hpp"
+#include "dls2/util/system_resource_monitor.hpp"
 
 namespace dls
 {
@@ -30,9 +31,13 @@ namespace dls
 
 		virtual void monitor() override;
 
+		void checkHardware();
+
 	private:
         dls::DDSParticipant ddspart_layers;
         state_machine::StateMachineWatcher state_machine_watcher;
+
+		std::unique_ptr<dls::SystemResourceMonitor> sys_monitor;
 
 		std::map<std::string, std::shared_ptr<AppData>> plugins;
 

@@ -5,6 +5,7 @@
 #include "dls2/topics/topics.hpp"
 #include "dls2/domains/domains.hpp"
 #include "dls2/util/messaging/dds_listeners.hpp"
+#include "dls2/util/string.hpp"
 
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/domain/DomainParticipant.hpp>
@@ -17,15 +18,24 @@
 #include <fastdds/dds/rpc/Requester.hpp>
 
 #include <map>
+#include <unordered_map>
 #include <set>
 #include <string>
 #include "yaml-cpp/yaml.h"
+#include <cstddef>
+#include <cstdint>
+#include <functional>
+
+#include <iostream>
+#include <iomanip>
 
 namespace dds_rpc = eprosima::fastdds::dds::rpc;
 
 /// \cond doxygen_namespace_dls
 namespace dls
 {
+	static constexpr uint32_t MAX_SEQUENCE_ID = 1000;
+
   class RpcService
   {
   public:
@@ -41,6 +51,29 @@ namespace dls
     dds_rpc::RequestInfo _info;
     void* _data;
   };
+
+	using GuidPrefixKey = std::array<uint8_t, 12>;
+
+	static inline GuidPrefixKey guid_prefix_key(const eprosima::fastdds::rtps::GUID_t& g) noexcept
+	{
+		GuidPrefixKey k;
+		std::memcpy(k.data(), g.guidPrefix.value, 12);
+		return k;
+	}
+
+	struct GuidPrefixHash
+	{
+		std::size_t operator()(const GuidPrefixKey& k) const noexcept
+		{
+			// simple byte-wise hash
+			std::size_t h = 0;
+			for (uint8_t b : k)
+			{
+				h = (h * 131) ^ b;
+			}
+			return h;
+		}
+	};
 
 	class DDSParticipant : public eprosima::fastdds::dds::DomainParticipantListener
 	{
@@ -61,7 +94,7 @@ namespace dls
 
 		std::multimap<std::string, eprosima::fastdds::rtps::GUID_t> getDiscoveredParticipantsInfo();
 
-
+		std::unordered_map<std::string, std::string> getTopicToWriter();
 
 		eprosima::fastdds::dds::DataWriter* getWriter(std::string);
 		eprosima::fastdds::dds::DataReader* getReader(std::string);
@@ -146,6 +179,7 @@ namespace dls
 
 		std::unordered_map<std::string, eprosima::fastdds::dds::TypeSupport> discovery_database;
 		std::unordered_map<std::string, eprosima::fastdds::dds::DynamicType::_ref_type> discovery_database_dyn_types;
+		std::unordered_map<std::string, std::string> topic_to_writer;
 
 		YAML::Node config;
 
@@ -153,6 +187,8 @@ namespace dls
 		eprosima::fastdds::dds::Topic* addTopicFromDatabase(std::string topicName, bool add_ros2_namespace = true);
 
 		std::multimap<std::string, eprosima::fastdds::rtps::GUID_t> discovered_participants_info;
+
+		std::unordered_map<GuidPrefixKey, std::string, GuidPrefixHash> participants_by_prefix;
 
 		/*!
 		* @brief Custom Callback on_participant_discovery

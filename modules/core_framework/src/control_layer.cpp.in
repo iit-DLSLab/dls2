@@ -277,8 +277,10 @@ void *ControlLayer::controlSignalGather(void *data)
     return NULL;
 }
 
-void ControlLayer::monitor(){
-
+void ControlLayer::monitor()
+{
+	this->checkAppData(this->controllers);
+	this->checkAppData(this->motion_generators);
 }
 
 void ControlLayer::close()

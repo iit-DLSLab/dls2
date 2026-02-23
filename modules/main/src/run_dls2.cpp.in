@@ -196,7 +196,9 @@ namespace dls
 	}
 
 	void RunDLS2::launchSingleServer(const std::string& ip, int port){
-		std::string command = "setsid fastdds discovery -p " +std::to_string(port)+ " --server-id 0 -l "+ip+"&";
+		static size_t server_id = 0;
+		std::string command = "setsid fastdds discovery -p " +std::to_string(port)+ " --server-id " + std::to_string(server_id) + " -l "+ip+"&";
+		server_id++;
 		std::cout << command << std::endl;
 		if(system(command.c_str())!=0){
 			throw std::runtime_error("CANNOT EXECUTE COMMAND " + command);
