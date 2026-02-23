@@ -64,18 +64,18 @@ Please refere [here](../../modules/ddscom/README.md) for checking the _server\_i
 3. create a fastdd reader/writer connected to a topic with name rt/ros2_topic_name
     NB: a reader/writer is configured to interface with ROS2. This means that the rt/ is automatically added before the topic name.
 
-To interface your ROS2 node with DLS2 you need to set the server ip and port with
+To interface your ROS2 node with DLS2 you need to set server ips and ports with
 
     export ROS_DISCOVERY_SERVER=<server_ip>:<server_port>
 
-Remember that if you want to use the ROS2 CLI (like ros2 topic list or similar) you need to:
+Remember that if you want to use the ROS2 CLI (like ros2 topic list or similar) you need to export all discovery servers exposed by DLS2.
+Each discovery server gets assigned a unique integer id. This allows to automatically receive topics from multiple domains on ROS simply exporting semicolon separated ips. Be aware that restarting the ros daemon is needed as well.
 
-  export ROS_DISCOVERY_SERVER=<server_ip>:<server_port>
-  export ROS_SUPER_CLIENT=TRUE
-
-Restarting the ros daemon is needed, it can be done with
+The following is an example of the whole procedure:
 ```bash
 ros2 daemon stop
+export ROS_DISCOVERY_SERVER="127.0.0.1:11812;127.0.0.1:11813;127.0.0.1:11814;127.0.0.1:11818"
+export ROS_SUPER_CLIENT=TRUE
 ros2 daemon start
 ```
 Then you can launch the ros2 cli with the `--no-daemon` option. Basically, the daemon manages the cache of nodes, topics, and services. It makes CLI commands faster, but you need to stop and restart it to update it (for example, if you change the network, the discovery server, or the ROS_SUPER_CLIENT). Instead of stop and restart, you can use the '--no-daemon' option.
