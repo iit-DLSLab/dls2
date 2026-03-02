@@ -15,6 +15,33 @@ target_link_libraries(plugin
         dls_msg_wrapper
 )
 
+set(PYBIND11_FINDPYTHON ON)
+find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
+find_package(pybind11 REQUIRED)
+
+add_library(py_periodic_app_plugin
+	SHARED
+		src/py_periodic_app_plugin.cpp
+)
+
+target_include_directories(py_periodic_app_plugin
+	PUBLIC
+		include
+  		${Python3_INCLUDE_DIRS}
+)
+
+target_link_libraries(py_periodic_app_plugin
+	PUBLIC
+		dls_app
+		dls_signal
+		dls_time
+        dls_msg_wrapper
+		plugin
+		periodic_app_plugin
+		pybind11::embed
+		Python3::Python
+)
+
 add_library(periodic_app_plugin
 	SHARED
 		src/periodic_app_plugin.cpp
@@ -30,7 +57,7 @@ target_link_libraries(periodic_app_plugin
 	PUBLIC
 		dls_app
 		dls_signal
-	dls_time
+		dls_time
         dls_msg_wrapper
 		plugin
 	PRIVATE
@@ -62,6 +89,7 @@ dls_install(plugin)
 dls_install(app_plugin)
 # -- periodic_app_plugin
 dls_install(periodic_app_plugin)
+dls_install(py_periodic_app_plugin)
 
 # -- skeletons
 install(
