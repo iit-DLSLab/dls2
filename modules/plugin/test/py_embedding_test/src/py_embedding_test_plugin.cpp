@@ -20,13 +20,13 @@ PyEmbeddingTestPlugin::PyEmbeddingTestPlugin(const std::string &module_name,
 void PyEmbeddingTestPlugin::run(const std::chrono::system_clock::time_point &time)
 {
     try {
-        for(auto& i : py_output_){
+        for(auto& i : v1_){
             i++;
         }
         
         {
 	        py::gil_scoped_acquire gil;
-            this->np_v1_ = py::array_t<double>(v1_.size(), v1_.data());
+            np_v1_ = py::array_t<double>(v1_.size(), v1_.data());
             out_np_ = py::array_t<double>(
                 {static_cast<ssize_t>(py_output_.size())},      // shape
                 {static_cast<ssize_t>(sizeof(double))},  // stride

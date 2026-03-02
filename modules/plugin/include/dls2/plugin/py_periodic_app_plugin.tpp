@@ -1,6 +1,6 @@
 #pragma once
 
-#include <dls2/plugin/periodic_app_plugin.hpp>
+#include <dls2/plugin/py_periodic_app_plugin.hpp>
 
 namespace dls
 {
@@ -10,10 +10,10 @@ namespace dls
 		py::gil_scoped_acquire gil;
 		try 
 		{
-			py_class_object_ = py_class_(std::forward<Args>(args)...);
+			py_context_->py_class_object_ = py_context_->py_class_(std::forward<Args>(args)...);
 
-			if(py::hasattr(py_class_object_, callback_name_.c_str())){
-				py_callback_ = py_class_object_.attr(callback_name_.c_str());
+			if(py::hasattr(py_context_->py_class_object_, callback_name_.c_str())){
+				py_context_->py_callback_ = py_context_->py_class_object_.attr(callback_name_.c_str());
 			}
 			else{
 				throw std::runtime_error("The specified callback method '" + callback_name_ + "' does not exist in the Python class.");
@@ -25,20 +25,20 @@ namespace dls
 	}
 
 	template <typename... ProcArgs>
-	py::object PyPeriodicAppPlugin::callCallback(ProcArgs&&... pargs) 
+	void PyPeriodicAppPlugin::callCallback(ProcArgs&&... pargs) 
 	{
 		py::gil_scoped_acquire gil;
-		if (py_class_object_.is_none())
+		if (py_context_->py_class_object_.is_none())
 		{
 			throw std::runtime_error("py_class_object_ instance not created");
 		}
-		if (py_callback_.is_none())
+		if (py_context_->py_callback_.is_none())
 		{
 			throw std::runtime_error("py_callback_ not initialized");
 		}
 		try 
 		{
-			return py_callback_(std::forward<ProcArgs>(pargs)...);
+			py_context_->py_callback_(std::forward<ProcArgs>(pargs)...);
 		} catch (const py::error_already_set &e) 
 		{
 			throw std::runtime_error(std::string("Python error in process(): ") + e.what());

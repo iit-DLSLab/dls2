@@ -46,21 +46,19 @@ namespace dls
 			 * @return py::object 
 			 */
 			template <typename... ProcArgs>
-			py::object callCallback(ProcArgs&&... pargs);
-
-			// template <typename... ProcArgs>
-			// void call_callback(ProcArgs&&... args);
-
-        	void run(const std::chrono::system_clock::time_point &time) override  {}; // TODO: implement?
+			void callCallback(ProcArgs&&... pargs);
 
 			bool hasInstance() const;
 
 		private:
 
-			py::scoped_interpreter py_guard_;
-			py::object py_class_;
-			py::object py_class_object_;
-			py::object py_callback_;
+			struct PyContext{
+				py::scoped_interpreter py_guard_{};
+				py::object py_class_{ py::none() };
+				py::object py_class_object_{ py::none() };
+				py::object py_callback_{ py::none() };
+			};
+			std::unique_ptr<PyContext> py_context_;
 
 			std::string callback_name_{""};
 	};

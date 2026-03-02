@@ -21,9 +21,9 @@ class PyEmbeddingTestPlugin : public dls::PyPeriodicAppPlugin
     private:
 
         std::vector<double> py_output_{3.0, 4.0, 5.0};
-        py::array_t<double> out_np_;
+        py::array_t<double> out_np_; // To be created again if py_output_ is resized
 
         std::vector<double> v1_{1.0, 2.0, 3.0};
-        py::array_t<double> np_v1_;
+        py::array_t<double> np_v1_; // To be created again if v1_ is resized
 
 };
