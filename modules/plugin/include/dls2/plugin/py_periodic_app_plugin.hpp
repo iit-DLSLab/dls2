@@ -71,6 +71,7 @@ namespace dls
 			
 			std::unique_ptr<PyContext> py_context_;
 			std::string callback_name_{""};
+			std::string robot_name_;
 	};
 } // end namespace dls
 

@@ -13,6 +13,7 @@ namespace dls
 		: PeriodicAppPlugin(ID)
 		, py_context_(std::make_unique<PyContext>())
 		, callback_name_(callback_name)
+		, robot_name_(robot_name)
 	{
 
 	    py::gil_scoped_acquire gil;

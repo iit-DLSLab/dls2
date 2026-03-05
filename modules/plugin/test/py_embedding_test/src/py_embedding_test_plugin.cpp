@@ -40,6 +40,6 @@ void PyEmbeddingTestPlugin::run(const std::chrono::system_clock::time_point &tim
         std::cout << "[C++] Called MyLogic.tick()\n";
 
     } catch (const std::exception& e) {
-        std::cerr << "[C++] Exception: " << e.what() << std::endl;
+        std::cerr << time.time_since_epoch().count() << " [C++] Exception: " << e.what() << std::endl;
     }
 }
