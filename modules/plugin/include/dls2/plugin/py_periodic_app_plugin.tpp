@@ -41,6 +41,9 @@ namespace dls
 			py_context_->py_callback_(std::forward<ProcArgs>(pargs)...);
 		} catch (const py::error_already_set &e) 
 		{
+			if (e.matches(PyExc_KeyboardInterrupt)) {
+				command_manager.callCommand("shutdown", {}, this->getID());
+			}
 			throw std::runtime_error(std::string("Python error in process(): ") + e.what());
 		}
 	}

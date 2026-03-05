@@ -3,7 +3,6 @@
 
 namespace dls
 {
-
 	PyPeriodicAppPlugin::PyPeriodicAppPlugin(
 				const std::string &module_name, 
 				const std::string &module_path, 
@@ -12,9 +11,10 @@ namespace dls
 				const std::string &ID, 
 				const std::string &robot_name)
 		: PeriodicAppPlugin(ID)
-		, callback_name_(callback_name)
 		, py_context_(std::make_unique<PyContext>())
+		, callback_name_(callback_name)
 	{
+
 	    py::gil_scoped_acquire gil;
 
 		py::module_ sys = py::module_::import("sys");

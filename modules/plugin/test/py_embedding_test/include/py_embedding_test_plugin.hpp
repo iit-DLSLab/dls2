@@ -5,6 +5,9 @@
 
 #include "dls2/plugin/py_periodic_app_plugin.hpp"
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wattributes" 
+
 class PyEmbeddingTestPlugin : public dls::PyPeriodicAppPlugin
 {
     public:
@@ -27,3 +30,5 @@ class PyEmbeddingTestPlugin : public dls::PyPeriodicAppPlugin
         py::array_t<double> np_v1_; // To be created again if v1_ is resized
 
 };
+
+#pragma GCC diagnostic pop

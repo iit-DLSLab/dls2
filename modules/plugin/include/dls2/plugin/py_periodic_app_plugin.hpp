@@ -6,6 +6,17 @@
 
 namespace py = pybind11;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wattributes" 
+
+/**
+ * @brief 
+ * NOTE: Warning suppression as a solution for pybind being hidden, ABI-safe long-term solution to be provided. 
+ * For more details, see the following link:
+ * https://pybind11.readthedocs.io/en/stable/faq.html#someclass-declared-with-greater-visibility-than-the-type-of-its-field-someclass-member-wattributes
+ *
+ */
+
 namespace dls
 {
     class PyPeriodicAppPlugin : public dls::PeriodicAppPlugin
@@ -51,17 +62,18 @@ namespace dls
 			bool hasInstance() const;
 
 		private:
-
 			struct PyContext{
 				py::scoped_interpreter py_guard_{};
 				py::object py_class_{ py::none() };
 				py::object py_class_object_{ py::none() };
 				py::object py_callback_{ py::none() };
 			};
+			
 			std::unique_ptr<PyContext> py_context_;
-
 			std::string callback_name_{""};
 	};
 } // end namespace dls
+
+#pragma GCC diagnostic pop
 
 #include "dls2/plugin/py_periodic_app_plugin.tpp"
