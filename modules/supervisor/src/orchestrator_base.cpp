@@ -2,9 +2,15 @@
 
 namespace dls
 {
-    OrchestratorBase::OrchestratorBase(const std::string &ID, const std::shared_ptr<state_machine::StateMachine> &sm)
+    OrchestratorBase::OrchestratorBase(
+        size_t telemetry_thread_period_ms, 
+        size_t event_to_publish, 
+        const std::string &ID, 
+        const std::shared_ptr<state_machine::StateMachine> &sm)
         : dls::PeriodicAppPlugin(ID)
         , event_listener_(ID)
+        , telemetry_thread_period_ms_(telemetry_thread_period_ms) 
+        , event_to_publish_(event_to_publish) 
         , telemetry_manager_(telemetry_readers_, telemetry_writers_)
         , sm_(sm)
     {
@@ -80,10 +86,10 @@ namespace dls
         write();
     }
 
-    extern "C" PeriodicAppPlugin *create(const std::string& ID)
+    extern "C" PeriodicAppPlugin *create(size_t telemetry_thread_period_ms, size_t event_to_publish, const std::string& ID)
     {
         /*call_plugin_constructor*/
-        return new OrchestratorBase(ID);
+        return new OrchestratorBase(telemetry_thread_period_ms, event_to_publish, ID);
     }
 
     extern "C" void destroy(PeriodicAppPlugin *p)

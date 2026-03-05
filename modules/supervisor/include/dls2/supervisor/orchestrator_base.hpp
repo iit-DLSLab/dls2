@@ -24,7 +24,11 @@ namespace dls
 
 	public:
 
-		explicit OrchestratorBase(const std::string &ID, const std::shared_ptr<state_machine::StateMachine> &sm = nullptr);
+		explicit OrchestratorBase(
+			size_t telemetry_thread_period_ms, 
+			size_t event_to_publish, 
+			const std::string &ID, 
+			const std::shared_ptr<state_machine::StateMachine> &sm = nullptr);
 		~OrchestratorBase() = default;
 
     	void run(const std::chrono::system_clock::time_point &time) override;
@@ -59,8 +63,8 @@ namespace dls
 		// Telemetry
 		std::vector<std::shared_ptr<dls::ReaderBase>> telemetry_readers_;
 		std::vector<std::shared_ptr<dls::WriterBase>> telemetry_writers_;
-		size_t telemetry_thread_period_ms_{500}; // TODO: param
-		size_t event_to_publish_{1}; // TODO: param
+		size_t telemetry_thread_period_ms_{500};
+		size_t event_to_publish_{1};
 		std::atomic<bool> telemetry_started_{false};
 		std::thread telemetry_thread_;
 		TelemetryBase telemetry_manager_;
