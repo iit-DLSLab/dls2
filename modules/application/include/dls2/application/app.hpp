@@ -7,7 +7,6 @@
 
 #include "dls2/application/app_status.hpp"
 #include "dls2/command/command_manager.hpp"
-#include "dls2/log/log.hpp"
 #include "dls2/log/app_logger.hpp"
 #include "dls2/log/event_logger.hpp"
 #include "dls2/application/state_machine/app_state_machine.hpp"

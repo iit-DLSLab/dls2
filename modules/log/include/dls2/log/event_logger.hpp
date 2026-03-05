@@ -46,6 +46,24 @@ namespace dls
 			std::shared_ptr<dls::DDSWriter> dds_writer_;
 		};
 
+		/**
+		 * @brief EventNotifier wrapper implementing event type-level antispamming
+		 * and safety check enable flag 
+		 */
+		class RobustEventNotifier : public EventNotifier{
+		public:
+			RobustEventNotifier(const std::string &name, const double &spamming_threshold = 250.0);
+			
+			void setSpammingThreshold(const double &spamming_threshold);
+			double getSpammingThreshold();
+
+			virtual void notify(const EventID& event_id, const EventSeverity& severity, const std::string &message="");
+
+		private:
+			std::map<EventID, std::chrono::steady_clock::time_point> last_event_pub_time_;
+			double spamming_threshold_ms_;
+		};
+
 		class EventListener{
 		public:
 			EventListener(const std::string &name);
