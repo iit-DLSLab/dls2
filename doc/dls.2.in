@@ -24,12 +24,8 @@ dls - Dynamic Legged Systems software framework for the HyQ robot family.
 .B dls::GaitSignal
 .BI DLS_EXPORT_MOTION_GENERATOR( generator )
 
-.B #include <dls2/util/log/log.hpp>
-.B dls::logging::cdbgstream
-.B dls::logging::clogstream
-.B dls::logging::clogstream
-.B dls::logging::cerrstream
-.B dls::logging::cfatalstream
+.B #include <dls2/util/log/terminal_logger.hpp>
+.B dls::logging::TerminalLogger
 
 .B #include <dls2/command/command.hpp>
 .BI "template " " " "<typename " "ret_t, " "typename... " "arg_ts" ">"

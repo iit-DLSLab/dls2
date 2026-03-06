@@ -19,7 +19,6 @@
 #ifndef NDEBUG
 #include <sstream>
 #include <chrono>
-#include "dls2/log/log.hpp"
 #endif
 
 #include <cstdlib>
@@ -60,8 +59,6 @@ ControlLayer::ControlLayer(std::string ID, std::string robot_name)
 		ddsSignalLink, 
 		dls::topics::desired_torques)
 	, torques()
-	, clog(ID)
-	, cfatal(ID)
 {
 	writer_control_signal.msg.desired_torques().resize(pRobot->getNJOINTS());
 	torques.desired_torques().resize(pRobot->getNJOINTS());
@@ -165,7 +162,7 @@ ControlLayer::ControlLayer(std::string ID, std::string robot_name)
                 {
                     ss << elem.first << "\n";
                 }
-                this->scout_sys << ss.str() << std::endl;
+                this->app_logger.info(ss.str());
             }
             else if(s == "motion")
             {
@@ -176,11 +173,11 @@ ControlLayer::ControlLayer(std::string ID, std::string robot_name)
                 {
                     ss << elem.first << "\n";
                 }
-				this->scout_sys << ss.str() << std::endl;
+				this->app_logger.info(ss.str());
             }
             else
             {
-                scout_err << "Error: unrecognised argument" << std::endl;
+                this->app_logger.error("Error: unrecognised argument");
                 return false;
             }
 
@@ -267,8 +264,7 @@ void *ControlLayer::controlSignalGather(void *data)
             std::stringstream ss;
 		    ss << "Control Layer is probably breaking real-time. Has period of 1 mseconds but spent: " << mean << " useconds ";
   		    // ss << "Control layer published torques " << desired_torques.transpose(); // << std::endl;
-		    // scout << "\033[F" << "\r" << ss.str() << std::endl;
-            layer->scout_warn << ss.str() << std::endl;
+            layer->app_logger.warning(ss.str(), EventID::WRONG_PROCESS_FREQUENCY);
         }
 
     	sched_yield();
@@ -349,7 +345,7 @@ bool ControlLayer::loadController(const std::string& lib_name)
 	
 	if(this->controllers.find(lib_name) != this->controllers.end())
 	{
-		scout_err << "Controller " << lib_name << " already loaded" << std::endl;
+		this->app_logger.error("Controller " + lib_name + " already loaded");
         return false;
 	}
 
@@ -372,15 +368,15 @@ bool ControlLayer::loadController(const std::string& lib_name)
     }));
 
     if (pData->proc == nullptr){
-        scout_err << "Controller " << lib_name <<" failed to launch: nullptr" << std::endl;
+        this->app_logger.error("Controller " + lib_name +" failed to launch: nullptr");
         return false;
 	}
 	// else if (pData->proc->wait_for(std::chrono::duration<double, std::milli>(1500))){
-    //     scout_err << "Controller " << lib_name <<" failed to launch: expired timeout" << std::endl;
+    //     this->app_logger.error("Controller " << lib_name <<" failed to launch: expired timeout");
     //     return false;
     // }
 
-    scout_sys << "CONTROL LAYER IS LISTENING CONTROLLER " << pData->getID() << " ON TOPIC " << pData->getID() <<  std::endl;
+    this->app_logger.info("CONTROL LAYER IS LISTENING CONTROLLER " + pData->getID() + " ON TOPIC " + pData->getID());
 
 	// spline in the controller
 	//
@@ -411,7 +407,7 @@ bool ControlLayer::loadExternalController(const std::string& lib_name)
 {
 	if(this->controllers.find(lib_name) != this->controllers.end())
 	{
-		scout_err << "Controller " << lib_name << " already loaded" << std::endl;
+		this->app_logger.error("Controller " + lib_name + " already loaded");
         return false;
 	}
 
@@ -425,7 +421,7 @@ bool ControlLayer::loadExternalController(const std::string& lib_name)
 		default_duration_seconds
 	);
 
-    scout_sys << "CONTROL LAYER IS LISTENING CONTROLLER " << pData->getID() << " ON TOPIC " << pData->getID() <<  std::endl;
+    this->app_logger.info("CONTROL LAYER IS LISTENING CONTROLLER " + pData->getID() + " ON TOPIC " + pData->getID());
 
 	this->controllers.emplace(pData->getID(), pData);
 	return true;
@@ -483,7 +479,7 @@ bool ControlLayer::unloadController(const std::string &ID)
 
 		if(pair_it == this->controllers.end()) 
 		{
-			scout_err << "controller " << ID << " not loaded" << std::endl;
+			this->app_logger.error("controller " + ID + " not loaded");
 			return false;
 		}
 	}
@@ -500,7 +496,7 @@ bool ControlLayer::unloadExternalController(const std::string &ID)
 
 		if(pair_it == this->controllers.end()) 
 		{
-			scout_err << "controller " << ID << " not loaded" << std::endl;
+			this->app_logger.error("controller " + ID + " not loaded");
 			return false;
 		}
 	}
@@ -520,7 +516,7 @@ bool ControlLayer::loadMotionGenerator(const std::string& lib_name)
 
 	if(this->motion_generators.find(lib_name) != this->motion_generators.end()) 
 	{
-		scout_err << "motion generation " << lib_name << " already loaded" << std::endl;
+		this->app_logger.error("motion generation " + lib_name + " already loaded" );
         return false;
 	}
 
@@ -535,7 +531,7 @@ bool ControlLayer::loadMotionGenerator(const std::string& lib_name)
 	}));
 
 	if (pData->proc == nullptr){
-        scout_err << "Motion generation " << lib_name <<" failed to launch: nullptr" << std::endl;
+        this->app_logger.error("Motion generation " + lib_name + " failed to launch: nullptr" );
         return false;
     }
 
@@ -580,7 +576,7 @@ bool ControlLayer::unloadMotionGenerator(const std::string& ID)
 	
 	if(pair_it == this->motion_generators.end()) 
 	{
-		scout_err << "motion generation " << ID << " is not loaded" << std::endl;
+		this->app_logger.error("motion generation " + ID + " is not loaded");
 		return false;
 	}
 

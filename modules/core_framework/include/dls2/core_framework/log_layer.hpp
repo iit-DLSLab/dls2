@@ -5,6 +5,7 @@
 #include "dls2/application/layer.hpp"
 #include "dls2/util/messaging/dds_participant.hpp"
 #include "dls2/topics/topics.hpp"
+#include "dls2/util/time/time.hpp"
 
 namespace dls
 {
@@ -29,8 +30,6 @@ namespace dls
 		logging::EventListener event_listener_;
 		
 		void readEvents();
-
-		std::string convertTimeToDate(long int timestamp);
 	};
 } // end namespace dls
 

@@ -4,7 +4,7 @@
 
 namespace dls
 {
-    MCAPWriterUtils::MCAPWriterUtils() : clogstream_("MCAPWriterUtils") {}
+    MCAPWriterUtils::MCAPWriterUtils() : terminal_logger_("MCAPWriterUtils") {}
 
     MCAPWriterUtils::~MCAPWriterUtils()
     {
@@ -66,7 +66,7 @@ namespace dls
         }
         else
         {
-            clogstream_ << "Start recording an MCAP log" << std::endl;
+            terminal_logger_.info("Start recording an MCAP log");
 
             setRecordingStatus(true);
         }
@@ -76,13 +76,13 @@ namespace dls
     {
         if(isRecordingOngoing())
         {
-            clogstream_ << "Stop recording the MCAP log" << std::endl;
+            terminal_logger_.info("Stop recording the MCAP log");
 
             resetData();
 
             setRecordingStatus(false);
         }
-        else { clogstream_ << "No MCAP recording ongoing" << std::endl; }
+        else { terminal_logger_.info("No MCAP recording ongoing"); }
     }
 
     void MCAPWriterUtils::writeMessage(const std::string& topic_name, const std::string_view& schema_encoding, 
@@ -134,17 +134,17 @@ namespace dls
     {
         if(topics_and_mcap_data_.size() > 0)
         {
-            clogstream_ << "[MCAP channel] [Messages] Topic" << std::endl;
-            clogstream_ << "----------------------" << std::endl;
+            terminal_logger_.info("[MCAP channel] [Messages] Topic");
+            terminal_logger_.info("----------------------");
 
             for(const auto& elem : topics_and_mcap_data_)
             {
-                clogstream_ << "[" << elem.second.first << "] " << "[" << elem.second.second << "] " << elem.first << std::endl;
+                terminal_logger_.info("[" + elem.second.first + "] " + "[" + elem.second.second + "] " + elem.first);
             }
         }
         else
         {
-            clogstream_ << "The map with topics and associated MCAP channels is empty" << std::endl;
+            terminal_logger_.info("The map with topics and associated MCAP channels is empty");
         }
     }
 }

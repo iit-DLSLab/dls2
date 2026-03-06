@@ -96,6 +96,6 @@ namespace tasks{
 
     void Task::stopTask(){
         sm.raiseEvent(sm.deactivation_request);
-        scout_sys << "TASK IS COMPLETED." << std::endl;
+        this->app_logger.info("TASK IS COMPLETED.");
     }
 }

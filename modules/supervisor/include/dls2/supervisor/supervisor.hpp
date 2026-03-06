@@ -8,7 +8,6 @@
 
 #include "dls2/command/command_manager.hpp"
 #include "dls2/util/messaging/dds_participant.hpp"
-#include "dls2/log/log.hpp"
 #include "dls2/application/layer.hpp"
 #include "dls2/state_machine/state_machine_watcher.hpp"
 #include "dls2/application/app_data.hpp"

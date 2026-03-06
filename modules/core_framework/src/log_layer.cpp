@@ -108,14 +108,6 @@ void LogLayer::close()
 	// }
 }
 
-std::string LogLayer::convertTimeToDate(long int timestamp){
-	time_t time_val = static_cast<time_t>(timestamp/1000000000); // timestamp in nanoseconds
-	std::tm* utc_tm = std::localtime(&time_val);
-    std::ostringstream oss;
-    oss << std::put_time(utc_tm, "%y-%m-%d_%H.%M.%S");
-    return oss.str();
-} // end convertTimeToString
-
 void LogLayer::readEvents(){
 	static long int idx_read = 0;
 	static long int buffer_max_idx = event_listener_.getBufferMaxIdx();
@@ -135,9 +127,9 @@ void LogLayer::readEvents(){
 		// read values
 		for(long int i=idx_read; i<=idx_buffer; ++i)
 		{
-			dls2_interface::msg::EventLog event_log = event_listener_.event_buffer[i];
+			dls2_interface::msg::EventLog event_log = event_listener_.event_buffer_[i];
 			// print event log
-			std::string timestamp = convertTimeToDate(event_log.header().timestamp());
+			std::string timestamp = Time::convertTimeToDate(event_log.header().timestamp());
 			std::cout << "\nEvent from component: " << event_log.component_name() << "\n"
 					  << "Timestamp:" << timestamp << "\n"
 					  << "Sequence ID: " << event_log.header().sequence_id() << "\n"

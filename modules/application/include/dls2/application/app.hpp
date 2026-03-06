@@ -1,12 +1,14 @@
 #ifndef APP_HPP
 #define APP_HPP
 
-#include "dls2/application/app_status.hpp"
-#include "dls2/command/command_manager.hpp"
-#include "dls2/log/log.hpp"
 #include <future>
 #include <thread>
 #include <condition_variable>
+
+#include "dls2/application/app_status.hpp"
+#include "dls2/command/command_manager.hpp"
+#include "dls2/log/app_logger.hpp"
+#include "dls2/log/event_logger.hpp"
 #include "dls2/application/state_machine/app_state_machine.hpp"
 #include <dls2/application/sched_attr.hpp>
 #include <dls_messages/dds/ProcessStatusLight.hpp>
@@ -101,14 +103,7 @@ namespace dls
 		///
 		CommandManager command_manager;
 
-		//! Log system events
-		logging::clogstream scout_sys;
-
-		//! Log warning messages
-		logging::warnstream scout_warn;
-
-		//! Log errors that occurred, but from which the system can recover. Also log possible future fatal errors for the operator's attention.
-		logging::cerrstream scout_err;
+		dls::logging::AppLogger app_logger;
 
 		logging::RobustEventNotifier robust_event_notifier;
 

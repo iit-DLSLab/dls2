@@ -81,7 +81,7 @@ bool EstimationLayer::loadEstimator(const Estimator::ID_t& lib_name)
 	}
 	else
 	{
-		scout_err << "estimator " << lib_name << " already loaded" << std::endl;
+		this->app_logger.error("estimator " + lib_name + " already loaded");
 		return false;
 	}
 	
@@ -92,10 +92,10 @@ bool EstimationLayer::loadEstimator(const Estimator::ID_t& lib_name)
 		char *child_process_launcher = std::getenv("DLS_CHILD_PROCESS_LAUNCHER");
 		if(!child_process_launcher)
 		{
-			scout_err <<
+			this->app_logger.error(
 				"ERROR: env variable DLS_CHILD_PROCESS_LAUNCHER not "
 				"defined.  This is probably an error with the launch script"
-			<< std::endl;
+		);
 			return false;
 		}
 
@@ -108,7 +108,7 @@ bool EstimationLayer::loadEstimator(const Estimator::ID_t& lib_name)
 		}));
 
 		if (pData->proc == nullptr){
-			scout_err << "Estimator " << lib_name <<" failed to launch: nullptr" << std::endl;
+			this->app_logger.error("Estimator " + lib_name +" failed to launch: nullptr");
 			return false;
 		}
 
@@ -127,7 +127,7 @@ bool EstimationLayer::unloadEstimator(const Estimator::ID_t& ID)
 
 	if (res == this->estimators.end())
 	{
-		scout_err << "Estimator " + ID + " is not loaded" << std::endl;
+		this->app_logger.error("Estimator " + ID + " is not loaded");
 		return false;
 	}
 
