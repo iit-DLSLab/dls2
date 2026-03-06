@@ -11,8 +11,8 @@ namespace dls
 		class AppLogger {
 			public:
 				explicit AppLogger(const std::string& ID, 
-								   bool enable_log_terminal = true, 
-								   bool enable_event_notify = false, 
+								   bool enable_log_terminal = false, 
+								   bool enable_event_notify = true, 
 								   bool enable_file_log = false);
 
 				void info(const std::string& s);
