@@ -29,7 +29,7 @@ namespace dls
 
 		logging::EventListener event_listener_;
 		
-		void readEvents();
+		void printEvents();
 	};
 } // end namespace dls
 

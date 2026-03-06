@@ -84,6 +84,8 @@ namespace dls
 			/// \return The maximum index of the buffer
 			unsigned long int getBufferMaxIdx() const;
 
+			std::vector<dls2_interface::msg::EventLog> readEvents(long int& idx_read);
+
 			boost::circular_buffer<dls2_interface::msg::EventLog> event_buffer_;
 
 		private:
@@ -91,7 +93,32 @@ namespace dls
 			std::shared_ptr<dls::DDSReader> dds_reader_;
 
 			long long int unbounded_buffer_idx_;
+			long int idx_read_ { 0 };
 			long int buffer_max_idx_;
+		};
+
+		class CompareEvents
+		{
+		public:
+			bool operator() (dls2_interface::msg::EventLog event_a, dls2_interface::msg::EventLog event_b)
+			{
+				// Firstly compare severity 
+				const auto severity_a = static_cast<EventSeverity>(event_a.severity());
+				const auto severity_b = static_cast<EventSeverity>(event_b.severity());
+				if(severity_a != severity_b){
+					return severity_a < severity_b;
+				}
+
+				// Secondly compare event id
+				const auto id_a = static_cast<EventID>(event_a.event_id());
+				const auto id_b = static_cast<EventID>(event_b.event_id());
+				if(id_a != id_b){
+					return id_a < id_b;
+				}
+
+				// Lastly compare event age
+				return event_a.header().timestamp() < event_b.header().timestamp();
+			}
 		};
 
 	} // namespace logging
