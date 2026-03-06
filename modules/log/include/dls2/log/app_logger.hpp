@@ -26,7 +26,7 @@ namespace dls
 				void write_file_if_enabled_(const std::string& line);
 				
 				TerminalLogger terminal_logger_;
-				EventNotifier event_notifier_; // TODO: put robust event notifier
+				RobustEventNotifier event_notifier_;
 				std::unique_ptr<FileLogger> file_logger_ { nullptr };
 
 				bool enable_log_terminal_;
