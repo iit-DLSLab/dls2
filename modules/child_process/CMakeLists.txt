@@ -12,7 +12,10 @@ target_include_directories(child_process_launcher
 target_link_libraries(child_process_launcher
 	PUBLIC
 		dl
-		urdf
+		urdfdom_model
+		urdfdom_model_state
+		urdfdom_world
+		urdfdom_sensor
 		dls_framework
 		fastcdr
 		fastdds
