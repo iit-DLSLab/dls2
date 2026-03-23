@@ -16,4 +16,6 @@ target_link_libraries(dls_time
 		dls_domains
 )
 
+target_compile_features(dls_time PUBLIC cxx_std_20)
+
 dls_install(dls_time)
