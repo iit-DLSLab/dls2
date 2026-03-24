@@ -1,4 +1,4 @@
-find_package(nlohmann_json 3.12.0 REQUIRED)
+find_package(nlohmann_json 3.11.3 REQUIRED)
 
 add_executable(test_notify_events
 	test_notify_events.cpp
