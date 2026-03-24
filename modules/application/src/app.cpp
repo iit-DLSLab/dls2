@@ -111,7 +111,9 @@ void App::startMonitoring()
 	}
 }
 
-App::~App(){}
+App::~App(){
+	monitor_thread_.join();
+}
 
 std::string App::getID()
 {
