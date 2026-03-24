@@ -77,16 +77,6 @@ namespace dls
 
 		participant_name = partName_;
 
-		// Create a UDP descriptor for the new transport.
-		auto udp_transport = std::make_shared<eprosima::fastdds::rtps::UDPv4TransportDescriptor>();
-		// udp_transport->sendBufferSize = 9216;
-		// udp_transport->receiveBufferSize = 9216;
-		// udp_transport->non_blocking_send = true; // it avoids to wait for the available space in the UDP socket buffer
-		// Link the Transport Layer to the Participant.
-		participantQos.transport().user_transports.push_back(udp_transport);
-		// Avoid using the default transport (i.e. SHM)
-		participantQos.transport().use_builtin_transports = false;
-
 		if(ENABLE_FASTDDS_STATISTICS)
 		{
 			participantQos.properties().properties().emplace_back("fastdds.statistics",
