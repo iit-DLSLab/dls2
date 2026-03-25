@@ -15,7 +15,8 @@ list(JOIN DLS_LD_LIBRARY_PATH ":" DLS_LD_LIBRARY_PATH)
 # Configure the version of the launch script that is used to run the installed
 # framework
 set(DLS_CHILD_PROCESS_LAUNCHER              "${DLS_INSTALL_RUNTIME_DIR}/child_process_launcher")
-set(DLS_LAUNCH_SCRIPT_LIBRARY_PATH          "/usr/lib/dls2:${DLS_LD_LIBRARY_PATH}:$LD_LIBRARY_PATH")
+set(DLS_LAUNCH_SCRIPT_PATH                  "/usr/local/bin:/usr/bin:\${PATH}")
+set(DLS_LAUNCH_SCRIPT_LIBRARY_PATH          "/usr/local/lib:/usr/lib/dls2:${DLS_LD_LIBRARY_PATH}:\${LD_LIBRARY_PATH}")
 set(DLS_LUANCH_SCRIPT_RUN_FRAMEWORK_COMMAND "${DLS_INSTALL_RUNTIME_DIR}/dynamic_legged_systems_framework \"$@\"")
 dls_configure(launch_framework.in           LAUNCH_FRAMEWORK)
 
@@ -23,7 +24,8 @@ dls_configure(launch_framework.in           LAUNCH_FRAMEWORK)
 # from the build tree during active development
 set(DLS_CHILD_PROCESS_LAUNCHER "${EXECUTABLE_OUTPUT_PATH}/child_process_launcher")
 set(DLS_CATKIN_WORKSPACE_SETUP_BASH ${PROJECT_SOURCE_DIR}/catkin_ws/devel/setup.bash)
-set(DLS_LAUNCH_SCRIPT_LIBRARY_PATH "$LD_LIBRARY_PATH")
+set(DLS_LAUNCH_SCRIPT_PATH "/usr/local/bin:/usr/bin:\${PATH}")
+set(DLS_LAUNCH_SCRIPT_LIBRARY_PATH "\${LD_LIBRARY_PATH}")
 set(DLS_LUANCH_SCRIPT_RUN_FRAMEWORK_COMMAND "${EXECUTABLE_OUTPUT_PATH}/dynamic_legged_systems_framework \"$@\"")
 configure_file(launch_framework.in "${CMAKE_CURRENT_BINARY_DIR}/launch_framework_from_src_tree")
 # Create an interface target for this launch script so that it can be found from other parts of the build system
