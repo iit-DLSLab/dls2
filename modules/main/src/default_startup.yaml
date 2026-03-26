@@ -10,7 +10,7 @@ generic_app_plugins: []
 
 # robot name
 robot_name: "aliengo"
-robot_spawning_height: 0.1
+robot_spawning_height: 0.366
 
 # applications to be activated
 activate: [gazebo_sim, pid, trunk_controller]
