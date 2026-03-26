@@ -10,7 +10,7 @@ Development
 --------------------------------------------------------------------------------
 To develop please use docker it will save a lot of time. So, if you have not setup your docker installation yet you are invited to visit the [dls_docker](https://gitlab.advr.iit.it/dls-lab/dls_docker) repository, there you will find everithing to get it working.
 
-To enter in the fabulous world of DLS2 you can use the server-harbor:80/dls2/dls2-dev:22.04 image and follow the commands below.
+To enter in the fabulous world of DLS2 you can use the `ghcr.io/iit-dlslab/dls2_dev:fastdds_3.5.0` image and follow the commands below.
 
 Build the debug project using:
 
