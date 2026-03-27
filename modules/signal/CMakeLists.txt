@@ -16,6 +16,7 @@ target_include_directories(dls_signal
 
 target_link_libraries(dls_signal
 	PUBLIC
+		Eigen3::Eigen
 		dls_com
 		dls_topics
 		dls_time

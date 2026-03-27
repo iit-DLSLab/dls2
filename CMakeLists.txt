@@ -1,3 +1,5 @@
+find_package(Eigen3 3.3 REQUIRED NO_MODULE)
+
 cmake_minimum_required(VERSION 3.15)
 project(dls2)
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
@@ -9,7 +11,6 @@ include(dls_configure)        # some utility functions
 include(dls_globals)          # global project settings and definitions
 include(dls_options)          # compile-time options
 include(dls_deploy)           # installation functions
-include(dls_include_paths)    # directories of global libraries
 include(dls_dependency_graph) # `make graph` target to generate dependency graph
 include(dls_test)             # functions to register unit tests
 

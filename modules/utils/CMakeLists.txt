@@ -12,6 +12,7 @@ add_library(dls_utils
 
 target_link_libraries(dls_utils
 	PUBLIC
+		Eigen3::Eigen
 		robotlib
 		yaml-cpp
 		dls_math

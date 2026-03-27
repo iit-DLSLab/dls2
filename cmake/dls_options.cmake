@@ -135,6 +135,8 @@ set(DLS_INSTALL_STARTUP_DIR /usr/include/dls2/startup
 set(EIGEN_DIR /usr/include/eigen3
 	CACHE STRING "Directory where Eigen is installed"
 )
+# Kept for backward compatibility with older external projects.
+# New code should consume Eigen via find_package(Eigen3) and Eigen3::Eigen.
 
 
 
