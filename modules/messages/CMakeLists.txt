@@ -23,13 +23,9 @@ include(idls_messages)
 
 target_link_libraries(${LIBRARY_NAME}
 PUBLIC
+    Eigen3::Eigen
     robotlib
     dls_msg_wrapper
-)
-
-target_include_directories(${LIBRARY_NAME} 
-PUBLIC
-    ${EIGEN_DIR}
 )
 
 dls_install(${LIBRARY_NAME})
