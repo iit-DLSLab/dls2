@@ -480,7 +480,7 @@ namespace dls
 		{
 			discovered_participants_info.insert({static_cast<std::string>(info.participant_name), info.guid});
 			
-			std::string component_name = splitSafe(info.participant_name);
+			std::string component_name = dls::utils::splitSafe(info.participant_name);
 			participants_by_prefix[guid_prefix_key(info.guid)] = component_name;
 		}
 		else if (status == eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DROPPED_PARTICIPANT)
@@ -628,34 +628,5 @@ namespace dls
     dds_rpc::Service* service = participant->find_service(serviceName);
     if (service) participant->delete_service(service);
   }
-  
-  std::string DDSParticipant::splitSafe(const char* participant_name)
-	{
-		// Fast DDS participant_name is a fixed-size char buffer
-		constexpr std::size_t MAX_NAME_LEN = 256;
-
-		// Safely construct string
-		std::string name(
-			participant_name,
-			strnlen(participant_name, MAX_NAME_LEN)
-		);
-
-		// Cut at first "::" if present
-		const auto pos = name.find("::");
-		if (pos != std::string::npos)
-		{
-			name.resize(pos);
-		}
-
-		// Trim trailing whitespace / padding
-		while (!name.empty() &&
-			(name.back() == '\0' ||
-				std::isspace(static_cast<unsigned char>(name.back()))))
-		{
-			name.pop_back();
-		}
-
-		return name;
-	}
 
 } // namespace dls
