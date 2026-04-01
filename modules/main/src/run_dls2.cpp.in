@@ -236,12 +236,7 @@ namespace dls
 			applications[pair.first] = config[pair.first].as<std::vector<std::string>>();
 		}
 		// get robot name
-		if (config["robot_name"])
-			Options::robot_name = config["robot_name"].as<std::string>();
-		else
-		{
-			throw std::runtime_error("robot_name field not defined in startup file");
-		}
+		Options::robot_name = config["robot_name"].as<std::string>();
 		if(config["robot_spawning_height"])
 			Options::robot_spawning_height = config["robot_spawning_height"].as<double>();
 		else{
