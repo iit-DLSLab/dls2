@@ -81,7 +81,7 @@ To create a periodic plugin:
 * [create an empty repo on GitHub](https://github.com/organizations/iit-DLSLab/repositories/new)
 * pull the repo you have just created in the folder shared with the dls2 docker image (any subfolder of it is also fine)
 * open the dls2 docker image
-* build and install dls2-testing
+* build and install dls2_deploy
 * go inside the repo you have just pulled
 * call the following command
 
