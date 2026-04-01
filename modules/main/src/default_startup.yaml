@@ -1,16 +1,16 @@
 # layers
-layers: [hardware, control, estimation, log]
+layers: [hardware, estimation, log]
 
 # applications
-hardwares: [gazebo_sim]
-controllers: [pid, trunk_controller]
-motion_generators: [periodic_generator, keyboard]
+hardwares: []
+controllers: []
+motion_generators: []
 estimators: []
 generic_app_plugins: []
 
 # robot name
-robot_name: "aliengo"
-robot_spawning_height: 0.366
+robot_name: ""
+robot_spawning_height: 0.0
 
 # applications to be activated
-activate: [gazebo_sim, pid, trunk_controller]
+activate: [ ]
