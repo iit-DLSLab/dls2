@@ -1,15 +1,15 @@
 # Run DLS2 example
 - open dls2 docker image with `-ex` option
-- build and install dls2_deploy
+- build and install dls2-testing
 - attach new terminal to dls2 container, then run server
 
     `fastdds discovery -p 11811 --server-id 0 -l 127.0.0.1`
 - run talker
 
-    `../dls2/bin/Release/dds_writer_for_ros2`
+    `../dls2-barebone/dls2/bin/Release/dds_writer_for_ros2`
 - run listener
 
-    `../dls2/bin/Release/dds_reader_for_ros2`
+    `../dls2-barebone/dls2/bin/Release/dds_reader_for_ros2`
 
 # Run ROS2 example
 - Talker/listener [source](https://docs.ros.org/en/jazzy/Tutorials/Beginner-Client-Libraries/Writing-A-Simple-Cpp-Publisher-And-Subscriber.html)
@@ -19,7 +19,7 @@
 - build example
     
     ```
-    cd /root/dls2_deploy/dls2/test/ros2_interface/ros2_ws
+    cd /root/dls2-testing/dls2-barebone/dls2/test/ros2_interface/ros2_ws
     colcon build --packages-select dls2_interfaces
     source install/setup.bash
     colcon build
@@ -31,7 +31,7 @@
 
     ```
     docker exec -it ros2 bash
-    cd /root/dls2_deploy/dls2/test/ros2_interface/ros2_ws
+    cd /root/dls2-testing/dls2-barebone/dls2/test/ros2_interface/ros2_ws
     . install/setup.bash
     ```
 - run talker in first terminal
