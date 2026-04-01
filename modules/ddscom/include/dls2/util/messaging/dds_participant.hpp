@@ -5,6 +5,7 @@
 #include "dls2/topics/topics.hpp"
 #include "dls2/domains/domains.hpp"
 #include "dls2/util/messaging/dds_listeners.hpp"
+#include "dls2/util/string.hpp"
 
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/domain/DomainParticipant.hpp>
@@ -216,8 +217,6 @@ namespace dls
 		bool is_type_registered_in_factory_(const std::string& type_name);
 
 		eprosima::fastdds::dds::DynamicType::_ref_type get_type_registered_(const std::string& type_name);
-
-		std::string splitSafe(const char* participant_name);
 	};
 
 } // namespace dls
