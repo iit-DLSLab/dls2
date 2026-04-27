@@ -1,6 +1,7 @@
 #include "dls2/main/run_dls2.hpp"
 #include "dls2/core_framework/options.hpp"
 
+#include <cstdlib>
 #include <filesystem>
 #include <sys/prctl.h>
 #include <sys/types.h>
@@ -238,9 +239,17 @@ namespace dls
 		// get robot name
 		Options::robot_name = config["robot_name"].as<std::string>();
 		if(config["robot_spawning_height"])
+		{
 			Options::robot_spawning_height = config["robot_spawning_height"].as<double>();
-		else{
+		}
+		else
+		{
 			throw std::runtime_error("robot_spawning_height field not defined in startup file");
+		}
+		if(config["gazebo_world"])
+		{
+			const std::string gazebo_world = config["gazebo_world"].as<std::string>();
+			setenv("DLS_GAZEBO_WORLD", gazebo_world.c_str(), 1);
 		}
 
 		// get application to activate
