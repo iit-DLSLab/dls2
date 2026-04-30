@@ -30,6 +30,8 @@ namespace dls
 		logging::EventListener event_listener_;
 		
 		void printEvents();
+
+		bool verbose{false};
 	};
 } // end namespace dls
 

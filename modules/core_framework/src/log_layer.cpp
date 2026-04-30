@@ -94,6 +94,12 @@ LogLayer::LogLayer(std::string ID)
 		},
 		qos
 	);
+
+	char * val;
+	val = getenv("DLS_VERBOSE");
+	if (val != NULL) {
+		verbose = true;
+	}
 }
 
 void LogLayer::close()
@@ -123,6 +129,8 @@ void LogLayer::printEvents(){
 	}
 }
 void LogLayer::monitor(){
-	printEvents();
+	if(verbose){
+		printEvents();
+	}
 }
 #endif /* end of include guard: LOG_LAYER_CPP_DLJLOFSG */
