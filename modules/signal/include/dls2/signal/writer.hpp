@@ -58,6 +58,13 @@ namespace dls
 		bool has_header_;
 
 		template <typename T, typename = std::void_t<>>
+		struct HasHeaderTimeStamp : std::false_type { };
+		template <typename T>
+		struct HasHeaderTimeStamp <T, std::void_t<decltype(std::declval<T>().header().timestamp())>> : std::true_type { };
+
+		bool has_header_timestamp_;
+
+		template <typename T, typename = std::void_t<>>
 		struct HasTimeStamp : std::false_type { };
 		template <typename T>
 		struct HasTimeStamp <T, std::void_t<decltype(std::declval<T>().timestamp())>> : std::true_type { };
@@ -70,6 +77,13 @@ namespace dls
 		struct HasSequenceId <T, std::void_t<decltype(std::declval<T>().sequence_id())>> : std::true_type { };
 
 		bool has_sequence_id_;
+
+		template <typename T, typename = std::void_t<>>
+		struct HasHeaderSequenceId : std::false_type { };
+		template <typename T>
+		struct HasHeaderSequenceId <T, std::void_t<decltype(std::declval<T>().header().sequence_id())>> : std::true_type { };
+
+		bool has_header_sequence_id_;
 
 		unsigned long sequence_id_{ 0 };
 		bool isSameTimestamp();

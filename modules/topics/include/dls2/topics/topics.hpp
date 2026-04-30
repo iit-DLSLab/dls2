@@ -28,6 +28,7 @@
 #include <dls_messages/dds/NavigationReferencePubSubTypes.hpp>
 #include <dls_messages/dds/ParamServerPubSubTypes.hpp>
 #include <dls_messages/dds/PosePubSubTypes.hpp>
+#include <dls_messages/dds/PoseStampedPubSubTypes.hpp>
 #include <dls_messages/dds/ScrewPubSubTypes.hpp>
 #include <dls_messages/dds/SensorFusionPubSubTypes.hpp>
 #include <dls_messages/dds/StanceStatusPubSubTypes.hpp>
@@ -81,6 +82,7 @@ namespace dls
 
 		// arm controller
 		extern dls::topicType desired_arm_torques;
+		extern dls::topicType check_points;
 
 		namespace high_level_estimation
 		{

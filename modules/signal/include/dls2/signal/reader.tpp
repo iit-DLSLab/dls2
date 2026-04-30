@@ -15,7 +15,8 @@ namespace dls
 		: ReaderBase(participant, topic),
 		  auxiliary_callback(auxiliary_callback),
 		  has_header_(HasHeader<MsgType>::value),
-		  has_sequence_id_(HasSequenceId<MsgType>::value)
+		  has_sequence_id_(HasSequenceId<MsgType>::value),
+		  has_header_sequence_id_(HasHeaderSequenceId<MsgType>::value)
 	{
 		computeName("reader");
 
@@ -27,7 +28,7 @@ namespace dls
 											// Suppress unused parameter warning
 											static_cast<void>(tuple);
 
-											if constexpr (HasSequenceId<MsgType>::value || HasHeader<MsgType>::value)
+											if constexpr (HasSequenceId<MsgType>::value || HasHeaderSequenceId<MsgType>::value)
 											{
 												// Read current sequence id
 												const MsgType* msg = static_cast<MsgType*>(tuple);
@@ -35,7 +36,7 @@ namespace dls
 												if constexpr (HasSequenceId<MsgType>::value)
 												{
 													current_seq_id = static_cast<long>(msg->sequence_id());
-												}else if constexpr (HasHeader<MsgType>::value)
+												}else if constexpr (HasHeaderSequenceId<MsgType>::value)
 												{
 													current_seq_id = static_cast<long>(msg->header().sequence_id());
 												}
@@ -123,7 +124,7 @@ namespace dls
 	template <typename MsgType>
 	bool Reader<MsgType>::hasSequenceId()
 	{
-		return has_header_ || has_sequence_id_;
+		return has_header_sequence_id_ || has_sequence_id_;
 	}
 
 	template <typename MsgType>

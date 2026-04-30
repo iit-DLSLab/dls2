@@ -3,6 +3,8 @@
 
 #include "dls2/signal/reader_base.hpp"
 
+#include <type_traits>
+
 namespace dls
 {
 	template <typename MsgType>
@@ -49,6 +51,13 @@ namespace dls
 		struct HasSequenceId <T, std::void_t<decltype(std::declval<T>().sequence_id())>> : std::true_type { };
 
 		bool has_sequence_id_;
+
+		template <typename T, typename = std::void_t<>>
+		struct HasHeaderSequenceId : std::false_type { };
+		template <typename T>
+		struct HasHeaderSequenceId <T, std::void_t<decltype(std::declval<T>().header().sequence_id())>> : std::true_type { };
+
+		bool has_header_sequence_id_;
 
 		uint32_t missed_sequence_ids_{ 0 };
 		unsigned long prev_sequence_id_ { 0 };
