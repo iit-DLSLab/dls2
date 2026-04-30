@@ -114,12 +114,12 @@ void LogLayer::printEvents(){
 	for(const auto& event_log : events){
 		// print event log
 		std::string timestamp = Time::convertTimeToDate(event_log.header().timestamp());
-		std::cout << "\nEvent from component: " << event_log.component_name() << "\n"
-					<< "Timestamp:" << timestamp << "\n"
-					<< "Sequence ID: " << event_log.header().sequence_id() << "\n"
-					<< "Event ID: " << magic_enum::enum_name(static_cast<EventID>(event_log.event_id())) << "\n"
-					<< "Severity: " << magic_enum::enum_name(static_cast<EventSeverity>(event_log.severity())) << "\n"
-					<< "Message: " << event_log.msg() << std::endl;
+		// std::cout << "\nEvent from component: " << event_log.component_name() << "\n"
+		// 			<< "Timestamp:" << timestamp << "\n"
+		// 			<< "Sequence ID: " << event_log.header().sequence_id() << "\n"
+		// 			<< "Event ID: " << magic_enum::enum_name(static_cast<EventID>(event_log.event_id())) << "\n"
+		// 			<< "Severity: " << magic_enum::enum_name(static_cast<EventSeverity>(event_log.severity())) << "\n"
+		// 			<< "Message: " << event_log.msg() << std::endl;
 	}
 }
 void LogLayer::monitor(){
