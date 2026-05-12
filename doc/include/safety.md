@@ -36,5 +36,7 @@ A detailed list of all checks is reported in the following. The order reflects t
 * PeriodicApp: App checks + `WRONG_PROCESS_FREQUENCY`, `CPU_USAGE_TOO_HIGH`, `MEM_USAGE_TOO_HIGH`
 * PeriodicAppPlugin: PeriodicApp checks + `WRONG_SEQUENCE_ID`, `MISSING_INPUT`, `WRONG_INPUT_FREQUENCY`, `INPUTS_NOT_SYNCHRONIZED`
 
+If you want to get all messages from the log layer (safety layer ones included) in your terminal be sure to set DLS_VERBOSE=1 env variable.
+
 ### Supervisor
 A centralized component is responsible for overall hardware resource consumption and fallback management. More precisely, through the system resource monitor, the supervisor node continuously checks for critical hardware usage and temperature in order to prevent major failures.
