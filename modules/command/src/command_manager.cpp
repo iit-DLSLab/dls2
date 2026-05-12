@@ -4,7 +4,29 @@
 #include "dls2/command/command_manager.hpp"
 #include "dls2/util/utils.hpp"
 
+#include <set>
+
 using namespace dls;
+
+namespace
+{
+std::multimap<std::string, std::string> deduplicateCommands(
+	const std::multimap<std::string, std::string>& commands)
+{
+	std::multimap<std::string, std::string> unique_commands;
+	std::set<std::pair<std::string, std::string>> seen;
+
+	for (const auto& command : commands)
+	{
+		if (seen.insert(command).second)
+		{
+			unique_commands.insert(command);
+		}
+	}
+
+	return unique_commands;
+}
+} // namespace
 
 CommandManager::CommandManager(std::string owner_)
 	: commands()
@@ -58,7 +80,7 @@ std::multimap<std::string, std::string> CommandManager::findByOwner
 			cmdlst.insert(*it);
 	}
 
-	return cmds;
+	return deduplicateCommands(cmdlst);
 }
 
 std::multimap<std::string, std::string> CommandManager::findByName
@@ -79,7 +101,7 @@ std::multimap<std::string, std::string> CommandManager::findByName
 		cmdlst.insert(*it);
 	}
 
-	return cmdlst;
+	return deduplicateCommands(cmdlst);
 }
 
 std::multimap<std::string, std::string> CommandManager::find
@@ -114,7 +136,7 @@ std::multimap<std::string, std::string> CommandManager::find
 		cmds.insert({it->second, it->first});
 	}
 
-	return cmds;
+	return deduplicateCommands(cmds);
 }
 
 std::multimap<std::string, std::string> CommandManager::getCommandsList()
@@ -137,11 +159,15 @@ std::multimap<std::string, std::string> CommandManager::getCommandsList()
 			{
 				const std::string participant_name (participant_info.first);
 				size_t idx = participant_name.find("::");
-				cmds.insert({participant_name.substr(idx+2, participant_name.size()), participant_name.substr(0, idx)});
+				if (idx == std::string::npos)
+				{
+					continue;
+				}
+				cmds.insert({participant_name.substr(idx + 2), participant_name.substr(0, idx)});
 			}
 		}
 	}
-	return cmds;
+	return deduplicateCommands(cmds);
 }
 
 std::set<std::string> CommandManager::getOwnersList()
