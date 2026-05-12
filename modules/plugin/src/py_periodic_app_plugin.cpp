@@ -95,6 +95,7 @@ void PyPeriodicAppPlugin::run(const std::chrono::system_clock::time_point& time)
     captureInputSnapshot(time);
 
     const auto now = std::chrono::steady_clock::now();
+    std::cout << "Current state: " << stateName() << ", has fresh python command: " << hasFreshPythonCommand(now) << std::endl;
     if (hasFreshPythonCommand(now))
     {
         applyLatestCommand();

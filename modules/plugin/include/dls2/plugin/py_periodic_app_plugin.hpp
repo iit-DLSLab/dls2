@@ -21,8 +21,8 @@ enum class TimeoutPolicy
 
 struct BridgeRuntimeConfig
 {
-    std::chrono::milliseconds command_timeout_ms{300};
-    TimeoutPolicy timeout_policy{TimeoutPolicy::Fail};
+    std::chrono::milliseconds command_timeout_ms{1000};
+    TimeoutPolicy timeout_policy{TimeoutPolicy::Zero};
 };
 
 TimeoutPolicy timeoutPolicyFromString(const std::string& policy);

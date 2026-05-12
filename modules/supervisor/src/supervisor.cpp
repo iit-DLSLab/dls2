@@ -104,6 +104,18 @@ namespace dls
             true
         );
 
+        command_manager.addCommand<std::string>
+        (
+            "loadPythonPeriodicApp",
+            "Load a Python-backed periodic app",
+            std::function<bool(std::string)>([&](std::string type)->bool
+            {
+                return this->loadPythonPeriodicApp(type);
+            }),
+            {},
+            true
+        );
+
         sys_monitor = std::make_unique<dls::SystemResourceMonitor>(this->safety_layer_config_->resource_monitor_window_size);
     }
 
@@ -205,6 +217,46 @@ namespace dls
         
         pData->proc->detach();
         
+        this->plugins.emplace(pData->getID(), pData);
+
+        return true;
+    }
+
+    bool Supervisor::loadPythonPeriodicApp(const std::string& name)
+    {
+        if(this->plugins.find(name) != this->plugins.end())
+        {
+            this->app_logger.error("plugin " + name + " already loaded");
+            return false;
+        }
+
+        std::shared_ptr<AppData> pData = std::make_shared<AppData>(name);
+
+        char *child_process_launcher = std::getenv("DLS_CHILD_PROCESS_LAUNCHER");
+        if(!child_process_launcher)
+        {
+            this->app_logger.error(
+                "env variable DLS_CHILD_PROCESS_LAUNCHER not "
+                "defined.  This is probably an error with the launch script"
+            );
+            return false;
+        }
+
+        pData->proc = std::make_shared<boost::process::child>(std::vector<std::string>({
+            child_process_launcher,
+            pData->getID(),
+            name,
+            "python_periodic_app",
+            robot_name
+        }));
+
+        if (pData->proc == nullptr){
+            std::cout << "Task " << name <<" failed to launch: nullptr" << std::endl;
+            return false;
+        }
+
+        pData->proc->detach();
+
         this->plugins.emplace(pData->getID(), pData);
 
         return true;
