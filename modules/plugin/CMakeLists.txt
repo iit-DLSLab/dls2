@@ -83,6 +83,13 @@ dls_install(periodic_app_plugin)
 # -- py_periodic_app_plugin
 dls_install(py_periodic_app_plugin)
 
+install(
+	DIRECTORY
+		python/dls2_py
+	DESTINATION
+		/usr/lib/python3/dist-packages
+)
+
 # -- skeletons
 install(
 	DIRECTORY
