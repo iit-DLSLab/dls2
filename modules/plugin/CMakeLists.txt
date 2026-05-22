@@ -36,6 +36,39 @@ target_link_libraries(periodic_app_plugin
 	PRIVATE
 )
 
+find_package(pybind11 REQUIRED)
+
+add_library(py_periodic_app
+	SHARED
+		src/py_periodic_app.cpp
+)
+
+target_include_directories(py_periodic_app
+	PUBLIC
+		include
+)
+
+target_link_libraries(py_periodic_app
+	PUBLIC
+		dls_app
+		dls_time
+		pybind11::module
+)
+
+pybind11_add_module(dls2_periodic_app_bindings
+	src/py_periodic_app_bindings.cpp
+)
+
+target_include_directories(dls2_periodic_app_bindings
+	PUBLIC
+		include
+)
+
+target_link_libraries(dls2_periodic_app_bindings
+	PRIVATE
+		py_periodic_app
+)
+
 add_library(app_plugin
 	SHARED
 		src/app_plugin.cpp
