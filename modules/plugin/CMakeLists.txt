@@ -39,8 +39,12 @@ target_link_libraries(periodic_app_plugin
 find_package(pybind11 REQUIRED)
 
 add_library(py_periodic_app
-	SHARED
+	STATIC
 		src/py_periodic_app.cpp
+)
+
+set_target_properties(py_periodic_app PROPERTIES
+	POSITION_INDEPENDENT_CODE ON
 )
 
 target_include_directories(py_periodic_app
@@ -95,6 +99,20 @@ dls_install(plugin)
 dls_install(app_plugin)
 # -- periodic_app_plugin
 dls_install(periodic_app_plugin)
+
+# -- python periodic app bindings
+install(
+	TARGETS dls2_periodic_app_bindings
+	LIBRARY
+		DESTINATION /usr/lib/python3/dist-packages
+		COMPONENT dls_runtime
+)
+
+install(
+	DIRECTORY python/dls2_py
+	DESTINATION /usr/lib/python3/dist-packages
+	COMPONENT dls_runtime
+)
 
 # -- skeletons
 install(
