@@ -6,6 +6,7 @@ hardwares: [gazebo_sim]
 controllers: [pid, trunk_controller]
 motion_generators: [periodic_generator, keyboard]
 estimators: []
+python_periodic_apps: []
 generic_app_plugins: []
 
 # robot name
