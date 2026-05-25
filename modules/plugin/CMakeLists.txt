@@ -37,6 +37,18 @@ target_link_libraries(periodic_app_plugin
 )
 
 find_package(pybind11 REQUIRED)
+find_package(Python3 COMPONENTS Interpreter REQUIRED)
+
+execute_process(
+	COMMAND
+		${Python3_EXECUTABLE} -c "import sysconfig; schemes = sysconfig.get_scheme_names(); scheme = 'deb_system' if 'deb_system' in schemes else sysconfig.get_default_scheme(); print(sysconfig.get_path('purelib', scheme=scheme))"
+	OUTPUT_VARIABLE
+		_ABS_PYTHON_MODULE_PATH
+	OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+get_filename_component(_ABS_PYTHON_MODULE_PATH ${_ABS_PYTHON_MODULE_PATH} ABSOLUTE)
+file(RELATIVE_PATH PYTHON_MODULE_PATH ${CMAKE_INSTALL_PREFIX} ${_ABS_PYTHON_MODULE_PATH})
 
 add_library(py_periodic_app
 	STATIC
@@ -104,13 +116,19 @@ dls_install(periodic_app_plugin)
 install(
 	TARGETS dls2_periodic_app_bindings
 	LIBRARY
-		DESTINATION /usr/lib/python3/dist-packages
+		DESTINATION ${PYTHON_MODULE_PATH}
 		COMPONENT dls_runtime
 )
 
 install(
 	DIRECTORY python/dls2_py
-	DESTINATION /usr/lib/python3/dist-packages
+	DESTINATION ${PYTHON_MODULE_PATH}
+	COMPONENT dls_runtime
+)
+
+install(
+	FILES python/config/dds_participant_config.xml
+	DESTINATION ${PYTHON_MODULE_PATH}/dls2_py
 	COMPONENT dls_runtime
 )
 
