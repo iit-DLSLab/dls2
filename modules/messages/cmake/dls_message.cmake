@@ -191,7 +191,7 @@ function(dls_add_message msg library_name)
 
 	execute_process(
 		COMMAND
-			${Python3_EXECUTABLE} -c "from sysconfig import get_path; print(get_path('purelib', vars={'base': '${CMAKE_INSTALL_PREFIX}'}))"
+			${Python3_EXECUTABLE} -c "import sysconfig; schemes = sysconfig.get_scheme_names(); scheme = 'deb_system' if 'deb_system' in schemes else sysconfig.get_default_scheme(); print(sysconfig.get_path('purelib', scheme=scheme))"
 		OUTPUT_VARIABLE
 			_ABS_PYTHON_MODULE_PATH
 		OUTPUT_STRIP_TRAILING_WHITESPACE
