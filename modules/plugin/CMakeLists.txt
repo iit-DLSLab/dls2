@@ -36,8 +36,9 @@ target_link_libraries(periodic_app_plugin
 	PRIVATE
 )
 
+find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
+set(PYBIND11_FINDPYTHON ON)
 find_package(pybind11 REQUIRED)
-find_package(Python3 COMPONENTS Interpreter REQUIRED)
 
 execute_process(
 	COMMAND
