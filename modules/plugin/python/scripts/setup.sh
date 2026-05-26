@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -euo pipefail
-
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 PYTHON_MODULE_ROOT=$(cd -- "$SCRIPT_DIR/.." && pwd)
 REPO_ROOT=$(cd -- "$SCRIPT_DIR/../../../../../.." && pwd)
@@ -57,9 +55,7 @@ if [ -n "$FASTDDS_PYTHON_INSTALL_ROOT" ] && [ -f "$FASTDDS_PYTHON_INSTALL_ROOT/s
     # shellcheck disable=SC1090
     export COLCON_TRACE="${COLCON_TRACE-}"
     export AMENT_TRACE_SETUP_FILES="${AMENT_TRACE_SETUP_FILES-}"
-    set +u
     source "$FASTDDS_PYTHON_INSTALL_ROOT/setup.bash"
-    set -u
 fi
 
 PYTHON_SITE_PACKAGES=$(python3 - <<'PY'
