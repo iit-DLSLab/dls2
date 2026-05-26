@@ -10,16 +10,6 @@ namespace dls
   namespace topics
   {
     // logs
-    dls::topicType warn_log_stream = dls::topicType("warn_log_stream",
-        new dls2_interface::msg::StringPubSubType());
-    dls::topicType info_log_stream = dls::topicType("info_log_stream",
-        new dls2_interface::msg::StringPubSubType());
-    dls::topicType error_log_stream = dls::topicType("error_log_stream",
-        new dls2_interface::msg::StringPubSubType());
-    dls::topicType fatal_log_stream = dls::topicType("fatal_log_stream",
-        new dls2_interface::msg::StringPubSubType());
-    dls::topicType debug_log_stream = dls::topicType("debug_log_stream",
-        new dls2_interface::msg::StringPubSubType());
     dls::topicType log_events = dls::topicType("log_events",
         new dls2_interface::msg::EventLogPubSubType());
     dls::topicType process_status = dls::topicType("process_status", 
