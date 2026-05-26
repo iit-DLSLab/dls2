@@ -1,10 +1,16 @@
 #!/bin/bash
 
+if [[ "${BASH_SOURCE[0]}" != "$0" ]]; then
+    echo "Run this script, do not source it: ${BASH_SOURCE[0]}" >&2
+    return 1
+fi
+
 set -euo pipefail
 
 WORKSPACE_ROOT="${HOME}/fastdds_python_3p5_ws"
 FASTDDS_PYTHON_TAG="v2.5.0"
 PYTHON_SITE_PACKAGES="${WORKSPACE_ROOT}/install/fastdds_python/lib/python3.12/site-packages"
+FASTDDS_PYTHON_INSTALL_ROOT="${WORKSPACE_ROOT}/install"
 
 sudo apt update
 sudo apt install -y swig4.1 libpython3-dev libtinyxml2-10
@@ -28,20 +34,19 @@ colcon build \
     -Dfastcdr_DIR=/usr/local/lib/cmake/fastcdr \
     -DCMAKE_INSTALL_RPATH=/usr/local/lib
 
-export COLCON_TRACE="${COLCON_TRACE-}"
-export AMENT_TRACE_SETUP_FILES="${AMENT_TRACE_SETUP_FILES-}"
-set +u
-source "${WORKSPACE_ROOT}/install/setup.bash"
-set -u
-export FASTDDS_PYTHON_INSTALL_ROOT="${WORKSPACE_ROOT}/install"
-export PYTHONPATH="${PYTHON_SITE_PACKAGES}:${PYTHONPATH:-}"
-export LD_LIBRARY_PATH="/usr/local/lib:${LD_LIBRARY_PATH:-}"
-
+FASTDDS_PYTHON_INSTALL_ROOT="${FASTDDS_PYTHON_INSTALL_ROOT}" \
+PYTHONPATH="${PYTHON_SITE_PACKAGES}:${PYTHONPATH:-}" \
+LD_LIBRARY_PATH="/usr/local/lib:${LD_LIBRARY_PATH:-}" \
 python3 - <<'PY'
 import fastdds
 print("fastdds import ok:", fastdds.__file__)
 PY
 
-export FASTDDS_PYTHON_INSTALL_ROOT=${WORKSPACE_ROOT}/install
+export FASTDDS_PYTHON_INSTALL_ROOT=${FASTDDS_PYTHON_INSTALL_ROOT}
 export PYTHONPATH=${PYTHON_SITE_PACKAGES}:\$PYTHONPATH
 export LD_LIBRARY_PATH=/usr/local/lib:\$LD_LIBRARY_PATH
+
+cat <<EOF
+For runtime, use:
+  source dls2-barebone/dls2/modules/plugin/python/scripts/setup.sh
+EOF
