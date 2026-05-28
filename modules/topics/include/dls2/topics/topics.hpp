@@ -71,6 +71,8 @@ namespace dls
 		extern dls::topicType arm_trajectory_generator;
 
 		extern dls::topicType navigation_reference;
+		extern dls::topicType base_height_reference;
+		extern dls::topicType step_height_reference;
 		extern dls::topicType button_event;
 
 		// services
