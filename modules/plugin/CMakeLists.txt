@@ -149,3 +149,13 @@ install(
 	DESTINATION	${DLS_INSTALL_LAUNCH_RUNTIME_DIR}
 	COMPONENT	dls_runtime
 )
+
+# -- create_py_periodic_plugin
+install(
+	FILES skeletons/periodic/create_py_periodic_plugin
+	PERMISSIONS
+		WORLD_EXECUTE WORLD_READ
+		OWNER_READ OWNER_WRITE
+	DESTINATION	${DLS_INSTALL_LAUNCH_RUNTIME_DIR}
+	COMPONENT	dls_runtime
+)
