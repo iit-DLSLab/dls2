@@ -40,6 +40,7 @@ function(dls_add_message msg library_name)
 
 	set(message_dependencies
 		"${IDL_FILE}"
+		"${CMAKE_CURRENT_LIST_DIR}/postprocess_swig_interface.cmake"
 	)
 
 	file(STRINGS "${IDL_FILE}" idl_includes REGEX "^#include \".+\\.idl\"")
@@ -83,6 +84,10 @@ function(dls_add_message msg library_name)
 			${CMAKE_COMMAND} -E make_directory ${MESSAGE_DIR}
 		COMMAND
 			${fastddsgen_command}
+		COMMAND
+			${CMAKE_COMMAND}
+				-DINPUT_FILE=${MESSAGE_DIR}/${msg}.i
+				-P ${CMAKE_CURRENT_LIST_DIR}/postprocess_swig_interface.cmake
 		COMMENT
 			"Generating C++ and Python message files for ${msg}.idl"
 		DEPENDS
@@ -135,6 +140,7 @@ function(dls_add_message msg library_name)
 		PROPERTIES
 			CPLUSPLUS ON
 			USE_TARGET_INCLUDE_DIRECTORIES TRUE
+			SWIG_COMPILE_OPTIONS "-w509"
 	)
 
 	set_property(
@@ -155,10 +161,12 @@ function(dls_add_message msg library_name)
 	# SWIG-generated Python wrappers use the CPython callback signature
 	# `PyObject *self, PyObject *args`, but some generated entry points do not
 	# consume `self`. Keep strict warnings for handwritten code and suppress
-	# this warning only for the generated wrapper target.
+	# only generator-related warnings on the generated wrapper target.
 	target_compile_options(${${msg}_MODULE}
 		PRIVATE
 			$<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-Wno-unused-parameter>
+			$<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-Wno-missing-field-initializers>
+			$<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-Wno-delete-non-virtual-dtor>
 			$<$<CXX_COMPILER_ID:MSVC>:/wd4100>
 	)
 
