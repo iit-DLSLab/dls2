@@ -1,0 +1,15 @@
+#ifndef ROS2_INTERFACE_STD_MSGS_MSG_HEADER_IDL_
+#define ROS2_INTERFACE_STD_MSGS_MSG_HEADER_IDL_
+
+#include "Time.idl"
+
+module std_msgs {
+  module msg {
+    struct Header {
+      builtin_interfaces::msg::Time stamp;
+      string frame_id;
+    };
+  };
+};
+
+#endif // ROS2_INTERFACE_STD_MSGS_MSG_HEADER_IDL_

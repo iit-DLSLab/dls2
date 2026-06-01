@@ -1,3 +1,6 @@
+#ifndef ROS2_INTERFACE_DLS2_INTERFACES_MSG_TEST_IDL_
+#define ROS2_INTERFACE_DLS2_INTERFACES_MSG_TEST_IDL_
+
 module dls2_interfaces {
   module msg {
     struct Test{
@@ -5,3 +8,5 @@ module dls2_interfaces {
     };
   };
 };
+
+#endif // ROS2_INTERFACE_DLS2_INTERFACES_MSG_TEST_IDL_

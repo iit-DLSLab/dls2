@@ -1,0 +1,14 @@
+#ifndef ROS2_INTERFACE_GEOMETRY_MSGS_MSG_VECTOR3_IDL_
+#define ROS2_INTERFACE_GEOMETRY_MSGS_MSG_VECTOR3_IDL_
+
+module geometry_msgs {
+  module msg {
+    struct Vector3 {
+      double x;
+      double y;
+      double z;
+    };
+  };
+};
+
+#endif // ROS2_INTERFACE_GEOMETRY_MSGS_MSG_VECTOR3_IDL_

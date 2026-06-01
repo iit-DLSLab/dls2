@@ -1,0 +1,13 @@
+#ifndef ROS2_INTERFACE_VISUALIZATION_MSGS_MSG_UV_COORDINATE_IDL_
+#define ROS2_INTERFACE_VISUALIZATION_MSGS_MSG_UV_COORDINATE_IDL_
+
+module visualization_msgs {
+  module msg {
+    struct UVCoordinate {
+      float u;
+      float v;
+    };
+  };
+};
+
+#endif // ROS2_INTERFACE_VISUALIZATION_MSGS_MSG_UV_COORDINATE_IDL_

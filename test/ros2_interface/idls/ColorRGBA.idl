@@ -1,0 +1,15 @@
+#ifndef ROS2_INTERFACE_STD_MSGS_MSG_COLOR_RGBA_IDL_
+#define ROS2_INTERFACE_STD_MSGS_MSG_COLOR_RGBA_IDL_
+
+module std_msgs {
+  module msg {
+    struct ColorRGBA {
+      float r;
+      float g;
+      float b;
+      float a;
+    };
+  };
+};
+
+#endif // ROS2_INTERFACE_STD_MSGS_MSG_COLOR_RGBA_IDL_

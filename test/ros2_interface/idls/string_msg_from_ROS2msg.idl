@@ -1,3 +1,6 @@
+#ifndef ROS2_INTERFACE_STD_MSGS_MSG_STRING_IDL_
+#define ROS2_INTERFACE_STD_MSGS_MSG_STRING_IDL_
+
 module std_msgs {
   module msg {
     struct String {
@@ -5,3 +8,5 @@ module std_msgs {
     };
   };
 };
+
+#endif // ROS2_INTERFACE_STD_MSGS_MSG_STRING_IDL_

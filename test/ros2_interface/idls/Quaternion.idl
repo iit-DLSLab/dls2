@@ -1,0 +1,15 @@
+#ifndef ROS2_INTERFACE_GEOMETRY_MSGS_MSG_QUATERNION_IDL_
+#define ROS2_INTERFACE_GEOMETRY_MSGS_MSG_QUATERNION_IDL_
+
+module geometry_msgs {
+  module msg {
+    struct Quaternion {
+      double x;
+      double y;
+      double z;
+      double w;
+    };
+  };
+};
+
+#endif // ROS2_INTERFACE_GEOMETRY_MSGS_MSG_QUATERNION_IDL_

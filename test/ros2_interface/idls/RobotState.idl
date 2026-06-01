@@ -1,5 +1,7 @@
+#ifndef ROS2_INTERFACE_DLS2_INTERFACES_MSG_ROBOT_STATE_IDL_
+#define ROS2_INTERFACE_DLS2_INTERFACES_MSG_ROBOT_STATE_IDL_
+
 #include "Test.idl"
-#include "DLSAnnotation.idl"
 
 module dls2_interfaces {
   module msg {
@@ -21,3 +23,5 @@ module dls2_interfaces {
        };
   };
 };
+
+#endif // ROS2_INTERFACE_DLS2_INTERFACES_MSG_ROBOT_STATE_IDL_

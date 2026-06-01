@@ -61,8 +61,8 @@ Please refere [here](../../modules/ddscom/README.md) for checking the _server\_i
     fastddsgen -replace -cs -typeros2 message_name.idl
 
     if you use `dls_add_message` in your CMakeLists for generating custom messages, this is automatically done.
-3. create a fastdd reader/writer connected to a topic with name rt/ros2_topic_name
-    NB: a reader/writer is configured to interface with ROS2. This means that the rt/ is automatically added before the topic name.
+3. create a fastdds reader/writer connected to the ROS 2 topic name, for example `chatter`.
+    NB: a reader/writer is configured to interface with ROS2. This means that the `rt/` DDS prefix is automatically added before the topic name.
 
 To interface your ROS2 node with DLS2 you need to set server ips and ports with
 

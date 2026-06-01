@@ -1,0 +1,13 @@
+#ifndef ROS2_INTERFACE_BUILTIN_INTERFACES_MSG_DURATION_IDL_
+#define ROS2_INTERFACE_BUILTIN_INTERFACES_MSG_DURATION_IDL_
+
+module builtin_interfaces {
+  module msg {
+    struct Duration {
+      int32 sec;
+      uint32 nanosec;
+    };
+  };
+};
+
+#endif // ROS2_INTERFACE_BUILTIN_INTERFACES_MSG_DURATION_IDL_
