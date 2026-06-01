@@ -35,10 +35,7 @@ class ReaderListener(fastdds.DataReaderListener):
             print(f"[dls2_py.Reader] on_data_available sample={self.sample_count} debug failed: {exc}")
 
     def on_subscription_matched(self, datareader, info) :
-        if (0 < info.current_count_change) :
-            print ("Subscriber matched publisher {}".format(info.last_publication_handle))
-        else :
-            print ("Subscriber unmatched publisher {}".format(info.last_publication_handle))
+        yield
 
 class Reader():
   def __init__(self, domain, topic_data_type, data, topic_name):
@@ -56,7 +53,6 @@ class Reader():
             f"Missing DDS participant profile at {profile_path}. "
             "Install dls2_py runtime config or set up the package correctly."
         )
-    print ("Creating participant with profile " + profile_path)
     factory.load_XML_profiles_file(profile_path)
     factory.get_participant_qos_from_profile(profile_path, self.participant_qos)
     profile_name = "disc_server_client_domain_" + str(domain)
@@ -71,10 +67,7 @@ class Reader():
     self.topic_data_type.set_name(topic_data_type.get_name())
     self.type_support = fastdds.TypeSupport(self.topic_data_type)
     
-    print("Reader: register_type before")
-    ret = self.participant.register_type(self.type_support)
-    print(ret, ret == fastdds.RETCODE_OK)
-    print("Reader: register_type after")
+    self.participant.register_type(self.type_support)
 
     self.topic_qos = fastdds.TopicQos()
     self.participant.get_default_topic_qos(self.topic_qos)

@@ -49,7 +49,6 @@ class Writer:
     
     # self.participant = factory.create_participant(domain, self.participant_qos)
     profile_path = _resolve_profile_path()
-    print ("Creating participant with profile "+profile_path)
     factory.load_XML_profiles_file(profile_path)
     factory.get_participant_qos_from_profile(profile_path,self.participant_qos)
     self.participant = factory.create_participant_with_profile("disc_server_client_domain_"+str(domain))
