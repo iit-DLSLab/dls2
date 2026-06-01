@@ -5,7 +5,10 @@ PYTHON_MODULE_ROOT=$(cd -- "$SCRIPT_DIR/.." && pwd)
 REPO_ROOT=$(cd -- "$SCRIPT_DIR/../../../../../.." && pwd)
 MESSAGE_BUILD_DIR="$REPO_ROOT/build/dls2-barebone/dls2/modules/messages/include/dls_messages/dds"
 
-DEFAULT_FASTDDS_PYTHON_ROOT="$HOME/fastdds_python_3p5_ws/install"
+DEFAULT_FASTDDS_PYTHON_ROOTS=(
+    "/opt/fastdds_python_3p5_ws/install"
+    "$HOME/fastdds_python_3p5_ws/install"
+)
 
 prepend_path() {
     local var_name=$1
@@ -43,11 +46,13 @@ find_fastdds_python_path() {
 }
 
 if [ -z "${FASTDDS_PYTHON_INSTALL_ROOT:-}" ]; then
-    if [ -f "$DEFAULT_FASTDDS_PYTHON_ROOT/setup.bash" ]; then
-        FASTDDS_PYTHON_INSTALL_ROOT="$DEFAULT_FASTDDS_PYTHON_ROOT"
-    else
-        FASTDDS_PYTHON_INSTALL_ROOT=""
-    fi
+    FASTDDS_PYTHON_INSTALL_ROOT=""
+    for candidate_root in "${DEFAULT_FASTDDS_PYTHON_ROOTS[@]}"; do
+        if [ -f "$candidate_root/setup.bash" ]; then
+            FASTDDS_PYTHON_INSTALL_ROOT="$candidate_root"
+            break
+        fi
+    done
 fi
 export FASTDDS_PYTHON_INSTALL_ROOT
 
