@@ -1,0 +1,14 @@
+#ifndef ROS2_INTERFACE_TF2_MSGS_MSG_TF_MESSAGE_IDL_
+#define ROS2_INTERFACE_TF2_MSGS_MSG_TF_MESSAGE_IDL_
+
+#include "TransformStamped.idl"
+
+module tf2_msgs {
+  module msg {
+    struct TFMessage {
+      sequence<geometry_msgs::msg::TransformStamped> transforms;
+    };
+  };
+};
+
+#endif // ROS2_INTERFACE_TF2_MSGS_MSG_TF_MESSAGE_IDL_

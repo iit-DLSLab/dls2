@@ -1,0 +1,18 @@
+#ifndef ROS2_INTERFACE_SENSOR_MSGS_MSG_JOINT_STATE_IDL_
+#define ROS2_INTERFACE_SENSOR_MSGS_MSG_JOINT_STATE_IDL_
+
+#include "Header.idl"
+
+module sensor_msgs {
+  module msg {
+    struct JointState {
+      std_msgs::msg::Header header;
+      sequence<string> name;
+      sequence<double> position;
+      sequence<double> velocity;
+      sequence<double> effort;
+    };
+  };
+};
+
+#endif // ROS2_INTERFACE_SENSOR_MSGS_MSG_JOINT_STATE_IDL_

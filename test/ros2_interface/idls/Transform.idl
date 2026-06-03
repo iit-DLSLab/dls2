@@ -1,0 +1,16 @@
+#ifndef ROS2_INTERFACE_GEOMETRY_MSGS_MSG_TRANSFORM_IDL_
+#define ROS2_INTERFACE_GEOMETRY_MSGS_MSG_TRANSFORM_IDL_
+
+#include "Vector3.idl"
+#include "Quaternion.idl"
+
+module geometry_msgs {
+  module msg {
+    struct Transform {
+      geometry_msgs::msg::Vector3 translation;
+      geometry_msgs::msg::Quaternion rotation;
+    };
+  };
+};
+
+#endif // ROS2_INTERFACE_GEOMETRY_MSGS_MSG_TRANSFORM_IDL_
