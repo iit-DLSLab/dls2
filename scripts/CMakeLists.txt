@@ -101,3 +101,15 @@ install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/fix_msg.bash
 	COMPONENT
 		dls_runtime
 )
+
+# ==============================================================================
+# ROS 2 setup helper
+# ==============================================================================
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/setup_ros2_for_dls2.bash
+	DESTINATION ${DLS_INSTALL_SCRIPTS_DIR}
+	PERMISSIONS
+		WORLD_EXECUTE WORLD_READ
+		OWNER_READ OWNER_WRITE
+	COMPONENT
+		dls_runtime
+)
