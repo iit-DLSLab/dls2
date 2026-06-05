@@ -133,6 +133,12 @@ install(
 	COMPONENT dls_runtime
 )
 
+install(
+	FILES python/scripts/setup.sh
+	DESTINATION ${PYTHON_MODULE_PATH}/dls2_py/scripts
+	COMPONENT dls_runtime
+)
+
 # -- skeletons
 install(
 	DIRECTORY
