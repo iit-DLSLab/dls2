@@ -107,13 +107,14 @@ IMPORT_LINES=$(build_import_lines "$REQUIRED_MODULES")
 APP_CLASS_NAME=$(build_class_name "$APP_NAME")
 
 APP_DIR="./${APP_NAME}"
+APP_NAME_UPPER=$(echo "$APP_NAME" | tr '[:lower:]' '[:upper:]')
 
 if [ -e "$APP_DIR" ]; then
   echo "Path ${APP_DIR} already exists. Choose another app name or remove the existing path."
   exit 1
 fi
 
-mkdir -p "${APP_DIR}/plugin/config" "${APP_DIR}/python"
+mkdir -p "${APP_DIR}/plugin/config" "${APP_DIR}/python" "${APP_DIR}/cmake"
 
 cat > "${APP_DIR}/CMakeLists.txt" <<EOF
 cmake_minimum_required(VERSION 3.15)
@@ -123,6 +124,16 @@ set(PLUGIN_NAME ${APP_NAME})
 project(\${PLUGIN_NAME})
 
 add_compile_options("-std=c++2a")
+
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+
+execute_process(
+    COMMAND
+        \${Python3_EXECUTABLE} -c "import sysconfig; schemes = sysconfig.get_scheme_names(); scheme = 'deb_system' if 'deb_system' in schemes else sysconfig.get_default_scheme(); print(sysconfig.get_path('purelib', scheme=scheme))"
+    OUTPUT_VARIABLE
+        ${APP_NAME_UPPER}_DLS_PYTHON_ROOT
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
 
 file(READ version.txt PROJECT_VERSION)
 string(REPLACE "." ";" VERSION_ARRAY \${PROJECT_VERSION})
@@ -148,6 +159,15 @@ set(CMAKE_SKIP_BUILD_RPATH FALSE)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
+set(${APP_NAME_UPPER}_SHARED_PYTHON /usr/lib/dls2/python/bin/python3)
+set(${APP_NAME_UPPER}_RUNTIME_ROOT /usr/share/\${PLUGIN_NAME})
+
+configure_file(
+    cmake/${APP_NAME}.in
+    \${CMAKE_CURRENT_BINARY_DIR}/\${PLUGIN_NAME}
+    @ONLY
+)
+
 install(
     FILES       plugin/config/scheduler.yaml
     DESTINATION /usr/include/dls2/schedulers/
@@ -156,11 +176,16 @@ install(
 )
 
 install(
-    FILES       python/${APP_NAME}.py
+    PROGRAMS    \${CMAKE_CURRENT_BINARY_DIR}/\${PLUGIN_NAME}
     DESTINATION /usr/bin
+    COMPONENT   \${PROJECT_NAME}
+)
+
+install(
+    FILES       python/${APP_NAME}.py
+    DESTINATION \${${APP_NAME_UPPER}_RUNTIME_ROOT}/python
     PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
     COMPONENT   \${PROJECT_NAME}
-    RENAME      ${APP_NAME}
 )
 
 set(CPACK_PACKAGE_VERSION_MAJOR             \${PROJECT_VERSION_MAJOR})
@@ -189,6 +214,33 @@ get_cmake_property(CPACK_COMPONENTS_ALL COMPONENTS)
 list(REMOVE_ITEM CPACK_COMPONENTS_ALL "Unspecified")
 
 include(CPack)
+EOF
+
+cat > "${APP_DIR}/cmake/${APP_NAME}.in" <<EOF
+#!/bin/bash
+set -eo pipefail
+
+export PYTHONPATH="@${APP_NAME_UPPER}_DLS_PYTHON_ROOT@\${PYTHONPATH:+:\$PYTHONPATH}"
+RUNTIME_ROOT="@${APP_NAME_UPPER}_RUNTIME_ROOT@"
+
+PREFERRED_DLS2_PYTHON="\${DLS2_PYTHON:-@${APP_NAME_UPPER}_SHARED_PYTHON@}"
+DLS2_PYTHON="\$PREFERRED_DLS2_PYTHON"
+if [ ! -x "\$DLS2_PYTHON" ]; then
+    echo "${APP_NAME}: missing shared DLS2 interpreter at \$DLS2_PYTHON" >&2
+    exit 127
+fi
+PYTHON_EXECUTABLE="\$DLS2_PYTHON"
+
+DLS_SETUP_SCRIPT="@${APP_NAME_UPPER}_DLS_PYTHON_ROOT@/dls2_py/scripts/setup.sh"
+if [ -f "\$DLS_SETUP_SCRIPT" ]; then
+    # shellcheck disable=SC1090
+    export COLCON_PYTHON_EXECUTABLE="\${COLCON_PYTHON_EXECUTABLE:-\$PYTHON_EXECUTABLE}"
+    export COLCON_TRACE="\${COLCON_TRACE:-}"
+    export AMENT_TRACE_SETUP_FILES="\${AMENT_TRACE_SETUP_FILES:-}"
+    source "\$DLS_SETUP_SCRIPT"
+fi
+
+exec "\$PYTHON_EXECUTABLE" "\$RUNTIME_ROOT/python/${APP_NAME}.py" "\$@"
 EOF
 
 cat > "${APP_DIR}/plugin/config/scheduler.yaml" <<'EOF'
@@ -259,16 +311,24 @@ if __name__ == "__main__":
     main()
 EOF
 
+cat > "${APP_DIR}/requirements.txt" <<'EOF'
+# Add package-specific Python dependencies here, one per line.
+EOF
+
 cat > "${APP_DIR}/version.txt" <<'EOF'
 0.0.1
 EOF
 
-chmod +x "${APP_DIR}/python/${APP_NAME}.py"
+chmod +x \
+  "${APP_DIR}/cmake/${APP_NAME}.in" \
+  "${APP_DIR}/python/${APP_NAME}.py"
 
 echo
 echo "Created Python periodic plugin skeleton in ${APP_DIR}"
 echo "Files:"
 echo "  ${APP_DIR}/CMakeLists.txt"
+echo "  ${APP_DIR}/cmake/${APP_NAME}.in"
 echo "  ${APP_DIR}/plugin/config/scheduler.yaml"
 echo "  ${APP_DIR}/python/${APP_NAME}.py"
+echo "  ${APP_DIR}/requirements.txt"
 echo "  ${APP_DIR}/version.txt"
