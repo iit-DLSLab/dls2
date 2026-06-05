@@ -101,3 +101,12 @@ install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/fix_msg.bash
 	COMPONENT
 		dls_runtime
 )
+
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/launch_python.sh
+	DESTINATION /usr/bin
+	PERMISSIONS
+		WORLD_EXECUTE WORLD_READ
+		OWNER_READ OWNER_WRITE
+	COMPONENT
+		dls_runtime
+)
