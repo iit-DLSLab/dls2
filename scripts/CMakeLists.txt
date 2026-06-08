@@ -105,6 +105,7 @@ install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/fix_msg.bash
 # ==============================================================================
 # ROS 2 setup helper
 # ==============================================================================
+message(STATUS "Configuring ROS 2 setup script for DLS2")
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/setup_ros2_for_dls2.bash
 	DESTINATION ${DLS_INSTALL_SCRIPTS_DIR}
 	PERMISSIONS

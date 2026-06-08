@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-set -e
 echo "Setup ROS2 environment for DLS2"
 
 ros_distro="${DLS_ROS_DISTRO:-jazzy}"
@@ -62,6 +61,9 @@ if [ -z "${ros_discovery_server}" ]; then
 	echo "No active discovery servers found in: ${servers_path}" >&2
 	exit 1
 fi
+
+echo "Setting Middleware to Fast RTPS"
+export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
 
 echo "exporting ROS_DISCOVERY_SERVER=${ros_discovery_server}"
 export ROS_DISCOVERY_SERVER="${ros_discovery_server}"
