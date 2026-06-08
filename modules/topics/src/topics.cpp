@@ -53,8 +53,12 @@ namespace dls
         new dls2_interface::msg::TrajectoryGeneratorPubSubType());
     dls::topicType navigation_reference = dls::topicType("navigation_reference",
         new dls2_interface::msg::NavigationReferencePubSubType());  
+    dls::topicType move_to_pos_reference = dls::topicType("move_to_pos_reference",
+        new dls2_interface::msg::Vec3PubSubType());
     dls::topicType base_height_reference = dls::topicType("base_height_reference",
         new dls2_interface::msg::DoublePubSubType());
+    dls::topicType base_orientation_reference = dls::topicType("base_orientation_reference",
+        new dls2_interface::msg::Vec3PubSubType());
     dls::topicType step_height_reference = dls::topicType("step_height_reference",
         new dls2_interface::msg::DoublePubSubType());
     dls::topicType button_event = dls::topicType("button_event",

@@ -35,6 +35,7 @@
 #include <dls_messages/dds/StateMachineMonitorPubSubTypes.hpp>
 #include <dls_messages/dds/StringPubSubTypes.hpp>
 #include <dls_messages/dds/TrajectoryGeneratorPubSubTypes.hpp>
+#include <dls_messages/dds/Vec3PubSubTypes.hpp>
 #include <dls_messages/dds/ViconPubSubTypes.hpp>
 
 
@@ -72,7 +73,9 @@ namespace dls
 		extern dls::topicType arm_trajectory_generator;
 
 		extern dls::topicType navigation_reference;
+		extern dls::topicType move_to_pos_reference;
 		extern dls::topicType base_height_reference;
+		extern dls::topicType base_orientation_reference;
 		extern dls::topicType step_height_reference;
 		extern dls::topicType button_event;
 
