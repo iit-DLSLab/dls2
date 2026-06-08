@@ -23,10 +23,6 @@ ament_target_dependencies(listener rclcpp std_msgs dls2_interfaces)
 
 install(TARGETS
   talker
-  DESTINATION lib/${PROJECT_NAME})
-
-install(TARGETS
-  talker
   listener
   DESTINATION lib/${PROJECT_NAME})
 

@@ -15,10 +15,14 @@ dls_add_message(Point fastdds_ros2_msgs)
 dls_add_message(Quaternion fastdds_ros2_msgs)
 dls_add_message(Vector3 fastdds_ros2_msgs)
 dls_add_message(Pose fastdds_ros2_msgs)
+dls_add_message(Transform fastdds_ros2_msgs)
+dls_add_message(TransformStamped fastdds_ros2_msgs)
+dls_add_message(TFMessage fastdds_ros2_msgs)
 dls_add_message(MeshFile fastdds_ros2_msgs)
 dls_add_message(UVCoordinate fastdds_ros2_msgs)
 dls_add_message(CompressedImage fastdds_ros2_msgs)
 dls_add_message(Marker fastdds_ros2_msgs)
+dls_add_message(JointState fastdds_ros2_msgs)
 # dls_add_message(example_for_ros2 fastdds_ros2_msgs)
 
 target_link_libraries(fastdds_ros2_msgs
@@ -31,6 +35,7 @@ PUBLIC
 set(READER dds_reader_for_ros2)
 set(WRITER dds_writer_for_ros2)
 set(IMAGE_WRITER dds_writer_image_for_ros2)
+set(JOINT_STATE_WRITER dds_writer_joint_state_for_ros2)
 
 add_executable(${READER}
     src/dds_reader.cpp
@@ -54,6 +59,15 @@ add_executable(${IMAGE_WRITER}
     src/dds_writer.cpp
 )
 target_link_libraries(${IMAGE_WRITER}
+    dls_com
+    robotlib
+    fastdds_ros2_msgs
+)
+
+add_executable(${JOINT_STATE_WRITER}
+    src/dds_writer_joint_state.cpp
+)
+target_link_libraries(${JOINT_STATE_WRITER}
     dls_com
     robotlib
     fastdds_ros2_msgs

@@ -80,10 +80,7 @@ int main()
             new visualization_msgs::msg::MarkerPubSubType()));
 
     visualization_msgs::msg::Marker marker;
-    std::cout << "Initializing Marker..." << std::endl;
     initialize_marker(marker);
-            std::cout << "Initialized Marker with frame_id: " << marker.header().frame_id()
-                      << " and type: " << marker.type() << std::endl;
     int count = 0;
     while (true)
     {
