@@ -11,17 +11,38 @@
 # The dls_add_message function can be used also by other libraries to generate custom messages.
 
 function(dls_add_message msg library_name)
-	set(MESSAGE_DIR "${CMAKE_CURRENT_BINARY_DIR}/include/dls_messages/dds")
+	set(IDL_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/idls")
+
+	if(IS_ABSOLUTE "${msg}")
+		set(idl_file "${msg}")
+		file(RELATIVE_PATH idl_rel "${IDL_ROOT}" "${idl_file}")
+	elseif("${msg}" MATCHES "\\.idl$")
+		set(idl_rel "${msg}")
+		set(idl_file "${IDL_ROOT}/${idl_rel}")
+	else()
+		set(idl_rel "${msg}.idl")
+		set(idl_file "${IDL_ROOT}/${idl_rel}")
+	endif()
+
+	get_filename_component(msg_name "${idl_file}" NAME_WE)
+	get_filename_component(idl_dir "${idl_rel}" DIRECTORY)
+	if(idl_dir)
+		set(MESSAGE_DIR "${CMAKE_CURRENT_BINARY_DIR}/include/dls_messages/dds/${idl_dir}")
+		set(install_dir "/usr/include/dls_messages/dds/${idl_dir}")
+	else()
+		set(MESSAGE_DIR "${CMAKE_CURRENT_BINARY_DIR}/include/dls_messages/dds")
+		set(install_dir "/usr/include/dls_messages/dds")
+	endif()
 
 	set(generated_source
-		"${MESSAGE_DIR}/${msg}PubSubTypes.cxx"
-		"${MESSAGE_DIR}/${msg}TypeObjectSupport.cxx"
+		"${MESSAGE_DIR}/${msg_name}PubSubTypes.cxx"
+		"${MESSAGE_DIR}/${msg_name}TypeObjectSupport.cxx"
 	)
 
 	set(generated_headers
-		"${MESSAGE_DIR}/${msg}.hpp"
-		"${MESSAGE_DIR}/${msg}PubSubTypes.hpp"
-		"${MESSAGE_DIR}/${msg}TypeObjectSupport.hpp"
+		"${MESSAGE_DIR}/${msg_name}.hpp"
+		"${MESSAGE_DIR}/${msg_name}PubSubTypes.hpp"
+		"${MESSAGE_DIR}/${msg_name}TypeObjectSupport.hpp"
 	)
 
 	# use fastddsgen to generate the message source and header files
@@ -32,11 +53,11 @@ function(dls_add_message msg library_name)
 		COMMAND
 			[ -d ${MESSAGE_DIR} ] || mkdir --parents ${MESSAGE_DIR}
 		COMMAND
-			fastddsgen -typeros2 -replace -cs ${CMAKE_CURRENT_SOURCE_DIR}/idls/${msg}.idl -d ${MESSAGE_DIR}
+			fastddsgen -typeros2 -replace -cs -I ${IDL_ROOT} -I ${IDL_ROOT}/ros2_interface ${idl_file} -d ${MESSAGE_DIR}
 		COMMENT
-			"Generating message files for ${msg}.idl"
+			"Generating message files for ${idl_rel}"
 		DEPENDS
-		${CMAKE_CURRENT_SOURCE_DIR}/idls/${msg}.idl
+			${idl_file}
 	)
 
 	# add the generated source files to the library
@@ -48,13 +69,16 @@ function(dls_add_message msg library_name)
 	target_include_directories(${library_name}
 	PUBLIC
 		${CMAKE_CURRENT_BINARY_DIR}/include
+		${CMAKE_CURRENT_BINARY_DIR}/include/dls_messages/dds
+		${CMAKE_CURRENT_BINARY_DIR}/include/dls_messages/dds/ros2_interface
+		${MESSAGE_DIR}
 	)
 
 	install(
 		FILES 
 			${generated_headers}
 		DESTINATION 
-			/usr/include/dls_messages/dds
+			${install_dir}
 		COMPONENT 
 			${PROJECT_NAME}_dev
 	)
