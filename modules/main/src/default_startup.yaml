@@ -7,6 +7,7 @@ controllers: [pid, trunk_controller]
 motion_generators: [periodic_generator, keyboard]
 estimators: []
 generic_app_plugins: []
+generic_periodic_app_plugins: []
 
 # robot name
 robot_name: "aliengo"
