@@ -28,6 +28,9 @@ namespace dls
 		bool loadPeriodicAppPlugin(const std::string& ID);
 		bool loadAppPlugin(const std::string& ID);
 
+		bool unloadAppPlugin(const std::string& ID);
+		bool unloadPeriodicAppPlugin(const std::string& ID);
+
 		virtual void monitor() override;
 
 		void checkHardware();
