@@ -1,5 +1,5 @@
 #!/bin/sh
-set -eu
+set -u
 
 if [ "$#" -lt 1 ]; then
     echo "launch_python.sh: missing python periodic app entrypoint" >&2
