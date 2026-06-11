@@ -1,5 +1,5 @@
 #include "dls2/util/messaging/dds_participant.hpp"
-#include "dls_messages/dds/MarkerPubSubTypes.hpp"
+#include "dls_messages/dds/ros2_interface/visualization_msgs/msg/MarkerPubSubTypes.hpp"
 
 #include <chrono>
 #include <cmath>

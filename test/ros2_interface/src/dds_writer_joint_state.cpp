@@ -1,8 +1,8 @@
 #include "dls2/util/messaging/dds_participant.hpp"
 #include "dls_messages/dds/BaseStatePubSubTypes.hpp"
 #include "dls_messages/dds/BlindStatePubSubTypes.hpp"
-#include "dls_messages/dds/JointStatePubSubTypes.hpp"
-#include "dls_messages/dds/TFMessagePubSubTypes.hpp"
+#include "dls_messages/dds/ros2_interface/sensor_msgs/msg/JointStatePubSubTypes.hpp"
+#include "dls_messages/dds/ros2_interface/tf2_msgs/msg/TFMessagePubSubTypes.hpp"
 
 #include <array>
 #include <chrono>
