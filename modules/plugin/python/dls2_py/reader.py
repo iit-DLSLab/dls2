@@ -8,8 +8,12 @@ from pathlib import Path
 
 def _resolve_profile_path() -> str:
     module_dir = Path(__file__).resolve().parent
+    env_path = os.environ.get("DLS_DDS_PARTICIPANT_CONFIG")
+    if env_path:
+        return str(Path(env_path).resolve())
+
     candidates = (
-        module_dir / "dds_participant_config.xml",
+        Path("/usr/include/dls2/util/messaging/dds_participant_config.xml"),
         module_dir.parent / "config" / "dds_participant_config.xml",
     )
     for candidate in candidates:

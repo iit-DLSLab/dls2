@@ -9,8 +9,12 @@ from pathlib import Path
 
 def _resolve_profile_path() -> str:
     module_dir = Path(__file__).resolve().parent
+    env_path = os.environ.get("DLS_DDS_PARTICIPANT_CONFIG")
+    if env_path:
+        return str(Path(env_path).resolve())
+
     candidates = (
-        module_dir / "dds_participant_config.xml",
+        Path("/usr/include/dls2/util/messaging/dds_participant_config.xml"),
         module_dir.parent / "config" / "dds_participant_config.xml",
     )
     for candidate in candidates:
@@ -49,6 +53,11 @@ class Writer:
     
     # self.participant = factory.create_participant(domain, self.participant_qos)
     profile_path = _resolve_profile_path()
+    if not os.path.exists(profile_path):
+        raise FileNotFoundError(
+            f"Missing DDS participant profile at {profile_path}. "
+            "Install dls2 development config or set DLS_DDS_PARTICIPANT_CONFIG."
+        )
     factory.load_XML_profiles_file(profile_path)
     factory.get_participant_qos_from_profile(profile_path,self.participant_qos)
     self.participant = factory.create_participant_with_profile("disc_server_client_domain_"+str(domain))
