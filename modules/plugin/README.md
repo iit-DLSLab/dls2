@@ -112,6 +112,8 @@ To create a periodic plugin:
     * python: where you develop the plugin
     
     The Plugin class is automatically created, together with some suggestions on how to customize your plugin.
+
+    An example of Python plugin is [dummy_py_node](python/test/dummy_py_node)
     
     Moreover, in the project structure there is also the possibility to define custom messages and topics, that you can use in your plugin and made available to the DLS2 network.
 * follow the instruction in the README of the project you have just created. You can find the README also [here](https://github.com/iit-DLSLab/dls2/tree/main/modules/plugin/skeletons/periodic#periodic-plugin).
