@@ -44,7 +44,7 @@ class DummyPyNodeApp(PeriodicAppPlugin):
         )
         self.sequence_id = 0
         
-    def run(self) -> None:
+    def run(self, timestamp_ns: int) -> None:
         self.read()
         
         control_output = self.control_step(
@@ -60,9 +60,15 @@ class DummyPyNodeApp(PeriodicAppPlugin):
             raise SystemExit(0)
         
         msg = self.writer_trajectory_generator.data
-        msg.timestamp(float(time.time_ns()))
+        msg.timestamp(timestamp_ns) # or msg.timestamp(float(time.time_ns()))
         msg.sequence_id(int(self.sequence_id % 1000))
         self.sequence_id += 1
+        
+        msg.com_pose().position([float(x) for x in self.position])
+        msg.com_pose().orientation([float(x) for x in self.orientation])
+        msg.com_vel().linear([float(x) for x in self.linear_velocity])
+        msg.com_vel().angular([float(x) for x in self.angular_velocity])
+        
         msg.joints_position(_as_double_vector(control_output["desired_joint_positions"]))
         msg.joints_velocity(_as_double_vector(control_output["desired_joint_velocities"]))
         msg.kp(_as_double_vector(control_output["kp"]))
@@ -103,8 +109,7 @@ def _as_double_vector(values: np.ndarray) -> object:
     
 def main() -> None:
     app = DummyPyNodeApp()
-    app.serve_forever()
-
+    app.execute()
 
 if __name__ == "__main__":
     main()

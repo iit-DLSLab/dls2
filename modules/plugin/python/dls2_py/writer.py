@@ -29,13 +29,11 @@ class WriterListener (fastdds.DataWriterListener) :
 
     def on_publication_matched(self, datawriter, info) :
         if (0 < info.current_count_change) :
-            print ("Publisher matched subscriber {}".format(info.last_subscription_handle))
             self._writer._cvDiscovery.acquire()
             self._writer._matched_reader += 1
             self._writer._cvDiscovery.notify()
             self._writer._cvDiscovery.release()
         else :
-            print ("Publisher unmatched subscriber {}".format(info.last_subscription_handle))
             self._writer._cvDiscovery.acquire()
             self._writer._matched_reader += 1
             self._writer._cvDiscovery.notify()

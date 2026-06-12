@@ -51,27 +51,6 @@ execute_process(
 get_filename_component(_ABS_PYTHON_MODULE_PATH ${_ABS_PYTHON_MODULE_PATH} ABSOLUTE)
 file(RELATIVE_PATH PYTHON_MODULE_PATH ${CMAKE_INSTALL_PREFIX} ${_ABS_PYTHON_MODULE_PATH})
 
-add_library(py_periodic_app
-	STATIC
-		src/py_periodic_app.cpp
-)
-
-set_target_properties(py_periodic_app PROPERTIES
-	POSITION_INDEPENDENT_CODE ON
-)
-
-target_include_directories(py_periodic_app
-	PUBLIC
-		include
-)
-
-target_link_libraries(py_periodic_app
-	PUBLIC
-		dls_app
-		dls_time
-		pybind11::module
-)
-
 pybind11_add_module(dls2_periodic_app_bindings
 	src/py_periodic_app_bindings.cpp
 )
@@ -82,8 +61,10 @@ target_include_directories(dls2_periodic_app_bindings
 )
 
 target_link_libraries(dls2_periodic_app_bindings
-	PRIVATE
-		py_periodic_app
+	PUBLIC
+		dls_app
+		dls_time
+		pybind11::module
 )
 
 add_library(app_plugin

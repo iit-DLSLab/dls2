@@ -290,7 +290,7 @@ class ${APP_CLASS_NAME}(PeriodicAppPlugin):
         #     SomeOtherMessage.SomeOtherMessage(),
         # )
 
-    def run(self) -> None:
+    def run(self, timestamp_ns: int) -> None:
         now = time.time()
         if now - self._last_report_time >= 1.0:
             self._last_report_time = now
@@ -304,7 +304,7 @@ class ${APP_CLASS_NAME}(PeriodicAppPlugin):
 
 def main() -> None:
     app = ${APP_CLASS_NAME}()
-    app.serve_forever()
+    app.execute()
 
 
 if __name__ == "__main__":

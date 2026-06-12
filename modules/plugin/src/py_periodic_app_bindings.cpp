@@ -1,4 +1,4 @@
-#include "dls2/plugin/py_periodic_app.hpp"
+#include "dls2/application/periodic_app.hpp"
 
 #include <memory>
 
@@ -8,37 +8,41 @@ namespace py = pybind11;
 
 namespace
 {
-class PyPeriodicAppTrampoline : public dls::PyPeriodicApp
+class PyPeriodicAppTrampoline : public dls::PeriodicApp
 {
 public:
-    using dls::PyPeriodicApp::PyPeriodicApp;
+    using dls::PeriodicApp::PeriodicApp;
 
 protected:
-    bool pythonCheckActivation() override
+    bool checkActivation() override
     {
         py::gil_scoped_acquire acquire;
         py::function override = py::get_override(
-            static_cast<const dls::PyPeriodicApp*>(this),
+            static_cast<const dls::App*>(this),
             "check_activation");
         if (!override)
         {
-            return dls::PyPeriodicApp::pythonCheckActivation();
+            return true;
         }
         return override().cast<bool>();
     }
 
-    void pythonRun() override
+    void run(const std::chrono::system_clock::time_point& time) override
     {
         py::gil_scoped_acquire acquire;
         py::function override = py::get_override(
-            static_cast<const dls::PyPeriodicApp*>(this),
+            static_cast<const dls::PeriodicApp*>(this),
             "run");
         if (!override)
         {
-            dls::PyPeriodicApp::pythonRun();
+            throw std::runtime_error("Python subclass must override run()");
             return;
         }
-        override();
+
+        const auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
+            time.time_since_epoch()).count();
+
+        override(ns);
     }
 };
 } // namespace
@@ -46,21 +50,13 @@ protected:
 PYBIND11_MODULE(dls2_periodic_app_bindings, m)
 {
     py::class_<
-        dls::PyPeriodicApp,
+        dls::PeriodicApp,
         PyPeriodicAppTrampoline,
-        std::shared_ptr<dls::PyPeriodicApp>>(m, "PeriodicApp")
+        std::shared_ptr<dls::PeriodicApp>>(m, "PeriodicApp")
         .def(py::init<const std::string&>())
-        .def("start", &dls::PyPeriodicApp::start)
-        .def("serve", [](dls::PyPeriodicApp& self) {
+        .def("execute", &dls::App::execute)
+        .def("shutdown", [](dls::PeriodicApp& self) {
             py::gil_scoped_release release;
-            self.serve();
-        })
-        .def("activate", &dls::PyPeriodicApp::activate)
-        .def("deactivate", &dls::PyPeriodicApp::deactivate)
-        .def("shutdown", [](dls::PyPeriodicApp& self) {
-            py::gil_scoped_release release;
-            self.shutdown();
-        })
-        .def("state", &dls::PyPeriodicApp::stateName)
-        .def("is_started", &dls::PyPeriodicApp::isStarted);
+            self.stop();
+        });
 }
