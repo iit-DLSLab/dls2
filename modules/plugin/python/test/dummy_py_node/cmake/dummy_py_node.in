@@ -1,0 +1,24 @@
+#!/bin/bash
+set -eo pipefail
+
+export PYTHONPATH="@DUMMY_PY_NODE_DLS_PYTHON_ROOT@${PYTHONPATH:+:$PYTHONPATH}"
+RUNTIME_ROOT="@DUMMY_PY_NODE_RUNTIME_ROOT@"
+
+PREFERRED_DLS2_PYTHON="${DLS2_PYTHON:-@DUMMY_PY_NODE_SHARED_PYTHON@}"
+DLS2_PYTHON="$PREFERRED_DLS2_PYTHON"
+if [ ! -x "$DLS2_PYTHON" ]; then
+    echo "dummy_py_node: missing shared DLS2 interpreter at $DLS2_PYTHON" >&2
+    exit 127
+fi
+PYTHON_EXECUTABLE="$DLS2_PYTHON"
+
+DLS_SETUP_SCRIPT="@DUMMY_PY_NODE_DLS_PYTHON_ROOT@/dls2_py/scripts/setup.sh"
+if [ -f "$DLS_SETUP_SCRIPT" ]; then
+    # shellcheck disable=SC1090
+    export COLCON_PYTHON_EXECUTABLE="${COLCON_PYTHON_EXECUTABLE:-$PYTHON_EXECUTABLE}"
+    export COLCON_TRACE="${COLCON_TRACE:-}"
+    export AMENT_TRACE_SETUP_FILES="${AMENT_TRACE_SETUP_FILES:-}"
+    source "$DLS_SETUP_SCRIPT"
+fi
+
+exec "$PYTHON_EXECUTABLE" "$RUNTIME_ROOT/python/dummy_py_node.py" "$@"
