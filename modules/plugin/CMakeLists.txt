@@ -129,8 +129,8 @@ install(
 
 install(
 	FILES python/config/dds_participant_config.xml
-	DESTINATION ${PYTHON_MODULE_PATH}/dls2_py
-	COMPONENT dls_runtime
+	DESTINATION /usr/include/dls2/util/messaging
+	COMPONENT dls_dev
 )
 
 install(
