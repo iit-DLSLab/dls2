@@ -116,12 +116,12 @@ namespace dls
 
 		/*! @brief Wait command to be ready until timeout or the stop_wait variable becomes true 
 		*/
-		bool waitCommand(const std::string& owner, const std::string& name, bool& stop_wait);
+		bool waitCommand(const std::string& owner, const std::string& name, bool& stop_wait, int timeout_ms = 3000);
 
 		/*! @brief Wait command to be ready until timeout or the stop_wait variable becomes true 
 		 * @details Using atomic_bool instead of bool 
 		*/
-		bool waitCommand(const std::string& owner, const std::string& name, std::atomic_bool& stop_wait);
+		bool waitCommand(const std::string& owner, const std::string& name, std::atomic_bool& stop_wait, int timeout_ms = 3000);
 
 		/*! @brief Get command by name
 		*/

@@ -296,13 +296,13 @@ void CommandManager::changeTransitionSet(const std::string& command_name, const 
 		std::cout << "Could not find command " << command_name << std::endl;
 }
 
-bool CommandManager::waitCommand(const std::string& owner, const std::string& name, bool& stop_wait){
+bool CommandManager::waitCommand(const std::string& owner, const std::string& name, bool& stop_wait, int timeout_ms){
 		if(!utils::wait(std::function<bool()>([&](){
 					if(this->find(owner,name).size()==0){
 						return false;
 					}
 					return true;
-				}), 3000, 2, stop_wait)){
+				}), timeout_ms, 2, stop_wait)){
 			if(!stop_wait)
 				std::cerr << "Command " << owner << "::" << name<<" not found" << std::endl;
 			return false;
@@ -310,13 +310,13 @@ bool CommandManager::waitCommand(const std::string& owner, const std::string& na
 		return true;
 }
 
-bool CommandManager::waitCommand(const std::string& owner, const std::string& name, std::atomic_bool& stop_wait){
+bool CommandManager::waitCommand(const std::string& owner, const std::string& name, std::atomic_bool& stop_wait, int timeout_ms){
 		if(!utils::wait(std::function<bool()>([&](){
 					if(this->find(owner,name).size()==0){
 						return false;
 					}
 					return true;
-				}), 3000, 2, stop_wait)){
+				}), timeout_ms, 2, stop_wait)){
 			if(!stop_wait.load())
 				std::cerr << "Command " << owner << "::" << name<<" not found" << std::endl;
 			return false;
