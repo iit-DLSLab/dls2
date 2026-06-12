@@ -44,6 +44,23 @@ protected:
 
         override(ns);
     }
+
+    bool deactivation(const std::chrono::system_clock::time_point& time) override
+    {
+        py::gil_scoped_acquire acquire;
+        py::function override = py::get_override(
+            static_cast<const dls::PeriodicApp*>(this),
+            "deactivation");
+        if (!override)
+        {
+            return true;
+        }
+
+        const auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
+            time.time_since_epoch()).count();
+
+        return override(ns).cast<bool>();
+    }
 };
 } // namespace
 

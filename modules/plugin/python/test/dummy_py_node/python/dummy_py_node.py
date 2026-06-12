@@ -43,7 +43,14 @@ class DummyPyNodeApp(PeriodicAppPlugin):
             TrajectoryGenerator.TrajectoryGenerator(),
         )
         self.sequence_id = 0
-        
+
+    def check_activation(self) -> bool:
+        return True
+
+    def deactivation(self, timestamp_ns: int):
+        del timestamp_ns
+        return True
+                
     def run(self, timestamp_ns: int) -> None:
         self.read()
         

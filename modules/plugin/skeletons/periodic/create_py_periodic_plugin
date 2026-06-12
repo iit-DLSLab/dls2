@@ -290,6 +290,13 @@ class ${APP_CLASS_NAME}(PeriodicAppPlugin):
         #     SomeOtherMessage.SomeOtherMessage(),
         # )
 
+    def check_activation(self) -> bool:
+        return True
+
+    def deactivation(self, timestamp_ns: int) -> bool:
+        del timestamp_ns
+        return True
+
     def run(self, timestamp_ns: int) -> None:
         now = time.time()
         if now - self._last_report_time >= 1.0:
