@@ -111,10 +111,14 @@ To create a periodic plugin:
     * plugin: where you store scheduler configs 
     * python: where you develop the plugin
     
-    The Plugin class is automatically created, together with some suggestions on how to customize your plugin.
-
-    An example of Python plugin is [dummy_py_node](python/test/dummy_py_node)
+    The Plugin class is automatically created, together with some suggestions on how to customize your plugin. 
     
+    In order to launch the python nodes be sure to append the node name in `python_periodic_apps` in the startup file.
+
+    IMPORTANT NOTE: when modifying the python source code, be sure to run again `sudo make install` before executing again.
+    
+    An example of Python plugin is [dummy_py_node](python/test/dummy_py_node)
+
     Moreover, in the project structure there is also the possibility to define custom messages and topics, that you can use in your plugin and made available to the DLS2 network.
 * follow the instruction in the README of the project you have just created. You can find the README also [here](https://github.com/iit-DLSLab/dls2/tree/main/modules/plugin/skeletons/periodic#periodic-plugin).
 
