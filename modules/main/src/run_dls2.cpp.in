@@ -215,6 +215,7 @@ namespace dls
 			{"controllers", "ControlLayer"},
 			{"motion_generators", "ControlLayer"},
 			{"estimators", "EstimationLayer"},
+			{"python_periodic_apps", "Supervisor"},
 			{"generic_app_plugins", "Supervisor"}};
 		// app_to_loading_command
 		std::map<std::string, std::string> app_to_loading_command = {
@@ -222,6 +223,7 @@ namespace dls
 			{"controllers", "loadController"},
 			{"motion_generators", "loadGenerator"},
 			{"estimators", "loadEstimator"},
+			{"python_periodic_apps", "loadPythonPeriodicApp"},
 			{"generic_app_plugins", "loadAppPlugin"}};
 		// collect layers to be run
 		std::vector<std::string> layers;
@@ -277,7 +279,8 @@ namespace dls
 				sm_watcher.waitState(name, "idle", should_quit);
 				if(std::find(active_apps.begin(), active_apps.end(), name) != active_apps.end())
 				{
-					if(command_manager.waitCommand(name, "activate", should_quit))
+					// Python apps can reach IDLE before DDS command discovery catches up.
+					if(command_manager.waitCommand(name, "activate", should_quit, 10000))
 						command_manager.callCommand("activate", {}, name);
 				}
 			}

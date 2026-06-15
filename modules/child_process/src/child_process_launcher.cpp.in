@@ -12,6 +12,7 @@
 #include <string>
 #include <csignal>
 #include <sstream>
+#include <unistd.h>
 #include <sys/prctl.h>
 
 #include "dls2/class_loader.hpp"
@@ -163,6 +164,22 @@ int main(int argc, char **argv)
                     args.component_name,
                     args.robot_name);
         }
+        else if (args.component_type == "python_periodic_app")
+        {
+            const std::string python_launcher = "/usr/bin/launch_python.sh";
+            change_process_name(argv, args.component_name.c_str());
+            execl(
+                python_launcher.c_str(),
+                "launch_python.sh",
+                args.lib_name.c_str(),
+                args.component_name.c_str(),
+                static_cast<char*>(nullptr));
+
+            std::stringstream ss;
+            ss << "could not exec python periodic app launcher " << python_launcher
+               << " for entrypoint " << args.lib_name;
+            throw std::runtime_error(ss.str());
+        }
         else if (args.component_type == "app_plugin")
         {
             pComponent =
@@ -235,6 +252,7 @@ Args parse_args(int argc, char **argv)
         args.component_type != "estimator" &&
         args.component_type != "service"&&
         args.component_type != "periodic_app_plugin" &&
+        args.component_type != "python_periodic_app" &&
         args.component_type != "app_plugin"
         )
     {

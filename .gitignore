@@ -15,3 +15,4 @@ install
 /nohup.out
 test/ros2_interface/ros2_ws/log/*
 test/ros2_interface/ros2_ws/src/log/*
+**/__pycache__/
