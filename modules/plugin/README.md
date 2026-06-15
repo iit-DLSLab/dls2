@@ -113,7 +113,9 @@ To create a periodic plugin:
     
     The Plugin class is automatically created, together with some suggestions on how to customize your plugin. 
     
-    In order to launch the python nodes be sure to append the node name in `python_periodic_apps` in the startup file.
+    In order to launch the python nodes be sure to
+    - compile and install the package (e.g. you can add in the main CMakeLists.txt as a sub-directory)
+    - append the node name in `python_periodic_apps` in the startup file.
 
     IMPORTANT NOTE: when modifying the python source code, be sure to run again `sudo make install` before executing again.
     
