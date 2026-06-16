@@ -4,6 +4,8 @@
 
 #include "dls2/supervisor/supervisor.hpp"
 #include "dls2/domains/domains.hpp"
+#include "dls2/util/utils.hpp"
+
 
 namespace dls
 {
@@ -106,12 +108,36 @@ namespace dls
 
         command_manager.addCommand<std::string>
         (
+            "unloadPeriodicAppPlugin",
+            "Unload a periodic app plugin",
+            std::function<bool(std::string)>([&](std::string type)->bool
+            {
+                return this->unloadPeriodicAppPlugin(type);
+            }),
+            {},
+            true
+        );        
+        
+        command_manager.addCommand<std::string>
+        (
             "loadPythonPeriodicApp",
             "Load a Python-backed periodic app",
             std::function<bool(std::string)>([&](std::string type)->bool
             {
                 return this->loadPythonPeriodicApp(type);
             }),
+            {},
+            true
+        );        
+
+        command_manager.addCommand<std::string>
+        (
+            "unloadAppPlugin",
+            "Unload a task",
+            std::function<bool(std::string)>([&](std::string type)->bool
+            {
+                return this->unloadAppPlugin(type);
+             }),
             {},
             true
         );
@@ -299,6 +325,58 @@ namespace dls
         pData->proc->detach();
         
         this->plugins.emplace(pData->getID(), pData);
+
+        return true;
+    }
+
+    bool Supervisor::unloadAppPlugin(const std::string& name)
+    {
+        auto pair_it = this->plugins.find(name);
+        if(pair_it == this->plugins.end())
+        {
+            this->app_logger.error("plugin " + name + " not loaded");
+            return false;
+        }
+
+        command_manager.callCommand("shutdown", {}, pair_it->second->getID());
+        bool unloaded = false;
+	    if(!utils::wait(std::function<bool()>([&](){
+			if(pair_it->second->proc->running()){
+				return false;
+			}
+			return true;
+		}), 2000, 10, unloaded)){
+		std::cout << "### FORCING APP PLUGIN " << pair_it->second->getID() << " EXIT ###" << std::endl;
+		kill(pair_it->second->proc->id(), SIGKILL);		
+	    }
+
+	    pair_it->second->proc = nullptr;
+        this->plugins.erase(pair_it->second->getID());
+
+        return true;
+    }
+
+    bool Supervisor::unloadPeriodicAppPlugin(const std::string& name)
+    {
+        auto pair_it = this->plugins.find(name);
+        if(pair_it == this->plugins.end())
+        {
+            this->app_logger.error("plugin " + name + " not loaded");
+            return false;
+        }
+
+        command_manager.callCommand("shutdown", {}, pair_it->second->getID());
+        bool unloaded = false;
+        if(!utils::wait(std::function<bool()>([&](){
+            if(pair_it->second->proc->running()){
+                return false;
+            }
+            return true;
+        }), 2000, 10, unloaded)){
+            std::cout << "### FORCING PERIODIC PERIODIC APP PLUGIN " << pair_it->second->getID() << " EXIT ###" << std::endl;
+            kill(pair_it->second->proc->id(), SIGKILL);		
+        }
+        this->plugins.erase(pair_it->second->getID());
 
         return true;
     }

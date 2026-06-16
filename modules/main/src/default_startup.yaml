@@ -8,6 +8,7 @@ motion_generators: [periodic_generator, keyboard]
 estimators: []
 python_periodic_apps: []
 generic_app_plugins: []
+generic_periodic_app_plugins: []
 
 # robot name
 robot_name: "aliengo"

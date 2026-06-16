@@ -12,7 +12,17 @@
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
  
-  <buildtool_depend>rosidl_default_generators</buildtool_depend>
+  <buildtool_depend>rosidl_cmake</buildtool_depend>
+  <buildtool_depend>rosidl_generator_c</buildtool_depend>
+  <buildtool_depend>rosidl_generator_cpp</buildtool_depend>
+  <buildtool_depend>rosidl_generator_py</buildtool_depend>
+  <buildtool_depend>rosidl_generator_type_description</buildtool_depend>
+  <buildtool_depend>rosidl_typesupport_c</buildtool_depend>
+  <buildtool_depend>rosidl_typesupport_cpp</buildtool_depend>
+  <buildtool_depend>rosidl_typesupport_fastrtps_c</buildtool_depend>
+  <buildtool_depend>rosidl_typesupport_fastrtps_cpp</buildtool_depend>
+  <buildtool_depend>rosidl_typesupport_introspection_c</buildtool_depend>
+  <buildtool_depend>rosidl_typesupport_introspection_cpp</buildtool_depend>
   <exec_depend>rosidl_default_runtime</exec_depend>
   <member_of_group>rosidl_interface_packages</member_of_group>
 

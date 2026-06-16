@@ -1,6 +1,6 @@
 #!/bin/bash
 info () {
-  echo "Possible plugin types: hardwares, estimators, motion_generators, controllers"
+  echo "Possible plugin types: hardwares, estimators, motion_generators, controllers, periodic_app_plugins"
   echo "Plugin name convention: all lower case letter, use _ character to separate words"
   echo -e "-----------------------------------------------------\n"
 }
@@ -9,9 +9,10 @@ check_plugin_type_inputs () {
   if [ "$1" != "hardwares" ] &&
      [ "$1" != "estimators" ] &&
      [ "$1" != "motion_generators" ] &&
-     [ "$1" != "controllers" ]; then
+     [ "$1" != "controllers" ] &&
+     [ "$1" != "periodic_app_plugins" ]; then
         echo "Wrong plugin type. The possible plugin types are:"
-        echo "hardwares, estimators, motion_generators, controllers"
+        echo "hardwares, estimators, motion_generators, controllers, periodic_app_plugins"
         return 2 # most common number used to exit
   fi
 }

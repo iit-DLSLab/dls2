@@ -215,6 +215,7 @@ namespace dls
 			{"controllers", "ControlLayer"},
 			{"motion_generators", "ControlLayer"},
 			{"estimators", "EstimationLayer"},
+			{"generic_periodic_app_plugins", "Supervisor"},
 			{"python_periodic_apps", "Supervisor"},
 			{"generic_app_plugins", "Supervisor"}};
 		// app_to_loading_command
@@ -223,6 +224,8 @@ namespace dls
 			{"controllers", "loadController"},
 			{"motion_generators", "loadGenerator"},
 			{"estimators", "loadEstimator"},
+			{"generic_app_plugins", "loadAppPlugin"},
+			{"generic_periodic_app_plugins", "loadPeriodicAppPlugin"},
 			{"python_periodic_apps", "loadPythonPeriodicApp"},
 			{"generic_app_plugins", "loadAppPlugin"}};
 		// collect layers to be run

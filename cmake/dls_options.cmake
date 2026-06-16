@@ -72,7 +72,7 @@ set(DLS_INSTALL_PERIODIC_APP_PLUGIN_DIR /usr/lib/dls2/periodic_app_plugins
 	CACHE STRING "Directory where shared object libraries for periodic applications are stored"
 )
 
-set (DLS_INSTALL_APP_PLUGIN_DIR /usr/bin/dls2/app_plugins
+set (DLS_INSTALL_APP_PLUGIN_DIR /usr/lib/dls2/app_plugins
 	CACHE STRING "Directory where executable applications are stored"
 )
 

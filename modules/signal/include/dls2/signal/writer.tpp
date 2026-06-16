@@ -12,8 +12,10 @@ template <typename MsgType>
 Writer<MsgType>::Writer(std::shared_ptr<dls::DDSParticipant> dds_participant, const dls::topicType& topic_, eprosima::fastdds::dds::DataWriterQos qos)
 	: WriterBase(dds_participant, topic_)
 	, has_header_(HasHeader<MsgType>::value)
+	, has_header_timestamp_(HasHeaderTimestamp<MsgType>::value)
 	, has_timestamp_(HasTimeStamp<MsgType>::value)
 	, has_sequence_id_(HasSequenceId<MsgType>::value)
+	, has_header_sequence_id_(HasHeaderSequenceId<MsgType>::value)
 {
 	computeName("writer");
 	dds_participant_->addWriter(ID_, topic_, qos);
@@ -49,19 +51,19 @@ bool Writer<MsgType>::hasHeader()
 template <typename MsgType>
 bool Writer<MsgType>::hasTimestamp()
 {
-	return has_header_ || has_timestamp_;
+	return has_header_timestamp_ || has_timestamp_;
 }
 
 template <typename MsgType>
 bool Writer<MsgType>::hasSequenceId()
 {
-	return has_header_ || has_sequence_id_;
+	return has_header_sequence_id_ || has_sequence_id_;
 }
 
 template <typename MsgType>
 void Writer<MsgType>::setTimestamp(unsigned long long timestamp)
 {
-	if constexpr (HasHeader<MsgType>::value)
+	if constexpr (HasHeaderTimestamp<MsgType>::value)
 	{
 		msg.header().timestamp() = timestamp;
 		prev_stamp = msg.header().timestamp();
@@ -81,7 +83,7 @@ bool Writer<MsgType>::isSameTimestamp()
 {
 	unsigned long long curr_stamp = 0;
 
-	if constexpr (HasHeader<MsgType>::value)
+	if constexpr (HasHeaderTimestamp<MsgType>::value)
 	{
 		curr_stamp = msg.header().timestamp();
 
@@ -112,7 +114,7 @@ bool Writer<MsgType>::isSameTimestamp()
 template <typename MsgType>
 void Writer<MsgType>::setSequenceId(uint32_t sequence_id)
 {
-	if constexpr (HasHeader<MsgType>::value){
+	if constexpr (HasHeaderSequenceId<MsgType>::value){
 		msg.header().sequence_id() = sequence_id;
 	}else if constexpr (HasSequenceId<MsgType>::value){
 		msg.sequence_id() = sequence_id;
