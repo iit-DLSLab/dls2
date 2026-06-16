@@ -1,6 +1,5 @@
-file(GLOB dls_message_idls CONFIGURE_DEPENDS
+file(GLOB_RECURSE dls_message_idls CONFIGURE_DEPENDS
 	"${CMAKE_CURRENT_SOURCE_DIR}/idls/*.idl"
-	"${CMAKE_CURRENT_SOURCE_DIR}/idls/ros2_interface/*/msg/*.idl"
 )
 
 foreach(idl_file IN LISTS dls_message_idls)

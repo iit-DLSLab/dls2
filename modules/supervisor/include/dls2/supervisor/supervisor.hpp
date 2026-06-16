@@ -26,6 +26,7 @@ namespace dls
 		bool containsLayer(std::string name);
 
 		bool loadPeriodicAppPlugin(const std::string& ID);
+		bool loadPythonPeriodicApp(const std::string& ID);
 		bool loadAppPlugin(const std::string& ID);
 
 		bool unloadAppPlugin(const std::string& ID);

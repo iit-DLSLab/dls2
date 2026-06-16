@@ -44,11 +44,6 @@ namespace dls
 	namespace topics
 	{
 		// logs
-		extern dls::topicType warn_log_stream;
-		extern dls::topicType info_log_stream;
-		extern dls::topicType error_log_stream;
-		extern dls::topicType fatal_log_stream;
-		extern dls::topicType debug_log_stream;
 		extern dls::topicType log_events;
 		extern dls::topicType process_status;
 		extern dls::topicType dls_events;

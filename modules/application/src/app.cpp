@@ -112,7 +112,10 @@ void App::startMonitoring()
 }
 
 App::~App(){
-	monitor_thread_.join();
+	if (monitor_thread_.joinable())
+	{
+		monitor_thread_.join();
+	}
 }
 
 std::string App::getID()
@@ -292,7 +295,10 @@ void App::setDefaultSchedulerPolicy()
     int ret = sched_setattr(0, &scheduler_attributes, flags);
     if (ret < 0) {
         perror("sched_setattr");
-        exit(-1);
+        app_logger.warning(
+            this->getID() +
+            " could not switch to SCHED_OTHER with sched_setattr; continuing without scheduler change");
+		exit(-1);
     }
 }
 

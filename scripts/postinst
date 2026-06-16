@@ -1,6 +1,12 @@
 #!/bin/sh
 # postinst script for dls
 set -e
+
+if [ ! -x /usr/lib/dls2/python/bin/python3 ]; then
+    /usr/bin/python3 -m venv --copies /usr/lib/dls2/python
+fi
+
 sudo setcap cap_sys_nice=eip /usr/bin/dls2/dynamic_legged_systems_framework
 sudo setcap cap_sys_nice=eip /usr/bin/dls2/child_process_launcher
+sudo setcap cap_sys_nice=eip /usr/lib/dls2/python/bin/python3
 sudo ldconfig

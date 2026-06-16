@@ -83,7 +83,7 @@ To create a periodic plugin:
 * open the dls2 docker image
 * build and install dls2_deploy
 * go inside the repo you have just pulled
-* call the following command
+* call the following command for C++ plugins
 
         create_periodic_plugin
 
@@ -98,9 +98,29 @@ To create a periodic plugin:
     This command will create in the current directory (so in your repo) a basic project structure with the following main folders:
     * module: where you develop your module
     * plugin: where you develop the plugin
+  
+* call the following command for Python plugins
+
+        create_py_periodic_plugin
+
+    that requests you to provide
+    * a Plugin name. This will be automatically also the name of your module
+    * a list of types to be used by your python node (e.g. BlindState, BaseState, ...).
+
+    This command will create in the current directory (so in your repo) a basic project structure with the following main folders:
+    * plugin: where you store scheduler configs 
+    * python: where you develop the plugin
     
-    The Plugin and module classes are automatically created, together with some suggestions on how to customize your plugin.
+    The Plugin class is automatically created, together with some suggestions on how to customize your plugin. 
     
+    In order to launch the python nodes be sure to
+    - compile and install the package (e.g. you can add in the main CMakeLists.txt as a sub-directory)
+    - append the node name in `python_periodic_apps` in the startup file.
+
+    IMPORTANT NOTE: when modifying the python source code, be sure to run again `sudo make install` before executing again.
+    
+    An example of Python plugin is [dummy_py_node](python/test/dummy_py_node)
+
     Moreover, in the project structure there is also the possibility to define custom messages and topics, that you can use in your plugin and made available to the DLS2 network.
 * follow the instruction in the README of the project you have just created. You can find the README also [here](https://github.com/iit-DLSLab/dls2/tree/main/modules/plugin/skeletons/periodic#periodic-plugin).
 
