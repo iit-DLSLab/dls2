@@ -46,6 +46,7 @@ function(dls_add_message msg library_name)
 	get_filename_component(idl_dir "${idl_rel}" DIRECTORY)
 	string(REGEX REPLACE "\\.idl$" "" idl_rel_no_ext "${idl_rel}")
 	string(MAKE_C_IDENTIFIER "${idl_rel_no_ext}" msg_identifier)
+	set(message_generation_target "${msg_identifier}_generate")
 
 	if(idl_dir)
 		set(MESSAGE_DIR "${MESSAGE_ROOT}/${idl_dir}")
@@ -155,6 +156,48 @@ function(dls_add_message msg library_name)
 		VERBATIM
 	)
 
+	add_custom_target(${message_generation_target}
+		DEPENDS
+			${generated_source}
+			${generated_headers}
+			${generated_python}
+	)
+
+	foreach(idl_include IN LISTS idl_includes)
+		string(REGEX REPLACE "^#include \"([^\"]+\\.idl)\"$" "\\1" dependency "${idl_include}")
+		set(dependency_file "")
+
+		foreach(candidate_idl IN LISTS all_idl_files)
+			file(RELATIVE_PATH candidate_rel "${IDL_ROOT}" "${candidate_idl}")
+			if(candidate_rel STREQUAL "${dependency}" OR candidate_rel MATCHES "/${dependency}$")
+				set(dependency_file "${candidate_idl}")
+				break()
+			endif()
+		endforeach()
+
+		if(dependency_file)
+			file(RELATIVE_PATH dependency_rel "${IDL_ROOT}" "${dependency_file}")
+			string(REGEX REPLACE "\\.idl$" "" dependency_rel_no_ext "${dependency_rel}")
+			string(MAKE_C_IDENTIFIER "${dependency_rel_no_ext}" dependency_identifier)
+			set(dependency_generation_target "${dependency_identifier}_generate")
+
+			set_property(GLOBAL APPEND PROPERTY
+				DLS_MESSAGE_GENERATION_DEPENDENCIES
+				"${message_generation_target}|${dependency_generation_target}"
+			)
+
+			if(TARGET "${dependency_generation_target}")
+				add_dependencies(${message_generation_target}
+					"${dependency_generation_target}"
+				)
+			endif()
+		endif()
+	endforeach()
+
+	add_dependencies(${library_name}
+		${message_generation_target}
+	)
+
 	target_sources(${library_name}
 		PRIVATE
 			${generated_source}
@@ -217,7 +260,10 @@ function(dls_add_message msg library_name)
 		SOURCES ${${msg_identifier}_MODULE_FILES}
 	)
 
-	add_dependencies(${${msg_identifier}_MODULE} ${library_name})
+	add_dependencies(${${msg_identifier}_MODULE}
+		${library_name}
+		${message_generation_target}
+	)
 
 	set_property(TARGET ${${msg_identifier}_MODULE} PROPERTY CXX_STANDARD 11)
 
@@ -303,4 +349,19 @@ function(dls_add_message msg library_name)
 		DESTINATION
 			${PYTHON_MODULE_PATH}
 	)
+endfunction()
+
+function(dls_finalize_messages)
+	get_property(message_generation_dependencies GLOBAL PROPERTY DLS_MESSAGE_GENERATION_DEPENDENCIES)
+	foreach(message_dependency IN LISTS message_generation_dependencies)
+		string(REPLACE "|" ";" dependency_pair "${message_dependency}")
+		list(GET dependency_pair 0 message_generation_target)
+		list(GET dependency_pair 1 dependency_generation_target)
+
+		if(TARGET "${message_generation_target}" AND TARGET "${dependency_generation_target}")
+			add_dependencies(${message_generation_target}
+				"${dependency_generation_target}"
+			)
+		endif()
+	endforeach()
 endfunction()
