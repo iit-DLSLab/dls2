@@ -21,6 +21,7 @@
 #include <dls_messages/dds/DlsHeaderPubSubTypes.hpp>
 #include <dls_messages/dds/DoublePubSubTypes.hpp>
 #include <dls_messages/dds/EventLogPubSubTypes.hpp>
+#include <dls_messages/dds/ImagePubSubTypes.hpp>
 #include <dls_messages/dds/ProcessStatusPubSubTypes.hpp>
 #include <dls_messages/dds/DlsEventsPubSubTypes.hpp>
 #include <dls_messages/dds/ImuPubSubTypes.hpp>
@@ -102,6 +103,7 @@ namespace dls
 			extern dls::topicType arm_state;
 			extern dls::topicType blind_state;
 			extern dls::topicType imu;
+			extern dls::topicType front_camera_image;
 		}
 	}
 }

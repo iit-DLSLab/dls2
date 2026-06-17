@@ -102,6 +102,8 @@ namespace dls
           new dls2_interface::msg::BlindStatePubSubType());
       dls::topicType imu = dls::topicType("imu",
           new dls2_interface::msg::ImuPubSubType());
+      dls::topicType front_camera_image = dls::topicType("front_camera_image",
+          new dls2_interface::msg::ImagePubSubType());
     }
   }
 }

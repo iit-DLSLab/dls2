@@ -123,6 +123,6 @@ void LogLayer::printEvents(){
 	}
 }
 void LogLayer::monitor(){
-	printEvents();
+	// printEvents();
 }
 #endif /* end of include guard: LOG_LAYER_CPP_DLJLOFSG */
