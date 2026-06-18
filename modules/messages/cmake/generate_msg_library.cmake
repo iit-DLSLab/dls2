@@ -13,12 +13,11 @@ set(CMAKE_SWIG_FLAGS "")
 find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
 ################################################################################
 
-function(fastddsgen_trigger idl_file_path idl_file_name subdirectory)
-# set message directory for generated files
+#################################################################################
+function(set_msg_build_names idl_file_name subdirectory)
+    # set message directory for generated files
     set(MESSAGE_DIR "${CMAKE_CURRENT_BINARY_DIR}/include/dls_messages/dds${subdirectory}")
-    
-    ############################################################
-    # RUN FASTDDSGEN TO GENERATE CPP AND PYTHON FILES
+
     # define files produced by fastddsgen
     set(generated_cpp_source
 		"${MESSAGE_DIR}/${idl_file_name}PubSubTypes.cxx"
@@ -35,7 +34,54 @@ function(fastddsgen_trigger idl_file_path idl_file_name subdirectory)
 		"${MESSAGE_DIR}/${idl_file_name}.i"
 		"${MESSAGE_DIR}/${idl_file_name}PubSubTypes.i"
 	)
-    # execute fastddsgen as custom command
+    # set library name for the generated cpp files
+    string(REPLACE "/" "_" subdirectory_name "${subdirectory}")
+    string(REGEX REPLACE "^_" "" subdirectory_name "${subdirectory_name}")
+    set(subdirectory_name ${subdirectory_name})
+
+    set(CPP_LIBRARY_NAME "${subdirectory_name}_${idl_file_name}_msg_cpp")
+
+    # set global properties for the generated files and library name
+    set_property(GLOBAL PROPERTY MESSAGE_DIR "${MESSAGE_DIR}")
+    set_property(GLOBAL PROPERTY generated_cpp_source "${generated_cpp_source}")
+    set_property(GLOBAL PROPERTY generated_cpp_headers "${generated_cpp_headers}")
+    set_property(GLOBAL PROPERTY generated_py_source "${generated_py_source}")
+    set_property(GLOBAL PROPERTY subdirectory_name "${subdirectory_name}")
+    set_property(GLOBAL PROPERTY CPP_LIBRARY_NAME "${CPP_LIBRARY_NAME}")
+
+endfunction()
+#################################################################################
+
+#################################################################################
+function(extract_file_and_subdirectory_names idl_file)
+    get_filename_component(idl_file_name "${idl_file}" NAME_WE)
+    get_filename_component(idl_directory "${idl_file}" DIRECTORY)
+
+    file(RELATIVE_PATH subdirectory
+        "${CMAKE_CURRENT_SOURCE_DIR}/idls"
+        "${idl_directory}"
+    )
+    if(subdirectory STREQUAL ".")
+        set(subdirectory "")
+    else()
+        set(subdirectory "/${subdirectory}")
+    endif()
+    # set global properties for the extracted names
+    set_property(GLOBAL PROPERTY idl_file_name "${idl_file_name}")
+    set_property(GLOBAL PROPERTY subdirectory "${subdirectory}")
+endfunction()
+#################################################################################
+
+function(fastddsgen_trigger idl_file_path)
+    extract_file_and_subdirectory_names(${idl_file_path})
+
+    get_property(idl_file_name GLOBAL PROPERTY idl_file_name)
+    get_property(subdirectory GLOBAL PROPERTY subdirectory)
+    set_msg_build_names("${idl_file_name}" "${subdirectory}")
+
+    ############################################################
+    # RUN FASTDDSGEN TO GENERATE CPP AND PYTHON FILES
+    get_property(MESSAGE_DIR GLOBAL PROPERTY MESSAGE_DIR)
     set(fastddsgen_command
         fastddsgen
         -typeros2
@@ -48,7 +94,10 @@ function(fastddsgen_trigger idl_file_path idl_file_name subdirectory)
         -I ${CMAKE_CURRENT_SOURCE_DIR}/idls/ros2_interface
         ${idl_file_path}
 	)
-    
+
+    get_property(generated_cpp_source GLOBAL PROPERTY generated_cpp_source)
+    get_property(generated_cpp_headers GLOBAL PROPERTY generated_cpp_headers)
+    get_property(generated_py_source GLOBAL PROPERTY generated_py_source)
     add_custom_command(
 		OUTPUT
 			${generated_cpp_source}
@@ -66,13 +115,8 @@ function(fastddsgen_trigger idl_file_path idl_file_name subdirectory)
     # ############################################################
 
     # ############################################################
-    # add CPP library for the generated source files
-    # extract subdirectory name from subdirectory, subsittuting "/" with "_" and removing leading "_"
-    string(REPLACE "/" "_" subdirectory_name "${subdirectory}")
-    string(REGEX REPLACE "^_" "" subdirectory_name "${subdirectory_name}")
-    set(CPP_LIBRARY_NAME "${subdirectory_name}_${idl_file_name}_msg_cpp")
-    # message (STATUS "Generating CPP library ${CPP_LIBRARY_NAME} for ${idl_file_name}.idl in subdirectory ${subdirectory}")
-
+    # Create a custom target to ensure that the generated files are created before building the cpp/python libraries
+    get_property(CPP_LIBRARY_NAME GLOBAL PROPERTY CPP_LIBRARY_NAME)
     add_custom_target(${CPP_LIBRARY_NAME}_target ALL
         DEPENDS 
 			${generated_cpp_source}
@@ -82,42 +126,26 @@ function(fastddsgen_trigger idl_file_path idl_file_name subdirectory)
 
 endfunction()
 
-function(generate_msg_library idl_file_path idl_file_name subdirectory)   
-    # set message directory for generated files
-    set(MESSAGE_DIR "${CMAKE_CURRENT_BINARY_DIR}/include/dls_messages/dds${subdirectory}") 
-    ############################################################
-    # RUN FASTDDSGEN TO GENERATE CPP AND PYTHON FILES
-    # define files produced by fastddsgen
-    set(generated_cpp_source
-		"${MESSAGE_DIR}/${idl_file_name}PubSubTypes.cxx"
-		"${MESSAGE_DIR}/${idl_file_name}TypeObjectSupport.cxx"
-    )
-    set(generated_cpp_headers
-		"${MESSAGE_DIR}/${idl_file_name}.hpp"
-		"${MESSAGE_DIR}/${idl_file_name}PubSubTypes.hpp"
-		"${MESSAGE_DIR}/${idl_file_name}TypeObjectSupport.hpp"
-		"${MESSAGE_DIR}/${idl_file_name}CdrAux.hpp"
-		"${MESSAGE_DIR}/${idl_file_name}CdrAux.ipp"
-    )	
-    set(generated_py_source
-		"${MESSAGE_DIR}/${idl_file_name}.i"
-		"${MESSAGE_DIR}/${idl_file_name}PubSubTypes.i"
-	)
-    # ############################################################
+function(generate_msg_library idl_file_path)   
+    extract_file_and_subdirectory_names(${idl_file_path})
+
+    get_property(idl_file_name GLOBAL PROPERTY idl_file_name)
+    get_property(subdirectory GLOBAL PROPERTY subdirectory)
+    set_msg_build_names("${idl_file_name}" "${subdirectory}")
 
     # ############################################################
     # add CPP library for the generated source files
-    # extract subdirectory name from subdirectory, subsittuting "/" with "_" and removing leading "_"
-    string(REPLACE "/" "_" subdirectory_name "${subdirectory}")
-    string(REGEX REPLACE "^_" "" subdirectory_name "${subdirectory_name}")
-    set(CPP_LIBRARY_NAME "${subdirectory_name}_${idl_file_name}_msg_cpp")
-    # message (STATUS "Generating CPP library ${CPP_LIBRARY_NAME} for ${idl_file_name}.idl in subdirectory ${subdirectory}")
+    get_property(CPP_LIBRARY_NAME GLOBAL PROPERTY CPP_LIBRARY_NAME)
+    get_property(generated_cpp_source GLOBAL PROPERTY generated_cpp_source)
     add_library(${CPP_LIBRARY_NAME} SHARED
         ${generated_cpp_source}
         )
+
     add_dependencies(${CPP_LIBRARY_NAME}
         ${CPP_LIBRARY_NAME}_target
     )   
+
+    get_property(MESSAGE_DIR GLOBAL PROPERTY MESSAGE_DIR)
     target_include_directories(${CPP_LIBRARY_NAME}
         PUBLIC
             ${MESSAGE_DIR}
@@ -134,6 +162,7 @@ function(generate_msg_library idl_file_path idl_file_name subdirectory)
     # ############################################################
     # add PYTHON bindings for the generated source files
     # from FAST-DDS-python example
+    get_property(subdirectory_name GLOBAL PROPERTY subdirectory_name)
     set(${idl_file_name}_MODULE
         ${subdirectory_name}_${idl_file_name}Wrapper
         )
@@ -155,9 +184,11 @@ function(generate_msg_library idl_file_path idl_file_name subdirectory)
         TYPE SHARED
         LANGUAGE python
         SOURCES ${${idl_file_name}_MODULE_FILES})
+
     add_dependencies(${${idl_file_name}_MODULE}
         ${CPP_LIBRARY_NAME}_target
     )
+
     set_property(TARGET ${${idl_file_name}_MODULE} PROPERTY CXX_STANDARD 11)
     if(UNIX AND CMAKE_SIZEOF_VOID_P EQUAL 8)
         set_property(TARGET ${${idl_file_name}_MODULE} PROPERTY SWIG_COMPILE_DEFINITIONS SWIGWORDSIZE64)
@@ -193,6 +224,7 @@ function(generate_msg_library idl_file_path idl_file_name subdirectory)
         DESTINATION ${DLS_INSTALL_MESSAGES_HEADER_DIR}/${subdirectory}
         COMPONENT ${PROJECT_NAME}_dev
     )
+    # Install python bindings
     # Find the installation path
  	execute_process(
 		COMMAND
