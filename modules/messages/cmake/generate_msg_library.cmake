@@ -13,9 +13,9 @@ set(CMAKE_SWIG_FLAGS "")
 find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
 ################################################################################
 
-function(generate_msg_library idl_file_path idl_file_name)
-    # set message directory for generated files
-    set(MESSAGE_DIR "${CMAKE_CURRENT_BINARY_DIR}/include/dls_messages/dds")
+function(fastddsgen_trigger idl_file_path idl_file_name subdirectory)
+# set message directory for generated files
+    set(MESSAGE_DIR "${CMAKE_CURRENT_BINARY_DIR}/include/dls_messages/dds${subdirectory}")
     
     ############################################################
     # RUN FASTDDSGEN TO GENERATE CPP AND PYTHON FILES
@@ -42,10 +42,13 @@ function(generate_msg_library idl_file_path idl_file_name)
         -replace
         -cs
         -python
-        ${idl_file_path}
         -d
         ${MESSAGE_DIR}
+        -I ${CMAKE_CURRENT_SOURCE_DIR}/idls
+        -I ${CMAKE_CURRENT_SOURCE_DIR}/idls/ros2_interface
+        ${idl_file_path}
 	)
+    
     add_custom_command(
 		OUTPUT
 			${generated_cpp_source}
@@ -60,30 +63,79 @@ function(generate_msg_library idl_file_path idl_file_name)
 		DEPENDS
 		${idl_file_path}
 	)
-    ############################################################
+    # ############################################################
 
-    ############################################################
+    # ############################################################
     # add CPP library for the generated source files
-    set (CPP_LIBRARY_NAME "${idl_file_name}_msg_cpp")
+    # extract subdirectory name from subdirectory, subsittuting "/" with "_" and removing leading "_"
+    string(REPLACE "/" "_" subdirectory_name "${subdirectory}")
+    string(REGEX REPLACE "^_" "" subdirectory_name "${subdirectory_name}")
+    set(CPP_LIBRARY_NAME "${subdirectory_name}_${idl_file_name}_msg_cpp")
+    # message (STATUS "Generating CPP library ${CPP_LIBRARY_NAME} for ${idl_file_name}.idl in subdirectory ${subdirectory}")
+
+    add_custom_target(${CPP_LIBRARY_NAME}_target ALL
+        DEPENDS 
+			${generated_cpp_source}
+			${generated_cpp_headers}
+            ${generated_py_source}
+    )
+
+endfunction()
+
+function(generate_msg_library idl_file_path idl_file_name subdirectory)   
+    # set message directory for generated files
+    set(MESSAGE_DIR "${CMAKE_CURRENT_BINARY_DIR}/include/dls_messages/dds${subdirectory}") 
+    ############################################################
+    # RUN FASTDDSGEN TO GENERATE CPP AND PYTHON FILES
+    # define files produced by fastddsgen
+    set(generated_cpp_source
+		"${MESSAGE_DIR}/${idl_file_name}PubSubTypes.cxx"
+		"${MESSAGE_DIR}/${idl_file_name}TypeObjectSupport.cxx"
+    )
+    set(generated_cpp_headers
+		"${MESSAGE_DIR}/${idl_file_name}.hpp"
+		"${MESSAGE_DIR}/${idl_file_name}PubSubTypes.hpp"
+		"${MESSAGE_DIR}/${idl_file_name}TypeObjectSupport.hpp"
+		"${MESSAGE_DIR}/${idl_file_name}CdrAux.hpp"
+		"${MESSAGE_DIR}/${idl_file_name}CdrAux.ipp"
+    )	
+    set(generated_py_source
+		"${MESSAGE_DIR}/${idl_file_name}.i"
+		"${MESSAGE_DIR}/${idl_file_name}PubSubTypes.i"
+	)
+    # ############################################################
+
+    # ############################################################
+    # add CPP library for the generated source files
+    # extract subdirectory name from subdirectory, subsittuting "/" with "_" and removing leading "_"
+    string(REPLACE "/" "_" subdirectory_name "${subdirectory}")
+    string(REGEX REPLACE "^_" "" subdirectory_name "${subdirectory_name}")
+    set(CPP_LIBRARY_NAME "${subdirectory_name}_${idl_file_name}_msg_cpp")
+    # message (STATUS "Generating CPP library ${CPP_LIBRARY_NAME} for ${idl_file_name}.idl in subdirectory ${subdirectory}")
     add_library(${CPP_LIBRARY_NAME} SHARED
         ${generated_cpp_source}
         )
+    add_dependencies(${CPP_LIBRARY_NAME}
+        ${CPP_LIBRARY_NAME}_target
+    )   
     target_include_directories(${CPP_LIBRARY_NAME}
         PUBLIC
             ${MESSAGE_DIR}
+            ${CMAKE_CURRENT_BINARY_DIR}/include/dls_messages/dds/ros2_interface
     )
     target_link_libraries(${CPP_LIBRARY_NAME}
         PUBLIC
             fastcdr
             fastdds
     )
-    ############################################################
+    
+    # ############################################################
 
-    ############################################################
+    # ############################################################
     # add PYTHON bindings for the generated source files
     # from FAST-DDS-python example
     set(${idl_file_name}_MODULE
-        ${idl_file_name}Wrapper
+        ${subdirectory_name}_${idl_file_name}Wrapper
         )
 
     set(${idl_file_name}_MODULE_FILES
@@ -103,7 +155,9 @@ function(generate_msg_library idl_file_path idl_file_name)
         TYPE SHARED
         LANGUAGE python
         SOURCES ${${idl_file_name}_MODULE_FILES})
-
+    add_dependencies(${${idl_file_name}_MODULE}
+        ${CPP_LIBRARY_NAME}_target
+    )
     set_property(TARGET ${${idl_file_name}_MODULE} PROPERTY CXX_STANDARD 11)
     if(UNIX AND CMAKE_SIZEOF_VOID_P EQUAL 8)
         set_property(TARGET ${${idl_file_name}_MODULE} PROPERTY SWIG_COMPILE_DEFINITIONS SWIGWORDSIZE64)
@@ -131,12 +185,12 @@ function(generate_msg_library idl_file_path idl_file_name)
     ############################################################
     # Install cpp library and headers
     install(TARGETS ${CPP_LIBRARY_NAME}
-        DESTINATION ${DLS_INSTALL_MESSAGES_DIR}
+        DESTINATION ${DLS_INSTALL_MESSAGES_DIR}/${subdirectory}
         COMPONENT ${PROJECT_NAME}_dev
     )
     install (
         FILES ${generated_cpp_headers}
-        DESTINATION ${DLS_INSTALL_MESSAGES_HEADER_DIR}
+        DESTINATION ${DLS_INSTALL_MESSAGES_HEADER_DIR}/${subdirectory}
         COMPONENT ${PROJECT_NAME}_dev
     )
     # Find the installation path

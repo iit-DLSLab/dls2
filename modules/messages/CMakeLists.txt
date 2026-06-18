@@ -12,11 +12,52 @@ set (LIBRARY_NAME dls_messages)
 
 # add_library(${LIBRARY_NAME} INTERFACE)
 
-# iterate over all the idl files
-    # generate library for idl
-    set(idl_file "${CMAKE_CURRENT_SOURCE_DIR}/idls/ArmState.idl")
-    get_filename_component(idl_file_name ${idl_file} NAME_WE)
-    generate_msg_library("${idl_file}" "${idl_file_name}")
+# iterate over all the idl files that are in the idls directory. Extract the name of the idl and the subdirectory where the idl is located.
+file(GLOB_RECURSE idl_files CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/idls/*.idl"
+)
+
+foreach(idl_file IN LISTS idl_files)
+    get_filename_component(idl_file_name "${idl_file}" NAME_WE)
+    get_filename_component(idl_directory "${idl_file}" DIRECTORY)
+
+    file(RELATIVE_PATH subdirectory
+        "${CMAKE_CURRENT_SOURCE_DIR}/idls"
+        "${idl_directory}"
+    )
+
+    if(subdirectory STREQUAL ".")
+        set(subdirectory "")
+    else()
+        set(subdirectory "/${subdirectory}")
+    endif()
+
+    fastddsgen_trigger("${idl_file}" "${idl_file_name}" "${subdirectory}")
+endforeach()
+
+foreach(idl_file IN LISTS idl_files)
+    get_filename_component(idl_file_name "${idl_file}" NAME_WE)
+    get_filename_component(idl_directory "${idl_file}" DIRECTORY)
+
+    file(RELATIVE_PATH subdirectory
+        "${CMAKE_CURRENT_SOURCE_DIR}/idls"
+        "${idl_directory}"
+    )
+
+    if(subdirectory STREQUAL ".")
+        set(subdirectory "")
+    else()
+        set(subdirectory "/${subdirectory}")
+    endif()
+
+    # message (STATUS "Generating message library for ${idl_file_name}.idl in subdirectory ${subdirectory}")
+    generate_msg_library("${idl_file}" "${idl_file_name}" "${subdirectory}")
+endforeach()
+    # # generate library for idl
+    # set(idl_file "${CMAKE_CURRENT_SOURCE_DIR}/idls/ArmState.idl")
+    # set (subdirectory "")
+    # get_filename_component(idl_file_name ${idl_file} NAME_WE)
+    # generate_msg_library("${idl_file}" "${idl_file_name}" "${subdirectory}")
     # set(CPP_LIBRARY_NAME "${idl_file_name}_msg_cpp")
     # add_cpp_msg_library("${CPP_LIBRARY_NAME}")
     # link the generated libraries to dls_messages
