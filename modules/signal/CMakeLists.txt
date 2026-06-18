@@ -19,8 +19,7 @@ target_link_libraries(dls_signal
 		Eigen3::Eigen
 		dls_com
 		dls_topics
-		dls_time
-		dls_msg_wrapper		
+		dls_time		
 )
 
 add_subdirectory(test)

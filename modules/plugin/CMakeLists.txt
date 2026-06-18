@@ -12,7 +12,6 @@ target_link_libraries(plugin
 	PUBLIC
 		dls_app
 		dls_signal
-        dls_msg_wrapper
 )
 
 add_library(periodic_app_plugin
@@ -31,7 +30,6 @@ target_link_libraries(periodic_app_plugin
 		dls_app
 		dls_signal
 	dls_time
-        dls_msg_wrapper
 		plugin
 	PRIVATE
 )
@@ -81,7 +79,6 @@ target_link_libraries(app_plugin
 	PUBLIC
 		dls_app
 		dls_signal
-        dls_msg_wrapper
 		plugin
 )
 
