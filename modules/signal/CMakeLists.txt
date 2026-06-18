@@ -1,7 +1,5 @@
 add_library(dls_signal 
 	SHARED
-		src/signal_reader_base.cpp
-		src/signal_writer_base.cpp
 		src/signal_base.cpp
 		src/reader_base.cpp
 		src/writer_base.cpp
