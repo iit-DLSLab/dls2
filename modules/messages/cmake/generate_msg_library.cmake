@@ -127,4 +127,33 @@ function(generate_msg_library idl_file_path idl_file_name)
         -Wno-delete-non-virtual-dtor
     )
     ############################################################
+
+    ############################################################
+    # Install cpp library and headers
+    install(TARGETS ${CPP_LIBRARY_NAME}
+        DESTINATION ${DLS_INSTALL_MESSAGES_DIR}
+        COMPONENT ${PROJECT_NAME}_dev
+    )
+    install (
+        FILES ${generated_cpp_headers}
+        DESTINATION ${DLS_INSTALL_MESSAGES_HEADER_DIR}
+        COMPONENT ${PROJECT_NAME}_dev
+    )
+    # Find the installation path
+ 	execute_process(
+		COMMAND
+			${Python3_EXECUTABLE} -c "import sysconfig; schemes = sysconfig.get_scheme_names(); scheme = 'deb_system' if 'deb_system' in schemes else sysconfig.get_default_scheme(); print(sysconfig.get_path('purelib', scheme=scheme))"
+		OUTPUT_VARIABLE
+			_ABS_PYTHON_MODULE_PATH
+		OUTPUT_STRIP_TRAILING_WHITESPACE
+	)
+
+	get_filename_component(_ABS_PYTHON_MODULE_PATH ${_ABS_PYTHON_MODULE_PATH} ABSOLUTE)
+    file (RELATIVE_PATH _REL_PYTHON_MODULE_PATH ${CMAKE_INSTALL_PREFIX} ${_ABS_PYTHON_MODULE_PATH})
+    SET (PYTHON_MODULE_PATH
+        ${_REL_PYTHON_MODULE_PATH}/${PROJECT_NAME}
+        )
+    install(TARGETS ${${idl_file_name}_MODULE} DESTINATION ${PYTHON_MODULE_PATH})
+    get_property(support_files TARGET ${${idl_file_name}_MODULE} PROPERTY SWIG_SUPPORT_FILES)
+    install(FILES ${support_files} DESTINATION ${PYTHON_MODULE_PATH})
 endfunction()
