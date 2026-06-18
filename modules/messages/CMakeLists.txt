@@ -25,7 +25,7 @@ set (LIBRARY_NAME dls_messages)
     # generate library for idl
     set(idl_file "${CMAKE_CURRENT_SOURCE_DIR}/idls/ArmState.idl")
     get_filename_component(idl_file_name ${idl_file} NAME_WE)
-    call_fastddsgen("${idl_file}" "${idl_file_name}")
+    generate_msg_library("${idl_file}" "${idl_file_name}")
     # set(CPP_LIBRARY_NAME "${idl_file_name}_msg_cpp")
     # add_cpp_msg_library("${CPP_LIBRARY_NAME}")
     # link the generated libraries to dls_messages
