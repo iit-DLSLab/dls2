@@ -139,7 +139,7 @@ function(fastddsgen_trigger idl_file_path)
 
 endfunction()
 
-function(generate_msg_library idl_file_path)   
+function(generate_msg_library idl_file_path library_name)   
     extract_file_and_subdirectory_names(${idl_file_path})
 
     get_property(idl_file_name GLOBAL PROPERTY idl_file_name)
@@ -147,39 +147,35 @@ function(generate_msg_library idl_file_path)
     set_msg_build_names("${idl_file_name}" "${subdirectory}")
 
     # ############################################################
-    # add CPP library for the generated source files
+    # add CPP source files to the library and include directories for the library
     get_property(CPP_LIBRARY_NAME GLOBAL PROPERTY CPP_LIBRARY_NAME)
     get_property(generated_cpp_source GLOBAL PROPERTY generated_cpp_source)
     get_property(generated_cpp_headers GLOBAL PROPERTY generated_cpp_headers)
-    add_library(${CPP_LIBRARY_NAME} SHARED
-        ${generated_cpp_source}
-        )
+
+    target_sources(${library_name}
+		PRIVATE
+			${generated_cpp_source}
+	)
     # add dependency to ensure that the generated files are created before building the cpp library
-    add_dependencies(${CPP_LIBRARY_NAME}
-        dls_messages_fastddsgen_all
-    )
 
     get_property(MESSAGE_DIR GLOBAL PROPERTY MESSAGE_DIR)
-    target_include_directories(${CPP_LIBRARY_NAME}
+    target_include_directories(${library_name}
         PUBLIC
             ${MESSAGE_DIR}
             ${CMAKE_CURRENT_BINARY_DIR}/include/dls_messages/dds/ros2_interface
     )
-    target_link_libraries(${CPP_LIBRARY_NAME}
-        PUBLIC
-            fastcdr
-            fastdds
-    )
-    
     # ############################################################
 
     # ############################################################
     # add PYTHON bindings for the generated source files
     # from FAST-DDS-python example
     get_property(subdirectory_name GLOBAL PROPERTY subdirectory_name)
-    set(${idl_file_name}_MODULE
-        ${subdirectory_name}_${idl_file_name}Wrapper
-        )
+    # if subdiredtory_name is empty, set ${idl_file_name}Wrapper instaead of _${subdirectory_name}_${idl_file_name}Wrapper
+    if(subdirectory_name STREQUAL "")
+        set(${idl_file_name}_MODULE "${idl_file_name}Wrapper")
+    else()
+        set(${idl_file_name}_MODULE "${subdirectory_name}_${idl_file_name}Wrapper")
+    endif()
 
     set(${idl_file_name}_MODULE_FILES
         ${MESSAGE_DIR}/${idl_file_name}.i
@@ -191,7 +187,6 @@ function(generate_msg_library idl_file_path)
         ${${idl_file_name}_MODULE_FILES}
         PROPERTIES CPLUSPLUS ON  OUTPUT_DIR "${MESSAGE_DIR}" SWIG_FLAGS "-w302,389,509"
         USE_TARGET_INCLUDE_DIRECTORIES TRUE
-        # SWIG_COMPILE_OPTIONS "-w302"
         )
 
     SWIG_ADD_LIBRARY(${${idl_file_name}_MODULE}
@@ -222,7 +217,7 @@ function(generate_msg_library idl_file_path)
     target_link_libraries(${${idl_file_name}_MODULE}
         Python3::Module
         fastdds
-        ${CPP_LIBRARY_NAME}
+        ${library_name}
         )
     # -Wno-missing-field-initializers: warning: missing initializer for member '_typeobject::tp_watched' 
     # -Wno-unused-parameter: warning: unused parameter 'self' [-Wunused-parameter] 5496 | SWIGINTERN PyObject *_wrap_delete_SwigPyIterator(PyObject *self, PyObject *args)
@@ -235,16 +230,6 @@ function(generate_msg_library idl_file_path)
     ############################################################
 
     ############################################################
-    # Install cpp library and headers
-    install(TARGETS ${CPP_LIBRARY_NAME}
-        DESTINATION ${DLS_INSTALL_MESSAGES_DIR}/${subdirectory}
-        COMPONENT ${PROJECT_NAME}_dev
-    )
-    install (
-        FILES ${generated_cpp_headers}
-        DESTINATION ${DLS_INSTALL_MESSAGES_HEADER_DIR}/${subdirectory}
-        COMPONENT ${PROJECT_NAME}_dev
-    )
     # Install python bindings
     # Find the installation path
  	execute_process(
