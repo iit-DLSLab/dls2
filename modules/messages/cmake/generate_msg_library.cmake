@@ -99,14 +99,17 @@ function(fastddsgen_trigger idl_file_path)
     get_property(generated_cpp_headers GLOBAL PROPERTY generated_cpp_headers)
     get_property(generated_py_source GLOBAL PROPERTY generated_py_source)
     add_custom_command(
-		OUTPUT 
-            ${generated_cpp_source}
+		OUTPUT "${MESSAGE_DIR}/${idl_file_name}.stamp"
+        BYPRODUCTS
+			${generated_cpp_source}
 			${generated_cpp_headers}
             ${generated_py_source}
 		COMMAND
 			${CMAKE_COMMAND} -E make_directory ${MESSAGE_DIR}
 		COMMAND
             ${fastddsgen_command}
+		COMMAND
+			${CMAKE_COMMAND} -E touch "${MESSAGE_DIR}/${idl_file_name}.stamp"
 		COMMENT
 			"Generating message files for ${idl_file_name}.idl"
 		DEPENDS
@@ -119,9 +122,7 @@ function(fastddsgen_trigger idl_file_path)
     get_property(CPP_LIBRARY_NAME GLOBAL PROPERTY CPP_LIBRARY_NAME)
     add_custom_target(${CPP_LIBRARY_NAME}_target ALL
         DEPENDS 
-            ${generated_cpp_source}
-            ${generated_cpp_headers}
-            ${generated_py_source}
+            "${MESSAGE_DIR}/${idl_file_name}.stamp"
     )
     # Chaining ${CPP_LIBRARY_NAME}_target generator targets sequentially, so fastddsgen -replace cannot run concurrently for different IDLs.
     get_property(previous_fastddsgen_target GLOBAL PROPERTY DLS_MESSAGES_PREVIOUS_FASTDDSGEN_TARGET)
