@@ -21,6 +21,11 @@ foreach(idl_file IN LISTS idl_files)
     fastddsgen_trigger(${idl_file})
 endforeach()
 
+# Create a custom target that depends on all the fastddsgen targets, so that we can wait for all the generated files to be created before building the cpp and python libraries.
+add_custom_target(dls_messages_fastddsgen_all
+    DEPENDS ${DLS_MESSAGES_FASTDDSGEN_TARGETS}
+)
+
 foreach(idl_file IN LISTS idl_files)
     generate_msg_library(${idl_file})
 endforeach()

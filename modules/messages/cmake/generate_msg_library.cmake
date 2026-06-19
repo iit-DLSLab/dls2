@@ -99,14 +99,17 @@ function(fastddsgen_trigger idl_file_path)
     get_property(generated_cpp_headers GLOBAL PROPERTY generated_cpp_headers)
     get_property(generated_py_source GLOBAL PROPERTY generated_py_source)
     add_custom_command(
-		OUTPUT
+		OUTPUT "${MESSAGE_DIR}/${idl_file_name}.stamp"
+        BYPRODUCTS
 			${generated_cpp_source}
 			${generated_cpp_headers}
             ${generated_py_source}
 		COMMAND
-			[ -d ${MESSAGE_DIR} ] || mkdir --parents ${MESSAGE_DIR}
+			${CMAKE_COMMAND} -E make_directory ${MESSAGE_DIR}
 		COMMAND
             ${fastddsgen_command}
+		COMMAND
+			${CMAKE_COMMAND} -E touch "${MESSAGE_DIR}/${idl_file_name}.stamp"
 		COMMENT
 			"Generating message files for ${idl_file_name}.idl"
 		DEPENDS
@@ -119,9 +122,19 @@ function(fastddsgen_trigger idl_file_path)
     get_property(CPP_LIBRARY_NAME GLOBAL PROPERTY CPP_LIBRARY_NAME)
     add_custom_target(${CPP_LIBRARY_NAME}_target ALL
         DEPENDS 
-			${generated_cpp_source}
-			${generated_cpp_headers}
-            ${generated_py_source}
+            "${MESSAGE_DIR}/${idl_file_name}.stamp"
+    )
+    # Chaining ${CPP_LIBRARY_NAME}_target generator targets sequentially, so fastddsgen -replace cannot run concurrently for different IDLs.
+    get_property(previous_fastddsgen_target GLOBAL PROPERTY DLS_MESSAGES_PREVIOUS_FASTDDSGEN_TARGET)
+    if(previous_fastddsgen_target)
+        add_dependencies(${CPP_LIBRARY_NAME}_target ${previous_fastddsgen_target})
+    endif()
+    set_property(GLOBAL PROPERTY DLS_MESSAGES_PREVIOUS_FASTDDSGEN_TARGET ${CPP_LIBRARY_NAME}_target)
+    # Define a variable to hold all the fastddsgen targets, to wait their compilation before cpp and python libraries are built.
+    set(DLS_MESSAGES_FASTDDSGEN_TARGETS
+        ${DLS_MESSAGES_FASTDDSGEN_TARGETS}
+        ${CPP_LIBRARY_NAME}_target
+        PARENT_SCOPE
     )
 
 endfunction()
@@ -137,13 +150,14 @@ function(generate_msg_library idl_file_path)
     # add CPP library for the generated source files
     get_property(CPP_LIBRARY_NAME GLOBAL PROPERTY CPP_LIBRARY_NAME)
     get_property(generated_cpp_source GLOBAL PROPERTY generated_cpp_source)
+    get_property(generated_cpp_headers GLOBAL PROPERTY generated_cpp_headers)
     add_library(${CPP_LIBRARY_NAME} SHARED
         ${generated_cpp_source}
         )
-
+    # add dependency to ensure that the generated files are created before building the cpp library
     add_dependencies(${CPP_LIBRARY_NAME}
-        ${CPP_LIBRARY_NAME}_target
-    )   
+        dls_messages_fastddsgen_all
+    )
 
     get_property(MESSAGE_DIR GLOBAL PROPERTY MESSAGE_DIR)
     target_include_directories(${CPP_LIBRARY_NAME}
@@ -185,9 +199,16 @@ function(generate_msg_library idl_file_path)
         LANGUAGE python
         SOURCES ${${idl_file_name}_MODULE_FILES})
 
+    # add dependency to ensure that the generated files are created before building the python library
     add_dependencies(${${idl_file_name}_MODULE}
-        ${CPP_LIBRARY_NAME}_target
+            dls_messages_fastddsgen_all
     )
+    #  ${${idl_file_name}_MODULE}_swig_compilation target can be created automatically by CMake
+    if(TARGET ${${idl_file_name}_MODULE}_swig_compilation)
+        add_dependencies(${${idl_file_name}_MODULE}_swig_compilation
+            dls_messages_fastddsgen_all
+        )
+    endif()
 
     set_property(TARGET ${${idl_file_name}_MODULE} PROPERTY CXX_STANDARD 11)
     if(UNIX AND CMAKE_SIZEOF_VOID_P EQUAL 8)
