@@ -10,7 +10,7 @@ add_compile_options("-std=c++2a")
 include(generate_msg_library)
 set (LIBRARY_NAME dls_messages)
 
-# add_library(${LIBRARY_NAME} INTERFACE)
+add_library(${LIBRARY_NAME} INTERFACE)
 
 # iterate over all the idl files that are in the idls directory. Extract the name of the idl and the subdirectory where the idl is located.
 file(GLOB_RECURSE idl_files CONFIGURE_DEPENDS
@@ -28,20 +28,20 @@ add_custom_target(dls_messages_fastddsgen_all
 
 foreach(idl_file IN LISTS idl_files)
     generate_msg_library(${idl_file})
+    get_property(CPP_LIBRARY_NAME GLOBAL PROPERTY CPP_LIBRARY_NAME)
+    target_link_libraries(${LIBRARY_NAME} INTERFACE ${CPP_LIBRARY_NAME})
 endforeach()
 
     # link the generated libraries to dls_messages
-    # target_link_libraries(${LIBRARY_NAME} PUBLIC ${CPP_LIBRARY_NAME})
 
 
-# dls_install(${LIBRARY_NAME})
-# dls_install(dls_msg_wrapper)
+dls_install(${LIBRARY_NAME})
 
-# install(
-#     DIRECTORY
-# 		${CMAKE_CURRENT_LIST_DIR}/cmake/
-#     DESTINATION
-# 		/usr/include/${LIBRARY_NAME}/cmake
-# 	COMPONENT
-# 		dls_dev
-# )
+install(
+    DIRECTORY
+		${CMAKE_CURRENT_LIST_DIR}/cmake/
+    DESTINATION
+		/usr/include/${LIBRARY_NAME}/cmake
+	COMPONENT
+		dls_dev
+)
