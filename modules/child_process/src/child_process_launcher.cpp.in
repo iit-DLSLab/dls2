@@ -21,7 +21,6 @@
 #include "dls2/hardware/hardware.hpp"
 #include "dls2/estimator/estimator.hpp"
 // #include "dls2/service/service_base.hpp"
-#include "dls2/data_visualizer/data_visualizer_base.hpp"
 #include "dls2/log/event_logger.hpp"
 #include "dls2/application/layer.hpp"
 
