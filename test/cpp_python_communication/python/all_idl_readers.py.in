@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import importlib
 import os
 import sys
 import time
@@ -13,6 +14,7 @@ from pathlib import Path
 
 PLUGIN_PYTHON_DIR = Path("@PROJECT_SOURCE_DIR@/modules/plugin/python")
 MESSAGE_DIR = Path("@PROJECT_BINARY_DIR@/modules/messages/include/dls_messages/dds")
+MESSAGE_LIBRARY_DIR = Path("@PROJECT_SOURCE_DIR@/bin/@CMAKE_BUILD_TYPE@")
 DEFAULT_DOMAIN = 3
 
 
@@ -131,16 +133,11 @@ def _load_message_module(spec: MessageSpec) -> types.ModuleType:
     _prepend_sys_path(module_path.parent)
 
     short_wrapper = f"_{spec.type_name}Wrapper"
+    actual_wrapper = spec.wrapper_module
     source = module_path.read_text()
-    if spec.wrapper_module != short_wrapper:
-        source = source.replace(
-            f"from . import {short_wrapper}",
-            f"from . import {spec.wrapper_module} as {spec.wrapper_module}",
-        )
-        source = source.replace(
-            f"import {short_wrapper}",
-            f"import {spec.wrapper_module} as {spec.wrapper_module}",
-        )
+    if actual_wrapper != short_wrapper:
+        sys.modules[short_wrapper] = importlib.import_module(actual_wrapper)
+        source = source.replace(actual_wrapper, short_wrapper)
 
     module_name = f"cpp_python_communication_{spec.identifier}"
     module = types.ModuleType(module_name)
@@ -160,6 +157,7 @@ def main() -> int:
 
     _prepend_sys_path(PLUGIN_PYTHON_DIR)
     _prepend_sys_path(MESSAGE_DIR)
+    _prepend_sys_path(MESSAGE_LIBRARY_DIR)
 
     reader_participant = SharedReaderParticipant(args.domain)
     readers: list[ReaderSlot] = []
