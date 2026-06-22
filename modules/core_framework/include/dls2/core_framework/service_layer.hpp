@@ -4,7 +4,6 @@
 
 #include "dls2/application/layer.hpp"
 #include "dls2/application/app_data.hpp"
-#include "dls2/data_visualizer/data_visualizer_base.hpp"
 
 namespace dls
 {

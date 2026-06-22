@@ -1,7 +1,5 @@
 add_library(dls_signal 
 	SHARED
-		src/signal_reader_base.cpp
-		src/signal_writer_base.cpp
 		src/signal_base.cpp
 		src/reader_base.cpp
 		src/writer_base.cpp
@@ -19,8 +17,7 @@ target_link_libraries(dls_signal
 		Eigen3::Eigen
 		dls_com
 		dls_topics
-		dls_time
-		dls_msg_wrapper		
+		dls_time		
 )
 
 add_subdirectory(test)

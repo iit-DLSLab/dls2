@@ -265,7 +265,9 @@ def _resolve_message_dir(
         Path("/usr/lib/python3/dist-packages"),
     ):
         if site_dir:
-            candidates.append(Path(site_dir).resolve())
+            site_path = Path(site_dir).resolve()
+            candidates.append(site_path)
+            candidates.append(site_path / "dls2")
 
     error_message = (
         f"Missing message bindings for {package_name}. "
