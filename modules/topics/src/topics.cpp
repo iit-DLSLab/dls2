@@ -45,6 +45,10 @@ namespace dls
         new dls2_interface::msg::NavigationReferencePubSubType());
     dls::topicType button_event = dls::topicType("button_event",
         new dls2_interface::msg::ButtonEventPubSubType());
+    
+    dls::topicType base_height_reference = dls::topicType("base_height_reference", new dls2_interface::msg::DoublePubSubType());
+    dls::topicType base_orientation_reference = dls::topicType("base_orientation_reference", new dls2_interface::msg::Vec3PubSubType());
+    dls::topicType step_height_reference = dls::topicType("step_height_reference", new dls2_interface::msg::DoublePubSubType());
 
     // services
     dls::topicType param_server = dls::topicType("add_double",
