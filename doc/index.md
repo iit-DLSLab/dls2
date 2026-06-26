@@ -1,10 +1,10 @@
 # DLS2 Framework
 
 - @subpage md_dls2_2README "Repository overview"
-- @subpage md_dls2_2doc_2packaging "Packaging"
-- @subpage md_dls2_2doc_2safety "Safety"
+- @subpage md_dls2_2doc_2Packaging
+- @subpage md_dls2_2doc_2Safety
 - @subpage md_dls2_2modules_2application_2application "Application"
-- @subpage md_dls2_2modules_2command_2README "Commands"
+- @subpage md_dls2_2modules_2command_2Commands "Commands"
 - @subpage md_dls2_2modules_2ddscom_2README "DDS communication"
 - @subpage md_dls2_2modules_2mcap_2README "MCAP"
 - @subpage md_dls2_2modules_2messages_2README "Messages"
