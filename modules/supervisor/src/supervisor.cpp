@@ -62,25 +62,7 @@ namespace dls
             true
         );
 
-        command_manager.addCommand<std::string>
-        (
-            "runTask",
-            "Execute task",
-            std::function<bool(std::string)>([&](std::string type)->bool
-            {
-                if(!state_machine_watcher.waitState(type, "idle", sm.async_events[sm.quit_request])){
-                    this->app_logger.warning("Task " + type + " not in idle state", EventID::WRONG_PROCESS_STATE);
-                }
-
-                if(command_manager.waitCommand(type, "activate", sm.async_events[sm.quit_request]))
-                    command_manager.callCommand("activate", {}, type);
-
-                return true;
-
-            }),
-            {},
-            true
-        );
+        
 
         command_manager.addCommand<std::string>
         (
@@ -94,17 +76,6 @@ namespace dls
             true
         );
 
-        command_manager.addCommand<std::string>
-        (
-            "loadAppPlugin",
-            "Load a task",
-            std::function<bool(std::string)>([&](std::string type)->bool
-            {
-                return this->loadAppPlugin(type);
-            }),
-            {},
-            true
-        );
 
         command_manager.addCommand<std::string>
         (
@@ -130,17 +101,6 @@ namespace dls
             true
         );        
 
-        command_manager.addCommand<std::string>
-        (
-            "unloadAppPlugin",
-            "Unload a task",
-            std::function<bool(std::string)>([&](std::string type)->bool
-            {
-                return this->unloadAppPlugin(type);
-             }),
-            {},
-            true
-        );
 
         sys_monitor = std::make_unique<dls::SystemResourceMonitor>(this->safety_layer_config_->resource_monitor_window_size);
     }
