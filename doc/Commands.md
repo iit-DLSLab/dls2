@@ -27,7 +27,7 @@ Let's try to understand with an example. Consider the entity _periodic_. This mo
 
 The following state machine describes what happens when executing each of these commands:
 
-![Alt text](commands.png)
+\image html commands.png width=800cm
 
 In each state only a subsets of commands is available. In STATE 0 only _activate_ is available and, when executed, the state machine goes in STATE 1 where _goHome_, _startMotion_ and _deactivate_ are now available, but _activate_ is not anymore. _deactivate_ brings the system back to STATE 0, _goHome_ keeps the state machine in STATE 1 and _startMotion_ moves it in STATE 2, where _deactivate_ and _stopMotion_ are available, but _goHome_ is not. _stopMotion_ moves the state back to STATE 1. 
 
