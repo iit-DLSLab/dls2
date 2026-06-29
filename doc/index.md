@@ -1,12 +1,14 @@
 # DLS2 Framework
 
-- @subpage md_dls2_2README "Repository overview"
+Here you can find the main implemented concepts related to DLS2.
+
+- @subpage md_dls2_2doc_2Discovery
 - @subpage md_dls2_2doc_2Safety
-- @subpage md_dls2_2doc_2Application
+- @subpage app_state_machine "Periodic app lifetime"
 - @subpage md_dls2_2doc_2Commands
 - @subpage md_dls2_2doc_2ddscom "DDS communication"
 - @subpage md_dls2_2doc_2Messages
   - @subpage md_dls2_2modules_2messages_2idls_2README "DLS standard messages"
 - @subpage md_dls2_2doc_2Plugin
   - @subpage md_dls2_2doc_2PeriodicPlugin
-- @subpage md_dls2_2doc_2StateMachine
+- @subpage state_machine "State machine"
