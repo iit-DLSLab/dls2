@@ -17,7 +17,6 @@ include(dls_test)             # functions to register unit tests
 # ================================= Compilation ================================
 add_subdirectory(modules)   # build framework, libraries and tools
 add_subdirectory(scripts)   # bash completion and launch scripts
-add_subdirectory(doc)       # generate and install documentation
 
 option(BUILD_DLS2_TESTING "" OFF)
 if(BUILD_DLS2_TESTING) 
