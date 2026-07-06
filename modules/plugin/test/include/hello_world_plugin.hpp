@@ -1,5 +1,5 @@
-#ifndef CUSTOM_PLUGIN_HPP
-#define CUSTOM_PLUGIN_HPP
+#ifndef hello_world_plugin_HPP
+#define hello_world_plugin_HPP
 
 #include "dls2/plugin/periodic_app_plugin.hpp"
 // includes for I/O *************************
@@ -9,12 +9,12 @@
 // ******************************************
 
 // plugin loaded at run-time
-class CustomPlugin : public dls::PeriodicAppPlugin
+class HelloWorldPlugin : public dls::PeriodicAppPlugin
 {
 public:
-	CustomPlugin(const std::string& ID);
+	HelloWorldPlugin(const std::string& ID);
 
-	virtual ~CustomPlugin();
+	virtual ~HelloWorldPlugin();
 
 	void run(const std::chrono::system_clock::time_point &time) override;
 
@@ -26,4 +26,4 @@ public:
 	dls::WriterPtr<dls2_interface::msg::ControlSignal> writer_cs;
 };
 
-#endif // end of include guard: CUSTOM_PLUGIN_HPP
+#endif // end of include guard: hello_world_plugin_HPP

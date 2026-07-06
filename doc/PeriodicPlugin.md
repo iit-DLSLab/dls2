@@ -301,23 +301,23 @@ Creating console commmands in plugin/console_commands is quite easy. The console
 		//define console functions here
 		command_manager.addCommand("function_name",
                                           "Description",
-                                          &CustomPlugin::function_name, this, {}, true);
+                                          &HelloWorldPlugin::function_name, this, {}, true);
       becomes
 
             //define console functions here
             command_manager.addCommand("set_joint_torque",
                                           "Set joint torque",
-                                          &CustomPlugin::setJointTorque, this, {}, true);
+                                          &HelloWorldPlugin::setJointTorque, this, {}, true);
 
 * implement the console functions in plugin.cpp. For example
 
-	// bool CustomPlugin::function_name(){
+	// bool HelloWorldPlugin::function_name(){
 	// 	return true;
 	// }
 
   becames
 
-      bool CustomPlugin::setJointTorque(){
+      bool HelloWorldPlugin::setJointTorque(){
             std::cout << "Choose the joint index\n";
             int idx{0};
             dls::CommandHelper::readValue<int>("Joint_ID", idx);
@@ -383,7 +383,7 @@ To create a custom topic
       // {
       //     namespace topics
       //     {
-      //         namespace CustomPlugin{
+      //         namespace HelloWorldPlugin{
       //             // extern dls::topicType topic_variable_name;
       //         }
       //     }
@@ -396,7 +396,7 @@ To create a custom topic
       {
           namespace topics
           {
-              namespace CustomPlugin{
+              namespace HelloWorldPlugin{
                   extern dls::topicType custom_topic;
               }
           }
@@ -419,7 +419,7 @@ To create a custom topic
       // {
       //     namespace topics
       //     {
-      //         namespace CustomPlugin{
+      //         namespace HelloWorldPlugin{
       //             // dls::topicType topic_variable_name = dls::topicType("topic_name", new <message_name>PubSubType());
       //         }
       //     }
@@ -431,7 +431,7 @@ To create a custom topic
       {
           namespace topics
           {
-              namespace CustomPlugin{
+              namespace HelloWorldPlugin{
                   dls::topicType stance_status = dls::topicType("stance_status", new dls2_interface::msg::StanceStatusPubSubType());
               }
           }

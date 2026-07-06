@@ -1,10 +1,10 @@
-set (EXECUTABLE_NAME custom_plugin_test)
-set (PLUGIN_NAME custom_plugin)
+set (EXECUTABLE_NAME hello_world_plugin_test)
+set (PLUGIN_NAME hello_world_plugin)
 
 add_compile_options("-std=c++2a")
 
 add_library(${PLUGIN_NAME} SHARED
-	src/custom_plugin.cpp
+	src/hello_world_plugin.cpp
 )
 
 target_link_libraries(${PLUGIN_NAME}
