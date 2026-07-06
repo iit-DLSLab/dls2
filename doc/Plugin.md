@@ -9,7 +9,7 @@ Read at least at the [Introduction](https://fast-dds.docs.eprosima.com/en/latest
 ## What is a plugin?
 One of the main feature of DLS2 is the ability to plug and unplug a new software at run-time into the DLS2 network. This ensures modularity, scalability and trasparency.
 
-![Alt text](images/plug_and_play.png)
+\image html dls2/doc/images/plug_and_play.png width=800cm
 
 Different software module can have different inputs and outputs, so each module has its own plugin. A plugin is a component attached to the DLS2 network that:
 * reads the module inputs from the DLS2 middleware
@@ -38,7 +38,7 @@ In this section it is described which are the components that a specific plugin 
 ##### Overview
 The connection between a module to be run periodically and its Plugin is depicted in the following figure 
 
-![Alt text](images/plugin_module.png)
+\image html dls2/doc/images/plugin_module.png width=800cm
 
 The basic idea is that the Plugin calls in its run function the run function of the module, allowing to:
 * set inputs to the module, read from the DLS2 network

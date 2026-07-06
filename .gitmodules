@@ -1,6 +1,3 @@
-[submodule "doc/dls2_examples"]
-	path = doc/dls2_examples
-	url = git@github.com:iit-DLSLab/dls2_examples.git
 [submodule "modules/log/third-party/magic_enum"]
 	path = modules/log/third-party/magic_enum
 	url = git@github.com:Neargye/magic_enum.git

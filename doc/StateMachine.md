@@ -1,4 +1,4 @@
-# State machine
+# State machine  {#state_machine}
 This repository contains the implementation of a simple finite state machine interface. The execution of the state machine can be either controlled by explicitly calling state transitions, or the state transitions can be executed autonomously.
 
 # Overview

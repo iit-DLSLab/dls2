@@ -64,10 +64,6 @@ set(DLS_INSTALL_GENERIC_DIR /usr/lib/dls2/generics
 	CACHE STRING "Directory where shared object libraries for generics are stored"
 )
 
-set(DLS_INSTALL_TASK_DIR /usr/lib/dls2/tasks
-	CACHE STRING "Directory where shared object libraries for tasks are stored"
-)
-
 set(DLS_INSTALL_PERIODIC_APP_PLUGIN_DIR /usr/lib/dls2/periodic_app_plugins
 	CACHE STRING "Directory where shared object libraries for periodic applications are stored"
 )
