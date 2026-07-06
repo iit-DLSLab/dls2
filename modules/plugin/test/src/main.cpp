@@ -1,8 +1,8 @@
-#include "custom_plugin.hpp"
+#include "hello_world_plugin.hpp"
 
 int main()
 {
-    CustomPlugin plugin("custom_plugin"); // same name of the library the CustomPlugin is compiled into
+    HelloWorldPlugin plugin("hello_world_plugin"); // same name of the library the HelloWorldPlugin is compiled into
     plugin.execute();
 	return 0;
 }

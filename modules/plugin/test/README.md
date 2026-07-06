@@ -1,10 +1,10 @@
 # Description of the custom plugin example
 A custom plugin can be created by inheriting from the PeriodicAppPlugin class, and defining the virtual `run` function. The structure is as follows:
-- include/custom_plugin.hpp: declaration of the class
-- src/custom_plung.cpp: definition of the class
+- include/hello_world_plugin.hpp: declaration of the class
+- src/hello_world_plugin.cpp: definition of the class
 - src/main.cpp: example of how to run the periodic plugin
 
-## include/custom_plugin.hpp
+## include/hello_world_plugin.hpp
     
     #include "dls2/plugin/periodic_app_plugin.hpp"
     
@@ -18,15 +18,15 @@ Inclusion of the Reader and Writer class, used to define subscribers and publish
 
 
     // plugin loaded at run-time
-    class CustomPlugin : public dls::PeriodicAppPlugin
+    class HelloWorldPlugin : public dls::PeriodicAppPlugin
 
 Declaration of the custom class.
 
-	CustomPlugin(const std::string& ID);
+	HelloWorldPlugin(const std::string& ID);
 	
 Class constructor declaration. It has an ID, but it can take further arbitrary arguments.
 
-	virtual ~CustomPlugin();
+	virtual ~HelloWorldPlugin();
 
 Class destructorcdeclaration.
 
@@ -47,14 +47,14 @@ Declaration of the input. This is a subscriber, using the BlinState message.
 
 Declaration of the output. This is apublisher, using the ControlSignal message.
 
-## src/custom_plugin.cpp
+## src/hello_world_plugin.cpp
 
-    #include "custom_plugin.hpp"
+    #include "hello_world_plugin.hpp"
     #include "dls2/topics/topics.hpp"
 
 Inclusion of class and off-the-shelf topic declaration.
 
-    CustomPlugin::CustomPlugin(const std::string& ID)
+    HelloWorldPlugin::HelloWorldPlugin(const std::string& ID)
         : dls::PeriodicAppPlugin(ID){
         reader_bs = buildInput<dls2_interface::msg::BlindState>(dls::topics::low_level_estimation::blind_state, [](){}, false); // false: not required on activation
         // reader_bs = buildInput<dls2_interface::msg::BlindState>(dls::topics::low_level_estimation::blind_state); // by default the input is required on activation
@@ -69,15 +69,15 @@ Initialization of the fields of the writer message(i.e. publisher) with variable
 	//define console functions here if needed
 	command_manager.addCommand("set_joint_torque",
                                         "Set joint torque",
-                                        &CustomPlugin::setJointTorque, this, {}, true);
+                                        &HelloWorldPlugin::setJointTorque, this, {}, true);
 
 Adding a custom function as console command.
 
-    CustomPlugin::~CustomPlugin(){}
+    HelloWorldPlugin::~HelloWorldPlugin(){}
 
 Destructore definition.
 
-    void CustomPlugin::run(const std::chrono::system_clock::time_point &time){
+    void HelloWorldPlugin::run(const std::chrono::system_clock::time_point &time){
         read();
         
         std::cout << "Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(time.time_since_epoch()).count() << "ms, "<<"positions:\n"; 
@@ -102,7 +102,7 @@ Definition of the run function. This function has three main steps:
 extern "C" PeriodicAppPlugin *create(const std::string& ID, const std::string& name){
     // avoid compilation warnings
     (void)name;
-    return new CustomPlugin(ID);
+    return new HelloWorldPlugin(ID);
 }
 extern "C" void destroy(PeriodicAppPlugin *p){
         delete p;
@@ -113,15 +113,15 @@ Finally, those two functions are usesd to dynamically load the plugin from the D
 
 ## src/main.cpp
 
-    #include "custom_plugin.hpp"
+    #include "hello_world_plugin.hpp"
 
 Inclusion of the custom plugin
 
     int main()
     {
-        CustomPlugin plugin("custom_plugin"); // same name of the library the CustomPlugin is compiled into
+        HelloWorldPlugin plugin("hello_world_plugin"); // same name of the library the HelloWorldPlugin is compiled into
 
-Initialization of the plugin. Notice that currently the ID of the plugin has to have the same name of the library the CustomPlugin is compiled into.
+Initialization of the plugin. Notice that currently the ID of the plugin has to have the same name of the library the HelloWorldPlugin is compiled into.
 
     plugin.execute();
 
@@ -130,11 +130,11 @@ Executing the plugin, which will follow the state machine defined [here](../../a
 # compile and install test by compiling dls2
 # launch test from build directory as an executable
 ```
-sudo ./../dls2/bin/Release/custom_plugin_test
+sudo ./../dls2/bin/Release/hello_world_plugin_test
 ```
 sudo is used for setting RT priority to the process. Then activate the plugin from the dls2 console.
 # launch test from dls2 console
 ```
-loadPeriodicAppPlugin custom_plugin
+loadPeriodicAppPlugin hello_world_plugin
 ```
 Then activate the plugin from the dls2 console.

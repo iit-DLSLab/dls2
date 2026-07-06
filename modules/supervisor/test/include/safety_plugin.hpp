@@ -1,5 +1,5 @@
-#ifndef CUSTOM_PLUGIN_HPP
-#define CUSTOM_PLUGIN_HPP
+#ifndef SAFETY_PLUGIN_HPP
+#define SAFETY_PLUGIN_HPP
 
 #include "dls2/plugin/periodic_app_plugin.hpp"
 // includes for I/O *************************
@@ -21,4 +21,4 @@ public:
 	size_t cooldown_ms{ 800 };
 };
 
-#endif // end of include guard: CUSTOM_PLUGIN_HPP
+#endif // end of include guard: SAFETY_PLUGIN_HPP
