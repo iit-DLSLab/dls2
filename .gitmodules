@@ -1,6 +1,3 @@
 [submodule "modules/log/third-party/magic_enum"]
 	path = modules/log/third-party/magic_enum
 	url = git@github.com:Neargye/magic_enum.git
-[submodule "modules/messages/idls"]
-	path = modules/messages/idls
-	url = git@github.com:iit-DLSLab/dls_std_msgs.git
