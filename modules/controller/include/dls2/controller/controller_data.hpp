@@ -31,6 +31,7 @@ namespace dls
         const std::shared_ptr<math::SplineBase<double>> pSpline_out;
 
         Reader<dls2_interface::msg::ControlSignal> reader_control_signal;
+        bool size_mismatch_checked = false;
     };
 }// end namespace dls
 

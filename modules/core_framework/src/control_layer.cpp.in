@@ -15,6 +15,7 @@
 
 #include <string.h>
 #include <errno.h>
+#include <algorithm>
 
 #ifndef NDEBUG
 #include <sstream>
@@ -243,8 +244,30 @@ void *ControlLayer::controlSignalGather(void *data)
 		for(auto pair : layer->controllers)
 		{
 			pair.second->reader_control_signal.read();
-			for(long unsigned int i=0; i<pair.second->reader_control_signal.msg.torques().size();i++){
-				layer->torques.desired_torques()[i] += pair.second->premultiplier * pair.second->reader_control_signal.msg.torques()[i];
+
+			// Dimension check: a controller sizes its ControlSignal on its own (typically with
+			// hardcoded joint counts), while "acc" is sized here from the robot model through
+			// pRobot->getNJOINTS(). Nothing keeps the two in sync (the length arrives over the
+			// network) so a controller publishing more torques than the robot has joints made
+			// the loop write past the end of the allocated memory, with no error raised.
+
+			auto& acc = layer->torques.desired_torques();
+			auto& src = pair.second->reader_control_signal.msg.torques();
+			
+			if(src.size()>0 && acc.size()!=src.size()) {
+				if(!pair.second->size_mismatch_checked){
+					pair.second->size_mismatch_checked = true;
+					std::stringstream ss; 
+					ss << "Controller '" << pair.first << "' publishes " << src.size() << " torques but Robot '" << layer->pRobot->getName() 
+					<< "' has " << acc.size() << " joints."; 
+					layer->app_logger.warning(ss.str(), EventID::GENERAL_ERROR);
+				}
+				continue; 
+			}
+
+			const size_t n = std::min(acc.size(), src.size()); 
+			for (size_t i=0; i<n; i++){
+				acc[i] += pair.second->premultiplier * src[i];
 			}
 		}
 
