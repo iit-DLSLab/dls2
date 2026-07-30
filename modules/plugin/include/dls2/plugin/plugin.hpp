@@ -98,6 +98,12 @@ namespace dls
       * @param[in] name name of the output to write
       */
     void write(const std::string &name);
+    
+    /*! @brief Check if the inputs are receiving data*/
+    bool areInputsReceivingData();
+
+    /*! @brief Check if there is no other data writers publishing on the same topics of the outputs*/
+    bool areOutputsUnique();
 
 	protected:
 		//! Domain participant of the plugin
@@ -105,12 +111,6 @@ namespace dls
 
     std::mutex unique_outputs_mutex;
     std::condition_variable unique_outputs_cv;
-
-    /*! @brief Check if the inputs are receiving data*/
-    bool areInputsReceivingData();
-
-    /*! @brief Check if there is no other data writers publishing on the same topics of the outputs*/
-    bool areOutputsUnique();
 
     std::stringstream missing_inputs;
     std::stringstream common_outputs;

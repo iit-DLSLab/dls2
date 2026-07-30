@@ -7,6 +7,8 @@
 #include "dls2/util/messaging/dds_participant.hpp"
 #include "robotlib/robot_factory.hpp"
 
+#include "dls_hal/hal.hpp"
+
 namespace dls
 {
     class Hardware : public PeriodicApp
@@ -18,20 +20,19 @@ namespace dls
         Hardware
         (
             const std::string& ID,                                       ///< The ID of the controller
-            const std::shared_ptr<robotlib::RobotBase>& robot           ///< A pointer to the robot model
+            const std::string& robot_name_                               ///< The name of the robot
         );
 
         virtual ~Hardware() = default;
 
-        virtual void run(const std::chrono::system_clock::time_point&) = 0;
+        void run(const std::chrono::system_clock::time_point&) override;
 
-        std::shared_ptr<dls::DDSParticipant> getParticipant();
+        bool checkActivation() override;
 
     protected:
-        
         std::shared_ptr<robotlib::RobotBase> pRobot;
 
-        std::shared_ptr<dls::DDSParticipant> signalLink;
+        std::shared_ptr<HalBase> hal;
     };
 } // end namespace dls
 
