@@ -133,19 +133,10 @@ int main(int argc, char **argv)
         }
         else if (args.component_type == "hardware")
         {
-            if (args.component_name.compare("gazebo_sim")==0){
                 pComponent =
-                    ClassLoader::loadClass<Hardware, std::string>(
-                        std::string("${DLS_INSTALL_HARDWARE_DIR}/lib") + args.lib_name + ".so",
-                        args.robot_name);
-            }
-            else{
-                pComponent =
-                        ClassLoader::loadClass<PeriodicAppPlugin, std::string>(
+                        ClassLoader::loadClass<Hardware, std::string>(
                             std::string("${DLS_INSTALL_HARDWARE_DIR}/lib") + args.lib_name + ".so",
-                            args.component_name,
                             args.robot_name);
-            }
         }
         else if (args.component_type == "estimator")
         {
