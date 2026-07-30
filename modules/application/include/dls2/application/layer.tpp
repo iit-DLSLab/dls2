@@ -15,6 +15,11 @@ void Layer::checkAppData(const Map& app_data)
 
 	for(const auto& [key, data] : app_data)
 	{
+		if(!data || !data->proc)
+		{
+			continue;
+		}
+
 		if(!data->proc->running())
 		{
 			if (this->safety_layer_config_->enable_process_died)
