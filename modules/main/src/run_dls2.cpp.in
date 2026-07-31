@@ -273,9 +273,33 @@ namespace dls
 		}
 		launchLayers();
 
+		// launch hardware first so dependent apps do not race missing inputs
+		for (auto hardware : applications["hardwares"])
+		{
+			command_manager.callCommand(app_to_loading_command["hardwares"], {hardware}, app_to_layer["hardwares"]);
+			sm_watcher.waitState(hardware, "idle", should_quit);
+
+			if(std::find(active_apps.begin(), active_apps.end(), hardware) != active_apps.end())
+			{
+				if(command_manager.waitCommand(hardware, "activate", should_quit, 10000))
+				{
+					command_manager.callCommand("activate", {}, hardware);
+					sm_watcher.waitState(hardware, "run", should_quit);
+				}
+			}
+
+			// loadModel does not have effect on the real robot because the HAL is directly loaded there.
+			sleep(1); // if the model is spawned too fast (in gazebo) the simulation breaks
+			if(command_manager.waitCommand(hardware, "loadModel", should_quit, 10000))
+				command_manager.callCommand("loadModel", {Options::robot_name, std::to_string(Options::robot_spawning_height)}, hardware);
+		}
+
 		// launch apps
 		for (auto const &[app_type, app_names] : applications)
 		{
+			if(app_type == "hardwares")
+				continue;
+
 			for (auto name : app_names)
 			{
 				command_manager.callCommand(app_to_loading_command[app_type], {name}, app_to_layer[app_type]);
@@ -287,17 +311,6 @@ namespace dls
 						command_manager.callCommand("activate", {}, name);
 				}
 			}
-		}
-		// activate hardware and load model (loadModel does not have effect on real robot because currently it is directly loaded the HAL of the robot)
-		for (auto hardware : applications["hardwares"])
-		{
-			if(!sm_watcher.findState(hardware,"run")){
-				if(command_manager.waitCommand(hardware, "activate", should_quit))
-					command_manager.callCommand("activate", {}, hardware);
-			}
-			sleep(1); // if the model is spawned too fast (in gazebo) the simulation breaks
-			if(command_manager.waitCommand(hardware, "loadModel", should_quit))
-				command_manager.callCommand("loadModel", {Options::robot_name, std::to_string(Options::robot_spawning_height)}, hardware);
 		}
 	}
 }

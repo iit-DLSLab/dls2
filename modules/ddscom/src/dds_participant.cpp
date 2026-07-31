@@ -518,7 +518,7 @@ namespace dls
 						info.type_information.type_information.complete().typeid_with_size().type_id(),
 						remote_type_object))
 			{
-				std::cout << "Cannot get the remote type information" << std::endl;
+				// std::cout << "Cannot get the remote type information" << std::endl;
 				return;
 			}
 
