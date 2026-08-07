@@ -18,6 +18,7 @@ namespace dls
 	public:
 		virtual ~ReaderBindingBase() = default;
 		virtual void copyToField(void* target) = 0;
+		virtual bool isValid() const = 0;
 	};
 
 	template <typename MsgT, typename TargetT>
@@ -33,6 +34,10 @@ namespace dls
 			typed->*field_ = reader_->msg;
 		}
 
+		bool isValid() const override {
+			return static_cast<bool>(reader_);
+		}
+
 	private:
 		ReaderPtrT reader_;
 		MsgT TargetT::* field_;
@@ -43,6 +48,7 @@ namespace dls
 	public:
 		virtual ~WriterBindingBase() = default;
 		virtual void copyFromField(const void* source) = 0;
+		virtual bool isValid() const = 0;
 	};
 
 	template <typename MsgT, typename SourceT>
@@ -56,6 +62,10 @@ namespace dls
 		void copyFromField(const void* source) override {
 			auto* typed = static_cast<const SourceT*>(source);
 			writer_->msg = typed->*field_;
+		}
+
+		bool isValid() const override {
+			return static_cast<bool>(writer_);
 		}
 
 	private:

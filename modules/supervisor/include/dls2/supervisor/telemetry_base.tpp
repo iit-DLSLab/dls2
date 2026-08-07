@@ -2,6 +2,8 @@
 
 #include "dls2/supervisor/telemetry_base.hpp"
 
+#include <iostream>
+
 using namespace dls;
 
 inline TelemetryBase::TelemetryBase(
@@ -28,14 +30,36 @@ void TelemetryBase::tick(InputT& input, OutputT& output)
 {
     {
         std::lock_guard<std::mutex> lock(input.mutex);
-        for (auto& b : reader_bindings_) {
+        if (reader_bindings_.size() != readers_.size()) {
+            std::cerr << "[telemetry tick] reader bindings/readers size mismatch: bindings="
+                      << reader_bindings_.size() << " readers=" << readers_.size() << std::endl;
+        }
+
+        for (size_t i = 0; i < reader_bindings_.size(); ++i) {
+            auto& b = reader_bindings_[i];
+            if (!b || !b->isValid() || i >= readers_.size() || !readers_[i]) {
+                std::cerr << "[telemetry tick] invalid reader binding at index " << i << std::endl;
+                continue;
+            }
+
             b->copyToField(&input);
-        };
+        }
     }
     {
         std::lock_guard<std::mutex> lock(output.mutex);
-        for (auto& b : writer_bindings_) {
+        if (writer_bindings_.size() != writers_.size()) {
+            std::cerr << "[telemetry tick] writer bindings/writers size mismatch: bindings="
+                      << writer_bindings_.size() << " writers=" << writers_.size() << std::endl;
+        }
+
+        for (size_t i = 0; i < writer_bindings_.size(); ++i) {
+            auto& b = writer_bindings_[i];
+            if (!b || !b->isValid() || i >= writers_.size() || !writers_[i]) {
+                std::cerr << "[telemetry tick] invalid writer binding at index " << i << std::endl;
+                continue;
+            }
+
             b->copyFromField(&output);
-        };
+        }
     }
 }
