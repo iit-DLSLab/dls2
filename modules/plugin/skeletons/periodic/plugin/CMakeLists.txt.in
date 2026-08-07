@@ -15,8 +15,8 @@ target_link_libraries(${PROJECT_NAME}
 )
 target_link_directories(${PROJECT_NAME}
 	PRIVATE
-        /usr/lib/dls2
 		/usr/lib/dls2/@PLUGIN_TYPE@/${PLUGIN_NAME}
+		/opt/dls2
 )
 
 ## add custom messages
