@@ -7,10 +7,6 @@ set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 # add to RPATH automatically determined paths for the install tree
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-add_subdirectory(topics)
-add_subdirectory(ddscom)
-add_subdirectory(domains)
-add_subdirectory(signal)
 add_subdirectory(application)
 add_subdirectory(motion_generator)
 add_subdirectory(parameter_server)
