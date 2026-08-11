@@ -19,8 +19,7 @@ namespace dls
 
         Hardware
         (
-            const std::string& ID,                                       ///< The ID of the controller
-            const std::string& robot_name_                               ///< The name of the robot
+            const std::string& ID                                       ///< The ID of the hardware
         );
 
         virtual ~Hardware() = default;
@@ -30,8 +29,6 @@ namespace dls
         bool checkActivation() override;
 
     protected:
-        std::shared_ptr<robotlib::RobotBase> pRobot;
-
         std::shared_ptr<HalBase> hal;
     };
 } // end namespace dls

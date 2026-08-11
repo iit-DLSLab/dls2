@@ -78,7 +78,7 @@ bool HardwareLayer::loadHardware(const std::string &lib_name)
 		pData->getID(),
 		lib_name,
 		"hardware",
-		Options::robot_name
+		""
 	}));
 
 	if (pData->proc == nullptr){
