@@ -79,7 +79,9 @@ public:
 	/// @return true if the generator unloads correctly.
 	bool unloadMotionGenerator(const std::string&);
 
-	/// Returns the last published desired torques
+	/// Returns the last published joint reference
+	std::vector<double> getPublishedDesiredPosition();
+	std::vector<double> getPublishedDesiredVelocity();
 	std::vector<double> getPublishedDesiredTorques();
 
 private:
@@ -118,9 +120,9 @@ private:
 	std::shared_ptr<robotlib::RobotBase> pRobot;
 
 	/// @brief Output signals
-	Writer<dls2_interface::msg::DesiredTorques> writer_control_signal;
+	Writer<dls2_interface::msg::ControlSignal> writer_control_signal;
 
-	dls2_interface::msg::DesiredTorques torques;
+	dls2_interface::msg::ControlSignal control_signal_msg;
 
 	bool unloadController(std::shared_ptr<ControllerData> pData);
 
