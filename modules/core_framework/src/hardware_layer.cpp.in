@@ -78,7 +78,7 @@ bool HardwareLayer::loadHardware(const std::string &lib_name)
 		pData->getID(),
 		lib_name,
 		"hardware",
-		""
+		pData->getID() // name of scheduler file for this hardware
 	}));
 
 	if (pData->proc == nullptr){
