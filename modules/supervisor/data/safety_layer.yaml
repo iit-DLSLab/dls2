@@ -7,6 +7,7 @@ checks:
   enable_wrong_process_frequency: true
   enable_missing_input: false
   enable_cpu_usage_too_high: true
+  enable_cpu_temp_too_high: true
   enable_mem_usage_too_high: true
   enable_inputs_not_synchronized: true
   enable_wrong_input_frequency: false
@@ -20,4 +21,5 @@ checks:
   process_monitor_window_size: 400 # samples in cpu/mem usage window
   process_cpu_threshold: 300.0 # [%] value in [0, N_cores * 100] max single process cpu percentage usage without warning (moving window mean)
   system_cpu_threshold: 90.0 # [%] value in [0, 100] max overall cpu percentage usage without warning (moving window mean)
+  system_cpu_temp_threshold: 120.0 # [°C]
   mem_threshold: 90.0 # [%] max mem percentage without warning (moving window mean)

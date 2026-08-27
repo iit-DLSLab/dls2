@@ -15,6 +15,7 @@ namespace dls
 		bool enable_wrong_process_frequency{false};
 		bool enable_missing_input{false};
 		bool enable_cpu_usage_too_high{false};
+		bool enable_cpu_temp_too_high{false};
 		bool enable_mem_usage_too_high{false};
 		bool enable_inputs_not_synchronized{false};
 		bool enable_wrong_input_frequency{false};
@@ -28,6 +29,7 @@ namespace dls
 		size_t process_monitor_window_size {100};
 		size_t resource_monitor_window_size {100};
 		double system_cpu_threshold{100.0};
+		double system_cpu_temp_threshold{100.0};
 		double process_cpu_threshold{300.0};
 		double mem_threshold{100.0};
 		std::unordered_map<std::string, double> nodes_specs;
@@ -50,6 +52,7 @@ namespace dls
 			enable_wrong_process_frequency = config["checks"]["enable_wrong_process_frequency"].as<bool>();
 			enable_missing_input = config["checks"]["enable_missing_input"].as<bool>();
 			enable_cpu_usage_too_high = config["checks"]["enable_cpu_usage_too_high"].as<bool>();
+			enable_cpu_temp_too_high = config["checks"]["enable_cpu_temp_too_high"].as<bool>();
 			enable_mem_usage_too_high = config["checks"]["enable_mem_usage_too_high"].as<bool>();
 			enable_inputs_not_synchronized = config["checks"]["enable_inputs_not_synchronized"].as<bool>();
 			enable_wrong_input_frequency = config["checks"]["enable_wrong_input_frequency"].as<bool>();
@@ -62,6 +65,7 @@ namespace dls
             process_monitor_window_size = config["checks"]["process_monitor_window_size"].as<size_t>();
             resource_monitor_window_size = config["checks"]["resource_monitor_window_size"].as<size_t>();
 			system_cpu_threshold = config["checks"]["system_cpu_threshold"].as<double>();
+			system_cpu_temp_threshold = config["checks"]["system_cpu_temp_threshold"].as<double>();
 			process_cpu_threshold = config["checks"]["process_cpu_threshold"].as<double>();
             mem_threshold = config["checks"]["mem_threshold"].as<double>();
 
