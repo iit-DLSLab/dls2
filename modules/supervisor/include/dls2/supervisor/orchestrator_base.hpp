@@ -44,7 +44,7 @@ namespace dls
 		 *  fill in dls status msgs
 		 *  fill in dls action msgs
 		 */
-		virtual void orchestrate(const std::chrono::system_clock::time_point&, const EventsPriorityQueue&) {};
+		virtual void orchestrate(const std::chrono::system_clock::time_point&, EventsPriorityQueue&) {};
 
 		/**
 		 * @brief Virtual method implementing core processing in telemetry callback related to specifically typed messages.

@@ -102,6 +102,12 @@ namespace dls
             }
 
             orchestrate(time, events_priority_queue_tmp);
+
+            {
+                std::lock_guard<std::mutex> lock(event_mutex_);
+                events_priority_queue_ = std::move(events_priority_queue_tmp);
+            }
+
             write();
         }
         catch (const std::exception& e)
