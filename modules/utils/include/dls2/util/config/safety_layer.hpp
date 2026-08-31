@@ -26,6 +26,7 @@ namespace dls
 		double sync_threshold_ms{500};
 		double realtime_tolerance_factor{0.3};
 		size_t monitor_period_ms{100};
+		size_t process_frequency_window_size {100};
 		size_t process_monitor_window_size {100};
 		size_t resource_monitor_window_size {100};
 		double system_cpu_threshold{100.0};
@@ -33,6 +34,7 @@ namespace dls
 		double process_cpu_threshold{300.0};
 		double mem_threshold{100.0};
 		std::unordered_map<std::string, double> nodes_specs;
+		std::string process_status_topic { "/process_status" };
 
 		explicit SafetyLayerConfig(const std::string &config_file)
 		{
@@ -62,12 +64,14 @@ namespace dls
 			sync_threshold_ms = config["checks"]["sync_threshold"].as<double>();
 			realtime_tolerance_factor = config["checks"]["realtime_tolerance_factor"].as<double>();
 			monitor_period_ms = config["checks"]["monitor_period"].as<size_t>();
+			process_frequency_window_size = config["checks"]["process_frequency_window_size"].as<size_t>();
             process_monitor_window_size = config["checks"]["process_monitor_window_size"].as<size_t>();
             resource_monitor_window_size = config["checks"]["resource_monitor_window_size"].as<size_t>();
 			system_cpu_threshold = config["checks"]["system_cpu_threshold"].as<double>();
 			system_cpu_temp_threshold = config["checks"]["system_cpu_temp_threshold"].as<double>();
 			process_cpu_threshold = config["checks"]["process_cpu_threshold"].as<double>();
             mem_threshold = config["checks"]["mem_threshold"].as<double>();
+            process_status_topic = config["checks"]["process_status_topic"].as<std::string>();
 
 			spam_threshold = config["events"]["spam_threshold"].as<double>();
 
