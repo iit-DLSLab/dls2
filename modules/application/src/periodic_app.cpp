@@ -1,5 +1,7 @@
 #include "dls2/application/periodic_app.hpp"
 
+#include <cmath>
+
 using namespace dls;
 
 PeriodicApp::PeriodicApp(const std::string &ID) 
@@ -68,6 +70,8 @@ PeriodicApp::PeriodicApp(const std::string &ID)
 
 	process_resource_monitor_ = std::make_unique<ProcessResourceMonitor>(
 						this->pid, this->safety_layer_config_->process_monitor_window_size);
+	frequency_moving_window_ = std::make_unique<NumericalMovingWindow<double>>(
+						this->safety_layer_config_->process_frequency_window_size);
 }
 
 std::string PeriodicApp::getSchedulerPath(const std::string &ID)
@@ -251,7 +255,13 @@ void PeriodicApp::checkRT()
 {
 	{
 		std::lock_guard<std::mutex> lock(this->frequency_mutex_);
-		realtime_curr = Time::checkFrequency(this->safety_layer_config_->realtime_tolerance_factor, getDesiredFrequency(), loop_time_prec, current_frequency_);
+		double instantaneous_frequency = 0.0;
+		Time::checkFrequency(this->safety_layer_config_->realtime_tolerance_factor,
+			getDesiredFrequency(), loop_time_prec, instantaneous_frequency);
+		frequency_moving_window_->push(instantaneous_frequency);
+		current_frequency_ = frequency_moving_window_->mean();
+		realtime_curr = std::abs(getDesiredFrequency() - current_frequency_) <
+			this->safety_layer_config_->realtime_tolerance_factor * getDesiredFrequency();
 	}
 
 	// notify if the process is not running in real time

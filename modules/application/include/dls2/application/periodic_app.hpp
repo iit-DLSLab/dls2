@@ -4,6 +4,7 @@
 #include "dls2/application/app.hpp"
 #include <dls2/util/time/time.hpp>
 #include "dls2/util/process_resource_monitor.hpp"
+#include "dls2/util/numerical_moving_window.hpp"
 
 #include <boost/process.hpp>
 #include <yaml-cpp/yaml.h>
@@ -124,6 +125,7 @@ namespace dls
 		std::chrono::time_point<std::chrono::steady_clock> loop_time_prec;
 
 		std::unique_ptr<ProcessResourceMonitor> process_resource_monitor_;
+		std::unique_ptr<NumericalMovingWindow<double>> frequency_moving_window_;
 
 		double current_frequency_;
 		std::mutex frequency_mutex_;
