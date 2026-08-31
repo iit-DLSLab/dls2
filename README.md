@@ -1,7 +1,7 @@
 # DLS2
 
 # Introduction
-This project contains the main dls framework
+This project contains the main dls framework.
 # Documentation and installation
 Please refer to the repo  [dls2-barebone](https://github.com/iit-DLSLab/dls2-barebone.git) for documentation, dependencies and installation of the DLS2 framework.
 
