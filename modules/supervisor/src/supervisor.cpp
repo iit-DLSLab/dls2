@@ -132,18 +132,17 @@ namespace dls
                         + std::to_string(cpus_usage.at(i)) + "(threshold is " + std::to_string(this->safety_layer_config_->system_cpu_threshold) + ")"
                 );
             }
+        }
 
-            if(this->safety_layer_config_->enable_cpu_temp_too_high && 
-               temperature.at(i).second > this->safety_layer_config_->system_cpu_temp_threshold)
-            {
-                this->robust_event_notifier.notify(
-                    EventID::CPU_TEMP_TOO_HIGH,
-                    EventSeverity::WARNING,
-                    this->getID() + ": overall cpu temperature - on core n. " + std::to_string(i) + " - is " 
-                        + std::to_string(temperature.at(i).second) + "(threshold is " + std::to_string(this->safety_layer_config_->system_cpu_temp_threshold) + ")"
-                );
-            }
-
+        if(this->safety_layer_config_->enable_cpu_temp_too_high && 
+            temperature.second > this->safety_layer_config_->system_cpu_temp_threshold)
+        {
+            this->robust_event_notifier.notify(
+                EventID::CPU_TEMP_TOO_HIGH,
+                EventSeverity::WARNING,
+                this->getID() + ": overall cpu temperature is " 
+                    + std::to_string(temperature.second) + "(threshold is " + std::to_string(this->safety_layer_config_->system_cpu_temp_threshold) + ")"
+            );
         }
         
         if (this->safety_layer_config_->enable_mem_usage_too_high && 
