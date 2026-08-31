@@ -51,16 +51,14 @@ namespace dls
 
             // Prepare events for publication
             std::vector<dls2_interface::msg::EventLog> events_to_publish;
-            EventsPriorityQueue events_priority_queue_tmp;
             {
                 std::lock_guard<std::mutex> lock(event_mutex_);
-                events_priority_queue_tmp = events_priority_queue_;
-            }
-            size_t event_count = 0;
-            while (!events_priority_queue_tmp.empty() && event_count < event_to_publish_) {
-                events_to_publish.push_back(events_priority_queue_tmp.top());
-                events_priority_queue_tmp.pop();
-                event_count++;
+				size_t event_count = 0;
+				while (!telemetry_events_.empty() && event_count < event_to_publish_) {
+					events_to_publish.push_back(telemetry_events_.front());
+					telemetry_events_.pop_front();
+					event_count++;
+				}
             }
 
             telemetryMain(events_to_publish);
@@ -96,6 +94,7 @@ namespace dls
 
                 for(const auto& event : events_fifo){
                     events_priority_queue_.push(event);
+					telemetry_events_.push_back(event);
                 }
 
                 events_priority_queue_tmp = events_priority_queue_;

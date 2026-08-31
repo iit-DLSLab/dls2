@@ -7,6 +7,7 @@
 #include <list>
 #include <thread>
 #include <queue>
+#include <deque>
 
 #include "dls2/plugin/periodic_app_plugin.hpp"
 #include "dls2/state_machine/state_machine.hpp"
@@ -61,6 +62,7 @@ namespace dls
 		std::mutex event_mutex_;
 		logging::EventListener event_listener_;
         EventsPriorityQueue events_priority_queue_;
+		std::deque<dls2_interface::msg::EventLog> telemetry_events_;
 
 		// Telemetry
 		std::vector<std::shared_ptr<dls::ReaderBase>> telemetry_readers_;
