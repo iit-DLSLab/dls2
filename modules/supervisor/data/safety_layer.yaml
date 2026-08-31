@@ -17,7 +17,7 @@ checks:
   max_exceeding_factor: 0.5 # value in [0,1]: factor of input topic desired freq
   sync_threshold: 500 # [ms]
   realtime_tolerance_factor: 0.25 # value in [0,1]: factor of node desired freq
-  process_frequency_window_size: 5 # samples used to smooth process frequency
+  process_frequency_window_size: 50 # samples used to smooth process frequency
   resource_monitor_window_size: 30 # samples in cpu/mem usage window
   process_monitor_window_size: 400 # samples in cpu/mem usage window
   process_cpu_threshold: 300.0 # [%] value in [0, N_cores * 100] max single process cpu percentage usage without warning (moving window mean)
