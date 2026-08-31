@@ -10,6 +10,7 @@
 #include <dls_messages/dds/ArmTrajectoryGeneratorPubSubTypes.hpp>
 #include <dls_messages/dds/AttitudePubSubTypes.hpp>
 #include <dls_messages/dds/BaseStatePubSubTypes.hpp>
+#include <dls_messages/dds/BatteryStatusPubSubTypes.hpp>
 #include <dls_messages/dds/BlindStatePubSubTypes.hpp>
 #include <dls_messages/dds/BoolPubSubTypes.hpp>
 #include <dls_messages/dds/ButtonEventPubSubTypes.hpp>
@@ -47,6 +48,7 @@ namespace dls
 		extern dls::topicType log_events;
 		extern dls::topicType process_status;
 		extern dls::topicType dls_events;
+		extern dls::topicType battery_status;
 
 		// command
 		extern dls::topicType command_call;

@@ -16,6 +16,8 @@ namespace dls
         new dls2_interface::msg::ProcessStatusPubSubType());
     dls::topicType dls_events = dls::topicType("dls/events", 
         new dls2_interface::msg::DlsEventsPubSubType());
+    dls::topicType battery_status = dls::topicType("battery_status", 
+        new dls2_interface::msg::BatteryStatusPubSubType());
     
 
     // command
