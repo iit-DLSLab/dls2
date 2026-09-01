@@ -339,7 +339,7 @@ void App::monitorApp()
 			{
 				robust_event_notifier.notify(
 					EventID::WRONG_PROCESS_STATE,
-					EventSeverity::WARNING,
+					EventSeverity::ERROR,
 					this->getID() + " app state is " + status_msg.current_state() + " (not " +
 						status_msg.desired_state() + ")..."
 				);
