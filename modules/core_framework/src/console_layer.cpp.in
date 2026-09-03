@@ -229,7 +229,7 @@ namespace dls
 	} // namespace readline_completion
 
 	// dls::ConsoleLayer implementation
-	ConsoleLayer::ConsoleLayer(std::string ID) : Layer(ID, 50),
+	ConsoleLayer::ConsoleLayer(std::string ID) : Layer(ID, 1000),
 												 load_layers_paths_{{"loadController", "${DLS_INSTALL_CONTROLLER_DIR}"},
 																	{"loadGenerator", "${DLS_INSTALL_MOTION_GENERATOR_DIR}"},
 																	{"loadEstimator", "${DLS_INSTALL_ESTIMATOR_DIR}"},
