@@ -37,7 +37,8 @@ namespace state_machine
     }
     StateMachineWatcher::~StateMachineWatcher() {}
 
-    bool StateMachineWatcher::waitState(const std::string &app_name, const std::string &state, bool& stop_wait) const
+    bool StateMachineWatcher::waitState(const std::string &app_name, const std::string &state, bool& stop_wait,
+                                        bool log_timeout) const
     {       
         // wait app
         if(!dls::utils::wait(std::function<bool()>([&](){
@@ -46,7 +47,7 @@ namespace state_machine
                 }
                 return true;
             }), 5000, 2, stop_wait)){
-            if(!stop_wait){
+            if(!stop_wait && log_timeout){
                 std::cerr << app_name << " not found" << std::endl;
                 return false;
             }
@@ -59,7 +60,7 @@ namespace state_machine
                 }
                 return true;
             }), 5000, 2, stop_wait)){
-            if(!stop_wait){
+            if(!stop_wait && log_timeout){
                 std::cerr << app_name << " not found in state " << state << std::endl;
                 return false;}
             }
@@ -68,7 +69,8 @@ namespace state_machine
     }
 
 
-    bool StateMachineWatcher::waitState(const std::string &app_name, const std::string &state, std::atomic_bool& stop_wait) const
+    bool StateMachineWatcher::waitState(const std::string &app_name, const std::string &state,
+                                        std::atomic_bool& stop_wait, bool log_timeout) const
     {       
         // wait app
         if(!dls::utils::wait(std::function<bool()>([&](){
@@ -77,7 +79,7 @@ namespace state_machine
                 }
                 return true;
             }), 5000, 2, stop_wait)){
-            if(!stop_wait.load()){
+            if(!stop_wait.load() && log_timeout){
                 std::cerr << app_name << " not found" << std::endl;
                 return false;}
             }
@@ -89,7 +91,7 @@ namespace state_machine
                 }
                 return true;
             }), 5000, 2, stop_wait)){
-            if(!stop_wait.load()){
+            if(!stop_wait.load() && log_timeout){
                 std::cerr << app_name << " not found in state " << state << std::endl;
                 return false;}
             }
