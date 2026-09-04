@@ -223,6 +223,26 @@ set -eo pipefail
 export PYTHONPATH="@${APP_NAME_UPPER}_DLS_PYTHON_ROOT@\${PYTHONPATH:+:\$PYTHONPATH}"
 RUNTIME_ROOT="@${APP_NAME_UPPER}_RUNTIME_ROOT@"
 
+for candidate in \
+    "@${APP_NAME_UPPER}_DLS_PYTHON_ROOT@" \
+    "@${APP_NAME_UPPER}_DLS_PYTHON_ROOT@/dls_messages" \
+    "@${APP_NAME_UPPER}_DLS_PYTHON_ROOT@/dls_messages/dds"; do
+    if [ -n "$REQUIRED_MODULES" ]; then
+        missing_module=0
+        IFS=',' read -ra required_modules <<< "$REQUIRED_MODULES"
+        for required_module in "\${required_modules[@]}"; do
+            if [ ! -f "\$candidate/\${required_module}.py" ]; then
+                missing_module=1
+                break
+            fi
+        done
+        if [ "\$missing_module" -eq 0 ]; then
+            export ${APP_NAME_UPPER}_TYPES_PATH="\$candidate"
+            break
+        fi
+    fi
+done
+
 PREFERRED_DLS2_PYTHON="\${DLS2_PYTHON:-@${APP_NAME_UPPER}_SHARED_PYTHON@}"
 DLS2_PYTHON="\$PREFERRED_DLS2_PYTHON"
 if [ ! -x "\$DLS2_PYTHON" ]; then
