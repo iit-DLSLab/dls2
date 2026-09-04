@@ -19,8 +19,6 @@ namespace dls
 	{
 	public:
 
-		typedef std::chrono::duration<double, std::ratio<1, 1'000'000>> period_t;
-
 		/// Constructor
 		///
 		/// @param ID the name of this component
@@ -38,7 +36,7 @@ namespace dls
 		void close() override;
 		
 		//! Get period
-		period_t getPeriod();
+		SchedulerUtils::period_t getPeriod();
 
 		//! Run the activation function - used in state machine
 		virtual bool deactivating() override;
@@ -83,16 +81,6 @@ namespace dls
         //! Config variable to load scheduler settings
 		YAML::Node config_scheduler;
 
-		//! The period of this component
-		period_t period;
-		//! Runtime factor scaling the period to get the runtime
-		double sched_runtime_factor;
-		//! Deadline factor scaling the period to get the deadline
-		double sched_deadline_factor;
-		//! Runtime attribute
-		period_t runtime;
-		//! Deadline attribute
-		period_t deadline;
 		//! Variable identifying if the periodic app is in failure state
 		bool failure;
 	private:
@@ -114,8 +102,6 @@ namespace dls
 		/// The component's time rate
 		///
 		Time time_factor;
-
-		double cur_time_factor;
 
 		pid_t pid;
 

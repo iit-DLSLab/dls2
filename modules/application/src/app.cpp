@@ -166,7 +166,8 @@ void App::execute(){
 
 void App::idle()
 {
-	setDefaultSchedulerPolicy();
+	scheduler_utils.setDefaultSchedulerPolicy();
+
 	command_manager.getCommand("activate")->setEnabled();
 	command_manager.triggerLevelWatcher();
 
@@ -254,7 +255,7 @@ void App::fail()
 
 void App::quit()
 {
-	setDefaultSchedulerPolicy();
+	scheduler_utils.setDefaultSchedulerPolicy();
 	close();
 
 	should_quit = true;
@@ -282,24 +283,6 @@ std::string App::where(){
 	std::stringstream ss;
 	ss  << "App " << ID_ << " is in state " << sm.state->name << std::endl;
 	return ss.str();
-}
-
-void App::setDefaultSchedulerPolicy()
-{
-	struct sched_attr scheduler_attributes;
-	memset(&scheduler_attributes, 0, sizeof(struct sched_attr));
-	scheduler_attributes.size = sizeof(struct sched_attr);
-	scheduler_attributes.sched_policy = SCHED_OTHER;
-
-	unsigned int flags = 0;
-    int ret = sched_setattr(0, &scheduler_attributes, flags);
-    if (ret < 0) {
-        perror("sched_setattr");
-        app_logger.warning(
-            this->getID() +
-            " could not switch to SCHED_OTHER with sched_setattr; continuing without scheduler change");
-		exit(-1);
-    }
 }
 
 bool App::checkActivation(){

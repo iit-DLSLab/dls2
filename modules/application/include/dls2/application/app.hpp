@@ -15,6 +15,8 @@
 #include <dls2/util/config/safety_layer.hpp>
 #include "dls2/util/time/duration_utils.hpp"
 
+#include "dls2/application/sched_utils.hpp"
+
 namespace dls
 {
 	/// An application
@@ -129,17 +131,13 @@ namespace dls
 	std::atomic<bool> monitoring_started_{false};
 
 	protected:
-		//! Set SCHED_OTHER policy
-		void setDefaultSchedulerPolicy();
-
-		//! Attrributes of the scheduler
-		struct sched_attr scheduler_attributes;
-
 		std::string get_current_time();
 
 		virtual void childMonitor() {};
 
 		std::shared_ptr<SafetyLayerConfig> safety_layer_config_;
+
+		SchedulerUtils scheduler_utils;
 	};
 } // end namespace dls
 

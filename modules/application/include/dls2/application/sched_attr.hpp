@@ -1,3 +1,5 @@
+#pragma once
+
 #include <linux/types.h>
 
 //#include <sys/wait.h>

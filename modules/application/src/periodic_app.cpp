@@ -5,8 +5,6 @@ using namespace dls;
 PeriodicApp::PeriodicApp(const std::string &ID) 
 	: App(ID)
 	, config_scheduler(YAML::LoadFile(getSchedulerPath(ID)))
-	, period(std::chrono::milliseconds(config_scheduler["period"].as<int>())), sched_runtime_factor(config_scheduler["runtime_factor"].as<double>())
-	, sched_deadline_factor(config_scheduler["deadline_factor"].as<double>()), runtime(period * sched_runtime_factor), deadline(period * sched_deadline_factor)
 	, failure(false)
 	, pause_mutex()
 	, is_paused(false)
@@ -16,21 +14,15 @@ PeriodicApp::PeriodicApp(const std::string &ID)
 	, realtime_curr(true)
 {
     this->pid = syscall(SYS_gettid);
-	this->cur_time_factor = this->time_factor.getRealTimeFactor();
 
-	memset(&scheduler_attributes, 0, sizeof(struct sched_attr));
-	scheduler_attributes.size = sizeof(struct sched_attr);
-	scheduler_attributes.sched_policy = SCHED_DEADLINE;
-
-	scheduler_attributes.sched_period  = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(period*cur_time_factor).count();
-	scheduler_attributes.sched_runtime = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(runtime*cur_time_factor).count();
-	scheduler_attributes.sched_deadline = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(deadline*cur_time_factor).count();
+	scheduler_utils.init(config_scheduler);
+	scheduler_utils.setCurrentTimeFactor(this->time_factor.getRealTimeFactor());
 
 	// set RUN and DEACTIVATION state as real time state
 	sm.RUN.makeRealTime();
 	sm.DEACTIVATION.makeRealTime();
 
-	dt = period.count()/(1000000.0);
+	dt = scheduler_utils.getPeriod().count()/(1000000.0);
 	current_frequency_ = getDesiredFrequency();
 	loop_time_prec = std::chrono::steady_clock::now();
 
@@ -142,13 +134,15 @@ void PeriodicApp::childMonitor()
 
 AppStatus PeriodicApp::run()
 {
-	
-	//set RT scheduling policy
-	setRTSchedulerPolicy();
-
 	bool failure = false;
 	realtime_prec = true;
 	realtime_curr = realtime_prec;
+	if (scheduler_utils.getPolicy() == "SCHED_FIFO"){
+		scheduler_utils.initDesiredTime(std::chrono::steady_clock::now());
+	}
+
+	//set RT scheduling policy
+	scheduler_utils.setRTSchedulerPolicy();
 	while(      !sm.isRaised(sm.deactivation_request)
 	        &&  !sm.isRaised(sm.quit_request)
 	        &&  !failure)
@@ -176,10 +170,11 @@ AppStatus PeriodicApp::run()
 	    // Update scheduler attributes if the current time factor has changed
 	    if(newTimeFactor())
 	    {
-	        setRTSchedulerPolicy();
+	        scheduler_utils.setCurrentTimeFactor(this->time_factor.getRealTimeFactor());
+			scheduler_utils.setRTSchedulerPolicy();
 	    }
 
-	    sched_yield();
+		scheduler_utils.executeEndLoopTask();
 	}
 
 	if (failure)
@@ -196,27 +191,6 @@ AppStatus PeriodicApp::run()
 	return this->getStatus();
 }
 
-void PeriodicApp::setRTSchedulerPolicy()
-{
-	memset(&scheduler_attributes, 0, sizeof(struct sched_attr));
-	scheduler_attributes.size = sizeof(struct sched_attr);
-	scheduler_attributes.sched_policy = SCHED_DEADLINE;
-	
-	scheduler_attributes.sched_period  = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(period*cur_time_factor).count();
-	scheduler_attributes.sched_runtime = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(runtime*cur_time_factor).count();
-	scheduler_attributes.sched_deadline = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(deadline*cur_time_factor).count();
-
-	unsigned int flags = 0;
-    int ret = sched_setattr(0, &scheduler_attributes, flags);
-    if (ret < 0) {
-        perror("sched_setattr");
-        app_logger.warning(
-            this->getID() +
-            " could not enable SCHED_DEADLINE; continuing in non-realtime mode");
-        exit(-1);		
-	}
-}
-
 void PeriodicApp::pauseExecution()
 {
 	std::unique_lock<std::mutex> lock(this->pause_mutex);
@@ -229,9 +203,9 @@ void PeriodicApp::pauseExecution()
 
 bool PeriodicApp::newTimeFactor()
 {
-	if(abs(this->time_factor.getRealTimeFactor() - this->cur_time_factor) > 0.02)
+	if(abs(this->time_factor.getRealTimeFactor() - scheduler_utils.getCurrentTimeFactor()) > 0.02)
 	{
-		this->cur_time_factor = this->time_factor.getRealTimeFactor();
+		scheduler_utils.setCurrentTimeFactor(this->time_factor.getRealTimeFactor());;
 		return true;
 	}
 	return false;
@@ -287,10 +261,11 @@ bool PeriodicApp::deactivating()
 	    // Update scheduler attributes if the current time factor has changed
 	    if(newTimeFactor())
 	    {
-	        setRTSchedulerPolicy();
+			scheduler_utils.setCurrentTimeFactor(this->time_factor.getRealTimeFactor());
+	        scheduler_utils.setRTSchedulerPolicy();
 	    }
 
-	    sched_yield();
+		scheduler_utils.executeEndLoopTask();
 	}
 
 	return deactivated;
@@ -311,8 +286,8 @@ void PeriodicApp::close()
 	}
 }
 
-PeriodicApp::period_t PeriodicApp::getPeriod(){
-	return period;
+SchedulerUtils::period_t PeriodicApp::getPeriod(){
+	return scheduler_utils.getPeriod();
 }
 
 double PeriodicApp::getDesiredFrequency() const
