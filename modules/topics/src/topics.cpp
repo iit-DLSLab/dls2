@@ -78,8 +78,6 @@ namespace dls
 
     namespace low_level_estimation
     {
-      dls::topicType arm_state = dls::topicType("arm_state",
-          new dls2_interface::msg::ArmStatePubSubType());
       dls::topicType blind_state = dls::topicType("blind_state",
           new dls2_interface::msg::BlindStatePubSubType());
       dls::topicType imu = dls::topicType("imu",

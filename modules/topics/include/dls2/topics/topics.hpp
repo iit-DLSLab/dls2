@@ -6,7 +6,6 @@
 #include <utility>
 #include <typeinfo>
 #include <functional>
-#include <dls_messages/dds/ArmStatePubSubTypes.hpp>
 #include <dls_messages/dds/ArmTrajectoryGeneratorPubSubTypes.hpp>
 #include <dls_messages/dds/AttitudePubSubTypes.hpp>
 #include <dls_messages/dds/BaseStatePubSubTypes.hpp>
