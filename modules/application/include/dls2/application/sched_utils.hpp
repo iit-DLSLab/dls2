@@ -39,6 +39,7 @@ class SchedulerUtils
 
 		void setSCHED_DEADLINE();
 
+		void checkOverrun();
 		//! Attrributes of the scheduler
 		struct sched_attr scheduler_attributes;
 		std::string sched_rt_policy;
@@ -47,6 +48,11 @@ class SchedulerUtils
 		period_t period;
 		//! The current time factor of this component, used to scale the period, runtime and deadline of the SCHED_DEADLINE policy
 		double curr_time_factor;
+
+		struct OverrunInfo {
+			double overrun_time;
+			int count;
+		} overrun_info;
 
 		// SCHED_FIFO params
 		int priority;

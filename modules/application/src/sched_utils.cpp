@@ -98,6 +98,7 @@ void SchedulerUtils::executeEndLoopTask()
 	else if (sched_rt_policy == "SCHED_FIFO")
 	{
 		desired_time += std::chrono::duration_cast<std::chrono::steady_clock::duration>(period * curr_time_factor);
+		checkOverrun();
 		std::this_thread::sleep_until(this->desired_time);
 	}
 }
@@ -130,4 +131,23 @@ SchedulerUtils::period_t SchedulerUtils::getPeriod()
 std::string SchedulerUtils::getPolicy()
 {
 	return this->sched_rt_policy;
+}
+
+void SchedulerUtils::checkOverrun()
+{
+	auto now = std::chrono::steady_clock::now();
+	if (now > desired_time)
+	{
+		auto overrun_duration = std::chrono::duration_cast<std::chrono::microseconds>(now - desired_time).count();
+		// sum overrun_duration to desired_time and set to overrun_time
+		overrun_info.overrun_time = (period + std::chrono::duration<double, std::micro>(overrun_duration)).count();
+		overrun_info.count++;
+		std::cerr << "Warning: Overrun detected! Overrun time: " << overrun_duration << " microseconds. Total overruns: " << overrun_info.count << ", Total overrun time: " << overrun_info.overrun_time << " microseconds." << std::endl;
+	}
+	else
+	{
+		// Reset overrun info if no overrun occurred
+		overrun_info.overrun_time = 0;
+		overrun_info.count = 0;
+	}
 }
