@@ -5,6 +5,7 @@
 #include "dls2/signal/reader.hpp"
 #include "dls2/math/ramp.hpp"
 #include "robotlib/robot_base.hpp"
+#include "dls2/controller/control_modes.hpp"
 
 #include <memory>
 

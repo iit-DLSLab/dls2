@@ -12,6 +12,7 @@ target_link_libraries(${PLUGIN_NAME}
 	dls_signal
 	dls_messages
 	dls_topics
+	dls_controller
 	periodic_app_plugin
 )
 target_include_directories(${PLUGIN_NAME}
