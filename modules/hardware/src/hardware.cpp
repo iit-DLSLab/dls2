@@ -25,7 +25,11 @@ void Hardware::run(const std::chrono::system_clock::time_point& time)
 {
 	//avoid unused parameter warning
 	(void)time;
-	hal->run();
+	if(!hal->run()){
+		// Handle the case where the hardware is not functioning correctly
+		std::cerr << "Hardware run failed. Stopping the application." << std::endl;
+		sm.raiseEvent(sm.quit_request);
+	}
 }
 
 #endif /* end of include guard: HARDWARE_CPP */
