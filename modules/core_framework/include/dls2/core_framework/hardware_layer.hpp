@@ -29,7 +29,7 @@ namespace dls
         /// Activates a hardware
         ///
         /// @ret true if the hardware exists, false otherwise.
-        bool loadHardware(const std::string&);
+        bool loadHardware(const std::string&, const std::string& child_process_name = "${DLS_INSTALL_RUNTIME_DIR}/child_process_launcher");
 
         /// Deactivates a hardware
         ///

@@ -23,6 +23,17 @@ HardwareLayer::HardwareLayer(std::string ID)
 		true
 	);
 
+    command_manager.addCommand<std::string>
+	(
+		"loadXenoHardware",
+		"Load thel HAL of a robot when based on xeno",
+		std::function<bool(std::string)>([&](std::string type)->bool
+        {
+			return this->loadHardware(type, "${DLS_INSTALL_RUNTIME_DIR}/child_process_launcher_xeno");
+        }),
+		{{0,1},{1,1}},
+		true
+	);
     command_manager.addCommand<>
 	(
 		"unloadHardware",
@@ -57,7 +68,7 @@ HardwareLayer::~HardwareLayer()
 	this->app_logger.info("#### HARDWARE INTERFACE OFF ####");
 }
 
-bool HardwareLayer::loadHardware(const std::string &lib_name)
+bool HardwareLayer::loadHardware(const std::string &lib_name, const std::string &child_process_name)
 {
 	// std::lock_guard<std::mutex> lock(this->hardwares_mutex);
 
@@ -74,7 +85,7 @@ bool HardwareLayer::loadHardware(const std::string &lib_name)
 
 	// launch the hardware
 	pData->proc = std::make_shared<boost::process::child>(std::vector<std::string>({
-		"${DLS_INSTALL_RUNTIME_DIR}/child_process_launcher",
+		child_process_name,
 		pData->getID(),
 		lib_name,
 		"hardware",

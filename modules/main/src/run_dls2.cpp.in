@@ -220,8 +220,15 @@ namespace dls
 			{"python_periodic_apps", "Supervisor"},
 			{"generic_app_plugins", "Supervisor"}};
 		// app_to_loading_command
+		//if load_xeno_hardware option is true, use loadXenoHardware command instead of loadHardware
+		std::string load_hardware_command = "loadHardware";
+		if(config["load_xeno_hardware"] && config["load_xeno_hardware"].as<bool>()){
+			std::cout << "Using loadXenoHardware command to load hardwares" << std::endl;
+			load_hardware_command = "loadXenoHardware";
+		}
+		
 		std::map<std::string, std::string> app_to_loading_command = {
-			{"hardwares", "loadHardware"},
+			{"hardwares", load_hardware_command},
 			{"controllers", "loadController"},
 			{"motion_generators", "loadGenerator"},
 			{"estimators", "loadEstimator"},
