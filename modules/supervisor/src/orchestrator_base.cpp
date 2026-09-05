@@ -13,6 +13,9 @@ namespace dls
         , event_to_publish_(event_to_publish) 
         , telemetry_manager_(telemetry_readers_, telemetry_writers_)
         , sm_(sm)
+    {};
+
+    void OrchestratorBase::activation()
     {
         if(!this->telemetry_started_.load()){
             try{
@@ -26,14 +29,23 @@ namespace dls
                 throw;
             }
         }
-    };
+        dls::App::activation();
+    }
 
     void OrchestratorBase::telemetryCallback()
     {   
         while (!should_quit)
         {
-            // Reading msgs from Control Station
-            for(auto& reader : telemetry_readers_){
+            for (size_t i = 0; i < telemetry_readers_.size(); ++i) {
+                auto& reader = telemetry_readers_[i];
+                if (!reader) {
+                    std::cerr << "[orchestrator telemetry] null reader at index " << i
+                                << " for " << this->getID() << std::endl;
+                    continue;
+                }
+                if(!reader->is_receiving_data()){
+                    continue;
+                }
                 reader->read();
             }
 
@@ -53,8 +65,14 @@ namespace dls
 
             telemetryMain(events_to_publish);
 
-            // Sending msgs to Control Station
-            for(auto& writer : telemetry_writers_){
+            for (size_t i = 0; i < telemetry_writers_.size(); ++i) {
+                auto& writer = telemetry_writers_[i];
+                if (!writer) {
+                    std::cerr << "[orchestrator telemetry] null writer at index " << i
+                                << " for " << this->getID() << std::endl;
+                    continue;
+                }
+
                 writer->publish();
             }
 
@@ -64,26 +82,38 @@ namespace dls
 
     void OrchestratorBase::run(const std::chrono::system_clock::time_point &time)
     {
-        read();
-
-        // Collecting events from DLS2
-	    static long int idx_read = 0;
-        const auto events_fifo = event_listener_.readEvents(idx_read);
-        EventsPriorityQueue events_priority_queue_tmp;
+        try
         {
-            // Update internal events representation
-            std::lock_guard<std::mutex> lock(event_mutex_);
+            read();
 
-            for(const auto& event : events_fifo){
-                events_priority_queue_.push(event);
+            // Collecting events from DLS2
+            static long int idx_read = 0;
+            const auto events_fifo = event_listener_.readEvents(idx_read);
+            EventsPriorityQueue events_priority_queue_tmp;
+            {
+                // Update internal events representation
+                std::lock_guard<std::mutex> lock(event_mutex_);
+
+                for(const auto& event : events_fifo){
+                    events_priority_queue_.push(event);
+                }
+
+                events_priority_queue_tmp = events_priority_queue_;
             }
 
-            events_priority_queue_tmp = events_priority_queue_;
+            orchestrate(time, events_priority_queue_tmp);
+            write();
         }
-
-        orchestrate(time, events_priority_queue_tmp);
-
-        write();
+        catch (const std::exception& e)
+        {
+            std::cerr << "[orchestrator run] exception in " << this->getID() << ": " << e.what() << std::endl;
+            throw;
+        }
+        catch (...)
+        {
+            std::cerr << "[orchestrator run] unknown exception in " << this->getID() << std::endl;
+            throw;
+        }
     }
 
     extern "C" PeriodicAppPlugin *create(size_t telemetry_thread_period_ms, size_t event_to_publish, const std::string& ID)

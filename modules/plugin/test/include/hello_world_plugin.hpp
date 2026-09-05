@@ -7,6 +7,7 @@
 #include "dls2/signal/reader.hpp"
 #include "dls2/signal/writer.hpp"
 // ******************************************
+#include "dls2/controller/control_modes.hpp"
 
 // plugin loaded at run-time
 class HelloWorldPlugin : public dls::PeriodicAppPlugin

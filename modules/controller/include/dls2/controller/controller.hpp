@@ -6,6 +6,7 @@
 // =============================================================================
 #include "dls2/application/periodic_app.hpp"
 #include "dls2/controller/controller_data.hpp"
+#include "dls2/controller/control_modes.hpp"
 
 #include "dls2/util/messaging/dds_participant.hpp"
 

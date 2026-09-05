@@ -57,11 +57,21 @@ ControlLayer::ControlLayer(std::string ID, std::string robot_name)
 	, pRobot(robotlib::RobotFactory::openRobot(robot_name))
 	, writer_control_signal(
 		ddsSignalLink, 
-		dls::topics::desired_torques)
-	, torques()
+		dls::topics::control_signal)
+	, control_signal_msg()
 {
-	writer_control_signal.msg.desired_torques().resize(pRobot->getNJOINTS());
-	torques.desired_torques().resize(pRobot->getNJOINTS());
+	writer_control_signal.msg.joints_position().resize(pRobot->getNJOINTS());
+	writer_control_signal.msg.joints_velocity().resize(pRobot->getNJOINTS());
+	writer_control_signal.msg.joints_torques().resize(pRobot->getNJOINTS());
+	writer_control_signal.msg.kp().resize(pRobot->getNJOINTS());
+	writer_control_signal.msg.kd().resize(pRobot->getNJOINTS());
+
+	control_signal_msg.joints_position().resize(pRobot->getNJOINTS());
+	control_signal_msg.joints_velocity().resize(pRobot->getNJOINTS());
+	control_signal_msg.joints_torques().resize(pRobot->getNJOINTS());
+	control_signal_msg.kp().resize(pRobot->getNJOINTS());
+	control_signal_msg.kd().resize(pRobot->getNJOINTS());
+
 	command_manager.addCommand<std::string>
 	(
 		"loadGenerator",
@@ -238,18 +248,77 @@ void *ControlLayer::controlSignalGather(void *data)
         auto epoch = std::chrono::time_point_cast<std::chrono::milliseconds>(now).time_since_epoch();
 
 		// Read the control signals
-		std::fill(layer->torques.desired_torques().begin(), layer->torques.desired_torques().end(), 0);
-		
-		for(auto pair : layer->controllers)
+		std::fill(layer->control_signal_msg.joints_torques().begin(), layer->control_signal_msg.joints_torques().end(), 0);
+		layer->control_signal_msg.control_mode() = static_cast<uint8_t>(ControlMode::TORQUE_MODE);
+		bool active_position_controller = false; 
+		bool active_velocity_controller = false;
+		bool active_impedence_controller = false;
+		bool control_mode_set_once = false;
+
+		for(auto [_, controller_data] : layer->controllers)
 		{
-			pair.second->reader_control_signal.read();
-			for(long unsigned int i=0; i<pair.second->reader_control_signal.msg.torques().size();i++){
-				layer->torques.desired_torques()[i] += pair.second->premultiplier * pair.second->reader_control_signal.msg.torques()[i];
+			controller_data->reader_control_signal.read();
+			const auto& controller_msg = controller_data->reader_control_signal.msg;
+			const auto controller_mode = static_cast<ControlMode>(controller_msg.control_mode());
+
+			if(!control_mode_set_once){
+				layer->control_signal_msg.control_mode() = controller_msg.control_mode();
+				control_mode_set_once = true;
+			}
+
+			const auto aggregate_mode = static_cast<ControlMode>(layer->control_signal_msg.control_mode());
+			bool torque_controller_in_torque_mode = controller_mode == ControlMode::TORQUE_MODE && aggregate_mode == ControlMode::TORQUE_MODE;
+			bool torque_controller_in_impedence_mode = aggregate_mode == ControlMode::IMPEDANCE_MODE && controller_mode == ControlMode::TORQUE_MODE;
+			bool first_impedence_controller = controller_mode == ControlMode::IMPEDANCE_MODE && !active_impedence_controller;
+			bool first_position_controller = controller_mode == ControlMode::POSITION_MODE && !active_position_controller;
+			bool first_velocity_controller = controller_mode == ControlMode::VELOCITY_MODE && !active_velocity_controller;
+			
+
+			if(first_position_controller){
+				layer->control_signal_msg.control_mode() = static_cast<uint8_t>(ControlMode::POSITION_MODE);
+				layer->control_signal_msg.joints_position() = controller_msg.joints_position();
+				
+				// Reset all other fields to zero
+				std::fill(layer->control_signal_msg.joints_velocity().begin(), layer->control_signal_msg.joints_velocity().end(), 0);
+				std::fill(layer->control_signal_msg.joints_torques().begin(), layer->control_signal_msg.joints_torques().end(), 0);
+				std::fill(layer->control_signal_msg.kp().begin(), layer->control_signal_msg.kp().end(), 0.0);
+				std::fill(layer->control_signal_msg.kd().begin(), layer->control_signal_msg.kd().end(), 0.0);
+				break;
+			}
+
+			if(first_velocity_controller){
+				layer->control_signal_msg.control_mode() = static_cast<uint8_t>(ControlMode::VELOCITY_MODE);
+				layer->control_signal_msg.joints_velocity() = controller_msg.joints_velocity();
+				
+				// Reset all other fields to zero
+				std::fill(layer->control_signal_msg.joints_position().begin(), layer->control_signal_msg.joints_position().end(), 0);
+				std::fill(layer->control_signal_msg.joints_torques().begin(), layer->control_signal_msg.joints_torques().end(), 0);
+				std::fill(layer->control_signal_msg.kp().begin(), layer->control_signal_msg.kp().end(), 0.0);
+				std::fill(layer->control_signal_msg.kd().begin(), layer->control_signal_msg.kd().end(), 0.0);
+				break;
+			}
+
+
+			if(torque_controller_in_torque_mode || torque_controller_in_impedence_mode || first_impedence_controller){
+				if(first_impedence_controller){
+					active_impedence_controller = true;
+					layer->control_signal_msg.control_mode() = static_cast<uint8_t>(ControlMode::IMPEDANCE_MODE);
+					layer->control_signal_msg.joints_position() = controller_msg.joints_position();
+					layer->control_signal_msg.joints_velocity() = controller_msg.joints_velocity();
+					layer->control_signal_msg.kp() = controller_msg.kp();
+					layer->control_signal_msg.kd() = controller_msg.kd();
+				}
+
+				for(size_t i = 0; i < controller_msg.joints_torques().size();i++){
+					// Torque contributions summed up
+					layer->control_signal_msg.joints_torques()[i] += controller_data->premultiplier * controller_msg.joints_torques()[i];
+				}
 			}
 		}
 
-    	// Send the desired torques to HAL
-		layer->writer_control_signal.msg.desired_torques() = layer->saturateTorques(layer->torques.desired_torques());
+    	// Fill in the control signal to be sent to HAL
+		layer->control_signal_msg.joints_torques() = layer->saturateTorques(layer->control_signal_msg.joints_torques());
+		layer->writer_control_signal.msg = layer->control_signal_msg;
 		layer->writer_control_signal.msg.timestamp() = std::chrono::duration_cast<std::chrono::microseconds>(epoch).count();
 		layer->writer_control_signal.publish();
 
@@ -263,7 +332,6 @@ void *ControlLayer::controlSignalGather(void *data)
 	    {
             std::stringstream ss;
 		    ss << "Control Layer is probably breaking real-time. Has period of 1 mseconds but spent: " << mean << " useconds ";
-  		    // ss << "Control layer published torques " << desired_torques.transpose(); // << std::endl;
             layer->app_logger.warning(ss.str(), EventID::WRONG_PROCESS_FREQUENCY);
         }
 
@@ -591,7 +659,14 @@ std::vector<double> ControlLayer::saturateTorques(const std::vector<double>& req
 	return req;
 }
 
+std::vector<double> ControlLayer::getPublishedDesiredPosition(){
+	return this->writer_control_signal.msg.joints_position();
+}
+
+std::vector<double> ControlLayer::getPublishedDesiredVelocity(){
+	return this->writer_control_signal.msg.joints_velocity();
+}
+
 std::vector<double> ControlLayer::getPublishedDesiredTorques(){
-	// std::lock_guard<std::mutex>	lock(this->last_published_desired_torquesmutex);
-	return this->writer_control_signal.msg.desired_torques();
+	return this->writer_control_signal.msg.joints_torques();
 }

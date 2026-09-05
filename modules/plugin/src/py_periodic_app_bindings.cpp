@@ -1,4 +1,5 @@
 #include "dls2/application/periodic_app.hpp"
+#include "dls2/plugin/py_console_commands_bindings.hpp"
 
 #include <memory>
 
@@ -75,5 +76,55 @@ PYBIND11_MODULE(dls2_periodic_app_bindings, m)
         .def("shutdown", [](dls::PeriodicApp& self) {
             py::gil_scoped_release release;
             self.stop();
-        });
+        })
+        .def("add_command",
+            [](dls::PeriodicApp& self,
+                const std::string& name,
+                const std::string& doc,
+                py::function callback,
+                bool enabled = false) {
+                    auto bridge = std::make_shared<PythonCommandBridge>(std::move(callback));
+                    py::object parameters = py::module_::import("inspect")
+                                                .attr("signature")(bridge->fn)
+                                                .attr("parameters");
+
+                    if (py::len(parameters) == 0) {
+                        std::function<bool()> command_fn = [bridge]() {
+                            return bridge->call_noarg();
+                        };
+
+                        self.command_manager.addCommand<>(
+                            name,
+                            doc,
+                            command_fn,
+                            {},
+                            enabled
+                        );
+                        return;
+                    }
+
+                    if (py::len(parameters) == 1) {
+                        std::function<bool(std::string)> command_fn =
+                            [bridge](std::string value) {
+                                return bridge->call_string(value);
+                            };
+
+                        self.command_manager.addCommand<std::string>(
+                            name,
+                            doc,
+                            command_fn,
+                            {},
+                            enabled
+                        );
+                        return;
+                    }
+
+                    throw py::type_error(
+                        "add_command callback must accept zero arguments or one string argument"
+                    );
+                },
+            py::arg("name"),
+            py::arg("doc"),
+            py::arg("callback"),
+            py::arg("enabled") = false);
 }

@@ -55,6 +55,8 @@ namespace dls
 		 */
 		virtual void telemetryMain(const std::vector<dls2_interface::msg::EventLog>&) {};
 
+		void activation() override;
+
 		// Events
 		std::mutex event_mutex_;
 		logging::EventListener event_listener_;
