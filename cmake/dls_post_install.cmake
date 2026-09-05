@@ -20,4 +20,5 @@ if ( ${COMPILE_XENOMAI_CHILD_PROCESS} )
     execute_process(
         COMMAND
             setcap cap_sys_nice=eip /usr/bin/dls2/child_process_launcher_xeno
-)
+    )
+endif()
