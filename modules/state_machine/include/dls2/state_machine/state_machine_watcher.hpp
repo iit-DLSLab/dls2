@@ -8,12 +8,15 @@
 
 #include <map>
 #include <memory>
+#include <mutex>
 
 namespace state_machine
 {
     class StateMachineWatcher
     {
     public:
+        using AppStates = std::map<std::string, std::pair<std::string, bool>>;
+
         StateMachineWatcher(const std::string &name);
         ~StateMachineWatcher();
 
@@ -39,9 +42,11 @@ namespace state_machine
 
         bool findState(const std::string &app_name, const std::string &state) const;
 
-        std::map<std::string, std::pair<std::string, bool>> app_states;
+        AppStates getAppStates() const;
 
     private:
+        mutable std::mutex app_states_mutex_;
+        AppStates app_states;
         dls::DDSParticipant dds_sm_watcher;
     };
 }
