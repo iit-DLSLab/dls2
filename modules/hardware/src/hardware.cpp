@@ -16,9 +16,7 @@ Hardware::Hardware
 
 bool Hardware::checkActivation()
 {
-	hal->checkHighLevelInterface();
-	hal->checkLowLevelInterface();
-	return true;
+	return hal->checkHighLevelInterface() && hal->checkLowLevelInterface();
 }
 
 void Hardware::run(const std::chrono::system_clock::time_point& time)
