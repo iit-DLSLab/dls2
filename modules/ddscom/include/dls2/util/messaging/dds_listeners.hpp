@@ -7,7 +7,9 @@
 #include <fastdds/dds/subscriber/DataReaderListener.hpp>
 
 #include <string>
+#include <mutex>
 #include <shared_mutex>
+#include <vector>
 
 /// \cond doxygen_namespace_dls
 namespace dls
@@ -28,8 +30,12 @@ namespace dls
 			const eprosima::fastdds::dds::PublicationMatchedStatus &info
 		) override;
 
+		std::vector<eprosima::fastdds::dds::InstanceHandle_t> get_matched_datareaders_instances() const;
+
 		std::atomic_int matched_count;
 
+	private:
+		mutable std::mutex matched_datareaders_mutex_;
 		std::vector<eprosima::fastdds::dds::InstanceHandle_t> matched_datareaders_instances;
 	};
 
