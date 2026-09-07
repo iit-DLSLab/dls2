@@ -17,7 +17,7 @@ namespace dls
 		if(command_publisher_listener == nullptr)
 			return {};
 		// Get matched datareaders instances
-		auto matched_datareaders_instances = command_publisher_listener->matched_datareaders_instances;
+		auto matched_datareaders_instances = command_publisher_listener->get_matched_datareaders_instances();
 		// Find the domain participant name associated to each matched data reader, and save the name (corresponding to the command name)
 		std::vector<std::string> data_readers;
 		for(auto datareader_instance : matched_datareaders_instances)
