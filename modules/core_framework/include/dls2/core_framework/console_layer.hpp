@@ -6,6 +6,7 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <filesystem>
+#include <atomic>
 
 namespace dls
 {
@@ -53,8 +54,10 @@ namespace dls
 
 		// needed to unblock the console from the readline
 		void stop() override;
+		bool shutdownRequested() const { return shutdown_requested_.load(); }
 
 	private:
+		std::atomic_bool shutdown_requested_{false};
 		// Map with "load[Layer]" commands and associated installation folders
 		const std::map<std::string, std::string> load_layers_paths_;
 	};
