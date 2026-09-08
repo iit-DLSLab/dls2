@@ -106,6 +106,8 @@ namespace dls
 				std::cerr << "Invalid DLS_SHUTDOWN_TIMEOUT_MS; using 10000 ms" << std::endl;
 			}
 		}
+		// Separate console/framework terminals share DDS, not an OS process group.
+		command_manager.callCommand("shutdown", {"all"});
 		// OS signals reach owned descendants even when DDS discovery is unavailable.
 		// Discovery servers remain available throughout component cleanup.
 		const bool layers_stopped = utils::shutdownProcesses(layers, grace);

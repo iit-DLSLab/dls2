@@ -190,10 +190,12 @@ int main(int argc, char **argv)
         exit(EXIT_FAILURE);
     }
 
-    shutdown_signal.start([pComponent] {
+    shutdown_signal.start([pComponent, is_console = args.component_type == "layer" && args.lib_name == "console"] {
         // Initialization has no quit transition. Retain an early signal until idle.
         const auto state = pComponent->sm.getStateName();
         if (state == "initialization") return false;
+        // Ctrl+C in a separate console must also stop the connected framework.
+        if (is_console) pComponent->command_manager.callCommand("shutdown", {"all"});
         if (state != "quit") pComponent->stop();
         return true;
     });
