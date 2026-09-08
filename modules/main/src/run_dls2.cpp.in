@@ -9,21 +9,15 @@
 namespace dls
 {
 	CommandManager RunDLS2::command_manager("dls_framework");
-	bool RunDLS2::should_quit(false);
-
-	void RunDLS2::shutdown_all(int)
-	{
-		should_quit = true;
-	}
+	std::atomic_bool RunDLS2::should_quit(false);
 
 	RunDLS2::RunDLS2(int argc, char **argv)
 		: sm_watcher("sm_watcher_runDLS2"),
 		  ddspart("ddspart_runDLS2", dls::domains::layers, eprosima::fastdds::rtps::DiscoveryProtocol::SUPER_CLIENT)
 	{
-		// When the user presses CTRL+C, make sure that all layers are shutdown
-		signal(
-			SIGINT,
-			shutdown_all);
+		shutdown_signal.start([] { should_quit.store(true); return true; });
+		if (prctl(PR_SET_CHILD_SUBREAPER, 1) != 0)
+			throw std::system_error(errno, std::generic_category(), "enabling child subreaper");
 
 		change_process_name(argv, "dls_framework");
 
@@ -103,32 +97,31 @@ namespace dls
 			launchLayers();
 		}
 
-		// Hanging on this executable to intercept CTRL+C. If no layers are running, the executable will exit
-		int num_layers = 1;
-		while (!should_quit || (num_layers > 0))
-		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(500));
-			if(should_quit)
-				command_manager.callCommand("shutdown", {"all"});
-
-			// Check if at least one layer is running
-			auto layers = ddspart.getParticipants();
-			num_layers = std::count_if(layers.begin(), layers.end(), [](std::string s)
-									   { return s.find("Layer") != std::string::npos; });
+		while (!should_quit.load()) {
+			bool any_running = false;
+			for (auto& [name, process] : layers) any_running |= process->running();
+			if (!layers.empty() && !any_running) break;
+			std::this_thread::sleep_for(std::chrono::milliseconds(50));
 		}
 
-		// Before exiting, wait the closing of layers. It is not necessary, but it is used to print the information at the end only when all the layers are closed
-		std::cout << "\n"<< std::endl;
-		for (auto layer : layers)
-		{
-			std::cout << "Waiting for " << layer.first << " to exit..." << std::endl;
-			layer.second->proc->wait(); // wait for the process to exit
+		std::chrono::milliseconds grace(10000);
+		if (const char* value = std::getenv("DLS_SHUTDOWN_TIMEOUT_MS")) {
+			try {
+				std::size_t used = 0;
+				const int timeout = std::stoi(value, &used);
+				if (value[used] != '\0' || timeout <= 0 || timeout > 600000)
+					throw std::invalid_argument("out of range");
+				grace = std::chrono::milliseconds(timeout);
+			} catch (const std::exception&) {
+				std::cerr << "Invalid DLS_SHUTDOWN_TIMEOUT_MS; using 10000 ms" << std::endl;
+			}
 		}
-
-		// close servers
-		if(system("pkill -SIGINT fast-disc")!=0){
-			throw std::runtime_error("CANNOT SHUTDOWN FASTDDS SERVERS");
-		}
+		// OS signals reach owned descendants even when DDS discovery is unavailable.
+		// Discovery servers remain available throughout component cleanup.
+		const bool layers_stopped = utils::shutdownProcesses(layers, grace);
+		const bool servers_stopped = utils::shutdownProcesses(discovery_servers, std::chrono::milliseconds(2000));
+		if (!layers_stopped || !servers_stopped)
+			throw std::runtime_error("Framework shutdown left processes alive; see PID/PGID diagnostics");
 
 		std::cout << "=== FRAMEWORK NODE STOPPED ===" << std::endl;
 	}
@@ -145,29 +138,21 @@ namespace dls
 
 	bool RunDLS2::runLayer(const std::string &lib, const std::string &ID)
 	{
-		std::shared_ptr<AppData> pData = std::make_shared<AppData>(ID);
-
-		pData->proc = std::make_shared<boost::process::child>(std::vector<std::string>(
+		if (should_quit.load()) return false;
+		auto process = std::make_shared<utils::OwnedProcess>(std::vector<std::string>(
 			{"${DLS_INSTALL_RUNTIME_DIR}/child_process_launcher",
-			 pData->getID(),
+			 ID,
 			 lib,
 			 "layer",
-			 Options::robot_name}));
+			 Options::robot_name}), lib != "console");
 
-		if (pData->proc == nullptr)
-		{
-			std::cout << "Layer " << lib << " failed to launch: nullptr" << std::endl;
-			return false;
-		}
-
-		pData->proc->detach();
-		layers.emplace(pData->getID(), pData);
+		layers.emplace(ID, process);
 
 		// activate layer
-		sm_watcher.waitState(pData->getID(), "idle", should_quit);
-		if(command_manager.waitCommand(pData->getID(), "activate", should_quit))
-			command_manager.callCommand("activate", {}, pData->getID());
-		sm_watcher.waitState(pData->getID(), "run", should_quit);
+		sm_watcher.waitState(ID, "idle", should_quit);
+		if(command_manager.waitCommand(ID, "activate", should_quit))
+			command_manager.callCommand("activate", {}, ID);
+		sm_watcher.waitState(ID, "run", should_quit);
 		return true;
 	}
 
@@ -197,12 +182,11 @@ namespace dls
 
 	void RunDLS2::launchSingleServer(const std::string& ip, int port){
 		static size_t server_id = 0;
-		std::string command = "setsid fastdds discovery -p " +std::to_string(port)+ " --server-id " + std::to_string(server_id) + " -l "+ip+"&";
-		server_id++;
-		std::cout << command << std::endl;
-		if(system(command.c_str())!=0){
-			throw std::runtime_error("CANNOT EXECUTE COMMAND " + command);
-		}
+		if (should_quit.load()) return;
+		const auto id = std::to_string(server_id++);
+		discovery_servers.emplace("DiscoveryServer" + id, std::make_shared<utils::OwnedProcess>(
+			std::vector<std::string>{"/usr/bin/env", "fastdds", "discovery",
+				"-p", std::to_string(port), "--server-id", id, "-l", ip}));
 	}
 
 	void RunDLS2::runStartup(const std::string &startup_file)
@@ -276,6 +260,7 @@ namespace dls
 		// launch hardware first so dependent apps do not race missing inputs
 		for (auto hardware : applications["hardwares"])
 		{
+			if (should_quit.load()) return;
 			command_manager.callCommand(app_to_loading_command["hardwares"], {hardware}, app_to_layer["hardwares"]);
 			sm_watcher.waitState(hardware, "idle", should_quit);
 
@@ -289,6 +274,7 @@ namespace dls
 			}
 
 			// loadModel does not have effect on the real robot because the HAL is directly loaded there.
+			if (should_quit.load()) return;
 			sleep(1); // if the model is spawned too fast (in gazebo) the simulation breaks
 			if(command_manager.waitCommand(hardware, "loadModel", should_quit, 10000))
 				command_manager.callCommand("loadModel", {Options::robot_name, std::to_string(Options::robot_spawning_height)}, hardware);
@@ -302,6 +288,7 @@ namespace dls
 
 			for (auto name : app_names)
 			{
+				if (should_quit.load()) return;
 				command_manager.callCommand(app_to_loading_command[app_type], {name}, app_to_layer[app_type]);
 				sm_watcher.waitState(name, "idle", should_quit);
 				if(std::find(active_apps.begin(), active_apps.end(), name) != active_apps.end())
