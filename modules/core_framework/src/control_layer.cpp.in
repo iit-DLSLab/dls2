@@ -90,7 +90,9 @@ ControlLayer::ControlLayer(std::string ID, std::string robot_name)
 		"Unload a motion generator",
 		std::function<bool(std::string)>([&](std::string s)->bool
 		{
-			if(this->unloadMotionGenerator(s) && this->motion_generators.size() == 0)
+			const bool unloaded = this->unloadMotionGenerator(s);
+			std::lock_guard<std::mutex> lock(motion_mutex);
+			if(unloaded && this->motion_generators.empty())
 				return true;
 			else // either the unload was not successful or there are still motion generators running
 				return false;
@@ -129,7 +131,9 @@ ControlLayer::ControlLayer(std::string ID, std::string robot_name)
 		"Unload a controller",
 		std::function<bool(std::string)>([&](std::string s)->bool
 		{
-			if(this->unloadController(s) && this->controllers.size() == 0)
+			const bool unloaded = this->unloadController(s);
+			std::lock_guard<std::mutex> lock(controllers_mutex);
+			if(unloaded && this->controllers.empty())
 				return true;
 			else // either the unload was not successful or there are still controllers running
 				return false;
@@ -144,7 +148,9 @@ ControlLayer::ControlLayer(std::string ID, std::string robot_name)
 		"Unload an external controller",
 		std::function<bool(std::string)>([&](std::string s)->bool
 		{
-			if(this->unloadExternalController(s) && this->controllers.size() == 0)
+			const bool unloaded = this->unloadExternalController(s);
+			std::lock_guard<std::mutex> lock(controllers_mutex);
+			if(unloaded && this->controllers.empty())
 				return true;
 			else // either the unload was not successful or there are still controllers running
 				return false;
@@ -166,24 +172,22 @@ ControlLayer::ControlLayer(std::string ID, std::string robot_name)
             if(s == "cont")
             {
                 std::stringstream ss;
-                // std::lock_guard<std::mutex> lock(this->controllers_mutex);
-				ss << "\n";
-                for(auto &elem : this->controllers)
                 {
-                    ss << elem.first << "\n";
+                    std::lock_guard<std::mutex> lock(controllers_mutex);
+                    ss << "\n";
+                    for (const auto& [name, data] : controllers) ss << name << "\n";
                 }
-                this->app_logger.info(ss.str());
+                app_logger.info(ss.str());
             }
             else if(s == "motion")
             {
-				std::stringstream ss;
-                // std::lock_guard<std::mutex> lock(this->motion_mutex);
-				ss << "\n";
-				for(auto &elem : this->motion_generators)
+                std::stringstream ss;
                 {
-                    ss << elem.first << "\n";
+                    std::lock_guard<std::mutex> lock(motion_mutex);
+                    ss << "\n";
+                    for (const auto& [name, data] : motion_generators) ss << name << "\n";
                 }
-				this->app_logger.info(ss.str());
+                app_logger.info(ss.str());
             }
             else
             {
@@ -200,10 +204,6 @@ ControlLayer::ControlLayer(std::string ID, std::string robot_name)
 
 ControlLayer::~ControlLayer()
 {
-	for(auto pair : this->controllers){
-		pair.second = nullptr;
-	}
-
 	void *res = nullptr; // do not need to save the thread exit status
 	pthread_join(controlSignalGatherThread, &res);
 }
@@ -242,6 +242,7 @@ void *ControlLayer::controlSignalGather(void *data)
 
 	ControlLayer *layer = (ControlLayer*) data;	
 	boost::circular_buffer<int> delta(100);
+	std::vector<std::shared_ptr<ControllerData>> controllers_snapshot;
 
     while(!layer->sm.isRaised(layer->sm.deactivation_request) &&  !layer->sm.isRaised(layer->sm.quit_request)) {
         auto now = std::chrono::high_resolution_clock::now();
@@ -255,7 +256,15 @@ void *ControlLayer::controlSignalGather(void *data)
 		bool active_impedence_controller = false;
 		bool control_mode_set_once = false;
 
-		for(auto [_, controller_data] : layer->controllers)
+		// Snapshot lifetime is independent of concurrent extraction/unload.
+		controllers_snapshot.clear();
+		{
+			std::lock_guard<std::mutex> lock(layer->controllers_mutex);
+			controllers_snapshot.reserve(layer->controllers.size());
+			for (const auto& [name, controller] : layer->controllers)
+				controllers_snapshot.push_back(controller);
+		}
+		for(const auto& controller_data : controllers_snapshot)
 		{
 			controller_data->reader_control_signal.read();
 			const auto& controller_msg = controller_data->reader_control_signal.msg;
@@ -343,17 +352,23 @@ void *ControlLayer::controlSignalGather(void *data)
 
 void ControlLayer::monitor()
 {
-	this->checkAppData(this->controllers);
-	this->checkAppData(this->motion_generators);
+	this->checkAppData(this->controllers, controllers_mutex);
+	this->checkAppData(this->motion_generators, motion_mutex);
 }
 
 void ControlLayer::close()
-{	
-	for(auto pair : this->motion_generators)
-		this->unloadMotionGenerator(pair.first);
-	
-	for(auto pair : this->controllers)
-		this->unloadController(pair.first);
+{
+	closing_.store(true);
+	decltype(motion_generators) generators_to_stop;
+	decltype(controllers) controllers_to_stop;
+	{
+		std::scoped_lock operations(controllers_operations_mutex, motion_operations_mutex);
+		std::scoped_lock maps(controllers_mutex, motion_mutex);
+		generators_to_stop.swap(motion_generators);
+		controllers_to_stop.swap(controllers);
+	}
+	for (auto& [name, data] : generators_to_stop) unloadMotionGenerator(data);
+	for (auto& [name, data] : controllers_to_stop) unloadController(data);
 }
 
 std::string ControlLayer::where()
@@ -362,7 +377,7 @@ std::string ControlLayer::where()
 
 	// Where Controllers
 	{
-		// std::lock_guard<std::mutex> lock(this->controllers_mutex);
+		std::lock_guard<std::mutex> lock(this->controllers_mutex);
 		if(controllers.size() > 0)
 		{
 			ss << "Active controllers:\n";
@@ -378,7 +393,7 @@ std::string ControlLayer::where()
 	}
 	// Where Motion Generators
 	{
-		// std::lock_guard<std::mutex> lock(this->motion_mutex);
+		std::lock_guard<std::mutex> lock(this->motion_mutex);
 		if(motion_generators.size() > 0)
 		{
 			ss << "Active Motion Generator:\n";
@@ -409,12 +424,16 @@ std::string ControlLayer::where()
 // =============================================================================
 bool ControlLayer::loadController(const std::string& lib_name)
 {
-	// std::lock_guard<std::mutex> lock(this->controllers_mutex);
-	
-	if(this->controllers.find(lib_name) != this->controllers.end())
+	std::lock_guard<std::mutex> operation(controllers_operations_mutex);
+	if (closing_.load()) return false;
+	bool already_loaded;
 	{
-		this->app_logger.error("Controller " + lib_name + " already loaded");
-        return false;
+		std::lock_guard<std::mutex> lock(controllers_mutex);
+		already_loaded = controllers.find(lib_name) != controllers.end();
+	}
+	if (already_loaded) {
+		app_logger.error("Controller " + lib_name + " already loaded");
+		return false;
 	}
 
     std::shared_ptr<ControllerData> pData = std::make_shared<ControllerData>(
@@ -467,16 +486,25 @@ bool ControlLayer::loadController(const std::string& lib_name)
 	// 	}
 	// }
 	pData->proc->detach();
-	this->controllers.emplace(pData->getID(), pData);
+	{
+		std::lock_guard<std::mutex> lock(controllers_mutex);
+		this->controllers.emplace(pData->getID(), pData);
+	}
 	return true;
 }
 
 bool ControlLayer::loadExternalController(const std::string& lib_name)
 {
-	if(this->controllers.find(lib_name) != this->controllers.end())
+	std::lock_guard<std::mutex> operation(controllers_operations_mutex);
+	if (closing_.load()) return false;
+	bool already_loaded;
 	{
-		this->app_logger.error("Controller " + lib_name + " already loaded");
-        return false;
+		std::lock_guard<std::mutex> lock(controllers_mutex);
+		already_loaded = controllers.find(lib_name) != controllers.end();
+	}
+	if (already_loaded) {
+		app_logger.error("Controller " + lib_name + " already loaded");
+		return false;
 	}
 
     std::shared_ptr<ControllerData> pData = std::make_shared<ControllerData>(
@@ -491,13 +519,18 @@ bool ControlLayer::loadExternalController(const std::string& lib_name)
 
     this->app_logger.info("CONTROL LAYER IS LISTENING CONTROLLER " + pData->getID() + " ON TOPIC " + pData->getID());
 
-	this->controllers.emplace(pData->getID(), pData);
+	{
+		std::lock_guard<std::mutex> lock(controllers_mutex);
+		this->controllers.emplace(pData->getID(), pData);
+	}
 	return true;
 }
 
 
 bool ControlLayer::unloadController(std::shared_ptr<ControllerData> pData)
 {
+	// Entry was extracted under the map lock; external controllers have no process.
+	if (!pData->proc) return true;
 	// // spline down the controller
 	// if(pData->pSpline_out)
 	// {
@@ -515,7 +548,6 @@ bool ControlLayer::unloadController(std::shared_ptr<ControllerData> pData)
 	// 	}
 	// }
 
-	// std::lock_guard<std::mutex> lock(this->controllers_mutex);
 
 	command_manager.callCommand("shutdown", {}, pData->getID());
 
@@ -531,48 +563,38 @@ bool ControlLayer::unloadController(std::shared_ptr<ControllerData> pData)
 	}
 
 	pData->proc = nullptr;
-	this->controllers.erase(pData->getID());
 
 	std::cout << "unloaded controller " << pData->getID() << std::endl;
 
     return true;
 }
 
-bool ControlLayer::unloadController(const std::string &ID)
+bool ControlLayer::unloadController(const std::string& ID)
 {
-	decltype(this->controllers.find(ID)) pair_it;
+	std::lock_guard<std::mutex> operation(controllers_operations_mutex);
+	std::shared_ptr<ControllerData> data;
 	{
-		// std::lock_guard<std::mutex> lock(this->controllers_mutex);
-		pair_it = this->controllers.find(ID);
-
-		if(pair_it == this->controllers.end()) 
-		{
-			this->app_logger.error("controller " + ID + " not loaded");
-			return false;
-		}
+		std::lock_guard<std::mutex> lock(controllers_mutex);
+		auto it = controllers.find(ID);
+		if (it == controllers.end()) return false;
+		data = it->second;
+		controllers.erase(it);
 	}
-
-    return this->unloadController(pair_it->second);
+	return unloadController(data);
 }
 
-bool ControlLayer::unloadExternalController(const std::string &ID)
+bool ControlLayer::unloadExternalController(const std::string& ID)
 {
-	decltype(this->controllers.find(ID)) pair_it;
+	std::lock_guard<std::mutex> operation(controllers_operations_mutex);
+	std::shared_ptr<ControllerData> data;
 	{
-		// std::lock_guard<std::mutex> lock(this->controllers_mutex);
-		pair_it = this->controllers.find(ID);
-
-		if(pair_it == this->controllers.end()) 
-		{
-			this->app_logger.error("controller " + ID + " not loaded");
-			return false;
-		}
+		std::lock_guard<std::mutex> lock(controllers_mutex);
+		auto it = controllers.find(ID);
+		if (it == controllers.end() || it->second->proc) return false;
+		data = it->second;
+		controllers.erase(it);
 	}
-
-	this->controllers.erase(ID);
-
-	std::cout << "unloaded controller " << ID << std::endl;
-    return true;
+	return true;
 }
 
 // -----------------------------------------------------------------------------
@@ -580,15 +602,19 @@ bool ControlLayer::unloadExternalController(const std::string &ID)
 // -----------------------------------------------------------------------------
 bool ControlLayer::loadMotionGenerator(const std::string& lib_name)
 {
-	// std::lock_guard<std::mutex> lock(this->motion_mutex);
-
-	if(this->motion_generators.find(lib_name) != this->motion_generators.end()) 
+	std::lock_guard<std::mutex> operation(motion_operations_mutex);
+	if (closing_.load()) return false;
+	bool already_loaded;
 	{
-		this->app_logger.error("motion generation " + lib_name + " already loaded" );
-        return false;
+		std::lock_guard<std::mutex> lock(motion_mutex);
+		already_loaded = motion_generators.find(lib_name) != motion_generators.end();
+	}
+	if (already_loaded) {
+		app_logger.error("Motion generator " + lib_name + " already loaded");
+		return false;
 	}
 
-	std::shared_ptr<AppData> pData = std::make_shared<AppData>(lib_name);
+    std::shared_ptr<AppData> pData = std::make_shared<AppData>(lib_name);
 
 	pData->proc = std::make_shared<boost::process::child>(std::vector<std::string>({
 		"${DLS_INSTALL_RUNTIME_DIR}/child_process_launcher",
@@ -604,13 +630,17 @@ bool ControlLayer::loadMotionGenerator(const std::string& lib_name)
     }
 
 	pData->proc->detach();	
-	this->motion_generators.emplace(pData->getID(), pData);
+	{
+		std::lock_guard<std::mutex> lock(motion_mutex);
+		this->motion_generators.emplace(pData->getID(), pData);
+	}
 	return true;
 }
 
 bool ControlLayer::unloadMotionGenerator(std::shared_ptr<AppData> pData)
 {
-	// std::lock_guard<std::mutex> lock(this->motion_mutex);
+	// Entry was extracted under the map lock and is no longer monitored.
+	if (!pData->proc) return true;
 
 	//shutdown motion generation over the dds comunication layer
 	command_manager.callCommand("shutdown", {}, pData->getID());
@@ -632,24 +662,21 @@ bool ControlLayer::unloadMotionGenerator(std::shared_ptr<AppData> pData)
 	std::cout<< "Motion generation " << pData->getID() << " is unloaded" << std::endl;
 
 	pData->proc = nullptr;
-	this->motion_generators.erase(pData->getID());
 	return true;
 }
 
 bool ControlLayer::unloadMotionGenerator(const std::string& ID)
 {
-	// std::lock_guard<std::mutex> lock(this->motion_mutex);
-
-	auto pair_it = this->motion_generators.find(ID);
-	
-	if(pair_it == this->motion_generators.end()) 
+	std::lock_guard<std::mutex> operation(motion_operations_mutex);
+	std::shared_ptr<AppData> data;
 	{
-		this->app_logger.error("motion generation " + ID + " is not loaded");
-		return false;
+		std::lock_guard<std::mutex> lock(motion_mutex);
+		auto it = motion_generators.find(ID);
+		if (it == motion_generators.end()) return false;
+		data = it->second;
+		motion_generators.erase(it);
 	}
-
-	
-    return this->unloadMotionGenerator(pair_it->second);
+	return unloadMotionGenerator(data);
 }
 
 std::vector<double> ControlLayer::saturateTorques(const std::vector<double>& req) const
