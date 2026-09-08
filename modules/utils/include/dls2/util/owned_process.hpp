@@ -1,6 +1,7 @@
 #pragma once
 
 #include <boost/process.hpp>
+#include <boost/process/extend.hpp>
 #include <chrono>
 #include <cerrno>
 #include <csignal>
@@ -10,6 +11,7 @@
 #include <string>
 #include <sys/wait.h>
 #include <thread>
+#include <unistd.h>
 #include <vector>
 
 namespace dls::utils
@@ -22,8 +24,20 @@ class OwnedProcess
 public:
     // The interactive console must retain the terminal's foreground group.
     explicit OwnedProcess(const std::vector<std::string>& args, bool own_group = true)
-        : proc(own_group ? boost::process::child(args, group_) : boost::process::child(args)),
-          own_group_(own_group) {}
+        : proc(own_group ? boost::process::child(args,
+              boost::process::extend::on_exec_setup = [](auto& executor) {
+                  // Keep inherited stdin/stdout, but detach from terminal job control.
+                  // setpgid alone lets keyboard I/O suspend the entire layer group.
+                  if (::setsid() == -1)
+                      executor.set_error(std::error_code(errno, std::generic_category()), "setsid");
+              }) : boost::process::child(args)),
+          own_group_(own_group)
+    {
+        if (own_group_) {
+            auto pgid = proc.id(); // setsid creates a group with the child's PID.
+            group_ = boost::process::group(pgid);
+        }
+    }
 
     bool running()
     {
