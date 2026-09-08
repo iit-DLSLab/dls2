@@ -30,6 +30,8 @@ namespace dls
 
     protected:
         std::shared_ptr<HalBase> hal;
+
+        virtual void eventsCheck();
     };
 } // end namespace dls
 

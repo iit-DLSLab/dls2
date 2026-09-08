@@ -28,6 +28,10 @@ void Hardware::run(const std::chrono::system_clock::time_point& time)
 		std::cerr << "Hardware run failed. Stopping the application." << std::endl;
 		sm.raiseEvent(sm.quit_request);
 	}
+
+	eventsCheck();
 }
+
+void Hardware::eventsCheck() {}
 
 #endif /* end of include guard: HARDWARE_CPP */
