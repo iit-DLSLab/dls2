@@ -5,6 +5,7 @@
 #include <sys/prctl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 
 namespace dls
 {
@@ -57,25 +58,14 @@ namespace dls
 
 		if (Options::kill_dls2)
 		{
-			int ret = system(
-				"pkill -9 dls_framework;\
-					pkill -9 ControlLayer;\
-					pkill -9 ConsoleLayer;\
-					pkill -9 ControlLayer;\
-					pkill -9 LogLayer;\
-					pkill -9 HardwareLayer;\
-					pkill -9 EstimationLayer;\
-					pkill -9 dls_param_serve;\
-					pkill -9 Supervisor;\
-					pkill -9 gazebo_sim;\
-					pkill -9 gz");
-			if (ret == -1)
+			// Let each framework stop its owned layers, then its discovery servers.
+			const int ret = system("pkill -TERM -x dls_framework");
+			// pkill returns 1 when no matching process could be signalled.
+			if (ret == -1 || !WIFEXITED(ret) || WEXITSTATUS(ret) > 1)
 			{
-				throw std::runtime_error("Error executing system command to show the documentation.");
+				throw std::runtime_error("Failed to request framework shutdown.");
 			}
-
-			command_manager.callCommand("shutdown", {"all"});
-			exit(EXIT_SUCCESS);
+			return;
 		}
 		// Run startup procedure if requested by the user
 		if (Options::run_startup)

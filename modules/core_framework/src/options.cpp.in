@@ -245,7 +245,7 @@ void Options::printUsage()
 	"| layers      | l            | a comma-separated list of layers to launch          |\n"
 	"| super       | c            | launch the supervisor (c is for core)               |\n"
 	"| startup     | s            | launch the startup procedure			            |\n"
-	"| kill		   | k            | force kill dls2 						            |\n"
+	"| kill		   | k            | request graceful dls2 shutdown 				            |\n"
 	"| version     | v            | print the version and exit                          |\n"
 	"| help        | h            | print this help and exit                            |\n"
 	"| docs        | d            | show development documentation                      |\n"
