@@ -79,6 +79,8 @@ public:
 	/// @return true if the generator unloads correctly.
 	bool unloadMotionGenerator(const std::string&);
 
+	bool loadPythonController(const std::string& lib_name);
+
 	/// Returns the last published joint reference
 	std::vector<double> getPublishedDesiredPosition();
 	std::vector<double> getPublishedDesiredVelocity();

@@ -214,6 +214,7 @@ namespace dls
 		std::map<std::string, std::string> app_to_layer = {
 			{"hardwares", "HardwareLayer"},
 			{"controllers", "ControlLayer"},
+			{"python_controllers", "ControlLayer"},
 			{"motion_generators", "ControlLayer"},
 			{"estimators", "EstimationLayer"},
 			{"generic_periodic_app_plugins", "Supervisor"},
@@ -230,6 +231,7 @@ namespace dls
 		std::map<std::string, std::string> app_to_loading_command = {
 			{"hardwares", load_hardware_command},
 			{"controllers", "loadController"},
+			{"python_controllers", "loadPythonController"},
 			{"motion_generators", "loadGenerator"},
 			{"estimators", "loadEstimator"},
 			{"generic_app_plugins", "loadAppPlugin"},

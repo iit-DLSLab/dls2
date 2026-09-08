@@ -111,6 +111,19 @@ ControlLayer::ControlLayer(std::string ID, std::string robot_name)
 		true
 	);
 
+
+	command_manager.addCommand<std::string>
+	(
+		"loadPythonController",
+		"Load a Python controller",
+		std::function<bool(std::string s)>([&](const std::string &s)->bool
+		{
+			return this->loadPythonController(s);
+		}),
+		{{0,2},{1,3},{2,2},{3,3}},
+		true
+	);
+
 	command_manager.addCommand<std::string>
 	(
 		"loadExternalController",
@@ -575,6 +588,42 @@ bool ControlLayer::unloadExternalController(const std::string &ID)
     return true;
 }
 
+bool ControlLayer::loadPythonController(const std::string& lib_name)
+{
+	// std::lock_guard<std::mutex> lock(this->controllers_mutex);
+	
+	if(this->controllers.find(lib_name) != this->controllers.end())
+	{
+		this->app_logger.error("Controller " + lib_name + " already loaded");
+		return false;
+	}
+
+	std::shared_ptr<ControllerData> pData = std::make_shared<ControllerData>(
+		lib_name,
+		this->ddsSignalLink,
+		dls::topicType(lib_name, new dls2_interface::msg::ControlSignalPubSubType()),
+		this->pDefault_spline_in,
+		this->pDefault_spline_out,
+		default_duration_seconds,
+		default_duration_seconds
+	);
+
+	pData->proc = std::make_shared<boost::process::child>(std::vector<std::string>({
+		"${DLS_INSTALL_RUNTIME_DIR}/child_process_launcher",
+		pData->getID(),
+		lib_name,
+		"python_periodic_app",
+		this->pRobot->getName()
+	}));
+
+	if (pData->proc == nullptr){
+		this->app_logger.error("Controller " + lib_name +" failed to launch: nullptr");
+		return false;
+	}
+	pData->proc->detach();
+	this->controllers.emplace(pData->getID(), pData);
+	return true;
+}
 // -----------------------------------------------------------------------------
 // Motion Generators
 // -----------------------------------------------------------------------------

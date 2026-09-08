@@ -4,6 +4,7 @@ layers: [hardware, estimation, log]
 # applications
 hardwares: []
 controllers: []
+python_controllers: []
 motion_generators: []
 estimators: []
 python_periodic_apps: []
