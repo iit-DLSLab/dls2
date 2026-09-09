@@ -108,8 +108,10 @@ void PeriodicApp::childMonitor()
 		this->robust_event_notifier.notify(	
 								EventID::WRONG_PROCESS_FREQUENCY,
 								EventSeverity::WARNING,
-								"Des freq: " + std::to_string(status_msg.desired_frequency()) + " Hz, " 
-								+ "Curr freq: " + std::to_string(status_msg.current_frequency()) + " Hz");
+								"Des freq: " + std::to_string(status_msg.desired_frequency()) + " Hz ("
+								+ (status_msg.desired_frequency() > 0.0 ? std::to_string(1000.0 / status_msg.desired_frequency()) : "N/A") + " ms), "
+								+ "Curr freq: " + std::to_string(status_msg.current_frequency()) + " Hz ("
+								+ (status_msg.current_frequency() > 0.0 ? std::to_string(1000.0 / status_msg.current_frequency()) : "N/A") + " ms)");
 	}
 
 	// notify if the process is using more cpu than expected over time
