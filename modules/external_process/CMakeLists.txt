@@ -17,6 +17,7 @@ target_compile_features(dls_external_process PUBLIC cxx_std_17)
 target_include_directories(dls_external_process
 	PUBLIC
 		include
+		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../utils/include>
 )
 
 target_link_libraries(dls_external_process

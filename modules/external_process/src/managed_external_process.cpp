@@ -26,7 +26,7 @@ void ManagedExternalProcess::start(const std::vector<std::string>& command,
                             std::chrono::milliseconds interrupt_timeout,
                             std::chrono::milliseconds terminate_timeout)
 {
-    if (child_ && !shutdown_sent_)
+    if (process_ && !shutdown_sent_)
         return;
 
     if (shutdown_sent_) 
@@ -45,13 +45,9 @@ void ManagedExternalProcess::start(const std::vector<std::string>& command,
     if (executable.empty())
         throw std::runtime_error("Launch executable not found: " + command.front());
 
-    auto group = std::make_unique<boost::process::group>();
-    auto child = std::make_unique<boost::process::child>(
-        executable, boost::process::args(std::vector<std::string>(command.begin() + 1, command.end())),
-        *group);
-
-    group_ = std::move(group);
-    child_ = std::move(child);
+    auto args = command;
+    args.front() = executable.string();
+    process_ = std::make_shared<utils::OwnedProcess>(args);
     interrupt_timeout_ = interrupt_timeout;
     terminate_timeout_ = terminate_timeout;
     stop_result_ = {};
@@ -60,7 +56,7 @@ void ManagedExternalProcess::start(const std::vector<std::string>& command,
 
 bool ManagedExternalProcess::running()
 {
-    return !shutdown_sent_ && child_ && child_->running();
+    return !shutdown_sent_ && process_ && process_->leaderRunning();
 }
 
 void ManagedExternalProcess::requestStop()
@@ -86,53 +82,21 @@ void ManagedExternalProcess::stopAndWait()
     stop_result_.get();
 }
 
-void ManagedExternalProcess::signalGroup(int signal)
-{
-    const auto pgid = group_->native_handle();
-    if (pgid <= 0 || pgid == ::getpgrp())
-        throw std::runtime_error("Refusing to signal an invalid or shared process group");
-    if (::kill(-pgid, signal) != 0 && errno != ESRCH)
-        throw std::system_error(errno, std::generic_category(), "Signal external process group");
-}
-
-bool ManagedExternalProcess::waitForGroup(std::chrono::milliseconds timeout)
-{
-    const auto deadline = std::chrono::steady_clock::now() + timeout;
-    do
-    {
-        // Reap the launcher when it exits, but still check for surviving nodes.
-        child_->running();
-        if (::kill(-group_->native_handle(), 0) != 0)
-        {
-            if (errno == ESRCH) return true;
-            throw std::system_error(errno, std::generic_category(), "Check external process group");
-        }
-        if (std::chrono::steady_clock::now() >= deadline) return false;
-        std::this_thread::sleep_for(std::chrono::milliseconds(20));
-    } while (true);
-}
-
 void ManagedExternalProcess::stop()
 {
-    if (!child_) return;
+    if (!process_) return;
     // A worker created during deactivation may inherit the periodic policy.
     sched_param parameters{};
     const int scheduler_error = ::pthread_setschedparam(::pthread_self(), SCHED_OTHER, &parameters);
     if (scheduler_error != 0)
         std::cerr << "External group shutdown worker could not select SCHED_OTHER: "
                     << std::generic_category().message(scheduler_error) << '\n';
-    // Give ROS launch the first opportunity to shut down its own nodes.
-    if (child_->running() && ::kill(child_->id(), SIGINT) != 0 && errno != ESRCH)
-        throw std::system_error(errno, std::generic_category(), "Interrupt ROS launch");
-    if (!waitForGroup(interrupt_timeout_))
-    {
-        signalGroup(SIGTERM);
-        if (!waitForGroup(terminate_timeout_)) signalGroup(SIGKILL);
-    }
-    child_->wait();
-    // Signals have been delivered to all remaining group members. Grandchild
-    // zombies must be reaped by their parent/init, not by this plugin.
-    group_->detach();
-    child_.reset();
-    group_.reset();
+    utils::ProcessShutdownOptions options;
+    options.interrupt_timeout = interrupt_timeout_;
+    options.terminate_timeout = terminate_timeout_;
+    options.initial_target = utils::InitialSignalTarget::leader;
+    utils::OwnedProcesses processes{{"external process", process_}};
+    if (!utils::shutdownProcesses(processes, options))
+        throw std::runtime_error("External process group did not exit after SIGKILL");
+    process_.reset();
 }

@@ -34,11 +34,16 @@ namespace
 
     int fixture(const std::string& mode, const std::string& ready)
     {
-        std::signal(SIGINT, mode == "graceful" ? interrupt : SIG_IGN);
+        std::signal(SIGINT, (mode == "graceful" || mode == "policy") ? interrupt : SIG_IGN);
         std::signal(SIGTERM, SIG_IGN);
         const auto node = ::fork();
         if (node == 0)
         {
+            if (mode == "policy") {
+                while (!interrupted) std::this_thread::sleep_for(5ms);
+                std::ofstream(ready + ".node-interrupted") << "SIGINT\n";
+                return 0;
+            }
             std::signal(SIGINT, SIG_IGN);
             for (;;) ::pause();
         }
@@ -46,6 +51,7 @@ namespace
         { std::ofstream output(ready); output << ::getpid() << ' ' << node << '\n'; }
         if (mode == "orphan") return 0;
         while (!interrupted) std::this_thread::sleep_for(5ms);
+        if (mode == "policy") std::this_thread::sleep_for(100ms);
         ::kill(node, SIGKILL);
         ::waitpid(node, nullptr, 0);
         return 0;
@@ -81,6 +87,7 @@ int main(int argc, char** argv)
         pid_t launcher = 0, node = 0;
         await([&] { std::ifstream input(ready); return bool(input >> launcher >> node); });
         require(::getpgid(launcher) != ::getpgrp(), "Shared process group");
+        require(::getsid(launcher) == launcher, "Child did not create a dedicated session");
         if (std::string(mode) == "orphan") await([&] { return !process.running(); });
         const auto before = std::chrono::steady_clock::now();
         process.requestStop();
@@ -105,5 +112,38 @@ int main(int argc, char** argv)
     catch (const std::exception&) { rejected = true; }
     require(rejected, "Missing executable was accepted");
     process.stopAndWait();
+
+    for (const auto target : {dls::utils::InitialSignalTarget::leader,
+                              dls::utils::InitialSignalTarget::group}) {
+        const bool whole_group = target == dls::utils::InitialSignalTarget::group;
+        std::cout << "Testing initial signal target: " << (whole_group ? "group" : "leader") << std::endl;
+        const auto ready = (directory / (whole_group ? "group-policy" : "leader-policy")).string();
+        auto owned = std::make_shared<dls::utils::OwnedProcess>(
+            std::vector<std::string>{executable, "fixture", "policy", ready});
+        await([&] { std::ifstream input(ready); return bool(input >> launcher >> node); });
+        dls::utils::OwnedProcesses children{{"policy fixture", owned}};
+        dls::utils::ProcessShutdownOptions options;
+        options.initial_target = target;
+        options.interrupt_timeout = 500ms;
+        options.terminate_timeout = 100ms;
+        options.kill_timeout = 500ms;
+        require(dls::utils::shutdownProcesses(children, options), "Policy shutdown failed");
+        require(fs::exists(ready + ".node-interrupted") == whole_group,
+                "SIGINT reached the wrong process set");
+        checkGone(launcher, node);
+    }
+
+    std::cout << "Testing group liveness after leader exit and legacy shutdown API" << std::endl;
+    {
+        const auto ready = (directory / "owned-orphan").string();
+        auto owned = std::make_shared<dls::utils::OwnedProcess>(
+            std::vector<std::string>{executable, "fixture", "orphan", ready});
+        await([&] { std::ifstream input(ready); return bool(input >> launcher >> node); });
+        await([&] { return !owned->leaderRunning(); });
+        require(owned->running(), "Surviving descendant was not tracked");
+        dls::utils::OwnedProcesses children{{"orphan fixture", owned}};
+        require(dls::utils::shutdownProcesses(children, 10ms), "Legacy shutdown failed");
+        checkGone(launcher, node);
+    }
     fs::remove_all(directory);
 }

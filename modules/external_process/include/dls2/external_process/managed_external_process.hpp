@@ -1,7 +1,7 @@
 #ifndef MANAGED_EXTERNAL_PROCESS_HPP
 #define MANAGED_EXTERNAL_PROCESS_HPP
 
-#include <boost/process.hpp>
+#include <dls2/util/owned_process.hpp>
 #include <chrono>
 #include <future>
 #include <memory>
@@ -29,11 +29,7 @@ namespace dls
 
     private:
         void stop();
-        bool waitForGroup(std::chrono::milliseconds timeout);
-        void signalGroup(int signal);
-
-        std::unique_ptr<boost::process::group> group_;
-        std::unique_ptr<boost::process::child> child_;
+        std::shared_ptr<utils::OwnedProcess> process_;
         std::shared_future<void> stop_result_;
         bool shutdown_sent_{false};
         std::chrono::milliseconds interrupt_timeout_{15000};
