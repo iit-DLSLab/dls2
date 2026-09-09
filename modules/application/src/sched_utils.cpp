@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <iostream>
 #include <thread>
+#include <stdexcept>
 
 SchedulerUtils::SchedulerUtils() : sched_rt_policy("SCHED_DEADLINE"), curr_time_factor(1.0)
 {
@@ -97,8 +98,22 @@ void SchedulerUtils::executeEndLoopTask()
 		sched_yield();
 	else if (sched_rt_policy == "SCHED_FIFO")
 	{
-		desired_time += std::chrono::duration_cast<std::chrono::steady_clock::duration>(period * curr_time_factor);
-		checkOverrun();
+		const auto effective_period = std::chrono::duration_cast<std::chrono::steady_clock::duration>(period * curr_time_factor);
+		if (effective_period <= std::chrono::steady_clock::duration::zero())
+			throw std::invalid_argument("SCHED_FIFO period must be positive");
+
+		desired_time += effective_period;
+		// checkOverrun();
+
+		// Keep the original phase, but skip expired slots instead of
+		// executing a burst of catch-up iterations after an overrun or pause.
+		// Sample after checkOverrun(), which may itself take time to log.
+		const auto now = std::chrono::steady_clock::now();
+		if (now > desired_time)
+		{
+			const auto missed_periods = (now - desired_time) / effective_period + 1;
+			desired_time += effective_period * missed_periods;
+		}
 		std::this_thread::sleep_until(this->desired_time);
 	}
 }
@@ -148,6 +163,5 @@ void SchedulerUtils::checkOverrun()
 	{
 		// Reset overrun info if no overrun occurred
 		overrun_info.overrun_time = 0;
-		overrun_info.count = 0;
 	}
 }

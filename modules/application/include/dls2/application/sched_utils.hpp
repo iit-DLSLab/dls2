@@ -52,10 +52,11 @@ class SchedulerUtils
 		struct OverrunInfo {
 			double overrun_time;
 			int count;
-		} overrun_info;
+		} overrun_info{};
 
 		// SCHED_FIFO params
 		int priority;
+		// Absolute SCHED_FIFO tick; advance by whole periods to preserve phase.
 		std::chrono::steady_clock::time_point desired_time;
 
 		// SCHED_DEADLINE params
