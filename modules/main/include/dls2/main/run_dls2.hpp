@@ -24,6 +24,7 @@ namespace dls
         bool runLayer(const std::string &, const std::string &);
         void launchServers();
         void launchSingleServer(const std::string& ip, int port);
+        std::vector<std::string> collectLayersToRun(const YAML::Node &config);
 
         static void shutdown_all(int);
 
@@ -35,6 +36,8 @@ namespace dls
         // add state machine watcher
         state_machine::StateMachineWatcher sm_watcher;
         DDSParticipant ddspart;
+        
+        std::vector<std::string> allowed_layer_names;
     };
 }
 #endif

@@ -18,7 +18,8 @@ namespace dls
 
 	RunDLS2::RunDLS2(int argc, char **argv)
 		: sm_watcher("sm_watcher_runDLS2"),
-		  ddspart("ddspart_runDLS2", dls::domains::layers, eprosima::fastdds::rtps::DiscoveryProtocol::SUPER_CLIENT)
+		  ddspart("ddspart_runDLS2", dls::domains::layers, eprosima::fastdds::rtps::DiscoveryProtocol::SUPER_CLIENT),
+		  allowed_layer_names({"supervisor", "estimation", "hardware", "control", "console", "log"})
 	{
 		// When the user presses CTRL+C, make sure that all layers are shutdown
 		signal(
@@ -239,11 +240,8 @@ namespace dls
 			{"python_periodic_apps", "loadPythonPeriodicApp"},
 			{"generic_app_plugins", "loadAppPlugin"}};
 		// collect layers to be run
-		std::vector<std::string> layers;
-		for (std::string layer : config["layers"].as<std::vector<std::string>>())
-		{
-			layers.push_back(layer);
-		}
+
+		std::vector<std::string> layers = collectLayersToRun(config);
 		// collect each type of applications to run
 		std::map<std::string, std::vector<std::string>> applications;
 		for (auto pair : app_to_layer)
@@ -309,5 +307,23 @@ namespace dls
 			if(command_manager.waitCommand(hardware, "loadModel", should_quit))
 				command_manager.callCommand("loadModel", {Options::robot_name, std::to_string(Options::robot_spawning_height)}, hardware);
 		}
+	}
+
+	std::vector<std::string> RunDLS2::collectLayersToRun(const YAML::Node &config)
+	{		
+		std::vector<std::string> layers_to_run;
+		for (std::string layer : config["layers"].as<std::vector<std::string>>())
+		{
+			layers_to_run.push_back(layer);
+		}
+		// check if the layers are allowed
+		for (std::string layer : layers_to_run)
+		{
+			if (std::find(allowed_layer_names.begin(), allowed_layer_names.end(), layer) == allowed_layer_names.end())
+			{
+				throw std::invalid_argument("Layer " + layer + " is not allowed. Allowed layers names are: " + boost::algorithm::join(allowed_layer_names, ", "));
+			}
+		}
+		return layers_to_run;
 	}
 }
