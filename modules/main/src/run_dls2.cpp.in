@@ -19,7 +19,18 @@ namespace dls
 	RunDLS2::RunDLS2(int argc, char **argv)
 		: sm_watcher("sm_watcher_runDLS2"),
 		  ddspart("ddspart_runDLS2", dls::domains::layers, eprosima::fastdds::rtps::DiscoveryProtocol::SUPER_CLIENT),
-		  allowed_layer_names({"supervisor", "estimation", "hardware", "control", "console", "log"})
+		  layer_names({"estimation", "hardware", "control", "console", "log"}),
+		  instructions_set({
+			{startup_config_entries.HARDWARES, {"HardwareLayer", "loadHardware"}},
+			{startup_config_entries.XENO_HARDWARES, {"HardwareLayer", "loadXenoHardware"}},
+			{startup_config_entries.CONTROLLERS, {"ControlLayer", "loadControl"}},
+			{startup_config_entries.PYTHON_CONTROLLERS, {"ControlLayer", "loadControl"}},
+			{startup_config_entries.MOTION_GENERATORS, {"ControlLayer", "loadControl"}},
+			{startup_config_entries.ESTIMATORS, {"EstimationLayer", "loadEstimation"}},
+			{startup_config_entries.GENERIC_PERIODIC_APP_PLUGINS, {"Supervisor", "loadAppPlugin"}},
+			{startup_config_entries.PYTHON_PERIODIC_APPS, {"Supervisor", "loadPythonPeriodicApp"}},
+			{startup_config_entries.GENERIC_APP_PLUGINS, {"Supervisor", "loadAppPlugin"}}}),
+			print_header("DLS2 STARTUP NODE: ")
 	{
 		// When the user presses CTRL+C, make sure that all layers are shutdown
 		signal(
@@ -211,60 +222,37 @@ namespace dls
 	{
 		YAML::Node config = YAML::LoadFile(startup_file);
 
-		// app_to_layer
-		std::map<std::string, std::string> app_to_layer = {
-			{"hardwares", "HardwareLayer"},
-			{"controllers", "ControlLayer"},
-			{"python_controllers", "ControlLayer"},
-			{"motion_generators", "ControlLayer"},
-			{"estimators", "EstimationLayer"},
-			{"generic_periodic_app_plugins", "Supervisor"},
-			{"python_periodic_apps", "Supervisor"},
-			{"generic_app_plugins", "Supervisor"}};
-		// app_to_loading_command
-		//if load_xeno_hardware option is true, use loadXenoHardware command instead of loadHardware
-		std::string load_hardware_command = "loadHardware";
-		if(config["load_xeno_hardware"] && config["load_xeno_hardware"].as<bool>()){
-			std::cout << "Using loadXenoHardware command to load hardwares" << std::endl;
-			load_hardware_command = "loadXenoHardware";
-		}
-		
-		std::map<std::string, std::string> app_to_loading_command = {
-			{"hardwares", load_hardware_command},
-			{"controllers", "loadController"},
-			{"python_controllers", "loadPythonController"},
-			{"motion_generators", "loadGenerator"},
-			{"estimators", "loadEstimator"},
-			{"generic_app_plugins", "loadAppPlugin"},
-			{"generic_periodic_app_plugins", "loadPeriodicAppPlugin"},
-			{"python_periodic_apps", "loadPythonPeriodicApp"},
-			{"generic_app_plugins", "loadAppPlugin"}};
-		// collect layers to be run
+		validateStartupConfig(config);
 
+		// collect layers to be run
 		std::vector<std::string> layers = collectLayersToRun(config);
+		
 		// collect each type of applications to run
-		std::map<std::string, std::vector<std::string>> applications;
-		for (auto pair : app_to_layer)
-		{
-			applications[pair.first] = config[pair.first].as<std::vector<std::string>>();
-		}
+		std::map<std::string, std::vector<std::string>> apps_to_launch = collectApplicationsToRun(config);
+
 		// get robot name
-		Options::robot_name = config["robot_name"].as<std::string>();
-		if(config["robot_spawning_height"])
-			Options::robot_spawning_height = config["robot_spawning_height"].as<double>();
+		Options::robot_name = config[startup_config_entries.ROBOT_NAME].as<std::string>();
+		// get spawning height
+		if(config[startup_config_entries.ROBOT_SPAWNING_HEIGHT])
+			Options::robot_spawning_height = config[startup_config_entries.ROBOT_SPAWNING_HEIGHT].as<double>();
 		else{
-			throw std::runtime_error("robot_spawning_height field not defined in startup file");
+			std::cout << print_header + "Robot spawning height not specified in startup file. Using default value of 1m" << std::endl;
+			Options::robot_spawning_height = 1.0;
 		}
 
 		// get application to activate
-		std::vector<std::string> active_apps = config["activate"].as<std::vector<std::string>>();
+		std::vector<std::string> apps_to_activate = config[startup_config_entries.ACTIVATE].as<std::vector<std::string>>();
 
 		// launch dds servers
-		Options::run_servers = true;
-		launchServers();
+		if(!config[startup_config_entries.RUN_SERVERS] || config[startup_config_entries.RUN_SERVERS].as<bool>())
+		{
+			Options::run_servers = true;
+			launchServers();
+		}
+		else{
+			std::cout << print_header + "Startup file specifies not to run servers. Assuming servers are already running." << std::endl;
+		}
 
-		// launch supervisor
-		runLayer("supervisor", "Supervisor");
 		// launch layers
 		for (auto l : layers)
 		{
@@ -281,49 +269,94 @@ namespace dls
 		}
 		launchLayers();
 
+		// launch supervisor
+		if(!config[startup_config_entries.RUN_SUPERVISOR] || config[startup_config_entries.RUN_SUPERVISOR].as<bool>())
+		{
+			runLayer("supervisor", "Supervisor");
+		}
+		else{
+			std::cout << print_header + "Startup file specifies not to run supervisor." << std::endl;
+		}
+
 		// launch apps
-		for (auto const &[app_type, app_names] : applications)
+		for (auto const &[app_type, app_names] : apps_to_launch)
 		{
 			for (auto name : app_names)
 			{
-				command_manager.callCommand(app_to_loading_command[app_type], {name}, app_to_layer[app_type]);
+				command_manager.callCommand(
+					instructions_set[app_type][static_cast<int>(INSTRUCTION_OPTIONS::COMMAND)],
+					{name},
+					instructions_set[app_type][static_cast<int>(INSTRUCTION_OPTIONS::LAYER)]);
+					
 				sm_watcher.waitState(name, "idle", should_quit);
-				if(std::find(active_apps.begin(), active_apps.end(), name) != active_apps.end())
+				// activate application if it is in the list of applications to activate
+				if(std::find(apps_to_activate.begin(), apps_to_activate.end(), name) != apps_to_activate.end())
 				{
 					// Python apps can reach IDLE before DDS command discovery catches up.
 					if(command_manager.waitCommand(name, "activate", should_quit, 10000))
 						command_manager.callCommand("activate", {}, name);
 				}
+				
+				// load the model if running the simulation
+				if(!config[startup_config_entries.LOAD_MODEL] || config[startup_config_entries.LOAD_MODEL].as<bool>())
+				{
+					// load model in gazebo if requested by the user
+					if(command_manager.waitCommand(name, "loadModel", should_quit)){
+						command_manager.callCommand("loadModel", {Options::robot_name, std::to_string(Options::robot_spawning_height)}, name);
+						std::cout << print_header + "Robot model " + Options::robot_name + " loaded in " + name << " hardware" << std::endl;
+					}
+				}
 			}
-		}
-		// activate hardware and load model (loadModel does not have effect on real robot because currently it is directly loaded the HAL of the robot)
-		for (auto hardware : applications["hardwares"])
-		{
-			if(!sm_watcher.findState(hardware,"run")){
-				if(command_manager.waitCommand(hardware, "activate", should_quit))
-					command_manager.callCommand("activate", {}, hardware);
-			}
-			sleep(1); // if the model is spawned too fast (in gazebo) the simulation breaks
-			if(command_manager.waitCommand(hardware, "loadModel", should_quit))
-				command_manager.callCommand("loadModel", {Options::robot_name, std::to_string(Options::robot_spawning_height)}, hardware);
 		}
 	}
 
 	std::vector<std::string> RunDLS2::collectLayersToRun(const YAML::Node &config)
 	{		
 		std::vector<std::string> layers_to_run;
-		for (std::string layer : config["layers"].as<std::vector<std::string>>())
+		for (std::string layer : config[startup_config_entries.LAYERS].as<std::vector<std::string>>())
 		{
 			layers_to_run.push_back(layer);
 		}
 		// check if the layers are allowed
 		for (std::string layer : layers_to_run)
 		{
-			if (std::find(allowed_layer_names.begin(), allowed_layer_names.end(), layer) == allowed_layer_names.end())
+			if (std::find(layer_names.begin(), layer_names.end(), layer) == layer_names.end())
 			{
-				throw std::invalid_argument("Layer " + layer + " is not allowed. Allowed layers names are: " + boost::algorithm::join(allowed_layer_names, ", "));
+				throw std::invalid_argument("Layer " + layer + " is not allowed. Allowed layers names are: " + boost::algorithm::join(layer_names, ", "));
 			}
 		}
 		return layers_to_run;
+	}
+
+	std::map<std::string, std::vector<std::string>> RunDLS2::collectApplicationsToRun(const YAML::Node &config)
+	{
+		std::map<std::string, std::vector<std::string>> applications_to_run;
+		for (auto const& [app_type, instruction] : instructions_set)
+		{
+			if (config[app_type].IsDefined())
+			{
+				applications_to_run[app_type] = config[app_type].as<std::vector<std::string>>();
+			}
+		}
+		return applications_to_run;
+	}
+
+	// add function to check that the entries insinde the config file are valid
+	void RunDLS2::validateStartupConfig(const YAML::Node &config)
+	{
+		std::vector<std::string> invalid_options;
+		// check if the highest level keys are valid
+		for (auto const& config_option : config)
+		{
+			std::string option = config_option.first.as<std::string>();
+			if (std::find(startup_config_entries.ALL_POSSIBLE_OPTIONS.begin(), startup_config_entries.ALL_POSSIBLE_OPTIONS.end(), option) == startup_config_entries.ALL_POSSIBLE_OPTIONS.end())
+			{
+				invalid_options.push_back(option);
+			}
+		}
+		if(invalid_options.size()>0)
+		{
+			throw std::invalid_argument("\nInvalid entries in startup config file. The invalid entries are:\n" + boost::algorithm::join(invalid_options, "\n") + "\n--------\nAllowed entries are:\n" + boost::algorithm::join(startup_config_entries.ALL_POSSIBLE_OPTIONS, "\n"));
+		}
 	}
 }

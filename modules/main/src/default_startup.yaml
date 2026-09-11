@@ -1,8 +1,15 @@
 # layers
 layers: [hardware, estimation, log]
 
+# servers (if not present, servers will be launched by default)
+run_servers: true
+
+# supervisor (if not present, supervisor will be launched by default)
+run_supervisor: true
+
 # applications
 hardwares: []
+xeno_hardwares: []
 controllers: []
 python_controllers: []
 motion_generators: []
@@ -14,6 +21,9 @@ generic_periodic_app_plugins: []
 # robot name
 robot_name: ""
 robot_spawning_height: 0.366
+
+# simulation specific instruction (if not present, the command will be called by default)
+load_model: true
 
 # applications to be activated
 activate: []
