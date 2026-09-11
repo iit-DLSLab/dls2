@@ -1,10 +1,10 @@
 # layers
 layers: [hardware, estimation, log]
 
-# servers (if not present, servers will be launched by default)
+# servers (launched only when explicitly set to true)
 run_servers: true
 
-# supervisor (if not present, supervisor will be launched by default)
+# supervisor (launched only when explicitly set to true)
 run_supervisor: true
 
 # applications
@@ -22,7 +22,7 @@ generic_periodic_app_plugins: []
 robot_name: ""
 robot_spawning_height: 0.366
 
-# simulation specific instruction (if not present, the command will be called by default)
+# simulation model (loaded only when explicitly set to true)
 load_model: true
 
 # applications to be activated
