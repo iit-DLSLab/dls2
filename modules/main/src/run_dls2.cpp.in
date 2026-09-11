@@ -312,6 +312,11 @@ namespace dls
 
 	std::vector<std::string> RunDLS2::collectLayersToRun(const YAML::Node &config)
 	{		
+		if(!config[startup_config_entries.LAYERS] || !config[startup_config_entries.LAYERS].IsSequence())
+		{
+			std::cout << print_header + "No layers specified in startup file. Assuming no layers to run." << std::endl;
+			return {};
+		}
 		std::vector<std::string> layers_to_run;
 		for (std::string layer : config[startup_config_entries.LAYERS].as<std::vector<std::string>>())
 		{
