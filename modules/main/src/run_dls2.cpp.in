@@ -244,13 +244,13 @@ namespace dls
 		std::vector<std::string> apps_to_activate = config[startup_config_entries.ACTIVATE].as<std::vector<std::string>>();
 
 		// launch dds servers
-		if(!config[startup_config_entries.RUN_SERVERS] || config[startup_config_entries.RUN_SERVERS].as<bool>())
+		if(config[startup_config_entries.RUN_SERVERS] && config[startup_config_entries.RUN_SERVERS].as<bool>())
 		{
 			Options::run_servers = true;
 			launchServers();
 		}
 		else{
-			std::cout << print_header + "Startup file specifies not to run servers. Assuming servers are already running." << std::endl;
+			std::cout << print_header + "Startup file does not enable servers. Assuming servers are already running." << std::endl;
 		}
 
 		// launch layers
@@ -270,12 +270,12 @@ namespace dls
 		launchLayers();
 
 		// launch supervisor
-		if(!config[startup_config_entries.RUN_SUPERVISOR] || config[startup_config_entries.RUN_SUPERVISOR].as<bool>())
+		if(config[startup_config_entries.RUN_SUPERVISOR] && config[startup_config_entries.RUN_SUPERVISOR].as<bool>())
 		{
 			runLayer("supervisor", "Supervisor");
 		}
 		else{
-			std::cout << print_header + "Startup file specifies not to run supervisor." << std::endl;
+			std::cout << print_header + "Startup file does not enable supervisor." << std::endl;
 		}
 
 		// launch apps
@@ -298,7 +298,7 @@ namespace dls
 				}
 				
 				// load the model if running the simulation
-				if(!config[startup_config_entries.LOAD_MODEL] || config[startup_config_entries.LOAD_MODEL].as<bool>())
+				if(config[startup_config_entries.LOAD_MODEL] && config[startup_config_entries.LOAD_MODEL].as<bool>())
 				{
 					// load model in gazebo if requested by the user
 					if(command_manager.waitCommand(name, "loadModel", should_quit)){

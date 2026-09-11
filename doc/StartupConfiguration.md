@@ -13,8 +13,8 @@ The defaults below are the values in `default_startup.yaml`.
 | Entry | Type | Default | Description |
 | --- | --- | --- | --- |
 | `layers` | List of strings | `[hardware, estimation, log]` | Layers to launch. Use `hardware`, `estimation`, `control`, `console`, or `log`. Use `run_supervisor` to control whether the supervisor is launched. Include the layers needed to load your applications, unless they are already running. |
-| `run_servers` | Boolean | `true` | Launch the DDS discovery servers. Omitted means `true`; `false` skips launching them and assumes servers are already running. |
-| `run_supervisor` | Boolean | `true` | Launch the supervisor. Omitted means `true`; `false` skips launching it. Applications loaded through the supervisor require it to be available. |
+| `run_servers` | Boolean | `false` | Launch the DDS discovery servers only when explicitly set to `true`. Omitted or `false` skips launching them and assumes servers are already running. |
+| `run_supervisor` | Boolean | `false` | Launch the supervisor only when explicitly set to `true`. Omitted or `false` skips launching it. Applications loaded through the supervisor require it to be available. |
 
 ## Applications to load
 
@@ -40,7 +40,7 @@ Loading an application brings it to the `idle` state. Use `activate` to request 
 | --- | --- | --- | --- |
 | `robot_name` | String | `""` | Robot name used by the control layer and passed to the simulation's `loadModel` command. Set it to the robot you want to use. |
 | `robot_spawning_height` | Number | `0.366` | Robot spawning height in metres, passed to `loadModel`. If omitted from a custom file, the startup code uses **1.0 m**, rather than the value in the default file. |
-| `load_model` | Boolean | `true` | Request `loadModel` from loaded applications that expose it, using `robot_name` and `robot_spawning_height`. Omitted means `true`; set to `false` to skip automatic model loading. |
+| `load_model` | Boolean | `false` | Request `loadModel` from loaded applications that expose it only when explicitly set to `true`, using `robot_name` and `robot_spawning_height`. Omitted or `false` skips automatic model loading. |
 
 ## Activation
 
