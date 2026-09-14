@@ -18,6 +18,7 @@ set(DLS_CHILD_PROCESS_LAUNCHER              "${DLS_INSTALL_RUNTIME_DIR}/child_pr
 set(DLS_LAUNCH_SCRIPT_PATH                  "/usr/local/bin:/usr/bin:\${PATH}")
 set(DLS_LAUNCH_SCRIPT_LIBRARY_PATH          "/usr/local/lib:/usr/lib/dls2:${DLS_LD_LIBRARY_PATH}:\${LD_LIBRARY_PATH}")
 set(DLS_LUANCH_SCRIPT_RUN_FRAMEWORK_COMMAND "${DLS_INSTALL_RUNTIME_DIR}/dynamic_legged_systems_framework \"$@\"")
+set(DLS_SHUTDOWN_TIMEOUT_MS                "\${DLS_SHUTDOWN_TIMEOUT_MS:-5000}")
 dls_configure(launch_framework.in           LAUNCH_FRAMEWORK)
 
 # Configure the version of the launch script that is used to launch the framework

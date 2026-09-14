@@ -103,6 +103,11 @@ private:
 		std::mutex motion_mutex;
 	// END critical section
 
+	// Serialize operations without holding map locks across DDS or shutdown waits.
+	std::mutex controllers_operations_mutex;
+	std::mutex motion_operations_mutex;
+	std::atomic_bool closing_{false};
+
 	std::shared_ptr<dls::DDSParticipant> ddsSignalLink;
 
 	/// Default controller spline-in

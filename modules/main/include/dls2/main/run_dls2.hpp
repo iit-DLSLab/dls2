@@ -5,6 +5,8 @@
 #include "dls2/state_machine/state_machine_watcher.hpp"
 #include "dls2/command/command_manager.hpp"
 #include "dls2/application/app_data.hpp"
+#include "dls2/util/owned_process.hpp"
+#include "dls2/util/shutdown_signal.hpp"
 
 namespace dls
 {
@@ -25,16 +27,17 @@ namespace dls
         void launchServers();
         void launchSingleServer(const std::string& ip, int port);
 
-        static void shutdown_all(int);
-
         static CommandManager command_manager;
-        static bool should_quit;
-        std::map<std::string, std::shared_ptr<AppData>> layers;
+        static std::atomic_bool should_quit;
+        utils::OwnedProcesses layers;
+        utils::OwnedProcesses discovery_servers;
         //! List of discovery servers
         std::vector<std::shared_ptr<DDSParticipant>> servers;
         // add state machine watcher
         state_machine::StateMachineWatcher sm_watcher;
         DDSParticipant ddspart;
+        // Destroy/join the callback before the other instance members.
+        utils::ShutdownSignal shutdown_signal;
     };
 }
 #endif
