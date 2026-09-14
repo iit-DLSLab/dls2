@@ -69,8 +69,7 @@ target_link_libraries(app_plugin
 add_subdirectory(test)
 add_subdirectory(python/test/dummy_py_node)
 # INSTALL
-# -- plugin
-dls_install(plugin)
+
 # -- app_plugin
 dls_install(app_plugin)
 # -- periodic_app_plugin

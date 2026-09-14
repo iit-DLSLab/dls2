@@ -5,6 +5,8 @@
 #include "dls2/state_machine/state_machine_watcher.hpp"
 #include "dls2/command/command_manager.hpp"
 #include "dls2/application/app_data.hpp"
+#include "dls2/util/owned_process.hpp"
+#include "dls2/util/shutdown_signal.hpp"
 
 namespace dls
 {
@@ -47,8 +49,9 @@ namespace dls
         } startup_config_entries;
 
         static CommandManager command_manager;
-        static bool should_quit;
-        std::map<std::string, std::shared_ptr<AppData>> layers;
+        static std::atomic_bool should_quit;
+        utils::OwnedProcesses layers;
+        utils::OwnedProcesses discovery_servers;
         //! List of discovery servers
         std::vector<std::shared_ptr<DDSParticipant>> servers;
         // add state machine watcher
@@ -61,21 +64,20 @@ namespace dls
         // define a map to store: application_type: {layer/node responsible for launching the app, command_to_load} 
         std::map<std::string, std::vector<std::string>> instructions_set;
 
-
         std::string print_header;
 
+        // Destroy/join the callback before the other instance members.
+        utils::ShutdownSignal shutdown_signal;
+
         void change_process_name(char **argv, const std::string &name);
-        void launchSupervisor();
-        void launchLayers();
-        void runStartup(const std::string &);
+        bool launchLayers();
+        bool runStartup(const std::string &);
         bool runLayer(const std::string &, const std::string &);
         void launchServers();
         void launchSingleServer(const std::string& ip, int port);
         std::vector<std::string> collectLayersToRun(const YAML::Node &config);
         std::map<std::string, std::vector<std::string>> collectApplicationsToRun(const YAML::Node &config);
         void validateStartupConfig(const YAML::Node &config);
-
-        static void shutdown_all(int);
     };
 }
 #endif

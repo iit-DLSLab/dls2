@@ -2,19 +2,22 @@
 #include "dls2/core_framework/options.hpp"
 
 #include <filesystem>
+#include <chrono>
+#include <exception>
+#include <thread>
 #include <sys/prctl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 
 namespace dls
 {
-	CommandManager RunDLS2::command_manager("dls_framework");
-	bool RunDLS2::should_quit(false);
+	constexpr int STARTUP_DISCOVERY_TIMEOUT_MS = 60000;
+	constexpr int STARTUP_STATE_TIMEOUT_MS = 60000;
+	constexpr int STARTUP_RETRY_INTERVAL_MS = 1000;
 
-	void RunDLS2::shutdown_all(int)
-	{
-		should_quit = true;
-	}
+	CommandManager RunDLS2::command_manager("dls_framework");
+	std::atomic_bool RunDLS2::should_quit(false);
 
 	RunDLS2::RunDLS2(int argc, char **argv)
 		: sm_watcher("sm_watcher_runDLS2"),
@@ -32,10 +35,9 @@ namespace dls
 			{startup_config_entries.GENERIC_APP_PLUGINS, {"Supervisor", "loadAppPlugin"}}}),
 			print_header("DLS2 STARTUP NODE: ")
 	{
-		// When the user presses CTRL+C, make sure that all layers are shutdown
-		signal(
-			SIGINT,
-			shutdown_all);
+		shutdown_signal.start([] { should_quit.store(true); return true; });
+		if (prctl(PR_SET_CHILD_SUBREAPER, 1) != 0)
+			throw std::system_error(errno, std::generic_category(), "enabling child subreaper");
 
 		change_process_name(argv, "dls_framework");
 
@@ -66,82 +68,84 @@ namespace dls
 		if (Options::show_docs)
 		{
 			int ret = system(
-				"@DLS_INSTALL_SCRIPTS_DIR@/xdg-open @DLS_INSTALL_DEVELOPMENT_DOCS_DIR@/html/index.html >nul 2>nul &");
+				"\"@DLS_INSTALL_SCRIPTS_DIR@/xdg-open\" \"@DLS_INSTALL_DEVELOPMENT_DOCS_DIR@/html/index.html\" >/dev/null 2>&1 &");
 			if (ret == -1)
 			{
 				throw std::runtime_error("Error executing system command to show the documentation.");
 			}
+			return;
 		}
 
 		if (Options::kill_dls2)
 		{
-			int ret = system(
-				"pkill -9 dls_framework;\
-					pkill -9 ControlLayer;\
-					pkill -9 ConsoleLayer;\
-					pkill -9 ControlLayer;\
-					pkill -9 LogLayer;\
-					pkill -9 HardwareLayer;\
-					pkill -9 EstimationLayer;\
-					pkill -9 dls_param_serve;\
-					pkill -9 Supervisor;\
-					pkill -9 gazebo_sim;\
-					pkill -9 gz;\
-					pkill -9 fast-discovery-");
-			if (ret == -1)
+			// Let each framework stop its owned layers, then its discovery servers.
+			const int ret = system("pkill -TERM -x dls_framework");
+			// pkill returns 1 when no matching process could be signalled.
+			if (ret == -1 || !WIFEXITED(ret) || WEXITSTATUS(ret) > 1)
 			{
-				throw std::runtime_error("Error executing system command to show the documentation.");
+				throw std::runtime_error("Failed to request framework shutdown.");
 			}
-
-			command_manager.callCommand("shutdown", {"all"});
-			exit(EXIT_SUCCESS);
+			return;
 		}
-		// Run startup procedure if requested by the user
-		if (Options::run_startup)
+		std::exception_ptr failure;
+		try
 		{
-			runStartup(Options::startup_file);
-		}
-		else
-		{ // the user is selecting what to run
-			// Spawn servers (if passed as argument)
-			if(Options::run_servers){
-				launchServers();
-			}
-			// Spawn supervisor (if passed as argument)
-			if (Options::launch_supervisor)
+			// Run startup procedure if requested by the user
+			if (Options::run_startup)
 			{
-				runLayer("supervisor", "Supervisor");
+				if (!runStartup(Options::startup_file))
+					should_quit = true;
 			}
-			// Spawn layers (if passed as argument)
-			launchLayers();
-		}
+			else
+			{ // the user is selecting what to run
+				// Spawn servers (if passed as argument)
+				if(Options::run_servers){
+					launchServers();
+				}
+				// Spawn supervisor (if passed as argument)
+				if (Options::launch_supervisor)
+				{
+					if (!runLayer("supervisor", "Supervisor"))
+						should_quit = true;
+				}
+				// Spawn layers (if passed as argument)
+				if (!launchLayers())
+					should_quit = true;
+			}
 
-		// Hanging on this executable to intercept CTRL+C. If no layers are running, the executable will exit
-		int num_layers = 1;
-		while (!should_quit || (num_layers > 0))
+			while (!should_quit.load()) {
+				bool any_running = false;
+				for (auto& [name, process] : layers) any_running |= process->running();
+				if (!layers.empty() && !any_running) break;
+				std::this_thread::sleep_for(std::chrono::milliseconds(50));
+			}
+		}
+		catch (...)
 		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(500));
-			if(should_quit)
-				command_manager.callCommand("shutdown", {"all"});
-
-			// Check if at least one layer is running
-			auto layers = ddspart.getParticipants();
-			num_layers = std::count_if(layers.begin(), layers.end(), [](std::string s)
-									   { return s.find("Layer") != std::string::npos; });
+			should_quit = true;
+			failure = std::current_exception();
 		}
 
-		// Before exiting, wait the closing of layers. It is not necessary, but it is used to print the information at the end only when all the layers are closed
-		std::cout << "\n"<< std::endl;
-		for (auto layer : layers)
-		{
-			std::cout << "Waiting for " << layer.first << " to exit..." << std::endl;
-			layer.second->proc->wait(); // wait for the process to exit
+		std::chrono::milliseconds grace(10000);
+		if (const char* value = std::getenv("DLS_SHUTDOWN_TIMEOUT_MS")) {
+			try {
+				std::size_t used = 0;
+				const int timeout = std::stoi(value, &used);
+				if (value[used] != '\0' || timeout <= 0 || timeout > 600000)
+					throw std::invalid_argument("out of range");
+				grace = std::chrono::milliseconds(timeout);
+			} catch (const std::exception&) {
+				std::cerr << "Invalid DLS_SHUTDOWN_TIMEOUT_MS; using 10000 ms" << std::endl;
+			}
 		}
-
-		// close servers
-		if(system("pkill -SIGINT fast-disc")!=0){
-			throw std::runtime_error("CANNOT SHUTDOWN FASTDDS SERVERS");
-		}
+		// Separate console/framework terminals share DDS, not an OS process group.
+		command_manager.callCommand("shutdown", {"all"});
+		// OS signals reach owned descendants even when DDS discovery is unavailable.
+		// Discovery servers remain available throughout component cleanup.
+		const bool layers_stopped = utils::shutdownProcesses(layers, grace);
+		const bool servers_stopped = utils::shutdownProcesses(discovery_servers, std::chrono::milliseconds(2000));
+		if (!layers_stopped || !servers_stopped)
+			throw std::runtime_error("Framework shutdown left processes alive; see PID/PGID diagnostics");
 
 		std::cout << "=== FRAMEWORK NODE STOPPED ===" << std::endl;
 	}
@@ -158,44 +162,62 @@ namespace dls
 
 	bool RunDLS2::runLayer(const std::string &lib, const std::string &ID)
 	{
-		std::shared_ptr<AppData> pData = std::make_shared<AppData>(ID);
-
-		pData->proc = std::make_shared<boost::process::child>(std::vector<std::string>(
+		if (should_quit.load()) return false;
+		auto process = std::make_shared<utils::OwnedProcess>(std::vector<std::string>(
 			{"${DLS_INSTALL_RUNTIME_DIR}/child_process_launcher",
-			 pData->getID(),
+			 ID,
 			 lib,
 			 "layer",
-			 Options::robot_name}));
+			 Options::robot_name}), lib != "console");
 
-		if (pData->proc == nullptr)
-		{
-			std::cout << "Layer " << lib << " failed to launch: nullptr" << std::endl;
+		layers.emplace(ID, process);
+
+		auto waitForState = [&](const std::string& state) {
+			for (int elapsed_ms = 0; elapsed_ms < STARTUP_STATE_TIMEOUT_MS && !should_quit;
+				 elapsed_ms += 5000)
+			{
+				if (sm_watcher.waitState(ID, state, should_quit, false))
+					return true;
+			}
+			std::cerr << "Layer " << ID << " did not reach " << state
+				<< " within " << STARTUP_STATE_TIMEOUT_MS / 1000 << " seconds" << std::endl;
 			return false;
+		};
+
+		if (!waitForState("idle"))
+			return false;
+
+		for (int elapsed_ms = 0; elapsed_ms < STARTUP_DISCOVERY_TIMEOUT_MS && !should_quit;
+			 elapsed_ms += STARTUP_RETRY_INTERVAL_MS)
+		{
+			if (command_manager.find(ID, "activate").size() != 1)
+			{
+				std::this_thread::sleep_for(std::chrono::milliseconds(STARTUP_RETRY_INTERVAL_MS));
+				continue;
+			}
+			if (command_manager.callCommand("activate", {}, ID) == 1)
+				return waitForState("run");
 		}
 
-		pData->proc->detach();
-		layers.emplace(pData->getID(), pData);
-
-		// activate layer
-		sm_watcher.waitState(pData->getID(), "idle", should_quit);
-		if(command_manager.waitCommand(pData->getID(), "activate", should_quit))
-			command_manager.callCommand("activate", {}, pData->getID());
-		sm_watcher.waitState(pData->getID(), "run", should_quit);
-		return true;
+		std::cerr << "Layer " << ID
+			<< " did not expose a unique activate command within "
+			<< STARTUP_DISCOVERY_TIMEOUT_MS / 1000 << " seconds" << std::endl;
+		return false;
 	}
 
-	void RunDLS2::launchLayers()
+	bool RunDLS2::launchLayers()
 	{
 		if (Options::launch_log && !should_quit)
-			runLayer("log", "LogLayer");
+			if (!runLayer("log", "LogLayer")) return false;
 		if (Options::launch_hardware && !should_quit)
-			runLayer("hardware", "HardwareLayer");
+			if (!runLayer("hardware", "HardwareLayer")) return false;
 		if (Options::launch_control && !should_quit)
-			runLayer("control", "ControlLayer");
+			if (!runLayer("control", "ControlLayer")) return false;
 		if (Options::launch_console && !should_quit)
-			runLayer("console", "ConsoleLayer");
+			if (!runLayer("console", "ConsoleLayer")) return false;
 		if (Options::launch_estimation && !should_quit)
-			runLayer("estimation", Options::estimation_layer_name);
+			if (!runLayer("estimation", Options::estimation_layer_name)) return false;
+		return !should_quit;
 	}
 
 	void RunDLS2::launchServers()
@@ -210,137 +232,16 @@ namespace dls
 
 	void RunDLS2::launchSingleServer(const std::string& ip, int port){
 		static size_t server_id = 0;
-		std::string command = "setsid fastdds discovery -p " +std::to_string(port)+ " --server-id " + std::to_string(server_id) + " -l "+ip+"&";
-		server_id++;
-		std::cout << command << std::endl;
-		if(system(command.c_str())!=0){
-			throw std::runtime_error("CANNOT EXECUTE COMMAND " + command);
-		}
+		if (should_quit.load()) return;
+		const auto id = std::to_string(server_id++);
+		discovery_servers.emplace("DiscoveryServer" + id, std::make_shared<utils::OwnedProcess>(
+			std::vector<std::string>{"/usr/bin/env", "fastdds", "discovery",
+				"-p", std::to_string(port), "--server-id", id, "-l", ip}));
 	}
 
-	void RunDLS2::runStartup(const std::string &startup_file)
-	{
-		YAML::Node config = YAML::LoadFile(startup_file);
-
-		validateStartupConfig(config);
-
-		// collect layers to be run
-		std::vector<std::string> layers = collectLayersToRun(config);
-		
-		// collect each type of applications to run
-		std::map<std::string, std::vector<std::string>> apps_to_launch = collectApplicationsToRun(config);
-
-		// get robot name
-		Options::robot_name = config[startup_config_entries.ROBOT_NAME].as<std::string>();
-		// get spawning height
-		if(config[startup_config_entries.ROBOT_SPAWNING_HEIGHT])
-			Options::robot_spawning_height = config[startup_config_entries.ROBOT_SPAWNING_HEIGHT].as<double>();
-		else{
-			std::cout << print_header + "Robot spawning height not specified in startup file. Using default value of 1m" << std::endl;
-			Options::robot_spawning_height = 1.0;
-		}
-
-		// get application to activate
-		std::vector<std::string> apps_to_activate = config[startup_config_entries.ACTIVATE].as<std::vector<std::string>>();
-
-		// launch dds servers
-		if(config[startup_config_entries.RUN_SERVERS] && config[startup_config_entries.RUN_SERVERS].as<bool>())
-		{
-			Options::run_servers = true;
-			launchServers();
-		}
-		else{
-			std::cout << print_header + "Startup file does not enable servers. Assuming servers are already running." << std::endl;
-		}
-
-		// launch layers
-		for (auto l : layers)
-		{
-			if (l == "log")
-				Options::launch_log = true;
-			if (l == "hardware")
-				Options::launch_hardware = true;
-			if (l == "control")
-				Options::launch_control = true;
-			if (l == "console")
-				Options::launch_console = true;
-			if (l == "estimation")
-				Options::launch_estimation = true;
-		}
-		launchLayers();
-
-		// launch supervisor
-		if(config[startup_config_entries.RUN_SUPERVISOR] && config[startup_config_entries.RUN_SUPERVISOR].as<bool>())
-		{
-			runLayer("supervisor", "Supervisor");
-		}
-		else{
-			std::cout << print_header + "Startup file does not enable supervisor." << std::endl;
-		}
-
-		// launch apps
-		for (auto const &[app_type, app_names] : apps_to_launch)
-		{
-			for (auto name : app_names)
-			{
-				std::cout << print_header + "Loading application " + name + " of type " + app_type << std::endl;
-				const std::string &layer =
-					instructions_set[app_type][static_cast<int>(INSTRUCTION_OPTIONS::LAYER)];
-				const std::string &command =
-					instructions_set[app_type][static_cast<int>(INSTRUCTION_OPTIONS::COMMAND)];
-
-				if (!command_manager.waitCommand(layer, command, should_quit, 10000))
-				{
-					std::cerr << print_header << "Cannot launch " << name
-							  << ": " << layer << "::" << command
-							  << " is unavailable" << std::endl;
-					continue;
-				}
-
-				command_manager.callCommand(
-					command,
-					{name},
-					layer);
-					
-				if (!sm_watcher.waitState(name, "idle", should_quit))
-				{
-					std::cerr << print_header << "Application " << name
-							  << " did not reach the idle state" << std::endl;
-					continue;
-				}
-				// activate application if it is in the list of applications to activate
-				if(std::find(apps_to_activate.begin(), apps_to_activate.end(), name) != apps_to_activate.end())
-				{
-					// Python apps can reach IDLE before DDS command discovery catches up.
-					if(command_manager.waitCommand(name, "activate", should_quit, 10000)){
-						command_manager.callCommand("activate", {}, name);
-						std::cout << print_header + "Activated application " + name << std::endl;
-					}
-					else{
-						std::cerr << print_header << "Cannot activate application " << name
-								  << ": " << name << "::activate"
-								  << " is unavailable" << std::endl;
-					}
-				}
-				
-				// load the model if running the simulation
-				if((app_type == startup_config_entries.HARDWARES ||
-					app_type == startup_config_entries.XENO_HARDWARES) &&
-				   config[startup_config_entries.LOAD_MODEL] &&
-				   config[startup_config_entries.LOAD_MODEL].as<bool>())
-				{
-					// load model in gazebo if requested by the user
-					if(command_manager.waitCommand(name, "loadModel", should_quit)){
-						command_manager.callCommand("loadModel", {Options::robot_name, std::to_string(Options::robot_spawning_height)}, name);
-						std::cout << print_header + "Robot model " + Options::robot_name + " loaded in " + name << " hardware" << std::endl;
-					}
-				}
-			}
-		}
-	}
 
 	std::vector<std::string> RunDLS2::collectLayersToRun(const YAML::Node &config)
-	{		
+	{
 		if(!config[startup_config_entries.LAYERS] || !config[startup_config_entries.LAYERS].IsSequence())
 		{
 			std::cout << print_header + "No layers specified in startup file. Assuming no layers to run." << std::endl;
@@ -392,5 +293,157 @@ namespace dls
 		{
 			throw std::invalid_argument("\nInvalid entries in startup config file. The invalid entries are:\n" + boost::algorithm::join(invalid_options, "\n") + "\n--------\nAllowed entries are:\n" + boost::algorithm::join(startup_config_entries.ALL_POSSIBLE_OPTIONS, "\n"));
 		}
+	}
+
+	bool RunDLS2::runStartup(const std::string &startup_file)
+	{
+		YAML::Node config = YAML::LoadFile(startup_file);
+
+		validateStartupConfig(config);
+
+		// collect layers to be run
+		std::vector<std::string> layers = collectLayersToRun(config);
+
+		// collect each type of applications to run
+		std::map<std::string, std::vector<std::string>> apps_to_launch = collectApplicationsToRun(config);
+
+		// get robot name
+		Options::robot_name = config[startup_config_entries.ROBOT_NAME].as<std::string>();
+		// get spawning height
+		if(config[startup_config_entries.ROBOT_SPAWNING_HEIGHT])
+			Options::robot_spawning_height = config[startup_config_entries.ROBOT_SPAWNING_HEIGHT].as<double>();
+		else{
+			std::cout << print_header + "Robot spawning height not specified in startup file. Using default value of 1m" << std::endl;
+			Options::robot_spawning_height = 1.0;
+		}
+
+		// get application to activate
+		std::vector<std::string> apps_to_activate = config[startup_config_entries.ACTIVATE].as<std::vector<std::string>>();
+
+		// launch dds servers
+		if(config[startup_config_entries.RUN_SERVERS] && config[startup_config_entries.RUN_SERVERS].as<bool>())
+		{
+			Options::run_servers = true;
+			launchServers();
+		}
+		else{
+			std::cout << print_header + "Startup file does not enable servers. Assuming servers are already running." << std::endl;
+		}
+
+		// launch layers
+		for (auto l : layers)
+		{
+			if (l == "log")
+				Options::launch_log = true;
+			if (l == "hardware")
+				Options::launch_hardware = true;
+			if (l == "control")
+				Options::launch_control = true;
+			if (l == "console")
+				Options::launch_console = true;
+			if (l == "estimation")
+				Options::launch_estimation = true;
+		}
+		if (!launchLayers())
+			return false;
+
+
+		// launch supervisor
+		if(config[startup_config_entries.RUN_SUPERVISOR] && config[startup_config_entries.RUN_SUPERVISOR].as<bool>())
+		{
+			if (!runLayer("supervisor", "Supervisor"))
+				return false;
+		}
+		else{
+			std::cout << print_header + "Startup file does not enable supervisor." << std::endl;
+		}
+
+		auto waitForState = [&](const std::string& app, const std::string& state) {
+			for (int elapsed_ms = 0; elapsed_ms < STARTUP_STATE_TIMEOUT_MS && !should_quit;
+				 elapsed_ms += 5000)
+			{
+				if (sm_watcher.waitState(app, state, should_quit, false))
+					return true;
+			}
+			std::cerr << "Startup failed: " << app << " did not reach " << state
+				<< " within " << STARTUP_STATE_TIMEOUT_MS / 1000 << " seconds" << std::endl;
+			return false;
+		};
+
+		auto callRequiredCommand = [&](const std::string& owner, const std::string& command,
+			const std::vector<std::string>& args) {
+			for (int elapsed_ms = 0; elapsed_ms < STARTUP_DISCOVERY_TIMEOUT_MS && !should_quit;
+				 elapsed_ms += STARTUP_RETRY_INTERVAL_MS)
+			{
+				if (command_manager.find(owner, command).size() != 1)
+				{
+					std::this_thread::sleep_for(std::chrono::milliseconds(STARTUP_RETRY_INTERVAL_MS));
+					continue;
+				}
+
+				const int matches = command_manager.callCommand(command, args, owner);
+				if (matches == 1)
+					return true;
+			}
+			std::cerr << "Startup failed: command " << owner << "::" << command
+				<< " was not available within " << STARTUP_DISCOVERY_TIMEOUT_MS / 1000
+				<< " seconds" << std::endl;
+			return false;
+		};
+
+		auto startApplication = [&](const std::string& name, const std::string& load_command,
+			const std::string& layer) {
+			if (!callRequiredCommand(layer, load_command, {name}) || !waitForState(name, "idle"))
+				return false;
+
+			if (std::find(apps_to_activate.begin(), apps_to_activate.end(), name) == apps_to_activate.end())
+				return true;
+
+			return callRequiredCommand(name, "activate", {}) && waitForState(name, "run");
+		};
+
+		// Start input producers before applications that need their state to activate.
+		std::vector<std::string> app_launch_order = {
+			startup_config_entries.HARDWARES,
+			startup_config_entries.XENO_HARDWARES,
+			startup_config_entries.ESTIMATORS};
+		for (const auto& [app_type, app_names] : apps_to_launch) {
+			if (std::find(app_launch_order.begin(), app_launch_order.end(), app_type) == app_launch_order.end())
+				app_launch_order.push_back(app_type);
+		}
+
+		for (const auto& app_type : app_launch_order)
+		{
+			const auto apps = apps_to_launch.find(app_type);
+			if (apps == apps_to_launch.end()) continue;
+			const auto& app_names = apps->second;
+			for (auto name : app_names)
+			{
+				std::cout << print_header + "Loading application " + name + " of type " + app_type << std::endl;
+				const std::string &layer =
+					instructions_set.at(app_type)[static_cast<int>(INSTRUCTION_OPTIONS::LAYER)];
+				const std::string &command =
+					instructions_set.at(app_type)[static_cast<int>(INSTRUCTION_OPTIONS::COMMAND)];
+
+				if (!startApplication(name, command, layer))
+					return false;
+
+				// load the model if running the simulation
+				if((app_type == startup_config_entries.HARDWARES ||
+					app_type == startup_config_entries.XENO_HARDWARES) &&
+				   config[startup_config_entries.LOAD_MODEL] &&
+				   config[startup_config_entries.LOAD_MODEL].as<bool>())
+				{
+					if (should_quit.load()) return false;
+					// Give Gazebo time to start its model-spawning service.
+					std::this_thread::sleep_for(std::chrono::seconds(1));
+					if (should_quit.load()) return false;
+					if (!callRequiredCommand(name, "loadModel", {Options::robot_name, std::to_string(Options::robot_spawning_height)}))
+							return false;
+					std::cout << print_header + "Requested robot model " + Options::robot_name + " in " + name << " hardware" << std::endl;
+				}
+			}
+		}
+		return !should_quit.load();
 	}
 }
