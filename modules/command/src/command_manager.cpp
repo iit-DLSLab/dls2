@@ -6,6 +6,11 @@
 
 using namespace dls;
 
+namespace
+{
+	constexpr int wait_poll_period_ms = 10;
+}
+
 CommandManager::CommandManager(std::string owner_)
 	: commands()
 	, owner(owner_)
@@ -126,7 +131,7 @@ std::multimap<std::string, std::string> CommandManager::getCommandsList()
 	if(command_publisher_listener == nullptr)
 		return {};
 	// Get matched datareaders instances
-	auto matched_datareaders_instances = command_publisher_listener->matched_datareaders_instances;
+	auto matched_datareaders_instances = command_publisher_listener->get_matched_datareaders_instances();
 	// Find the domain participant name associated to each matched data reader, and save the name (corresponding to the command name)
 	std::multimap<std::string, std::string> cmds;
 	for(auto datareader_instance : matched_datareaders_instances)
@@ -302,7 +307,7 @@ bool CommandManager::waitCommand(const std::string& owner, const std::string& na
 						return false;
 					}
 					return true;
-				}), timeout_ms, 2, stop_wait)){
+				}), timeout_ms, wait_poll_period_ms, stop_wait)){
 			if(!stop_wait)
 				std::cerr << "Command " << owner << "::" << name<<" not found" << std::endl;
 			return false;
@@ -316,7 +321,7 @@ bool CommandManager::waitCommand(const std::string& owner, const std::string& na
 						return false;
 					}
 					return true;
-				}), timeout_ms, 2, stop_wait)){
+				}), timeout_ms, wait_poll_period_ms, stop_wait)){
 			if(!stop_wait.load())
 				std::cerr << "Command " << owner << "::" << name<<" not found" << std::endl;
 			return false;

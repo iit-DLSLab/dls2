@@ -17,6 +17,8 @@ namespace dls
 		const eprosima::fastdds::dds::PublicationMatchedStatus &info
 	)
 	{
+		std::lock_guard<std::mutex> lock(matched_datareaders_mutex_);
+
 		if(info.current_count_change == 1){
 			// publisher matched
 			this->matched_count = info.current_count;
@@ -32,6 +34,12 @@ namespace dls
 		else{
 			// invalid
 		}
+	}
+
+	std::vector<eprosima::fastdds::dds::InstanceHandle_t> DDSPubListener::get_matched_datareaders_instances() const
+	{
+		std::lock_guard<std::mutex> lock(matched_datareaders_mutex_);
+		return matched_datareaders_instances;
 	}
 
 	// =====================================================================
