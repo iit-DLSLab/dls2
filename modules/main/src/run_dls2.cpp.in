@@ -153,10 +153,10 @@ namespace dls
 			for (int elapsed_ms = 0; elapsed_ms < STARTUP_STATE_TIMEOUT_MS && !should_quit;
 				 elapsed_ms += 5000)
 			{
-				if (sm_watcher.waitState(pData->getID(), state, should_quit, false))
+				if (sm_watcher.waitState(ID, state, should_quit, false))
 					return true;
 			}
-			std::cerr << "Layer " << pData->getID() << " did not reach " << state
+			std::cerr << "Layer " << ID << " did not reach " << state
 				<< " within " << STARTUP_STATE_TIMEOUT_MS / 1000 << " seconds" << std::endl;
 			return false;
 		};
@@ -167,16 +167,16 @@ namespace dls
 		for (int elapsed_ms = 0; elapsed_ms < STARTUP_DISCOVERY_TIMEOUT_MS && !should_quit;
 			 elapsed_ms += STARTUP_RETRY_INTERVAL_MS)
 		{
-			if (command_manager.find(pData->getID(), "activate").size() != 1)
+			if (command_manager.find(ID, "activate").size() != 1)
 			{
 				std::this_thread::sleep_for(std::chrono::milliseconds(STARTUP_RETRY_INTERVAL_MS));
 				continue;
 			}
-			if (command_manager.callCommand("activate", {}, pData->getID()) == 1)
+			if (command_manager.callCommand("activate", {}, ID) == 1)
 				return waitForState("run");
 		}
 
-		std::cerr << "Layer " << pData->getID()
+		std::cerr << "Layer " << ID
 			<< " did not expose a unique activate command within "
 			<< STARTUP_DISCOVERY_TIMEOUT_MS / 1000 << " seconds" << std::endl;
 		return false;
@@ -337,7 +337,7 @@ namespace dls
 				return false;
 
 			// loadModel does not have effect on the real robot because the HAL is directly loaded there.
-			if (should_quit.load()) return;
+			if (should_quit.load()) return false;
 			sleep(1); // if the model is spawned too fast (in gazebo) the simulation breaks
 			if (!callRequiredCommand(hardware, "loadModel",
 				{Options::robot_name, std::to_string(Options::robot_spawning_height)}))
