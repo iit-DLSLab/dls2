@@ -283,18 +283,44 @@ namespace dls
 		{
 			for (auto name : app_names)
 			{
+				std::cout << print_header + "Loading application " + name + " of type " + app_type << std::endl;
+				const std::string &layer =
+					instructions_set[app_type][static_cast<int>(INSTRUCTION_OPTIONS::LAYER)];
+				const std::string &command =
+					instructions_set[app_type][static_cast<int>(INSTRUCTION_OPTIONS::COMMAND)];
+
+				if (!command_manager.waitCommand(layer, command, should_quit, 10000))
+				{
+					std::cerr << print_header << "Cannot launch " << name
+							  << ": " << layer << "::" << command
+							  << " is unavailable" << std::endl;
+					continue;
+				}
+
 				command_manager.callCommand(
-					instructions_set[app_type][static_cast<int>(INSTRUCTION_OPTIONS::COMMAND)],
+					command,
 					{name},
-					instructions_set[app_type][static_cast<int>(INSTRUCTION_OPTIONS::LAYER)]);
+					layer);
 					
-				sm_watcher.waitState(name, "idle", should_quit);
+				if (!sm_watcher.waitState(name, "idle", should_quit))
+				{
+					std::cerr << print_header << "Application " << name
+							  << " did not reach the idle state" << std::endl;
+					continue;
+				}
 				// activate application if it is in the list of applications to activate
 				if(std::find(apps_to_activate.begin(), apps_to_activate.end(), name) != apps_to_activate.end())
 				{
 					// Python apps can reach IDLE before DDS command discovery catches up.
-					if(command_manager.waitCommand(name, "activate", should_quit, 10000))
+					if(command_manager.waitCommand(name, "activate", should_quit, 10000)){
 						command_manager.callCommand("activate", {}, name);
+						std::cout << print_header + "Activated application " + name << std::endl;
+					}
+					else{
+						std::cerr << print_header << "Cannot activate application " << name
+								  << ": " << name << "::activate"
+								  << " is unavailable" << std::endl;
+					}
 				}
 				
 				// load the model if running the simulation
