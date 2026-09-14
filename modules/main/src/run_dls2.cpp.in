@@ -298,7 +298,10 @@ namespace dls
 				}
 				
 				// load the model if running the simulation
-				if(config[startup_config_entries.LOAD_MODEL] && config[startup_config_entries.LOAD_MODEL].as<bool>())
+				if((app_type == startup_config_entries.HARDWARES ||
+					app_type == startup_config_entries.XENO_HARDWARES) &&
+				   config[startup_config_entries.LOAD_MODEL] &&
+				   config[startup_config_entries.LOAD_MODEL].as<bool>())
 				{
 					// load model in gazebo if requested by the user
 					if(command_manager.waitCommand(name, "loadModel", should_quit)){
