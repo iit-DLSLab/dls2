@@ -23,11 +23,11 @@ namespace dls
 		  instructions_set({
 			{startup_config_entries.HARDWARES, {"HardwareLayer", "loadHardware"}},
 			{startup_config_entries.XENO_HARDWARES, {"HardwareLayer", "loadXenoHardware"}},
-			{startup_config_entries.CONTROLLERS, {"ControlLayer", "loadControl"}},
-			{startup_config_entries.PYTHON_CONTROLLERS, {"ControlLayer", "loadControl"}},
-			{startup_config_entries.MOTION_GENERATORS, {"ControlLayer", "loadControl"}},
-			{startup_config_entries.ESTIMATORS, {"EstimationLayer", "loadEstimation"}},
-			{startup_config_entries.GENERIC_PERIODIC_APP_PLUGINS, {"Supervisor", "loadAppPlugin"}},
+			{startup_config_entries.CONTROLLERS, {"ControlLayer", "loadController"}},
+			{startup_config_entries.PYTHON_CONTROLLERS, {"ControlLayer", "loadPythonController"}},
+			{startup_config_entries.MOTION_GENERATORS, {"ControlLayer", "loadGenerator"}},
+			{startup_config_entries.ESTIMATORS, {"EstimationLayer", "loadEstimator"}},
+			{startup_config_entries.GENERIC_PERIODIC_APP_PLUGINS, {"Supervisor", "loadPeriodicAppPlugin"}},
 			{startup_config_entries.PYTHON_PERIODIC_APPS, {"Supervisor", "loadPythonPeriodicApp"}},
 			{startup_config_entries.GENERIC_APP_PLUGINS, {"Supervisor", "loadAppPlugin"}}}),
 			print_header("DLS2 STARTUP NODE: ")
