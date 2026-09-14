@@ -19,8 +19,8 @@ namespace dls
     private:
         void change_process_name(char **argv, const std::string &name);
         void launchSupervisor();
-        void launchLayers();
-        void runStartup(const std::string &);
+        bool launchLayers();
+        bool runStartup(const std::string &);
         bool runLayer(const std::string &, const std::string &);
         void launchServers();
         void launchSingleServer(const std::string& ip, int port);

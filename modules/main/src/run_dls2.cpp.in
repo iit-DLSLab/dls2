@@ -2,12 +2,18 @@
 #include "dls2/core_framework/options.hpp"
 
 #include <filesystem>
+#include <chrono>
+#include <thread>
 #include <sys/prctl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
 namespace dls
 {
+	constexpr int STARTUP_DISCOVERY_TIMEOUT_MS = 60000;
+	constexpr int STARTUP_STATE_TIMEOUT_MS = 60000;
+	constexpr int STARTUP_RETRY_INTERVAL_MS = 1000;
+
 	CommandManager RunDLS2::command_manager("dls_framework");
 	bool RunDLS2::should_quit(false);
 
@@ -86,7 +92,8 @@ namespace dls
 		// Run startup procedure if requested by the user
 		if (Options::run_startup)
 		{
-			runStartup(Options::startup_file);
+			if (!runStartup(Options::startup_file))
+				should_quit = true;
 		}
 		else
 		{ // the user is selecting what to run
@@ -97,10 +104,12 @@ namespace dls
 			// Spawn supervisor (if passed as argument)
 			if (Options::launch_supervisor)
 			{
-				runLayer("supervisor", "Supervisor");
+				if (!runLayer("supervisor", "Supervisor"))
+					should_quit = true;
 			}
 			// Spawn layers (if passed as argument)
-			launchLayers();
+			if (!launchLayers())
+				should_quit = true;
 		}
 
 		// Hanging on this executable to intercept CTRL+C. If no layers are running, the executable will exit
@@ -163,26 +172,52 @@ namespace dls
 		pData->proc->detach();
 		layers.emplace(pData->getID(), pData);
 
-		// activate layer
-		sm_watcher.waitState(pData->getID(), "idle", should_quit);
-		if(command_manager.waitCommand(pData->getID(), "activate", should_quit))
-			command_manager.callCommand("activate", {}, pData->getID());
-		sm_watcher.waitState(pData->getID(), "run", should_quit);
-		return true;
+		auto waitForState = [&](const std::string& state) {
+			for (int elapsed_ms = 0; elapsed_ms < STARTUP_STATE_TIMEOUT_MS && !should_quit;
+				 elapsed_ms += 5000)
+			{
+				if (sm_watcher.waitState(pData->getID(), state, should_quit, false))
+					return true;
+			}
+			std::cerr << "Layer " << pData->getID() << " did not reach " << state
+				<< " within " << STARTUP_STATE_TIMEOUT_MS / 1000 << " seconds" << std::endl;
+			return false;
+		};
+
+		if (!waitForState("idle"))
+			return false;
+
+		for (int elapsed_ms = 0; elapsed_ms < STARTUP_DISCOVERY_TIMEOUT_MS && !should_quit;
+			 elapsed_ms += STARTUP_RETRY_INTERVAL_MS)
+		{
+			if (command_manager.find(pData->getID(), "activate").size() != 1)
+			{
+				std::this_thread::sleep_for(std::chrono::milliseconds(STARTUP_RETRY_INTERVAL_MS));
+				continue;
+			}
+			if (command_manager.callCommand("activate", {}, pData->getID()) == 1)
+				return waitForState("run");
+		}
+
+		std::cerr << "Layer " << pData->getID()
+			<< " did not expose a unique activate command within "
+			<< STARTUP_DISCOVERY_TIMEOUT_MS / 1000 << " seconds" << std::endl;
+		return false;
 	}
 
-	void RunDLS2::launchLayers()
+	bool RunDLS2::launchLayers()
 	{
 		if (Options::launch_log && !should_quit)
-			runLayer("log", "LogLayer");
+			if (!runLayer("log", "LogLayer")) return false;
 		if (Options::launch_hardware && !should_quit)
-			runLayer("hardware", "HardwareLayer");
+			if (!runLayer("hardware", "HardwareLayer")) return false;
 		if (Options::launch_control && !should_quit)
-			runLayer("control", "ControlLayer");
+			if (!runLayer("control", "ControlLayer")) return false;
 		if (Options::launch_console && !should_quit)
-			runLayer("console", "ConsoleLayer");
+			if (!runLayer("console", "ConsoleLayer")) return false;
 		if (Options::launch_estimation && !should_quit)
-			runLayer("estimation", Options::estimation_layer_name);
+			if (!runLayer("estimation", Options::estimation_layer_name)) return false;
+		return !should_quit;
 	}
 
 	void RunDLS2::launchServers()
@@ -205,7 +240,7 @@ namespace dls
 		}
 	}
 
-	void RunDLS2::runStartup(const std::string &startup_file)
+	bool RunDLS2::runStartup(const std::string &startup_file)
 	{
 		YAML::Node config = YAML::LoadFile(startup_file);
 
@@ -256,7 +291,8 @@ namespace dls
 		launchServers();
 
 		// launch supervisor
-		runLayer("supervisor", "Supervisor");
+		if (!runLayer("supervisor", "Supervisor"))
+			return false;
 		// launch layers
 		for (auto l : layers)
 		{
@@ -271,27 +307,64 @@ namespace dls
 			if (l == "estimation")
 				Options::launch_estimation = true;
 		}
-		launchLayers();
+		if (!launchLayers())
+			return false;
+
+		auto waitForState = [&](const std::string& app, const std::string& state) {
+			for (int elapsed_ms = 0; elapsed_ms < STARTUP_STATE_TIMEOUT_MS && !should_quit;
+				 elapsed_ms += 5000)
+			{
+				if (sm_watcher.waitState(app, state, should_quit, false))
+					return true;
+			}
+			std::cerr << "Startup failed: " << app << " did not reach " << state
+				<< " within " << STARTUP_STATE_TIMEOUT_MS / 1000 << " seconds" << std::endl;
+			return false;
+		};
+
+		auto callRequiredCommand = [&](const std::string& owner, const std::string& command,
+			const std::vector<std::string>& args) {
+			for (int elapsed_ms = 0; elapsed_ms < STARTUP_DISCOVERY_TIMEOUT_MS && !should_quit;
+				 elapsed_ms += STARTUP_RETRY_INTERVAL_MS)
+			{
+				if (command_manager.find(owner, command).size() != 1)
+				{
+					std::this_thread::sleep_for(std::chrono::milliseconds(STARTUP_RETRY_INTERVAL_MS));
+					continue;
+				}
+
+				const int matches = command_manager.callCommand(command, args, owner);
+				if (matches == 1)
+					return true;
+			}
+			std::cerr << "Startup failed: command " << owner << "::" << command
+				<< " was not available within " << STARTUP_DISCOVERY_TIMEOUT_MS / 1000
+				<< " seconds" << std::endl;
+			return false;
+		};
+
+		auto startApplication = [&](const std::string& name, const std::string& load_command,
+			const std::string& layer) {
+			if (!callRequiredCommand(layer, load_command, {name}) || !waitForState(name, "idle"))
+				return false;
+
+			if (std::find(active_apps.begin(), active_apps.end(), name) == active_apps.end())
+				return true;
+
+			return callRequiredCommand(name, "activate", {}) && waitForState(name, "run");
+		};
 
 		// launch hardware first so dependent apps do not race missing inputs
 		for (auto hardware : applications["hardwares"])
 		{
-			command_manager.callCommand(app_to_loading_command["hardwares"], {hardware}, app_to_layer["hardwares"]);
-			sm_watcher.waitState(hardware, "idle", should_quit);
-
-			if(std::find(active_apps.begin(), active_apps.end(), hardware) != active_apps.end())
-			{
-				if(command_manager.waitCommand(hardware, "activate", should_quit, 10000))
-				{
-					command_manager.callCommand("activate", {}, hardware);
-					sm_watcher.waitState(hardware, "run", should_quit);
-				}
-			}
+			if (!startApplication(hardware, app_to_loading_command["hardwares"], app_to_layer["hardwares"]))
+				return false;
 
 			// loadModel does not have effect on the real robot because the HAL is directly loaded there.
 			sleep(1); // if the model is spawned too fast (in gazebo) the simulation breaks
-			if(command_manager.waitCommand(hardware, "loadModel", should_quit, 10000))
-				command_manager.callCommand("loadModel", {Options::robot_name, std::to_string(Options::robot_spawning_height)}, hardware);
+			if (!callRequiredCommand(hardware, "loadModel",
+				{Options::robot_name, std::to_string(Options::robot_spawning_height)}))
+				return false;
 		}
 
 		// launch apps
@@ -302,15 +375,10 @@ namespace dls
 
 			for (auto name : app_names)
 			{
-				command_manager.callCommand(app_to_loading_command[app_type], {name}, app_to_layer[app_type]);
-				sm_watcher.waitState(name, "idle", should_quit);
-				if(std::find(active_apps.begin(), active_apps.end(), name) != active_apps.end())
-				{
-					// Python apps can reach IDLE before DDS command discovery catches up.
-					if(command_manager.waitCommand(name, "activate", should_quit, 10000))
-						command_manager.callCommand("activate", {}, name);
-				}
+				if (!startApplication(name, app_to_loading_command[app_type], app_to_layer[app_type]))
+					return false;
 			}
 		}
+		return true;
 	}
 }
