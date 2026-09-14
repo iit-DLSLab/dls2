@@ -16,7 +16,6 @@ SchedulerUtils::SchedulerUtils() : sched_rt_policy("SCHED_DEADLINE"), curr_time_
 
 void SchedulerUtils::init(const YAML::Node& config_scheduler)
 {
-	std::cout << "\nInitializing SchedulerUtils with config: " << config_scheduler << "\n" << std::endl;
 	if( config_scheduler["sched_rt_policy"])
 	{
 		sched_rt_policy = config_scheduler["sched_rt_policy"].as<std::string>();
