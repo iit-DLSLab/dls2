@@ -1,12 +1,8 @@
 #include "dls2/external_process/managed_external_process.hpp"
 
-#include <cerrno>
-#include <csignal>
 #include <iostream>
 #include <stdexcept>
 #include <system_error>
-#include <thread>
-#include <unistd.h>
 #include <pthread.h>
 #include <sched.h>
 
@@ -29,7 +25,7 @@ void ManagedExternalProcess::start(const std::vector<std::string>& command,
     if (process_ && !shutdown_sent_)
         return;
 
-    if (shutdown_sent_) 
+    if (shutdown_sent_ && stop_result_.valid())
         stop_result_.get();
 
     if (command.empty() || command.front().empty())
@@ -52,6 +48,22 @@ void ManagedExternalProcess::start(const std::vector<std::string>& command,
     terminate_timeout_ = terminate_timeout;
     stop_result_ = {};
     shutdown_sent_ = false;
+    stop_request_ = std::promise<void>{};
+    try
+    {
+        // Activation runs outside SCHED_DEADLINE. Create the worker here:
+        // a deadline thread cannot create it later from requestStop().
+        stop_result_ = std::async(std::launch::async,
+            [this, request = stop_request_.get_future()]() mutable {
+                request.wait();
+                stop();
+            }).share();
+    }
+    catch (...)
+    {
+        stop();
+        throw;
+    }
 }
 
 bool ManagedExternalProcess::running()
@@ -61,14 +73,17 @@ bool ManagedExternalProcess::running()
 
 void ManagedExternalProcess::requestStop()
 {
-    if (shutdown_sent_) return;
-    stop_result_ = std::async(std::launch::async, [this] { stop(); }).share();
+    if (shutdown_sent_)
+        return;
+
+    if (stop_result_.valid()) stop_request_.set_value();
     shutdown_sent_ = true;
 }
 
 bool ManagedExternalProcess::stopComplete()
 {
     if (!shutdown_sent_) return false;
+    if (!stop_result_.valid()) return true;
     if (stop_result_.wait_for(std::chrono::milliseconds(0)) != std::future_status::ready)
         return false;
 
@@ -79,13 +94,12 @@ bool ManagedExternalProcess::stopComplete()
 void ManagedExternalProcess::stopAndWait()
 {
     requestStop();
-    stop_result_.get();
+    if (stop_result_.valid()) stop_result_.get();
 }
 
 void ManagedExternalProcess::stop()
 {
     if (!process_) return;
-    // A worker created during deactivation may inherit the periodic policy.
     sched_param parameters{};
     const int scheduler_error = ::pthread_setschedparam(::pthread_self(), SCHED_OTHER, &parameters);
     if (scheduler_error != 0)

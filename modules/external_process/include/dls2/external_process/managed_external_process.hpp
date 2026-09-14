@@ -31,6 +31,7 @@ namespace dls
         void stop();
         std::shared_ptr<utils::OwnedProcess> process_;
         std::shared_future<void> stop_result_;
+        std::promise<void> stop_request_;
         bool shutdown_sent_{false};
         std::chrono::milliseconds interrupt_timeout_{15000};
         std::chrono::milliseconds terminate_timeout_{5000};

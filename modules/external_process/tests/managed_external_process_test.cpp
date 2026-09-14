@@ -8,6 +8,9 @@
 #include <thread>
 #include <sys/prctl.h>
 #include <sys/wait.h>
+#include <sys/syscall.h>
+#include <linux/sched.h>
+#include <linux/sched/types.h>
 #include <unistd.h>
 
 using namespace std::chrono_literals;
@@ -144,6 +147,36 @@ int main(int argc, char** argv)
         dls::utils::OwnedProcesses children{{"orphan fixture", owned}};
         require(dls::utils::shutdownProcesses(children, 10ms), "Legacy shutdown failed");
         checkGone(launcher, node);
+    }
+    std::cout << "Testing stop request from SCHED_DEADLINE" << std::endl;
+    {
+        ManagedExternalProcess realtime;
+        const auto ready = (directory / "deadline").string();
+        realtime.start({executable, "fixture", "graceful", ready}, 100ms, 100ms);
+        await([&] { std::ifstream input(ready); return bool(input >> launcher >> node); });
+        struct sched_attr attributes{};
+        attributes.size = sizeof(attributes);
+        attributes.sched_policy = SCHED_DEADLINE;
+        attributes.sched_runtime = 1000000;
+        attributes.sched_deadline = 100000000;
+        attributes.sched_period = 100000000;
+        if (::syscall(SYS_sched_setattr, 0, &attributes, 0) == 0) {
+            bool requested = false;
+            try { realtime.requestStop(); requested = true; }
+            catch (const std::exception& error) {
+                std::cerr << "Real-time stop failed: " << error.what() << std::endl;
+            }
+            attributes.sched_policy = SCHED_OTHER;
+            attributes.sched_runtime = attributes.sched_deadline = attributes.sched_period = 0;
+            require(::syscall(SYS_sched_setattr, 0, &attributes, 0) == 0, "Restore scheduler failed");
+            realtime.stopAndWait();
+            checkGone(launcher, node);
+            require(requested, "requestStop could not run under SCHED_DEADLINE");
+        } else {
+            std::cout << "SKIP: SCHED_DEADLINE unavailable (requires CAP_SYS_NICE)" << std::endl;
+            realtime.stopAndWait();
+            checkGone(launcher, node);
+        }
     }
     fs::remove_all(directory);
 }
