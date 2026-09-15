@@ -94,6 +94,12 @@ namespace dls
 
                 for(const auto& event : events_fifo){
                     events_priority_queue_.push(event);
+					// Bound telemetry backlog when producers exceed the publication
+					// rate. This does not discard events from the control queue.
+					constexpr size_t max_pending_telemetry_events = 1000;
+					if (telemetry_events_.size() >= max_pending_telemetry_events) {
+						telemetry_events_.pop_front();
+					}
 					telemetry_events_.push_back(event);
                 }
 
