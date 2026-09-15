@@ -1,19 +1,3 @@
-add_library(plugin
-	SHARED
-		src/plugin.cpp
-)
-
-target_include_directories(plugin
-	PUBLIC
-		include
-)
-
-target_link_libraries(plugin
-	PUBLIC
-		dls_app
-		dls_signal
-)
-
 add_library(periodic_app_plugin
 	SHARED
 		src/periodic_app_plugin.cpp
@@ -85,8 +69,7 @@ target_link_libraries(app_plugin
 add_subdirectory(test)
 add_subdirectory(python/test/dummy_py_node)
 # INSTALL
-# -- plugin
-dls_install(plugin)
+
 # -- app_plugin
 dls_install(app_plugin)
 # -- periodic_app_plugin

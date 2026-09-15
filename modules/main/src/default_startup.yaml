@@ -1,9 +1,17 @@
 # layers
 layers: [hardware, estimation, log]
 
+# servers (launched only when explicitly set to true)
+run_servers: true
+
+# supervisor (launched only when explicitly set to true)
+run_supervisor: true
+
 # applications
 hardwares: []
+xeno_hardwares: []
 controllers: []
+python_controllers: []
 motion_generators: []
 estimators: []
 python_periodic_apps: []
@@ -13,6 +21,9 @@ generic_periodic_app_plugins: []
 # robot name
 robot_name: ""
 robot_spawning_height: 0.366
+
+# simulation model (loaded only when explicitly set to true)
+load_model: true
 
 # applications to be activated
 activate: []

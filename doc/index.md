@@ -11,3 +11,4 @@ Here you can find the main implemented concepts related to DLS2.
 - @subpage md_dls2_2doc_2Plugin
   - @subpage md_dls2_2doc_2PeriodicPlugin
 - @subpage state_machine "State machine"
+- @subpage developer_hints "Developer hints"

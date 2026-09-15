@@ -28,8 +28,9 @@ namespace dls
 
         /// Activates a hardware
         ///
+        /// An empty launcher path uses DLS_CHILD_PROCESS_LAUNCHER.
         /// @ret true if the hardware exists, false otherwise.
-        bool loadHardware(const std::string&);
+        bool loadHardware(const std::string&, const std::string& child_process_name = "");
 
         /// Deactivates a hardware
         ///

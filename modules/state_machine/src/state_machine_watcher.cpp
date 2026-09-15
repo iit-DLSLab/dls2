@@ -43,66 +43,28 @@ namespace state_machine
     }
     StateMachineWatcher::~StateMachineWatcher() {}
 
-    bool StateMachineWatcher::waitState(const std::string &app_name, const std::string &state, bool& stop_wait,
-                                        bool log_timeout) const
-    {       
-        // wait app
-        if(!dls::utils::wait(std::function<bool()>([&](){
-                if(!findApp(app_name)){
-                    return false;
-                }
-                return true;
-            }), 5000, wait_poll_period_ms, stop_wait)){
-            if(!stop_wait && log_timeout){
-                std::cerr << app_name << " not found" << std::endl;
-                return false;
-            }
-		}
-
-        // wait state
-        if(!dls::utils::wait(std::function<bool()>([&](){
-            if(!findState(app_name, state)){
-                    return false;
-                }
-                return true;
-            }), 5000, wait_poll_period_ms, stop_wait)){
-            if(!stop_wait && log_timeout){
-                std::cerr << app_name << " not found in state " << state << std::endl;
-                return false;}
-            }
-
-        return true;
+    bool StateMachineWatcher::waitState(const std::string &app_name, const std::string &state,
+                                        bool& stop_wait, bool log_timeout) const
+    {
+        // One timeout covers discovery and reaching the requested state.
+        const bool reached = dls::utils::wait([&] {
+            return findState(app_name, state);
+        }, 5000, wait_poll_period_ms, stop_wait);
+        if (!reached && !stop_wait && log_timeout)
+            std::cerr << app_name << " not found in state " << state << std::endl;
+        return reached && !stop_wait;
     }
-
 
     bool StateMachineWatcher::waitState(const std::string &app_name, const std::string &state,
                                         std::atomic_bool& stop_wait, bool log_timeout) const
-    {       
-        // wait app
-        if(!dls::utils::wait(std::function<bool()>([&](){
-                if(!findApp(app_name)){
-                    return false;
-                }
-                return true;
-            }), 5000, wait_poll_period_ms, stop_wait)){
-            if(!stop_wait.load() && log_timeout){
-                std::cerr << app_name << " not found" << std::endl;
-                return false;}
-            }
-
-        // wait state
-        if(!dls::utils::wait(std::function<bool()>([&](){
-            if(!findState(app_name, state)){
-                    return false;
-                }
-                return true;
-            }), 5000, wait_poll_period_ms, stop_wait)){
-            if(!stop_wait.load() && log_timeout){
-                std::cerr << app_name << " not found in state " << state << std::endl;
-                return false;}
-            }
-
-        return true;
+    {
+        // One timeout covers discovery and reaching the requested state.
+        const bool reached = dls::utils::wait([&] {
+            return findState(app_name, state);
+        }, 5000, wait_poll_period_ms, stop_wait);
+        if (!reached && !stop_wait.load() && log_timeout)
+            std::cerr << app_name << " not found in state " << state << std::endl;
+        return reached && !stop_wait.load();
     }
 
     bool StateMachineWatcher::waitApp(const std::string &app_name, bool& stop_wait) const

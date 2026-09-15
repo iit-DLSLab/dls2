@@ -23,6 +23,7 @@ add_library(dls_app
 		src/state_machine/deactivation.cpp
 		src/state_machine/app_state_machine.cpp
 		src/state_machine/app_state.cpp
+		src/sched_utils.cpp
 )
 
 set_property(TARGET dls_app PROPERTY POSITION_INDEPENDENT_CODE ON)

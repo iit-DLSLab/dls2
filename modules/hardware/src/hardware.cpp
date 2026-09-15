@@ -9,20 +9,29 @@ using robotlib::RobotBase;
 
 Hardware::Hardware
 (
-	const std::string& name_,
-	const std::shared_ptr<robotlib::RobotBase> &pRobot_
+	const std::string& name_
 )
 	: PeriodicApp(name_)
-    , pRobot(pRobot_)
-	, signalLink(std::make_shared<dls::DDSParticipant>(
-		"Hardware::" + name_,
-		dls::domains::signals
-	))
-{ }
+{}
 
-std::shared_ptr<dls::DDSParticipant> Hardware::getParticipant()
+bool Hardware::checkActivation()
 {
-	return this->signalLink;
+	return hal->checkHighLevelInterface() && hal->checkLowLevelInterface();
 }
+
+void Hardware::run(const std::chrono::system_clock::time_point& time)
+{
+	//avoid unused parameter warning
+	(void)time;
+	if(!hal->run()){
+		// Handle the case where the hardware is not functioning correctly
+		std::cerr << "Hardware run failed. Stopping the application." << std::endl;
+		sm.raiseEvent(sm.quit_request);
+	}
+
+	eventsCheck();
+}
+
+void Hardware::eventsCheck() {}
 
 #endif /* end of include guard: HARDWARE_CPP */
