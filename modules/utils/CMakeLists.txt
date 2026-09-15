@@ -6,6 +6,7 @@ add_library(dls_utils
 	${CMAKE_CURRENT_BINARY_DIR}/src/utils.cpp
 	src/pose.cpp
 	src/screw.cpp
+	src/waypointer.cpp
 	src/process_resource_monitor.cpp
 	src/system_resource_monitor.cpp
 )
@@ -25,5 +26,9 @@ target_include_directories(dls_utils
 	PUBLIC
 		include
 )
+
+if(BUILD_TESTING)
+	add_subdirectory(test)
+endif()
 
 dls_install(dls_utils)
