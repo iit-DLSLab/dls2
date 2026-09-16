@@ -478,6 +478,7 @@ namespace dls
 		static_cast<void>(participant);
 		if (status == eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT)
 		{
+      		// std::cout << "[discovery] participant DISCOVERED: '" << info.participant_name << "'" << std::endl;
 			discovered_participants_info.insert({static_cast<std::string>(info.participant_name), info.guid});
 			
 			std::string component_name = dls::utils::splitSafe(info.participant_name);
@@ -512,6 +513,7 @@ namespace dls
 		if (status == eprosima::fastdds::rtps::WriterDiscoveryStatus::DISCOVERED_WRITER &&
 			discovery_database.find(info.topic_name.to_string()) == discovery_database.end())
 		{
+			std::cout << "[on_data_writer_discovery] writer DISCOVERED: '" << info.topic_name << "' by " << participant->get_qos().name() << std::endl;
 			// Get remote type information
 			eprosima::fastdds::dds::xtypes::TypeObject remote_type_object;
 			if (eprosima::fastdds::dds::RETCODE_OK != eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->type_object_registry().get_type_object(
@@ -553,6 +555,7 @@ namespace dls
 				// Only set as new topic discovered if it is ALIVE
 		if (status == eprosima::fastdds::rtps::ReaderDiscoveryStatus::DISCOVERED_READER)
 		{
+			std::cout << "[on_data_reader_discovery] reader DISCOVERED: '" << info.topic_name << "' by " << participant->get_qos().name() << std::endl;
 			// Get Topic of DataReader discovered and set it as discovered
 			std::string topic_name = info.topic_name.to_string();
 			std::string type_name = info.type_name.to_string();

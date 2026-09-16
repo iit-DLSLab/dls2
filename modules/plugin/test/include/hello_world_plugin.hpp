@@ -18,12 +18,8 @@ public:
 
 	void run(const std::chrono::system_clock::time_point &time) override;
 
-	// console commands
-	bool setJointTorque();
-
 	// I/O definition
-	dls::ReaderPtr<dls2_interface::msg::BlindState> reader_bs;
-	dls::WriterPtr<dls2_interface::msg::ControlSignal> writer_cs;
+	dls::ReaderPtr<dls2_interface::msg::ControlSignal> reader_cs;
 };
 
 #endif // end of include guard: hello_world_plugin_HPP

@@ -2,42 +2,37 @@
 #include "dls2/topics/topics.hpp"
 
 HelloWorldPlugin::HelloWorldPlugin(const std::string& ID)
-	: dls::PeriodicAppPlugin(ID){
-	reader_bs = buildInput<dls2_interface::msg::BlindState>(dls::topics::low_level_estimation::blind_state, [](){}, false); // false: not required on activation
-	writer_cs = buildOutput<dls2_interface::msg::ControlSignal>(dls::topics::control_signal);
-	writer_cs->msg.torques().resize(12);
+	: dls::PeriodicAppPlugin(ID)
+{
+	eprosima::fastdds::dds::DataReaderQos control_signal_qos(
+        eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT);
 
-	//define console functions here if needed
-	command_manager.addCommand("set_joint_torque",
-                                        "Set joint torque",
-                                        &HelloWorldPlugin::setJointTorque, this, {}, true);
+    const std::string value = "typehash=RIHS01_64087432a68cc5e76843ff92dc2d840ba6e26de892d2a307d7e90ad43ea29aab;";
+    control_signal_qos.user_data().data_vec(std::vector<uint8_t>(value.begin(), value.end()));
+
+    this->reader_cs.reset(new dls::Reader<dls2_interface::msg::ControlSignal>(
+        this->dds_participant_,
+        dls::topics::control_signal, 
+        [this](){
+            if (!this->reader_cs){
+                std::cout << "[hello_world] reader_cs is null, cannot read message" << std::endl;
+                return;
+            }
+
+            this->reader_cs->read();
+            const auto& msg = this->reader_cs->msg;
+
+            std::cout << "ControlSignal timestamp: "
+                      << msg.timestamp() << std::endl;
+        }, 
+        control_signal_qos));
 }
 
 HelloWorldPlugin::~HelloWorldPlugin(){}
 
 void HelloWorldPlugin::run(const std::chrono::system_clock::time_point &time){
-	read();
- 	
-	for (size_t i=0; i<writer_cs->msg.torques().size(); i++){
-		writer_cs->msg.torques()[i] += i;
-	}
-
-	std::cout << "[" << std::chrono::duration_cast<std::chrono::milliseconds>(time.time_since_epoch()).count() 
-		<< "]: Received joint size " << reader_bs->msg.joints_position().size()  << "; publishing dummy torques...\n"; 
-
-	write();
-}
-
-bool HelloWorldPlugin::setJointTorque(){
-	std::cout << "Choose the joint index\n";
-	int idx{0};
-	dls::CommandHelper::readValue<int>("Joint_ID", idx);
-	double tau{0.0};
-	if(dls::CommandHelper::readValue<double>("torque", tau, writer_cs->msg.torques()[idx]))
-	{
-		writer_cs->msg.torques()[idx] = tau;
-	}
-	return true;
+	// read();
+	// write();
 }
 
 // Function for run-time dynamic loading through DLS2 console

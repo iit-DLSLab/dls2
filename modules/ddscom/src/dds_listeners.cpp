@@ -1,4 +1,5 @@
 #include "dls2/util/messaging/dds_listeners.hpp"
+#include <fastdds/dds/topic/TopicDescription.hpp>
 
 
 /// \cond doxygen_namespace_dls
@@ -53,11 +54,15 @@ namespace dls
 	}
 
 	void DDSSubListener::on_subscription_matched(
-		eprosima::fastdds::dds::DataReader*,
+		eprosima::fastdds::dds::DataReader* reader,
 		const eprosima::fastdds::dds::SubscriptionMatchedStatus &info)
 	{
 		if(info.current_count_change == 1)
 		{
+			const auto* topic = reader->get_topicdescription();
+			std::cout << "[on_subscription_matched] reader MATCHED on topic '"
+				<< topic->get_name() << "' (type '" << topic->get_type_name()
+				<< "') by writer '" << info.last_publication_handle << "'" << std::endl;
 			matched_count = info.current_count;
 		}
 		else if(info.current_count_change == -1)
@@ -81,6 +86,9 @@ namespace dls
 
 		if (reader->take_next_sample(this->msg, &info)	== eprosima::fastdds::dds::RETCODE_OK)
 		{
+			std::cout << "[on_data_available] reader received data on topic '"
+				<< reader->get_topicdescription()->get_name() << "' (type '"
+				<< reader->get_topicdescription()->get_type_name() << "'); valid: " << info.valid_data << std::endl;
 			if(info.valid_data)
 			{
 				auto now = std::chrono::steady_clock::now();
