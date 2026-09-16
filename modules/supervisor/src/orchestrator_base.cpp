@@ -15,6 +15,19 @@ namespace dls
         , sm_(sm)
     {};
 
+    OrchestratorBase::~OrchestratorBase()
+    {
+        stopTelemetry();
+    }
+
+    void OrchestratorBase::stopTelemetry()
+    {
+        should_quit = true;
+        if (telemetry_thread_.joinable()) {
+            telemetry_thread_.join();
+        }
+    }
+
     void OrchestratorBase::activation()
     {
         if(!this->telemetry_started_.load()){
@@ -85,8 +98,7 @@ namespace dls
             read();
 
             // Collecting events from DLS2
-            static long int idx_read = 0;
-            const auto events_fifo = event_listener_.readEvents(idx_read);
+            const auto events_fifo = event_listener_.readEvents(event_read_index_);
             EventsPriorityQueue events_priority_queue_tmp;
             {
                 // Update internal events representation
