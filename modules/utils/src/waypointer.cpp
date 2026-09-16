@@ -1,11 +1,20 @@
 #include "dls2/util/waypointer.hpp"
 
+#include <algorithm>
+#include <cmath>
+#include <stdexcept>
+
 namespace dls
 {  
     namespace utils
     {
         bool Waypointer::init(const std::vector<Waypoint>& path){
-            if(path.empty()){
+            if(path.empty() 
+            || !std::all_of(path.begin(), path.end(), [](const Waypoint& point) {
+                return std::isfinite(point.first) && std::isfinite(point.second);
+                }))
+            {
+                path_.clear();
                 return false;
             }
             path_ = path;
@@ -18,7 +27,11 @@ namespace dls
         {
             auto config = YAML::LoadFile(config_path);
             monotonic_ = config["monotonic"].as<bool>();
-            lookahead_ = config["lookahead"].as<int>();
+            const auto lookahead = config["lookahead"].as<int>();
+            if (lookahead < 0) {
+                throw std::invalid_argument("waypointer lookahead must be nonnegative");
+            }
+            lookahead_ = static_cast<size_t>(lookahead);
             panic_threshold_ = config["panic_threshold"].as<double>();
         }
 
@@ -26,7 +39,11 @@ namespace dls
         : Waypointer()
         {
             monotonic_ = config["monotonic"].as<bool>();
-            lookahead_ = config["lookahead"].as<int>();
+            const auto lookahead = config["lookahead"].as<int>();
+            if (lookahead < 0) {
+                throw std::invalid_argument("waypointer lookahead must be nonnegative");
+            }
+            lookahead_ = static_cast<size_t>(lookahead);
             panic_threshold_ = config["panic_threshold"].as<double>();
         }
 
@@ -61,7 +78,10 @@ namespace dls
 
 
         bool EuclideanWaypointer::run(const Waypoint& robot_pose, Waypoint& waypoint){
-            if(path_.empty()){
+            if(path_.empty() || 
+                !std::isfinite(robot_pose.first) ||
+                !std::isfinite(robot_pose.second))
+            {
                 return false;
             }
 
@@ -74,9 +94,7 @@ namespace dls
                 panic_ = false;
             }
 
-            if(lookahead_ > 0){
-                min_dist_idx = std::min(min_dist_idx + lookahead_, path_.size() - 1);
-            }
+            min_dist_idx = std::min(lookahead_, path_.size() - 1 - min_dist_idx) + min_dist_idx;
 
             last_min_dist_idx_ = min_dist_idx;
             waypoint = path_.at(min_dist_idx);

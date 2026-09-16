@@ -2,6 +2,8 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <memory>
+#include <limits>
 #include <string>
 #include <vector>
 
@@ -110,11 +112,30 @@ bool testPanicFallbackRescansWholePath()
     return check(waypoint.first == 0.0 && waypoint.second == 0.0,
                  "panic fallback should rescan from start and recover waypoint 0");
 }
+bool testPolymorphicResetAndInvalidInput()
+{
+    std::unique_ptr<dls::utils::Waypointer> waypointer =
+        std::make_unique<dls::utils::EuclideanWaypointer>(
+            YAML::Load("monotonic: true\nlookahead: 0\npanic_threshold: 1000"));
+    dls::utils::Waypoint result;
+    if (!check(waypointer->init({{0, 0}, {1, 0}, {2, 0}}) &&
+               waypointer->run({2, 0}, result), "initial path must run")) return false;
+    if (!check(waypointer->init({{10, 0}, {11, 0}}) &&
+               waypointer->run({10, 0}, result) && result.first == 10,
+               "base-pointer init must reset index for a shorter path")) return false;
+    const auto nan = std::numeric_limits<double>::quiet_NaN();
+    if (!check(!waypointer->run({nan, 0}, result), "NaN robot pose must be rejected")) return false;
+    if (!check(!waypointer->init({{nan, 0}}) && !waypointer->run({0, 0}, result),
+               "invalid replacement must invalidate old path")) return false;
+    return check(!waypointer->init({}) && !waypointer->run({0, 0}, result),
+                 "empty replacement must invalidate old path");
+}
 } // namespace
 
 int main()
 {
     const bool ok =
+        testPolymorphicResetAndInvalidInput() &&
         testInitRejectsEmptyPath() &&
         testMonotonicSearchUsesLookahead() &&
         testPanicFallbackRescansWholePath();

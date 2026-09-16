@@ -17,8 +17,9 @@ namespace dls
         {
             public:
                 Waypointer() = default;
+                virtual ~Waypointer() = default;
 
-                bool init(const std::vector<Waypoint>& path);
+                virtual bool init(const std::vector<Waypoint>& path);
                 virtual bool run(const Waypoint& robot_pose, Waypoint& waypoint) = 0;
 
             protected:
@@ -31,7 +32,7 @@ namespace dls
                 EuclideanWaypointer(std::string config_path);
                 EuclideanWaypointer(const YAML::Node& config);
                 
-                bool init(const std::vector<Waypoint>& path);
+                bool init(const std::vector<Waypoint>& path) override;
                 bool run(const Waypoint& robot_pose, Waypoint& waypoint) override;
                 std::pair<double, size_t> closestWaypoint(const Waypoint& robot_pose);
 
