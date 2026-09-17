@@ -119,8 +119,43 @@ PYBIND11_MODULE(dls2_periodic_app_bindings, m)
                         return;
                     }
 
+                    if (py::len(parameters) == 2) {
+                        std::function<bool(std::string, std::string)> command_fn =
+                            [bridge](std::string first, std::string second) {
+                                return bridge->call_strings(first, second);
+                            };
+
+                        self.command_manager.addCommand<std::string, std::string>(
+                            name,
+                            doc,
+                            command_fn,
+                            {},
+                            enabled
+                        );
+                        return;
+                    }
+
+                    if (py::len(parameters) == 3) {
+                        std::function<bool(std::string, std::string, std::string)> command_fn =
+                            [bridge](std::string first, std::string second, std::string third) {
+                                return bridge->call_strings(first, second, third);
+                            };
+
+                        self.command_manager.addCommand<
+                            std::string,
+                            std::string,
+                            std::string>(
+                            name,
+                            doc,
+                            command_fn,
+                            {},
+                            enabled
+                        );
+                        return;
+                    }
+
                     throw py::type_error(
-                        "add_command callback must accept zero arguments or one string argument"
+                        "add_command callback must accept zero to three string arguments"
                     );
                 },
             py::arg("name"),

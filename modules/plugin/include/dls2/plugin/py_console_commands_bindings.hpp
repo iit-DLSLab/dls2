@@ -21,4 +21,19 @@ struct PythonCommandBridge {
         py::object ret = fn(s);
         return ret.cast<bool>();
     }
+
+    bool call_strings(const std::string& first, const std::string& second) {
+        py::gil_scoped_acquire acquire;
+        py::object ret = fn(first, second);
+        return ret.cast<bool>();
+    }
+
+    bool call_strings(
+        const std::string& first,
+        const std::string& second,
+        const std::string& third) {
+        py::gil_scoped_acquire acquire;
+        py::object ret = fn(first, second, third);
+        return ret.cast<bool>();
+    }
 };
