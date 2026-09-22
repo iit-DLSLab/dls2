@@ -35,7 +35,10 @@ enum class EventID : uint8_t {
 
     NOMINAL_OPERATION,
     GENERAL_WARNING,
-    GENERAL_ERROR
+    GENERAL_ERROR,
+
+    // Append new IDs to preserve existing values on the wire.
+    BREAKING_MECHANICS
 };
 
 enum class EventSeverity : uint8_t {
