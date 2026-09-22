@@ -26,6 +26,7 @@ void AppLogger::write_file_if_enabled_(const std::string& line) {
 }
 
 void AppLogger::info(const std::string& s) {
+	std::lock_guard<std::mutex> lock(mutex_);
 	if(enable_event_notify_){
 		event_notifier_.notify(EventID::NOMINAL_OPERATION, EventSeverity::INFO, s);
 	}
@@ -38,6 +39,7 @@ void AppLogger::info(const std::string& s) {
 }
 
 void AppLogger::debug(const std::string& s) {
+	std::lock_guard<std::mutex> lock(mutex_);
 	if(enable_event_notify_){
 		event_notifier_.notify(EventID::NOMINAL_OPERATION, EventSeverity::INFO, s);
 	}
@@ -51,6 +53,7 @@ void AppLogger::debug(const std::string& s) {
 }
 
 void AppLogger::warning(const std::string& s, const EventID& event_id) {
+	std::lock_guard<std::mutex> lock(mutex_);
 	if(enable_event_notify_){
 		event_notifier_.notify(event_id, EventSeverity::WARNING, s);
 	}
@@ -64,6 +67,7 @@ void AppLogger::warning(const std::string& s, const EventID& event_id) {
 }
 
 void AppLogger::error(const std::string& s, const EventID& event_id) {
+	std::lock_guard<std::mutex> lock(mutex_);
 	if(enable_event_notify_){
 		event_notifier_.notify(event_id, EventSeverity::ERROR, s);
 	}
@@ -77,6 +81,7 @@ void AppLogger::error(const std::string& s, const EventID& event_id) {
 }
 
 void AppLogger::fatal(const std::string& s, const EventID& event_id) {
+	std::lock_guard<std::mutex> lock(mutex_);
 	if(enable_event_notify_){
 		event_notifier_.notify(event_id, EventSeverity::FATAL, s);
 	}
