@@ -101,8 +101,36 @@ namespace dls
             true
         );        
 
-
         sys_monitor = std::make_unique<dls::SystemResourceMonitor>(this->safety_layer_config_->resource_monitor_window_size);
+    
+        char * val;
+        val = getenv("DLS_SUPERVISOR_DEVICES");
+        const std::string devices_default_path = "/usr/include/dls2/supervisor/data/safety_layer.yaml";
+        std::string devices_path = devices_default_path;
+        if (val != NULL) {
+            devices_path = val;
+        }
+
+        YAML::Node config;
+        try
+        {
+            config = YAML::LoadFile(devices_path);
+        }
+        catch (const YAML::BadFile &e)
+        {
+            std::cerr << "Error loading file: " << e.what() << "\n";
+            return;
+        }
+
+        for(const auto& device : config["devices"])
+        {
+            devices.emplace_back(
+                std::make_shared<DeviceProbe>(
+                    io_context,
+                    device["name"].as<std::string>(),
+                    device["ip"].as<std::string>(),
+                    device["port"].as<size_t>()));
+        }
     }
 
     Supervisor::~Supervisor()
@@ -116,6 +144,39 @@ namespace dls
 
     void Supervisor::checkHardware()
     {
+
+        // Connected device-related checks
+        if (io_context.stopped()){
+            io_context.restart();
+        }
+
+        io_context.poll();
+
+        const auto now = std::chrono::steady_clock::now();
+
+        const bool time_to_probe =
+            (now - last_probe_time_) >= probe_period_;
+
+        if (time_to_probe)
+        {
+            last_probe_time_ = now;
+            for (auto& probe : devices){
+                probe->check();
+            }
+        }
+
+        for (auto& probe : devices){
+            auto connected = probe->alive();
+            if(this->safety_layer_config_->enable_device_connected_check && !connected){
+                this->robust_event_notifier.notify(
+                    EventID::PROCESS_DIED,
+                    EventSeverity::ERROR,
+                    this->getID() + ": device " + probe->name() + " is not connected)"
+                );
+            }
+        }
+
+        // Onboard resource consumption-related checks
         sys_monitor->monitor();
 
         auto mem_usage = sys_monitor->getMemUsage();
