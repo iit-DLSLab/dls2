@@ -20,6 +20,7 @@ namespace dls
 		bool enable_inputs_not_synchronized{false};
 		bool enable_wrong_input_frequency{false};
 		bool enable_wrong_sequence_id{false};
+		bool enable_device_connected_check{false};
 
 		double spam_threshold{200};
         double max_exceeding_factor{0.5};
@@ -59,6 +60,7 @@ namespace dls
 			enable_inputs_not_synchronized = config["checks"]["enable_inputs_not_synchronized"].as<bool>();
 			enable_wrong_input_frequency = config["checks"]["enable_wrong_input_frequency"].as<bool>();
 			enable_wrong_sequence_id = config["checks"]["enable_wrong_sequence_id"].as<bool>();
+			enable_device_connected_check = config["checks"]["enable_device_connected_check"].as<bool>();
 
             max_exceeding_factor = config["checks"]["max_exceeding_factor"].as<double>();
 			sync_threshold_ms = config["checks"]["sync_threshold"].as<double>();
