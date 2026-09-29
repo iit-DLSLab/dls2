@@ -10,6 +10,8 @@ namespace dls
 	{
 	public:
 		Reader(std::shared_ptr<dls::DDSParticipant>, const dls::topicType&, const std::function<void()>& auxiliary_callback = [](){}, eprosima::fastdds::dds::DataReaderQos qos = eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT);
+		// The sample is valid for the callback duration; no owner ReaderPtr is needed.
+		Reader(std::shared_ptr<dls::DDSParticipant>, const dls::topicType&, const std::function<void(const MsgType&)>& sample_callback, eprosima::fastdds::dds::DataReaderQos qos = eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT);
 		
 		~Reader();
 		Reader() = delete;
@@ -36,6 +38,9 @@ namespace dls
 		std::function<void()> auxiliary_callback;
 	
 	private:
+		Reader(std::shared_ptr<dls::DDSParticipant>, const dls::topicType&, const std::function<void()>& auxiliary_callback, eprosima::fastdds::dds::DataReaderQos qos, const std::function<void(const MsgType&)>& sample_callback);
+		std::function<void(const MsgType&)> sample_callback_;
+
 		template <typename T, typename = std::void_t<>>
 		struct HasHeader : std::false_type { };
 		template <typename T>

@@ -82,7 +82,7 @@ namespace dls
 		DDSParticipant(
 			std::string	partName_,
 			dls::domainType domain_,
-			eprosima::fastdds::rtps::DiscoveryProtocol part_type = eprosima::fastdds::rtps::DiscoveryProtocol::CLIENT
+			eprosima::fastdds::rtps::DiscoveryProtocol part_type = eprosima::fastdds::rtps::DiscoveryProtocol::SUPER_CLIENT
 		);
 
 		virtual ~DDSParticipant();
@@ -114,6 +114,15 @@ namespace dls
 			dls::topicType				topicData,
 			std::function<void(void *)>	callback,
 			eprosima::fastdds::dds::DataReaderQos qos = eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT,
+			bool add_ros2_namespace = true
+		);
+
+		// Allow Reader to initialize its listener before DDS can deliver callbacks.
+		eprosima::fastdds::dds::DataReader* addReader(
+			std::string readerName,
+			dls::topicType topicData,
+			std::shared_ptr<DDSSubListener> listener,
+			eprosima::fastdds::dds::DataReaderQos qos,
 			bool add_ros2_namespace = true
 		);
 

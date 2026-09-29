@@ -13,15 +13,7 @@ HelloWorldPlugin::HelloWorldPlugin(const std::string& ID)
     this->reader_cs.reset(new dls::Reader<dls2_interface::msg::ControlSignal>(
         this->dds_participant_,
         dls::topics::control_signal, 
-        [this](){
-            if (!this->reader_cs){
-                std::cout << "[hello_world] reader_cs is null, cannot read message" << std::endl;
-                return;
-            }
-
-            this->reader_cs->read();
-            const auto& msg = this->reader_cs->msg;
-
+        [](const dls2_interface::msg::ControlSignal& msg){
             std::cout << "ControlSignal timestamp: "
                       << msg.timestamp() << std::endl;
         }, 

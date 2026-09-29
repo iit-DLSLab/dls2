@@ -281,6 +281,17 @@ namespace dls
 		eprosima::fastdds::dds::DataReaderQos qos,
 		bool add_ros2_namespace)
 	{
+		return addReader(readerName_, topicData_,
+			std::make_shared<DDSSubListener>(callback_), qos, add_ros2_namespace);
+	}
+
+	eprosima::fastdds::dds::DataReader *DDSParticipant::addReader(
+		std::string readerName_,
+		dls::topicType topicData_,
+		std::shared_ptr<DDSSubListener> listener,
+		eprosima::fastdds::dds::DataReaderQos qos,
+		bool add_ros2_namespace)
+	{
 		if(this->readers.find(readerName_) != this->readers.end())
 		{
 			std::cout << "THE READER " << readerName_ << " ALREADY EXISTS, YOU ARE TRYING TO CREATE TWICE" << std::endl;
@@ -292,8 +303,6 @@ namespace dls
 		// error could not add topic
 		if (topic == nullptr)
 			return nullptr;
-
-		std::shared_ptr<dls::DDSSubListener> listener = std::make_shared<DDSSubListener>(callback_);
 
 		auto reader = this->subscriber->create_datareader(
 			topic,

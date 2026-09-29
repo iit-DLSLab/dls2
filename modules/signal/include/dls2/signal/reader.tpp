@@ -5,6 +5,7 @@
 #include "dls2/signal/reader.hpp"
 
 #include <experimental/random>
+#include <stdexcept>
 
 namespace dls
 {
@@ -12,17 +13,34 @@ namespace dls
 	Reader<MsgType>::Reader(std::shared_ptr<dls::DDSParticipant> participant,
 										   const dls::topicType &topic,
 										   const std::function<void()> &auxiliary_callback, eprosima::fastdds::dds::DataReaderQos qos)
+		: Reader(participant, topic, auxiliary_callback, qos, {})
+	{ }
+
+	template <typename MsgType>
+	Reader<MsgType>::Reader(std::shared_ptr<dls::DDSParticipant> participant,
+		const dls::topicType &topic,
+		const std::function<void(const MsgType&)> &sample_callback,
+		eprosima::fastdds::dds::DataReaderQos qos)
+		: Reader(participant, topic, [](){}, qos, sample_callback)
+	{ }
+
+	template <typename MsgType>
+	Reader<MsgType>::Reader(std::shared_ptr<dls::DDSParticipant> participant,
+		const dls::topicType &topic, const std::function<void()> &auxiliary_callback,
+		eprosima::fastdds::dds::DataReaderQos qos,
+		const std::function<void(const MsgType&)> &sample_callback)
 		: ReaderBase(participant, topic),
 		  auxiliary_callback(auxiliary_callback),
+		  sample_callback_(sample_callback),
 		  has_header_(HasHeader<MsgType>::value),
 		  has_sequence_id_(HasSequenceId<MsgType>::value)
 	{
 		computeName("reader");
 
-		auto reader = dds_participant_->addReader(ID_,
-									topic,
-									std::function<void(void *)>{
-										[&](void *tuple)
+		// Publish listener_ before create_datareader can invoke its callbacks.
+		listener_ = std::make_shared<DDSSubListener>(
+			std::function<void(void *)>{
+										[this](void *tuple)
 										{
 											// Suppress unused parameter warning
 											static_cast<void>(tuple);
@@ -53,16 +71,22 @@ namespace dls
 											}
 											
 											received = true;
+											if (this->sample_callback_) {
+												this->sample_callback_(*static_cast<const MsgType*>(tuple));
+											}
 											this->auxiliary_callback();
-										}},
-									qos);
+										}});
+
+		auto reader = dds_participant_->addReader(ID_, topic, listener_, qos);
+		if (reader == nullptr) {
+			throw std::runtime_error("Could not create DDS reader " + ID_);
+		}
 
 		const eprosima::fastdds::dds::TopicDescription* topic_desc = reader->get_topicdescription();
 		if (topic_desc != nullptr) {
 			topic_name_ = topic_desc->get_name();
 		}
 		
-		listener_ = dds_participant_->getSubListener(ID_);
 	}
 
 	template <typename MsgType>
