@@ -13,7 +13,7 @@
 namespace dls
 {
 	constexpr int STARTUP_DISCOVERY_TIMEOUT_MS = 60000;
-	constexpr int STARTUP_STATE_TIMEOUT_MS = 60000;
+	constexpr int STARTUP_STATE_TIMEOUT_MS = 10000;
 	constexpr int STARTUP_RETRY_INTERVAL_MS = 1000;
 
 	CommandManager RunDLS2::command_manager("dls_framework");
@@ -425,8 +425,9 @@ namespace dls
 				const std::string &command =
 					instructions_set.at(app_type)[static_cast<int>(INSTRUCTION_OPTIONS::COMMAND)];
 
-				if (!startApplication(name, command, layer))
-					return false;
+				if (!startApplication(name, command, layer)){
+					std::cerr << print_header + "Failed to start application " + name + " of type " + app_type << std::endl;
+				}
 
 				// load the model if running the simulation
 				if((app_type == startup_config_entries.HARDWARES ||
