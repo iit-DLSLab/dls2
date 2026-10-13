@@ -365,7 +365,7 @@ namespace dls
 				if (sm_watcher.waitState(app, state, should_quit, false))
 					return true;
 			}
-			std::cerr << "Startup failed: " << app << " did not reach " << state
+			std::cerr << "Startup node failed: " << app << " did not reach " << state
 				<< " within " << STARTUP_STATE_TIMEOUT_MS / 1000 << " seconds" << std::endl;
 			return false;
 		};
@@ -385,7 +385,7 @@ namespace dls
 				if (matches == 1)
 					return true;
 			}
-			std::cerr << "Startup failed: command " << owner << "::" << command
+			std::cerr << "Startup node failed: command " << owner << "::" << command
 				<< " was not available within " << STARTUP_DISCOVERY_TIMEOUT_MS / 1000
 				<< " seconds" << std::endl;
 			return false;
