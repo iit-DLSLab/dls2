@@ -87,7 +87,6 @@ namespace dls
 			}
 			return;
 		}
-		std::exception_ptr failure;
 		try
 		{
 			// Run startup procedure if requested by the user
@@ -120,10 +119,15 @@ namespace dls
 				std::this_thread::sleep_for(std::chrono::milliseconds(50));
 			}
 		}
+		catch (const std::exception& e)
+		{
+			should_quit = true;
+			std::cerr << "Framework node failed: " << e.what() << std::endl;
+		}
 		catch (...)
 		{
 			should_quit = true;
-			failure = std::current_exception();
+			std::cerr << "Framework node failed: unknown exception" << std::endl;
 		}
 
 		std::chrono::milliseconds grace(10000);
@@ -138,6 +142,7 @@ namespace dls
 				std::cerr << "Invalid DLS_SHUTDOWN_TIMEOUT_MS; using 10000 ms" << std::endl;
 			}
 		}
+		
 		// Separate console/framework terminals share DDS, not an OS process group.
 		command_manager.callCommand("shutdown", {"all"});
 		// OS signals reach owned descendants even when DDS discovery is unavailable.
