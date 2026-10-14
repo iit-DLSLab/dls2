@@ -139,12 +139,12 @@ AppStatus PeriodicApp::run()
 	bool failure = false;
 	realtime_prec = true;
 	realtime_curr = realtime_prec;
-	if (scheduler_utils.getPolicy() == "SCHED_FIFO"){
+	if (scheduler_utils.getPolicy() != "SCHED_DEADLINE"){
 		scheduler_utils.initDesiredTime(std::chrono::steady_clock::now());
 	}
 
-	//set RT scheduling policy
-	scheduler_utils.setRTSchedulerPolicy();
+	//set scheduling policy
+	scheduler_utils.setSchedulerPolicy();
 	while(      !sm.isRaised(sm.deactivation_request)
 	        &&  !sm.isRaised(sm.quit_request)
 	        &&  !failure)
@@ -173,7 +173,7 @@ AppStatus PeriodicApp::run()
 	    if(newTimeFactor())
 	    {
 	        scheduler_utils.setCurrentTimeFactor(this->time_factor.getRealTimeFactor());
-			scheduler_utils.setRTSchedulerPolicy();
+			scheduler_utils.setSchedulerPolicy();
 	    }
 
 		scheduler_utils.executeEndLoopTask();
@@ -264,7 +264,7 @@ bool PeriodicApp::deactivating()
 	    if(newTimeFactor())
 	    {
 			scheduler_utils.setCurrentTimeFactor(this->time_factor.getRealTimeFactor());
-	        scheduler_utils.setRTSchedulerPolicy();
+	        scheduler_utils.setSchedulerPolicy();
 	    }
 
 		scheduler_utils.executeEndLoopTask();

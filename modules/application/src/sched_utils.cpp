@@ -8,7 +8,7 @@
 #include <thread>
 #include <stdexcept>
 
-SchedulerUtils::SchedulerUtils() : sched_rt_policy("SCHED_DEADLINE"), curr_time_factor(1.0)
+SchedulerUtils::SchedulerUtils() : sched_policy("SCHED_DEADLINE"), curr_time_factor(1.0)
 {
 	memset(&scheduler_attributes, 0, sizeof(struct sched_attr));
 	scheduler_attributes.size = sizeof(struct sched_attr);
@@ -16,22 +16,22 @@ SchedulerUtils::SchedulerUtils() : sched_rt_policy("SCHED_DEADLINE"), curr_time_
 
 void SchedulerUtils::init(const YAML::Node& config_scheduler)
 {
-	if( config_scheduler["sched_rt_policy"])
+	if( config_scheduler["sched_policy"])
 	{
-		sched_rt_policy = config_scheduler["sched_rt_policy"].as<std::string>();
+		sched_policy = config_scheduler["sched_policy"].as<std::string>();
 	}
 	
 	// set scheduler attributes based on the configuration
 	period = std::chrono::milliseconds(config_scheduler["period"].as<int>());
 	
-	if(sched_rt_policy == "SCHED_DEADLINE")
+	if(sched_policy == "SCHED_DEADLINE")
 	{
 		double sched_runtime_factor = config_scheduler["runtime_factor"].as<double>();
 		double sched_deadline_factor = config_scheduler["deadline_factor"].as<double>();
 		runtime = period * sched_runtime_factor;
 		deadline = period * sched_deadline_factor;
 	}
-	else if (sched_rt_policy == "SCHED_FIFO")
+	else if (sched_policy == "SCHED_FIFO")
 	{
 		if( config_scheduler["sched_priority"])
 		{
@@ -45,15 +45,23 @@ void SchedulerUtils::init(const YAML::Node& config_scheduler)
 	}
 }
 
-void SchedulerUtils::setRTSchedulerPolicy()
+void SchedulerUtils::setSchedulerPolicy()
 {
-	if(sched_rt_policy == "SCHED_FIFO")
+	if(sched_policy == "SCHED_FIFO")
 	{
 		setSCHED_FIFO();
 	}
-	else if(sched_rt_policy == "SCHED_DEADLINE")
+	else if(sched_policy == "SCHED_DEADLINE")
 	{
 		setSCHED_DEADLINE();
+	}
+	else if(sched_policy == "SCHED_OTHER")
+	{
+		setDefaultSchedulerPolicy();
+	}
+	else
+	{
+		throw std::invalid_argument("Unsupported scheduler policy: " + sched_policy);
 	}
 }
 
@@ -93,13 +101,13 @@ void SchedulerUtils::setDefaultSchedulerPolicy()
 
 void SchedulerUtils::executeEndLoopTask()
 {
-	if (sched_rt_policy == "SCHED_DEADLINE")
+	if (sched_policy == "SCHED_DEADLINE")
 		sched_yield();
-	else if (sched_rt_policy == "SCHED_FIFO")
+	else if (sched_policy == "SCHED_FIFO" || sched_policy == "SCHED_OTHER")
 	{
 		const auto effective_period = std::chrono::duration_cast<std::chrono::steady_clock::duration>(period * curr_time_factor);
 		if (effective_period <= std::chrono::steady_clock::duration::zero())
-			throw std::invalid_argument("SCHED_FIFO period must be positive");
+			throw std::invalid_argument(sched_policy + " period must be positive");
 
 		desired_time += effective_period;
 		// checkOverrun();
@@ -144,7 +152,7 @@ SchedulerUtils::period_t SchedulerUtils::getPeriod()
 
 std::string SchedulerUtils::getPolicy()
 {
-	return this->sched_rt_policy;
+	return this->sched_policy;
 }
 
 void SchedulerUtils::checkOverrun()

@@ -16,7 +16,7 @@ class SchedulerUtils
 
 		void init(const YAML::Node& config_scheduler);
 		
-		void setRTSchedulerPolicy();
+		void setSchedulerPolicy();
 
 		void setDefaultSchedulerPolicy();
 
@@ -42,7 +42,7 @@ class SchedulerUtils
 		void checkOverrun();
 		//! Attrributes of the scheduler
 		struct sched_attr scheduler_attributes;
-		std::string sched_rt_policy;
+		std::string sched_policy;
 		
 		//! The period of this component
 		period_t period;

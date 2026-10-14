@@ -50,8 +50,8 @@ namespace dls
 		/// correct rate
 		virtual void run(const std::chrono::system_clock::time_point&) = 0;
 
-		//! Set SCHED_DEADLINE policy
-		void setRTSchedulerPolicy();
+		//! Set the configured scheduling policy (SCHED_DEADLINE, SCHED_FIFO or SCHED_OTHER)
+		void setSchedulerPolicy();
 
 		//! Pause the current execution
 		void pauseExecution();
