@@ -92,6 +92,7 @@ void SchedulerUtils::setSCHED_DEADLINE()
 void SchedulerUtils::setDefaultSchedulerPolicy()
 {
 	scheduler_attributes.sched_policy = SCHED_OTHER;
+	scheduler_attributes.sched_priority = 0;
 
 	if (sched_setattr(0, &scheduler_attributes, 0) < 0) {
             perror("sched_setattr - could not switch to SCHED_OTHER with sched_setattr");
