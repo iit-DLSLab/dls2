@@ -26,6 +26,10 @@ PeriodicApp::PeriodicApp(const std::string &ID)
 	current_frequency_ = getDesiredFrequency();
 	loop_time_prec = std::chrono::steady_clock::now();
 
+	frequency_tolerance_factor_ = (scheduler_utils.getPolicy() == "SCHED_OTHER")
+		? this->safety_layer_config_->besteffort_tolerance_factor
+		: this->safety_layer_config_->realtime_tolerance_factor;
+
 	this->command_manager.addCommand<>
 	(
 		"pause",
@@ -227,7 +231,7 @@ void PeriodicApp::checkRT()
 {
 	{
 		std::lock_guard<std::mutex> lock(this->frequency_mutex_);
-		realtime_curr = Time::checkFrequency(this->safety_layer_config_->realtime_tolerance_factor, getDesiredFrequency(), loop_time_prec, current_frequency_);
+		realtime_curr = Time::checkFrequency(frequency_tolerance_factor_, getDesiredFrequency(), loop_time_prec, current_frequency_);
 	}
 
 	// notify if the process is not running in real time

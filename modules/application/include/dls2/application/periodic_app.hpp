@@ -107,6 +107,8 @@ namespace dls
 
 		bool realtime_prec;
 		bool realtime_curr;
+		//! Frequency tolerance factor used by checkRT: realtime_tolerance_factor for RT policies, besteffort_tolerance_factor for SCHED_OTHER
+		double frequency_tolerance_factor_;
 		std::chrono::time_point<std::chrono::steady_clock> loop_time_prec;
 
 		std::unique_ptr<ProcessResourceMonitor> process_resource_monitor_;
