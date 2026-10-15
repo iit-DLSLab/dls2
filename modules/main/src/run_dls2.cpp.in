@@ -12,7 +12,7 @@
 
 namespace dls
 {
-	constexpr int STARTUP_DISCOVERY_TIMEOUT_MS = 60000;
+	constexpr int STARTUP_DISCOVERY_TIMEOUT_MS = 10000;
 	constexpr int STARTUP_STATE_TIMEOUT_MS = 10000;
 	constexpr int STARTUP_RETRY_INTERVAL_MS = 1000;
 
