@@ -50,8 +50,8 @@ namespace dls
 		/// correct rate
 		virtual void run(const std::chrono::system_clock::time_point&) = 0;
 
-		//! Set SCHED_DEADLINE policy
-		void setRTSchedulerPolicy();
+		//! Set the configured scheduling policy (SCHED_DEADLINE, SCHED_FIFO or SCHED_OTHER)
+		void setSchedulerPolicy();
 
 		//! Pause the current execution
 		void pauseExecution();
@@ -107,6 +107,8 @@ namespace dls
 
 		bool realtime_prec;
 		bool realtime_curr;
+		//! Frequency tolerance factor used by checkRT: realtime_tolerance_factor for RT policies, besteffort_tolerance_factor for SCHED_OTHER
+		double frequency_tolerance_factor_;
 		std::chrono::time_point<std::chrono::steady_clock> loop_time_prec;
 
 		std::unique_ptr<ProcessResourceMonitor> process_resource_monitor_;

@@ -28,6 +28,7 @@ A detailed list of all asynchronous event types is reported in the following:
 | `NAN_VALUE` | | | 
 | `INF_VALUE` | | | 
 | `MOTOR_OVERHEAT` | | | 
+| `VIRTUAL_ENDSTOP_ENFORCING` | The HAL virtual endstop is braking at least one joint (predicted position limit violation) and overrides its high-level command; reports position, velocity, limit side, anchor and virtual torque per joint | `virtual_joint_limit_min_velocity`, `virtual_joint_limit_torque_scale` | High-level controller driving a joint toward its position limit too fast
 
 A detailed list of all checks is reported in the following. The order reflects their implementation. As soon as one of them is triggered an event is published by the event notifier. 
 

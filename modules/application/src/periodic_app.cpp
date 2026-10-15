@@ -26,6 +26,10 @@ PeriodicApp::PeriodicApp(const std::string &ID)
 	current_frequency_ = getDesiredFrequency();
 	loop_time_prec = std::chrono::steady_clock::now();
 
+	frequency_tolerance_factor_ = (scheduler_utils.getPolicy() == "SCHED_OTHER")
+		? this->safety_layer_config_->besteffort_tolerance_factor
+		: this->safety_layer_config_->realtime_tolerance_factor;
+
 	this->command_manager.addCommand<>
 	(
 		"pause",
@@ -139,12 +143,12 @@ AppStatus PeriodicApp::run()
 	bool failure = false;
 	realtime_prec = true;
 	realtime_curr = realtime_prec;
-	if (scheduler_utils.getPolicy() == "SCHED_FIFO"){
+	if (scheduler_utils.getPolicy() != "SCHED_DEADLINE"){
 		scheduler_utils.initDesiredTime(std::chrono::steady_clock::now());
 	}
 
-	//set RT scheduling policy
-	scheduler_utils.setRTSchedulerPolicy();
+	//set scheduling policy
+	scheduler_utils.setSchedulerPolicy();
 	while(      !sm.isRaised(sm.deactivation_request)
 	        &&  !sm.isRaised(sm.quit_request)
 	        &&  !failure)
@@ -173,7 +177,7 @@ AppStatus PeriodicApp::run()
 	    if(newTimeFactor())
 	    {
 	        scheduler_utils.setCurrentTimeFactor(this->time_factor.getRealTimeFactor());
-			scheduler_utils.setRTSchedulerPolicy();
+			scheduler_utils.setSchedulerPolicy();
 	    }
 
 		scheduler_utils.executeEndLoopTask();
@@ -227,7 +231,7 @@ void PeriodicApp::checkRT()
 {
 	{
 		std::lock_guard<std::mutex> lock(this->frequency_mutex_);
-		realtime_curr = Time::checkFrequency(this->safety_layer_config_->realtime_tolerance_factor, getDesiredFrequency(), loop_time_prec, current_frequency_);
+		realtime_curr = Time::checkFrequency(frequency_tolerance_factor_, getDesiredFrequency(), loop_time_prec, current_frequency_);
 	}
 
 	// notify if the process is not running in real time
@@ -264,7 +268,7 @@ bool PeriodicApp::deactivating()
 	    if(newTimeFactor())
 	    {
 			scheduler_utils.setCurrentTimeFactor(this->time_factor.getRealTimeFactor());
-	        scheduler_utils.setRTSchedulerPolicy();
+	        scheduler_utils.setSchedulerPolicy();
 	    }
 
 		scheduler_utils.executeEndLoopTask();

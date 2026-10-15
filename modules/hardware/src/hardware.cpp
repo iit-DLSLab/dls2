@@ -25,7 +25,7 @@ void Hardware::run(const std::chrono::system_clock::time_point& time)
 	(void)time;
 	if(!hal->run()){
 		// Handle the case where the hardware is not functioning correctly
-		std::cerr << "Hardware run failed. Stopping the application." << std::endl;
+		app_logger.error("Hardware run failed. Stopping the application.");
 		sm.raiseEvent(sm.quit_request);
 	}
 
