@@ -12,7 +12,7 @@
 
 namespace dls
 {
-	constexpr int STARTUP_DISCOVERY_TIMEOUT_MS = 10000;
+	constexpr int STARTUP_DISCOVERY_TIMEOUT_MS = 30000;
 	constexpr int STARTUP_STATE_TIMEOUT_MS = 10000;
 	constexpr int STARTUP_RETRY_INTERVAL_MS = 1000;
 
@@ -192,10 +192,12 @@ namespace dls
 		if (!waitForState("idle"))
 			return false;
 
+		std::size_t matches = 0;
 		for (int elapsed_ms = 0; elapsed_ms < STARTUP_DISCOVERY_TIMEOUT_MS && !should_quit;
 			 elapsed_ms += STARTUP_RETRY_INTERVAL_MS)
 		{
-			if (command_manager.find(ID, "activate").size() != 1)
+			matches = command_manager.find(ID, "activate").size();
+			if (matches != 1)
 			{
 				std::this_thread::sleep_for(std::chrono::milliseconds(STARTUP_RETRY_INTERVAL_MS));
 				continue;
@@ -206,7 +208,8 @@ namespace dls
 
 		std::cerr << "Layer " << ID
 			<< " did not expose a unique activate command within "
-			<< STARTUP_DISCOVERY_TIMEOUT_MS / 1000 << " seconds" << std::endl;
+			<< STARTUP_DISCOVERY_TIMEOUT_MS / 1000 << " seconds (found " << matches
+			<< " matching participants)" << std::endl;
 		return false;
 	}
 
@@ -377,22 +380,24 @@ namespace dls
 
 		auto callRequiredCommand = [&](const std::string& owner, const std::string& command,
 			const std::vector<std::string>& args) {
+			std::size_t matches = 0;
 			for (int elapsed_ms = 0; elapsed_ms < STARTUP_DISCOVERY_TIMEOUT_MS && !should_quit;
 				 elapsed_ms += STARTUP_RETRY_INTERVAL_MS)
 			{
-				if (command_manager.find(owner, command).size() != 1)
+				matches = command_manager.find(owner, command).size();
+				if (matches != 1)
 				{
 					std::this_thread::sleep_for(std::chrono::milliseconds(STARTUP_RETRY_INTERVAL_MS));
 					continue;
 				}
 
-				const int matches = command_manager.callCommand(command, args, owner);
-				if (matches == 1)
+				if (command_manager.callCommand(command, args, owner) == 1)
 					return true;
 			}
 			std::cerr << "Startup node failed: command " << owner << "::" << command
 				<< " was not available within " << STARTUP_DISCOVERY_TIMEOUT_MS / 1000
-				<< " seconds" << std::endl;
+				<< " seconds (found " << matches << " matching participants; "
+				<< "0 = not discovered yet, >1 = duplicate/stale participant)" << std::endl;
 			return false;
 		};
 
