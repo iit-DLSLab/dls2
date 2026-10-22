@@ -43,7 +43,8 @@ enum class EventID : uint8_t {
     JOINT_VEL_CLAMPING_ANOMALY,
     JOINT_TORQUE_CLAMPING_ANOMALY,
     VIRTUAL_ENDSTOP_ENFORCING,
-    MOTOR_FAULT
+    MOTOR_FAULT,
+    MOTOR_NOT_OPERATIONAL
 };
 
 enum class EventSeverity : uint8_t {
