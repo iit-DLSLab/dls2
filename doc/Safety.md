@@ -32,6 +32,7 @@ A detailed list of all asynchronous event types is reported in the following:
 | `MOTOR_FAULT` | At least one motor reports a `fault_info` different from the configured no-fault string; reports the `fault_info` per joint. An empty `fault_info` (not reported, e.g. in simulation) is not a fault | `robot_interface.safety.motor_no_fault_info` (empty or missing disables the check) | Motor drive fault
 | `MOTOR_NOT_OPERATIONAL` | At least one motor status word does not have all the operational bits set; reports the status word per joint. If the low-level interface fails to start with such motors, the HAL publishes it for a while before going down | `MotorStatusWords::operational_mask`, set by the low-level interface (0 disables the check), `robot_interface.safety.startup_failure_notify_duration` | Motor drive not powered, faulted or not enabled
 | `NODES_NOT_DISCOVERED` | At least one node expected by the low-level interface (e.g. an EtherCAT slave) was not discovered when it started; reports the ids of the discovered nodes. If the low-level interface fails to start with such nodes, the HAL publishes it for a while before going down | `robot_interface.safety.startup_failure_notify_duration` | Node not powered or disconnected from the bus, master not running
+| `NODES_DETACHED` | The low-level interface detected that a node was detached while running (e.g. EtherCAT slaves data no longer updated); latched until the HAL restarts, it switches the safety state to `EMERGENCY_STOP` (zero torque), see [Nodes detached while running](#nodes-detached-while-running) | Low-level interface specific (pegasus_hal: `ecat_data_timeout`) | Node disconnected from the bus or powered off while running
 
 A detailed list of all checks is reported in the following. The order reflects their implementation. As soon as one of them is triggered an event is published by the event notifier. 
 
@@ -41,6 +42,13 @@ A detailed list of all checks is reported in the following. The order reflects t
 * PeriodicAppPlugin: PeriodicApp checks + `WRONG_SEQUENCE_ID`, `MISSING_INPUT`, `WRONG_INPUT_FREQUENCY`, `INPUTS_NOT_SYNCHRONIZED`
 
 If you want to get all messages from the log layer (safety layer ones included) in your terminal be sure to set DLS_VERBOSE=1 env variable.
+
+### Nodes detached while running
+When a node of the low-level bus is disconnected or powered off while the HAL is running, the HAL raises the `nodes_detached` anomaly, publishes `NODES_DETACHED` and switches the safety state to `EMERGENCY_STOP`, which commands zero torque (and zero position/velocity) to the joints. The anomaly is latched: the HAL must be restarted once the node is reconnected.
+
+Zero torque is used instead of the damping recovery on purpose: after a detach the measured state is no longer updated, so damping (torque = -gain * measured velocity) would keep applying a constant torque computed from the last, frozen velocities to the motors still on the bus.
+
+In pegasus_hal the detach is detected by `EtherCatTransport::check()`: when a slave is detached, the EtherCAT master detects the working counter mismatch and stops updating the data of all the slaves. The measured data of every motor, IMU and power board change at every sample on a working bus (at most 2 consecutive identical samples, i.e. 2 ms, measured over 3 min), so a slave whose data do not change for `ecat_data_timeout` (`low_level_config.yaml`, 0.1 s) is considered detached. Since the data of all the slaves freeze together, the detached node cannot be identified; the EtherCAT master logs the working counter warning. A frozen client (no data received from the master) is detected the same way.
 
 ### Supervisor
 A centralized component is responsible for overall hardware resource consumption and fallback management. More precisely, through the system resource monitor, the supervisor node continuously checks for critical hardware usage and temperature in order to prevent major failures.

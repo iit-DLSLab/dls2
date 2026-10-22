@@ -45,7 +45,8 @@ enum class EventID : uint8_t {
     VIRTUAL_ENDSTOP_ENFORCING,
     MOTOR_FAULT,
     MOTOR_NOT_OPERATIONAL,
-    NODES_NOT_DISCOVERED
+    NODES_NOT_DISCOVERED,
+    NODES_DETACHED
 };
 
 enum class EventSeverity : uint8_t {
