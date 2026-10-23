@@ -243,8 +243,8 @@ void *ControlLayer::controlSignalGather(void *data)
 		for(auto pair : layer->controllers)
 		{
 			pair.second->reader_control_signal.read();
-			for(long unsigned int i=0; i<pair.second->reader_control_signal.msg.torques().size();i++){
-				layer->torques.desired_torques()[i] += pair.second->premultiplier * pair.second->reader_control_signal.msg.torques()[i];
+			for(long unsigned int i=0; i<pair.second->reader_control_signal.msg.joints_torques().size();i++){
+				layer->torques.desired_torques()[i] += pair.second->premultiplier * pair.second->reader_control_signal.msg.joints_torques()[i];
 			}
 		}
 

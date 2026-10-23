@@ -7,7 +7,7 @@ HelloWorldPlugin::HelloWorldPlugin(const std::string& ID)
 	eprosima::fastdds::dds::DataReaderQos control_signal_qos(
         eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT);
 
-    const std::string value = "typehash=RIHS01_64087432a68cc5e76843ff92dc2d840ba6e26de892d2a307d7e90ad43ea29aab;";
+    const std::string value = "typehash=RIHS01_036168047cc117694951c8e71a72f5e84badb019d9d0f4a9c21f36110d48e1dd;";
     control_signal_qos.user_data().data_vec(std::vector<uint8_t>(value.begin(), value.end()));
 
     this->reader_cs.reset(new dls::Reader<dls2_interface::msg::ControlSignal>(
