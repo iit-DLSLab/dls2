@@ -1,5 +1,6 @@
 #include "dls2/util/messaging/dds_listeners.hpp"
 #include <fastdds/dds/topic/TopicDescription.hpp>
+#include <fastdds/rtps/common/Guid.hpp>
 
 
 /// \cond doxygen_namespace_dls
@@ -88,7 +89,9 @@ namespace dls
 		{
 			std::cout << "[on_data_available] reader received data on topic '"
 				<< reader->get_topicdescription()->get_name() << "' (type '"
-				<< reader->get_topicdescription()->get_type_name() << "'); valid: " << info.valid_data << std::endl;
+				<< reader->get_topicdescription()->get_type_name() << "'); valid: " << info.valid_data
+				<< "; writer GUID: " << info.sample_identity.writer_guid()
+				<< "; reader GUID: " << reader->guid() << std::endl;
 			if(info.valid_data)
 			{
 				auto now = std::chrono::steady_clock::now();
