@@ -1,11 +1,15 @@
 #include "dls2/util/messaging/dds_participant.hpp"
 
+#include <fastdds/dds/xtypes/dynamic_types/DynamicData.hpp>
+
 #include <iostream>
 #include <signal.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <algorithm>
 #include <chrono>
+#include <cmath>
 #include <fstream>
 #include <iomanip>
 #include <sstream>
@@ -23,18 +27,77 @@ volatile sig_atomic_t stop;
 // bool stop = false;
 unsigned long int window_size = 1000;
 
+namespace fdds = eprosima::fastdds::dds;
+
+// One received message
+struct Sample
+{
+	double time;        // from the first message, receiver clock
+	double period;      // from the previous message, receiver clock
+	double pub_period;  // from the previous message, publisher timestamps
+	long long lost;     // sequence_ids skipped since the previous message
+	uint32_t sequence_id;
+	double latency;     // from the publisher timestamp to the reception, system clock
+};
+
 std::vector<double> times{};
+std::vector<double> pub_times{};
 std::chrono::high_resolution_clock::time_point first;
 std::chrono::high_resolution_clock::time_point last;
 bool received = false;  // false until the first message, which only starts the measurement
 bool log_csv = false;
-std::vector<std::pair<double, double>> csv_samples{};  // (time, period) collected since the last CSV write
+bool check_stamp = false;  // --stamp: also measure the publisher rate and the lost messages
+bool stamp_missing = false;  // the message has no sequence_id and timestamp to check
+uint32_t last_sequence_id = 0;
+double last_stamp_ns = 0.0;
+unsigned long long lost_total = 0;
+std::vector<Sample> csv_samples{};  // collected since the last CSV write
 void * msg;  // just to avoid warnings during compilation..... :)
 std::mutex status_mutex;
 
 void my_handler(int s){
 	std::cout << s << std::endl; // just to avoid warnings during compilation..... :')
 	stop = true;
+}
+
+// `unsigned long sequence_id` and timestamp (nanoseconds) of a DLS2 message: in its DlsHeader `header`
+// (`unsigned long long timestamp`) or, without it, at the top level (`double timestamp`)
+bool read_stamp(fdds::DynamicData::_ref_type data, uint32_t& sequence_id, double& stamp_ns)
+{
+	const fdds::MemberId header_id = data->get_member_id_by_name("header");
+	if(header_id == fdds::MEMBER_ID_INVALID)
+	{
+		return data->get_uint32_value(sequence_id, data->get_member_id_by_name("sequence_id")) == fdds::RETCODE_OK &&
+			data->get_float64_value(stamp_ns, data->get_member_id_by_name("timestamp")) == fdds::RETCODE_OK;
+	}
+	fdds::DynamicData::_ref_type header = data->loan_value(header_id);
+	uint64_t stamp = 0;
+	const bool ok = header &&
+		header->get_uint32_value(sequence_id, header->get_member_id_by_name("sequence_id")) == fdds::RETCODE_OK &&
+		header->get_uint64_value(stamp, header->get_member_id_by_name("timestamp")) == fdds::RETCODE_OK;
+	stamp_ns = static_cast<double>(stamp);
+	if(header)
+	{
+		data->return_loaned_value(header);
+	}
+	return ok;
+}
+
+// Mean and standard deviation of values
+std::pair<double, double> mean_stdev(const std::vector<double>& values)
+{
+	const double size = values.size();
+	double mean = 0.0;
+	for(double value: values)
+	{
+		mean += value/size;
+	}
+	double diff = 0.0;
+	for(double value: values)
+	{
+		diff += pow(value - mean, 2)/size;
+	}
+	return {mean, sqrt(diff)};
 }
 
 
@@ -49,6 +112,8 @@ int main(int argc, char** argv){
 			csv_path = argv[++i];
 		}else if(std::string(argv[i]) == "--time" && i + 1 < argc){
 			record_time = strtod(argv[++i], NULL);
+		}else if(std::string(argv[i]) == "--stamp"){
+			check_stamp = true;
 		}else{
 			args.push_back(argv[i]);
 		}
@@ -61,9 +126,10 @@ int main(int argc, char** argv){
 		std::cout << "Usage examples:" << std::endl;
 		std::cout << "\tddstopic list <(optional) domain>" << std::endl;
 		std::cout << "\tddstopic participants <(optional) domain>" << std::endl;
-		std::cout << "\tddstopic hz <topic_name> <(optional) domain> [--csv <file>] [--time <seconds>]" << std::endl;
+		std::cout << "\tddstopic hz <topic_name> <(optional) domain> [--csv <file>] [--time <seconds>] [--stamp]" << std::endl;
 		std::cout << "\t\t--csv <file>: log time, period and rate of every received message" << std::endl;
 		std::cout << "\t\t--time <seconds>: stop after this time instead of waiting for CTRL+C" << std::endl;
+		std::cout << "\t\t--stamp: also measure the publisher rate from the message timestamp and the lost sequence_ids" << std::endl;
 		return EXIT_FAILURE;
 	}
 
@@ -83,7 +149,7 @@ int main(int argc, char** argv){
 			domain = strtol(args[3].c_str(), NULL, 10);
 		}
 		if(argc<3){
-			std::cout << "Usage: ddstopic hz <topic_name> <(optional) domain> [--csv <file>] [--time <seconds>]" << std::endl;
+			std::cout << "Usage: ddstopic hz <topic_name> <(optional) domain> [--csv <file>] [--time <seconds>] [--stamp]" << std::endl;
 			return EXIT_FAILURE;
 		}
 	}else{
@@ -97,7 +163,7 @@ int main(int argc, char** argv){
 			std::cout << "Cannot open " << csv_path << std::endl;
 			return EXIT_FAILURE;
 		}
-		csv << "time_s,period_s,rate_hz\n" << std::setprecision(9);
+		csv << "time_s,period_s,rate_hz" << (check_stamp ? ",pub_period_s,lost,sequence_id,latency_s" : "") << "\n" << std::setprecision(9);
 		log_csv = true;
 		std::cout << "Logging to " << csv_path << std::endl;
 	}
@@ -141,19 +207,49 @@ int main(int argc, char** argv){
 								{
 									std::lock_guard<std::mutex> lock(status_mutex);
 									std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
+									// Same clock as the publisher timestamps
+									const double received_ns = std::chrono::duration<double, std::nano>(std::chrono::system_clock::now().time_since_epoch()).count();
 									msg = tuple;
+									uint32_t sequence_id = 0;
+									double stamp_ns = 0.0;
+									// Messages from a discovered topic are dynamic data
+									if(check_stamp && !read_stamp(*static_cast<fdds::DynamicData::_ref_type*>(tuple), sequence_id, stamp_ns))
+									{
+										stamp_missing = true;
+										stop = true;
+										return;
+									}
 									// No period yet on the first message: measuring from the program start would count the discovery time
 									if(!received)
 									{
 										received = true;
 										first = last = now;
+										last_sequence_id = sequence_id;
+										last_stamp_ns = stamp_ns;
 										return;
 									}
 									double diff = std::chrono::duration<double>(now-last).count();
 									last = now;
+									double pub_diff = 0.0;
+									long long lost = 0;
+									if(check_stamp)
+									{
+										pub_diff = (stamp_ns - last_stamp_ns)*1e-9;
+										// Publishers wrap the sequence_id at MAX_SEQUENCE_ID
+										const long long max_id = dls::MAX_SEQUENCE_ID;
+										lost = ((static_cast<long long>(sequence_id) - last_sequence_id - 1) % max_id + max_id) % max_id;
+										lost_total += lost;
+										last_sequence_id = sequence_id;
+										last_stamp_ns = stamp_ns;
+										if(pub_times.size()==window_size)
+										{
+											pub_times.erase(pub_times.begin());
+										}
+										pub_times.push_back(pub_diff);
+									}
 									if(log_csv)
 									{
-										csv_samples.emplace_back(std::chrono::duration<double>(now-first).count(), diff);
+										csv_samples.push_back({std::chrono::duration<double>(now-first).count(), diff, pub_diff, lost, sequence_id, (received_ns - stamp_ns)*1e-9});
 									}
 									if(times.size()==window_size)
 									{
@@ -166,11 +262,16 @@ int main(int argc, char** argv){
 							false);
 
 		// Write the samples collected by the reader since the last call
-		auto write_csv = [&](const std::vector<std::pair<double, double>>& samples)
+		auto write_csv = [&](const std::vector<Sample>& samples)
 		{
-			for(const auto& [time, period]: samples)
+			for(const auto& sample: samples)
 			{
-				csv << time << "," << period << "," << (period > 0.0 ? 1.0/period : 0.0) << "\n";
+				csv << sample.time << "," << sample.period << "," << (sample.period > 0.0 ? 1.0/sample.period : 0.0);
+				if(check_stamp)
+				{
+					csv << "," << sample.pub_period << "," << sample.lost << "," << sample.sequence_id << "," << sample.latency;
+				}
+				csv << "\n";
 			}
 			csv.flush();
 		};
@@ -190,37 +291,33 @@ int main(int argc, char** argv){
 			elapsed << " s] ";
 
 			std::vector<double> current_times;
-			std::vector<std::pair<double, double>> current_samples;
+			std::vector<double> current_pub_times;
+			std::vector<Sample> current_samples;
+			unsigned long long current_lost = 0;
 			{
 				std::lock_guard<std::mutex> lock(status_mutex);
 				current_times = times;
+				current_pub_times = pub_times;
+				current_lost = lost_total;
 				current_samples.swap(csv_samples);
 			}
 			if(log_csv)
 			{
 				write_csv(current_samples);
 			}
-			double size = current_times.size();
-			if(size>0)
+			if(!current_times.empty())
 			{
 				// Compute mean, standard deviation, max and min values
-				double mean = 0.0;
-				double max = 0.0;
-				double min = 10.0; //10 seconds as upper bound is a lot so it is fine
-				for(int i = 0; i< size; i++)
+				const auto [mean, stdev] = mean_stdev(current_times);
+				const auto [min, max] = std::minmax_element(current_times.begin(), current_times.end());
+				std::cout << elapsed.str() << "rate: " << 1.0/mean << " hz, stdev: " << stdev << ", max: " << *max << " s, min: " << *min << " s";
+				// Same from the publisher timestamps
+				if(!current_pub_times.empty())
 				{
-					double value = current_times[i];
-					mean+= value/size;
-					if(value>max){max = value;}
-					if(value<min){min = value;}
+					const auto [pub_mean, pub_stdev] = mean_stdev(current_pub_times);
+					std::cout << " | pub rate: " << 1.0/pub_mean << " hz, pub stdev: " << pub_stdev << ", lost: " << current_lost;
 				}
-				double diff = 0.0;
-				for(int i = 0; i< size; i++)
-				{
-					diff += pow(current_times[i] - mean,2)/size;
-				}
-				double stdev = sqrt(diff);
-				std::cout << elapsed.str() << "rate: " << 1.0/mean << " hz, stdev: " << stdev << ", max: " << max << " s, min: " << min << " s"<<std::endl;
+				std::cout << std::endl;
 			}
 			else
 			{
@@ -244,16 +341,18 @@ int main(int argc, char** argv){
 		// Samples received after the last write
 		if(log_csv)
 		{
-			std::vector<std::pair<double, double>> current_samples;
+			std::vector<Sample> current_samples;
 			{
 				std::lock_guard<std::mutex> lock(status_mutex);
 				current_samples.swap(csv_samples);
 			}
 			write_csv(current_samples);
 		}
-		
-
-
+		if(stamp_missing)
+		{
+			std::cout << "--stamp: " << topic_name << " has no sequence_id and timestamp, at the top level or in its header" << std::endl;
+			return EXIT_FAILURE;
+		}
 	}
 	return EXIT_SUCCESS;
 
