@@ -55,8 +55,8 @@ std::vector<Sample> csv_samples{};  // collected since the last CSV write
 void * msg;  // just to avoid warnings during compilation..... :)
 std::mutex status_mutex;
 
-void my_handler(int s){
-	std::cout << s << std::endl; // just to avoid warnings during compilation..... :')
+// Only set the flag: printing from a signal handler can deadlock
+void my_handler(int){
 	stop = true;
 }
 
@@ -133,8 +133,10 @@ int main(int argc, char** argv){
 		return EXIT_FAILURE;
 	}
 
-	// CTRL-C handler
+	// CTRL-C handler, also on kill and closed terminal (e.g. tmux pane) so the CSV is completed
 	signal(SIGINT, my_handler);
+	signal(SIGTERM, my_handler);
+	signal(SIGHUP, my_handler);
 
 	const std::string command = args[1];
 
