@@ -49,14 +49,25 @@ def load(path):
         fields = reader.fieldnames or []
         stamped = "pub_period_s" in fields
         has_latency = "latency_s" in fields
+        skipped = 0
         for row in reader:
-            times.append(float(row["time_s"]))
-            periods.append(float(row["period_s"]))
+            # A row cut short, e.g. ddstopic killed while writing, has missing or partial fields
+            try:
+                values = (float(row["time_s"]), float(row["period_s"]),
+                          float(row["pub_period_s"]) if stamped else None, int(row["lost"]) if stamped else None,
+                          float(row["latency_s"]) if has_latency else None)
+            except (TypeError, ValueError):
+                skipped += 1
+                continue
+            times.append(values[0])
+            periods.append(values[1])
             if stamped:
-                pub_periods.append(float(row["pub_period_s"]))
-                lost.append(int(row["lost"]))
+                pub_periods.append(values[2])
+                lost.append(values[3])
             if has_latency:
-                latencies.append(float(row["latency_s"]))
+                latencies.append(values[4])
+    if skipped:
+        print(f"{path}: skipped {skipped} incomplete rows", file=sys.stderr)
     return (times, periods, pub_periods if stamped else None, lost if stamped else None,
             latencies if has_latency else None)
 
