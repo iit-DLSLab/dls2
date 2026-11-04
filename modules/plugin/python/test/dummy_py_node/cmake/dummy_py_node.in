@@ -4,6 +4,16 @@ set -eo pipefail
 export PYTHONPATH="@DUMMY_PY_NODE_DLS_PYTHON_ROOT@${PYTHONPATH:+:$PYTHONPATH}"
 RUNTIME_ROOT="@DUMMY_PY_NODE_RUNTIME_ROOT@"
 
+for candidate in \
+    "@DUMMY_PY_NODE_DLS_PYTHON_ROOT@" \
+    "@DUMMY_PY_NODE_DLS_PYTHON_ROOT@/dls_messages" \
+    "@DUMMY_PY_NODE_DLS_PYTHON_ROOT@/dls_messages/dds"; do
+    if [ -f "$candidate/BaseState.py" ] && [ -f "$candidate/TrajectoryGenerator.py" ]; then
+        export DUMMY_PY_NODE_TYPES_PATH="$candidate"
+        break
+    fi
+done
+
 PREFERRED_DLS2_PYTHON="${DLS2_PYTHON:-@DUMMY_PY_NODE_SHARED_PYTHON@}"
 DLS2_PYTHON="$PREFERRED_DLS2_PYTHON"
 if [ ! -x "$DLS2_PYTHON" ]; then

@@ -3,6 +3,7 @@
 #include "dls2/log/terminal_logger.hpp"
 #include "dls2/log/event_logger.hpp"
 #include "dls2/log/file_logger.hpp"
+#include <mutex>
 
 namespace dls
 {
@@ -23,7 +24,11 @@ namespace dls
 
 			private:
 
+				// Called only while mutex_ is held by a public logging method.
 				void write_file_if_enabled_(const std::string& line);
+
+				// Serialize the complete operation across event, terminal and file outputs.
+				std::mutex mutex_;
 				
 				TerminalLogger terminal_logger_;
 				RobustEventNotifier event_notifier_;

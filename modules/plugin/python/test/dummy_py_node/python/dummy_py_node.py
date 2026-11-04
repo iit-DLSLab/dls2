@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 import time
 import numpy as np
 
@@ -28,6 +29,8 @@ class DummyPyNodeApp(PeriodicAppPlugin):
         self.linear_velocity = np.zeros(3)
         self.angular_velocity = np.zeros(3)
         self.first_message_base_arrived = False
+        self.mode = 1
+        self.enabled = False
         
         self.reader_base_state = self.build_input(
             "rt/base_state",
@@ -43,6 +46,19 @@ class DummyPyNodeApp(PeriodicAppPlugin):
             TrajectoryGenerator.TrajectoryGenerator(),
         )
         self.sequence_id = 0
+        
+        self.add_command(
+            "set_mode",
+            "set the operating mode to a number",
+            self._set_mode,
+            enabled=True,
+        )
+        self.add_command(
+            "toggle_enabled",
+            "toggle the internal enabled flag",
+            self._toggle_enabled,
+            enabled=True,
+        )
 
     def check_activation(self) -> bool:
         return True
@@ -107,6 +123,26 @@ class DummyPyNodeApp(PeriodicAppPlugin):
         self.linear_velocity = np.array(msg.velocity().linear(), copy=True)
         self.angular_velocity = np.array(msg.velocity().angular(), copy=True)
         self.first_message_base_arrived = True
+    
+    def _set_mode(self, value: str) -> bool:
+        try:
+            mode = int(value.strip())
+        except ValueError:
+            print(f"discarding malformed mode: {value!r}")
+            return False
+
+        if not math.isfinite(mode):
+            print(f"discarding malformed mode: {value!r}")
+            return False
+
+        self.mode = mode
+        print("new mode:", self.mode)
+        return True
+
+    def _toggle_enabled(self) -> bool:
+        self.enabled = not self.enabled
+        print("enabled:", self.enabled)
+        return True
 
 def _as_double_vector(values: np.ndarray) -> object:
     vector = TrajectoryGenerator.double_vector()

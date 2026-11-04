@@ -22,7 +22,8 @@ namespace dls
             std::function<bool()>([&]()->bool
             {
                 std::string info = "\n";
-                for (const auto & [key, value] : state_machine_watcher.app_states){
+                auto app_states = state_machine_watcher.getAppStates();
+                for (const auto & [key, value] : app_states){
                     info += key + " " + value.first + " ";
                     if(value.second){
                         info += "RT";

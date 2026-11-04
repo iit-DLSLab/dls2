@@ -79,6 +79,8 @@ public:
 	/// @return true if the generator unloads correctly.
 	bool unloadMotionGenerator(const std::string&);
 
+	bool loadPythonController(const std::string& lib_name);
+
 	/// Returns the last published joint reference
 	std::vector<double> getPublishedDesiredPosition();
 	std::vector<double> getPublishedDesiredVelocity();
@@ -102,6 +104,11 @@ private:
 		std::map<std::string, std::shared_ptr<AppData>> motion_generators;
 		std::mutex motion_mutex;
 	// END critical section
+
+	// Serialize operations without holding map locks across DDS or shutdown waits.
+	std::mutex controllers_operations_mutex;
+	std::mutex motion_operations_mutex;
+	std::atomic_bool closing_{false};
 
 	std::shared_ptr<dls::DDSParticipant> ddsSignalLink;
 

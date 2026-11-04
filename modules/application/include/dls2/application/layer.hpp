@@ -57,6 +57,12 @@ namespace dls
 		template<class Map>
 		void checkAppData(const Map& app_data);
 
+		template<class Map>
+		void checkAppData(const Map& app_data, std::mutex& mutex);
+
+		template<class Map>
+		void checkAppDataImpl(const Map& app_data, std::mutex* mutex);
+
 		// BEGIN critical section
 			mutable std::mutex components_mutex;
 			std::map<std::string, pComponent_t> components;

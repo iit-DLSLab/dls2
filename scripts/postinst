@@ -8,5 +8,8 @@ fi
 
 sudo setcap cap_sys_nice=eip /usr/bin/dls2/dynamic_legged_systems_framework
 sudo setcap cap_sys_nice=eip /usr/bin/dls2/child_process_launcher
+# TODO: check if child_process_launcher_xeno exists before setting capabilities
+echo "\n\n\nSetting capabilities for child_process_launcher_xeno\n\n\n"
+sudo setcap cap_sys_nice=eip /usr/bin/dls2/child_process_launcher_xeno
 sudo setcap cap_sys_nice=eip /usr/lib/dls2/python/bin/python3
 sudo ldconfig

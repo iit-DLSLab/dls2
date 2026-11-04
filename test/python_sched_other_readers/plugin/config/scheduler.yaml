@@ -1,0 +1,3 @@
+# Attributes for SCHED_OTHER policy
+sched_policy : SCHED_OTHER
+period : 100 # ms, desired periodicity of the process (best effort, the loop sleeps until the next period)
