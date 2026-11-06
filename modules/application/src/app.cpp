@@ -25,6 +25,9 @@ App::App(const std::string &ID)
 
 	safety_layer_config_ = std::make_shared<SafetyLayerConfig>(safety_layer_path);
 
+	// init input synchronization field to not requested by default
+	status_msg.inputs_synchronized() = -1;
+
 	command_manager.addCommand<>
 	(
 		"shutdown",
