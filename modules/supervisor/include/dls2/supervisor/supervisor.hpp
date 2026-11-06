@@ -12,6 +12,7 @@
 #include "dls2/state_machine/state_machine_watcher.hpp"
 #include "dls2/application/app_data.hpp"
 #include "dls2/util/system_resource_monitor.hpp"
+#include "dls2/util/device_probe.hpp"
 
 namespace dls
 {
@@ -43,6 +44,11 @@ namespace dls
 		std::unique_ptr<dls::SystemResourceMonitor> sys_monitor;
 
 		std::map<std::string, std::shared_ptr<AppData>> plugins;
+
+		std::vector<std::shared_ptr<DeviceProbe>> devices;
+		boost::asio::io_context io_context;
+		std::chrono::steady_clock::time_point last_probe_time_{};
+		std::chrono::milliseconds probe_period_{1000};
 
 		const std::string robot_name;
 	};
