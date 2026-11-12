@@ -7,6 +7,7 @@
 #include <list>
 #include <thread>
 #include <queue>
+#include <deque>
 
 #include "dls2/plugin/periodic_app_plugin.hpp"
 #include "dls2/state_machine/state_machine.hpp"
@@ -29,7 +30,7 @@ namespace dls
 			size_t event_to_publish, 
 			const std::string &ID, 
 			const std::shared_ptr<state_machine::StateMachine> &sm = nullptr);
-		~OrchestratorBase() = default;
+		~OrchestratorBase() override;
 
     	void run(const std::chrono::system_clock::time_point &time) override;
 
@@ -44,7 +45,7 @@ namespace dls
 		 *  fill in dls status msgs
 		 *  fill in dls action msgs
 		 */
-		virtual void orchestrate(const std::chrono::system_clock::time_point&, const EventsPriorityQueue&) {};
+		virtual void orchestrate(const std::chrono::system_clock::time_point&, EventsPriorityQueue&) {};
 
 		/**
 		 * @brief Virtual method implementing core processing in telemetry callback related to specifically typed messages.
@@ -56,11 +57,15 @@ namespace dls
 		virtual void telemetryMain(const std::vector<dls2_interface::msg::EventLog>&) {};
 
 		void activation() override;
+		// Derived destructors must stop telemetry before destroying their fields.
+		void stopTelemetry();
 
 		// Events
 		std::mutex event_mutex_;
 		logging::EventListener event_listener_;
+		long int event_read_index_{0};
         EventsPriorityQueue events_priority_queue_;
+		std::deque<dls2_interface::msg::EventLog> telemetry_events_;
 
 		// Telemetry
 		std::vector<std::shared_ptr<dls::ReaderBase>> telemetry_readers_;

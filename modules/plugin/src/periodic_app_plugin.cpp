@@ -44,7 +44,8 @@ namespace dls
 
 		if(this->safety_layer_config_->enable_wrong_sequence_id){
 			for(size_t i = 0; i < input_info.size(); ++i){
-				if(input_info.at(i).missed_sequence_ids != 0){
+				if(input_info.at(i).missed_sequence_ids != 0 
+					&& input_info.at(i).topic_name != this->safety_layer_config_->process_status_topic){
 					this->robust_event_notifier.notify(
 						EventID::WRONG_SEQUENCE_ID,
 						EventSeverity::WARNING,
