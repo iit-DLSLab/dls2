@@ -4,45 +4,411 @@
 #include "dls2/command/command_manager.hpp"
 #include "dls2/util/utils.hpp"
 
+#include <fastdds/dds/subscriber/SampleInfo.hpp>
+#include <fastdds/rtps/common/InstanceHandle.hpp>
+
+#include <chrono>
+
 using namespace dls;
 
 namespace
 {
-	constexpr int wait_poll_period_ms = 10;
+	// Each poll of waitCommand is a list query (a round trip with the node), so do not poll too fast
+	constexpr int wait_poll_period_ms = 100;
+
+	// Suffix of the participant name of a CommandManager (<owner>::commands_monitor)
+	const std::string monitor_suffix = "::commands_monitor";
+
+	// RELIABLE + KEEP_ALL: a sample is resent until every matched reader has acknowledged it, and a
+	// reader never overwrites a sample it has not taken yet. VOLATILE: samples are not kept for late
+	// joiners (with KEEP_ALL, TRANSIENT_LOCAL would keep every sample ever written).
+	eprosima::fastdds::dds::DataWriterQos reliableKeepAllWriterQos()
+	{
+		eprosima::fastdds::dds::DataWriterQos qos(eprosima::fastdds::dds::DATAWRITER_QOS_DEFAULT);
+		qos.reliability().kind = eprosima::fastdds::dds::RELIABLE_RELIABILITY_QOS;
+		qos.reliability().max_blocking_time = 10000; // waiting at most 10s for the arrival confirmation from the data reader
+		qos.history().kind = eprosima::fastdds::dds::KEEP_ALL_HISTORY_QOS;
+		qos.durability().kind = eprosima::fastdds::dds::VOLATILE_DURABILITY_QOS;
+		return qos;
+	}
+
+	eprosima::fastdds::dds::DataReaderQos reliableKeepAllReaderQos()
+	{
+		eprosima::fastdds::dds::DataReaderQos qos(eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT);
+		qos.reliability().kind = eprosima::fastdds::dds::RELIABLE_RELIABILITY_QOS;
+		qos.history().kind = eprosima::fastdds::dds::KEEP_ALL_HISTORY_QOS;
+		qos.durability().kind = eprosima::fastdds::dds::VOLATILE_DURABILITY_QOS;
+		return qos;
+	}
 }
 
-CommandManager::CommandManager(std::string owner_)
+CommandManager::CommandManager(std::string owner_, int list_reply_timeout_ms)
 	: commands()
 	, owner(owner_)
+	, monitorWriterName(owner_ + "::commands_monitor")
+	, commandsReaderName(owner_ + "::commands_listener")
+	, listWriterName(owner_ + "::commands_list")
+	, listReaderName(owner_ + "::commands_list_reader")
+	, commandsReader(nullptr)
+	, listReader(nullptr)
 	, level(0)
-	, levelThread(&CommandManager::levelWatcher, this)
-	, should_exit(false)
 	, trigger_level_watcher(false)
+	, queryCounter(0)
+	, listReplyTimeoutMs(DEFAULT_LIST_REPLY_TIMEOUT_MS)
 {
-	eprosima::fastdds::dds::DataWriterQos qos(eprosima::fastdds::dds::DATAWRITER_QOS_DEFAULT);
-	qos.reliability().kind = eprosima::fastdds::dds::RELIABLE_RELIABILITY_QOS;
-	qos.reliability().max_blocking_time = 10000; // waiting at most 10s for the arraival confirmation from the data reader
+	setListReplyTimeout(list_reply_timeout_ms);
+
+	// Single participant of the command manager. It is named <owner>::commands_monitor, which is
+	// used by the clients to know which command managers are expected to reply to a list query
 	commands_monitor = std::make_shared<dls::DDSWriter>(
-		owner_+"::commands_monitor",
+		monitorWriterName,
 		domains::command,
 		dls::topics::command_call,
-		qos
+		reliableKeepAllWriterQos()
 	);
- }
+
+	// Writer used to reply to the list queries
+	commands_monitor->addWriter(listWriterName, dls::topics::command_list, reliableKeepAllWriterQos());
+
+	// Start the threads before creating the reader, so that every received call can be served
+	levelThread = std::jthread([this](std::stop_token stop_token){ this->levelWatcher(stop_token); });
+	executorThread = std::jthread([this](std::stop_token stop_token){ this->executorLoop(stop_token); });
+	replierThread = std::jthread([this](std::stop_token stop_token){ this->replierLoop(stop_token); });
+
+	// Single reader of the command_call topic, serving all the commands of this manager
+	commandsReader.store(commands_monitor->addReader(
+		commandsReaderName,
+		dls::topics::command_call,
+		std::function<void(void *)>([this](void* msg){ this->onCommandCall(msg); }),
+		reliableKeepAllReaderQos()
+	));
+
+	if (commandsReader.load() == nullptr)
+		std::cerr << "[CommandManager] " << owner << ": could not create the command_call reader" << std::endl;
+
+	// Reader of the list replies, created now (and not at the first query) so that it is already
+	// matched with the reply writers of the other nodes when the first query is sent: the replies
+	// are volatile, a reply sent before the match would be lost
+	ensureListReader();
+}
 
 CommandManager::~CommandManager()
 {
+	// Stop receiving: no DDS callback can reference this object after this point
+	if (commandsReader.exchange(nullptr) != nullptr)
+		commands_monitor->deleteReader(commandsReaderName);
 	{
-		std::unique_lock<std::mutex> lock(this->levelMutex);
-		this->should_exit.store(true);
+		std::lock_guard<std::mutex> lock(listReaderMutex);
+		if (listReader.exchange(nullptr) != nullptr)
+			commands_monitor->deleteReader(listReaderName);
 	}
 
-	for(auto elem : this->commands){
-		elem.second->deactivate();
+	// Stop the replier and the executor (the stop requests wake them up), before stopping the level watcher
+	replierThread.request_stop();
+	executorThread.request_stop();
+	if (replierThread.joinable())
+		replierThread.join();
+	if (executorThread.joinable())
+		executorThread.join();
+
+	// Stop the level watcher (the stop request wakes it up)
+	levelThread.request_stop();
+	if (levelThread.joinable())
+		levelThread.join();
+
+	{
+		std::lock_guard<std::mutex> lock(commandsMutex);
+		for(auto elem : this->commands){
+			elem.second->deactivate();
+		}
+	}
+}
+
+// =============================================================================
+// Command execution
+// =============================================================================
+
+bool CommandManager::isValidCommandName(const std::string& name)
+{
+	if (name.empty() || name.find(',') != std::string::npos || name.rfind("__dls", 0) == 0)
+	{
+		std::cerr << "[CommandManager] " << owner << ": invalid command name '" << name
+				  << "' (it cannot be empty, contain ',' or start with \"__dls\"). The command is not added" << std::endl;
+		return false;
+	}
+	return true;
+}
+
+std::vector<std::string> CommandManager::parseArgs(std::string args)
+{
+	std::vector<std::string> result;
+	size_t pos = 0;
+	while ((pos = args.find(",")) != std::string::npos) {
+		result.push_back(args.substr(0, pos));
+		args.erase(0, pos + 1);
+	}
+	return result;
+}
+
+void CommandManager::onCommandCall(void* msg)
+{
+	handleCommandCall(*static_cast<dls2_interface::msg::CommandCall*>(msg));
+
+	// The listener takes a single sample per notification, while Fast DDS may notify once for
+	// several samples: drain the reader so that no sample is left behind
+	auto reader = commandsReader.load();
+	if (reader == nullptr)
+		return;
+
+	dls2_interface::msg::CommandCall sample;
+	eprosima::fastdds::dds::SampleInfo info;
+	while (reader->take_next_sample(&sample, &info) == eprosima::fastdds::dds::RETCODE_OK)
+	{
+		if (info.valid_data)
+			handleCommandCall(sample);
+	}
+}
+
+void CommandManager::handleCommandCall(const dls2_interface::msg::CommandCall& msg)
+{
+	// if the owner is known but it is not this one, do nothing
+	if (msg.owner() != "" && msg.owner() != this->owner)
+		return;
+
+	// List requests are answered by the replier thread, so that a running command cannot delay
+	// the reply and nothing is published from the listener
+	if (msg.command_name() == LIST_COMMANDS_REQUEST)
+	{
+		{
+			std::lock_guard<std::mutex> lock(listRequestMutex);
+			if (replierThread.get_stop_token().stop_requested())
+				return;
+			listRequestQueue.push_back(msg.args());
+		}
+		listRequestCv.notify_one();
+		return;
 	}
 
-	triggerLevelWatcher();
-	this->levelThread.join();
+	{
+		std::lock_guard<std::mutex> lock(queueMutex);
+		if (executorThread.get_stop_token().stop_requested())
+			return;
+		callQueue.emplace_back(msg.command_name(), parseArgs(msg.args()));
+	}
+	queueCv.notify_one();
+}
+
+void CommandManager::replyCommandsList(const std::string& request_id)
+{
+	std::string list;
+	{
+		std::lock_guard<std::mutex> lock(commandsMutex);
+		for (auto& cmd : commands)
+		{
+			if (cmd.second->isActive())
+			{
+				list.append(cmd.first);
+				list.append(",");
+			}
+		}
+	}
+
+	dls2_interface::msg::CommandCall reply;
+	reply.owner(this->owner);
+	reply.command_name(request_id);
+	reply.args(list);
+	commands_monitor->DDSParticipant::sendMessage(listWriterName, &reply);
+}
+
+void CommandManager::replierLoop(std::stop_token stop_token)
+{
+	while (!stop_token.stop_requested())
+	{
+		std::string request_id;
+		{
+			std::unique_lock<std::mutex> lock(listRequestMutex);
+			// returns false when woken up by a stop request with no request queued
+			if (!listRequestCv.wait(lock, stop_token, [this]{ return !listRequestQueue.empty(); }))
+				return;
+			if (stop_token.stop_requested())
+				return;
+			request_id = std::move(listRequestQueue.front());
+			listRequestQueue.pop_front();
+		}
+
+		replyCommandsList(request_id);
+	}
+}
+
+void CommandManager::executorLoop(std::stop_token stop_token)
+{
+	while (!stop_token.stop_requested())
+	{
+		std::pair<std::string, std::vector<std::string>> call;
+		{
+			std::unique_lock<std::mutex> lock(queueMutex);
+			// returns false when woken up by a stop request with no call queued
+			if (!queueCv.wait(lock, stop_token, [this]{ return !callQueue.empty(); }))
+				return;
+			if (stop_token.stop_requested())
+				return;
+			call = std::move(callQueue.front());
+			callQueue.pop_front();
+		}
+
+		// An inactive command does not serve the calls (as when each command had its own reader)
+		std::shared_ptr<CommandBase> cmd;
+		{
+			std::lock_guard<std::mutex> lock(commandsMutex);
+			auto it = commands.find(call.first);
+			if (it == commands.end() || !it->second->isActive())
+				continue;
+			cmd = it->second;
+		}
+
+		// Executed without holding any lock: the command may use the command manager
+		cmd->call(call.second);
+	}
+}
+
+// =============================================================================
+// Command discovery
+// =============================================================================
+
+bool CommandManager::ensureListReader()
+{
+	if (listReader.load() != nullptr)
+		return true;
+
+	std::lock_guard<std::mutex> lock(listReaderMutex);
+	if (listReader.load() != nullptr)
+		return true;
+
+	listReader.store(commands_monitor->addReader(
+		listReaderName,
+		dls::topics::command_list,
+		std::function<void(void *)>([this](void* msg){ this->onCommandsList(msg); }),
+		reliableKeepAllReaderQos()
+	));
+
+	if (listReader.load() == nullptr)
+	{
+		std::cerr << "[CommandManager] " << owner << ": could not create the command_list reader" << std::endl;
+		return false;
+	}
+	return true;
+}
+
+void CommandManager::onCommandsList(void* msg)
+{
+	handleCommandsList(*static_cast<dls2_interface::msg::CommandCall*>(msg));
+
+	auto reader = listReader.load();
+	if (reader == nullptr)
+		return;
+
+	dls2_interface::msg::CommandCall sample;
+	eprosima::fastdds::dds::SampleInfo info;
+	while (reader->take_next_sample(&sample, &info) == eprosima::fastdds::dds::RETCODE_OK)
+	{
+		if (info.valid_data)
+			handleCommandsList(sample);
+	}
+}
+
+void CommandManager::handleCommandsList(const dls2_interface::msg::CommandCall& msg)
+{
+	{
+		std::lock_guard<std::mutex> lock(queryMutex);
+		auto it = pendingQueries.find(msg.command_name());
+		if (it == pendingQueries.end())
+			return;
+
+		if (!it->second.replied_owners.insert(msg.owner()).second)
+			return; // duplicated reply
+
+		for (auto& name : parseArgs(msg.args()))
+			it->second.commands.insert({name, msg.owner()});
+	}
+	queryCv.notify_all();
+}
+
+std::set<std::string> CommandManager::getMatchedOwners()
+{
+	std::set<std::string> owners;
+
+	// This command manager always has its own reader
+	owners.insert(this->owner);
+
+	std::shared_ptr<dls::DDSPubListener> listener;
+	try
+	{
+		listener = commands_monitor->getPubListener(monitorWriterName);
+	}
+	catch (const std::exception&)
+	{
+		return owners;
+	}
+	if (listener == nullptr)
+		return owners;
+
+	// Find the participant of each matched data reader, and keep the ones of the command managers
+	auto participants_info = commands_monitor->getDiscoveredParticipantsInfo();
+	for (auto datareader_instance : listener->get_matched_datareaders_instances())
+	{
+		auto prefix = eprosima::fastdds::rtps::iHandle2GUID(datareader_instance).guidPrefix;
+		for (auto& participant_info : participants_info)
+		{
+			if (participant_info.second.guidPrefix != prefix)
+				continue;
+
+			const std::string& participant_name = participant_info.first;
+			if (participant_name.size() > monitor_suffix.size() &&
+				participant_name.compare(participant_name.size() - monitor_suffix.size(), monitor_suffix.size(), monitor_suffix) == 0)
+			{
+				owners.insert(participant_name.substr(0, participant_name.size() - monitor_suffix.size()));
+			}
+		}
+	}
+
+	return owners;
+}
+
+std::multimap<std::string, std::string> CommandManager::queryCommands(const std::string& target)
+{
+	if (!ensureListReader())
+		return {};
+
+	const std::set<std::string> expected = target.empty() ? getMatchedOwners() : std::set<std::string>{target};
+	const std::string request_id = owner + "#" + std::to_string(queryCounter.fetch_add(1));
+
+	{
+		std::lock_guard<std::mutex> lock(queryMutex);
+		pendingQueries[request_id] = PendingQuery();
+	}
+
+	// Send the request without holding any lock: the intra-process replies are delivered synchronously
+	dls2_interface::msg::CommandCall request;
+	request.owner(target);
+	request.command_name(LIST_COMMANDS_REQUEST);
+	request.args(request_id);
+	this->commands_monitor->sendMessage(&request);
+
+	std::unique_lock<std::mutex> lock(queryMutex);
+	queryCv.wait_for(lock, std::chrono::milliseconds(listReplyTimeoutMs.load()), [&]
+	{
+		const auto& replied = pendingQueries[request_id].replied_owners;
+		for (auto& expected_owner : expected)
+		{
+			if (!replied.contains(expected_owner))
+				return false;
+		}
+		return true;
+	});
+
+	auto result = std::move(pendingQueries[request_id].commands);
+	pendingQueries.erase(request_id);
+	return result;
 }
 
 std::multimap<std::string, std::string> CommandManager::findByOwner
@@ -72,7 +438,7 @@ std::multimap<std::string, std::string> CommandManager::findByName
 )
 {
 	auto cmds = this->getCommandsList();
-	
+
 	if (cmds.count(name_) == 0)
 		return {};
 
@@ -93,60 +459,23 @@ std::multimap<std::string, std::string> CommandManager::find
 	std::string name_
 )
 {
-	auto cmds = getCommandsList();
+	// Ask only the node owner_
+	auto cmds = this->queryCommands(owner_);
 
-	if (cmds.count(name_) == 0)
-		return {};
-
-	// find all commands with same name and put in a new multimap
-	// but now with keys being the owner
-	auto range = cmds.equal_range(name_);
 	std::multimap<std::string, std::string> cmdlst;
+	auto range = cmds.equal_range(name_);
 	for (auto it = range.first; it != range.second; ++it)
 	{
-		cmdlst.insert({it->second, it->first});
+		if (it->second == owner_)
+			cmdlst.insert(*it);
 	}
 
-	if (cmdlst.count(owner_) == 0)
-		return {};
-		
-	// find all commands with same owner and put in a new multimap
-	// getting back the key invertion
-	range = cmdlst.equal_range(owner_);
-	cmds.clear();
-	for (auto it = range.first; it != range.second; ++it)
-	{
-		cmds.insert({it->second, it->first});
-	}
-
-	return cmds;
+	return cmdlst;
 }
 
 std::multimap<std::string, std::string> CommandManager::getCommandsList()
 {
-	// Get discovered participant info
-	auto discovered_participants_info = commands_monitor->getDiscoveredParticipantsInfo();
-	// Get writer listener
-	auto command_publisher_listener = commands_monitor->getPubListener(owner+"::commands_monitor");
-	if(command_publisher_listener == nullptr)
-		return {};
-	// Get matched datareaders instances
-	auto matched_datareaders_instances = command_publisher_listener->get_matched_datareaders_instances();
-	// Find the domain participant name associated to each matched data reader, and save the name (corresponding to the command name)
-	std::multimap<std::string, std::string> cmds;
-	for(auto datareader_instance : matched_datareaders_instances)
-	{
-		for(auto participant_info : discovered_participants_info)
-		{
-			if(participant_info.second.guidPrefix == eprosima::fastdds::rtps::iHandle2GUID(datareader_instance).guidPrefix)
-			{
-				const std::string participant_name (participant_info.first);
-				size_t idx = participant_name.find("::");
-				cmds.insert({participant_name.substr(idx+2, participant_name.size()), participant_name.substr(0, idx)});
-			}
-		}
-	}
-	return cmds;
+	return this->queryCommands();
 }
 
 std::set<std::string> CommandManager::getOwnersList()
@@ -154,6 +483,7 @@ std::set<std::string> CommandManager::getOwnersList()
 	auto remCommands = commands_monitor->getParticipants();
 
 	std::set<std::string> set;
+	std::lock_guard<std::mutex> lock(commandsMutex);
 	for(auto it = commands.begin(); it != commands.end(); ++it)
 	{
 		set.insert(it->second->getOwner());
@@ -189,15 +519,22 @@ int CommandManager::callCommand(std::string name_, std::vector<std::string> args
 
 	if (cmdList.begin()->second == this->getOwner())
 	{
-		auto cmd = this->commands.find(name_);
-		cmd->second->call(args_);
-		this->changeLevel(cmd->second->getNextLevel(this->getCurrentLevel()));
+		std::shared_ptr<CommandBase> cmd;
+		{
+			std::lock_guard<std::mutex> lock(commandsMutex);
+			auto it = this->commands.find(name_);
+			if (it == this->commands.end())
+				return 0;
+			cmd = it->second;
+		}
+		cmd->call(args_);
+		this->changeLevel(cmd->getNextLevel(this->getCurrentLevel()));
 	}
 	else
 	{
 		this->sendMessage(*(cmdList.begin()), args_);
 	}
-	
+
 	return 1;
 }
 
@@ -226,6 +563,22 @@ void CommandManager::sendMessage(std::pair<std::string, std::string> cmdData_, s
 	this->commands_monitor->sendMessage(&msg);
 }
 
+void CommandManager::setListReplyTimeout(int timeout_ms)
+{
+	if (timeout_ms <= 0)
+	{
+		std::cerr << "[CommandManager] " << owner << ": the list reply timeout must be positive, keeping "
+				  << listReplyTimeoutMs.load() << " ms" << std::endl;
+		return;
+	}
+	listReplyTimeoutMs.store(timeout_ms);
+}
+
+int CommandManager::getListReplyTimeout()
+{
+	return listReplyTimeoutMs.load();
+}
+
 std::string CommandManager::getOwner()
 {
 	return this->owner;
@@ -240,7 +593,7 @@ void CommandManager::changeLevel(uint level_)
 {
 	{
 		std::unique_lock<std::mutex> lock(this->levelMutex);
-		this->level = level_; 
+		this->level = level_;
 	}
 	triggerLevelWatcher();
 }
@@ -254,6 +607,7 @@ void CommandManager::triggerLevelWatcher()
 
 void CommandManager::verifyLevel()
 {
+	std::lock_guard<std::mutex> lock(commandsMutex);
 	for(auto cmd : this->commands)
 	{
 		if(cmd.second->testLevel(this->level))
@@ -267,15 +621,20 @@ void CommandManager::verifyLevel()
 	}
 }
 
-void CommandManager::levelWatcher() 
+void CommandManager::levelWatcher(std::stop_token stop_token)
 {
-	while(true)
+	while (true)
 	{
 		std::unique_lock<std::mutex> lock(this->levelMutex);
-		this->levelCondVar.wait(lock, [&]{return trigger_level_watcher.load();});
-		trigger_level_watcher.store(false);
-		trigger_level_watcher.notify_one();
-		if(this->should_exit.load())
+		// returns false when woken up by a stop request without a pending trigger
+		const bool triggered = this->levelCondVar.wait(lock, stop_token, [&]{ return trigger_level_watcher.load(); });
+		if (triggered)
+		{
+			// release a triggerLevelWatcher() waiting for the previous trigger to be consumed
+			trigger_level_watcher.store(false);
+			trigger_level_watcher.notify_one();
+		}
+		if (stop_token.stop_requested())
 			break;
 		this->verifyLevel();
 	}
@@ -283,18 +642,21 @@ void CommandManager::levelWatcher()
 
 void CommandManager::disableCommand(std::string name)
 {
+	std::lock_guard<std::mutex> lock(commandsMutex);
 	if(commands.contains(name))
 		this->commands[name]->deactivate();
 }
 
 void CommandManager::enableCommand(std::string name)
 {
+	std::lock_guard<std::mutex> lock(commandsMutex);
 	if(commands.contains(name))
 		this->commands[name]->activate();
 }
 
 void CommandManager::changeTransitionSet(const std::string& command_name, const dls::CommandBase::LevelType& transition_set)
 {
+	std::lock_guard<std::mutex> lock(commandsMutex);
 	if(this->commands.contains(command_name))
 		this->commands[command_name]->changeTransitionSet(transition_set);
 	else
@@ -330,6 +692,7 @@ bool CommandManager::waitCommand(const std::string& owner, const std::string& na
 }
 
 std::shared_ptr<CommandBase> CommandManager::getCommand(const std::string& name){
+	std::lock_guard<std::mutex> lock(commandsMutex);
 	if(this->commands.contains(name))
 		return this->commands[name];
 	else{

@@ -11,6 +11,13 @@
 #include <condition_variable>
 #include <atomic>
 #include <thread>
+#include <stop_token>
+#include <deque>
+#include <map>
+#include <set>
+#include <mutex>
+
+#include <fastdds/dds/subscriber/DataReader.hpp>
 
 namespace dls
 {
@@ -21,9 +28,16 @@ namespace dls
 	class CommandManager
 	{
 	public:
+		/// Default max time a command list query waits for the replies of the nodes
+		///
+		static constexpr int DEFAULT_LIST_REPLY_TIMEOUT_MS = 300;
+
 		/// Constructor
 		///
-		CommandManager(std::string owner_);
+		/// @param owner_ name of the owner of the commands
+		/// @param list_reply_timeout_ms max time a command list query (getCommandsList, find,
+		/// callCommand, waitCommand) waits for the replies of the nodes
+		CommandManager(std::string owner_, int list_reply_timeout_ms = DEFAULT_LIST_REPLY_TIMEOUT_MS);
 
 		/// Destructor
 		///
@@ -130,40 +144,163 @@ namespace dls
 		/*! @brief Trigger the level watcher
 		*/
 		void triggerLevelWatcher();
+
+		/*! @brief Set the max time a command list query waits for the replies of the nodes (ms, > 0)
+		*/
+		void setListReplyTimeout(int timeout_ms);
+
+		/*! @brief Get the max time a command list query waits for the replies of the nodes (ms)
+		*/
+		int getListReplyTimeout();
+
+		/// Reserved command name used to request the list of active commands of the nodes
+		///
+		inline static const std::string LIST_COMMANDS_REQUEST = "__dls_list_commands__";
+
 	private:
 
-		/// Storage space for the commands
+		/// Storage space for the commands (name -> command, i.e. function + argument types)
 		///
 		std::map<std::string, std::shared_ptr<CommandBase>> commands;
+
+		/// Protects the commands map
+		///
+		std::mutex commandsMutex;
 
 		/// Owner layer of the commands
 		///
 		std::string owner;
 
-		/// fastdds remote commands monitor
+		/// Single DDS participant of the command manager on the command domain.
+		/// It holds the command_call writer, the single command_call reader and the
+		/// command_list writer/reader used to discover the commands
 		///
 		std::shared_ptr<dls::DDSWriter> commands_monitor;
+
+		/// Names of the DDS entities created in commands_monitor
+		///
+		std::string monitorWriterName;
+		std::string commandsReaderName;
+		std::string listWriterName;
+		std::string listReaderName;
+
+		/// Single reader of the command_call topic
+		///
+		std::atomic<eprosima::fastdds::dds::DataReader*> commandsReader;
+
+		/// Reader of the command_list topic (replies to the list queries of this manager)
+		///
+		std::atomic<eprosima::fastdds::dds::DataReader*> listReader;
+		std::mutex listReaderMutex;
 
 		/// Current command running level
 		///
 		uint level;
 
-		void levelWatcher();
+		/// Level watcher thread loop: re-verifies the active commands at each trigger until a stop
+		/// is requested on the level thread
+		///
+		void levelWatcher(std::stop_token stop_token);
 
 		void verifyLevel();
 
 		std::mutex levelMutex;
-		std::condition_variable levelCondVar;
+		/// condition_variable_any, to be woken up by a stop request on the level thread
+		std::condition_variable_any levelCondVar;
 
-		std::thread levelThread;
+		std::jthread levelThread;
 
 		/// Sends message over the framework distributed system
 		///
 		void sendMessage(std::pair<std::string, std::string> cmdData, std::vector<std::string> args);
 
-		std::atomic<bool> should_exit;
 
 		std::atomic_bool trigger_level_watcher;
+
+		// ============================ Command execution ============================
+
+		/// Callback of the command_call reader (DDS thread). It only queues: command calls for
+		/// the executor thread, list requests for the replier thread (nothing is published from
+		/// the listener)
+		///
+		void onCommandCall(void* msg);
+
+		/// Handles a single command_call message
+		///
+		void handleCommandCall(const dls2_interface::msg::CommandCall& msg);
+
+		/// Answers a list request with the active commands of this node
+		///
+		void replyCommandsList(const std::string& request_id);
+
+		/// Replier thread loop: answers the queued list requests until a stop is requested on the
+		/// replier thread. It is separated from the executor so that a long command does not delay
+		/// the replies (the node would look gone to the clients)
+		///
+		void replierLoop(std::stop_token stop_token);
+
+		std::deque<std::string> listRequestQueue;
+		std::mutex listRequestMutex;
+		std::condition_variable_any listRequestCv;
+		std::jthread replierThread;
+
+		/// Executor thread loop: executes the queued command calls in FIFO order until a stop is
+		/// requested on the executor thread
+		///
+		void executorLoop(std::stop_token stop_token);
+
+		std::deque<std::pair<std::string, std::vector<std::string>>> callQueue;
+		std::mutex queueMutex;
+		/// condition_variable_any, to be woken up by a stop request on the executor thread
+		std::condition_variable_any queueCv;
+		std::jthread executorThread;
+
+		// ============================ Command discovery ============================
+
+		/// Query the active commands of the node "target" (all nodes if empty).
+		/// Returns a multimap {command name, owner}
+		///
+		std::multimap<std::string, std::string> queryCommands(const std::string& target = "");
+
+		/// Owners of the command managers currently matched with the command_call writer
+		///
+		std::set<std::string> getMatchedOwners();
+
+		/// Create the command_list reader if not yet created (done in the constructor)
+		///
+		bool ensureListReader();
+
+		/// Callback of the command_list reader (DDS thread)
+		///
+		void onCommandsList(void* msg);
+
+		/// Stores a command_list reply if its request is pending
+		///
+		void handleCommandsList(const dls2_interface::msg::CommandCall& msg);
+
+		struct PendingQuery
+		{
+			std::set<std::string> replied_owners;
+			std::multimap<std::string, std::string> commands;
+		};
+
+		std::map<std::string, PendingQuery> pendingQueries;
+		std::mutex queryMutex;
+		std::condition_variable queryCv;
+		std::atomic<uint64_t> queryCounter;
+
+		/// Max time a query waits for the replies of the nodes
+		///
+		std::atomic_int listReplyTimeoutMs;
+
+		/// Check that a command name can be used: it cannot be empty, contain ',' (used as
+		/// separator in the command lists) or start with "__dls" (reserved)
+		///
+		bool isValidCommandName(const std::string& name);
+
+		/// Split a comma separated string (a trailing piece without comma is ignored)
+		///
+		static std::vector<std::string> parseArgs(std::string args);
 
 	};
 
