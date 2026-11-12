@@ -11,7 +11,6 @@ enum class EventID : uint8_t {
     WRONG_PROCESS_FREQUENCY,
     MISSING_INPUT,
     CPU_USAGE_TOO_HIGH,
-    CPU_TEMP_TOO_HIGH,
     MEM_USAGE_TOO_HIGH,
     INPUTS_NOT_SYNCHRONIZED,
     WRONG_INPUT_FREQUENCY,
@@ -47,7 +46,8 @@ enum class EventID : uint8_t {
     MOTOR_FAULT,
     MOTOR_NOT_OPERATIONAL,
     NODES_NOT_DISCOVERED,
-    NODES_DETACHED
+    NODES_DETACHED,
+    CPU_TEMP_TOO_HIGH
 };
 
 enum class EventSeverity : uint8_t {
