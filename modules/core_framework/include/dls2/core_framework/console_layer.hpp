@@ -56,6 +56,15 @@ namespace dls
 		void stop() override;
 		bool shutdownRequested() const { return shutdown_requested_.load(); }
 
+		// Print the given processes and their commands
+		static void printProcessesAndCommandsMap(const std::map<std::string, std::set<std::string>>& processes_and_commands);
+
+		// Processes and commands queried once at the beginning of each completion ("Tab" key), and reused
+		// by all the following calls of the Readline functions for the same completion (each query asks all
+		// the running processes for their commands). Public since the Readline functions (in the
+		// "readline_completion" namespace) are not friends of this class. Accessed only by the thread running Readline
+		std::map<std::string, std::set<std::string>> completion_processes_and_commands_;
+
 	private:
 		std::atomic_bool shutdown_requested_{false};
 		// Map with "load[Layer]" commands and associated installation folders

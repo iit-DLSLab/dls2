@@ -126,6 +126,22 @@ TEST_CASE("Commands are discovered and called through the single reader of the c
 			cm_b.callCommand("foo", {std::to_string(i)}, "A");
 		REQUIRE(waitFor([&]{ return foo_value.load() == 29; }));
 
+		// The result of a recent query is reused: a command added in another node is seen only after
+		// the validity of the cached result, while the commands of the manager itself are seen at once
+		REQUIRE(cm_b.getListCacheValidity() == CommandManager::DEFAULT_LIST_CACHE_VALIDITY_MS);
+		cm_b.setListCacheValidity(1000);
+		REQUIRE(hasCommand(cm_b.getCommandsList(), "bar", "A"));
+		cm_a.addCommand<>("baz", "", std::function<bool()>([]{ return true; }), {}, true);
+		REQUIRE_FALSE(hasCommand(cm_b.getCommandsList(), "baz", "A"));
+		REQUIRE_FALSE(hasCommand(cm_b.find("A", "baz"), "baz", "A"));
+		std::this_thread::sleep_for(std::chrono::milliseconds(1100));
+		REQUIRE(hasCommand(cm_b.getCommandsList(), "baz", "A"));
+		cm_b.setListCacheValidity(CommandManager::DEFAULT_LIST_CACHE_VALIDITY_MS);
+
+		REQUIRE(hasCommand(cm_a.getCommandsList(), "baz", "A"));
+		cm_a.addCommand<>("qux", "", std::function<bool()>([]{ return true; }), {}, true);
+		REQUIRE(hasCommand(cm_a.getCommandsList(), "qux", "A"));
+
 		// A deactivated command is neither listed nor callable. Each call of foo changes the level
 		// (asynchronously re-verified by the level watcher, which re-activates foo since its
 		// transition set is empty): let the level watcher settle before deactivating it

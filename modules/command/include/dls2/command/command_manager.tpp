@@ -35,6 +35,7 @@ namespace dls
 			cmd->activate();
 
 		this->commands.insert({name_, cmd});
+		this->invalidateQueryCache();
 	}
 
 	template<class T>
@@ -66,6 +67,7 @@ namespace dls
 			cmd->activate();
 
 		this->commands.insert({name_, cmd});
+		this->invalidateQueryCache();
 	}
 
 } // end namespace dls

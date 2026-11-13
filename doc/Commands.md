@@ -40,6 +40,8 @@ The CommandManager functions using this mechanism are `getCommandsList()`, `find
 
 The timeout is a setting of the CommandManager: it can be passed to the constructor, or changed with `setListReplyTimeout(ms)` (`getListReplyTimeout()` returns it). The default is `CommandManager::DEFAULT_LIST_REPLY_TIMEOUT_MS` (300 ms). It is reached only when an expected entity does not reply, e.g. while it is shutting down.
 
+To avoid flooding the entities with list requests (e.g. a loop of `callCommand`/`waitCommand`), the result of a query is reused by the following queries of the same CommandManager for a short time, set with `setListCacheValidity(ms)` (`getListCacheValidity()` returns it; default `CommandManager::DEFAULT_LIST_CACHE_VALIDITY_MS`, 150 ms; 0 disables the reuse). Concurrent queries of the same CommandManager share a single request. A command activated or deactivated in another entity during this time is seen by the first query after it, while a change of the commands of the CommandManager itself is seen at once. The console asks for the list only once per `Tab` press.
+
 A command is identified by the owner, i.e. the entity that has created it, and the actual command name. The format is as follows
 
     CommandOwner::command_name

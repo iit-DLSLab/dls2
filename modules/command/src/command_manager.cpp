@@ -53,6 +53,8 @@ CommandManager::CommandManager(std::string owner_, int list_reply_timeout_ms)
 	, listReader(nullptr)
 	, level(0)
 	, trigger_level_watcher(false)
+	, queryCacheGeneration(0)
+	, listCacheValidityMs(DEFAULT_LIST_CACHE_VALIDITY_MS)
 	, queryCounter(0)
 	, listReplyTimeoutMs(DEFAULT_LIST_REPLY_TIMEOUT_MS)
 {
@@ -376,6 +378,52 @@ std::set<std::string> CommandManager::getMatchedOwners()
 
 std::multimap<std::string, std::string> CommandManager::queryCommands(const std::string& target)
 {
+	const int validity_ms = listCacheValidityMs.load();
+	if (validity_ms <= 0)
+		return sendListRequest(target);
+
+	// One query at a time: a caller waiting here then finds the fresh result of the previous query
+	std::lock_guard<std::mutex> lock(queryCacheMutex);
+
+	const auto now = std::chrono::steady_clock::now();
+	const uint64_t generation = queryCacheGeneration.load();
+	auto isFresh = [&](const CachedQuery& cached)
+	{
+		return cached.generation == generation && (now - cached.time) < std::chrono::milliseconds(validity_ms);
+	};
+
+	auto it = queryCache.find(target);
+	if (it != queryCache.end() && isFresh(it->second))
+		return it->second.commands;
+
+	// A fresh result of all the nodes also answers a query to a single node
+	if (!target.empty())
+	{
+		auto all = queryCache.find("");
+		if (all != queryCache.end() && isFresh(all->second))
+		{
+			std::multimap<std::string, std::string> commands;
+			for (auto& entry : all->second.commands)
+				if (entry.second == target)
+					commands.insert(entry);
+			return commands;
+		}
+	}
+
+	// The time is taken before sending the request, so that the result is never considered newer than it is
+	CachedQuery cached{std::chrono::steady_clock::now(), generation, sendListRequest(target)};
+	auto commands = cached.commands;
+	queryCache[target] = std::move(cached);
+	return commands;
+}
+
+void CommandManager::invalidateQueryCache()
+{
+	queryCacheGeneration.fetch_add(1);
+}
+
+std::multimap<std::string, std::string> CommandManager::sendListRequest(const std::string& target)
+{
 	if (!ensureListReader())
 		return {};
 
@@ -579,6 +627,16 @@ int CommandManager::getListReplyTimeout()
 	return listReplyTimeoutMs.load();
 }
 
+void CommandManager::setListCacheValidity(int validity_ms)
+{
+	listCacheValidityMs.store(validity_ms > 0 ? validity_ms : 0);
+}
+
+int CommandManager::getListCacheValidity()
+{
+	return listCacheValidityMs.load();
+}
+
 std::string CommandManager::getOwner()
 {
 	return this->owner;
@@ -607,6 +665,7 @@ void CommandManager::triggerLevelWatcher()
 
 void CommandManager::verifyLevel()
 {
+	invalidateQueryCache();
 	std::lock_guard<std::mutex> lock(commandsMutex);
 	for(auto cmd : this->commands)
 	{
@@ -642,6 +701,7 @@ void CommandManager::levelWatcher(std::stop_token stop_token)
 
 void CommandManager::disableCommand(std::string name)
 {
+	invalidateQueryCache();
 	std::lock_guard<std::mutex> lock(commandsMutex);
 	if(commands.contains(name))
 		this->commands[name]->deactivate();
@@ -649,6 +709,7 @@ void CommandManager::disableCommand(std::string name)
 
 void CommandManager::enableCommand(std::string name)
 {
+	invalidateQueryCache();
 	std::lock_guard<std::mutex> lock(commandsMutex);
 	if(commands.contains(name))
 		this->commands[name]->activate();

@@ -16,6 +16,7 @@
 #include <map>
 #include <set>
 #include <mutex>
+#include <chrono>
 
 #include <fastdds/dds/subscriber/DataReader.hpp>
 
@@ -31,6 +32,10 @@ namespace dls
 		/// Default max time a command list query waits for the replies of the nodes
 		///
 		static constexpr int DEFAULT_LIST_REPLY_TIMEOUT_MS = 300;
+
+		/// Default time a command list query result is reused by the following queries
+		///
+		static constexpr int DEFAULT_LIST_CACHE_VALIDITY_MS = 150;
 
 		/// Constructor
 		///
@@ -153,6 +158,16 @@ namespace dls
 		*/
 		int getListReplyTimeout();
 
+		/*! @brief Set for how long (ms) the result of a command list query is reused by the following queries,
+		 * instead of asking the nodes again (0 disables the reuse). A command activated or deactivated in another
+		 * node in the meantime is seen by the first query after this time
+		*/
+		void setListCacheValidity(int validity_ms);
+
+		/*! @brief Get for how long (ms) the result of a command list query is reused by the following queries
+		*/
+		int getListCacheValidity();
+
 		/// Reserved command name used to request the list of active commands of the nodes
 		///
 		inline static const std::string LIST_COMMANDS_REQUEST = "__dls_list_commands__";
@@ -260,7 +275,41 @@ namespace dls
 		/// Query the active commands of the node "target" (all nodes if empty).
 		/// Returns a multimap {command name, owner}
 		///
+		/// The result of a recent query is reused (see setListCacheValidity), and concurrent queries
+		/// share the same request
+		///
 		std::multimap<std::string, std::string> queryCommands(const std::string& target = "");
+
+		/// Send a list request to the node "target" (all nodes if empty) and collect the replies
+		///
+		std::multimap<std::string, std::string> sendListRequest(const std::string& target);
+
+		/// Invalidate the reused query results (the commands of this manager have changed)
+		///
+		void invalidateQueryCache();
+
+		struct CachedQuery
+		{
+			std::chrono::steady_clock::time_point time;
+			uint64_t generation;
+			std::multimap<std::string, std::string> commands;
+		};
+
+		/// Recent query results, per target ("" for all the nodes)
+		///
+		std::map<std::string, CachedQuery> queryCache;
+
+		/// Serializes the queries: a query waiting for another one then reuses its result
+		///
+		std::mutex queryCacheMutex;
+
+		/// Incremented when the commands of this manager change, to invalidate the cached results
+		///
+		std::atomic<uint64_t> queryCacheGeneration;
+
+		/// Validity of the cached results (ms)
+		///
+		std::atomic_int listCacheValidityMs;
 
 		/// Owners of the command managers currently matched with the command_call writer
 		///
