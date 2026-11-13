@@ -17,6 +17,9 @@ namespace dls
 		bool enabled_
 	)
 	{
+		if(!isValidCommandName(name_))
+			return;
+
 		std::shared_ptr<CommandBase> cmd = std::make_shared<Command<arg_ts...>>
 		(
 			name_,
@@ -27,11 +30,12 @@ namespace dls
 			enabled_
 		);
 
+		std::lock_guard<std::mutex> lock(this->commandsMutex);
 		if(cmd->testLevel(this->level))
 			cmd->activate();
 
 		this->commands.insert({name_, cmd});
-		
+		this->invalidateQueryCache();
 	}
 
 	template<class T>
@@ -45,6 +49,9 @@ namespace dls
 		bool enabled_
 	)
 	{
+		if(!isValidCommandName(name_))
+			return;
+
 		std::shared_ptr<CommandBase> cmd = std::make_shared<CommandWithoutArgs>
 		(
 			name_,
@@ -55,10 +62,12 @@ namespace dls
 			enabled_
 		);
 
+		std::lock_guard<std::mutex> lock(this->commandsMutex);
 		if(cmd->testLevel(this->level))
 			cmd->activate();
 
 		this->commands.insert({name_, cmd});
+		this->invalidateQueryCache();
 	}
 
 } // end namespace dls
