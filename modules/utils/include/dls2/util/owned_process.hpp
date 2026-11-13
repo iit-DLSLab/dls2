@@ -9,6 +9,8 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <stdexcept>
+#include <system_error>
 #include <sys/wait.h>
 #include <thread>
 #include <unistd.h>
@@ -42,20 +44,36 @@ public:
     bool running()
     {
         if (finished_) return false;
-        if (!leader_exited_) {
-            std::error_code error;
-            leader_exited_ = !proc.running(error);
-            if (error) throw std::system_error(error, "checking owned child");
-        }
+        leaderRunning();
         if (!own_group_) return !leader_exited_;
         if (leader_exited_) {
             int status;
             while (::waitpid(-group_.native_handle(), &status, WNOHANG) > 0) {}
         }
-        if (::kill(-group_.native_handle(), 0) == 0 || errno != ESRCH) return true;
+        if (::kill(-group_.native_handle(), 0) == 0) return true;
+        if (errno != ESRCH)
+            throw std::system_error(errno, std::generic_category(), "checking owned process group");
         finished_ = true;
         group_.detach();
         return false;
+    }
+
+    // Startup readiness needs the launcher itself, not surviving descendants.
+    bool leaderRunning()
+    {
+        if (finished_) return false;
+        if (!leader_exited_) {
+            std::error_code error;
+            leader_exited_ = !proc.running(error);
+            if (error) throw std::system_error(error, "checking owned child");
+        }
+        return !leader_exited_;
+    }
+
+    void signalLeader(int value)
+    {
+        if (leaderRunning() && ::kill(proc.id(), value) != 0 && errno != ESRCH)
+            throw std::system_error(errno, std::generic_category(), "signalling owned child");
     }
 
     void signal(int value)
@@ -79,9 +97,22 @@ private:
 
 using OwnedProcesses = std::map<std::string, std::shared_ptr<OwnedProcess>>;
 
-inline bool shutdownProcesses(OwnedProcesses& processes, std::chrono::milliseconds grace)
+enum class InitialSignalTarget { group, leader };
+
+struct ProcessShutdownOptions
+{
+    std::chrono::milliseconds interrupt_timeout{10000};
+    std::chrono::milliseconds terminate_timeout{2000};
+    std::chrono::milliseconds kill_timeout{2000};
+    InitialSignalTarget initial_target{InitialSignalTarget::group};
+};
+
+inline bool shutdownProcesses(OwnedProcesses& processes, const ProcessShutdownOptions& options)
 {
     using namespace std::chrono_literals;
+    if (options.interrupt_timeout.count() < 0 || options.terminate_timeout.count() < 0 ||
+        options.kill_timeout.count() < 0)
+        throw std::invalid_argument("Process shutdown timeouts must be nonnegative");
     const auto wait = [&](std::chrono::milliseconds duration) {
         const auto deadline = std::chrono::steady_clock::now() + duration;
         for (;;) {
@@ -97,15 +128,18 @@ inline bool shutdownProcesses(OwnedProcesses& processes, std::chrono::millisecon
             if (!process->running()) continue;
             if (report) std::cerr << "Shutdown: " << name << " (PID/PGID " << process->id()
                                   << ") still running; sending signal " << value << std::endl;
-            process->signal(value);
+            if (value == SIGINT && options.initial_target == InitialSignalTarget::leader)
+                process->signalLeader(value);
+            else
+                process->signal(value);
         }
     };
     signal(SIGINT, false);
-    if (wait(grace)) return true;
+    if (wait(options.interrupt_timeout)) return true;
     signal(SIGTERM, true);
-    if (wait(2s)) return true;
+    if (wait(options.terminate_timeout)) return true;
     signal(SIGKILL, true);
-    if (wait(2s)) return true;
+    if (wait(options.kill_timeout)) return true;
     for (auto& [name, process] : processes) {
         if (process->running()) {
             std::cerr << "Shutdown: " << name << " (PID/PGID " << process->id()
@@ -114,5 +148,13 @@ inline bool shutdownProcesses(OwnedProcesses& processes, std::chrono::millisecon
         }
     }
     return false;
+}
+
+// Preserve the framework's existing group-shutdown interface and defaults.
+inline bool shutdownProcesses(OwnedProcesses& processes, std::chrono::milliseconds grace)
+{
+    ProcessShutdownOptions options;
+    options.interrupt_timeout = grace;
+    return shutdownProcesses(processes, options);
 }
 }

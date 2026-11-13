@@ -1,0 +1,7 @@
+add_executable(test_external_process_managed_process managed_external_process_test.cpp)
+target_link_libraries(test_external_process_managed_process PRIVATE dls_external_process)
+add_test(NAME external_process_managed_process COMMAND test_external_process_managed_process)
+set_tests_properties(external_process_managed_process PROPERTIES TIMEOUT 15)
+if(TARGET dls2-tests)
+    add_dependencies(dls2-tests test_external_process_managed_process)
+endif()
