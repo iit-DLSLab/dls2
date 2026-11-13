@@ -47,10 +47,7 @@ CommandManager::CommandManager(std::string owner_, int list_reply_timeout_ms)
 	, owner(owner_)
 	, monitorWriterName(owner_ + "::commands_monitor")
 	, commandsReaderName(owner_ + "::commands_listener")
-	, listWriterName(owner_ + "::commands_list")
-	, listReaderName(owner_ + "::commands_list_reader")
 	, commandsReader(nullptr)
-	, listReader(nullptr)
 	, level(0)
 	, trigger_level_watcher(false)
 	, queryCacheGeneration(0)
@@ -61,7 +58,8 @@ CommandManager::CommandManager(std::string owner_, int list_reply_timeout_ms)
 	setListReplyTimeout(list_reply_timeout_ms);
 
 	// Single participant of the command manager. It is named <owner>::commands_monitor, which is
-	// used by the clients to know which command managers are expected to reply to a list query
+	// used by the clients to know which command managers are expected to reply to a list query.
+	// Its single writer on command_call sends the command calls, the list requests and the list replies
 	commands_monitor = std::make_shared<dls::DDSWriter>(
 		monitorWriterName,
 		domains::command,
@@ -69,15 +67,13 @@ CommandManager::CommandManager(std::string owner_, int list_reply_timeout_ms)
 		reliableKeepAllWriterQos()
 	);
 
-	// Writer used to reply to the list queries
-	commands_monitor->addWriter(listWriterName, dls::topics::command_list, reliableKeepAllWriterQos());
-
 	// Start the threads before creating the reader, so that every received call can be served
 	levelThread = std::jthread([this](std::stop_token stop_token){ this->levelWatcher(stop_token); });
 	executorThread = std::jthread([this](std::stop_token stop_token){ this->executorLoop(stop_token); });
 	replierThread = std::jthread([this](std::stop_token stop_token){ this->replierLoop(stop_token); });
 
-	// Single reader of the command_call topic, serving all the commands of this manager
+	// Single reader of the command_call topic: it receives the command calls, the list requests and the
+	// list replies addressed to this manager
 	commandsReader.store(commands_monitor->addReader(
 		commandsReaderName,
 		dls::topics::command_call,
@@ -87,11 +83,6 @@ CommandManager::CommandManager(std::string owner_, int list_reply_timeout_ms)
 
 	if (commandsReader.load() == nullptr)
 		std::cerr << "[CommandManager] " << owner << ": could not create the command_call reader" << std::endl;
-
-	// Reader of the list replies, created now (and not at the first query) so that it is already
-	// matched with the reply writers of the other nodes when the first query is sent: the replies
-	// are volatile, a reply sent before the match would be lost
-	ensureListReader();
 }
 
 CommandManager::~CommandManager()
@@ -99,11 +90,6 @@ CommandManager::~CommandManager()
 	// Stop receiving: no DDS callback can reference this object after this point
 	if (commandsReader.exchange(nullptr) != nullptr)
 		commands_monitor->deleteReader(commandsReaderName);
-	{
-		std::lock_guard<std::mutex> lock(listReaderMutex);
-		if (listReader.exchange(nullptr) != nullptr)
-			commands_monitor->deleteReader(listReaderName);
-	}
 
 	// Stop the replier and the executor (the stop requests wake them up), before stopping the level watcher
 	replierThread.request_stop();
@@ -173,9 +159,16 @@ void CommandManager::onCommandCall(void* msg)
 
 void CommandManager::handleCommandCall(const dls2_interface::msg::CommandCall& msg)
 {
-	// if the owner is known but it is not this one, do nothing
+	// The owner is the destination of the message: if it is known but it is not this one, do nothing
 	if (msg.owner() != "" && msg.owner() != this->owner)
 		return;
+
+	// Reply to a list request of this manager: store it for the waiting query
+	if (msg.command_name() == LIST_COMMANDS_REPLY)
+	{
+		handleListReply(msg);
+		return;
+	}
 
 	// List requests are answered by the replier thread, so that a running command cannot delay
 	// the reply and nothing is published from the listener
@@ -185,7 +178,8 @@ void CommandManager::handleCommandCall(const dls2_interface::msg::CommandCall& m
 			std::lock_guard<std::mutex> lock(listRequestMutex);
 			if (replierThread.get_stop_token().stop_requested())
 				return;
-			listRequestQueue.push_back(msg.args());
+			// request id and requester
+			listRequestQueue.emplace_back(msg.args(), msg.header().frame_id());
 		}
 		listRequestCv.notify_one();
 		return;
@@ -200,7 +194,7 @@ void CommandManager::handleCommandCall(const dls2_interface::msg::CommandCall& m
 	queueCv.notify_one();
 }
 
-void CommandManager::replyCommandsList(const std::string& request_id)
+void CommandManager::replyCommandsList(const std::string& request_id, const std::string& requester)
 {
 	std::string list;
 	{
@@ -215,18 +209,22 @@ void CommandManager::replyCommandsList(const std::string& request_id)
 		}
 	}
 
+	// The reply is addressed to the requester (owner), and carries the request id (ret) and the
+	// name of this manager (header.frame_id)
 	dls2_interface::msg::CommandCall reply;
-	reply.owner(this->owner);
-	reply.command_name(request_id);
+	reply.owner(requester);
+	reply.command_name(LIST_COMMANDS_REPLY);
+	reply.ret(request_id);
+	reply.header().frame_id(this->owner);
 	reply.args(list);
-	commands_monitor->DDSParticipant::sendMessage(listWriterName, &reply);
+	commands_monitor->sendMessage(&reply);
 }
 
 void CommandManager::replierLoop(std::stop_token stop_token)
 {
 	while (!stop_token.stop_requested())
 	{
-		std::string request_id;
+		std::pair<std::string, std::string> request; // request id and requester
 		{
 			std::unique_lock<std::mutex> lock(listRequestMutex);
 			// returns false when woken up by a stop request with no request queued
@@ -234,11 +232,11 @@ void CommandManager::replierLoop(std::stop_token stop_token)
 				return;
 			if (stop_token.stop_requested())
 				return;
-			request_id = std::move(listRequestQueue.front());
+			request = std::move(listRequestQueue.front());
 			listRequestQueue.pop_front();
 		}
 
-		replyCommandsList(request_id);
+		replyCommandsList(request.first, request.second);
 	}
 }
 
@@ -277,60 +275,21 @@ void CommandManager::executorLoop(std::stop_token stop_token)
 // Command discovery
 // =============================================================================
 
-bool CommandManager::ensureListReader()
+void CommandManager::handleListReply(const dls2_interface::msg::CommandCall& msg)
 {
-	if (listReader.load() != nullptr)
-		return true;
-
-	std::lock_guard<std::mutex> lock(listReaderMutex);
-	if (listReader.load() != nullptr)
-		return true;
-
-	listReader.store(commands_monitor->addReader(
-		listReaderName,
-		dls::topics::command_list,
-		std::function<void(void *)>([this](void* msg){ this->onCommandsList(msg); }),
-		reliableKeepAllReaderQos()
-	));
-
-	if (listReader.load() == nullptr)
-	{
-		std::cerr << "[CommandManager] " << owner << ": could not create the command_list reader" << std::endl;
-		return false;
-	}
-	return true;
-}
-
-void CommandManager::onCommandsList(void* msg)
-{
-	handleCommandsList(*static_cast<dls2_interface::msg::CommandCall*>(msg));
-
-	auto reader = listReader.load();
-	if (reader == nullptr)
-		return;
-
-	dls2_interface::msg::CommandCall sample;
-	eprosima::fastdds::dds::SampleInfo info;
-	while (reader->take_next_sample(&sample, &info) == eprosima::fastdds::dds::RETCODE_OK)
-	{
-		if (info.valid_data)
-			handleCommandsList(sample);
-	}
-}
-
-void CommandManager::handleCommandsList(const dls2_interface::msg::CommandCall& msg)
-{
+	const std::string& request_id = msg.ret();
+	const std::string& replier = msg.header().frame_id();
 	{
 		std::lock_guard<std::mutex> lock(queryMutex);
-		auto it = pendingQueries.find(msg.command_name());
+		auto it = pendingQueries.find(request_id);
 		if (it == pendingQueries.end())
 			return;
 
-		if (!it->second.replied_owners.insert(msg.owner()).second)
+		if (!it->second.replied_owners.insert(replier).second)
 			return; // duplicated reply
 
 		for (auto& name : parseArgs(msg.args()))
-			it->second.commands.insert({name, msg.owner()});
+			it->second.commands.insert({name, replier});
 	}
 	queryCv.notify_all();
 }
@@ -424,9 +383,6 @@ void CommandManager::invalidateQueryCache()
 
 std::multimap<std::string, std::string> CommandManager::sendListRequest(const std::string& target)
 {
-	if (!ensureListReader())
-		return {};
-
 	const std::set<std::string> expected = target.empty() ? getMatchedOwners() : std::set<std::string>{target};
 	const std::string request_id = owner + "#" + std::to_string(queryCounter.fetch_add(1));
 
@@ -435,11 +391,13 @@ std::multimap<std::string, std::string> CommandManager::sendListRequest(const st
 		pendingQueries[request_id] = PendingQuery();
 	}
 
-	// Send the request without holding any lock: the intra-process replies are delivered synchronously
+	// Send the request without holding any lock: the intra-process messages are delivered synchronously.
+	// It is addressed to target (owner), and carries the request id (args) and the requester (header.frame_id)
 	dls2_interface::msg::CommandCall request;
 	request.owner(target);
 	request.command_name(LIST_COMMANDS_REQUEST);
 	request.args(request_id);
+	request.header().frame_id(this->owner);
 	this->commands_monitor->sendMessage(&request);
 
 	std::unique_lock<std::mutex> lock(queryMutex);

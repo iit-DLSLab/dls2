@@ -172,6 +172,10 @@ namespace dls
 		///
 		inline static const std::string LIST_COMMANDS_REQUEST = "__dls_list_commands__";
 
+		/// Reserved command name used to reply to a list request
+		///
+		inline static const std::string LIST_COMMANDS_REPLY = "__dls_list_reply__";
+
 	private:
 
 		/// Storage space for the commands (name -> command, i.e. function + argument types)
@@ -186,9 +190,9 @@ namespace dls
 		///
 		std::string owner;
 
-		/// Single DDS participant of the command manager on the command domain.
-		/// It holds the command_call writer, the single command_call reader and the
-		/// command_list writer/reader used to discover the commands
+		/// Single DDS participant of the command manager on the command domain. It holds the single
+		/// writer and the single reader of the command_call topic, used for the command calls, the
+		/// list requests and the list replies
 		///
 		std::shared_ptr<dls::DDSWriter> commands_monitor;
 
@@ -196,17 +200,10 @@ namespace dls
 		///
 		std::string monitorWriterName;
 		std::string commandsReaderName;
-		std::string listWriterName;
-		std::string listReaderName;
 
 		/// Single reader of the command_call topic
 		///
 		std::atomic<eprosima::fastdds::dds::DataReader*> commandsReader;
-
-		/// Reader of the command_list topic (replies to the list queries of this manager)
-		///
-		std::atomic<eprosima::fastdds::dds::DataReader*> listReader;
-		std::mutex listReaderMutex;
 
 		/// Current command running level
 		///
@@ -246,7 +243,7 @@ namespace dls
 
 		/// Answers a list request with the active commands of this node
 		///
-		void replyCommandsList(const std::string& request_id);
+		void replyCommandsList(const std::string& request_id, const std::string& requester);
 
 		/// Replier thread loop: answers the queued list requests until a stop is requested on the
 		/// replier thread. It is separated from the executor so that a long command does not delay
@@ -254,7 +251,8 @@ namespace dls
 		///
 		void replierLoop(std::stop_token stop_token);
 
-		std::deque<std::string> listRequestQueue;
+		/// Queued list requests: request id and requester
+		std::deque<std::pair<std::string, std::string>> listRequestQueue;
 		std::mutex listRequestMutex;
 		std::condition_variable_any listRequestCv;
 		std::jthread replierThread;
@@ -315,17 +313,9 @@ namespace dls
 		///
 		std::set<std::string> getMatchedOwners();
 
-		/// Create the command_list reader if not yet created (done in the constructor)
+		/// Stores a list reply if its request is pending (DDS thread)
 		///
-		bool ensureListReader();
-
-		/// Callback of the command_list reader (DDS thread)
-		///
-		void onCommandsList(void* msg);
-
-		/// Stores a command_list reply if its request is pending
-		///
-		void handleCommandsList(const dls2_interface::msg::CommandCall& msg);
+		void handleListReply(const dls2_interface::msg::CommandCall& msg);
 
 		struct PendingQuery
 		{
