@@ -15,6 +15,19 @@ namespace dls
         , sm_(sm)
     {};
 
+    OrchestratorBase::~OrchestratorBase()
+    {
+        stopTelemetry();
+    }
+
+    void OrchestratorBase::stopTelemetry()
+    {
+        should_quit = true;
+        if (telemetry_thread_.joinable()) {
+            telemetry_thread_.join();
+        }
+    }
+
     void OrchestratorBase::activation()
     {
         if(!this->telemetry_started_.load()){
@@ -51,16 +64,14 @@ namespace dls
 
             // Prepare events for publication
             std::vector<dls2_interface::msg::EventLog> events_to_publish;
-            EventsPriorityQueue events_priority_queue_tmp;
             {
                 std::lock_guard<std::mutex> lock(event_mutex_);
-                events_priority_queue_tmp = events_priority_queue_;
-            }
-            size_t event_count = 0;
-            while (!events_priority_queue_tmp.empty() && event_count < event_to_publish_) {
-                events_to_publish.push_back(events_priority_queue_tmp.top());
-                events_priority_queue_tmp.pop();
-                event_count++;
+				size_t event_count = 0;
+				while (!telemetry_events_.empty() && event_count < event_to_publish_) {
+					events_to_publish.push_back(telemetry_events_.front());
+					telemetry_events_.pop_front();
+					event_count++;
+				}
             }
 
             telemetryMain(events_to_publish);
@@ -87,8 +98,7 @@ namespace dls
             read();
 
             // Collecting events from DLS2
-            static long int idx_read = 0;
-            const auto events_fifo = event_listener_.readEvents(idx_read);
+            const auto events_fifo = event_listener_.readEvents(event_read_index_);
             EventsPriorityQueue events_priority_queue_tmp;
             {
                 // Update internal events representation
@@ -96,12 +106,25 @@ namespace dls
 
                 for(const auto& event : events_fifo){
                     events_priority_queue_.push(event);
+					// Bound telemetry backlog when producers exceed the publication
+					// rate. This does not discard events from the control queue.
+					constexpr size_t max_pending_telemetry_events = 1000;
+					if (telemetry_events_.size() >= max_pending_telemetry_events) {
+						telemetry_events_.pop_front();
+					}
+					telemetry_events_.push_back(event);
                 }
 
                 events_priority_queue_tmp = events_priority_queue_;
             }
 
             orchestrate(time, events_priority_queue_tmp);
+
+            {
+                std::lock_guard<std::mutex> lock(event_mutex_);
+                events_priority_queue_ = std::move(events_priority_queue_tmp);
+            }
+
             write();
         }
         catch (const std::exception& e)

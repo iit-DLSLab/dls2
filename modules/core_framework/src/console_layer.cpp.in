@@ -72,10 +72,15 @@ namespace dls
 			static std::vector<std::string> matches{};
 			static size_t match_index{0};
 
-			auto processes_and_commands = readline_completion::console_layer->getProcessesAndCommands();
-
 			if (state == 0)
 			{
+				// Query the available processes and commands only once per completion: the following calls
+				// (state > 0) only return the matches already generated. The result is stored, so that
+				// "display_matches" can reuse it instead of querying again
+				readline_completion::console_layer->completion_processes_and_commands_ =
+					readline_completion::console_layer->getProcessesAndCommands();
+				const auto& processes_and_commands = readline_completion::console_layer->completion_processes_and_commands_;
+
 				matches.clear();
 				match_index = 0;
 
@@ -170,8 +175,8 @@ namespace dls
 				// If some characters have been written in the console
 				if(!line.empty())
 				{
-					// Get the complete set of available processes and commands
-					auto processes_and_commands = readline_completion::console_layer->getProcessesAndCommands();
+					// Reuse the processes and commands queried when generating the matches (a copy, since it is accessed with operator[])
+					auto processes_and_commands = readline_completion::console_layer->completion_processes_and_commands_;
 
 					// Get the map with "load[Layer]" commands and associated installation folders
 					auto load_layers_paths = readline_completion::console_layer->getLoadLayersPaths();
@@ -219,8 +224,8 @@ namespace dls
 
 					std::cout << std::endl;
 				}
-				// Otherwise, print the complete set of available processes and commands
-				else { readline_completion::console_layer->printProcessesAndCommands(); }
+				// Otherwise, print the complete set of available processes and commands (queried when generating the matches)
+				else { ConsoleLayer::printProcessesAndCommandsMap(readline_completion::console_layer->completion_processes_and_commands_); }
 
 				rl_reset_line_state();
 			}
@@ -250,6 +255,9 @@ namespace dls
 		// Keep the launcher's signal handler and unblock input on a shutdown request.
 		rl_catch_signals = 0;
 		rl_event_hook = readline_completion::event;
+		// List the possible matches at the first "Tab" press (by default Readline only rings the bell at
+		// the first press when the completion is ambiguous, and lists the matches at the second one)
+		rl_variable_bind("show-all-if-ambiguous", "on");
 
 		command_manager.addCommand<>
 		(
@@ -341,6 +349,11 @@ namespace dls
 		// Otherwise, print all the processes for which that command is available
 		else { processes_and_commands = getProcessesAndCommands(command); }
 
+		printProcessesAndCommandsMap(processes_and_commands);
+	}
+
+	void ConsoleLayer::printProcessesAndCommandsMap(const std::map<std::string, std::set<std::string>>& processes_and_commands)
+	{
 		for(const auto& map_entry : processes_and_commands)
 		{
 			std::cout << "\n" << map_entry.first << "::" << std::endl;

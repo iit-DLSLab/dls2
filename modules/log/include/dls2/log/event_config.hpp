@@ -46,7 +46,8 @@ enum class EventID : uint8_t {
     MOTOR_FAULT,
     MOTOR_NOT_OPERATIONAL,
     NODES_NOT_DISCOVERED,
-    NODES_DETACHED
+    NODES_DETACHED,
+    CPU_TEMP_TOO_HIGH
 };
 
 enum class EventSeverity : uint8_t {

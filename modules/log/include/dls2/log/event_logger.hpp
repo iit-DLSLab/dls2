@@ -18,6 +18,7 @@
 #include <cstddef>
 #include <ctime>
 #include <cstdio>
+#include <mutex>
 
 namespace dls
 {
@@ -87,6 +88,7 @@ namespace dls
 			std::vector<dls2_interface::msg::EventLog> readEvents(long int& idx_read);
 
 			boost::circular_buffer<dls2_interface::msg::EventLog> event_buffer_;
+			mutable std::mutex event_buffer_mutex_;
 
 		private:
 			const std::string name_;

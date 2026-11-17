@@ -23,8 +23,7 @@ namespace dls
 			level_,
 			enabled_
 		),
-		f(f_),
-		ddslink(nullptr)
+		f(f_)
 	{ }
 
 	
@@ -52,17 +51,16 @@ namespace dls
 		if(!this->isEnabled() || this->isActive())
 			return;
 
-		this->registerCommand();
+		// the calls are received by the single reader of the CommandManager
 		this->active = true;
 	}
 
 	
 	void CommandWithoutArgs::deactivate()
 	{
-		if(!this->isEnabled() || !this->isActive() || (this->ddslink == nullptr)) 
+		if(!this->isEnabled() || !this->isActive())
 			return;
 
-		this->ddslink.reset();
 		this->active = false;
 	}
 
@@ -86,44 +84,9 @@ namespace dls
 	}
 
 	
-	void CommandWithoutArgs::registerCommand()
+	bool CommandWithoutArgs::call(std::vector<std::string>)
 	{
-		if (ddslink != nullptr)
-			return;
-		// Define QoS for the data reader
-		eprosima::fastdds::dds::DataReaderQos qos(eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT);
-		qos.reliability().kind = eprosima::fastdds::dds::RELIABLE_RELIABILITY_QOS;
-
-		// Create the data reader
-		ddslink = std::make_shared<dls::DDSReader>(
-			this->getOwner() + "::" + this->getName(),
-			dls::domains::command,
-			topics::command_call,
-			std::function<void(void *)>
-			{
-				[&](void *tuple)
-				{
-					dls2_interface::msg::CommandCall* msg = (dls2_interface::msg::CommandCall *)tuple;
-					// if the owner is known but it is not the one owning this command OR
-					// if the received command name is not equal to the name of this command
-					// do nothing
-					if ((msg->owner() != "" && msg->owner() != this->getOwner()) || msg->command_name() != this->getName())
-						return;
-
-					// std::vector<std::string> result;
-
-					// //parse args
-					// size_t pos = 0;
-					// while ((pos = msg->args().find(",")) != std::string::npos) {
-					// 	result.push_back( msg->args().substr(0, pos) );
-					// 	msg->args().erase(0, pos + 1);
-					// }			
-
-					this->call();
-				}
-			},
-			qos
-		);
+		return this->call();
 	}
 
 

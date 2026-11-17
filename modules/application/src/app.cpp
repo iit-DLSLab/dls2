@@ -25,6 +25,9 @@ App::App(const std::string &ID)
 
 	safety_layer_config_ = std::make_shared<SafetyLayerConfig>(safety_layer_path);
 
+	// init input synchronization field to not requested by default
+	status_msg.inputs_synchronized() = -1;
+
 	command_manager.addCommand<>
 	(
 		"shutdown",
@@ -322,7 +325,7 @@ void App::monitorApp()
 			{
 				robust_event_notifier.notify(
 					EventID::WRONG_PROCESS_STATE,
-					EventSeverity::WARNING,
+					EventSeverity::ERROR,
 					this->getID() + " app state is " + status_msg.current_state() + " (not " +
 						status_msg.desired_state() + ")..."
 				);

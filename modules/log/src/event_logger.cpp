@@ -126,6 +126,8 @@ EventListener::EventListener(const std::string &name)
 						// 		  	<< "\ncomponent: " << msg->component_name()
 						// 		  	<< "\nmessage: " << msg->msg()
 						// 		  	<< "\n###################" << std::endl;
+
+						std::lock_guard<std::mutex> lock(event_buffer_mutex_);
 						event_buffer_.push_back(*msg);
 						// }
 						unbounded_buffer_idx_++;
@@ -150,46 +152,43 @@ int EventListener::getNumOfMatches() const
 
 unsigned long long int EventListener::getUnboundedBufferIdx() const
 {
+	std::lock_guard<std::mutex> lock(event_buffer_mutex_);
 	return unbounded_buffer_idx_;
 }
 
 unsigned long int EventListener::getBufferMaxIdx() const
 {
+	std::lock_guard<std::mutex> lock(event_buffer_mutex_);
 	return event_buffer_.capacity()-1;
 }
 
 std::vector<dls2_interface::msg::EventLog> EventListener::readEvents(long int& idx_read)
 {
 	std::vector<dls2_interface::msg::EventLog> events;
-	events.clear();
 
-	idx_read = 0;
-	buffer_max_idx_ = getBufferMaxIdx();
-
-	long int idx_buffer = getUnboundedBufferIdx();
-	if(idx_buffer >= idx_read)
-	{
-		// mapping unbounded indexes in bounded indexes
-		long int delta = idx_buffer - idx_read;
-		if(delta > buffer_max_idx_){
-			idx_read = 0;
-			idx_buffer = buffer_max_idx_;
-		}
-		else if (idx_buffer >= buffer_max_idx_)
-		{
-			idx_read = buffer_max_idx_ - delta;
-			idx_buffer = idx_read + delta;
-		}
-
-		// read values
-		for(long int i = idx_read; i <= idx_buffer; ++i)
-		{
-			events.push_back(event_buffer_[i]);
-		}
-		
-		// update read index
-		idx_read = idx_buffer + 1;
+	std::lock_guard<std::mutex> lock(event_buffer_mutex_);
+	const long long latest_sequence_id = unbounded_buffer_idx_;
+	if (latest_sequence_id < 0 || latest_sequence_id < idx_read) {
+		return events;
 	}
+
+	const long long oldest_retained_sequence_id =
+		latest_sequence_id - static_cast<long long>(event_buffer_.size()) + 1;
+	long long first_sequence_id = idx_read;
+	if (first_sequence_id < oldest_retained_sequence_id) {
+		first_sequence_id = oldest_retained_sequence_id;
+	}
+
+	events.reserve(static_cast<size_t>(latest_sequence_id - first_sequence_id + 1));
+	for (long long sequence_id = first_sequence_id;
+		 sequence_id <= latest_sequence_id;
+		 ++sequence_id) {
+		const auto buffer_index = static_cast<size_t>(
+			sequence_id - oldest_retained_sequence_id);
+		events.push_back(event_buffer_[buffer_index]);
+	}
+
+	idx_read = static_cast<long int>(latest_sequence_id + 1);
 
 	return events;
 }
