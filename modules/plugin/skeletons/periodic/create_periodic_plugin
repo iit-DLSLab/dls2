@@ -1,6 +1,6 @@
 #!/bin/bash
 info () {
-  echo "Possible plugin types: hardwares, estimators, motion_generators, controllers"
+  echo "Possible plugin types: hardwares, estimators, motion_generators, controllers, periodic_app_plugins"
   echo "Plugin name convention: all lower case letter, use _ character to separate words"
   echo -e "-----------------------------------------------------\n"
 }
@@ -9,9 +9,10 @@ check_plugin_type_inputs () {
   if [ "$1" != "hardwares" ] &&
      [ "$1" != "estimators" ] &&
      [ "$1" != "motion_generators" ] &&
-     [ "$1" != "controllers" ]; then
+     [ "$1" != "controllers" ] &&
+     [ "$1" != "periodic_app_plugins" ]; then
         echo "Wrong plugin type. The possible plugin types are:"
-        echo "hardwares, estimators, motion_generators, controllers"
+        echo "hardwares, estimators, motion_generators, controllers, periodic_app_plugins"
         return 2 # most common number used to exit
   fi
 }
@@ -59,14 +60,14 @@ IFS=$IFS_DEFAULT
 # Set the name of the plugin class
 PLUGIN_CLASS_NAME=${MODULE_CLASS_NAME}Plugin
 
-# set console command class name
-CONSOLE_COMMANDS_CLASS_NAME=${MODULE_CLASS_NAME}ConsoleCommands
+# # set console command class name
+# CONSOLE_COMMANDS_CLASS_NAME=${MODULE_CLASS_NAME}ConsoleCommands
 
 # set header guards name
 PLUGIN_HEADER_GUARD=${PLUGIN_NAME^^}_PLUGIN_HPP
 MODULE_HEADER_GUARD=${PLUGIN_NAME^^}_HPP
 CONSOLE_COMMANDS_HEADER_GUARDS=${PLUGIN_NAME^^}_CONSOLE_COMMANDS_HPP
-TOPICS_HEADER_GUARD=${PLUGIN_NAME^^}_TOPICS_HPP
+# TOPICS_HEADER_GUARD=${PLUGIN_NAME^^}_TOPICS_HPP
 
 # echo $PLUGIN_TYPE
 # echo $PLUGIN_NAME
@@ -82,7 +83,7 @@ TOPICS_HEADER_GUARD=${PLUGIN_NAME^^}_TOPICS_HPP
 bare_skeleton_folder="/usr/include/dls2/plugin_skeletons/periodic"
 periodic_plugin_folder="."
 
-cmake $bare_skeleton_folder -DPLUGIN_NAME=$PLUGIN_NAME -DPLUGIN_TYPE=$PLUGIN_TYPE -DPLUGIN_CLASS_NAME=$PLUGIN_CLASS_NAME -DMODULE_CLASS_NAME=$MODULE_CLASS_NAME -DCONSOLE_COMMANDS_CLASS_NAME=$CONSOLE_COMMANDS_CLASS_NAME -DPLUGIN_HEADER_GUARD=$PLUGIN_HEADER_GUARD -DMODULE_HEADER_GUARD=$MODULE_HEADER_GUARD -DCONSOLE_COMMANDS_HEADER_GUARDS=$CONSOLE_COMMANDS_HEADER_GUARDS -DTOPICS_HEADER_GUARD=$TOPICS_HEADER_GUARD
+cmake $bare_skeleton_folder -DPLUGIN_NAME=$PLUGIN_NAME -DPLUGIN_TYPE=$PLUGIN_TYPE -DPLUGIN_CLASS_NAME=$PLUGIN_CLASS_NAME -DMODULE_CLASS_NAME=$MODULE_CLASS_NAME -DPLUGIN_HEADER_GUARD=$PLUGIN_HEADER_GUARD -DMODULE_HEADER_GUARD=$MODULE_HEADER_GUARD
 
 # remove unuseful files
 gio trash CMakeFiles cmake_install.cmake CMakeCache.txt Makefile

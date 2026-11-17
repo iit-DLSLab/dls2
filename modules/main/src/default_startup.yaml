@@ -1,15 +1,29 @@
 # layers
-layers: [service, hardware, control, estimation, log]
+layers: [hardware, estimation, log]
+
+# servers (launched only when explicitly set to true)
+run_servers: true
+
+# supervisor (launched only when explicitly set to true)
+run_supervisor: true
 
 # applications
-hardwares: [gazebo_sim]
-controllers: [pid, trunk_controller]
-motion_generators: [periodic_generator, keyboard]
+hardwares: []
+xeno_hardwares: []
+controllers: []
+python_controllers: []
+motion_generators: []
 estimators: []
-services: []
+python_periodic_apps: []
+generic_app_plugins: []
+generic_periodic_app_plugins: []
 
 # robot name
-robot_name : "aliengo"
+robot_name: ""
+robot_spawning_height: 0.366
+
+# simulation model (loaded only when explicitly set to true)
+load_model: true
 
 # applications to be activated
-activate: [gazebo_sim, pid, trunk_controller]
+activate: []

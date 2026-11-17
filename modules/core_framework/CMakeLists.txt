@@ -1,4 +1,4 @@
-add_compile_options("-std=c++17")
+add_compile_options("-std=c++20")
 
 dls_configure(src/version_info.cpp.in  VERSION_INFO_CPP)
 dls_configure(src/control_layer.cpp.in  CONTROL_LAYER_CPP)
@@ -14,7 +14,7 @@ add_library(dls_framework
 		${HARDWARE_LAYER_CPP}
 		src/log_layer.cpp
 		${OPTIONS_CPP}
-		src/service_layer.cpp
+		# src/service_layer.cpp
 		${VERSION_INFO_CPP}
 		src/core_interface.cpp
 )
@@ -40,7 +40,7 @@ target_link_libraries(dls_framework
 		dls_app
 		dls_controller
 		dls_command
-		dls_message_wrappers
+		dls_signal
 		dls_estimator
         dls_hardware
 		dls_service
@@ -48,13 +48,10 @@ target_link_libraries(dls_framework
 		dls_domains
 		dls_topics
 		dls_class_loader
-		dls_mcap
 		dls_time
 		dls_messages
-		dls_action_client_stock
 		dls_supervisor
 		dls_utils
-		dls_data_visualizer
 )
 
 dls_install(dls_framework)

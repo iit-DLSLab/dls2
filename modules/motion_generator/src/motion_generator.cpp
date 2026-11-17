@@ -36,27 +36,19 @@ std::shared_ptr<const robotlib::RobotBase> MotionGenerator::getRobot()
 
 void MotionGenerator::setHomeConfiguration()
 {
-	YAML::Node config = YAML::LoadFile("/usr/include/dls2/actions/goHome/config/config.yml");
 	const std::string robot_name = pRobot->getName();
-	for(auto &leg_pair : this->home_configuration)
-	{
-		for(auto &joint_pair : *leg_pair.data_)
-		{
-			this->home_configuration[joint_pair.key_] = config[robot_name][joint_pair.key_->getName()].as<double>();
-		}
+	YAML::Node config = YAML::LoadFile("/usr/include/"+robot_name+"-description/default_postures/goHome.yml");
+	for(auto joint : pRobot->getJoints()){
+		this->home_configuration[joint->id] = config[joint->getName()].as<double>();
 	}
 }
 
 void MotionGenerator::setFoldConfiguration()
 {
-	YAML::Node config = YAML::LoadFile("/usr/include/dls2/actions/goFold/config/config.yml");
 	const std::string robot_name = pRobot->getName();
-	for(auto &leg_pair : this->fold_configuration)
-	{
-		for(auto &joint_pair : *leg_pair.data_)
-		{
-			this->fold_configuration[joint_pair.key_] = config[robot_name][joint_pair.key_->getName()].as<double>();
-		}
+	YAML::Node config = YAML::LoadFile("/usr/include/"+robot_name+"-description/default_postures/goFold.yml");
+	for(auto joint : pRobot->getJoints()){
+		this->fold_configuration[joint->id] = config[joint->getName()].as<double>();
 	}
 }
 

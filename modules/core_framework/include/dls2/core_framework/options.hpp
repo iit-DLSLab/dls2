@@ -55,6 +55,7 @@ public:
 	static std::string estimation_layer_name;
 
 	static std::string robot_name;
+	static double robot_spawning_height;
 
 	// launch browser for documentation
 	static bool show_docs;

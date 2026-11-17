@@ -1,6 +1,5 @@
 
 #include "dls2/controller/dummy_controller.hpp"
-#include "dls2/log/log.hpp"
 #include "robotlib/robot_factory.hpp"
 
 using namespace dls;
@@ -15,8 +14,7 @@ DummyController::DummyController
 		dog,
 		"dls_dummy_controller",
 		// std::chrono::duration<double, std::ratio<1, 1'000'000'000>>(1),
-		std::chrono::duration<double, std::ratio<1, 1>>(1),
-		ControlSignal::SignalReconstructionMethod::ZERO_ORDER_HOLD
+		std::chrono::duration<double, std::ratio<1, 1>>(1)
 	)//,
 	// command_manager(),
 	// outstream(getID()),
@@ -24,7 +22,7 @@ DummyController::DummyController
 	// service_server_
 	// (
 	// 	"dls_dummy_controller_service",
-	// 	[](StringMsg msg)
+	// 	[](dls2_interface::msg::StringMsg msg)
 	// 	{
 	// 		std::cout << "Dummy controller got service call with msg: "
                       // << msg.msg() << std::endl;
@@ -103,7 +101,7 @@ void DummyController::run(const std::chrono::system_clock::time_point &time)
 		std::cout << "DUMMY CONTROLLER GOT BLIND STATE" << std::endl;
 	}
 
-	ControlSignal s;
+	dls2_interface::msg::ControlSignal s;
 	s.torques_.resize(12);
 
 	publishSignal(s);

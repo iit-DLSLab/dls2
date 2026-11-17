@@ -1,6 +1,0 @@
-
-struct ScrewMsg
-{
-	double linear[3];
-	double angular[3];
-};

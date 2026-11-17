@@ -19,7 +19,6 @@
 #ifndef NDEBUG
 #include <sstream>
 #include <chrono>
-#include "dls2/log/log.hpp"
 #endif
 
 #include <cstdlib>
@@ -56,14 +55,23 @@ ControlLayer::ControlLayer(std::string ID, std::string robot_name)
 	, pDefault_spline_out(std::make_shared<math::Ramp<double>> (0, 2, 1, 0))
 	, default_duration_seconds(2)
 	, pRobot(robotlib::RobotFactory::openRobot(robot_name))
-	, control_signal(
+	, writer_control_signal(
 		ddsSignalLink, 
-		dls::topics::desired_torques, 
-		std::make_shared<DesiredTorques>(pRobot))
-	, torques(pRobot)
-	, clog(ID)
-	, cfatal(ID)
+		dls::topics::control_signal)
+	, control_signal_msg()
 {
+	writer_control_signal.msg.joints_position().resize(pRobot->getNJOINTS());
+	writer_control_signal.msg.joints_velocity().resize(pRobot->getNJOINTS());
+	writer_control_signal.msg.joints_torques().resize(pRobot->getNJOINTS());
+	writer_control_signal.msg.kp().resize(pRobot->getNJOINTS());
+	writer_control_signal.msg.kd().resize(pRobot->getNJOINTS());
+
+	control_signal_msg.joints_position().resize(pRobot->getNJOINTS());
+	control_signal_msg.joints_velocity().resize(pRobot->getNJOINTS());
+	control_signal_msg.joints_torques().resize(pRobot->getNJOINTS());
+	control_signal_msg.kp().resize(pRobot->getNJOINTS());
+	control_signal_msg.kd().resize(pRobot->getNJOINTS());
+
 	command_manager.addCommand<std::string>
 	(
 		"loadGenerator",
@@ -82,7 +90,9 @@ ControlLayer::ControlLayer(std::string ID, std::string robot_name)
 		"Unload a motion generator",
 		std::function<bool(std::string)>([&](std::string s)->bool
 		{
-			if(this->unloadMotionGenerator(s) && this->motion_generators.size() == 0)
+			const bool unloaded = this->unloadMotionGenerator(s);
+			std::lock_guard<std::mutex> lock(motion_mutex);
+			if(unloaded && this->motion_generators.empty())
 				return true;
 			else // either the unload was not successful or there are still motion generators running
 				return false;
@@ -98,6 +108,19 @@ ControlLayer::ControlLayer(std::string ID, std::string robot_name)
 		std::function<bool(std::string s)>([&](const std::string &s)->bool
 		{
 			return this->loadController(s);
+		}),
+		{{0,2},{1,3},{2,2},{3,3}},
+		true
+	);
+
+
+	command_manager.addCommand<std::string>
+	(
+		"loadPythonController",
+		"Load a Python controller",
+		std::function<bool(std::string s)>([&](const std::string &s)->bool
+		{
+			return this->loadPythonController(s);
 		}),
 		{{0,2},{1,3},{2,2},{3,3}},
 		true
@@ -121,7 +144,9 @@ ControlLayer::ControlLayer(std::string ID, std::string robot_name)
 		"Unload a controller",
 		std::function<bool(std::string)>([&](std::string s)->bool
 		{
-			if(this->unloadController(s) && this->controllers.size() == 0)
+			const bool unloaded = this->unloadController(s);
+			std::lock_guard<std::mutex> lock(controllers_mutex);
+			if(unloaded && this->controllers.empty())
 				return true;
 			else // either the unload was not successful or there are still controllers running
 				return false;
@@ -136,7 +161,9 @@ ControlLayer::ControlLayer(std::string ID, std::string robot_name)
 		"Unload an external controller",
 		std::function<bool(std::string)>([&](std::string s)->bool
 		{
-			if(this->unloadExternalController(s) && this->controllers.size() == 0)
+			const bool unloaded = this->unloadExternalController(s);
+			std::lock_guard<std::mutex> lock(controllers_mutex);
+			if(unloaded && this->controllers.empty())
 				return true;
 			else // either the unload was not successful or there are still controllers running
 				return false;
@@ -158,28 +185,26 @@ ControlLayer::ControlLayer(std::string ID, std::string robot_name)
             if(s == "cont")
             {
                 std::stringstream ss;
-                // std::lock_guard<std::mutex> lock(this->controllers_mutex);
-				ss << "\n";
-                for(auto &elem : this->controllers)
                 {
-                    ss << elem.first << "\n";
+                    std::lock_guard<std::mutex> lock(controllers_mutex);
+                    ss << "\n";
+                    for (const auto& [name, data] : controllers) ss << name << "\n";
                 }
-                this->scout_sys << ss.str() << std::endl;
+                app_logger.info(ss.str());
             }
             else if(s == "motion")
             {
-				std::stringstream ss;
-                // std::lock_guard<std::mutex> lock(this->motion_mutex);
-				ss << "\n";
-				for(auto &elem : this->motion_generators)
+                std::stringstream ss;
                 {
-                    ss << elem.first << "\n";
+                    std::lock_guard<std::mutex> lock(motion_mutex);
+                    ss << "\n";
+                    for (const auto& [name, data] : motion_generators) ss << name << "\n";
                 }
-				this->scout_sys << ss.str() << std::endl;
+                app_logger.info(ss.str());
             }
             else
             {
-                scout_err << "Error: unrecognised argument" << std::endl;
+                this->app_logger.error("Error: unrecognised argument");
                 return false;
             }
 
@@ -192,10 +217,6 @@ ControlLayer::ControlLayer(std::string ID, std::string robot_name)
 
 ControlLayer::~ControlLayer()
 {
-	for(auto pair : this->controllers){
-		pair.second = nullptr;
-	}
-
 	void *res = nullptr; // do not need to save the thread exit status
 	pthread_join(controlSignalGatherThread, &res);
 }
@@ -234,22 +255,94 @@ void *ControlLayer::controlSignalGather(void *data)
 
 	ControlLayer *layer = (ControlLayer*) data;	
 	boost::circular_buffer<int> delta(100);
+	std::vector<std::shared_ptr<ControllerData>> controllers_snapshot;
 
     while(!layer->sm.isRaised(layer->sm.deactivation_request) &&  !layer->sm.isRaised(layer->sm.quit_request)) {
         auto now = std::chrono::high_resolution_clock::now();
         auto epoch = std::chrono::time_point_cast<std::chrono::milliseconds>(now).time_since_epoch();
 
 		// Read the control signals
-		layer->torques.desired_torques_ = 0.0;
-		for(auto pair : layer->controllers)
+		std::fill(layer->control_signal_msg.joints_torques().begin(), layer->control_signal_msg.joints_torques().end(), 0);
+		layer->control_signal_msg.control_mode() = static_cast<uint8_t>(ControlMode::TORQUE_MODE);
+		bool active_position_controller = false; 
+		bool active_velocity_controller = false;
+		bool active_impedence_controller = false;
+		bool control_mode_set_once = false;
+
+		// Snapshot lifetime is independent of concurrent extraction/unload.
+		controllers_snapshot.clear();
 		{
-			layer->torques.desired_torques_ += pair.second->premultiplier * pair.second->control_signal.getData().torques_;
+			std::lock_guard<std::mutex> lock(layer->controllers_mutex);
+			controllers_snapshot.reserve(layer->controllers.size());
+			for (const auto& [name, controller] : layer->controllers)
+				controllers_snapshot.push_back(controller);
+		}
+		for(const auto& controller_data : controllers_snapshot)
+		{
+			controller_data->reader_control_signal.read();
+			const auto& controller_msg = controller_data->reader_control_signal.msg;
+			const auto controller_mode = static_cast<ControlMode>(controller_msg.control_mode());
+
+			if(!control_mode_set_once){
+				layer->control_signal_msg.control_mode() = controller_msg.control_mode();
+				control_mode_set_once = true;
+			}
+
+			const auto aggregate_mode = static_cast<ControlMode>(layer->control_signal_msg.control_mode());
+			bool torque_controller_in_torque_mode = controller_mode == ControlMode::TORQUE_MODE && aggregate_mode == ControlMode::TORQUE_MODE;
+			bool torque_controller_in_impedence_mode = aggregate_mode == ControlMode::IMPEDANCE_MODE && controller_mode == ControlMode::TORQUE_MODE;
+			bool first_impedence_controller = controller_mode == ControlMode::IMPEDANCE_MODE && !active_impedence_controller;
+			bool first_position_controller = controller_mode == ControlMode::POSITION_MODE && !active_position_controller;
+			bool first_velocity_controller = controller_mode == ControlMode::VELOCITY_MODE && !active_velocity_controller;
+			
+
+			if(first_position_controller){
+				layer->control_signal_msg.control_mode() = static_cast<uint8_t>(ControlMode::POSITION_MODE);
+				layer->control_signal_msg.joints_position() = controller_msg.joints_position();
+				
+				// Reset all other fields to zero
+				std::fill(layer->control_signal_msg.joints_velocity().begin(), layer->control_signal_msg.joints_velocity().end(), 0);
+				std::fill(layer->control_signal_msg.joints_torques().begin(), layer->control_signal_msg.joints_torques().end(), 0);
+				std::fill(layer->control_signal_msg.kp().begin(), layer->control_signal_msg.kp().end(), 0.0);
+				std::fill(layer->control_signal_msg.kd().begin(), layer->control_signal_msg.kd().end(), 0.0);
+				break;
+			}
+
+			if(first_velocity_controller){
+				layer->control_signal_msg.control_mode() = static_cast<uint8_t>(ControlMode::VELOCITY_MODE);
+				layer->control_signal_msg.joints_velocity() = controller_msg.joints_velocity();
+				
+				// Reset all other fields to zero
+				std::fill(layer->control_signal_msg.joints_position().begin(), layer->control_signal_msg.joints_position().end(), 0);
+				std::fill(layer->control_signal_msg.joints_torques().begin(), layer->control_signal_msg.joints_torques().end(), 0);
+				std::fill(layer->control_signal_msg.kp().begin(), layer->control_signal_msg.kp().end(), 0.0);
+				std::fill(layer->control_signal_msg.kd().begin(), layer->control_signal_msg.kd().end(), 0.0);
+				break;
+			}
+
+
+			if(torque_controller_in_torque_mode || torque_controller_in_impedence_mode || first_impedence_controller){
+				if(first_impedence_controller){
+					active_impedence_controller = true;
+					layer->control_signal_msg.control_mode() = static_cast<uint8_t>(ControlMode::IMPEDANCE_MODE);
+					layer->control_signal_msg.joints_position() = controller_msg.joints_position();
+					layer->control_signal_msg.joints_velocity() = controller_msg.joints_velocity();
+					layer->control_signal_msg.kp() = controller_msg.kp();
+					layer->control_signal_msg.kd() = controller_msg.kd();
+				}
+
+				for(size_t i = 0; i < controller_msg.joints_torques().size();i++){
+					// Torque contributions summed up
+					layer->control_signal_msg.joints_torques()[i] += controller_data->premultiplier * controller_msg.joints_torques()[i];
+				}
+			}
 		}
 
-    	// Send the desired torques to HAL
-		layer->control_signal->desired_torques_ = layer->saturateTorques(layer->torques.desired_torques_);
-		layer->control_signal->timestamp_ = std::chrono::duration_cast<std::chrono::microseconds>(epoch).count();
-		layer->control_signal.publish();
+    	// Fill in the control signal to be sent to HAL
+		layer->control_signal_msg.joints_torques() = layer->saturateTorques(layer->control_signal_msg.joints_torques());
+		layer->writer_control_signal.msg = layer->control_signal_msg;
+		layer->writer_control_signal.msg.timestamp() = std::chrono::duration_cast<std::chrono::microseconds>(epoch).count();
+		layer->writer_control_signal.publish();
 
         delta.push_back(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - now).count());
 
@@ -261,9 +354,7 @@ void *ControlLayer::controlSignalGather(void *data)
 	    {
             std::stringstream ss;
 		    ss << "Control Layer is probably breaking real-time. Has period of 1 mseconds but spent: " << mean << " useconds ";
-  		    // ss << "Control layer published torques " << desired_torques.transpose(); // << std::endl;
-		    // scout << "\033[F" << "\r" << ss.str() << std::endl;
-            layer->scout_warn << ss.str() << std::endl;
+            layer->app_logger.warning(ss.str(), EventID::WRONG_PROCESS_FREQUENCY);
         }
 
     	sched_yield();
@@ -272,17 +363,25 @@ void *ControlLayer::controlSignalGather(void *data)
     return NULL;
 }
 
-void ControlLayer::monitor(){
-
+void ControlLayer::monitor()
+{
+	this->checkAppData(this->controllers, controllers_mutex);
+	this->checkAppData(this->motion_generators, motion_mutex);
 }
 
 void ControlLayer::close()
-{	
-	for(auto pair : this->motion_generators)
-		this->unloadMotionGenerator(pair.first);
-	
-	for(auto pair : this->controllers)
-		this->unloadController(pair.first);
+{
+	closing_.store(true);
+	decltype(motion_generators) generators_to_stop;
+	decltype(controllers) controllers_to_stop;
+	{
+		std::scoped_lock operations(controllers_operations_mutex, motion_operations_mutex);
+		std::scoped_lock maps(controllers_mutex, motion_mutex);
+		generators_to_stop.swap(motion_generators);
+		controllers_to_stop.swap(controllers);
+	}
+	for (auto& [name, data] : generators_to_stop) unloadMotionGenerator(data);
+	for (auto& [name, data] : controllers_to_stop) unloadController(data);
 }
 
 std::string ControlLayer::where()
@@ -291,7 +390,7 @@ std::string ControlLayer::where()
 
 	// Where Controllers
 	{
-		// std::lock_guard<std::mutex> lock(this->controllers_mutex);
+		std::lock_guard<std::mutex> lock(this->controllers_mutex);
 		if(controllers.size() > 0)
 		{
 			ss << "Active controllers:\n";
@@ -307,7 +406,7 @@ std::string ControlLayer::where()
 	}
 	// Where Motion Generators
 	{
-		// std::lock_guard<std::mutex> lock(this->motion_mutex);
+		std::lock_guard<std::mutex> lock(this->motion_mutex);
 		if(motion_generators.size() > 0)
 		{
 			ss << "Active Motion Generator:\n";
@@ -323,7 +422,11 @@ std::string ControlLayer::where()
 	}
 	// Where Desired Torque
 	{
-		ss << "Last published torque: "	<< this->getPublishedDesiredTorques().vec_().transpose();
+		std::vector<double> torques = this->getPublishedDesiredTorques();
+		ss << "Last published torque: ";
+		for(auto t : torques)
+			ss << t << " ";
+		ss << "\n";		
 	}
 
 	return ss.str();
@@ -334,19 +437,22 @@ std::string ControlLayer::where()
 // =============================================================================
 bool ControlLayer::loadController(const std::string& lib_name)
 {
-	// std::lock_guard<std::mutex> lock(this->controllers_mutex);
-	
-	if(this->controllers.find(lib_name) != this->controllers.end())
+	std::lock_guard<std::mutex> operation(controllers_operations_mutex);
+	if (closing_.load()) return false;
+	bool already_loaded;
 	{
-		scout_err << "Controller " << lib_name << " already loaded" << std::endl;
-        return false;
+		std::lock_guard<std::mutex> lock(controllers_mutex);
+		already_loaded = controllers.find(lib_name) != controllers.end();
+	}
+	if (already_loaded) {
+		app_logger.error("Controller " + lib_name + " already loaded");
+		return false;
 	}
 
     std::shared_ptr<ControllerData> pData = std::make_shared<ControllerData>(
 		lib_name,
 		this->ddsSignalLink,
-		dls::topicType(lib_name, new ControlSignalMsgPubSubType()),
-		this->pRobot,
+		dls::topicType(lib_name, new dls2_interface::msg::ControlSignalPubSubType()),
 		this->pDefault_spline_in,
 		this->pDefault_spline_out,
 		default_duration_seconds,
@@ -362,15 +468,15 @@ bool ControlLayer::loadController(const std::string& lib_name)
     }));
 
     if (pData->proc == nullptr){
-        scout_err << "Controller " << lib_name <<" failed to launch: nullptr" << std::endl;
+        this->app_logger.error("Controller " + lib_name +" failed to launch: nullptr");
         return false;
 	}
 	// else if (pData->proc->wait_for(std::chrono::duration<double, std::milli>(1500))){
-    //     scout_err << "Controller " << lib_name <<" failed to launch: expired timeout" << std::endl;
+    //     this->app_logger.error("Controller " << lib_name <<" failed to launch: expired timeout");
     //     return false;
     // }
 
-    scout_sys << "CONTROL LAYER IS LISTENING CONTROLLER " << pData->getID() << " ON TOPIC " << pData->getID() <<  std::endl;
+    this->app_logger.info("CONTROL LAYER IS LISTENING CONTROLLER " + pData->getID() + " ON TOPIC " + pData->getID());
 
 	// spline in the controller
 	//
@@ -393,38 +499,51 @@ bool ControlLayer::loadController(const std::string& lib_name)
 	// 	}
 	// }
 	pData->proc->detach();
-	this->controllers.emplace(pData->getID(), pData);
+	{
+		std::lock_guard<std::mutex> lock(controllers_mutex);
+		this->controllers.emplace(pData->getID(), pData);
+	}
 	return true;
 }
 
 bool ControlLayer::loadExternalController(const std::string& lib_name)
 {
-	if(this->controllers.find(lib_name) != this->controllers.end())
+	std::lock_guard<std::mutex> operation(controllers_operations_mutex);
+	if (closing_.load()) return false;
+	bool already_loaded;
 	{
-		scout_err << "Controller " << lib_name << " already loaded" << std::endl;
-        return false;
+		std::lock_guard<std::mutex> lock(controllers_mutex);
+		already_loaded = controllers.find(lib_name) != controllers.end();
+	}
+	if (already_loaded) {
+		app_logger.error("Controller " + lib_name + " already loaded");
+		return false;
 	}
 
     std::shared_ptr<ControllerData> pData = std::make_shared<ControllerData>(
 		lib_name,
 		this->ddsSignalLink,
-		dls::topicType(lib_name, new ControlSignalMsgPubSubType()),
-		this->pRobot,
+		dls::topicType(lib_name, new dls2_interface::msg::ControlSignalPubSubType()),
 		this->pDefault_spline_in,
 		this->pDefault_spline_out,
 		default_duration_seconds,
 		default_duration_seconds
 	);
 
-    scout_sys << "CONTROL LAYER IS LISTENING CONTROLLER " << pData->getID() << " ON TOPIC " << pData->getID() <<  std::endl;
+    this->app_logger.info("CONTROL LAYER IS LISTENING CONTROLLER " + pData->getID() + " ON TOPIC " + pData->getID());
 
-	this->controllers.emplace(pData->getID(), pData);
+	{
+		std::lock_guard<std::mutex> lock(controllers_mutex);
+		this->controllers.emplace(pData->getID(), pData);
+	}
 	return true;
 }
 
 
 bool ControlLayer::unloadController(std::shared_ptr<ControllerData> pData)
 {
+	// Entry was extracted under the map lock; external controllers have no process.
+	if (!pData->proc) return true;
 	// // spline down the controller
 	// if(pData->pSpline_out)
 	// {
@@ -442,7 +561,6 @@ bool ControlLayer::unloadController(std::shared_ptr<ControllerData> pData)
 	// 	}
 	// }
 
-	// std::lock_guard<std::mutex> lock(this->controllers_mutex);
 
 	command_manager.callCommand("shutdown", {}, pData->getID());
 
@@ -458,64 +576,94 @@ bool ControlLayer::unloadController(std::shared_ptr<ControllerData> pData)
 	}
 
 	pData->proc = nullptr;
-	this->controllers.erase(pData->getID());
 
 	std::cout << "unloaded controller " << pData->getID() << std::endl;
 
     return true;
 }
 
-bool ControlLayer::unloadController(const std::string &ID)
+bool ControlLayer::unloadController(const std::string& ID)
 {
-	decltype(this->controllers.find(ID)) pair_it;
+	std::lock_guard<std::mutex> operation(controllers_operations_mutex);
+	std::shared_ptr<ControllerData> data;
 	{
-		// std::lock_guard<std::mutex> lock(this->controllers_mutex);
-		pair_it = this->controllers.find(ID);
-
-		if(pair_it == this->controllers.end()) 
-		{
-			scout_err << "controller " << ID << " not loaded" << std::endl;
-			return false;
-		}
+		std::lock_guard<std::mutex> lock(controllers_mutex);
+		auto it = controllers.find(ID);
+		if (it == controllers.end()) return false;
+		data = it->second;
+		controllers.erase(it);
 	}
-
-    return this->unloadController(pair_it->second);
+	return unloadController(data);
 }
 
-bool ControlLayer::unloadExternalController(const std::string &ID)
+bool ControlLayer::unloadExternalController(const std::string& ID)
 {
-	decltype(this->controllers.find(ID)) pair_it;
+	std::lock_guard<std::mutex> operation(controllers_operations_mutex);
+	std::shared_ptr<ControllerData> data;
 	{
-		// std::lock_guard<std::mutex> lock(this->controllers_mutex);
-		pair_it = this->controllers.find(ID);
-
-		if(pair_it == this->controllers.end()) 
-		{
-			scout_err << "controller " << ID << " not loaded" << std::endl;
-			return false;
-		}
+		std::lock_guard<std::mutex> lock(controllers_mutex);
+		auto it = controllers.find(ID);
+		if (it == controllers.end() || it->second->proc) return false;
+		data = it->second;
+		controllers.erase(it);
 	}
-
-	this->controllers.erase(ID);
-
-	std::cout << "unloaded controller " << ID << std::endl;
-    return true;
+	return true;
 }
 
+bool ControlLayer::loadPythonController(const std::string& lib_name)
+{
+	// std::lock_guard<std::mutex> lock(this->controllers_mutex);
+	
+	if(this->controllers.find(lib_name) != this->controllers.end())
+	{
+		this->app_logger.error("Controller " + lib_name + " already loaded");
+		return false;
+	}
+
+	std::shared_ptr<ControllerData> pData = std::make_shared<ControllerData>(
+		lib_name,
+		this->ddsSignalLink,
+		dls::topicType(lib_name, new dls2_interface::msg::ControlSignalPubSubType()),
+		this->pDefault_spline_in,
+		this->pDefault_spline_out,
+		default_duration_seconds,
+		default_duration_seconds
+	);
+
+	pData->proc = std::make_shared<boost::process::child>(std::vector<std::string>({
+		"${DLS_INSTALL_RUNTIME_DIR}/child_process_launcher",
+		pData->getID(),
+		lib_name,
+		"python_periodic_app",
+		this->pRobot->getName()
+	}));
+
+	if (pData->proc == nullptr){
+		this->app_logger.error("Controller " + lib_name +" failed to launch: nullptr");
+		return false;
+	}
+	pData->proc->detach();
+	this->controllers.emplace(pData->getID(), pData);
+	return true;
+}
 // -----------------------------------------------------------------------------
 // Motion Generators
 // -----------------------------------------------------------------------------
 bool ControlLayer::loadMotionGenerator(const std::string& lib_name)
 {
-	// std::lock_guard<std::mutex> lock(this->motion_mutex);
-
-	if(this->motion_generators.find(lib_name) != this->motion_generators.end()) 
+	std::lock_guard<std::mutex> operation(motion_operations_mutex);
+	if (closing_.load()) return false;
+	bool already_loaded;
 	{
-		scout_err << "motion generation " << lib_name << " already loaded" << std::endl;
-        return false;
+		std::lock_guard<std::mutex> lock(motion_mutex);
+		already_loaded = motion_generators.find(lib_name) != motion_generators.end();
+	}
+	if (already_loaded) {
+		app_logger.error("Motion generator " + lib_name + " already loaded");
+		return false;
 	}
 
-	std::shared_ptr<AppData> pData = std::make_shared<AppData>(lib_name);
+    std::shared_ptr<AppData> pData = std::make_shared<AppData>(lib_name);
 
 	pData->proc = std::make_shared<boost::process::child>(std::vector<std::string>({
 		"${DLS_INSTALL_RUNTIME_DIR}/child_process_launcher",
@@ -526,18 +674,22 @@ bool ControlLayer::loadMotionGenerator(const std::string& lib_name)
 	}));
 
 	if (pData->proc == nullptr){
-        scout_err << "Motion generation " << lib_name <<" failed to launch: nullptr" << std::endl;
+        this->app_logger.error("Motion generation " + lib_name + " failed to launch: nullptr" );
         return false;
     }
 
 	pData->proc->detach();	
-	this->motion_generators.emplace(pData->getID(), pData);
+	{
+		std::lock_guard<std::mutex> lock(motion_mutex);
+		this->motion_generators.emplace(pData->getID(), pData);
+	}
 	return true;
 }
 
 bool ControlLayer::unloadMotionGenerator(std::shared_ptr<AppData> pData)
 {
-	// std::lock_guard<std::mutex> lock(this->motion_mutex);
+	// Entry was extracted under the map lock and is no longer monitored.
+	if (!pData->proc) return true;
 
 	//shutdown motion generation over the dds comunication layer
 	command_manager.callCommand("shutdown", {}, pData->getID());
@@ -559,34 +711,38 @@ bool ControlLayer::unloadMotionGenerator(std::shared_ptr<AppData> pData)
 	std::cout<< "Motion generation " << pData->getID() << " is unloaded" << std::endl;
 
 	pData->proc = nullptr;
-	this->motion_generators.erase(pData->getID());
 	return true;
 }
 
 bool ControlLayer::unloadMotionGenerator(const std::string& ID)
 {
-	// std::lock_guard<std::mutex> lock(this->motion_mutex);
-
-	auto pair_it = this->motion_generators.find(ID);
-	
-	if(pair_it == this->motion_generators.end()) 
+	std::lock_guard<std::mutex> operation(motion_operations_mutex);
+	std::shared_ptr<AppData> data;
 	{
-		scout_err << "motion generation " << ID << " is not loaded" << std::endl;
-		return false;
+		std::lock_guard<std::mutex> lock(motion_mutex);
+		auto it = motion_generators.find(ID);
+		if (it == motion_generators.end()) return false;
+		data = it->second;
+		motion_generators.erase(it);
 	}
-
-	
-    return this->unloadMotionGenerator(pair_it->second);
+	return unloadMotionGenerator(data);
 }
 
-robotlib::JointState ControlLayer::saturateTorques(const robotlib::JointState& req) const
+std::vector<double> ControlLayer::saturateTorques(const std::vector<double>& req) const
 {
 	// TODO("This is not implemented yet")
 	// TODO("Move this to the robot class")
 	return req;
 }
 
-robotlib::JointState ControlLayer::getPublishedDesiredTorques(){
-	// std::lock_guard<std::mutex>	lock(this->last_published_desired_torques_mutex);
-	return this->control_signal->desired_torques_;
+std::vector<double> ControlLayer::getPublishedDesiredPosition(){
+	return this->writer_control_signal.msg.joints_position();
+}
+
+std::vector<double> ControlLayer::getPublishedDesiredVelocity(){
+	return this->writer_control_signal.msg.joints_velocity();
+}
+
+std::vector<double> ControlLayer::getPublishedDesiredTorques(){
+	return this->writer_control_signal.msg.joints_torques();
 }

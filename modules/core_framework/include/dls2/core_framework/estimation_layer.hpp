@@ -23,7 +23,7 @@ namespace dls
 	class EstimationLayer : public Layer
 	{
 	public:
-		EstimationLayer(std::string ID);
+		EstimationLayer(std::string ID, const std::string& robot_name);
 		~EstimationLayer();
 
 		void close() override;
@@ -43,7 +43,8 @@ namespace dls
 			std::mutex estimators_mutex;
 		// END critical section
 
-		std::shared_ptr<dls::DDSWriter> ddsMonitor;
+		// std::shared_ptr<dls::DDSWriter> ddsMonitor;
+		const std::string robot_name;
 	};
 } // end namespace dls
 

@@ -1,0 +1,46 @@
+#include "writer_support.hpp"
+
+#include "dls2/domains/domains.hpp"
+
+#include <chrono>
+#include <cstdlib>
+#include <exception>
+#include <iostream>
+#include <thread>
+
+@cpp_python_communication_declarations@
+
+int main(int argc, char** argv)
+{
+    const auto domain = argc > 1 ? static_cast<dls::domainType>(std::atoi(argv[1])) : dls::domains::signals;
+    const auto period_ms = argc > 2 ? std::atoi(argv[2]) : 500;
+
+    try
+    {
+        dls::DDSParticipant participant("cpp_python_communication_all_writers", domain);
+        std::vector<WriterSlot> writers;
+        writers.reserve(@cpp_python_communication_writer_count@);
+
+@cpp_python_communication_registrations@
+
+        std::cout << "Created " << writers.size() << " DDS writers on domain " << domain
+                  << " with period " << period_ms << " ms." << std::endl;
+
+        while(true)
+        {
+            for(auto& slot : writers)
+            {
+                slot.write();
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(period_ms));
+        }
+    }
+    catch(const std::exception& error)
+    {
+        std::cerr << "cpp_python_communication_all_writers failed on domain " << domain
+                  << ": " << error.what() << std::endl;
+        return 1;
+    }
+
+    return 0;
+}

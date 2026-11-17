@@ -6,7 +6,7 @@ dls_register_test(command_manager
 	LINK
 		dls_command
 		fastcdr
-		fastrtps
+		fastdds
 )
 
 dls_register_test(command
@@ -15,5 +15,5 @@ dls_register_test(command
 	LINK
 		dls_command
 		fastcdr
-		fastrtps
+		fastdds
 )

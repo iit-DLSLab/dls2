@@ -1,7 +1,7 @@
-#include "dls2/msg_wrappers/blind_state.hpp"
-#include "dls2/msg_wrappers/desired_torques.hpp"
-#include "dls2/msg_wrappers/signal_writer.hpp"
-#include "dls2/msg_wrappers/signal_reader.hpp"
+#include "dls_messages/dds/blind_state.hpp"
+#include "dls2/signal/desired_torques.hpp"
+#include "dls2/signal/signal_writer.hpp"
+#include "dls2/signal/signal_reader.hpp"
 #include "robotlib/robot_factory.hpp"
 
 #include <iostream>
@@ -40,16 +40,16 @@ int main(int argc, char** argv)
 	auto robot = robotlib::RobotFactory::openRobot("aliengo");
 	std::shared_ptr<DDSParticipant> dds_participant (new DDSParticipant("dds_part", domains::signals));
 	// Define signal reader/writer base
-	std::shared_ptr<SignalReaderBase> signal_reader_base = std::make_shared<SignalReader<BlindState>>(
+	std::shared_ptr<SignalReaderBase> signal_reader_base = std::make_shared<SignalReader<dls2_interface::msg::BlindState>>(
 															dds_participant,
 															topics::low_level_estimation::blind_state,
-															std::make_shared<BlindState>(robot));
-	std::shared_ptr<SignalWriterBase> signal_writer_base = std::make_shared<SignalWriter<DesiredTorques>>(
+															std::make_shared<dls2_interface::msg::BlindState>(robot));
+	std::shared_ptr<SignalWriterBase> signal_writer_base = std::make_shared<SignalWriter<dls2_interface::msg::DesiredTorques>>(
 															dds_participant,
 															topics::desired_torques,
-															std::make_shared<DesiredTorques>(robot));
-	BlindState blind_state(robot);
-	DesiredTorques desired_torques(robot);
+															std::make_shared<dls2_interface::msg::DesiredTorques>(robot));
+	dls2_interface::msg::BlindState blind_state(robot);
+	dls2_interface::msg::DesiredTorques desired_torques(robot);
 	// WrapperBase* wb_blind_state = &blind_state;
 	// WrapperBase* wb_desired_torques = &desired_torques;
 	double increment = 0.3;
@@ -57,14 +57,14 @@ int main(int argc, char** argv)
 	{
 		// Test if message is received
 		// wb_blind_state->setDataFromWrapperBase(signal_reader_base->getWrapperBasePtr());
-		blind_state.joints_position_.print();
+		blind_state.joints_position.print();
 		// // Test if message is published
-		desired_torques.desired_torques_["LF"]["LF_HAA"]=increment;
-		if (blind_state.joints_position_["LF"]["LF_HAA"]>=0.4)
+		desired_torques.desired_torques["LF"]["LF_HAA"]=increment;
+		if (blind_state.joints_position["LF"]["LF_HAA"]>=0.4)
 		{
 			increment=(-1)*abs(increment);
 		}
-		else if (blind_state.joints_position_["LF"]["LF_HAA"]<=-0.4)
+		else if (blind_state.joints_position["LF"]["LF_HAA"]<=-0.4)
 		{
 			increment=abs(increment);
 		}

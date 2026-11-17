@@ -1,5 +1,5 @@
-#include "dls2/msg_wrappers/blind_state.hpp"
-#include "dls2/msg_wrappers/base_state.hpp"
+#include "dls_messages/dds/blind_stateWrapper.hpp"
+#include "dls_messages/dds/base_stateWrapper.hpp"
 #include "robotlib/robot_factory.hpp"
 
 #include <iostream>
@@ -14,10 +14,10 @@ int main(int argc, char** argv)
 	static_cast<void> (argv);
 
 	auto robot = robotlib::RobotFactory::openRobot("aliengo");
-	dls::BlindState blind_state(robot);
-	dls::BlindState blind_state2(robot);
-	dls::BaseState base_state(robot);
-	dls::BaseState base_state2(robot);
+	dls2_interface::msg::StringMsgBlindState blind_state(robot);
+	dls2_interface::msg::StringMsgBlindState blind_state2(robot);
+	dls2_interface::msg::BaseState base_state(robot);
+	dls2_interface::msg::BaseState base_state2(robot);
 	blind_state.frame_id_ = "frame 1";
 	base_state.frame_id_ = "frame 1";
 	blind_state2.frame_id_ = "frame 2";

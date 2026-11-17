@@ -1,2 +1,0 @@
-add_subdirectory(action_server)
-add_subdirectory(action_client)

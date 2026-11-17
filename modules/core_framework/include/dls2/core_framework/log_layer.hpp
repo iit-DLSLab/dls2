@@ -5,6 +5,7 @@
 #include "dls2/application/layer.hpp"
 #include "dls2/util/messaging/dds_participant.hpp"
 #include "dls2/topics/topics.hpp"
+#include "dls2/util/time/time.hpp"
 
 namespace dls
 {
@@ -25,6 +26,12 @@ namespace dls
 
 	private:
 		std::shared_ptr<dls::DDSParticipant> dds_participant_;
+
+		logging::EventListener event_listener_;
+		
+		void printEvents();
+
+		bool verbose{false};
 	};
 } // end namespace dls
 

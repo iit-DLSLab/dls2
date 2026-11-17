@@ -16,7 +16,7 @@ namespace dls
 	public:
 		typedef std::map<uint, uint> LevelType;
 		//! Specify that a command is available in all states exept the zero one
-		static const uint ALL_STATES_EXCEPT_ZERO = -1;
+		inline static const uint ALL_STATES_EXCEPT_ZERO = -1;
 	
 
 		/// Argument and return type representations

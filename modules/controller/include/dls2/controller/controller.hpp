@@ -6,6 +6,7 @@
 // =============================================================================
 #include "dls2/application/periodic_app.hpp"
 #include "dls2/controller/controller_data.hpp"
+#include "dls2/controller/control_modes.hpp"
 
 #include "dls2/util/messaging/dds_participant.hpp"
 
@@ -23,9 +24,7 @@ namespace dls
         Controller
         (
             const std::string&,                                 ///< The ID of the controller
-            const std::shared_ptr<robotlib::RobotBase>,        ///< A pointer to the robot model
-            const ControlSignal::SignalReconstructionMethod&    ///< Signal reconstruction used by this controller
-        );
+            const std::shared_ptr<robotlib::RobotBase>);
 
         virtual ~Controller();
 
@@ -37,8 +36,6 @@ namespace dls
         ///
         /// @param time The time when this function is called,
         virtual void run(const std::chrono::system_clock::time_point &time) = 0;
-
-        const ControlSignal::SignalReconstructionMethod signal_reconstruction_method;
 
         /// Pointer to the robot model
         const std::shared_ptr<robotlib::RobotBase> pRobot;

@@ -8,8 +8,7 @@
 #include "dls2/application/layer.hpp"
 #include "dls2/controller/controller.hpp"
 #include "dls2/motion_generator/motion_generator.hpp"
-#include "dls2/msg_wrappers/signal_writer.hpp"
-#include "dls2/msg_wrappers/desired_torques.hpp"
+#include "dls2/signal/writer.hpp"
 
 #include <map>
 #include <memory>
@@ -21,7 +20,7 @@
 #include "dls2/util/messaging/dds_reader.hpp"
 #include "dls2/util/messaging/dds_writer.hpp"
 #include "dls2/math/ramp.hpp"
-#include "dls2/log/log.hpp"
+#include "dls2/log/terminal_logger.hpp"
 
 #include <pthread.h>
 
@@ -37,9 +36,9 @@ namespace dls
 class ControlLayer : public Layer
 {
 	typedef void * (*THREADFUNCPTR)(void *);
-	
+
 public:
-	/// Constructor	
+	/// Constructor
 	ControlLayer(std::string ID, std::string robot_name);
 
 	/// Destructor
@@ -80,8 +79,12 @@ public:
 	/// @return true if the generator unloads correctly.
 	bool unloadMotionGenerator(const std::string&);
 
-	/// Returns the last published desired torques
-	robotlib::JointState getPublishedDesiredTorques();
+	bool loadPythonController(const std::string& lib_name);
+
+	/// Returns the last published joint reference
+	std::vector<double> getPublishedDesiredPosition();
+	std::vector<double> getPublishedDesiredVelocity();
+	std::vector<double> getPublishedDesiredTorques();
 
 private:
 	// TODO("This should be put in the robot class")
@@ -89,7 +92,7 @@ private:
 	///
 	/// @param req The requested torques
 	/// @ret A saturated version of the torques that do not exceed safe limits
-	robotlib::JointState saturateTorques(const robotlib::JointState& req) const;
+	std::vector<double> saturateTorques(const std::vector<double>& req) const;
 
 	// ============================= Data Members ==============================
 	// BEGIN critical section
@@ -101,9 +104,14 @@ private:
 		std::map<std::string, std::shared_ptr<AppData>> motion_generators;
 		std::mutex motion_mutex;
 	// END critical section
-	
+
+	// Serialize operations without holding map locks across DDS or shutdown waits.
+	std::mutex controllers_operations_mutex;
+	std::mutex motion_operations_mutex;
+	std::atomic_bool closing_{false};
+
 	std::shared_ptr<dls::DDSParticipant> ddsSignalLink;
-	
+
 	/// Default controller spline-in
 	///
 	std::shared_ptr<math::Ramp<double>> pDefault_spline_in;
@@ -119,9 +127,9 @@ private:
 	std::shared_ptr<robotlib::RobotBase> pRobot;
 
 	/// @brief Output signals
-	SignalWriter<DesiredTorques> control_signal;
+	Writer<dls2_interface::msg::ControlSignal> writer_control_signal;
 
-	DesiredTorques torques;
+	dls2_interface::msg::ControlSignal control_signal_msg;
 
 	bool unloadController(std::shared_ptr<ControllerData> pData);
 
@@ -131,10 +139,6 @@ private:
 	pthread_t controlSignalGatherThread;
 
 	static void *controlSignalGather(void *data);
-
-	// ================================ Members ================================
-	logging::clogstream clog;
-	logging::cfatalstream cfatal;
 };
 
 } // end namespace dls

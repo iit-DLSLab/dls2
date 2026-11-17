@@ -6,6 +6,7 @@
 #include "dls2/command/command_manager.hpp"
 
 using namespace dls;
+// const uint CommandBase::ALL_STATES_EXCEPT_ZERO;
 
 CommandBase::CommandBase(
 	std::string name_,
@@ -87,7 +88,7 @@ bool CommandBase::testLevel(uint level_)
 	// If the transition is empty OR
 	// the command is always available exept in state 0 and the actual level_ is not 0
 	if(	this->transitionSet.empty() || 
-		(this->transitionSet.size()==1 && this->transitionSet.contains(ALL_STATES_EXCEPT_ZERO) && level_!=0))
+		(this->transitionSet.size()==1 && this->transitionSet.contains(CommandBase::ALL_STATES_EXCEPT_ZERO) && level_!=0))
 		return true;
 		
 	return (this->transitionSet.find(level_) != this->transitionSet.end());

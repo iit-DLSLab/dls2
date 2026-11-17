@@ -3,9 +3,13 @@
 
 #include "dls2/application/app.hpp"
 #include <dls2/util/time/time.hpp>
+#include "dls2/util/process_resource_monitor.hpp"
+#include "dls2/util/numerical_moving_window.hpp"
 
 #include <boost/process.hpp>
 #include <yaml-cpp/yaml.h>
+#include <filesystem>
+#include <fstream>
 
 namespace dls
 {
@@ -15,8 +19,6 @@ namespace dls
 	class PeriodicApp : public App
 	{
 	public:
-
-		typedef std::chrono::duration<double, std::ratio<1, 1'000'000>> period_t;
 
 		/// Constructor
 		///
@@ -35,7 +37,7 @@ namespace dls
 		void close() override;
 		
 		//! Get period
-		period_t getPeriod();
+		SchedulerUtils::period_t getPeriod();
 
 		//! Run the activation function - used in state machine
 		virtual bool deactivating() override;
@@ -49,8 +51,8 @@ namespace dls
 		/// correct rate
 		virtual void run(const std::chrono::system_clock::time_point&) = 0;
 
-		//! Set SCHED_DEADLINE policy
-		void setRTSchedulerPolicy();
+		//! Set the configured scheduling policy (SCHED_DEADLINE, SCHED_FIFO or SCHED_OTHER)
+		void setSchedulerPolicy();
 
 		//! Pause the current execution
 		void pauseExecution();
@@ -62,30 +64,24 @@ namespace dls
 		bool checkFailure();
 
 		//! Check if the app is running in real time
-		bool checkRT(const std::chrono::time_point<	std::chrono::_V2::system_clock, 
-													std::chrono::duration<double, std::ratio<1, 1000000000>>>& next_loop_time);
-
+		void checkRT();
 		//! Check if a pause request was sent
 		bool isPaused();
 		
 		//! Set the app in failure state
 		void setFailure();
 
+		double getDesiredFrequency() const;
+
+		std::string getSchedulerPath(const std::string &ID);
+		void childMonitor() override;
+
 		double dt;
+
 	protected:
         //! Config variable to load scheduler settings
 		YAML::Node config_scheduler;
 
-		//! The period of this component
-		const period_t period;
-		//! Runtime factor scaling the period to get the runtime
-		double sched_runtime_factor;
-		//! Deadline factor scaling the period to get the deadline
-		double sched_deadline_factor;
-		//! Runtime attribute
-		const period_t runtime;
-		//! Deadline attribute
-		const period_t deadline;
 		//! Variable identifying if the periodic app is in failure state
 		bool failure;
 	private:
@@ -108,9 +104,19 @@ namespace dls
 		///
 		Time time_factor;
 
-		double cur_time_factor;
-
 		pid_t pid;
+
+		bool realtime_prec;
+		bool realtime_curr;
+		//! Frequency tolerance factor used by checkRT: realtime_tolerance_factor for RT policies, besteffort_tolerance_factor for SCHED_OTHER
+		double frequency_tolerance_factor_;
+		std::chrono::time_point<std::chrono::steady_clock> loop_time_prec;
+
+		std::unique_ptr<ProcessResourceMonitor> process_resource_monitor_;
+		std::unique_ptr<NumericalMovingWindow<double>> frequency_moving_window_;
+
+		double current_frequency_;
+		std::mutex frequency_mutex_;
 	};
 } // end namespace dls
 

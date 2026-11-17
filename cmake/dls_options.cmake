@@ -1,7 +1,7 @@
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 	set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build." FORCE)
 	set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release")
-endif()                                                       
+endif()
 # ==============================================================================
 # PATHS
 # ==============================================================================
@@ -25,16 +25,11 @@ set(DLS_DEFAULT_HEADER_DIR /usr/include/dls2
 	CACHE STRING "Directory where framework headers are stored"
 )
 
-set(DLS_ACTIONS_HEADER_DIR /usr/include/dls2/actions
-	CACHE STRING "Directory where action headers are stored"
+set(DLS_APP_PLUGIN_HEADER_DIR /usr/include/dls2/app_plugins
+	CACHE STRING "Directory where framework app plugin headers are stored"
 )
-
-set(DLS_PROCEDURES_HEADER_DIR /usr/include/dls2/procedures
-	CACHE STRING "Directory where procedure headers are stored"
-)
-
-set(DLS_TASKS_HEADER_DIR /usr/include/dls2/tasks
-	CACHE STRING "Directory where task headers are stored"
+set(DLS_PERIODIC_APP_PLUGIN_HEADER_DIR /usr/include/dls2/periodic_app_plugins
+	CACHE STRING "Directory where shared object libraries for periodic app plugins are stored"
 )
 
 set(DLS_SCHEDULERS_CONFIG_DIR /usr/include/dls2/schedulers
@@ -65,8 +60,16 @@ set(DLS_INSTALL_PROCEDURE_DIR /usr/lib/dls2/procedures
 	CACHE STRING "Directory where shared object libraries for procedures are stored"
 )
 
-set(DLS_INSTALL_TASK_DIR /usr/lib/dls2/tasks
-	CACHE STRING "Directory where shared object libraries for tasks are stored"
+set(DLS_INSTALL_GENERIC_DIR /usr/lib/dls2/generics
+	CACHE STRING "Directory where shared object libraries for generics are stored"
+)
+
+set(DLS_INSTALL_PERIODIC_APP_PLUGIN_DIR /usr/lib/dls2/periodic_app_plugins
+	CACHE STRING "Directory where shared object libraries for periodic applications are stored"
+)
+
+set (DLS_INSTALL_APP_PLUGIN_DIR /usr/lib/dls2/app_plugins
+	CACHE STRING "Directory where executable applications are stored"
 )
 
 set(DLS_INSTALL_HARDWARE_DIR /usr/lib/dls2/hardwares
@@ -113,6 +116,10 @@ set(DLS_INSTALL_MESSAGES_DIR /usr/lib/dls2/messages
 	CACHE STRING "Directory where shared object libraries for messages are stored"
 )
 
+set (DLS_INSTALL_MESSAGES_HEADER_DIR /usr/include/dls_messages
+	CACHE STRING "Directory where message headers are stored"
+)
+
 set(DLS_INSTALL_SCRIPTS_DIR /usr/bin/dls2/scripts
 	CACHE STRING "Directory where executable scripts are stored"
 )
@@ -128,6 +135,8 @@ set(DLS_INSTALL_STARTUP_DIR /usr/include/dls2/startup
 set(EIGEN_DIR /usr/include/eigen3
 	CACHE STRING "Directory where Eigen is installed"
 )
+# Kept for backward compatibility with older external projects.
+# New code should consume Eigen via find_package(Eigen3) and Eigen3::Eigen.
 
 
 

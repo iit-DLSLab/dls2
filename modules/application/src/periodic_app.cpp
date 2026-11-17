@@ -1,41 +1,36 @@
 #include "dls2/application/periodic_app.hpp"
-#include "dls2/util/time/time.hpp"
-#include <fstream>
-#include <filesystem>
 
+#include <cmath>
 
 using namespace dls;
 
 PeriodicApp::PeriodicApp(const std::string &ID) 
 	: App(ID)
-	, config_scheduler(YAML::LoadFile("/usr/include/dls2/schedulers/" + ID + "/scheduler.yaml"))
-	, period(std::chrono::milliseconds(config_scheduler["period"].as<int>()))
-	, sched_runtime_factor(config_scheduler["runtime_factor"].as<double>())
-	, sched_deadline_factor(config_scheduler["deadline_factor"].as<double>())
-	, runtime(period*sched_runtime_factor)
-	, deadline(period*sched_deadline_factor)
+	, config_scheduler(YAML::LoadFile(getSchedulerPath(ID)))
 	, failure(false)
 	, pause_mutex()
 	, is_paused(false)
 	, pause_request()
 	, time_factor()
+	, realtime_prec(true)
+	, realtime_curr(true)
 {
     this->pid = syscall(SYS_gettid);
-	this->cur_time_factor = this->time_factor.getRealTimeFactor();
 
-	memset(&scheduler_attributes, 0, sizeof(struct sched_attr));
-	scheduler_attributes.size = sizeof(struct sched_attr);
-	scheduler_attributes.sched_policy = SCHED_DEADLINE;
-
-	scheduler_attributes.sched_period  = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(period*cur_time_factor).count();
-	scheduler_attributes.sched_runtime = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(runtime*cur_time_factor).count();
-	scheduler_attributes.sched_deadline = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(deadline*cur_time_factor).count();
+	scheduler_utils.init(config_scheduler);
+	scheduler_utils.setCurrentTimeFactor(this->time_factor.getRealTimeFactor());
 
 	// set RUN and DEACTIVATION state as real time state
 	sm.RUN.makeRealTime();
 	sm.DEACTIVATION.makeRealTime();
 
-	dt = period.count()/(1000000.0);
+	dt = scheduler_utils.getPeriod().count()/(1000000.0);
+	current_frequency_ = getDesiredFrequency();
+	loop_time_prec = std::chrono::steady_clock::now();
+
+	frequency_tolerance_factor_ = (scheduler_utils.getPolicy() == "SCHED_OTHER")
+		? this->safety_layer_config_->besteffort_tolerance_factor
+		: this->safety_layer_config_->realtime_tolerance_factor;
 
 	this->command_manager.addCommand<>
 	(
@@ -46,7 +41,7 @@ PeriodicApp::PeriodicApp(const std::string &ID)
 			std::lock_guard<std::mutex> lock(this->pause_mutex);
 			this->is_paused = true;
 			this->pause_request.notify_all();
-			scout_sys << this->getID() << " execution paused" << std::endl;
+			this->app_logger.info(this->getID() + " execution paused");
             return true;
 		}),
 		{{0,1}},
@@ -62,28 +57,115 @@ PeriodicApp::PeriodicApp(const std::string &ID)
 			std::lock_guard<std::mutex> lock(this->pause_mutex);
 			this->is_paused = false;
 			this->pause_request.notify_all();
-			scout_sys << this->getID() << " execution continued" << std::endl;
+			this->app_logger.info(this->getID() + " execution continued");
             return true;
 		}),
 		{{1,0}},
 		true
 	);
+
+	process_resource_monitor_ = std::make_unique<ProcessResourceMonitor>(
+						this->pid, this->safety_layer_config_->process_monitor_window_size);
+	frequency_moving_window_ = std::make_unique<NumericalMovingWindow<double>>(
+						this->safety_layer_config_->process_frequency_window_size);
+}
+
+std::string PeriodicApp::getSchedulerPath(const std::string &ID)
+{
+	char * val;
+	val = getenv("DLS_SCHEDULER_PATH");
+	std::string sched_default_path = "/usr/include/dls2/schedulers";
+	std::string sched_path = sched_default_path;
+	if (val != NULL) {
+		sched_path = val;
+	}
+	
+	std::string target_file = ID + ".yaml";
+	for (const auto& entry : std::filesystem::directory_iterator(sched_path)) {
+		if (entry.is_regular_file() &&
+			entry.path().filename() == target_file) {
+			return entry.path();
+		}
+	}
+
+	std::cout << ID << " WARNING: Scheduler file not found, returning empty path\n";
+	return "";
+}
+
+void PeriodicApp::childMonitor()
+{
+	[[maybe_unused]] static const bool initialized = [this] 
+	{
+		// Running at first thread callback execution only 
+       	this->robust_event_notifier.setSpammingThreshold(this->safety_layer_config_->spam_threshold);
+        return true;
+    }();
+
+	{
+		std::lock_guard<std::mutex> lock(this->frequency_mutex_);
+		status_msg.current_frequency() =
+			this->current_frequency_;
+	}
+	status_msg.desired_frequency() = getDesiredFrequency();
+	status_msg.realtime() = static_cast<uint8_t>(realtime_curr);
+	status_msg.cpu_usage() = process_resource_monitor_->getCpuPercent();
+	status_msg.mem_usage() = process_resource_monitor_->getMemPercent();
+
+	// notify if the process is not running at the expected frequency
+	if(this->safety_layer_config_->enable_wrong_process_frequency && !realtime_curr){
+		this->robust_event_notifier.notify(	
+								EventID::WRONG_PROCESS_FREQUENCY,
+								EventSeverity::WARNING,
+								"Des freq: " + std::to_string(status_msg.desired_frequency()) + " Hz ("
+								+ (status_msg.desired_frequency() > 0.0 ? std::to_string(1000.0 / status_msg.desired_frequency()) : "N/A") + " ms), "
+								+ "Curr freq: " + std::to_string(status_msg.current_frequency()) + " Hz ("
+								+ (status_msg.current_frequency() > 0.0 ? std::to_string(1000.0 / status_msg.current_frequency()) : "N/A") + " ms)");
+	}
+
+	// notify if the process is using more cpu than expected over time
+	if(this->safety_layer_config_->enable_cpu_usage_too_high &&
+	  (status_msg.cpu_usage() > this->safety_layer_config_->process_cpu_threshold)){
+		this->robust_event_notifier.notify(	
+								EventID::CPU_USAGE_TOO_HIGH,
+								EventSeverity::WARNING,
+								"CPU usage is " + std::to_string(status_msg.cpu_usage()) + " (threshold is: " 
+								+ std::to_string(this->safety_layer_config_->process_cpu_threshold) + ")");
+	}
+
+	// notify if the process is using more memory than expected over time
+	if(this->safety_layer_config_->enable_mem_usage_too_high && (status_msg.mem_usage() > this->safety_layer_config_->mem_threshold)){
+		this->robust_event_notifier.notify(	
+								EventID::MEM_USAGE_TOO_HIGH,
+								EventSeverity::WARNING,
+								"MEM usage is " + std::to_string(status_msg.mem_usage()) + " (threshold is: " 
+								+ std::to_string(this->safety_layer_config_->mem_threshold) + ")");
+	}
 }
 
 AppStatus PeriodicApp::run()
 {
-	//set RT scheduling policy
-	setRTSchedulerPolicy();
-
 	bool failure = false;
-	bool realtime_prec = true;
-	bool realtime_curr = realtime_prec;
+	realtime_prec = true;
+	realtime_curr = realtime_prec;
+	if (scheduler_utils.getPolicy() != "SCHED_DEADLINE"){
+		scheduler_utils.initDesiredTime(std::chrono::steady_clock::now());
+	}
+
+	//set scheduling policy
+	scheduler_utils.setSchedulerPolicy();
 	while(      !sm.isRaised(sm.deactivation_request)
 	        &&  !sm.isRaised(sm.quit_request)
 	        &&  !failure)
 	{
-	    // Compute when the next period should start
-	    auto next_loop_time = getPeriod() + std::chrono::system_clock::now();
+		
+	    // Check realtime
+	    checkRT();
+
+		// Check hardware resource usage
+		auto process_resource_monitor_success = process_resource_monitor_->update();
+		if(process_resource_monitor_success != 0){
+			std::cout << this->ID_ << ": resource monitor failed, exit code: " << process_resource_monitor_success << "\n";
+		}
 
 	    // Run
 	    run(std::chrono::time_point_cast<std::chrono::system_clock::duration, std::chrono::system_clock, std::chrono::duration<double>>(std::chrono::system_clock::now()));
@@ -91,26 +173,18 @@ AppStatus PeriodicApp::run()
 	    // Check failure
 	    failure = checkFailure();
 
-	    // Check realtime
-	    realtime_curr =  checkRT(next_loop_time);
-	    if  (realtime_curr!=sm.state->realtime || 
-	        (realtime_curr==sm.state->realtime && !realtime_prec))
-	    {
-	        sm.notifyRT(realtime_curr);
-	    }
-	    realtime_prec = realtime_curr;
-
-	    // Pause execution if a pause request was made
+		// Pause execution if a pause request was made
 	    if(isPaused())
 	       pauseExecution();
 		
 	    // Update scheduler attributes if the current time factor has changed
 	    if(newTimeFactor())
 	    {
-	        setRTSchedulerPolicy();
+	        scheduler_utils.setCurrentTimeFactor(this->time_factor.getRealTimeFactor());
+			scheduler_utils.setSchedulerPolicy();
 	    }
 
-	    sched_yield();
+		scheduler_utils.executeEndLoopTask();
 	}
 
 	if (failure)
@@ -127,24 +201,6 @@ AppStatus PeriodicApp::run()
 	return this->getStatus();
 }
 
-void PeriodicApp::setRTSchedulerPolicy()
-{
-	memset(&scheduler_attributes, 0, sizeof(struct sched_attr));
-	scheduler_attributes.size = sizeof(struct sched_attr);
-	scheduler_attributes.sched_policy = SCHED_DEADLINE;
-	
-	scheduler_attributes.sched_period  = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(period*cur_time_factor).count();
-	scheduler_attributes.sched_runtime = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(runtime*cur_time_factor).count();
-	scheduler_attributes.sched_deadline = (unsigned long long) std::chrono::duration_cast<std::chrono::nanoseconds>(deadline*cur_time_factor).count();
-
-	unsigned int flags = 0;
-    int ret = sched_setattr(0, &scheduler_attributes, flags);
-    if (ret < 0) {
-        perror("sched_setattr");
-        exit(-1);
-    }
-}
-
 void PeriodicApp::pauseExecution()
 {
 	std::unique_lock<std::mutex> lock(this->pause_mutex);
@@ -157,9 +213,9 @@ void PeriodicApp::pauseExecution()
 
 bool PeriodicApp::newTimeFactor()
 {
-	if(abs(this->time_factor.getRealTimeFactor() - this->cur_time_factor) > 0.02)
+	if(abs(this->time_factor.getRealTimeFactor() - scheduler_utils.getCurrentTimeFactor()) > 0.02)
 	{
-		this->cur_time_factor = this->time_factor.getRealTimeFactor();
+		scheduler_utils.setCurrentTimeFactor(this->time_factor.getRealTimeFactor());;
 		return true;
 	}
 	return false;
@@ -174,10 +230,27 @@ bool PeriodicApp::checkFailure()
 {
 	return failure;
 }
-bool PeriodicApp::checkRT(const std::chrono::time_point<	std::chrono::_V2::system_clock, 
-													std::chrono::duration<double, std::ratio<1, 1000000000>>>& next_loop_time)
+
+void PeriodicApp::checkRT()
 {
-	return std::chrono::system_clock::now() <= next_loop_time;
+	{
+		std::lock_guard<std::mutex> lock(this->frequency_mutex_);
+		double instantaneous_frequency = 0.0;
+		Time::checkFrequency(frequency_tolerance_factor_,
+			getDesiredFrequency(), loop_time_prec, instantaneous_frequency);
+		frequency_moving_window_->push(instantaneous_frequency);
+		current_frequency_ = frequency_moving_window_->mean();
+		realtime_curr = std::abs(getDesiredFrequency() - current_frequency_) <
+			frequency_tolerance_factor_ * getDesiredFrequency();
+	}
+
+	// notify if the process is not running in real time
+	if  (realtime_curr!=sm.state->realtime || 
+		(realtime_curr==sm.state->realtime && !realtime_prec))
+	{
+		sm.notifyRT(realtime_curr);
+	}
+	realtime_prec = realtime_curr;
 }
 void PeriodicApp::setFailure()
 {
@@ -187,24 +260,15 @@ void PeriodicApp::setFailure()
 bool PeriodicApp::deactivating()
 {
 	bool deactivated = false;
-	bool realtime_prec = true;
-	bool realtime_curr = realtime_prec;
+	realtime_prec = true;
+	realtime_curr = realtime_prec;
 	while(!deactivated && !sm.isRaised(sm.quit_request))
 	{
-	    // Compute when the next period should start
-	    auto next_loop_time = getPeriod() + std::chrono::system_clock::now();
+	    // Check realtime
+	    checkRT();
 
 	    // Run
 	    deactivated = deactivation(std::chrono::time_point_cast<std::chrono::system_clock::duration, std::chrono::system_clock, std::chrono::duration<double>>(std::chrono::system_clock::now()));
-
-	    // Check realtime
-	    realtime_curr = checkRT(next_loop_time);
-	    if  (realtime_curr!=sm.state->realtime || 
-	        (realtime_curr==sm.state->realtime && !realtime_prec))
-	    {
-	        sm.notifyRT(realtime_curr);
-	    }
-	    realtime_prec = realtime_curr;
 
 	    // Pause execution if a pause request was made
 	    if(isPaused())
@@ -213,10 +277,11 @@ bool PeriodicApp::deactivating()
 	    // Update scheduler attributes if the current time factor has changed
 	    if(newTimeFactor())
 	    {
-	        setRTSchedulerPolicy();
+			scheduler_utils.setCurrentTimeFactor(this->time_factor.getRealTimeFactor());
+	        scheduler_utils.setSchedulerPolicy();
 	    }
 
-	    sched_yield();
+		scheduler_utils.executeEndLoopTask();
 	}
 
 	return deactivated;
@@ -237,6 +302,11 @@ void PeriodicApp::close()
 	}
 }
 
-PeriodicApp::period_t PeriodicApp::getPeriod(){
-	return period;
+SchedulerUtils::period_t PeriodicApp::getPeriod(){
+	return scheduler_utils.getPeriod();
+}
+
+double PeriodicApp::getDesiredFrequency() const
+{
+	return 1 / dt;
 }

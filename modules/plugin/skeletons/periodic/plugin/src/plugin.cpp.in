@@ -1,0 +1,85 @@
+#include "@PLUGIN_TYPE@/@PLUGIN_NAME@/plugin.hpp"
+
+// topics
+// Include the TypeSupport of each message associated to each topic
+// #include <dls_messages/dds/<idl_file_name>PubSubTypes.hpp> // # off-the-shelf message
+// #include "dls_messages/dds/<idl_file_name>PubSubTypes.hpp" // # custom message
+
+// namespace dls
+// {
+//     namespace topics
+//     {
+//         namespace @PLUGIN_NAME@{
+//             // dls::topicType topic_variable_name = dls::topicType("topic_name", new <message_name>PubSubType());
+//         }
+//     }
+// }
+
+namespace @PLUGIN_TYPE@ 
+{
+    @PLUGIN_CLASS_NAME@::@PLUGIN_CLASS_NAME@ (const std::string& ID/*, aguments_of_module_constructor*/) 
+    : dls::PeriodicAppPlugin(ID)
+    , @PLUGIN_NAME@(/*aguments_of_module_constructor*/) // instantiate module
+    {
+        // Define readers
+		// reader_name = buildInput<MsgType>(<topic>);
+		// Define writers
+		// writer_name = buildOutput<MsgType>(<topic>);
+
+		//define console functions here
+		// command_manager.addCommand("function_name",
+		// 									"Description",
+		// 									&@PLUGIN_CLASS_NAME@::function_name, this, {}, true);
+    }
+
+    @PLUGIN_CLASS_NAME@::~@PLUGIN_CLASS_NAME@()
+    { }
+    
+    std::string @PLUGIN_CLASS_NAME@::where()
+    {
+        std::stringstream ss;
+        ss << "TODO \n";
+
+        return ss.str();
+    }
+    
+    void @PLUGIN_CLASS_NAME@::run(const std::chrono::system_clock::time_point& time)
+    {
+        // Read inputs
+        read();
+        
+        // Run module
+        @PLUGIN_NAME@.run(/*input_arguments, output_arguments*/);
+
+        // Publish outputs
+        write();
+    }
+
+    bool @PLUGIN_CLASS_NAME@::checkActivation()
+    {
+        if(basicActivationChecks())
+        {
+            return @PLUGIN_NAME@.init(/*init_inputs*/);
+        }
+        return false;
+    }
+
+    bool @PLUGIN_CLASS_NAME@::deactivation(const std::chrono::system_clock::time_point& time){
+        return true;
+    }
+
+	// bool @PLUGIN_CLASS_NAME@::function_name(){
+	// 	return true;
+	// }
+
+    extern "C" PeriodicAppPlugin *create(const std::string& ID, const std::string& robot_name)
+    {
+        /*call_plugin_constructor*/
+        return new @PLUGIN_CLASS_NAME@(ID/*, aguments_of_module_constructor*/);
+    }
+
+    extern "C" void destroy(PeriodicAppPlugin *p)
+    {
+            delete p;
+    }
+} //namespace @PLUGIN_TYPE@

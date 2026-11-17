@@ -1,0 +1,11 @@
+#include "writer_support.hpp"
+#include "@cpp_python_communication_include@"
+
+void @cpp_python_communication_writer_function@(dls::DDSParticipant& participant, std::vector<WriterSlot>& writers)
+{
+    writers.push_back(make_writer<@cpp_type@, @cpp_type@PubSubType>(
+        participant,
+        "writer_@writer_identifier@",
+        "@idl_rel_no_ext@"
+    ));
+}

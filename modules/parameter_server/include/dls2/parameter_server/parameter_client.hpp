@@ -8,7 +8,7 @@
 
 namespace dls
 {
-	class ParameterClient : public ServiceClient<ParamServerMsg, ParamServerMsg>
+	class ParameterClient : public ServiceClient<dls2_interface::msg::ParamServer, dls2_interface::msg::ParamServer>
 	{
 	public:
 		ParameterClient();

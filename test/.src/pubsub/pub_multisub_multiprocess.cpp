@@ -12,7 +12,7 @@
 #include <iostream>
 
 // ================================== Globals ==================================
-dls::topicType topic("topic_pub_multisub", new StringMsgPubSubType());
+dls::topicType topic("topic_pub_multisub", new dls2_interface::msg::StringMsgPubSubType());
 std::string send_message("this is the message that needs to be sent");
 const int number_of_messages_to_send = 10;
 
@@ -82,7 +82,7 @@ int run_publisher()
 
 	for(size_t i = 0; i != number_of_messages_to_send; ++i)
 	{
-		StringMsg msg;
+		dls2_interface::msg::StringMsg msg;
 		msg.msg() = send_message;
 		std::cout << "publish " << i << "..." << std::endl;
 		publisher.sendMessage((void*) &msg);
@@ -105,7 +105,7 @@ int run_subscriber(int sub_id)
 		{
 			[&](void *tuple)
 			{
-				StringMsg msg = *((StringMsg*) tuple);
+				dls2_interface::msg::StringMsg msg = *((dls2_interface::msg::StringMsg*) tuple);
 
 				std::cout << "Sub " << sub_id << " got a message" << std::endl;
 				++sent_count;			

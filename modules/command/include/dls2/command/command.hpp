@@ -78,14 +78,6 @@ namespace dls
 		///
 		const std::function<bool(arg_ts...)> f;
 
-		/// Link the command with the rest of the framework
-		///
-		std::shared_ptr<dls::DDSReader> ddslink;
-
-		/// Register command on command domain
-		///
-		void registerCommand();
-
 		/// Call method
 		///
 		virtual bool call(std::vector<std::string>) override;

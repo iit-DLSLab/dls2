@@ -8,23 +8,28 @@
 
 #include <map>
 #include <memory>
+#include <mutex>
 
 namespace state_machine
 {
     class StateMachineWatcher
     {
     public:
+        using AppStates = std::map<std::string, std::pair<std::string, bool>>;
+
         StateMachineWatcher(const std::string &name);
         ~StateMachineWatcher();
 
         /*! @brief Wait the state of an application until the stop_wait variable becomes true or the state is found
         */
-        bool waitState(const std::string &app_name, const std::string &state, bool& stop_wait) const;
+        bool waitState(const std::string &app_name, const std::string &state, bool& stop_wait,
+                       bool log_timeout = true) const;
 
         /*! @brief Wait the state of an application until the stop_wait variable becomes true or the state is found
         * @details Using atomic_bool instead of bool
         */
-        bool waitState(const std::string &app_name, const std::string &state, std::atomic_bool& stop_wait) const;
+        bool waitState(const std::string &app_name, const std::string &state, std::atomic_bool& stop_wait,
+                       bool log_timeout = true) const;
 
         /*! @brief Wait the state of an application until the stop_wait variable becomes true or the state is found
         */
@@ -39,9 +44,11 @@ namespace state_machine
 
         bool findState(const std::string &app_name, const std::string &state) const;
 
-        std::map<std::string, std::pair<std::string, bool>> app_states;
+        AppStates getAppStates() const;
 
     private:
+        mutable std::mutex app_states_mutex_;
+        AppStates app_states;
         dls::DDSParticipant dds_sm_watcher;
     };
 }
