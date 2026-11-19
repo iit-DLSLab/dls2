@@ -341,7 +341,7 @@ void *ControlLayer::controlSignalGather(void *data)
     	// Fill in the control signal to be sent to HAL
 		layer->control_signal_msg.joints_torques() = layer->saturateTorques(layer->control_signal_msg.joints_torques());
 		layer->writer_control_signal.msg = layer->control_signal_msg;
-		layer->writer_control_signal.msg.timestamp() = std::chrono::duration_cast<std::chrono::microseconds>(epoch).count();
+		layer->writer_control_signal.msg.timestamp() = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
 		layer->writer_control_signal.publish();
 
         delta.push_back(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - now).count());
